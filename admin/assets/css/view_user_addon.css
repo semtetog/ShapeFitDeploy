@@ -369,9 +369,9 @@
 
 .tab-link {
   padding: 0.875rem 1.25rem;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.25s ease;
@@ -385,6 +385,7 @@
   text-align: left;
   position: relative;
   font-family: 'Montserrat', sans-serif;
+  backdrop-filter: blur(10px);
 }
 
 .tab-link i {
