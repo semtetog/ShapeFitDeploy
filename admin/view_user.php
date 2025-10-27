@@ -1513,7 +1513,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         body: formData
                     });
                     
-                    const result = await response.json();
+                    // Debug: ver resposta bruta
+                    const responseText = await response.text();
+                    console.log('Resposta do servidor:', responseText);
+                    
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (parseError) {
+                        console.error('Erro ao fazer parse do JSON:', parseError);
+                        console.error('Resposta recebida:', responseText);
+                        alert('Erro: Resposta inválida do servidor');
+                        cancelEdit();
+                        return;
+                    }
                     
                     if (result.success) {
                         // Atualizar valor exibido

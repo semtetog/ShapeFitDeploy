@@ -1,6 +1,9 @@
 <?php
 // admin/actions/update_user_goals.php
 
+// Iniciar buffer de saída
+ob_start();
+
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../includes/auth_admin.php';
 $conn = require __DIR__ . '/../../includes/db.php';
@@ -8,6 +11,11 @@ requireAdminLogin();
 
 // Detectar se é requisição AJAX
 $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+
+// Limpar buffer se for AJAX
+if ($isAjax) {
+    ob_clean();
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     if ($isAjax) {
