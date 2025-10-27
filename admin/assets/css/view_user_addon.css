@@ -518,55 +518,138 @@
   word-wrap: break-word;
 }
 
-.diary-slider-header {
+/* ========== HEADER REDESIGN DO DIÁRIO ========== */
+.diary-header-redesign {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.diary-year {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.diary-nav-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 0;
-  margin-bottom: 2rem;
-  gap: 1rem;
-  max-width: 100%;
-  box-sizing: border-box;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.diary-current-date {
-  font-size: 1.5rem;
-  font-weight: 700;
+.diary-nav-side {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  padding: 0.5rem;
+}
+
+.diary-nav-side:hover {
   color: var(--accent-orange);
+}
+
+.diary-nav-side i {
+  font-size: 1.25rem;
+}
+
+.diary-main-date {
   text-align: center;
   flex: 1;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.diary-nav-btn {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+.diary-day-month {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent-orange);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.diary-weekday {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.diary-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.diary-kcal {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.diary-kcal i {
+  color: var(--accent-orange);
+  font-size: 1.25rem;
+}
+
+.diary-macros {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.diary-calendar-icon-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--surface-color);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 107, 0, 0.08);
+  border: 1px solid rgba(255, 107, 0, 0.2);
   color: var(--accent-orange);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1.25rem;
-  flex-shrink: 0;
 }
 
-.diary-nav-btn:hover:not(:disabled) {
-  background: rgba(255, 102, 0, 0.1);
+.diary-calendar-icon-btn:hover {
+  background: rgba(255, 107, 0, 0.15);
   border-color: var(--accent-orange);
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
-.diary-nav-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.diary-calendar-icon-btn i {
+  font-size: 1rem;
 }
 
 .diary-slider-wrapper {
@@ -1007,14 +1090,16 @@
     padding: 2rem 1rem;
   }
   
-  .diary-current-date {
-    font-size: 1.25rem;
+  .diary-day-month {
+    font-size: 2.5rem;
   }
   
-  .diary-nav-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
+  .diary-kcal {
+    font-size: 1rem;
+  }
+  
+  .diary-macros {
+    font-size: 0.875rem;
   }
   
   .diary-day-number {
@@ -2443,32 +2528,6 @@
   background: #ff8533;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
-}
-
-/* ========== BOTÃO DE CALENDÁRIO NO DIÁRIO ========== */
-.diary-calendar-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 107, 0, 0.08);
-  border: 1px solid rgba(255, 107, 0, 0.2);
-  color: var(--accent-orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.diary-calendar-btn:hover {
-  background: rgba(255, 107, 0, 0.15);
-  border-color: var(--accent-orange);
-  transform: scale(1.05);
-}
-
-.diary-calendar-btn i {
-  font-size: 1rem;
 }
 
 /* ========== MODAL DE CALENDÁRIO - REDESIGN COMPLETO ========== */

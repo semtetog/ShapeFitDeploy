@@ -713,18 +713,42 @@ require_once __DIR__ . '/includes/header.php';
 
 <div id="tab-diary" class="tab-content active">
     <div class="diary-slider-container">
-        <div class="diary-slider-header">
-            <button class="diary-nav-btn diary-nav-prev" onclick="navigateDiary(-1)">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="diary-current-date" id="diaryCurrentDate">
-                <?php echo date('d \d\e F \d\e Y'); ?>
-        </div>
-            <button class="diary-calendar-btn" onclick="openDiaryCalendar()" type="button" title="Ver calendário">
+        <div class="diary-header-redesign">
+            <!-- Ano no topo -->
+            <div class="diary-year" id="diaryYear">2025</div>
+            
+            <!-- Navegação e data principal -->
+            <div class="diary-nav-row">
+                <button class="diary-nav-side diary-nav-left" onclick="navigateDiary(-1)" type="button">
+                    <i class="fas fa-chevron-left"></i>
+                    <span id="diaryPrevDate">26 out</span>
+                </button>
+                
+                <div class="diary-main-date">
+                    <div class="diary-day-month" id="diaryDayMonth">27 OUT</div>
+                    <div class="diary-weekday" id="diaryWeekday">SEGUNDA</div>
+                </div>
+                
+                <button class="diary-nav-side diary-nav-right" onclick="navigateDiary(1)" type="button">
+                    <span id="diaryNextDate">28 out</span>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <!-- Resumo de calorias e macros -->
+            <div class="diary-summary-row">
+                <div class="diary-kcal" id="diarySummaryKcal">
+                    <i class="fas fa-fire"></i>
+                    <span>0 kcal</span>
+                </div>
+                <div class="diary-macros" id="diarySummaryMacros">
+                    P: 0g • C: 0g • G: 0g
+                </div>
+            </div>
+            
+            <!-- Botão de calendário -->
+            <button class="diary-calendar-icon-btn" onclick="openDiaryCalendar()" type="button" title="Ver calendário">
                 <i class="fas fa-calendar-alt"></i>
-            </button>
-            <button class="diary-nav-btn diary-nav-next" onclick="navigateDiary(1)">
-                <i class="fas fa-chevron-right"></i>
             </button>
         </div>
         
@@ -882,27 +906,69 @@ function updateDiaryDisplay() {
     const offset = -currentDiaryIndex * 100;
     diaryTrack.style.transform = `translateX(${offset}%)`;
     
-    // Atualizar data
     const currentCard = diaryCards[currentDiaryIndex];
-    if (currentCard) {
-        const date = currentCard.getAttribute('data-date');
-        const dateObj = new Date(date + 'T00:00:00');
+    if (!currentCard) return;
+    
+    const date = currentCard.getAttribute('data-date');
+    const dateObj = new Date(date + 'T00:00:00');
+    
+    // Nomes dos meses e dias da semana
+    const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+    const monthNamesLower = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const weekdayNames = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+    
+    // Atualizar ano
+    document.getElementById('diaryYear').textContent = dateObj.getFullYear();
+    
+    // Atualizar dia e mês principal
+    const day = dateObj.getDate();
+    const month = monthNamesShort[dateObj.getMonth()];
+    document.getElementById('diaryDayMonth').textContent = `${day} ${month}`;
+    
+    // Atualizar dia da semana
+    document.getElementById('diaryWeekday').textContent = weekdayNames[dateObj.getDay()];
+    
+    // Atualizar datas de navegação (anterior e próximo)
+    const prevIndex = (currentDiaryIndex - 1 + diaryCards.length) % diaryCards.length;
+    const nextIndex = (currentDiaryIndex + 1) % diaryCards.length;
+    
+    if (diaryCards[prevIndex]) {
+        const prevDate = new Date(diaryCards[prevIndex].getAttribute('data-date') + 'T00:00:00');
+        document.getElementById('diaryPrevDate').textContent = 
+            `${prevDate.getDate()} ${monthNamesLower[prevDate.getMonth()]}`;
+    }
+    
+    if (diaryCards[nextIndex]) {
+        const nextDate = new Date(diaryCards[nextIndex].getAttribute('data-date') + 'T00:00:00');
+        document.getElementById('diaryNextDate').textContent = 
+            `${nextDate.getDate()} ${monthNamesLower[nextDate.getMonth()]}`;
+    }
+    
+    // Buscar e atualizar resumo de calorias e macros do card atual
+    const summaryDiv = currentCard.querySelector('.diary-day-summary');
+    if (summaryDiv) {
+        const kcalText = summaryDiv.querySelector('.diary-summary-item span');
+        const macrosText = summaryDiv.querySelector('.diary-summary-macros');
         
-        const day = dateObj.getDate();
-        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
-                            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-        const month = monthNames[dateObj.getMonth()];
-        const year = dateObj.getFullYear();
+        if (kcalText) {
+            document.getElementById('diarySummaryKcal').innerHTML = 
+                `<i class="fas fa-fire"></i><span>${kcalText.textContent}</span>`;
+        }
         
-        diaryDateDisplay.textContent = `${day} de ${month} de ${year}`;
+        if (macrosText) {
+            document.getElementById('diarySummaryMacros').textContent = macrosText.textContent;
+        }
+    } else {
+        // Sem dados
+        document.getElementById('diarySummaryKcal').innerHTML = 
+            `<i class="fas fa-fire"></i><span>0 kcal</span>`;
+        document.getElementById('diarySummaryMacros').textContent = 'P: 0g • C: 0g • G: 0g';
     }
     
     // Atualizar dots
     diaryDots.forEach((dot, index) => {
         dot.classList.toggle('active', index === currentDiaryIndex);
     });
-    
-    // Navegação infinita circular
 }
 
 function navigateDiary(direction) {
