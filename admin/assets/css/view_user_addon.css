@@ -2235,8 +2235,15 @@
   }
 }
 
-/* ========== BOTÃO REVERTER METAS (APENAS ÍCONE) ========== */
+/* ========== BOTÃO REVERTER METAS (CANTO SUPERIOR DIREITO) ========== */
+.card-header-with-action {
+  position: relative;
+}
+
 .btn-icon-only {
+  position: absolute;
+  top: 0;
+  right: 0;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-secondary);
@@ -2249,6 +2256,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 0;
+  z-index: 10;
 }
 
 .btn-icon-only:hover {
