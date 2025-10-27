@@ -449,8 +449,27 @@
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  overflow: hidden;
+  overflow: hidden !important;
   position: relative;
+  contain: layout style paint;
+}
+
+/* Força o tab-content a conter o slider */
+#tab-diary.tab-content {
+  overflow: hidden !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Força TODOS os elementos internos a respeitarem o limite */
+.diary-slider-container *,
+.diary-slider-wrapper *,
+.diary-slider-track *,
+.diary-day-card * {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .diary-slider-header {
@@ -460,6 +479,8 @@
   padding: 1.5rem 0;
   margin-bottom: 2rem;
   gap: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .diary-current-date {
@@ -505,9 +526,10 @@
 .diary-slider-wrapper {
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
+  overflow: hidden !important;
   position: relative;
   border-radius: 16px;
+  contain: layout style;
 }
 
 .diary-slider-track {
@@ -515,6 +537,7 @@
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
   width: 100%;
+  max-width: 100%;
 }
 
 .diary-day-card {
@@ -524,6 +547,8 @@
   flex-shrink: 0;
   padding: 0;
   box-sizing: border-box;
+  overflow: hidden;
+  contain: layout style;
 }
 
 .diary-day-header {
@@ -531,10 +556,10 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin: 0 0 1.5rem 0;
   backdrop-filter: blur(10px);
   box-sizing: border-box;
-  width: 100%;
+  width: calc(100% - 2px);
   max-width: 100%;
   overflow: hidden;
 }
@@ -546,6 +571,7 @@
   margin-bottom: 1.5rem;
   width: 100%;
   max-width: 100%;
+  overflow: hidden;
 }
 
 .diary-day-name {
@@ -591,6 +617,9 @@
   gap: 1rem;
   padding-top: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .diary-summary-item {
@@ -656,9 +685,11 @@
   border-radius: 12px;
   padding: 1.5rem;
   transition: all 0.3s ease;
-  width: 100%;
+  width: calc(100% - 2px);
   max-width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
+  margin: 0;
 }
 
 .diary-meal-card:hover {
