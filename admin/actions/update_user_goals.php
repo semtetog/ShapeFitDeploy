@@ -19,8 +19,10 @@ if ($isAjax) {
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     if ($isAjax) {
+        ob_clean();
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => 'Método inválido']);
+        ob_end_flush();
         exit;
     }
     header("Location: " . BASE_ADMIN_URL . "/users.php");
@@ -34,17 +36,19 @@ $carbs_g = filter_input(INPUT_POST, 'carbs_g', FILTER_VALIDATE_INT);
 $fat_g = filter_input(INPUT_POST, 'fat_g', FILTER_VALIDATE_INT);
 $water_ml = filter_input(INPUT_POST, 'water_ml', FILTER_VALIDATE_INT);
 
-if (!$user_id || !$daily_calories || !$protein_g || !$carbs_g || !$fat_g || !$water_ml) {
+if ($user_id === false || $daily_calories === false || $protein_g === false || $carbs_g === false || $fat_g === false || $water_ml === false) {
     if ($isAjax) {
+        ob_clean();
         header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Todos os campos são obrigatórios']);
+        echo json_encode(['success' => false, 'message' => 'Dados inválidos fornecidos']);
+        ob_end_flush();
         exit;
     }
     $_SESSION['admin_alert'] = [
         'type' => 'danger',
         'message' => 'Todos os campos são obrigatórios.'
     ];
-    header("Location: " . BASE_ADMIN_URL . "/view_user.php?id=" . $user_id);
+    header("Location: " . BASE_ADMIN_URL . "/view_user.php?id=" . ($user_id ?: 0));
     exit;
 }
 
@@ -66,8 +70,10 @@ if ($stmt->execute()) {
     $conn->close();
     
     if ($isAjax) {
+        ob_clean();
         header('Content-Type: application/json');
         echo json_encode(['success' => true, 'message' => 'Metas atualizadas com sucesso!']);
+        ob_end_flush();
         exit;
     }
     
@@ -75,14 +81,18 @@ if ($stmt->execute()) {
         'type' => 'success',
         'message' => 'Metas nutricionais atualizadas com sucesso!'
     ];
+    header("Location: " . BASE_ADMIN_URL . "/view_user.php?id=" . $user_id);
+    exit;
 } else {
     $error = $stmt->error;
     $stmt->close();
     $conn->close();
     
     if ($isAjax) {
+        ob_clean();
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => 'Erro ao atualizar: ' . $error]);
+        ob_end_flush();
         exit;
     }
     
@@ -90,8 +100,7 @@ if ($stmt->execute()) {
         'type' => 'danger',
         'message' => 'Erro ao atualizar metas: ' . $error
     ];
+    header("Location: " . BASE_ADMIN_URL . "/view_user.php?id=" . $user_id);
+    exit;
 }
-
-header("Location: " . BASE_ADMIN_URL . "/view_user.php?id=" . $user_id);
-exit;
 
