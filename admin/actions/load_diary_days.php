@@ -5,7 +5,9 @@ require_once __DIR__ . '/../../includes/config.php';
 $conn = require __DIR__ . '/../../includes/db.php';
 
 // Verificar se admin está logado (simplificado para AJAX)
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['admin_id'])) {
     http_response_code(403);
     die('Acesso não autorizado');
@@ -20,22 +22,22 @@ $startDate = date('Y-m-d', strtotime($endDate . " -" . ($daysToShow - 1) . " day
 function getGroupedMealHistory($conn, $user_id, $startDate, $endDate) {
     $stmt = $conn->prepare("
         SELECT 
-            DATE(r.created_at) as date,
-            m.type as meal_type,
-            m.slug as meal_type_slug,
+            DATE(log.logged_at) as date,
+            mt.type as meal_type,
+            mt.slug as meal_type_slug,
             f.name as food_name,
-            r.quantity,
+            log.quantity,
             f.kcal_per_100g,
             f.protein_per_100g,
             f.carbs_per_100g,
             f.fat_per_100g
-        FROM sf_diary_records r
-        JOIN sf_foods f ON r.food_id = f.id
-        JOIN sf_meal_types m ON r.meal_type_id = m.id
-        WHERE r.user_id = ? 
-            AND DATE(r.created_at) >= ? 
-            AND DATE(r.created_at) <= ?
-        ORDER BY DATE(r.created_at) DESC, r.created_at DESC
+        FROM sf_user_meal_log log
+        JOIN sf_foods f ON log.food_id = f.id
+        JOIN sf_meal_types mt ON log.meal_type_id = mt.id
+        WHERE log.user_id = ? 
+            AND DATE(log.logged_at) >= ? 
+            AND DATE(log.logged_at) <= ?
+        ORDER BY DATE(log.logged_at) DESC, log.logged_at DESC
     ");
     $stmt->bind_param("iss", $user_id, $startDate, $endDate);
     $stmt->execute();
