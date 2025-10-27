@@ -1063,40 +1063,34 @@ function navigateDiary(direction) {
 
 async function loadMoreDiaryDays(endDate) {
     try {
+        // Mostrar loading
+        showDiaryLoading(true);
+        
         // Buscar novos dias via AJAX
-        const url = `${window.location.pathname}?end_date=${endDate}&ajax=1`;
+        const userId = <?php echo $user_id; ?>;
+        const url = `actions/load_diary_days.php?user_id=${userId}&end_date=${endDate}`;
         const response = await fetch(url);
         
         if (response.ok) {
             const html = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
             
-            // Encontrar os novos cards de diário
-            const newCards = doc.querySelectorAll('.diary-day-card');
+            // Adicionar novos cards ANTES dos existentes
+            const diaryTrack = document.getElementById('diarySliderTrack');
+            const currentCards = diaryTrack.querySelectorAll('.diary-day-card');
+            const currentIndex = currentDiaryIndex;
+            
+            // Criar container temporário
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            const newCards = tempDiv.querySelectorAll('.diary-day-card');
             
             if (newCards.length > 0) {
-                // Atualizar endDate na URL sem recarregar
-                const urlParams = new URLSearchParams(window.location.search);
-                urlParams.set('end_date', endDate);
-                window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
-                
-                // Adicionar novos cards ANTES dos existentes
-                const diaryTrack = document.getElementById('diarySliderTrack');
-                const currentCards = diaryTrack.querySelectorAll('.diary-day-card');
-                const currentIndex = currentCards.length - 1; // Índice original
-                
-                // Criar container temporário
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = [...newCards].map(card => card.outerHTML).join('');
-                
                 // Adicionar novos cards no início
                 while (tempDiv.firstChild) {
                     diaryTrack.insertBefore(tempDiv.firstChild, diaryTrack.firstChild);
                 }
                 
                 // Atualizar contador de cards
-                // Atualizar currentDiaryIndex para manter a posição visual
                 currentDiaryIndex = newCards.length + currentIndex;
                 
                 console.log(`Adicionados ${newCards.length} novos cards. Total: ${document.querySelectorAll('.diary-day-card').length}`);
@@ -1104,12 +1098,44 @@ async function loadMoreDiaryDays(endDate) {
                 // Atualizar referência aos cards
                 updateDiaryCards();
                 
+                // Atualizar endDate na URL sem recarregar
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('end_date', endDate);
+                window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
+                
                 // Atualizar display
                 updateDiaryDisplay();
             }
         }
     } catch (error) {
         console.error('Erro ao carregar mais dias:', error);
+        alert('Erro ao carregar mais dias. Tente novamente.');
+    } finally {
+        // Ocultar loading
+        showDiaryLoading(false);
+    }
+}
+
+function showDiaryLoading(show) {
+    const header = document.querySelector('.diary-header-redesign');
+    if (!header) return;
+    
+    if (show) {
+        // Criar overlay de loading
+        if (!header.querySelector('.diary-loading-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'diary-loading-overlay';
+            overlay.innerHTML = `
+                <div class="diary-loading-spinner"></div>
+                <p>Carregando mais dias...</p>
+            `;
+            header.appendChild(overlay);
+        }
+    } else {
+        const overlay = header.querySelector('.diary-loading-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
     }
 }
 
