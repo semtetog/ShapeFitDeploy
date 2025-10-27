@@ -13,81 +13,419 @@
   --card-bg: rgba(255, 255, 255, 0.03);
 }
 
-/* Tema Claro */
+/* ========================================
+   TEMA CLARO COMPLETO E UNIFICADO
+   ======================================== */
+
 [data-theme="light"] {
-  --bg-color: #F5F5F5;
-  --bg-gradient-start: #E0E0E0;
-  --glass-border: rgba(0, 0, 0, 0.1);
-  --text-primary: #1A1A1A;
-  --text-secondary: #666666;
-  --surface-color: rgba(0, 0, 0, 0.03);
-  --card-bg: rgba(255, 255, 255, 0.9);
+  /* Variáveis do tema claro */
+  --bg-color: #F5F7FA;
+  --bg-gradient-start: #E8ECF1;
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --text-primary: #1A202C;
+  --text-secondary: #4A5568;
+  --surface-color: rgba(0, 0, 0, 0.02);
+  --card-bg: #FFFFFF;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --hover-bg: rgba(255, 102, 0, 0.08);
+  --input-bg: #FFFFFF;
+  --input-border: rgba(0, 0, 0, 0.12);
 }
 
-[data-theme="light"] body {
-  background-color: #F5F5F5;
-  color: #1A1A1A;
+/* === BASE === */
+[data-theme="light"] body,
+[data-theme="light"] .admin-wrapper {
+  background-color: #F5F7FA;
+  color: #1A202C;
 }
 
+[data-theme="light"] .main-content {
+  background-color: #F5F7FA;
+}
+
+/* === SIDEBAR === */
 [data-theme="light"] .sidebar {
   background: #FFFFFF;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .sidebar-header .logo span {
+  background: linear-gradient(45deg, #FFAE00, #F83600);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 [data-theme="light"] .sidebar-nav a {
-  color: #333333;
+  color: #4A5568;
 }
 
 [data-theme="light"] .sidebar-nav a:hover {
-  background: rgba(255, 102, 0, 0.1);
-  color: #000000;
+  background: rgba(255, 102, 0, 0.08);
+  color: #1A202C;
+}
+
+[data-theme="light"] .sidebar-nav li.active a {
+  background: rgba(255, 102, 0, 0.12);
+  color: #FF6B00;
 }
 
 [data-theme="light"] .sidebar-admin-profile {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  background: rgba(0, 0, 0, 0.03);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 [data-theme="light"] .admin-name {
-  color: #1A1A1A;
+  color: #1A202C;
 }
 
 [data-theme="light"] .admin-role {
-  color: #666666;
+  color: #718096;
 }
 
 [data-theme="light"] .admin-avatar {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 102, 0, 0.08);
+  border-color: var(--accent-orange);
 }
 
 [data-theme="light"] .admin-theme-toggle,
 [data-theme="light"] .admin-logout-btn {
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="light"] .admin-theme-toggle:hover,
 [data-theme="light"] .admin-logout-btn:hover {
-  background: rgba(255, 102, 0, 0.1);
+  background: rgba(255, 102, 0, 0.12);
   border-color: var(--accent-orange);
 }
 
 [data-theme="light"] .admin-logout-btn span {
-  color: #1A1A1A;
+  color: #1A202C;
 }
 
+/* === CARDS GERAIS === */
 [data-theme="light"] .dashboard-card,
 [data-theme="light"] .chart-card,
-[data-theme="light"] .stats-card {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+[data-theme="light"] .stats-card,
+[data-theme="light"] .card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
+/* === TIPOGRAFIA === */
+[data-theme="light"] h1,
 [data-theme="light"] h2,
 [data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: #1A202C;
+}
+
+[data-theme="light"] p,
+[data-theme="light"] span:not(.status-badge):not(.badge) {
+  color: #4A5568;
+}
+
 [data-theme="light"] .stat-value,
 [data-theme="light"] .stat-label {
-  color: #1A1A1A;
+  color: #1A202C;
+}
+
+[data-theme="light"] .text-secondary,
+[data-theme="light"] .label {
+  color: #718096;
+}
+
+/* === CARDS DE USUÁRIO === */
+[data-theme="light"] .user-card,
+[data-theme="light"] .patient-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .user-card:hover,
+[data-theme="light"] .patient-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+[data-theme="light"] .user-name,
+[data-theme="light"] .patient-name {
+  color: #1A202C;
+}
+
+[data-theme="light"] .user-email,
+[data-theme="light"] .patient-email {
+  color: #718096;
+}
+
+/* === VIEW USER === */
+[data-theme="light"] .view-user-header {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .user-main-info h2 {
+  color: #1A202C;
+}
+
+[data-theme="light"] .user-contact-details p {
+  color: #4A5568;
+}
+
+[data-theme="light"] .data-item {
+  color: #4A5568;
+}
+
+[data-theme="light"] .data-item strong {
+  color: #1A202C;
+}
+
+/* === TABS === */
+[data-theme="light"] .tabs-container {
+  background: transparent;
+}
+
+[data-theme="light"] .tab-link {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #4A5568;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .tab-link:hover {
+  background: rgba(255, 102, 0, 0.05);
+  border-color: rgba(255, 102, 0, 0.2);
+}
+
+[data-theme="light"] .tab-link.active {
+  background: rgba(255, 102, 0, 0.1);
+  border-color: var(--accent-orange);
+  color: #FF6B00;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.15);
+}
+
+[data-theme="light"] .tab-link i {
+  color: #718096;
+}
+
+[data-theme="light"] .tab-link.active i {
+  color: #FF6B00;
+}
+
+/* === FORMULÁRIOS === */
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="email"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] input[type="search"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] input[type="tel"],
+[data-theme="light"] input[type="date"],
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #1A202C;
+}
+
+[data-theme="light"] input:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #A0AEC0;
+}
+
+[data-theme="light"] label {
+  color: #4A5568;
+}
+
+/* === BOTÕES === */
+[data-theme="light"] .btn,
+[data-theme="light"] button:not(.admin-theme-toggle):not(.admin-logout-btn) {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #4A5568;
+}
+
+[data-theme="light"] .btn:hover,
+[data-theme="light"] button:hover {
+  background: rgba(255, 102, 0, 0.08);
+  border-color: var(--accent-orange);
+  color: #FF6B00;
+}
+
+[data-theme="light"] .btn-primary {
+  background: var(--accent-orange);
+  border-color: var(--accent-orange);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background: #E55D00;
+  border-color: #E55D00;
+}
+
+[data-theme="light"] .btn-edit-inline {
+  background: rgba(255, 102, 0, 0.08);
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
+}
+
+/* === BADGES E STATUS === */
+[data-theme="light"] .status-badge {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .status-badge.excellent {
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803D;
+  border-color: #22C55E;
+}
+
+[data-theme="light"] .status-badge.good {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1E40AF;
+  border-color: #3B82F6;
+}
+
+[data-theme="light"] .status-badge.fair {
+  background: rgba(251, 191, 36, 0.15);
+  color: #B45309;
+  border-color: #FBBF24;
+}
+
+[data-theme="light"] .status-badge.poor {
+  background: rgba(249, 115, 22, 0.15);
+  color: #C2410C;
+  border-color: #F97316;
+}
+
+[data-theme="light"] .status-badge.critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #B91C1C;
+  border-color: #EF4444;
+}
+
+/* === TABELAS === */
+[data-theme="light"] table {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] thead {
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] th {
+  color: #1A202C;
+  font-weight: 600;
+}
+
+[data-theme="light"] td {
+  color: #4A5568;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] tbody tr:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* === MEAL CARDS === */
+[data-theme="light"] .meal-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .meal-card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .meal-name {
+  color: #1A202C;
+}
+
+[data-theme="light"] .meal-time {
+  color: #718096;
+}
+
+/* === HYDRATION === */
+[data-theme="light"] .hydration-container,
+[data-theme="light"] .hydration-summary-card,
+[data-theme="light"] .hydration-insights,
+[data-theme="light"] .hydration-chart-improved {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .improved-bar-wrapper {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .improved-date,
+[data-theme="light"] .improved-ml {
+  color: #4A5568;
+}
+
+/* === PROGRESS === */
+[data-theme="light"] .progress-chart-container {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* === SEARCH BAR === */
+[data-theme="light"] .search-bar {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .search-bar input {
+  background: transparent;
+  color: #1A202C;
+}
+
+/* === ALERTS === */
+[data-theme="light"] .admin-alert {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #1A202C;
+}
+
+[data-theme="light"] .admin-alert.alert-success {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22C55E;
+  color: #15803D;
+}
+
+[data-theme="light"] .admin-alert.alert-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #EF4444;
+  color: #B91C1C;
+}
+
+/* === SCROLLBAR === */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #F5F7FA;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
 }
 
 /* Antialiasing global para todos os textos */
