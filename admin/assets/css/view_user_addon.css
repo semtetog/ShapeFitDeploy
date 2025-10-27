@@ -319,6 +319,18 @@
   box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.2) !important;
 }
 
+/* Remover setas (spinners) dos inputs number */
+.editable-value input[type="number"]::-webkit-inner-spin-button,
+.editable-value input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.editable-value input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 /* ========== TABS REDESIGN - 2 FILEIRAS ========== */
 .tabs-wrapper {
   margin: 1.5rem 0;
