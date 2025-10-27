@@ -830,6 +830,17 @@
   border-radius: 5px;
 }
 
+/* Compensação para Zoom 125% - mantém proporções do 100% */
+@media (min-width: 1400px) and (max-width: 1600px) {
+  .view-user-header,
+  .dashboard-card,
+  .details-grid-3-cols,
+  .details-grid-2-cols,
+  .details-grid-1-col {
+    zoom: 0.8;
+  }
+}
+
 /* Responsividade para telas menores e zoom 125%+ */
 @media (max-width: 1400px) {
   .view-user-header {
