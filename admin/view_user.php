@@ -611,10 +611,6 @@ require_once __DIR__ . '/includes/header.php';
         
         <?php if (!empty($exercise_durations)): ?>
         <div class="exercise-durations-section" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
-            <h4 style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; color: var(--text-primary);">
-                <i class="fas fa-clock" style="color: var(--accent-orange);"></i>
-                Durações dos Exercícios
-            </h4>
             <div class="durations-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
                 <?php foreach ($exercise_durations as $duration): ?>
                 <div class="duration-card" style="background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color);">
