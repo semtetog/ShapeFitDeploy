@@ -223,27 +223,31 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
   gap: 1rem;
-  align-items: stretch;
+  align-items: start;
+  grid-auto-rows: 110px;
 }
 
 .physical-data-grid-pref {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   gap: 1rem;
-  align-items: stretch;
+  align-items: start;
+  grid-auto-rows: 110px;
 }
 
 .data-item {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
   padding: 0.875rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
   height: 110px;
-  justify-content: space-between;
+  justify-content: flex-start;
+  overflow: hidden;
+  position: relative;
 }
 
 .data-item:hover {
@@ -254,10 +258,11 @@
 
 .data-item .icon {
   color: var(--accent-orange);
-  font-size: 1.5rem;
-  height: 1.5rem;
+  font-size: 1.35rem;
+  height: 1.35rem;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   flex-shrink: 0;
 }
 
@@ -267,24 +272,27 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  line-height: 1.3;
-  height: 2rem;
-  display: flex;
-  align-items: center;
+  line-height: 1.2;
+  height: auto;
+  max-height: 2.4rem;
+  display: block;
   flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .data-item span {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--text-primary);
   font-weight: 600;
-  line-height: 1.25;
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
+  line-height: 1.3;
+  display: block;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  hyphens: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 3.9rem;
+  margin-top: auto;
 }
 
 /* ========== META CARDS ========== */
