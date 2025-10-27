@@ -608,29 +608,6 @@ require_once __DIR__ . '/includes/header.php';
             <div class="data-item"><i class="fas fa-tint icon"></i><label>Consumo de Água</label><span><?php echo $water_intake_names[$user_data['water_intake_liters']] ?? 'N/I'; ?></span></div>
             <div class="data-item"><i class="fas fa-bed icon"></i><label>Duração do Sono</label><span><?php echo $sleep_html . ' ' . $sleep_alert_html; ?></span></div>
         </div>
-        
-        <?php if (!empty($exercise_durations)): ?>
-        <div class="exercise-durations-section" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
-            <div class="durations-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
-                <?php foreach ($exercise_durations as $duration): ?>
-                <div class="duration-card" style="background: var(--bg-color); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">
-                            <?php echo htmlspecialchars($duration['exercise_name']); ?>
-                        </span>
-                        <span style="color: var(--accent-orange); font-weight: 600; font-size: 0.9rem;">
-                            <?php echo $duration['duration_minutes']; ?> min
-                        </span>
-                    </div>
-                    <div style="font-size: 0.8rem; color: var(--text-secondary);">
-                        <i class="fas fa-clock" style="margin-right: 4px;"></i>
-                        Atualizado: <?php echo date('d/m/Y', strtotime($duration['updated_at'])); ?>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <?php endif; ?>
     </div>
 </div>
 
