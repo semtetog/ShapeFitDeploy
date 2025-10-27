@@ -39,7 +39,7 @@ if (!$user_data) {
 
 // --- DADOS PARA AS ABAS ---
 $endDate = $_GET['end_date'] ?? date('Y-m-d');
-$daysToShow = 7;
+$daysToShow = 30; // Buscar últimos 30 dias
 $startDate = date('Y-m-d', strtotime($endDate . " -" . ($daysToShow - 1) . " days"));
 $meal_history = getGroupedMealHistory($conn, $user_id, $startDate, $endDate);
 
@@ -719,7 +719,10 @@ require_once __DIR__ . '/includes/header.php';
             </button>
             <div class="diary-current-date" id="diaryCurrentDate">
                 <?php echo date('d \d\e F \d\e Y'); ?>
-        </div>
+            </div>
+            <button class="diary-calendar-btn" onclick="openDiaryCalendar()" title="Ver calendário">
+                <i class="fas fa-calendar-alt"></i>
+            </button>
             <button class="diary-nav-btn diary-nav-next" onclick="navigateDiary(1)">
                 <i class="fas fa-chevron-right"></i>
             </button>
@@ -4841,6 +4844,104 @@ document.addEventListener('click', function(e) {
         closeGalleryModal();
     }
 });
+
+// ========== SISTEMA DE CALENDÁRIO DO DIÁRIO ==========
+let currentCalendarDate = new Date();
+const daysWithData = new Set();
+
+// Marcar dias com dados do meal_history
+<?php
+echo "const mealHistoryDates = " . json_encode(array_keys($meal_history)) . ";\n";
+?>
+mealHistoryDates.forEach(date => daysWithData.add(date));
+
+function openDiaryCalendar() {
+    currentCalendarDate = new Date();
+    renderCalendar();
+    document.getElementById('diaryCalendarModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDiaryCalendar() {
+    document.getElementById('diaryCalendarModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function changeCalendarMonth(direction) {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+    renderCalendar();
+}
+
+function renderCalendar() {
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    
+    // Atualizar título
+    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+    
+    // Primeiro e último dia do mês
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    // Grid de dias
+    const grid = document.getElementById('calendarDaysGrid');
+    grid.innerHTML = '';
+    
+    // Dias vazios antes do primeiro dia
+    for (let i = 0; i < startingDayOfWeek; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        grid.appendChild(emptyDay);
+    }
+    
+    // Dias do mês
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayEl = document.createElement('button');
+        dayEl.className = 'calendar-day';
+        dayEl.textContent = day;
+        
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        // Verificar se tem dados
+        if (daysWithData.has(dateStr)) {
+            dayEl.classList.add('has-data');
+        }
+        
+        // Marcar hoje
+        const today = new Date();
+        if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+            dayEl.classList.add('today');
+        }
+        
+        // Click handler
+        dayEl.onclick = () => goToDiaryDate(dateStr);
+        
+        grid.appendChild(dayEl);
+    }
+}
+
+function goToDiaryDate(dateStr) {
+    // Encontrar o card correspondente
+    const cards = document.querySelectorAll('.diary-day-card');
+    let targetIndex = -1;
+    
+    cards.forEach((card, index) => {
+        if (card.getAttribute('data-date') === dateStr) {
+            targetIndex = index;
+        }
+    });
+    
+    if (targetIndex !== -1) {
+        goToDiaryIndex(targetIndex);
+        closeDiaryCalendar();
+    } else {
+        alert('Dia não disponível no diário atual.');
+    }
+}
 </script>
 
 <!-- Modal Customizado para Reverter Metas -->
@@ -4881,6 +4982,50 @@ document.addEventListener('click', function(e) {
             <button class="btn-modal-primary" onclick="closeAlertModal()">
                 OK
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Calendário do Diário -->
+<div id="diaryCalendarModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeDiaryCalendar()"></div>
+    <div class="custom-modal-content diary-calendar-modal-content">
+        <div class="custom-modal-header">
+            <i class="fas fa-calendar-alt"></i>
+            <h3 id="calendarMonthYear"></h3>
+            <button class="btn-icon-only calendar-close-btn" onclick="closeDiaryCalendar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="custom-modal-body calendar-modal-body">
+            <div class="calendar-nav">
+                <button class="btn-icon-only" onclick="changeCalendarMonth(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn-icon-only" onclick="changeCalendarMonth(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="calendar-weekdays">
+                <div>DOM</div>
+                <div>SEG</div>
+                <div>TER</div>
+                <div>QUA</div>
+                <div>QUI</div>
+                <div>SEX</div>
+                <div>SÁB</div>
+            </div>
+            <div class="calendar-days" id="calendarDaysGrid"></div>
+            <div class="calendar-legend">
+                <div class="legend-item">
+                    <span class="legend-dot has-data"></span>
+                    <span>Dias com dados registrados</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot no-data"></span>
+                    <span>Dias sem dados</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
