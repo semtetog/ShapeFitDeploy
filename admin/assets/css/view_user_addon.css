@@ -222,25 +222,29 @@
 .physical-data-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
-  gap: 0.875rem;
+  gap: 1rem;
+  align-items: stretch;
 }
 
 .physical-data-grid-pref {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-  gap: 0.875rem;
+  gap: 1rem;
+  align-items: stretch;
 }
 
 .data-item {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.875rem;
+  gap: 0.5rem;
+  padding: 1rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
-  min-height: auto;
+  min-height: 90px;
+  height: 100%;
+  justify-content: flex-start;
 }
 
 .data-item:hover {
@@ -251,22 +255,31 @@
 
 .data-item .icon {
   color: var(--accent-orange);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   margin-bottom: 0.25rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
 }
 
 .data-item label {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  line-height: 1.2;
+  min-height: 2.4rem;
+  display: flex;
+  align-items: center;
 }
 
 .data-item span {
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: var(--text-primary);
   font-weight: 600;
+  line-height: 1.2;
+  margin-top: auto;
 }
 
 /* ========== META CARDS ========== */
