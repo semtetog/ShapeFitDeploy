@@ -882,6 +882,7 @@ require_once __DIR__ . '/includes/header.php';
 let diaryCards = document.querySelectorAll('.diary-day-card');
 let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
 const diaryTrack = document.getElementById('diarySliderTrack');
+let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
 
 // Função para atualizar referência aos cards
 function updateDiaryCards() {
@@ -1040,6 +1041,12 @@ function navigateDiary(direction) {
     
     // Se tentar ir para trás e já está no primeiro card (mais antigo)
     if (direction < 0 && newIndex < 0) {
+        // Se já está carregando, ignora
+        if (isLoadingMoreDays) {
+            console.log('Já está carregando mais dias...');
+            return;
+        }
+        
         // Carregar mais 30 dias anteriores via AJAX
         const firstCard = diaryCards[0];
         if (firstCard) {
@@ -1062,6 +1069,13 @@ function navigateDiary(direction) {
 }
 
 async function loadMoreDiaryDays(endDate) {
+    if (isLoadingMoreDays) {
+        console.log('Já está carregando, ignorando chamada duplicada...');
+        return;
+    }
+    
+    isLoadingMoreDays = true;
+    
     try {
         // Mostrar loading
         showDiaryLoading(true);
@@ -1069,10 +1083,19 @@ async function loadMoreDiaryDays(endDate) {
         // Buscar novos dias via AJAX
         const userId = <?php echo $user_id; ?>;
         const url = `actions/load_diary_days.php?user_id=${userId}&end_date=${endDate}`;
+        
+        console.log('Fazendo requisição AJAX para:', url);
+        
         const response = await fetch(url);
+        console.log('Resposta recebida, status:', response.status);
         
         if (response.ok) {
             const html = await response.text();
+            console.log('HTML recebido, tamanho:', html.length);
+            
+            if (html.trim().length === 0) {
+                throw new Error('Resposta vazia do servidor');
+            }
             
             // Adicionar novos cards ANTES dos existentes
             const diaryTrack = document.getElementById('diarySliderTrack');
@@ -1083,6 +1106,8 @@ async function loadMoreDiaryDays(endDate) {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
             const newCards = tempDiv.querySelectorAll('.diary-day-card');
+            
+            console.log('Novos cards encontrados:', newCards.length);
             
             if (newCards.length > 0) {
                 // Adicionar novos cards no início
@@ -1105,14 +1130,19 @@ async function loadMoreDiaryDays(endDate) {
                 
                 // Atualizar display
                 updateDiaryDisplay();
+            } else {
+                console.log('Nenhum novo card encontrado na resposta');
             }
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
     } catch (error) {
         console.error('Erro ao carregar mais dias:', error);
-        alert('Erro ao carregar mais dias. Tente novamente.');
+        alert('Erro ao carregar mais dias: ' + error.message);
     } finally {
         // Ocultar loading
         showDiaryLoading(false);
+        isLoadingMoreDays = false;
     }
 }
 
