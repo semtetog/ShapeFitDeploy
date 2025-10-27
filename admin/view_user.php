@@ -506,6 +506,9 @@ require_once __DIR__ . '/includes/header.php';
 .improved-bar {
     border-radius: 0 0 6px 6px !important;
 }
+.improved-bar-wrapper {
+    border-radius: 0 0 8px 8px !important;
+}
 </style>
 
 <div class="view-user-header">
