@@ -25,6 +25,39 @@ h1, h2, h3, h4, h5, h6, p, span, a, label, input, textarea, button {
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Remove cursor piscando de elementos não-input */
+  caret-color: transparent;
+}
+
+/* Remove outline de foco em todos os elementos */
+*:focus {
+  outline: none !important;
+}
+
+/* Restaura cursor apenas em inputs de texto reais */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="date"],
+textarea {
+  caret-color: var(--accent-orange);
+}
+
+/* Remove seleção de texto em botões e elementos clicáveis */
+button,
+a,
+.tab-link,
+.btn,
+[role="button"],
+[onclick] {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 /* Remover glow dos ícones Font Awesome */
