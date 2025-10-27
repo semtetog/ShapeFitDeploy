@@ -1505,7 +1505,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     formData.append('fat_g', field === 'fat_g' ? newValue : fatEl.dataset.original);
                     formData.append('water_ml', <?php echo $water_goal_ml; ?>); // Valor do PHP
                     
-                    const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/update_user_goals.php', {
+                    // TESTE: usando endpoint simples primeiro
+                    console.log('Dados enviados:', Array.from(formData.entries()));
+                    
+                    const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/test_ajax.php', {
                         method: 'POST',
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest'
