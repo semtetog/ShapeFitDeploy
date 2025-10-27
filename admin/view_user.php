@@ -2489,106 +2489,12 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<!-- Modal de Edição de Metas -->
-<div id="editGoalsModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-edit"></i> Editar Metas Nutricionais</h3>
-            <span class="close" onclick="closeEditGoalsModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form id="editGoalsForm">
-                <div class="form-group">
-                    <label for="calories_goal">Meta de Calorias (kcal/dia)</label>
-                    <input type="number" id="calories_goal" name="calories_goal" value="<?php echo $total_daily_calories_goal; ?>" min="800" max="5000" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="protein_goal">Meta de Proteínas (g/dia)</label>
-                    <input type="number" id="protein_goal" name="protein_goal" value="<?php echo $macros_goal['protein_g']; ?>" min="20" max="300" step="0.1" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="carbs_goal">Meta de Carboidratos (g/dia)</label>
-                    <input type="number" id="carbs_goal" name="carbs_goal" value="<?php echo $macros_goal['carbs_g']; ?>" min="20" max="500" step="0.1" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="fat_goal">Meta de Gorduras (g/dia)</label>
-                    <input type="number" id="fat_goal" name="fat_goal" value="<?php echo $macros_goal['fat_g']; ?>" min="10" max="200" step="0.1" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="water_goal">Meta de Hidratação (ml/dia)</label>
-                    <input type="number" id="water_goal" name="water_goal" value="<?php echo $water_goal_ml; ?>" min="1000" max="5000" required>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeEditGoalsModal()">Cancelar</button>
-            <button type="button" class="btn btn-primary" onclick="saveGoals()">Salvar Metas</button>
-        </div>
-    </div>
-</div>
 
 <script>
 const userViewData = {
     weightHistory: <?php echo json_encode($weight_chart_data); ?>
 };
 
-// Funções do Modal de Edição de Metas
-function openEditGoalsModal() {
-    document.getElementById('editGoalsModal').style.display = 'block';
-}
-
-function closeEditGoalsModal() {
-    document.getElementById('editGoalsModal').style.display = 'none';
-}
-
-function saveGoals() {
-    const form = document.getElementById('editGoalsForm');
-    const formData = new FormData(form);
-    
-    // Adicionar ID do usuário
-    formData.append('user_id', <?php echo $user_id; ?>);
-    formData.append('action', 'update_goals');
-    
-    // Mostrar loading
-    const saveBtn = document.querySelector('.btn-primary');
-    const originalText = saveBtn.innerHTML;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-    saveBtn.disabled = true;
-    
-    fetch('ajax_update_goals.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Atualizar a página para mostrar as novas metas
-            location.reload();
-        } else {
-            alert('Erro ao salvar metas: ' + (data.message || 'Erro desconhecido'));
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        alert('Erro ao salvar metas. Tente novamente.');
-    })
-    .finally(() => {
-        saveBtn.innerHTML = originalText;
-        saveBtn.disabled = false;
-    });
-}
-
-// Fechar modal ao clicar fora dele
-window.onclick = function(event) {
-    const modal = document.getElementById('editGoalsModal');
-    if (event.target == modal) {
-        closeEditGoalsModal();
-    }
-}
 
 // --- FUNCIONALIDADES DO RASTREIO SEMANAL ---
 

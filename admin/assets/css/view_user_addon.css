@@ -365,7 +365,6 @@
   border-color: var(--accent-orange);
   color: var(--text-primary);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .tab-link:hover i {
@@ -376,7 +375,6 @@
   background: linear-gradient(135deg, var(--accent-orange), #FF8533);
   border-color: var(--accent-orange);
   color: white;
-  box-shadow: 0 8px 25px rgba(255, 107, 0, 0.4);
 }
 
 .tab-link.active i {
