@@ -904,11 +904,14 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                     <span class="progress-icon">⚖️</span>
                     <h4 class="progress-label">Peso Atual</h4>
                     <p class="progress-value">
-                        <?php if (count($weight_history) > 0): ?>
-                            <?php echo formatNumber($weight_history[count($weight_history) - 1]['weight_kg'], 1); ?>kg
-                        <?php else: ?>
-                            --
-                        <?php endif; ?>
+                        <?php 
+                        // Prioriza o último peso do histórico, se não tiver, usa o peso do perfil
+                        if (count($weight_history) > 0): 
+                            echo formatNumber($weight_history[count($weight_history) - 1]['weight_kg'], 1);
+                        else: 
+                            echo formatNumber($user_profile_data['weight_kg'], 1);
+                        endif; 
+                        ?>kg
                     </p>
                     <p class="progress-target">
                         <?php if ($weight_change != 0): ?>
