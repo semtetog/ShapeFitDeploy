@@ -830,36 +830,7 @@
   border-radius: 5px;
 }
 
-/* Compensação para Zoom 125% - força alinhamento dos grids */
-@media (min-width: 1400px) and (max-width: 1700px) {
-  .physical-data-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
-  
-  .physical-data-grid-pref {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
-  
-  .details-grid-3-cols {
-    grid-template-columns: repeat(3, 1fr) !important;
-  }
-  
-  .dashboard-card {
-    font-size: 0.9rem;
-  }
-  
-  .data-item {
-    min-height: auto;
-  }
-  
-  .data-item label {
-    font-size: 0.7rem;
-  }
-  
-  .data-item span {
-    font-size: 0.85rem;
-  }
-}
+/* Mantém layout original - sem forçar grids no zoom 125% */
 
 /* Responsividade para telas menores e zoom 125%+ */
 @media (max-width: 1400px) {
