@@ -538,17 +538,31 @@
   letter-spacing: 1px;
 }
 
+.diary-day-date-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
 .diary-day-number {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 800;
   color: var(--accent-orange);
   line-height: 1;
 }
 
 .diary-day-month {
-  font-size: 1.125rem;
-  color: var(--text-primary);
+  font-size: 2rem;
+  color: var(--accent-orange);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.diary-day-year {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
   font-weight: 500;
+  margin-top: -0.25rem;
 }
 
 .diary-day-summary {

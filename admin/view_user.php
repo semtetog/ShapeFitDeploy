@@ -755,37 +755,45 @@ require_once __DIR__ . '/includes/header.php';
         <div class="diary-slider-wrapper" id="diarySliderWrapper">
             <div class="diary-slider-track" id="diarySliderTrack">
                 <?php 
-                // Converter meal_history para array ordenado por data
-                $dates_array = array_keys($meal_history);
-                rsort($dates_array); // Mais recente primeiro
+                // Gerar array com TODOS os 7 dias, mesmo se não houver dados
+                $all_dates = [];
+                for ($i = 0; $i < $daysToShow; $i++) {
+                    $current_date = date('Y-m-d', strtotime($endDate . " -$i days"));
+                    $all_dates[] = $current_date;
+                }
                 
-                foreach ($dates_array as $date): 
-                    $meals = $meal_history[$date];
+                foreach ($all_dates as $date): 
+                    $meals = $meal_history[$date] ?? [];
                     $day_total_kcal = 0;
                     $day_total_prot = 0;
                     $day_total_carb = 0;
                     $day_total_fat = 0;
                     
-                    foreach ($meals as $meal_type_slug => $items) {
-                        $day_total_kcal += array_sum(array_column($items, 'kcal_consumed'));
-                        $day_total_prot += array_sum(array_column($items, 'protein_consumed_g'));
-                        $day_total_carb += array_sum(array_column($items, 'carbs_consumed_g'));
-                        $day_total_fat += array_sum(array_column($items, 'fat_consumed_g'));
+                    if (!empty($meals)) {
+                        foreach ($meals as $meal_type_slug => $items) {
+                            $day_total_kcal += array_sum(array_column($items, 'kcal_consumed'));
+                            $day_total_prot += array_sum(array_column($items, 'protein_consumed_g'));
+                            $day_total_carb += array_sum(array_column($items, 'carbs_consumed_g'));
+                            $day_total_fat += array_sum(array_column($items, 'fat_consumed_g'));
+                        }
                     }
                     
                     // Formatar data por extenso
                     $timestamp = strtotime($date);
                     $day_of_week = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][date('w', $timestamp)];
                     $day_number = date('d', $timestamp);
-                    $month_name = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][date('n', $timestamp) - 1];
+                    $month_name_abbr = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][date('n', $timestamp) - 1];
                     $year = date('Y', $timestamp);
                 ?>
                 <div class="diary-day-card" data-date="<?php echo $date; ?>">
                     <div class="diary-day-header">
                         <div class="diary-day-title">
                             <span class="diary-day-name"><?php echo $day_of_week; ?></span>
-                            <span class="diary-day-number"><?php echo $day_number; ?></span>
-                            <span class="diary-day-month"><?php echo $month_name . ' ' . $year; ?></span>
+                            <div class="diary-day-date-group">
+                                <span class="diary-day-number"><?php echo $day_number; ?></span>
+                                <span class="diary-day-month"><?php echo $month_name_abbr; ?></span>
+                            </div>
+                            <span class="diary-day-year"><?php echo $year; ?></span>
                         </div>
                         <div class="diary-day-summary">
                             <div class="diary-summary-item">
@@ -801,10 +809,23 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div class="diary-day-meals">
-                        <?php if (empty($meals)): ?>
+                        <?php if (empty($meals)): 
+                            $is_today = ($date === date('Y-m-d'));
+                            $is_future = (strtotime($date) > strtotime(date('Y-m-d')));
+                        ?>
                             <div class="diary-empty-state">
                                 <i class="fas fa-utensils"></i>
-                                <p>Nenhum registro neste dia</p>
+                                <p>
+                                    <?php 
+                                    if ($is_future) {
+                                        echo 'Dia futuro';
+                                    } elseif ($is_today) {
+                                        echo 'Nenhum registro ainda hoje';
+                                    } else {
+                                        echo 'Nenhum registro neste dia';
+                                    }
+                                    ?>
+                                </p>
                             </div>
                         <?php else: ?>
                             <?php foreach ($meals as $meal_type_slug => $items): 
@@ -884,10 +905,18 @@ function updateDiaryDisplay() {
     
     // Atualizar data
     const currentCard = diaryCards[currentDiaryIndex];
-    const date = currentCard.getAttribute('data-date');
-    const dateObj = new Date(date + 'T00:00:00');
-    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-    diaryDateDisplay.textContent = dateObj.toLocaleDateString('pt-BR', options);
+    if (currentCard) {
+        const date = currentCard.getAttribute('data-date');
+        const dateObj = new Date(date + 'T00:00:00');
+        
+        const day = dateObj.getDate();
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        const month = monthNames[dateObj.getMonth()];
+        const year = dateObj.getFullYear();
+        
+        diaryDateDisplay.textContent = `${day} de ${month} de ${year}`;
+    }
     
     // Atualizar dots
     diaryDots.forEach((dot, index) => {
@@ -895,8 +924,10 @@ function updateDiaryDisplay() {
     });
     
     // Desabilitar botões nas extremidades
-    document.querySelector('.diary-nav-prev').disabled = currentDiaryIndex === 0;
-    document.querySelector('.diary-nav-next').disabled = currentDiaryIndex === diaryCards.length - 1;
+    const prevBtn = document.querySelector('.diary-nav-prev');
+    const nextBtn = document.querySelector('.diary-nav-next');
+    if (prevBtn) prevBtn.disabled = currentDiaryIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentDiaryIndex === diaryCards.length - 1;
 }
 
 function navigateDiary(direction) {
@@ -946,8 +977,27 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight') navigateDiary(1);
 });
 
-// Inicializar
-updateDiaryDisplay();
+// Inicializar quando a aba de diário estiver ativa
+function initDiary() {
+    if (diaryCards.length > 0) {
+        updateDiaryDisplay();
+    }
+}
+
+// Inicializar se a aba já estiver ativa ou quando for aberta
+if (document.getElementById('tab-diary').classList.contains('active')) {
+    initDiary();
+}
+
+// Observar mudanças de aba
+const tabLinks = document.querySelectorAll('.tab-link');
+tabLinks.forEach(link => {
+    link.addEventListener('click', function() {
+        if (this.getAttribute('data-tab') === 'diary') {
+            setTimeout(initDiary, 100);
+        }
+    });
+});
 </script>
 
 <?php
