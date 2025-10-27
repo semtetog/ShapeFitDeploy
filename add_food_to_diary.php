@@ -1291,7 +1291,7 @@ function confirmMeal() {
         'csrf_token': '<?php echo $_SESSION['csrf_token']; ?>',
         'custom_meal_name': customMealName,
         'meal_time': document.getElementById('meal_time').value,
-        'servings_consumed': servings,
+        'servings_consumed': quantity,
         'meal_type': document.getElementById('meal-type').value,
         'date_consumed': document.getElementById('meal-date').value,
         'kcal_per_serving': selectedRecipe.kcal_per_serving,

@@ -381,6 +381,9 @@ function getUserAvatarHtml($user, $size = 'medium') {
  * @param string $action_type O tipo de ação realizada (ex: 'mission_complete', 'water_goal').
  */
 function updateChallengePoints($conn, $user_id, $action_type) {
+    // TEMPORÁRIO: Tabela sf_challenge_rules não existe - desabilitado
+    return;
+    
     // 1. Encontrar as regras e os desafios ativos para este usuário e esta ação
     $sql = "SELECT 
                 cr.challenge_id, 
