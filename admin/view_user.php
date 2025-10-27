@@ -981,15 +981,29 @@ function updateNavigationButtons() {
     today.setHours(0, 0, 0, 0);
     const currentDateObj = new Date(currentDate + 'T00:00:00');
     
-    // Botão de avançar (direita) - desabilitar se estiver no dia atual
+    console.log('Current date:', currentDate, 'Today:', today.toISOString().split('T')[0]);
+    
+    // Botão de avançar (direita) - desabilitar se estiver no dia atual ou futuro
     const nextBtn = document.querySelector('.diary-nav-right');
     if (nextBtn) {
-        if (currentDateObj >= today) {
+        // Verificar se existe um próximo card e se ele não é futuro
+        const nextIndex = currentDiaryIndex + 1;
+        if (nextIndex < diaryCards.length) {
+            const nextCard = diaryCards[nextIndex];
+            const nextDate = nextCard.getAttribute('data-date');
+            const nextDateObj = new Date(nextDate + 'T00:00:00');
+            
+            if (nextDateObj > today) {
+                nextBtn.classList.add('disabled');
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.classList.remove('disabled');
+                nextBtn.disabled = false;
+            }
+        } else {
+            // Não há próximo card
             nextBtn.classList.add('disabled');
             nextBtn.disabled = true;
-        } else {
-            nextBtn.classList.remove('disabled');
-            nextBtn.disabled = false;
         }
     }
 }
