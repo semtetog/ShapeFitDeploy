@@ -7,55 +7,35 @@ Write-Host "Qualquer alteracao sera automaticamente enviada ao Git" -ForegroundC
 Write-Host "Pressione Ctrl+C para parar" -ForegroundColor Red
 Write-Host ""
 
-$ignorePaths = @(".git", "node_modules", "vendor", ".idea", ".vscode", "uploads", "sessions", "logs")
-$lastChange = @{}
-$debounceSeconds = 3
-
-function ShouldIgnore($path) {
-    foreach ($ignore in $ignorePaths) {
-        if ($path -like "*\$ignore\*") {
-            return $true
-        }
-    }
-    if ($path -match '\.(tmp|temp|swp|swo|log)$') {
-        return $true
-    }
-    return $false
-}
-
-function DoDeploy($changeType, $fileName) {
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] Detectada alteracao: $changeType - $fileName" -ForegroundColor Yellow
-    
-    Start-Sleep -Seconds 2
-    
-    git add -A 2>&1 | Out-Null
-    
-    $status = git status --porcelain
-    
-    if ($status) {
-        $commitMsg = "Auto-deploy: $changeType - $fileName - $timestamp"
-        Write-Host "Commitando: $commitMsg" -ForegroundColor Cyan
-        git commit -m $commitMsg 2>&1 | Out-Null
-        Write-Host "Deploy realizado com sucesso!" -ForegroundColor Green
-        Write-Host ""
-    }
-}
-
-$watcher = New-Object System.IO.FileSystemWatcher
-$watcher.Path = $PWD
-$watcher.IncludeSubdirectories = $true
-$watcher.EnableRaisingEvents = $true
-$watcher.NotifyFilter = [System.IO.NotifyFilters]'FileName,LastWrite,DirectoryName'
+$lastCommitTime = Get-Date
+$commitCooldown = 5  # Minimo de 5 segundos entre commits
 
 $action = {
     $path = $Event.SourceEventArgs.FullPath
     $name = $Event.SourceEventArgs.Name
     $changeType = $Event.SourceEventArgs.ChangeType
     
+    # Lista de pastas/arquivos a ignorar
+    $ignorePatterns = @(
+        "*\.git\*",
+        "*\node_modules\*",
+        "*\vendor\*",
+        "*\.idea\*",
+        "*\.vscode\*",
+        "*\uploads\*",
+        "*\sessions\*",
+        "*\logs\*",
+        "*.tmp",
+        "*.temp",
+        "*.swp",
+        "*.swo",
+        "*.log"
+    )
+    
+    # Verifica se deve ignorar
     $shouldIgnore = $false
-    foreach ($ignore in @(".git", "node_modules", "vendor", ".idea", ".vscode", "uploads", "sessions", "logs")) {
-        if ($path -like "*\$ignore\*") {
+    foreach ($pattern in $ignorePatterns) {
+        if ($path -like $pattern) {
             $shouldIgnore = $true
             break
         }
@@ -65,32 +45,63 @@ $action = {
         return
     }
     
-    if ($path -match '\.(tmp|temp|swp|swo|log)$') {
+    # Cooldown entre commits para evitar spam
+    $now = Get-Date
+    $timeSinceLastCommit = ($now - $script:lastCommitTime).TotalSeconds
+    
+    if ($timeSinceLastCommit -lt $script:commitCooldown) {
         return
     }
     
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Write-Host "[$timestamp] Detectada alteracao: $changeType - $name" -ForegroundColor Yellow
     
-    Start-Sleep -Seconds 2
+    # Aguarda para garantir que todos os arquivos foram salvos
+    Start-Sleep -Seconds 3
     
-    git add -A 2>&1 | Out-Null
-    $status = git status --porcelain
+    # Verifica se realmente há mudanças
+    $status = git status --porcelain 2>&1
     
-    if ($status) {
-        $commitMsg = "Auto-deploy: $changeType - $name - $timestamp"
-        Write-Host "Commitando: $commitMsg" -ForegroundColor Cyan
-        git commit -m $commitMsg 2>&1 | Out-Null
-        Write-Host "Deploy realizado!" -ForegroundColor Green
-        Write-Host ""
+    if (-not $status) {
+        return
     }
+    
+    # Adiciona todas as mudanças
+    git add -A 2>&1 | Out-Null
+    
+    # Commita
+    $commitMsg = "Auto-deploy: $changeType - $name - $timestamp"
+    Write-Host "Commitando: $commitMsg" -ForegroundColor Cyan
+    
+    $commitResult = git commit -m $commitMsg 2>&1
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "Deploy realizado com sucesso!" -ForegroundColor Green
+        $script:lastCommitTime = Get-Date
+    }
+    
+    Write-Host ""
 }
 
+# Configurar o FileSystemWatcher
+$watcher = New-Object System.IO.FileSystemWatcher
+$watcher.Path = $PWD
+$watcher.IncludeSubdirectories = $true
+$watcher.EnableRaisingEvents = $true
+$watcher.NotifyFilter = [System.IO.NotifyFilters]'FileName,LastWrite'
+
+# Filtro para ignorar a pasta .git completamente
+$watcher.Filters = @()
+
+# Registrar eventos
 $handlers = @()
 $handlers += Register-ObjectEvent $watcher "Changed" -Action $action
 $handlers += Register-ObjectEvent $watcher "Created" -Action $action
 $handlers += Register-ObjectEvent $watcher "Deleted" -Action $action
 $handlers += Register-ObjectEvent $watcher "Renamed" -Action $action
+
+Write-Host "Aguardando alteracoes..." -ForegroundColor Cyan
+Write-Host ""
 
 try {
     while ($true) {
@@ -98,6 +109,7 @@ try {
     }
 }
 finally {
+    # Cleanup
     foreach ($handler in $handlers) {
         Unregister-Event -SourceIdentifier $handler.Name -ErrorAction SilentlyContinue
     }
@@ -105,4 +117,3 @@ finally {
     Write-Host ""
     Write-Host "Auto-Deploy Desativado" -ForegroundColor Red
 }
-
