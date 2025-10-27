@@ -935,11 +935,11 @@ function handleSwipe() {
     
     if (Math.abs(diff) > swipeThreshold) {
         if (diff > 0) {
-            // Swipe left - próximo dia
-            navigateDiary(1);
-        } else {
-            // Swipe right - dia anterior
+            // Swipe left - dia anterior
             navigateDiary(-1);
+        } else {
+            // Swipe right - próximo dia
+            navigateDiary(1);
         }
     }
 }
