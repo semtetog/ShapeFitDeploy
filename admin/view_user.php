@@ -78,10 +78,15 @@ $stmt_water->execute();
 $water_history = $stmt_water->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt_water->close();
 
-// Meta de água sugerida
-$water_goal_data = getWaterIntakeSuggestion($user_data['weight_kg'] ?? 0);
-$water_goal_ml = $water_goal_data['total_ml'];
-$water_goal_cups = $water_goal_data['cups'];
+// Meta de água - priorizar customizada se existir
+if (!empty($user_data['custom_water_goal_ml'])) {
+    $water_goal_ml = (int)$user_data['custom_water_goal_ml'];
+    $water_goal_cups = ceil($water_goal_ml / 250); // 250ml por copo
+} else {
+    $water_goal_data = getWaterIntakeSuggestion($user_data['weight_kg'] ?? 0);
+    $water_goal_ml = $water_goal_data['total_ml'];
+    $water_goal_cups = $water_goal_data['cups'];
+}
 
 // --- DURAÇÕES DOS EXERCÍCIOS ---
 $stmt_durations = $conn->prepare("SELECT exercise_name, duration_minutes, updated_at FROM sf_user_exercise_durations WHERE user_id = ? ORDER BY exercise_name ASC");
@@ -99,8 +104,23 @@ $exercise_frequency = $user_data['exercise_frequency'] ?? 'sedentary';
 $objective = $user_data['objective'] ?? 'maintain';
 
 $age_years = calculateAge($dob);
-$total_daily_calories_goal = calculateTargetDailyCalories($gender, $weight_kg, $height_cm, $age_years, $exercise_frequency, $objective);
-$macros_goal = calculateMacronutrients($total_daily_calories_goal, $objective);
+
+// Priorizar metas customizadas se existirem, senão calcular automaticamente
+if (!empty($user_data['custom_calories_goal'])) {
+    $total_daily_calories_goal = (int)$user_data['custom_calories_goal'];
+} else {
+    $total_daily_calories_goal = calculateTargetDailyCalories($gender, $weight_kg, $height_cm, $age_years, $exercise_frequency, $objective);
+}
+
+if (!empty($user_data['custom_protein_goal_g']) && !empty($user_data['custom_carbs_goal_g']) && !empty($user_data['custom_fat_goal_g'])) {
+    $macros_goal = [
+        'protein_g' => (float)$user_data['custom_protein_goal_g'],
+        'carbs_g' => (float)$user_data['custom_carbs_goal_g'],
+        'fat_g' => (float)$user_data['custom_fat_goal_g']
+    ];
+} else {
+    $macros_goal = calculateMacronutrients($total_daily_calories_goal, $objective);
+}
 
 // Processar histórico de hidratação
 $hydration_data = [];

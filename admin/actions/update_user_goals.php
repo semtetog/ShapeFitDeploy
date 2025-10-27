@@ -39,14 +39,14 @@ try {
         throw new Exception('Dados inválidos fornecidos');
     }
     
-    // Atualizar no banco
+    // Atualizar no banco (usando colunas custom)
     $stmt = $conn->prepare("
         UPDATE sf_user_profiles 
-        SET daily_calories_goal = ?, 
-            protein_goal_g = ?, 
-            carbs_goal_g = ?, 
-            fat_goal_g = ?,
-            water_goal_ml = ?
+        SET custom_calories_goal = ?, 
+            custom_protein_goal_g = ?, 
+            custom_carbs_goal_g = ?, 
+            custom_fat_goal_g = ?,
+            custom_water_goal_ml = ?
         WHERE user_id = ?
     ");
     
