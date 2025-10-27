@@ -87,7 +87,7 @@
 /* ========== GRIDS ========== */
 .details-grid-3-cols {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -220,13 +220,13 @@
 /* ========== CARDS DE DADOS ========== */
 .physical-data-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
   gap: 1.25rem;
 }
 
 .physical-data-grid-pref {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   gap: 1.25rem;
 }
 
@@ -830,7 +830,122 @@
   border-radius: 5px;
 }
 
-/* Responsividade para telas menores */
+/* Responsividade para telas menores e zoom 125%+ */
+@media (max-width: 1400px) {
+  .view-user-header {
+    padding: 1.5rem;
+  }
+  
+  .user-main-info h2 {
+    font-size: 1.75rem;
+  }
+  
+  .dashboard-card {
+    padding: 1.25rem;
+  }
+  
+  .dashboard-card h3 {
+    font-size: 1.25rem;
+  }
+  
+  .meta-card-main {
+    font-size: 2.5rem;
+  }
+  
+  .meta-card-macros .macro-item span:first-child {
+    font-size: 1.5rem;
+  }
+  
+  .data-item {
+    padding: 0.875rem;
+  }
+  
+  .data-item label {
+    font-size: 0.75rem;
+  }
+  
+  .data-item span {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  /* Cards de 3 colunas viram 2 colunas */
+  .details-grid-3-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .physical-data-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .dashboard-card {
+    padding: 1rem;
+  }
+  
+  .dashboard-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+  
+  .meta-card-main {
+    font-size: 2rem;
+  }
+  
+  .meta-card-macros {
+    gap: 1rem;
+  }
+  
+  .meta-card-macros .macro-item span:first-child {
+    font-size: 1.25rem;
+  }
+  
+  .meta-card-macros .macro-item label {
+    font-size: 0.75rem;
+  }
+  
+  .data-item {
+    padding: 0.75rem;
+  }
+  
+  .data-item i {
+    font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 992px) {
+  /* Cards de 2 colunas viram 1 coluna */
+  .details-grid-3-cols,
+  .details-grid-2-cols {
+    grid-template-columns: 1fr;
+  }
+  
+  .view-user-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.25rem;
+  }
+  
+  .user-main-info {
+    align-items: center;
+  }
+  
+  .user-contact-details {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .meta-card-main {
+    font-size: 2.5rem;
+  }
+  
+  .meta-card-macros {
+    justify-content: center;
+  }
+}
+
 @media (max-width: 768px) {
   .diary-day-header {
     padding: 1rem;
@@ -860,6 +975,44 @@
   
   .diary-day-month {
     font-size: 1.75rem;
+  }
+  
+  /* View User adjustments */
+  .view-user-header {
+    padding: 1rem;
+  }
+  
+  .profile-avatar-large {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .user-main-info h2 {
+    font-size: 1.5rem;
+  }
+  
+  .dashboard-card {
+    padding: 0.875rem;
+  }
+  
+  .dashboard-card h3 {
+    font-size: 1rem;
+  }
+  
+  .meta-card-main {
+    font-size: 2rem;
+  }
+  
+  .meta-card-label {
+    font-size: 0.75rem;
+  }
+  
+  .physical-data-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .data-item {
+    padding: 0.625rem;
   }
 }
 
