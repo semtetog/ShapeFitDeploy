@@ -269,12 +269,15 @@ body {
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FF6600, #FF8533);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 .user-profile-card .user-details {
@@ -615,13 +618,14 @@ h2 {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FF6600, #FF8533);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #FFFFFF;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .user-name {

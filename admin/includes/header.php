@@ -27,7 +27,7 @@ if (!defined('BASE_ADMIN_URL')) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     <!-- Agora os caminhos usarão a constante corretamente -->
-    <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/admin_novo_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/admin_novo_style.css?v=<?php echo time(); ?>">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -88,11 +88,25 @@ if (!defined('BASE_ADMIN_URL')) {
         <main class="main-content">
             <header class="main-header">
                 <div class="user-profile-card">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
+                    <?php
+                    // Gerar iniciais e cor para o avatar do admin (mesmo estilo do main_app)
+                    $admin_name = $_SESSION['admin_name'] ?? 'Administrador';
+                    $name_parts = explode(' ', trim($admin_name));
+                    $initials = '';
+                    if (count($name_parts) > 1) {
+                        $initials = strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1));
+                    } elseif (!empty($name_parts[0])) {
+                        $initials = strtoupper(substr($name_parts[0], 0, 2));
+                    } else {
+                        $initials = '??';
+                    }
+                    $bgColor = '#' . substr(md5($admin_name), 0, 6);
+                    ?>
+                    <div class="user-avatar" style="background-color: <?php echo $bgColor; ?> !important; background-image: none !important;">
+                        <?php echo $initials; ?>
                     </div>
                     <div class="user-details">
-                        <div class="user-name"><?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Administrador'); ?></div>
+                        <div class="user-name"><?php echo htmlspecialchars($admin_name); ?></div>
                         <div class="user-role">Administrador do Sistema</div>
                     </div>
                     <div class="user-actions">
