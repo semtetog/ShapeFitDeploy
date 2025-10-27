@@ -501,6 +501,12 @@ if (empty($avatar_html)) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/view_user_addon.css?v=<?php echo time(); ?>">
+<style>
+/* Força topo reto nas barras de hidratação */
+.improved-bar {
+    border-radius: 0 0 6px 6px !important;
+}
+</style>
 
 <div class="view-user-header">
     <div class="user-main-info">
