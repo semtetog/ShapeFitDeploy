@@ -54,13 +54,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login - Painel Admin</title>
+    
+    <!-- Fonte Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- O caminho para o CSS deve ser relativo à localização do index.php -->
     <link rel="stylesheet" href="assets/css/admin_login.css">
 </head>
 <body>
     <div class="login-container">
+        <img src="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png" alt="Shape Fit Logo" class="login-logo">
         <form class="login-form" method="POST" action="index.php">
-            <h2>Fitlab Admin</h2>
+            <h2>ShapeFIT Admin</h2>
             <p>Acesso ao painel de gerenciamento</p>
             <?php if ($error_message): ?>
                 <div class="error-message"><?php echo $error_message; ?></div>

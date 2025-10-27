@@ -36,7 +36,10 @@ if (!defined('BASE_ADMIN_URL')) {
     <div class="admin-wrapper">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <a href="<?php echo BASE_ADMIN_URL; ?>/dashboard.php" class="logo">ShapeFIT</a>
+                <a href="<?php echo BASE_ADMIN_URL; ?>/dashboard.php" class="logo">
+                    <img src="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png" alt="ShapeFIT" class="sidebar-logo-img">
+                    <span>ShapeFIT</span>
+                </a>
             </div>
             <nav class="sidebar-nav">
                 <ul>
