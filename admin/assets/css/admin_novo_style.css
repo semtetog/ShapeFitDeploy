@@ -375,7 +375,7 @@ body {
 /* Content Wrapper */
 .content-wrapper {
   flex: 1;
-  padding: 2rem;
+  padding: 1rem 2rem;
 }
 
 /* Títulos principais das páginas */
@@ -385,7 +385,7 @@ h2 {
   font-size: 2.5rem;
   font-weight: 800;
   color: var(--accent-orange);
-  margin: 0 0 2.5rem 0;
+  margin: 0 0 1.5rem 0;
   font-family: 'Montserrat', sans-serif;
   letter-spacing: -0.5px;
   -webkit-font-smoothing: antialiased;
@@ -494,7 +494,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .stat-card {
