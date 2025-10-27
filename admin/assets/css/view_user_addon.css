@@ -300,6 +300,7 @@
   transition: all 0.3s ease;
   position: relative;
   display: inline-block;
+  min-width: 0;
 }
 
 .editable-value:hover {
@@ -312,6 +313,12 @@
   border-radius: 8px !important;
   outline: none !important;
   transition: all 0.3s ease;
+  display: inline-block !important;
+  vertical-align: baseline !important;
+  line-height: 1 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
 }
 
 .editable-value input:focus {
@@ -324,11 +331,24 @@
 .editable-value input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+  display: none;
 }
 
 .editable-value input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+/* Input na meta principal (grande) */
+.meta-value.editable-value input {
+  padding: 0.15rem 0.5rem !important;
+  min-width: 100px !important;
+}
+
+/* Input nos macros (menor) */
+.meta-card-macros .editable-value input {
+  padding: 0.15rem 0.35rem !important;
+  min-width: 60px !important;
 }
 
 /* ========== TABS REDESIGN - 2 FILEIRAS ========== */

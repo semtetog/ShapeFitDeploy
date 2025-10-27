@@ -1491,22 +1491,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 try {
+                    // Coletar valores atuais de todos os campos
+                    const caloriesEl = document.querySelector('[data-field="daily_calories"]');
+                    const proteinEl = document.querySelector('[data-field="protein_g"]');
+                    const carbsEl = document.querySelector('[data-field="carbs_g"]');
+                    const fatEl = document.querySelector('[data-field="fat_g"]');
+                    
                     const formData = new FormData();
                     formData.append('user_id', userId);
-                    formData.append('daily_calories', field === 'daily_calories' ? newValue : document.querySelector('[data-field="daily_calories"]').dataset.original);
-                    formData.append('protein_g', field === 'protein_g' ? newValue : document.querySelector('[data-field="protein_g"]').dataset.original);
-                    formData.append('carbs_g', field === 'carbs_g' ? newValue : document.querySelector('[data-field="carbs_g"]').dataset.original);
-                    formData.append('fat_g', field === 'fat_g' ? newValue : document.querySelector('[data-field="fat_g"]').dataset.original);
-                    formData.append('water_ml', document.querySelector('[data-user-id]').dataset.original); // Manter hidratação igual
-                    
-                    // Atualizar o valor específico que mudou
-                    if (field === 'daily_calories') formData.set('daily_calories', newValue);
-                    if (field === 'protein_g') formData.set('protein_g', newValue);
-                    if (field === 'carbs_g') formData.set('carbs_g', newValue);
-                    if (field === 'fat_g') formData.set('fat_g', newValue);
+                    formData.append('daily_calories', field === 'daily_calories' ? newValue : caloriesEl.dataset.original);
+                    formData.append('protein_g', field === 'protein_g' ? newValue : proteinEl.dataset.original);
+                    formData.append('carbs_g', field === 'carbs_g' ? newValue : carbsEl.dataset.original);
+                    formData.append('fat_g', field === 'fat_g' ? newValue : fatEl.dataset.original);
+                    formData.append('water_ml', <?php echo $water_goal_ml; ?>); // Valor do PHP
                     
                     const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/update_user_goals.php', {
                         method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
                         body: formData
                     });
                     
@@ -3583,7 +3586,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== ANÁLISE SEMANAL - JAVASCRIPT =====
-let weeklyChart = null;
+// weeklyChart já declarado acima
 
 function updateWeeklyAnalysis() {
     const metric = document.getElementById('weeklyMetric').value;
