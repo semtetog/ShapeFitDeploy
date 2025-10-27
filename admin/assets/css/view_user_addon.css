@@ -846,8 +846,8 @@
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  padding: 2rem 0;
-  margin-top: 1rem;
+  padding: 1.5rem 0 0.5rem 0;
+  margin-top: 0;
   flex-wrap: wrap;
   width: 100%;
   max-width: 100%;
@@ -2480,12 +2480,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
-.calendar-header-left {
+.calendar-header-center {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex: 1;
+  justify-content: center;
 }
 
 .calendar-modal-body {
@@ -2494,13 +2497,6 @@
 
 .calendar-close-btn {
   flex-shrink: 0;
-}
-
-.calendar-nav {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
 .calendar-weekdays {

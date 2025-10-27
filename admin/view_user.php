@@ -5003,23 +5003,21 @@ function goToDiaryDate(dateStr) {
     <div class="custom-modal-overlay" onclick="closeDiaryCalendar()"></div>
     <div class="custom-modal-content diary-calendar-modal-content">
         <div class="custom-modal-header calendar-modal-header">
-            <div class="calendar-header-left">
+            <button class="btn-icon-only" onclick="changeCalendarMonth(-1)" type="button" title="Mês anterior">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="calendar-header-center">
                 <i class="fas fa-calendar-alt"></i>
                 <h3 id="calendarMonthYear"></h3>
             </div>
+            <button class="btn-icon-only" onclick="changeCalendarMonth(1)" type="button" title="Próximo mês">
+                <i class="fas fa-chevron-right"></i>
+            </button>
             <button class="btn-icon-only calendar-close-btn" onclick="closeDiaryCalendar()" type="button">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="custom-modal-body calendar-modal-body">
-            <div class="calendar-nav">
-                <button class="btn-icon-only" onclick="changeCalendarMonth(-1)" type="button" title="Mês anterior">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="btn-icon-only" onclick="changeCalendarMonth(1)" type="button" title="Próximo mês">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
             <div class="calendar-weekdays">
                 <div>DOM</div>
                 <div>SEG</div>
