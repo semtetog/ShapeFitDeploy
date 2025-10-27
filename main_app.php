@@ -73,8 +73,23 @@ $exercise_frequency = $user_profile_data['exercise_frequency'] ?? 'sedentary';
 $objective = $user_profile_data['objective'] ?? 'maintain';
 
 $age_years = calculateAge($dob);
-$total_daily_calories_goal = calculateTargetDailyCalories($gender, $weight_kg, $height_cm, $age_years, $exercise_frequency, $objective);
-$macros_goal = calculateMacronutrients($total_daily_calories_goal, $objective);
+
+// PRIORIZAR METAS CUSTOMIZADAS se existirem
+if (!empty($user_profile_data['custom_calories_goal'])) {
+    $total_daily_calories_goal = (int)$user_profile_data['custom_calories_goal'];
+} else {
+    $total_daily_calories_goal = calculateTargetDailyCalories($gender, $weight_kg, $height_cm, $age_years, $exercise_frequency, $objective);
+}
+
+if (!empty($user_profile_data['custom_protein_goal_g']) && !empty($user_profile_data['custom_carbs_goal_g']) && !empty($user_profile_data['custom_fat_goal_g'])) {
+    $macros_goal = [
+        'protein_g' => (float)$user_profile_data['custom_protein_goal_g'],
+        'carbs_g' => (float)$user_profile_data['custom_carbs_goal_g'],
+        'fat_g' => (float)$user_profile_data['custom_fat_goal_g']
+    ];
+} else {
+    $macros_goal = calculateMacronutrients($total_daily_calories_goal, $objective);
+}
 
 $daily_tracking = getDailyTrackingRecord($conn, $user_id, $current_date);
 $kcal_consumed = $daily_tracking['kcal_consumed'] ?? 0;

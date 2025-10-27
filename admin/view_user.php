@@ -545,7 +545,14 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="details-grid-3-cols">
     <div class="dashboard-card">
-        <h3>Meta Calórica e Macros</h3>
+        <div class="card-header-with-action">
+            <h3>Meta Calórica e Macros</h3>
+            <button class="btn-secondary btn-revert-goals" 
+                    onclick="revertToAutoGoals(<?php echo $user_id; ?>)" 
+                    title="Reverter para cálculo automático">
+                <i class="fas fa-undo"></i> Reverter para Automático
+            </button>
+        </div>
         
         <div class="meta-card-main">
             <span class="meta-value editable-value" 
@@ -1601,6 +1608,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Função para reverter metas para cálculo automático
+async function revertToAutoGoals(userId) {
+    if (!confirm('Tem certeza que deseja reverter para o cálculo automático? As metas personalizadas serão removidas.')) {
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('user_id', userId);
+        
+        const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/revert_to_auto_goals.php', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(data.message);
+            location.reload(); // Recarregar página para mostrar valores automáticos
+        } else {
+            alert('Erro: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Erro ao reverter metas:', error);
+        alert('Erro ao reverter metas. Verifique o console para mais detalhes.');
+    }
+}
 
 // Animação de pulse
 const style = document.createElement('style');

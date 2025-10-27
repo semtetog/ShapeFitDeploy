@@ -14,7 +14,12 @@ $stmt_profile = $conn->prepare("
     SELECT
         u.name,
         p.dob, p.gender, p.height_cm, p.weight_kg, p.objective,
-        p.exercise_frequency
+        p.exercise_frequency,
+        p.custom_calories_goal,
+        p.custom_protein_goal_g,
+        p.custom_carbs_goal_g,
+        p.custom_fat_goal_g,
+        p.custom_water_goal_ml
     FROM sf_users u
     LEFT JOIN sf_user_profiles p ON u.id = p.user_id
     WHERE u.id = ?
@@ -43,13 +48,24 @@ try {
     $objective = $profile['objective'] ?? 'maintain_weight';
     $exercise_frequency = $profile['exercise_frequency'] ?? 'sedentary';
     
-    // Usar a função correta de cálculo de calorias
-    $daily_calories = calculateTargetDailyCalories($gender, $weight_kg, $height_cm, $age_years, $exercise_frequency, $objective);
+    // PRIORIZAR METAS CUSTOMIZADAS se existirem
+    if (!empty($profile['custom_calories_goal'])) {
+        $daily_calories = (int)$profile['custom_calories_goal'];
+    } else {
+        $daily_calories = calculateTargetDailyCalories($gender, $weight_kg, $height_cm, $age_years, $exercise_frequency, $objective);
+    }
     
-    // Cálculo básico de macros (40% carb, 30% prot, 30% gordura)
-    $carbs_g = round(($daily_calories * 0.4) / 4);
-    $protein_g = round(($daily_calories * 0.3) / 4);
-    $fat_g = round(($daily_calories * 0.3) / 9);
+    // Macros: usar customizadas se existirem, senão calcular
+    if (!empty($profile['custom_protein_goal_g']) && !empty($profile['custom_carbs_goal_g']) && !empty($profile['custom_fat_goal_g'])) {
+        $protein_g = (float)$profile['custom_protein_goal_g'];
+        $carbs_g = (float)$profile['custom_carbs_goal_g'];
+        $fat_g = (float)$profile['custom_fat_goal_g'];
+    } else {
+        // Cálculo básico de macros (40% carb, 30% prot, 30% gordura)
+        $carbs_g = round(($daily_calories * 0.4) / 4);
+        $protein_g = round(($daily_calories * 0.3) / 4);
+        $fat_g = round(($daily_calories * 0.3) / 9);
+    }
     
     $macros = [
         'carbs_g' => $carbs_g,
@@ -64,11 +80,16 @@ try {
     $fat_consumed = 0;
     $water_consumed_cups = 0;
 
-    // Meta de água igual ao main_app
-    $weight_kg = (float)($profile['weight_kg'] ?? 70);
-    $water_goal_data = getWaterIntakeSuggestion($weight_kg);
-    $water_goal_ml = $water_goal_data['total_ml'];
-    $water_goal_cups = $water_goal_data['cups'];
+    // Meta de água: priorizar customizada se existir
+    if (!empty($profile['custom_water_goal_ml'])) {
+        $water_goal_ml = (int)$profile['custom_water_goal_ml'];
+        $water_goal_cups = ceil($water_goal_ml / 250);
+    } else {
+        $weight_kg = (float)($profile['weight_kg'] ?? 70);
+        $water_goal_data = getWaterIntakeSuggestion($weight_kg);
+        $water_goal_ml = $water_goal_data['total_ml'];
+        $water_goal_cups = $water_goal_data['cups'];
+    }
 
     define('ML_PER_CUP', 250);
     $water_consumed_ml = $water_consumed_cups * ML_PER_CUP;
