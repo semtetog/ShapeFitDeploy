@@ -755,12 +755,16 @@ require_once __DIR__ . '/includes/header.php';
         <div class="diary-slider-wrapper" id="diarySliderWrapper">
             <div class="diary-slider-track" id="diarySliderTrack">
                 <?php 
-                // Gerar array com TODOS os 7 dias, mesmo se não houver dados
+                // Gerar array com TODOS os dias, mesmo se não houver dados
                 $all_dates = [];
                 for ($i = 0; $i < $daysToShow; $i++) {
                     $current_date = date('Y-m-d', strtotime($endDate . " -$i days"));
                     $all_dates[] = $current_date;
                 }
+                
+                // Debug: verificar intervalo gerado
+                // Primeira data (mais antiga) será $all_dates[0] após reverse
+                // Última data (mais recente) será $all_dates[count-1] após reverse
                 
                 // Inverter ordem: mais antigo à esquerda, mais recente à direita
                 $all_dates = array_reverse($all_dates);
@@ -893,6 +897,9 @@ function updateDiaryDisplay() {
     const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
     const monthNamesLower = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     const weekdayNames = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+    
+    // Debug
+    console.log('Diary index:', currentDiaryIndex, 'Date:', date, 'Month:', dateObj.getMonth());
     
     // Atualizar ano
     document.getElementById('diaryYear').textContent = dateObj.getFullYear();
