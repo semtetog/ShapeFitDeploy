@@ -34,8 +34,8 @@
 
 .profile-avatar-large,
 .initials-avatar.large {
-  width: 100px;
-  height: 100px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   border: 4px solid var(--accent-orange);
   box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
@@ -50,7 +50,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   font-weight: 700;
   color: white;
   text-transform: uppercase;
@@ -982,9 +982,14 @@
     padding: 1rem;
   }
   
-  .profile-avatar-large {
-    width: 80px;
-    height: 80px;
+  .profile-avatar-large,
+  .initials-avatar.large {
+    width: 110px;
+    height: 110px;
+  }
+  
+  .initials-avatar.large {
+    font-size: 2.75rem;
   }
   
   .user-main-info h2 {
@@ -2069,12 +2074,12 @@
   
   .profile-avatar-large,
   .initials-avatar.large {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
   }
   
   .initials-avatar.large {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
   
   .user-contact-details {
@@ -2163,12 +2168,12 @@
   
   .profile-avatar-large,
   .initials-avatar.large {
-    width: 70px;
-    height: 70px;
+    width: 90px;
+    height: 90px;
   }
   
   .initials-avatar.large {
-    font-size: 1.75rem;
+    font-size: 2.25rem;
   }
   
   .user-contact-details h2 {
