@@ -1,0 +1,267 @@
+/* assets/css/more_options.css */
+
+.more-options-container {
+    padding: 0 0 100px 0;
+}
+
+.more-options-container .page-title {
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+/* --- Card de Perfil Clicável --- */
+.profile-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin-bottom: 30px;
+}
+
+.profile-card {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: var(--surface-color);
+    border-radius: 16px;
+    border: 1px solid transparent; /* Borda inicial transparente para o hover */
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.3s ease;
+    overflow: hidden;
+    
+    /* OTIMIZAÇÃO DE PERFORMANCE: Aviso ao navegador para otimizar */
+    will-change: transform;
+}
+
+/* NOVO EFEITO DE HOVER SOFISTICADO */
+.profile-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 107, 0, 0.5); /* Borda laranja sutil */
+}
+
+.profile-card .profile-picture {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid var(--accent-orange);
+}
+
+.profile-card .profile-info { flex-grow: 1; text-align: left; }
+.profile-card .profile-name { font-size: 1.2em; font-weight: 600; color: var(--primary-text-color); }
+.profile-card .profile-action { font-size: 0.9em; color: var(--secondary-text-color); }
+.profile-card .arrow-icon { font-size: 1em; color: var(--secondary-text-color); transition: transform 0.3s ease; }
+.profile-card:hover .arrow-icon { transform: translateX(5px); }
+
+/* --- Grade de Opções Principais com Animações --- */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.option-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 25px 15px;
+    background-color: var(--surface-color);
+    border-radius: 16px;
+    text-decoration: none;
+    color: var(--primary-text-color);
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    min-height: 120px;
+    position: relative;
+    overflow: hidden;
+    
+    /* OTIMIZAÇÃO DE PERFORMANCE: Aviso ao navegador para otimizar */
+    will-change: transform;
+}
+
+/* NOVO EFEITO DE HOVER PARA OS CARDS */
+.option-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 16px;
+    padding: 2px; /* Espessura da borda do gradiente */
+    background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out; 
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.option-card:hover::before {
+    opacity: 1;
+}
+
+.option-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(255, 107, 0, 0.15);
+}
+
+.option-card .option-icon {
+    font-size: 24px;
+    margin-bottom: 12px;
+    /* ANIMAÇÃO INDEPENDENTE APLICADA AQUI */
+    animation: pulse-icon 2.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Atraso na animação para cada card ser diferente */
+.option-card:nth-child(2) .option-icon { animation-delay: 0.3s; }
+.option-card:nth-child(3) .option-icon { animation-delay: 0.1s; }
+.option-card:nth-child(4) .option-icon { animation-delay: 0.4s; }
+
+.option-card .option-label {
+    font-weight: 500;
+    font-size: 0.95em;
+}
+
+/* --- Lista de Opções Secundárias --- */
+.options-list-container { padding: 0 5px; }
+.options-list { list-style: none; padding: 0; margin: 0; background-color: var(--surface-color); border-radius: 12px; overflow: hidden; }
+.options-list li { border-bottom: 1px solid var(--border-color); }
+.options-list li:last-child { border-bottom: none; }
+
+.option-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 15px;
+    text-decoration: none;
+    color: var(--primary-text-color);
+    transition: background-color 0.2s ease;
+}
+
+.option-item:hover {
+    background: linear-gradient(90deg, rgba(255, 107, 0, 0.1), rgba(255, 107, 0, 0));
+}
+
+.option-item .list-icon {
+    font-size: 1.1em;
+    width: 30px;
+    text-align: center;
+    margin-right: 15px;
+    color: var(--secondary-text-color);
+    transition: color 0.2s ease, transform 0.3s ease;
+}
+
+.option-item:hover .list-icon { color: var(--accent-orange); transform: scale(1.1); }
+.option-item span { flex-grow: 1; font-weight: 500; }
+.option-item .arrow-icon-list { color: var(--secondary-text-color); font-size: 0.9em; transition: transform 0.3s ease; }
+.option-item:hover .arrow-icon-list { transform: translateX(3px); }
+
+.option-item.logout-link { color: var(--danger-color); }
+.option-item.logout-link .list-icon { color: var(--danger-color); }
+.option-item.logout-link:hover .list-icon,
+.option-item.logout-link:hover span { color: #ff5c5c; }
+
+/* --- ANIMAÇÃO DE PULSO PARA OS ÍCONES --- */
+@keyframes pulse-icon {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+} 
+
+/* --- NAVEGAÇÃO INFERIOR (RESTaurada) --- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: #1E1E1E;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 65px;
+    padding: 0 10px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.25);
+    border-top: 1px solid var(--border-color);
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--secondary-text-color);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    flex: 1;
+    text-align: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+    height: 100%;
+    position: relative;
+}
+
+.nav-item i.fas { font-size: 22px; margin-bottom: 4px; }
+.nav-item.active,
+.nav-item:hover { color: var(--accent-orange); }
+.nav-item:active { transform: scale(0.95); }
+
+
+
+/* --- Media Queries para main_app_specific.css --- */
+@media (max-width: 400px) {
+    .main-app-container { padding-bottom: 80px; }
+
+    .main-header-app { flex-direction: column; gap: 8px; align-items: flex-start; padding-bottom: 15px;}
+    .user-greeting { font-size: 1.3em; }
+    .header-actions { align-self: flex-end; gap: 10px;}
+    .header-action-link i.fas { font-size: 20px; }
+    .main-header-app .header-actions .header-action-link.text-link { font-size: 0.85em; padding: 4px 6px;}
+
+
+    .current-weight-banner.card-shadow-light { font-size: 0.95em; padding: 10px 15px; margin-bottom: 15px; }
+    .current-weight-banner i.edit-icon { font-size: 16px; }
+
+    .section-title { font-size: 1.15em; }
+    .card-shadow, .card-shadow-light, .card-shadow-prominent { padding: 15px; margin-bottom: 15px; }
+    .card-shadow-prominent { padding: 20px; }
+
+    .consumption-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .progress-circle { width: 55px; height: 55px; }
+    .percentage-text { font-size: 11px; }
+    .consumption-item p { font-size: 0.75em; }
+
+    .hydration-tracker-card h3 { font-size: 1em; }
+    .hydration-icon-text i.water-drop-icon { font-size: 22px; }
+    .water-controls { gap: 15px;}
+    .water-btn { width: 30px; height: 30px; font-size: 1.5em; line-height: 28px;}
+    .water-status { font-size: 0.95em; }
+    .water-progress-bar-container { width: 85%; }
+
+    .routine-item.card-shadow-light { min-width: 160px; max-width: 160px; min-height: 110px; padding: 12px; }
+    .routine-item p { font-size: 0.9em; }
+    .routine-btn-action { width: 30px; height: 30px; }
+    .routine-btn-action i.fas { font-size: 13px; }
+
+    .meal-prompt-card i.meal-prompt-icon { font-size: 28px; }
+    .meal-prompt-card h2 { font-size: 1.25em; }
+    .meal-prompt-card p { font-size: 0.9em; margin-bottom: 15px; }
+    .meal-prompt-card .add-meal-main-btn { font-size: 1em; padding: 10px 20px; }
+    .meal-prompt-card .add-meal-main-btn i.btn-icon-fa { font-size: 0.95em; }
+
+    .suggestion-item.card-shadow-light { width: 125px; min-width: 125px; }
+    .suggestion-item .recipe-suggestion-link img { height: 70px; }
+    .suggestion-item .recipe-suggestion-link .recipe-info h3 { font-size: 0.85em; min-height: 2.4em; }
+    .suggestion-item .recipe-suggestion-link .recipe-info span { font-size: 0.7em; }
+
+    .meal-list-item.card-shadow-light { padding: 10px 12px; }
+    .meal-list-item a i.fas { font-size: 16px; width: 18px;}
+    .meal-list-item .meal-kcal { font-size: 0.85em; }
+
+    
+}

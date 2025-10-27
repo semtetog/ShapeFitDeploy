@@ -1,0 +1,52 @@
+--- [2025-08-04 07:51:00] ---
+REQUEST: /main_app.php
+HEADERS:
+Host: www.appshapefit.com
+Accept-Encoding: gzip
+X-Forwarded-Proto: https
+X-Real-IP: 177.191.114.191
+X-Real-Port: 14650
+X-Forwarded-For: 177.191.114.191
+X-Forwarded-Port: 443
+X-Port: 443
+X-LSCACHE: 1
+upgrade-insecure-requests: 1
+User-Agent: Mozilla/5.0 (Linux; Android 12; CPH1933 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/101.0.4951.61 Mobile Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+x-requested-with: br.com.shapefit.app
+sec-fetch-site: same-origin
+sec-fetch-mode: navigate
+sec-fetch-dest: document
+Referer: https://www.appshapefit.com/auth/login.php
+Accept-Language: pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7
+Cookie: PHPSESSID=msirg02tg17ghkjntbbsi9bedu
+
+PHP Session Exists? YES
+Found X-Auth-Token Header? NO
+
+--- [2025-08-04 07:53:36] ---
+REQUEST: /main_app.php
+HEADERS:
+Host: www.appshapefit.com
+Accept-Encoding: gzip
+X-Forwarded-Proto: https
+X-Real-IP: 177.191.114.191
+X-Real-Port: 15870
+X-Forwarded-For: 177.191.114.191
+X-Forwarded-Port: 443
+X-Port: 443
+X-LSCACHE: 1
+upgrade-insecure-requests: 1
+User-Agent: Mozilla/5.0 (Linux; Android 12; CPH1933 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/101.0.4951.61 Mobile Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+x-requested-with: br.com.shapefit.app
+sec-fetch-site: same-origin
+sec-fetch-mode: navigate
+sec-fetch-dest: document
+Referer: https://www.appshapefit.com/auth/login.php
+Accept-Language: pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7
+Cookie: PHPSESSID=ak0bqcjlqvem114kl8apo1gqod
+
+PHP Session Exists? YES
+Found X-Auth-Token Header? NO
+

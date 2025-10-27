@@ -1,0 +1,123 @@
+/* ======================================================== */
+/*    ESTILO ÚNICO E GLOBAL PARA TODOS OS MODAIS DO APP     */
+/* ======================================================== */
+
+/* ESTADO PADRÃO DO MODAL - SEMPRE ESCONDIDO */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1050; /* Garante que fique acima de tudo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* A MÁGICA ESTÁ AQUI: Começa transparente e não interativo */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; 
+
+    /* Transição suave para o fundo e para a visibilidade */
+    background-color: rgba(0, 0, 0, 0); /* Começa com fundo transparente */
+    transition: background-color 0.3s ease, opacity 0.3s ease, visibility 0s 0.3s;
+}
+
+/* ESTADO VISÍVEL - ATIVADO PELO JAVASCRIPT COM A CLASSE .is-visible */
+.modal.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto; /* Permite cliques dentro do modal */
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo escuro aparece */
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+/* O conteúdo do modal (o "card" branco/escuro) */
+.modal-content {
+    background-color: var(--surface-color, #fff);
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    position: relative; /* Necessário para o botão de fechar */
+    
+    /* Efeito de surgimento (vem de baixo/escala) */
+    transform: translateY(20px) scale(0.98);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+/* Animação de entrada para o conteúdo do modal */
+.modal.is-visible .modal-content {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* Estilos comuns para os elementos do modal */
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--secondary-text-color, #888);
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.modal-close-btn:hover {
+    color: var(--primary-text-color, #111);
+    transform: rotate(90deg);
+}
+
+.modal-title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.25em;
+}
+
+/* ======================================================== */
+/*    ESTILOS ESPECÍFICOS PARA O MODAL DO SCANNER WEB       */
+/* ======================================================== */
+
+/* Contêiner do Scanner (para o QuaggaJS) */
+#scanner-container {
+    position: relative;
+    width: 100%;
+    padding-top: 75%; /* Proporção 4:3 para o vídeo */
+    background-color: #222; /* Fundo escuro enquanto a câmera carrega */
+    border-radius: 4px;
+    overflow: hidden; /* Garante que o vídeo não vaze */
+    margin-top: 10px;
+}
+
+#scanner-container video,
+#scanner-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Usa 'contain' para ver a imagem inteira */
+}
+
+/* O canvas de detecção do Quagga precisa ficar por cima do vídeo */
+#scanner-container canvas.drawingBuffer {
+    z-index: 10;
+}
+
+/* Status do Scanner (texto "Aponte para o código...") */
+#scanner-status {
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 15px;
+    min-height: 1.2em;
+}

@@ -1,0 +1,58 @@
+/* assets/css/components/_buttons.css */
+
+/* --- Estilo Base para Botões --- */
+.primary-button, .btn-primary, .btn {
+    background-image: var(--primary-orange-gradient);
+    background-size: 150% auto;
+    color: var(--text-primary) !important;
+    border: none;
+    border-radius: 16px;
+    padding: 14px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.2s ease, background-position 0.4s ease;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    text-align: center;
+}
+
+.primary-button:hover, .btn-primary:hover, .btn:hover {
+    background-position: right center;
+}
+
+.primary-button:active, .btn-primary:active, .btn:active {
+    transform: scale(0.98);
+}
+
+/* --- Botão Secundário --- */
+.secondary-button {
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    flex-grow: 1;
+    box-shadow: none;
+}
+
+/* --- Botão de Edição (ex: Peso) --- */
+.edit-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 5px;
+    display: flex; /* Para centralizar o SVG */
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-button svg {
+    width: 20px;
+    height: 20px;
+}

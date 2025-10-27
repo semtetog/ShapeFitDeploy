@@ -1,0 +1,220 @@
+/* public_html/shapefit/assets/css/recipe_detail_page.css */
+
+.recipe-detail-container {
+    padding-bottom: 30px;
+}
+
+.recipe-detail-header {
+    display: flex; /* Adicionado para alinhar itens */
+    align-items: center; /* Alinha verticalmente */
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+.recipe-detail-header .back-button {
+    margin-right: 15px; /* Espaço entre voltar e título, se houver */
+}
+.recipe-detail-header .page-title { /* Se você decidir ter um título aqui */
+    flex-grow: 1; /* Título ocupa espaço */
+    text-align: center; /* Centraliza se for o único elemento além dos botões */
+    margin: 0;
+    font-size: 1.4em;
+}
+.recipe-action-favorite { /* Link do coração */
+    margin-left: auto; /* Empurra para a direita */
+    font-size: 1.8em;
+    color: var(--secondary-text-color);
+    text-decoration: none;
+    padding: 5px; /* Área de clique */
+}
+.recipe-action-favorite.is-favorited i.fa-heart,
+.favorite-toggle-btn.is-favorited i.fa-heart { /* Para quando estiver favoritado */
+    color: var(--accent-red); /* Ou sua cor de favorito */
+}
+.recipe-action-favorite i.fa-heart {
+    transition: color 0.2s ease;
+}
+.recipe-action-favorite:hover i.far.fa-heart { /* Cor do contorno no hover */
+    color: var(--accent-orange);
+}
+
+
+.recipe-detail-image {
+    width: 100%;
+    max-height: 280px; /* Ajuste conforme necessário */
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.recipe-main-info {
+    /* Se quiser que sobreponha a imagem, como no print que você mostrou: */
+    margin-top: -60px; /* Puxa para cima, sobrepondo a imagem */
+    position: relative; /* Para z-index funcionar */
+    z-index: 10; /* Para ficar acima da imagem */
+    background-color: var(--bg-color); /* Fundo para cobrir a parte da imagem que fica atrás */
+    /* card-shadow-light já dá padding e border-radius, mas pode precisar de mais padding */
+    padding: 20px 15px 15px 15px; /* Padding interno */
+    border-radius: 12px 12px 0 0; /* Arredonda só os cantos superiores se sobrepuser */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.recipe-name-main {
+    font-size: 1.6em; /* Ajuste */
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.recipe-description-short {
+    font-size: 0.9em;
+    color: var(--secondary-text-color);
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.recipe-rating {
+    margin-bottom: 15px;
+    color: var(--accent-orange);
+    font-size: 1.1em;
+}
+.recipe-rating .fa-star { margin: 0 1px; }
+.recipe-rating .far.fa-star { color: var(--border-color); }
+
+.recipe-macros-summary { /* Já tem .card-shadow-light */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    text-align: center;
+    padding: 15px 10px 10px 10px; /* Ajuste no padding inferior */
+    margin-bottom: 20px; /* Espaço abaixo deste card */
+}
+.macro-info-item .value {
+    display: block;
+    font-size: 1.05em; /* Ajuste */
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-bottom: 3px;
+}
+.macro-info-item .label {
+    font-size: 0.7em; /* Ajuste */
+    color: var(--secondary-text-color);
+    text-transform: uppercase;
+}
+.recipe-serving-info { /* Nova classe para o texto "Informação nutricional por..." */
+    grid-column: 1 / -1; /* Faz o texto ocupar todas as colunas do grid */
+    font-size: 0.8em;
+    color: var(--secondary-text-color);
+    margin-top: 10px; /* Espaço acima do texto */
+    text-align: center;
+}
+
+.recipe-timing-servings { /* Já tem .card-shadow-light */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    color: var(--secondary-text-color);
+}
+.recipe-timing-servings .timing-item,
+.recipe-timing-servings .servings-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espaço entre ícone e texto */
+}
+.recipe-timing-servings i {
+    font-size: 1.2em; /* Tamanho dos ícones de relógio/talheres */
+    color: var(--accent-orange);
+}
+
+.recipe-section { /* Já tem .card-shadow-light */
+    margin-bottom: 20px;
+    padding: 15px; /* Padding interno para o conteúdo da seção */
+}
+.recipe-section-title {
+    font-size: 1.2em; /* Ajuste */
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+.recipe-ingredient-list {
+    list-style: none;
+    padding-left: 0; /* Sem recuo de marcador padrão */
+    font-size: 0.9em; /* Ajuste */
+    line-height: 1.7;
+    color: var(--primary-text-color);
+}
+.recipe-ingredient-list li {
+    margin-bottom: 6px;
+    padding-left: 5px; /* Pequeno padding para o texto após o '-' */
+}
+
+.recipe-instructions .instruction-step {
+    display: flex;
+    gap: 10px; /* Espaço entre número e texto */
+    margin-bottom: 15px;
+    align-items: flex-start;
+}
+.instruction-step .step-number {
+    font-size: 1.6em; /* Ajuste */
+    font-weight: 600;
+    color: var(--accent-orange);
+    line-height: 1.1; /* Para alinhar melhor com o texto */
+    min-width: 28px;
+    text-align: right;
+    margin-top: -2px; /* Ajuste fino vertical */
+}
+.instruction-step p {
+    font-size: 0.9em; /* Ajuste */
+    line-height: 1.6;
+    color: var(--primary-text-color);
+    margin: 0;
+    flex: 1; /* Para o texto ocupar o espaço restante */
+}
+
+.recipe-notes-card p { /* .recipe-section e .card-shadow-light já aplicados */
+    font-size: 0.9em;
+    color: var(--secondary-text-color);
+    line-height: 1.6;
+}
+
+.register-meal-section { /* Já tem .card-shadow */
+    padding: 20px;
+    margin-top: 25px; /* Espaço acima */
+}
+.register-meal-section .recipe-section-title { /* Título "Registrar esta Refeição" */
+    border-bottom: none; /* Remove a borda se não quiser aqui */
+    text-align: center;
+    margin-bottom: 20px;
+}
+.register-meal-section .form-group label {
+    font-weight: 500;
+    font-size: 0.85em;
+}
+.register-meal-section .btn-primary i.fas { /* Ícone no botão de registrar */
+    margin-right: 8px;
+}
+
+/* Ajustes Mobile para recipe-detail-page */
+@media (max-width: 400px) {
+    .recipe-detail-header .page-title { font-size: 1.2em; }
+    .recipe-action-favorite { font-size: 1.6em; }
+    .recipe-detail-image { max-height: 220px; }
+    .recipe-main-info { margin-top: -40px; padding: 15px 12px 12px 12px; }
+    .recipe-name-main { font-size: 1.4em; }
+    .recipe-macros-summary { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px 8px 8px 8px;}
+    .macro-info-item .value { font-size: 1em; }
+    .macro-info-item .label { font-size: 0.65em; }
+    .recipe-serving-info { font-size: 0.75em; }
+    .recipe-timing-servings { flex-direction: column; gap: 8px; align-items: flex-start; }
+    .recipe-section-title { font-size: 1.1em; }
+    .recipe-ingredient-list, .instruction-step p, .recipe-notes-card p { font-size: 0.85em; }
+    .instruction-step .step-number { font-size: 1.4em; }
+}

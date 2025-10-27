@@ -1,0 +1,618 @@
+/* assets/css/components/_cards.css (VERSÃO COMPLETA E CORRIGIDA) */
+
+/* --- Efeito Glassmorphism Base --- */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+    
+    /* A linha da sombra foi removida/comentada para o teste */
+    /* box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 
+                inset 1px 1px 1px 0 rgba(255, 255, 255, 0.08), 
+                inset 0 0 25px 5px rgba(255, 255, 255, 0.03); */
+                
+    margin-bottom: 20px;
+    
+    /* OTIMIZAÇÃO DE PERFORMANCE: Aviso ao navegador para otimizar */
+    will-change: transform;
+}
+
+/* --- Elementos Comuns de Cards --- */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.card-header h3 {
+    font-size: 18px;
+}
+
+.view-all-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* --- Card: Ranking --- */
+.card-ranking {
+    grid-column: 1 / -1;
+    padding: 15px;
+}
+
+.ranking-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 60px;
+    text-align: center;
+}
+
+.player-info img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--glass-border);
+}
+
+.player-info span {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.clash-center {
+    flex-grow: 1;
+    text-align: center;
+    padding: 0 15px;
+}
+
+.clash-title {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.clash-title.winner {
+    color: #FFAE00;
+    font-weight: 600;
+}
+
+.rank-position {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    display: block;
+}
+
+/* --- Card: Peso --- */
+.card-weight {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+}
+
+.card-weight span {
+    font-size: 16px;
+    color: var(--text-secondary);
+}
+
+.card-weight strong {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.card-weight .countdown {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* --- Card: Hidratação --- */
+.card-hydration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-hydration h3 {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.hydration-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.hydration-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.water-status {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.water-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.water-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    color: var(--text-primary);
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Card: Consumo Diário --- */
+.card-consumption {
+    grid-column: 1 / -1;
+}
+
+.card-consumption h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.consumption-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.consumption-item {
+    text-align: center;
+}
+
+.consumption-item p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+}
+
+/* --- Card: Rotina --- */
+.card-routine {
+    grid-column: 1 / -1;
+}
+
+.routine-progress-container {
+    margin-bottom: 20px;
+}
+
+#routine-progress-text {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+}
+
+.mission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mission-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.mission-item i {
+    color: #FFAE00;
+}
+
+.mission-item span {
+    flex-grow: 1;
+}
+
+.complete-mission-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--text-secondary);
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.complete-mission-btn::after {
+    content: '✓';
+    color: white;
+    font-weight: bold;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.2s ease;
+}
+
+.complete-mission-btn.completed {
+    background-image: var(--primary-orange-gradient);
+    border-color: transparent;
+}
+
+.complete-mission-btn.completed::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.all-done-message {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.all-done-message i {
+    font-size: 32px;
+    color: #FFAE00;
+    margin-bottom: 10px;
+}
+
+/* --- Card: CTA de Refeição --- */
+.card-meal-cta {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+.card-meal-cta i {
+    font-size: 28px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.card-meal-cta h2 {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.card-meal-cta p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+/* --- Card: Sugestões (VERSÃO FINAL SEM SOMBRA NO TÍTULO) --- */
+.card-suggestions {
+    /* Ocupa a largura total do grid */
+    grid-column: 1 / -1; 
+    
+    /* Removemos todos os estilos de card (background, box-shadow, padding, etc.) */
+    /* Agora é apenas um container estrutural */
+    margin-bottom: 20px; /* Mantém o espaçamento inferior */
+}
+/* Container para posicionar o fade corretamente */
+.carousel-wrapper {
+    position: relative;
+}
+
+.suggestions-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    margin: 0 -24px;
+    padding: 5px 24px 20px 24px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-right: 30px; 
+}
+
+/* Esconde a barra de rolagem */
+.suggestions-carousel::-webkit-scrollbar { display: none; }
+.suggestions-carousel { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* O elemento de FADE à direita */
+.carousel-fade {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 60px;
+    background: linear-gradient(to right, rgba(var(--bg-color-rgb), 0), var(--bg-color) 80%);
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Estilo do card individual da receita */
+.suggestion-item {
+    /* Herda o .glass-card mas com ajustes */
+    width: 160px;
+    min-width: 160px;
+    flex-shrink: 0;
+    padding: 0; /* REMOVE o padding do .glass-card */
+    margin-bottom: 0; /* REMOVE a margem do .glass-card */
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Garante que a imagem respeite o border-radius */
+    position: relative; 
+    z-index: 1; 
+    transition: transform 0.2s ease;
+}
+
+
+.suggestion-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.suggestion-image-container {
+    width: 100%;
+    height: 100px;
+    overflow: hidden;
+}
+
+.suggestion-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.suggestion-item .recipe-info {
+    padding: 12px 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.suggestion-item h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 39px; 
+}
+
+.suggestion-item span {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.suggestion-item span i {
+    color: var(--accent-orange);
+}
+
+.no-suggestions-card {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    width: 100%;
+}
+
+/* --- Card: Rotina Circular (NOVO DESIGN) --- */
+.card-routine-circular {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card-routine-circular .card-header {
+    width: 100%;
+}
+
+.mission-coin-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.mission-coin {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    /* Efeito de perspectiva para o 3D */
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+}
+
+.mission-coin:hover {
+    transform: rotateY(10deg); /* Leve rotação no hover */
+}
+
+/* O conteúdo central da moeda */
+.coin-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    background: rgba(20, 20, 30, 0.4); /* Fundo mais escuro para contraste */
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+}
+
+.coin-center #mission-icon {
+    font-size: 36px;
+    color: #FFAE00; /* Destaque para o ícone */
+    margin-bottom: 12px;
+}
+
+.coin-center #mission-title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    flex-grow: 1;
+}
+
+/* Botão de completar missão modificado */
+.complete-mission-btn-circular {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--text-secondary);
+    background: none;
+    cursor: pointer;
+    margin-top: 10px;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.complete-mission-btn-circular::before {
+    content: '✓';
+    color: var(--text-secondary);
+    font-weight: bold;
+    font-size: 18px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+}
+
+.complete-mission-btn-circular:hover {
+    border-color: #fff;
+    transform: scale(1.1);
+}
+.complete-mission-btn-circular:hover::before {
+    color: #fff;
+}
+
+
+/* Círculo de Progresso com SVG */
+.progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotate(-90deg); /* Começa do topo */
+}
+
+.progress-ring__bg {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.25);
+    stroke-width: 10;
+    stroke-linecap: round;
+}
+
+.progress-ring__progress {
+    fill: none;
+    stroke: url(#orange-gradient); /* Usando o mesmo gradiente dos outros cards */
+    stroke-width: 10;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.mission-progress-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: rgba(0,0,0,0.2);
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+#completed-count, #total-count {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ====================================================================== */
+/* SOLUÇÃO ALTERNATIVA DE PERFORMANCE - DESCOMENTE SE AINDA HOUVER LAGS */
+/* ====================================================================== */
+
+/*
+.glass-card-optimized {
+    /* Substitui o backdrop-filter por um fundo semi-transparente mais sólido */
+    background: rgba(38, 38, 38, 0.75);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    will-change: transform;
+    
+    /* Remove completamente o backdrop-filter pesado */
+    /* backdrop-filter: none; */
+    /* -webkit-backdrop-filter: none; */
+}
+
+/* Para usar esta otimização, substitua todas as classes .glass-card por .glass-card-optimized */
+*/
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ====================================================================== */
+/* SOLUÇÃO ALTERNATIVA DE PERFORMANCE - DESCOMENTE SE AINDA HOUVER LAGS */
+/* ====================================================================== */
+
+/*
+.glass-card-optimized {
+    /* Substitui o backdrop-filter por um fundo semi-transparente mais sólido */
+    background: rgba(38, 38, 38, 0.75);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    will-change: transform;
+    
+    /* Remove completamente o backdrop-filter pesado */
+    /* backdrop-filter: none; */
+    /* -webkit-backdrop-filter: none; */
+}
+
+/* Para usar esta otimização, substitua todas as classes .glass-card por .glass-card-optimized */
+*/

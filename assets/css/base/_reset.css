@@ -1,0 +1,62 @@
+/* assets/css/base/_reset.css */
+
+/* 
+  Um reset simples para remover inconsistências entre navegadores.
+  Use-o para zerar margens, paddings e estilos de lista.
+*/
+
+/* 
+  Herda o box-sizing definido no seletor universal (*) em _global.css
+*/
+html {
+  -webkit-text-size-adjust: 100%; /* Previne o ajuste de fonte no iOS */
+}
+
+/*
+  Remove a margem padrão do body em alguns navegadores.
+*/
+body {
+  margin: 0;
+}
+
+/*
+  Remove estilos padrão de lista.
+*/
+ol, ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+  Remove a margem padrão de títulos e parágrafos.
+  O espaçamento será controlado por classes utilitárias ou pelo layout.
+*/
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+/*
+  Garante que imagens não ultrapassem seus containers.
+*/
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/*
+  Remove estilos padrão de botões e inputs para facilitar a estilização.
+*/
+input, button, textarea, select {
+  font: inherit; /* Herda a fonte do elemento pai */
+  border: none;
+  background-color: transparent;
+}
+
+/*
+  Garante que links não tenham sublinhado por padrão.
+*/
+a {
+  text-decoration: none;
+  color: inherit;
+}

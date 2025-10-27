@@ -1,0 +1,46 @@
+/* admin/assets/css/admin_login.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+:root {
+    --bg-color: #121212;
+    --surface-color: #1E1E1E;
+    --primary-text-color: #E0E0E0;
+    --secondary-text-color: #A0A0A0;
+    --accent-orange: #FF6B00;
+    --border-color: #333333;
+}
+body {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+}
+.login-container { width: 100%; max-width: 400px; padding: 20px; }
+.login-form {
+    background-color: var(--surface-color);
+    padding: 40px; border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    text-align: center;
+}
+.login-form h2 { color: var(--primary-text-color); margin-top: 0; margin-bottom: 5px; font-size: 28px; }
+.login-form p { color: var(--secondary-text-color); margin-bottom: 30px; }
+.form-group { text-align: left; margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--secondary-text-color); font-size: 14px; }
+.form-group input {
+    width: 100%; padding: 12px; border-radius: 8px;
+    border: 1px solid var(--border-color); background-color: var(--bg-color);
+    color: var(--primary-text-color); font-size: 16px;
+}
+.form-group input:focus { outline: none; border-color: var(--accent-orange); }
+.btn-login {
+    width: 100%; padding: 15px; border: none; border-radius: 8px;
+    background-color: var(--accent-orange); color: white;
+    font-size: 16px; font-weight: 600; cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.btn-login:hover { background-color: #e65c00; }
+.error-message {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #ffcdd2;
+    padding: 10px; border-radius: 8px;
+    margin-bottom: 20px; font-size: 14px;
+}

@@ -1,0 +1,496 @@
+/* ============================================
+   SHAPEFIT ADMIN - NOVO ESTILO MODERNO
+   Baseado no adminnovo React
+   ============================================ */
+
+:root {
+  --bg-color: #101010;
+  --bg-gradient-start: #222222;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --primary-orange-gradient: linear-gradient(45deg, #FFAE00, #F83600);
+  --text-primary: #F5F5F5;
+  --text-secondary: #A3A3A3;
+  --font-family: 'Montserrat', sans-serif;
+  --accent-orange: #FF6B00;
+  --danger-color: #F44336;
+  --success-color: #4CAF50;
+  --warning-color: #FF9800;
+  --info-color: #2196F3;
+}
+
+/* Reset Global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--bg-color);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background com gradiente */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(255, 102, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 102, 0, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+
+.admin-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--glass-border);
+  padding: 2rem 0;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 1000;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  padding: 0 2rem 2rem;
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 2rem;
+}
+
+.sidebar-header .logo {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--accent-orange);
+  text-decoration: none;
+  display: block;
+  background: var(--primary-orange-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0 1rem;
+}
+
+.sidebar-nav li {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.sidebar-nav a:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.sidebar-nav li.active a {
+  background: rgba(255, 107, 0, 0.1);
+  color: var(--accent-orange);
+  border: 1px solid rgba(255, 107, 0, 0.2);
+}
+
+.sidebar-nav i {
+  font-size: 1.125rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+.main-header {
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.user-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-orange-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.user-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.user-role {
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.375rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.action-btn:hover {
+  background: rgba(255, 107, 0, 0.2);
+  color: var(--accent-orange);
+}
+
+.content-wrapper {
+  padding: 2rem;
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+
+.page-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.page-title,
+h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent-orange);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ============================================
+   USER CARDS GRID
+   ============================================ */
+
+.user-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.user-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.user-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-orange);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.initials-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 auto 1rem;
+}
+
+.user-card-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  text-align: center;
+}
+
+.user-card-email {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 0 0 1rem;
+}
+
+.user-card-date {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+/* ============================================
+   TOOLBAR
+   ============================================ */
+
+.toolbar {
+  margin-bottom: 2rem;
+}
+
+.search-form {
+  display: flex;
+  gap: 1rem;
+  max-width: 600px;
+}
+
+.search-form input {
+  flex: 1;
+  padding: 0.875rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  transition: all 0.3s ease;
+}
+
+.search-form input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-orange);
+}
+
+.search-form button {
+  padding: 0.875rem 2rem;
+  background: var(--primary-orange-gradient);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 0, 0.3);
+}
+
+/* ============================================
+   STATS CARDS
+   ============================================ */
+
+.stats-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card h3 {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 0.5rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent-orange);
+  margin: 0;
+  background: var(--primary-orange-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+}
+
+.pagination-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   DASHBOARD CARDS E GRÁFICOS
+   ============================================ */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-card.large-card {
+  grid-column: span 2;
+}
+
+.dashboard-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem;
+  color: var(--text-primary);
+}
+
+.dashboard-card canvas {
+  max-height: 300px !important;
+  max-width: 100% !important;
+}
+
+/* Gráficos responsivos */
+@media (max-width: 1200px) {
+  .dashboard-card.large-card {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-card.large-card {
+    grid-column: span 1;
+  }
+}

@@ -1,0 +1,160 @@
+/* ==========================================================================
+   Estilos Específicos para recipe_list.php
+   ========================================================================== */
+
+.recipe-list-container {
+    padding-top: 10px; /* Espaçamento do topo da página, abaixo do header-nav */
+    padding-bottom: 20px; /* Espaçamento inferior */
+}
+
+/* Ajustes para o header-nav dentro desta página específica */
+.recipe-list-container .header-nav {
+    margin-bottom: 20px; /* Espaço abaixo do header da página */
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+.recipe-list-container .header-nav .page-title {
+    font-size: 1.4em; /* Tamanho do título da lista de receitas */
+    font-weight: 500; /* Um pouco mais leve */
+    margin-left: 10px;
+    margin-bottom: 0;
+    line-height: 1.2; /* Ajuste para centralizar melhor com o botão de voltar */
+}
+.recipe-list-container .back-button i.fas {
+    font-size: 20px; /* Tamanho do ícone de voltar */
+}
+
+
+/* Formulário de Busca */
+.search-form { /* A classe já existe no seu form */
+    margin-bottom: 25px; /* Espaço abaixo do formulário de busca */
+}
+.search-form .form-group {
+    display: flex;
+    gap: 10px;
+    align-items: center; /* Alinha input e botão verticalmente */
+}
+.search-form input[type="search"].form-control {
+    /* Estilos base do .form-control já são aplicados pelo style.css global */
+    flex-grow: 1; /* Input ocupa o espaço disponível */
+    /* Opcional: adicionar um ícone de lupa dentro do input via background-image se desejar */
+}
+.search-form .btn-primary { /* Botão de busca */
+    width: auto; /* Largura automática baseada no conteúdo */
+    min-width: 48px; /* Garante um tamanho mínimo para o toque */
+    padding: 12px 14px; /* Padding para o botão de busca */
+    flex-shrink: 0; /* Impede que o botão encolha */
+}
+.search-form .btn-primary i.fas {
+    margin-right: 0; /* Se o botão só tiver o ícone */
+    font-size: 1.1em; /* Tamanho do ícone de busca */
+}
+
+
+/* Grid/Lista de Receitas */
+.recipe-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Espaçamento entre os cards de receita */
+}
+
+.recipe-item-link {
+    display: flex;
+    align-items: center; /* Alinha imagem e texto verticalmente */
+    text-decoration: none;
+    color: var(--primary-text-color);
+    background-color: var(--surface-color); /* Usa a cor de superfície definida no :root */
+    border-radius: 10px; /* Bordas arredondadas consistentes com outros cards */
+    padding: 12px;
+    /* A classe .card-shadow-light já está no HTML, então a sombra vem dela */
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                box-shadow 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.recipe-item-link:hover {
+    transform: translateY(-2px) scale(1.01); /* Leve elevação e aumento no hover */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25); /* Sombra mais pronunciada no hover */
+}
+
+.recipe-item-image {
+    width: 70px;  /* Tamanho da imagem thumbnail */
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px; /* Bordas arredondadas para a imagem */
+    margin-right: 15px;
+    flex-shrink: 0; /* Impede que a imagem encolha */
+    background-color: var(--border-color); /* Cor de fundo caso a imagem demore a carregar */
+}
+
+.recipe-item-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Tenta centralizar o texto se houver altura extra */
+    gap: 4px; /* Pequeno espaço entre nome e kcal */
+}
+
+.recipe-item-name {
+    font-size: 1em; /* Ajustado */
+    font-weight: 500; /* Um pouco menos forte que 600 */
+    color: var(--primary-text-color);
+    line-height: 1.3;
+    margin-bottom: 0; /* Removido, usando gap no pai */
+    /* Limitar nome a 2 linhas com reticências */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recipe-item-kcal {
+    font-size: 0.8em; /* Ajustado */
+    color: var(--secondary-text-color);
+}
+
+/* Mensagem de "Nenhuma receita encontrada" */
+.recipe-list-container > p.text-center.card-shadow-light {
+    /* .card-shadow-light já deve dar um padding e fundo */
+    /* Adicionais, se necessário: */
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: var(--secondary-text-color);
+}
+
+
+/* Ajustes Mobile Adicionais para esta página (dentro da sua media query global) */
+/* Se você tiver um @media (max-width: 400px) { ... } no seu style.css principal,
+   você pode adicionar estes lá, ou criar uma media query aqui se preferir.
+   Vou assumir que está aqui para manter específico. */
+
+@media (max-width: 400px) {
+    .recipe-list-container .header-nav .page-title {
+        font-size: 1.3em;
+    }
+    .recipe-list-container .back-button i.fas {
+        font-size: 18px;
+    }
+
+    .search-form input[type="search"].form-control {
+        font-size: 0.95em; /* Texto do input de busca um pouco menor */
+    }
+    .search-form .btn-primary {
+        padding: 10px 12px; /* Botão de busca menor */
+    }
+     .search-form .btn-primary i.fas {
+        font-size: 1em;
+    }
+
+    .recipe-item-image {
+        width: 60px;
+        height: 60px;
+        margin-right: 12px;
+    }
+    .recipe-item-name {
+        font-size: 0.95em;
+    }
+    .recipe-item-kcal {
+        font-size: 0.75em;
+    }
+}

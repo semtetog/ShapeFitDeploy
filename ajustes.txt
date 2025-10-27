@@ -1,0 +1,79 @@
+*Ajustes Dashboard* 
+
+Pacientes – dentro do cliente ; Meta calórica e macros, ter como já alterar ali  
+
+Opção de editar o perfil do paciente  
+
+Parte de hidratação, nutrientes: 
+  -conferir formula da taxa de aderência  
+-conferir a meta mostrada com a calculada 
+-conferir formula da media acima de 30 dias  
+   -padronizar gráficos : na hidratação o gráfico para 30 dias está diferente 
+ 
+
+Analise semanal comparativa:  dar mais opções de métricas- essa pode inclusive ser a ultima aba dessa parte ( dário, hidratação... ) deixar em uma ordem lógica 
+       
+ 
+
+Atualizar essa parte do checkin com as perguntas do fluxo 
+ 
+
+Parte de comparação de dieta e analise semanal não seria a mesma coisa? 
+
+Rastreio semanal e analise semanal não seria a mesma coisa? 
+
+Metas personalizadas – colocar as metas ( macro nutrientes, hábitos) 
+
+Progresso – mostrar resumo geral das metas em cards menores – contendo só o resumo ou gráfico  
+
+Medidas – onde está dando a opção de colocar as medidas? 
+
+Aba Classificar alimentos – está saindo por 100g , não da pr alterar a unidade de medida da porção do alimento 
+
+Aba classificar alimentos -Botão adicionar unidade  
+
+Aba classificar alimentos – seleciona granular, unidades e aparece assim, sem opção de adicionar unidade  
+( 
+
+Está dando duas respostas diferentes para a mesma função em alimentos diferentes 
+
+Diminuir para 1clique entre classificado e não classificado  
+
+Aba estatística nutricionais dos alimentos adicionados acha sem necessidade. A não ser que mude ela – Alimentos mais proteicos em 50g, Alimentos mais calóricos em 100g , Alimentos mais ricos em fibras em 20g, Alimentos mais ricos em gordura em 50g... ( dado que facilitaria o nutri a variar alimentos de acordo com cada necessidade) 
+ 
+ 
+ 
+ 
+
+Aba planos alimentares não fica selecionada na guia de epsaquisa igual as outras abas ( comparação abaixo 
+  
+
+Aba planos alimentares- opção de colocar o pdf da dieta  
+
+Cor das letras na caixa de seleção ( contraste 
+) 
+
+Aba Planos alimentares Filtragem de pacientes não está puxando 
+
+Qual a diferença de estudos de desfios e grupos de desafios?  
+
+Estudios de desafios- botão nova liga não funciona  
+
+Contraste das caixas de seleção 
+ 
+
+Grupo de desafio – ao salvar o grupo abrir opção para configurar as metas daquele desafio e já levar pra sala criada 
+
+Não está salvando o grupo de desafio 
+o 
+
+Gerenciar conteúdo- criar conteúdo – está puxando as abas das receitas , tinha que puxar algo como : aula, material de apoio, podcast ( opção de incluir link)...   
+
+Aba tipos de conteúdo, atualizar com as tags de conteúdos 
+
+Aba conteúdos , não está salvando o conteúdo adicionado 
+ 
+
+Grupo de usuarios – não está salvando o grupo 
+
+Retirar a aba planos 

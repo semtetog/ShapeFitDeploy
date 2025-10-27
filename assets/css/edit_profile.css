@@ -1,0 +1,145 @@
+/* assets/css/edit_profile.css */
+
+.edit-profile-container {
+    padding: 0 0 100px 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.content-fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn-slideUp 0.6s forwards ease-out;
+}
+
+@keyframes fadeIn-slideUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.edit-profile-container .header-nav { display: flex; align-items: center; padding: 10px 0; margin-bottom: 25px; }
+.edit-profile-container .back-button { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: var(--surface-color); border-radius: 50%; color: var(--primary-text-color); text-decoration: none; font-size: 0.9em; transition: background-color .2s ease, transform .2s ease; }
+.edit-profile-container .back-button:hover { background-color: #2a2a2a; transform: scale(1.05); }
+.edit-profile-container .page-title { flex-grow: 1; text-align: center; margin: 0; padding-right: 40px; font-size: 1.2em; font-weight: 600; }
+
+.profile-picture-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+.profile-picture-wrapper { position: relative; width: 120px; height: 120px; }
+.profile-picture { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.edit-picture-overlay { position: absolute; bottom: 5px; right: 5px; width: 36px; height: 36px; background-color: var(--accent-orange); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid var(--bg-color); transition: transform .2s cubic-bezier(.175,.885,.32,1.275); }
+.edit-picture-overlay:hover { transform: scale(1.15); }
+.edit-picture-overlay .icon-loading { display: none; font-size: 16px; }
+.edit-picture-overlay .icon-edit { font-size: 14px; }
+.edit-picture-overlay.is-loading .icon-edit { display: none; }
+.edit-picture-overlay.is-loading .icon-loading { display: block; }
+
+.upload-status { text-align: center; margin-top: 15px; font-size: 0.9em; font-weight: 500; height: 20px; transition: opacity 0.3s ease; }
+.upload-status.success { color: var(--success-color); }
+.upload-status.error { color: var(--danger-color); }
+
+#edit-profile-form { display: flex; flex-direction: column; gap: 15px; }
+.form-section { background-color: var(--surface-color); padding: 25px; border-radius: 16px; margin-bottom: 15px; }
+.form-section-title { font-size: 1.1em; font-weight: 600; margin: 0 0 25px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+.form-group { margin-bottom: 20px; }
+.form-group:last-child { margin-bottom: 0; }
+.form-group label { font-size: 0.9em; font-weight: 500; color: var(--secondary-text-color); margin-bottom: 10px; display: block; }
+.form-group-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+/* --- BOTÃO "RESTRIÇÕES ALIMENTARES" ESTILIZADO --- */
+.info-item-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px;
+    background-color: var(--bg-color);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    color: var(--primary-text-color);
+    font-weight: 500;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.info-item-link:hover {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+.info-item-link span { font-weight: 500; }
+.info-item-link i { color: var(--secondary-text-color); }
+
+.checkbox-group { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 15px; }
+.checkbox-item { display: flex; align-items: center; }
+.checkbox-item input[type=checkbox] { opacity: 0; width: 0; height: 0; position: absolute; }
+.checkbox-item label { cursor: pointer; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); transition: all .2s ease; width: 100%; text-align: center; font-size: .9em; }
+.checkbox-item input[type=checkbox]:checked+label { background-color: var(--accent-orange); border-color: var(--accent-orange); color: #fff; font-weight: 600; }
+
+.form-actions { margin-top: 15px; }
+#edit-profile-form .btn-primary { width: 100%; padding: 16px; font-size: 1em; font-weight: 600; letter-spacing: .5px; }
+.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; background-color: #1A1A1A;
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 6px 0; box-shadow: 0 -2px 8px rgba(0,0,0,0.35);
+    z-index: 1000; border-top: 1px solid #282828;
+}
+.nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--secondary-text-color); text-decoration: none; font-size: 10px;
+    padding: 4px 5px; flex: 1; text-align: center; transition: color 0.2s ease; min-height: 48px;
+}
+.nav-item i.fas { font-size: 20px; margin-bottom: 2px; line-height: 1; }
+.nav-item.active,
+.nav-item:hover { color: var(--accent-orange); }
+
+
+/* --- Media Queries para main_app_specific.css --- */
+@media (max-width: 400px) {
+    .main-app-container { padding-bottom: 80px; }
+
+    .main-header-app { flex-direction: column; gap: 8px; align-items: flex-start; padding-bottom: 15px;}
+    .user-greeting { font-size: 1.3em; }
+    .header-actions { align-self: flex-end; gap: 10px;}
+    .header-action-link i.fas { font-size: 20px; }
+    .main-header-app .header-actions .header-action-link.text-link { font-size: 0.85em; padding: 4px 6px;}
+
+
+    .current-weight-banner.card-shadow-light { font-size: 0.95em; padding: 10px 15px; margin-bottom: 15px; }
+    .current-weight-banner i.edit-icon { font-size: 16px; }
+
+    .section-title { font-size: 1.15em; }
+    .card-shadow, .card-shadow-light, .card-shadow-prominent { padding: 15px; margin-bottom: 15px; }
+    .card-shadow-prominent { padding: 20px; }
+
+    .consumption-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .progress-circle { width: 55px; height: 55px; }
+    .percentage-text { font-size: 11px; }
+    .consumption-item p { font-size: 0.75em; }
+
+    .hydration-tracker-card h3 { font-size: 1em; }
+    .hydration-icon-text i.water-drop-icon { font-size: 22px; }
+    .water-controls { gap: 15px;}
+    .water-btn { width: 30px; height: 30px; font-size: 1.5em; line-height: 28px;}
+    .water-status { font-size: 0.95em; }
+    .water-progress-bar-container { width: 85%; }
+
+    .routine-item.card-shadow-light { min-width: 160px; max-width: 160px; min-height: 110px; padding: 12px; }
+    .routine-item p { font-size: 0.9em; }
+    .routine-btn-action { width: 30px; height: 30px; }
+    .routine-btn-action i.fas { font-size: 13px; }
+
+    .meal-prompt-card i.meal-prompt-icon { font-size: 28px; }
+    .meal-prompt-card h2 { font-size: 1.25em; }
+    .meal-prompt-card p { font-size: 0.9em; margin-bottom: 15px; }
+    .meal-prompt-card .add-meal-main-btn { font-size: 1em; padding: 10px 20px; }
+    .meal-prompt-card .add-meal-main-btn i.btn-icon-fa { font-size: 0.95em; }
+
+    .suggestion-item.card-shadow-light { width: 125px; min-width: 125px; }
+    .suggestion-item .recipe-suggestion-link img { height: 70px; }
+    .suggestion-item .recipe-suggestion-link .recipe-info h3 { font-size: 0.85em; min-height: 2.4em; }
+    .suggestion-item .recipe-suggestion-link .recipe-info span { font-size: 0.7em; }
+
+    .meal-list-item.card-shadow-light { padding: 10px 12px; }
+    .meal-list-item a i.fas { font-size: 16px; width: 18px;}
+    .meal-list-item .meal-kcal { font-size: 0.85em; }
+
+    .bottom-nav { padding: 4px 0; }
+    .nav-item { font-size: 9px; min-height: 45px; padding: 3px 4px;}
+    .nav-item i.fas { font-size: 18px; margin-bottom: 1px; }
+    .nav-item .add-btn-circle { width: 44px; height: 44px; margin-top: -18px; border-width: 2px; }
+    .nav-item .add-btn-circle i.fas { font-size: 20px; }
+}

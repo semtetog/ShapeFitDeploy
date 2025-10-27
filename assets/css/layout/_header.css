@@ -1,0 +1,75 @@
+/* assets/css/layout/_header.css */
+
+/* --- Estilos para Header (Dashboard e Páginas Gerais) --- */
+.header, .header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-shrink: 0;
+     padding-top: env(safe-area-inset-top);
+}
+
+/* Título principal do header e de outras páginas */
+.header h1, .page-title {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.page-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+/* Container das ações no header (pontos, perfil) */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.points-counter-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--glass-bg);
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: transform 0.2s ease;
+}
+
+.points-counter-badge:active {
+    transform: scale(0.97);
+}
+
+.points-counter-badge img {
+    width: 20px;
+    height: 20px;
+}
+
+.profile-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-orange);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(30, 30, 30, 0.5);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    text-decoration: none;
+}
+
+.profile-icon:active {
+    transform: scale(0.95);
+}
+
+.profile-icon svg {
+    color: var(--text-primary);
+}

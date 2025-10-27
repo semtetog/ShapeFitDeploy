@@ -1,0 +1,20 @@
+RewriteEngine On
+RewriteBase /adminnovo/
+
+# Permitir acesso direto aos arquivos da API
+RewriteCond %{REQUEST_URI} ^/adminnovo/api/
+RewriteRule ^api/(.*)$ api/$1 [L]
+
+# Permitir acesso direto aos arquivos estáticos
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.*)$ $1 [L]
+
+# Para todas as outras requisições, redirecionar para index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(?!api/).*$ index.html [L]
+
+# Headers de segurança
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"

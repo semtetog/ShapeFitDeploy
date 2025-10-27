@@ -1,0 +1,37 @@
+{
+  "name": "ShapeFIT - Seu Personal Trainer",
+  "short_name": "ShapeFIT",
+  "description": "Aplicativo completo de fitness e nutrição",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "transparent",
+  "theme_color": "transparent",
+  "orientation": "portrait-primary",
+  "categories": ["health", "fitness", "lifestyle"],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/assets/images/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/images/screenshot1.png",
+      "type": "image/png",
+      "sizes": "1080x1920",
+      "form_factor": "narrow"
+    }
+  ],
+  "prefer_related_applications": false
+}

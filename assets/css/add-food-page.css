@@ -1,0 +1,303 @@
+/* Arquivo: assets/css/add-food-page.css - VERSÃO DE DESIGN FINAL E COMPLETA */
+
+/* --- Layout Geral --- */
+.add-food-interface .add-food-container { padding: 10px 15px 120px 15px; }
+.add-food-interface .form-group { margin-bottom: 20px; }
+.add-food-interface .form-group label { font-size: 0.85rem; font-weight: 500; color: var(--secondary-text-color); margin-bottom: 8px; }
+
+/* --- Cabeçalho --- */
+.add-food-interface .header-nav { display: flex; align-items: center; justify-content: center; position: relative; padding: 10px 0; margin-bottom: 15px; }
+.add-food-interface .back-button { position: absolute; left: -10px; top: 50%; transform: translateY(-50%); font-size: 1.6rem; color: var(--primary-text-color); padding: 10px; text-decoration: none; }
+.add-food-interface .page-title { font-size: 1.25rem; font-weight: 600; margin: 0; }
+
+/* --- Card de Setup --- */
+.add-food-interface .card-shadow { background-color: var(--surface-color); border-radius: 16px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.add-food-interface .meal-setup-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.add-food-interface .meal-setup-row .form-group { margin: 0; }
+
+
+.add-food-interface .meal-setup-row .form-control {
+    height: 48px; /* Força uma altura fixa para ambos */
+    display: flex;
+    align-items: center;
+    padding: 0 15px; /* Controla o padding interno para alinhar o texto */
+}
+
+.add-food-interface .meal-setup-row select.form-control {
+    padding-right: 40px; /* Garante espaço para a seta do select */
+}
+
+/* --- Seção de Busca e Scanner --- */
+.add-food-interface .search-input-wrapper { display: flex; gap: 10px; align-items: stretch; }
+.add-food-interface .input-icon-group { position: relative; flex-grow: 1; }
+.add-food-interface .search-icon-input { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--secondary-text-color); }
+.add-food-interface #food-search-input {
+    padding-left: 15px !important; /* Retorna ao padding padrão */
+}
+.add-food-interface #perform-search-btn, .add-food-interface #scan-barcode-btn {
+    flex-shrink: 0; width: 52px; height: 48px; padding: 0; background: var(--surface-color);
+    border: 1px solid var(--border-color); color: var(--secondary-text-color);
+    display: flex; align-items: center; justify-content: center;
+}
+.add-food-interface #scan-barcode-btn { color: var(--accent-orange); }
+
+/* --- Lista de Resultados da Busca --- */
+#search-results-container { margin-top: 10px; background-color: var(--surface-color); border-radius: 12px; border: 1px solid var(--border-color); }
+.search-results-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
+.search-results-list li { padding: 14px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.2s ease; }
+.search-results-list li:last-child { border-bottom: none; }
+.search-results-list li:hover { background-color: rgba(255, 255, 255, 0.05); }
+
+/* --- Card de Detalhes do Alimento --- */
+#selected-food-details-container { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; transition: all 0.4s ease-in-out; padding: 0; margin-top: 0; border-radius: 16px; }
+#selected-food-details-container.visible { opacity: 1; visibility: visible; max-height: 600px; padding: 25px; margin-top: 25px; }
+#selected-food-details-container h3 { font-size: 1.3rem; color: var(--accent-orange); text-align: center; margin-bottom: 25px; font-weight: 600; line-height: 1.3; }
+.add-food-interface .quantity-unit-row { display: flex; gap: 15px; }
+.add-food-interface .quantity-unit-row .form-group { flex: 1; }
+.add-food-interface .macros-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 25px; margin: 25px 0; padding: 25px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+.add-food-interface .macros-preview p { margin: 0; display: flex; flex-direction: column; align-items: flex-start; font-size: 0.8rem; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing: 0.5px; }
+.add-food-interface .macros-preview p span { font-weight: 600; font-size: 1.2rem; color: var(--primary-text-color); line-height: 1.2; text-transform: none; letter-spacing: 0; }
+.add-food-interface .macros-preview p span span { font-size: 1.2rem; } /* Garante que o span interno herde o tamanho */
+.add-food-interface .macros-preview .unit { font-size: 0.8rem; color: var(--secondary-text-color); margin-left: 4px; }
+.add-food-interface .form-actions { display: flex; gap: 15px; justify-content: flex-end; margin-top: 10px; }
+.add-food-interface #add-food-item-to-meal-btn { width: auto; padding: 10px 25px; }
+.add-food-interface .btn-link { color: var(--secondary-text-color); font-weight: 500; }
+
+/* --- Card de Refeição Atual --- */
+.add-food-interface .current-meal-summary h4 { font-size: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 10px; }
+.add-food-interface #current-meal-items-list li { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px dashed #282828; }
+.add-food-interface .btn-remove-item { background: none; border: none; color: var(--danger-color); font-size: 1.6rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s ease; }
+.add-food-interface .btn-remove-item:hover { opacity: 1; }
+.add-food-interface .current-meal-totals { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: right; font-size: 1.1rem; font-weight: 500; }
+.add-food-interface .current-meal-totals span { color: var(--accent-orange); font-weight: 700; }
+
+/* --- Footer Fixo --- */
+.add-food-interface .form-actions-fixed { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: linear-gradient(180deg, rgba(28, 28, 30, 0) 0%, #1C1C1E 40%); padding: 30px 15px 15px 15px; display: flex; gap: 15px; z-index: 500; border: none; box-shadow: none; }
+.add-food-interface .form-actions-fixed .btn { flex: 1; }
+
+/* --- Modal do Scanner --- */
+.add-food-interface .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 1050; padding: 20px; }
+.add-food-interface .modal-content { background: var(--surface-color); padding: 25px; border-radius: 16px; width: 100%; max-width: 500px; position: relative; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+.add-food-interface #scanner-container { width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 15px; background: #000; position: relative; padding-top: 75%; }
+.add-food-interface #scanner-container > video, .add-food-interface #scanner-container > canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+.add-food-interface .form-actions-details {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.add-food-interface .form-actions-details .btn-primary {
+    flex-grow: 1; /* Faz o botão principal ocupar todo o espaço disponível */
+}
+
+.add-food-interface .btn-icon-cancel {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text-color);
+    border-radius: 50%; /* Deixa o botão redondo */
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0; /* Impede que o botão encolha */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.add-food-interface .btn-icon-cancel i {
+    font-size: 1.2rem;
+}
+
+.add-food-interface .btn-icon-cancel:hover {
+    background-color: var(--border-color);
+    border-color: var(--secondary-text-color);
+}
+
+.add-food-interface #current-meal-items-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5px; /* Mais espaçamento vertical */
+    border-bottom: 1px solid var(--border-color); /* Linha sólida e mais sutil */
+}
+
+.add-food-interface .meal-item-info {
+    flex-grow: 1; /* Ocupa o máximo de espaço possível */
+    margin-right: 15px;
+    display: flex;
+    flex-direction: column; /* Coloca o nome em cima dos detalhes */
+}
+
+.add-food-interface .meal-item-name {
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--primary-text-color);
+    margin-bottom: 4px; /* Pequeno espaço entre o nome e os detalhes */
+}
+
+.add-food-interface .meal-item-details {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+}
+
+.add-food-interface .meal-item-calories {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Alinha o texto à direita */
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--secondary-text-color);
+    min-width: 60px; /* Garante um espaço mínimo */
+}
+
+.add-food-interface .meal-item-calories span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+}
+
+.add-food-interface .btn-remove-item {
+    font-size: 1.1rem; /* Tamanho do ícone 'X' */
+    padding: 5px 10px;
+    margin-left: 10px;
+}
+
+/* --- NAVEGAÇÃO INFERIOR (RESTaurada) --- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: #1E1E1E;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 65px;
+    padding: 0 10px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.25);
+    border-top: 1px solid var(--border-color);
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--secondary-text-color);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    flex: 1;
+    text-align: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+    height: 100%;
+    position: relative;
+}
+
+.nav-item i.fas { font-size: 22px; margin-bottom: 4px; }
+.nav-item.active,
+.nav-item:hover { color: var(--accent-orange); }
+.nav-item:active { transform: scale(0.95); }
+
+#barcode-scanner-modal .modal-content {
+    background-color: var(--surface-color);
+    max-width: 400px; /* Um pouco mais estreito */
+}
+
+/* Container do vídeo da câmera */
+#scanner-container {
+    position: relative; /* Essencial para a linha animada */
+    width: 100%;
+    height: 180px; /* ALTURA REDUZIDA para parecer um leitor */
+    overflow: hidden;
+    border-radius: 12px;
+    background: #000;
+}
+
+#scanner-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Garante que o vídeo preencha o espaço */
+}
+
+/* Linha vermelha animada do scanner */
+#scanner-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: #FF0000;
+    box-shadow: 0 0 10px #FF0000, 0 0 20px #FF0000;
+    animation: scan-line 2s infinite ease-in-out;
+}
+
+@keyframes scan-line {
+    0% {
+        top: 0;
+    }
+    50% {
+        top: calc(100% - 3px);
+    }
+    100% {
+        top: 0;
+    }
+}
+
+#product-not-found-modal .modal-content {
+    text-align: center;
+}
+#product-not-found-modal .modal-subtitle {
+    color: var(--secondary-text-color);
+    font-size: 0.95em;
+    margin-bottom: 25px;
+}
+#product-not-found-modal .modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+#product-not-found-modal .link-secondary {
+    color: var(--accent-orange);
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+
+/* Estilo para a seção de busca e scan */
+.search-input-wrapper {
+    display: flex;
+    gap: 10px;
+}
+.search-input-wrapper .form-control {
+    flex-grow: 1; /* Faz o input de busca ocupar o espaço disponível */
+}
+
+/* Estilo para o botão de ícone (scanner e busca) */
+.btn-icon-action {
+    flex-shrink: 0; /* Impede que o botão seja esmagado */
+    width: 48px;
+    height: 48px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text-color);
+    border-radius: 8px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-icon-action:hover {
+    background-color: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: white;
+}

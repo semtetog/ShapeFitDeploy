@@ -1,0 +1,16 @@
+/* assets/css/layout/_grid.css */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+}
+
+/* 
+  Esta regra garante que os cards dentro do grid
+  não tenham a margem inferior extra, pois o `gap` já cuida do espaçamento.
+*/
+.dashboard-grid > .glass-card {
+    margin-bottom: 0;
+}

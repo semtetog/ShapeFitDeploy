@@ -1,0 +1,22 @@
+{
+  "appId": "com.shapefit.app",
+  "appName": "ShapeFit",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "never"
+  },
+  "android": {
+    "backgroundColor": "#121212"
+  }
+}
+
+
+
+
+
+
+
+
