@@ -9,6 +9,85 @@
   --font-family: 'Montserrat', sans-serif;
   --accent-orange: #FF6B00;
   --danger-color: #F44336;
+  --surface-color: rgba(255, 255, 255, 0.05);
+  --card-bg: rgba(255, 255, 255, 0.03);
+}
+
+/* Tema Claro */
+[data-theme="light"] {
+  --bg-color: #F5F5F5;
+  --bg-gradient-start: #E0E0E0;
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --text-primary: #1A1A1A;
+  --text-secondary: #666666;
+  --surface-color: rgba(0, 0, 0, 0.03);
+  --card-bg: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] body {
+  background-color: #F5F5F5;
+  color: #1A1A1A;
+}
+
+[data-theme="light"] .sidebar {
+  background: #FFFFFF;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .sidebar-nav a {
+  color: #333333;
+}
+
+[data-theme="light"] .sidebar-nav a:hover {
+  background: rgba(255, 102, 0, 0.1);
+  color: #000000;
+}
+
+[data-theme="light"] .sidebar-admin-profile {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .admin-name {
+  color: #1A1A1A;
+}
+
+[data-theme="light"] .admin-role {
+  color: #666666;
+}
+
+[data-theme="light"] .admin-avatar {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .admin-theme-toggle,
+[data-theme="light"] .admin-logout-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .admin-theme-toggle:hover,
+[data-theme="light"] .admin-logout-btn:hover {
+  background: rgba(255, 102, 0, 0.1);
+  border-color: var(--accent-orange);
+}
+
+[data-theme="light"] .admin-logout-btn span {
+  color: #1A1A1A;
+}
+
+[data-theme="light"] .dashboard-card,
+[data-theme="light"] .chart-card,
+[data-theme="light"] .stats-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] .stat-value,
+[data-theme="light"] .stat-label {
+  color: #1A1A1A;
 }
 
 /* Antialiasing global para todos os textos */
@@ -273,6 +352,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .admin-avatar {
@@ -315,13 +395,14 @@ body {
   text-overflow: ellipsis;
 }
 
-.admin-actions {
-  flex-shrink: 0;
+.admin-controls {
+  display: flex;
+  gap: 0.5rem;
 }
 
-.admin-logout-btn {
-  width: 32px;
-  height: 32px;
+.admin-theme-toggle {
+  flex: 1;
+  height: 36px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -331,16 +412,59 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  font-size: 0.875rem;
+}
+
+.admin-theme-toggle:hover {
+  background: rgba(255, 102, 0, 0.1);
+  border-color: var(--accent-orange);
+}
+
+.admin-theme-toggle .theme-icon-light {
+  display: none;
+}
+
+.admin-theme-toggle .theme-icon-dark {
+  display: block;
+}
+
+[data-theme="light"] .admin-theme-toggle .theme-icon-light {
+  display: block;
+}
+
+[data-theme="light"] .admin-theme-toggle .theme-icon-dark {
+  display: none;
+}
+
+.admin-logout-btn {
+  flex: 1;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--accent-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .admin-logout-btn:hover {
   background: rgba(255, 102, 0, 0.1);
   border-color: var(--accent-orange);
-  transform: scale(1.05);
 }
 
 .admin-logout-btn i {
   font-size: 0.875rem;
+}
+
+.admin-logout-btn span {
+  color: #FFFFFF;
 }
 
 .sidebar-close-button {

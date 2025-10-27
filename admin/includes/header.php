@@ -83,19 +83,42 @@ if (!defined('BASE_ADMIN_URL')) {
             <div class="sidebar-admin-profile">
                 <div class="admin-profile-card">
                     <div class="admin-avatar">
-                        <i class="fas fa-user-shield"></i>
+                        <i class="fas fa-user"></i>
                     </div>
                     <div class="admin-info">
                         <div class="admin-name"><?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Administrador'); ?></div>
                         <div class="admin-role">Administrador</div>
                     </div>
-                    <div class="admin-actions">
-                        <button class="admin-logout-btn" onclick="window.location.href='<?php echo BASE_ADMIN_URL; ?>/logout.php'" title="Sair">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </button>
-                    </div>
+                </div>
+                <div class="admin-controls">
+                    <button class="admin-theme-toggle" onclick="toggleTheme()" title="Alternar Tema">
+                        <i class="fas fa-sun theme-icon-light"></i>
+                        <i class="fas fa-moon theme-icon-dark"></i>
+                    </button>
+                    <button class="admin-logout-btn" onclick="window.location.href='<?php echo BASE_ADMIN_URL; ?>/logout.php'" title="Sair">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sair</span>
+                    </button>
                 </div>
             </div>
+            
+            <script>
+            // Sistema de Tema Claro/Escuro
+            function toggleTheme() {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('admin-theme', newTheme);
+            }
+            
+            // Carregar tema salvo ao iniciar
+            (function() {
+                const savedTheme = localStorage.getItem('admin-theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            })();
+            </script>
         </aside>
         <main class="main-content">
             <header class="main-header">
