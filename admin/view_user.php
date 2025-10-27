@@ -1035,8 +1035,23 @@ function navigateDiary(direction) {
     
     // Se tentar ir para trás e já está no primeiro card (mais antigo)
     if (direction < 0 && newIndex < 0) {
-        // Já está no mais antigo, não faz nada
-        return;
+        // Carregar mais 30 dias anteriores
+        const firstCard = diaryCards[0];
+        if (firstCard) {
+            const firstDate = firstCard.getAttribute('data-date');
+            // Calcular data 30 dias antes do primeiro dia disponível
+            const dateObj = new Date(firstDate + 'T00:00:00');
+            dateObj.setDate(dateObj.getDate() - 1); // Um dia antes do primeiro
+            const newEndDate = dateObj.toISOString().split('T')[0];
+            
+            console.log('Carregando mais dias anteriores. Nova end_date:', newEndDate);
+            
+            // Recarregar página com nova data para buscar 30 dias anteriores
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('end_date', newEndDate);
+            window.location.href = window.location.pathname + '?' + urlParams.toString();
+            return;
+        }
     }
     
     currentDiaryIndex = newIndex;
