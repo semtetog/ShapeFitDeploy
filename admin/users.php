@@ -119,7 +119,19 @@ require_once __DIR__ . '/includes/header.php';
                         } else {
                             $initials = '??';
                         }
-                        $bgColor = '#' . substr(md5($user['name']), 0, 6);
+                        // Gerar cor escura para bom contraste com texto branco
+                        $hash = md5($user['name']);
+                        $r = hexdec(substr($hash, 0, 2)) % 156 + 50;  // 50-205
+                        $g = hexdec(substr($hash, 2, 2)) % 156 + 50;  // 50-205
+                        $b = hexdec(substr($hash, 4, 2)) % 156 + 50;  // 50-205
+                        // Garantir que pelo menos um canal seja escuro
+                        $max = max($r, $g, $b);
+                        if ($max > 180) {
+                            $r = (int)($r * 0.7);
+                            $g = (int)($g * 0.7);
+                            $b = (int)($b * 0.7);
+                        }
+                        $bgColor = sprintf('#%02x%02x%02x', $r, $g, $b);
                     ?>
                         <div class="initials-avatar" style="background-color: <?php echo $bgColor; ?>;">
                             <?php echo $initials; ?>
