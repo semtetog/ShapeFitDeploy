@@ -37,6 +37,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Remover scrollbar em todos os navegadores */
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;
+}
+
+body,
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 /* Background Principal */
 .min-h-screen {
   min-height: 100vh;
@@ -78,6 +90,11 @@ body {
   z-index: 50;
   overflow-y: auto;
   transition: transform 0.3s ease;
+}
+
+/* Remover scrollbar da sidebar */
+.sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebar-header {
