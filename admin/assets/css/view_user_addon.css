@@ -124,60 +124,7 @@
   font-family: 'Montserrat', sans-serif;
 }
 
-/* ========== CARD HEADER COM AÇÃO ========== */
-.card-header-with-action {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.card-header-with-action h3 {
-  margin: 0;
-  flex: 1;
-}
-
-.btn-edit-inline {
-  padding: 0.5rem 1.25rem;
-  background: rgba(255, 107, 0, 0.2);
-  border: 1px solid var(--accent-orange);
-  border-radius: 8px;
-  color: var(--accent-orange);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-edit-inline:hover {
-  background: var(--accent-orange);
-  color: white;
-  transform: translateY(-1px);
-}
-
-.btn-edit-inline.cancel-mode {
-  background: rgba(244, 67, 54, 0.2);
-  border-color: var(--danger-red);
-  color: var(--danger-red);
-}
-
-.btn-edit-inline.cancel-mode:hover {
-  background: var(--danger-red);
-  color: white;
-}
-
-/* ========== FORMULÁRIO INLINE DE METAS ========== */
-.edit-metas-inline-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-  margin-top: 1rem;
-}
+/* Estilos removidos - edição inline implementada */
 
 .form-group-inline {
   display: flex;
@@ -345,6 +292,31 @@
   font-weight: 700;
   color: var(--accent-orange);
   display: block;
+}
+
+/* Valores editáveis inline */
+.editable-value {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+}
+
+.editable-value:hover {
+  opacity: 0.9;
+}
+
+.editable-value input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 2px solid var(--accent-orange) !important;
+  border-radius: 8px !important;
+  outline: none !important;
+  transition: all 0.3s ease;
+}
+
+.editable-value input:focus {
+  background: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.2) !important;
 }
 
 /* ========== TABS REDESIGN - 2 FILEIRAS ========== */

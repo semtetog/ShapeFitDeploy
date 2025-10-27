@@ -525,63 +525,41 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="details-grid-3-cols">
     <div class="dashboard-card">
-        <div class="card-header-with-action">
-            <h3>Meta Calórica e Macros</h3>
-            <button class="btn-edit-inline" onclick="toggleEditMetas()" id="btn-edit-metas">
-                <i class="fas fa-edit"></i> Editar
-            </button>
-        </div>
+        <h3>Meta Calórica e Macros</h3>
         
-        <div id="meta-display-view">
-            <div class="meta-card-main">
-                <span class="meta-value" id="display-calories"><?php echo $total_daily_calories_goal; ?></span>
-                <span class="meta-label">Kcal / dia</span>
-            </div>
-            <div class="meta-card-macros">
-                <div><span id="display-carbs"><?php echo $macros_goal['carbs_g']; ?>g</span>Carboidratos</div>
-                <div><span id="display-protein"><?php echo $macros_goal['protein_g']; ?>g</span>Proteínas</div>
-                <div><span id="display-fat"><?php echo $macros_goal['fat_g']; ?>g</span>Gorduras</div>
-            </div>
+        <div class="meta-card-main">
+            <span class="meta-value editable-value" 
+                  data-field="daily_calories" 
+                  data-user-id="<?php echo $user_id; ?>"
+                  data-original="<?php echo $total_daily_calories_goal; ?>"
+                  title="Clique para editar"><?php echo $total_daily_calories_goal; ?></span>
+            <span class="meta-label">Kcal / dia</span>
         </div>
-        
-        <div id="meta-edit-form" style="display: none;">
-            <form method="POST" action="<?php echo BASE_ADMIN_URL; ?>/actions/update_user_goals.php" class="edit-metas-inline-form">
-                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                
-                <div class="form-group-inline">
-                    <label for="daily_calories">Meta de Calorias (kcal/dia)</label>
-                    <input type="number" id="daily_calories" name="daily_calories" value="<?php echo $total_daily_calories_goal; ?>" min="800" max="5000" required>
-                </div>
-                
-                <div class="form-group-inline">
-                    <label for="protein_g">Meta de Proteínas (g/dia)</label>
-                    <input type="number" id="protein_g" name="protein_g" value="<?php echo $macros_goal['protein_g']; ?>" min="0" max="500" required>
-                </div>
-                
-                <div class="form-group-inline">
-                    <label for="carbs_g">Meta de Carboidratos (g/dia)</label>
-                    <input type="number" id="carbs_g" name="carbs_g" value="<?php echo $macros_goal['carbs_g']; ?>" min="0" max="1000" required>
-                </div>
-                
-                <div class="form-group-inline">
-                    <label for="fat_g">Meta de Gorduras (g/dia)</label>
-                    <input type="number" id="fat_g" name="fat_g" value="<?php echo $macros_goal['fat_g']; ?>" min="0" max="300" required>
-                </div>
-                
-                <div class="form-group-inline">
-                    <label for="water_ml">Meta de Hidratação (ml/dia)</label>
-                    <input type="number" id="water_ml" name="water_ml" value="<?php echo $water_goal_ml; ?>" min="500" max="10000" required>
-                </div>
-                
-                <div class="form-buttons-inline">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Salvar Metas
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="toggleEditMetas()">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                </div>
-            </form>
+        <div class="meta-card-macros">
+            <div>
+                <span class="editable-value" 
+                      data-field="carbs_g" 
+                      data-user-id="<?php echo $user_id; ?>"
+                      data-original="<?php echo $macros_goal['carbs_g']; ?>"
+                      title="Clique para editar"><?php echo $macros_goal['carbs_g']; ?>g</span>
+                Carboidratos
+            </div>
+            <div>
+                <span class="editable-value" 
+                      data-field="protein_g" 
+                      data-user-id="<?php echo $user_id; ?>"
+                      data-original="<?php echo $macros_goal['protein_g']; ?>"
+                      title="Clique para editar"><?php echo $macros_goal['protein_g']; ?>g</span>
+                Proteínas
+            </div>
+            <div>
+                <span class="editable-value" 
+                      data-field="fat_g" 
+                      data-user-id="<?php echo $user_id; ?>"
+                      data-original="<?php echo $macros_goal['fat_g']; ?>"
+                      title="Clique para editar"><?php echo $macros_goal['fat_g']; ?>g</span>
+                Gorduras
+            </div>
         </div>
     </div>
 
@@ -1457,24 +1435,143 @@ const nutrientsStats = {
     'all': <?php echo json_encode($nutrients_stats_all); ?>
 };
 
-// Toggle para editar metas inline
-function toggleEditMetas() {
-    const displayView = document.getElementById('meta-display-view');
-    const editForm = document.getElementById('meta-edit-form');
-    const btnEdit = document.getElementById('btn-edit-metas');
+// Sistema de edição inline para metas
+document.addEventListener('DOMContentLoaded', function() {
+    const editableValues = document.querySelectorAll('.editable-value');
     
-    if (editForm.style.display === 'none') {
-        displayView.style.display = 'none';
-        editForm.style.display = 'block';
-        btnEdit.innerHTML = '<i class="fas fa-times"></i> Cancelar';
-        btnEdit.classList.add('cancel-mode');
-    } else {
-        displayView.style.display = 'block';
-        editForm.style.display = 'none';
-        btnEdit.innerHTML = '<i class="fas fa-edit"></i> Editar';
-        btnEdit.classList.remove('cancel-mode');
+    editableValues.forEach(element => {
+        element.addEventListener('click', function() {
+            if (this.querySelector('input')) return; // Já está em edição
+            
+            const field = this.dataset.field;
+            const userId = this.dataset.userId;
+            const currentValue = this.dataset.original;
+            const fullText = this.textContent;
+            const suffix = fullText.replace(currentValue, '').trim(); // Pega 'g' ou ''
+            
+            // Salvar estilo original
+            const originalStyles = {
+                fontSize: window.getComputedStyle(this).fontSize,
+                fontWeight: window.getComputedStyle(this).fontWeight,
+                color: window.getComputedStyle(this).color,
+                textAlign: window.getComputedStyle(this).textAlign
+            };
+            
+            // Criar input
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentValue;
+            input.style.cssText = `
+                background: rgba(255, 255, 255, 0.08);
+                border: 2px solid var(--accent-orange);
+                border-radius: 8px;
+                padding: 0.25rem 0.5rem;
+                color: ${originalStyles.color};
+                font-size: ${originalStyles.fontSize};
+                font-weight: ${originalStyles.fontWeight};
+                text-align: ${originalStyles.textAlign};
+                width: 100%;
+                max-width: 150px;
+                outline: none;
+                font-family: 'Montserrat', sans-serif;
+            `;
+            
+            // Substituir conteúdo
+            this.textContent = '';
+            this.appendChild(input);
+            input.focus();
+            input.select();
+            
+            // Função de salvar
+            const saveValue = async () => {
+                const newValue = input.value;
+                if (!newValue || newValue === currentValue) {
+                    cancelEdit();
+                    return;
+                }
+                
+                try {
+                    const formData = new FormData();
+                    formData.append('user_id', userId);
+                    formData.append('daily_calories', field === 'daily_calories' ? newValue : document.querySelector('[data-field="daily_calories"]').dataset.original);
+                    formData.append('protein_g', field === 'protein_g' ? newValue : document.querySelector('[data-field="protein_g"]').dataset.original);
+                    formData.append('carbs_g', field === 'carbs_g' ? newValue : document.querySelector('[data-field="carbs_g"]').dataset.original);
+                    formData.append('fat_g', field === 'fat_g' ? newValue : document.querySelector('[data-field="fat_g"]').dataset.original);
+                    formData.append('water_ml', document.querySelector('[data-user-id]').dataset.original); // Manter hidratação igual
+                    
+                    // Atualizar o valor específico que mudou
+                    if (field === 'daily_calories') formData.set('daily_calories', newValue);
+                    if (field === 'protein_g') formData.set('protein_g', newValue);
+                    if (field === 'carbs_g') formData.set('carbs_g', newValue);
+                    if (field === 'fat_g') formData.set('fat_g', newValue);
+                    
+                    const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/update_user_goals.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Atualizar valor exibido
+                        element.dataset.original = newValue;
+                        element.textContent = newValue + suffix;
+                        
+                        // Mostrar feedback visual
+                        element.style.animation = 'pulse 0.5s ease';
+                        setTimeout(() => element.style.animation = '', 500);
+                    } else {
+                        alert('Erro ao salvar: ' + result.message);
+                        cancelEdit();
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao salvar alterações');
+                    cancelEdit();
+                }
+            };
+            
+            // Função de cancelar
+            const cancelEdit = () => {
+                element.textContent = currentValue + suffix;
+            };
+            
+            // Events
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveValue();
+                } else if (e.key === 'Escape') {
+                    cancelEdit();
+                }
+            });
+        });
+        
+        // Hover effect
+        element.style.cursor = 'pointer';
+        element.addEventListener('mouseenter', function() {
+            if (!this.querySelector('input')) {
+                this.style.textDecoration = 'underline';
+                this.style.textDecorationStyle = 'dashed';
+                this.style.textDecorationColor = 'var(--accent-orange)';
+            }
+        });
+        element.addEventListener('mouseleave', function() {
+            this.style.textDecoration = 'none';
+        });
+    });
+});
+
+// Animação de pulse
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); color: var(--accent-orange); }
     }
-}
+`;
+document.head.appendChild(style);
 
 // Funcionalidade dos filtros de hidratação
 document.addEventListener('DOMContentLoaded', function() {
