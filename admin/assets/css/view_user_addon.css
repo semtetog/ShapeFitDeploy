@@ -2473,30 +2473,41 @@
 
 /* ========== MODAL DE CALENDÁRIO ========== */
 .diary-calendar-modal-content {
-  max-width: 450px;
+  max-width: 500px;
 }
 
 .calendar-modal-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.calendar-modal-header .btn-icon-only:first-child {
+  grid-column: 1;
 }
 
 .calendar-header-center {
+  grid-column: 2;
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex: 1;
   justify-content: center;
 }
 
-.calendar-modal-body {
-  padding: 1.5rem;
+.calendar-modal-header .btn-icon-only:nth-child(3) {
+  grid-column: 3;
 }
 
 .calendar-close-btn {
-  flex-shrink: 0;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.calendar-modal-body {
+  padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
 .calendar-weekdays {
