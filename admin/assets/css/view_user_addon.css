@@ -616,6 +616,236 @@
   font-style: italic;
 }
 
+.empty-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+  gap: 1rem;
+}
+
+.empty-chart i {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+/* ========== IMPROVED BAR CHARTS (HYDRATION & NUTRIENTS) ========== */
+.improved-chart {
+  padding: 1rem 0;
+}
+
+.improved-bars {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  gap: 1rem;
+  min-height: 240px;
+  padding: 1rem 0.5rem 0.5rem;
+}
+
+.improved-bar-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 60px;
+  max-width: 100px;
+}
+
+.improved-bar-wrapper {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.improved-bar {
+  width: 100%;
+  border-radius: 6px;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 4px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.improved-bar.excellent {
+  background: linear-gradient(to top, #4CAF50, #66BB6A);
+}
+
+.improved-bar.good {
+  background: linear-gradient(to top, #8BC34A, #9CCC65);
+}
+
+.improved-bar.fair {
+  background: linear-gradient(to top, #FFC107, #FFD54F);
+}
+
+.improved-bar.poor {
+  background: linear-gradient(to top, #FF9800, #FFB74D);
+}
+
+.improved-bar.critical {
+  background: linear-gradient(to top, #F44336, #E57373);
+}
+
+.bar-percentage-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.improved-goal-line {
+  position: absolute;
+  bottom: 160px; /* 100% da altura do wrapper */
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-orange);
+  box-shadow: 0 0 6px rgba(255, 107, 0, 0.8);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.improved-bar-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.improved-date {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.improved-ml {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ========== SIMPLE LIST (HYDRATION & NUTRIENTS) ========== */
+.hydration-list-simple,
+.nutrients-list-simple {
+  margin-top: 2rem;
+}
+
+.list-header {
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px 12px 0 0;
+}
+
+.list-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.simple-list {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0 0 12px 12px;
+  border-top: none;
+}
+
+.simple-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+}
+
+.simple-item:last-child {
+  border-bottom: none;
+}
+
+.simple-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.simple-date {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.simple-amount {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.simple-ml-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.simple-percentage {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.simple-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.simple-status.excellent {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4CAF50;
+}
+
+.simple-status.good {
+  background: rgba(139, 195, 74, 0.15);
+  color: #8BC34A;
+}
+
+.simple-status.fair {
+  background: rgba(255, 193, 7, 0.15);
+  color: #FFC107;
+}
+
+.simple-status.poor {
+  background: rgba(255, 152, 0, 0.15);
+  color: #FF9800;
+}
+
+.simple-status.critical {
+  background: rgba(244, 67, 54, 0.15);
+  color: #F44336;
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 1024px) {
   .tabs-row {
