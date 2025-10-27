@@ -786,117 +786,137 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<?php
+// Calcular insights automáticos
+$days_with_goal = $water_stats_7['excellent_days'] + $water_stats_7['good_days'];
+$total_days_7 = $water_stats_7['total_days'];
+$avg_ml_7 = $water_stats_7['avg_ml'];
+$avg_percentage_7 = $water_stats_7['avg_percentage'];
+
+// Determinar status geral
+if ($avg_percentage_7 >= 90) {
+    $status_text = 'Excelente';
+    $status_class = 'excellent';
+    $status_icon = 'fa-check-circle';
+} elseif ($avg_percentage_7 >= 70) {
+    $status_text = 'Bom';
+    $status_class = 'good';
+    $status_icon = 'fa-check';
+} elseif ($avg_percentage_7 >= 50) {
+    $status_text = 'Regular';
+    $status_class = 'fair';
+    $status_icon = 'fa-exclamation-triangle';
+} elseif ($avg_percentage_7 >= 30) {
+    $status_text = 'Abaixo da meta';
+    $status_class = 'poor';
+    $status_icon = 'fa-exclamation';
+} else {
+    $status_text = 'Crítico';
+    $status_class = 'critical';
+    $status_icon = 'fa-times-circle';
+}
+
+// Gerar insights em linguagem natural
+$insights = [];
+$insights[] = "O paciente atingiu a meta em <strong>{$days_with_goal} de {$total_days_7} dias</strong> analisados.";
+
+// Comparar com semana anterior se houver dados
+$avg_ml_14 = $water_stats_15['avg_ml'] ?? 0;
+if ($avg_ml_14 > 0 && count($hydration_data) >= 14) {
+    $diff = $avg_ml_7 - $avg_ml_14;
+    if (abs($diff) > 100) {
+        if ($diff > 0) {
+            $insights[] = "Houve <strong class='text-success'>melhora de " . round($diff) . "ml</strong> em relação aos 7 dias anteriores.";
+        } else {
+            $insights[] = "Houve <strong class='text-danger'>redução de " . round(abs($diff)) . "ml</strong> em relação aos 7 dias anteriores.";
+        }
+    }
+}
+
+// Analisar padrão de dias da semana (se houver dados suficientes)
+if (count($hydration_data) >= 7) {
+    $weekend_avg = 0;
+    $weekday_avg = 0;
+    $weekend_count = 0;
+    $weekday_count = 0;
+    
+    foreach (array_slice($hydration_data, 0, 14) as $day) {
+        $dayOfWeek = date('N', strtotime($day['date']));
+        if ($dayOfWeek >= 6) {
+            $weekend_avg += $day['ml'];
+            $weekend_count++;
+        } else {
+            $weekday_avg += $day['ml'];
+            $weekday_count++;
+        }
+    }
+    
+    if ($weekend_count > 0 && $weekday_count > 0) {
+        $weekend_avg = $weekend_avg / $weekend_count;
+        $weekday_avg = $weekday_avg / $weekday_count;
+        $diff_weekend = $weekend_avg - $weekday_avg;
+        
+        if (abs($diff_weekend) > 300) {
+            if ($diff_weekend < 0) {
+                $insights[] = "Consumo <strong>reduzido nos fins de semana</strong> (em média " . round(abs($diff_weekend)) . "ml a menos).";
+            } else {
+                $insights[] = "Consumo <strong>maior nos fins de semana</strong> (em média " . round($diff_weekend) . "ml a mais).";
+            }
+        }
+    }
+}
+?>
+
 <div id="tab-hydration" class="tab-content">
     <div class="hydration-container">
-        <!-- Cabeçalho com Meta e Filtros -->
-        <div class="hydration-header">
-            <div class="hydration-meta-info">
-                <h3><i class="fas fa-tint"></i> Hidratação</h3>
-                <div class="meta-display">
-                    <span class="meta-goal">Meta: <?php echo $water_goal_ml; ?>ml/dia</span>
-                    <span class="meta-weight">(<?php echo number_format($user_data['weight_kg'] ?? 0, 1); ?>kg)</span>
+        
+        <!-- 1. CARD RESUMO COMPACTO -->
+        <div class="hydration-summary-card">
+            <div class="summary-main">
+                <div class="summary-icon">
+                    <i class="fas fa-tint"></i>
+                </div>
+                <div class="summary-info">
+                    <h3>Hidratação</h3>
+                    <div class="summary-meta">Meta diária: <strong><?php echo $water_goal_ml; ?>ml</strong></div>
+                </div>
+                <div class="summary-status status-<?php echo $status_class; ?>">
+                    <i class="fas <?php echo $status_icon; ?>"></i>
+                    <span><?php echo $status_text; ?></span>
                 </div>
             </div>
-            <div class="hydration-filters">
-                <button class="filter-btn" data-period="today">Hoje</button>
-                <button class="filter-btn" data-period="yesterday">Ontem</button>
-                <button class="filter-btn active" data-period="7">Últimos 7 dias</button>
-                <button class="filter-btn" data-period="15">Últimos 15 dias</button>
-                <button class="filter-btn" data-period="30">Últimos 30 dias</button>
-                <button class="filter-btn" data-period="90">Últimos 3 meses</button>
-                <button class="filter-btn" data-period="all">Todos os registros</button>
-            </div>
-        </div>
-
-        <!-- Estatísticas Detalhadas -->
-        <div class="hydration-stats-detailed">
-            <div class="main-stat">
-                <div class="stat-visual">
-                    <div class="stat-circle" id="avg-percentage-circle" data-percentage="<?php echo $water_stats_7['avg_percentage']; ?>">
-                        <div class="stat-percentage" id="avg-percentage"><?php echo $water_stats_7['avg_percentage']; ?>%</div>
-                        <div class="stat-label">da Meta</div>
-                    </div>
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <div class="stat-value"><?php echo $avg_ml_7; ?>ml</div>
+                    <div class="stat-label">Média Atual (7 dias)</div>
                 </div>
-                <div class="stat-details">
-                    <div class="stat-main-value" id="avg-consumption"><?php echo $water_stats_7['avg_ml']; ?>ml</div>
-                    <div class="stat-main-label">Média Diária de Consumo</div>
-                    <div class="stat-period" id="period-info">Período: Últimos 7 dias</div>
+                <div class="summary-stat">
+                    <div class="stat-value"><?php echo $avg_percentage_7; ?>%</div>
+                    <div class="stat-label">da Meta Atingido</div>
                 </div>
-            </div>
-            
-            <div class="averages-grid">
-                <div class="average-card">
-                    <div class="average-header">
-                        <i class="fas fa-calendar-week"></i>
-                        <span>Média Semanal</span>
-                    </div>
-                    <div class="average-content">
-                        <div class="average-value" id="weekly-avg-ml"><?php echo $water_stats_7['avg_ml']; ?>ml</div>
-                        <div class="average-percentage" id="weekly-avg-percentage"><?php echo $water_stats_7['avg_percentage']; ?>% da meta</div>
-                    </div>
-                </div>
-                
-                <div class="average-card">
-                    <div class="average-header">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Média Quinzenal</span>
-                    </div>
-                    <div class="average-content">
-                        <div class="average-value" id="biweekly-avg-ml"><?php echo $water_stats_15['avg_ml']; ?>ml</div>
-                        <div class="average-percentage" id="biweekly-avg-percentage"><?php echo $water_stats_15['avg_percentage']; ?>% da meta</div>
-                    </div>
-                </div>
-                
-                <div class="average-card">
-                    <div class="average-header">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Taxa de Aderência</span>
-                    </div>
-                    <div class="average-content">
-                        <div class="average-value" id="compliance-rate"><?php echo $water_stats_7['compliance_rate']; ?>%</div>
-                        <div class="average-percentage">Dias que atingiram a meta</div>
-                    </div>
-                </div>
-                
-                <div class="average-card">
-                    <div class="average-header">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Período Analisado</span>
-                    </div>
-                    <div class="average-content">
-                        <div class="average-value" id="total-days"><?php echo $water_stats_7['total_days']; ?></div>
-                        <div class="average-percentage">Dias com registros</div>
-                    </div>
+                <div class="summary-stat">
+                    <div class="stat-value"><?php echo $days_with_goal; ?>/<?php echo $total_days_7; ?></div>
+                    <div class="stat-label">Dias na Meta</div>
                 </div>
             </div>
         </div>
 
-        <!-- Gráfico Visual Melhorado -->
+        <!-- 2. INSIGHTS AUTOMÁTICOS -->
+        <?php if (!empty($insights)): ?>
+        <div class="hydration-insights">
+            <h4><i class="fas fa-lightbulb"></i> Insights</h4>
+            <ul class="insights-list">
+                <?php foreach ($insights as $insight): ?>
+                    <li><?php echo $insight; ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <?php endif; ?>
+
+        <!-- 3. GRÁFICO SIMPLIFICADO -->
         <div class="chart-section">
             <div class="chart-section-header">
-                <h4>Consumo dos Últimos Dias</h4>
-                <div class="compact-legend">
-                    <span class="legend-item">
-                        <div class="legend-dot excellent"></div>
-                        <span>Excelente</span>
-                    </span>
-                    <span class="legend-item">
-                        <div class="legend-dot good"></div>
-                        <span>Bom</span>
-                    </span>
-                    <span class="legend-item">
-                        <div class="legend-dot fair"></div>
-                        <span>Regular</span>
-                    </span>
-                    <span class="legend-item">
-                        <div class="legend-dot poor"></div>
-                        <span>Baixo</span>
-                    </span>
-                    <span class="legend-item">
-                        <div class="legend-dot critical"></div>
-                        <span>Crítico</span>
-                    </span>
-                </div>
+                <h4><i class="fas fa-chart-bar"></i> Progresso dos Últimos 7 Dias</h4>
             </div>
             <div class="hydration-chart-improved">
                 <div class="improved-chart" id="improved-chart">
@@ -910,15 +930,13 @@ require_once __DIR__ . '/includes/header.php';
                         <?php 
                         $display_data = array_slice($hydration_data, 0, 7);
                         foreach ($display_data as $day): 
-                            // Calcular altura da barra: 0% = 0px, 100% = 160px (altura total), outros valores proporcionais
                             $limitedPercentage = min($day['percentage'], 100);
                             $barHeight = 0;
                             if ($limitedPercentage === 0) {
-                                $barHeight = 0; // Sem altura para 0%
+                                $barHeight = 0;
                             } else if ($limitedPercentage === 100) {
-                                $barHeight = 160; // Altura total do wrapper
+                                $barHeight = 160;
                             } else {
-                                // Proporcional: 0px (mínimo) + (porcentagem * 160px)
                                 $barHeight = ($limitedPercentage / 100) * 160;
                             }
                         ?>
@@ -940,45 +958,99 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
 
-        <!-- Lista Simples -->
-        <div class="hydration-list-simple">
-            <div class="list-header">
-                <h4>Registros Recentes</h4>
+        <!-- 4. MÉDIAS DE PERÍODOS (COMPACTO) -->
+        <div class="hydration-periods-compact">
+            <h4><i class="fas fa-calendar-alt"></i> Médias por Período</h4>
+            <div class="periods-grid">
+                <div class="period-item">
+                    <span class="period-label">Semana (7 dias)</span>
+                    <span class="period-value"><?php echo $water_stats_7['avg_ml']; ?>ml</span>
+                    <span class="period-percentage"><?php echo $water_stats_7['avg_percentage']; ?>%</span>
+                </div>
+                <div class="period-item">
+                    <span class="period-label">Quinzena (15 dias)</span>
+                    <span class="period-value"><?php echo $water_stats_15['avg_ml']; ?>ml</span>
+                    <span class="period-percentage"><?php echo $water_stats_15['avg_percentage']; ?>%</span>
+                </div>
+                <div class="period-item">
+                    <span class="period-label">Mês (30 dias)</span>
+                    <span class="period-value"><?php echo $water_stats_30['avg_ml']; ?>ml</span>
+                    <span class="period-percentage"><?php echo $water_stats_30['avg_percentage']; ?>%</span>
+                </div>
             </div>
-            <div class="simple-list" id="simple-list">
-                <?php if (empty($hydration_data)): ?>
-                    <div class="empty-state">
-                        <i class="fas fa-tint"></i>
-                        <p>Nenhum registro de hidratação</p>
-                    </div>
-                <?php else: ?>
-                    <?php foreach (array_slice($hydration_data, 0, 7) as $day): ?>
-                        <div class="simple-item">
-                            <div class="simple-date"><?php echo date('d/m/Y', strtotime($day['date'])); ?></div>
-                            <div class="simple-amount">
-                                <span class="simple-ml-value"><?php echo $day['ml']; ?>ml</span>
-                                <span class="simple-percentage">(<?php echo $day['percentage']; ?>%)</span>
-                            </div>
-                            <div class="simple-status <?php echo $day['status']; ?>">
-                                <?php 
-                                $icon = match($day['status']) {
-                                    'excellent' => 'fa-check-circle',
-                                    'good' => 'fa-check',
-                                    'fair' => 'fa-exclamation-triangle',
-                                    'poor' => 'fa-exclamation',
-                                    'critical' => 'fa-times-circle',
-                                    default => 'fa-question'
-                                };
-                                ?>
-                                <i class="fas <?php echo $icon; ?>"></i>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+        </div>
+
+        <!-- 5. REGISTROS DETALHADOS (COLAPSÁVEL) -->
+        <div class="hydration-records-collapsible">
+            <button class="collapse-toggle" onclick="toggleHydrationRecords()">
+                <i class="fas fa-chevron-down"></i>
+                <span>Mostrar Registros Detalhados</span>
+            </button>
+            <div class="records-content" id="hydration-records-content" style="display: none;">
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Consumo</th>
+                            <th>% da Meta</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($hydration_data)): ?>
+                            <tr>
+                                <td colspan="4" class="empty-state">Nenhum registro de hidratação</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach (array_slice($hydration_data, 0, 30) as $day): ?>
+                                <tr>
+                                    <td><?php echo date('d/m/Y', strtotime($day['date'])); ?></td>
+                                    <td><strong><?php echo $day['ml']; ?>ml</strong></td>
+                                    <td><?php echo $day['percentage']; ?>%</td>
+                                    <td>
+                                        <span class="status-badge status-<?php echo $day['status']; ?>">
+                                            <?php 
+                                            $status_labels = [
+                                                'excellent' => 'Excelente',
+                                                'good' => 'Bom',
+                                                'fair' => 'Regular',
+                                                'poor' => 'Baixo',
+                                                'critical' => 'Crítico'
+                                            ];
+                                            echo $status_labels[$day['status']] ?? $day['status'];
+                                            ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function toggleHydrationRecords() {
+    const content = document.getElementById('hydration-records-content');
+    const button = event.currentTarget;
+    const icon = button.querySelector('i');
+    const text = button.querySelector('span');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+        text.textContent = 'Ocultar Registros Detalhados';
+    } else {
+        content.style.display = 'none';
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+        text.textContent = 'Mostrar Registros Detalhados';
+    }
+}
+</script>
 
 <div id="tab-nutrients" class="tab-content">
     <div class="nutrients-container">
