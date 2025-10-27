@@ -22,9 +22,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- LÓGICA DO GRÁFICO DE PESO ---
     const weightChartCtx = document.getElementById('weightHistoryChart');
     
-    console.log("Dados recebidos:", userViewData);
+    // console.log("Dados recebidos:", userViewData); // Comentado - não usado na nova implementação
 
-    if (weightChartCtx && typeof userViewData !== 'undefined' && userViewData.weightHistory.data.length >= 1) {
+    if (weightChartCtx && typeof userViewData !== 'undefined' && userViewData && userViewData.weightHistory && userViewData.weightHistory.data.length >= 1) {
         
         console.log("CONDIÇÃO ATENDIDA. Desenhando o gráfico...");
 
