@@ -521,12 +521,13 @@
 /* ========== HEADER REDESIGN DO DIÁRIO ========== */
 .diary-header-redesign {
   position: relative;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
   padding: 2rem;
   margin-bottom: 2rem;
-  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .diary-year {
@@ -924,40 +925,6 @@
   flex-shrink: 0;
 }
 
-.diary-slider-dots {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.5rem 0 0.5rem 0;
-  margin-top: 0;
-  flex-wrap: wrap;
-  width: 100%;
-  max-width: 100%;
-}
-
-.diary-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.diary-dot:hover {
-  background: rgba(255, 102, 0, 0.5);
-  transform: scale(1.2);
-}
-
-.diary-dot.active {
-  background: var(--accent-orange);
-  width: 32px;
-  border-radius: 5px;
-}
 
 /* Mantém layout original - sem forçar grids no zoom 125% */
 

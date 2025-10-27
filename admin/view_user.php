@@ -877,10 +877,8 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     </div>
                 <?php endforeach; ?>
+            </div>
         </div>
-        </div>
-        
-        <div class="diary-slider-dots" id="diarySliderDots"></div>
     </div>
 </div>
 
@@ -889,18 +887,6 @@ require_once __DIR__ . '/includes/header.php';
 const diaryCards = document.querySelectorAll('.diary-day-card');
 let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
 const diaryTrack = document.getElementById('diarySliderTrack');
-const diaryDateDisplay = document.getElementById('diaryCurrentDate');
-const diaryDotsContainer = document.getElementById('diarySliderDots');
-
-// Criar dots
-diaryCards.forEach((card, index) => {
-    const dot = document.createElement('button');
-    dot.className = 'diary-dot' + (index === diaryCards.length - 1 ? ' active' : '');
-    dot.onclick = () => goToDiaryIndex(index);
-    diaryDotsContainer.appendChild(dot);
-});
-
-const diaryDots = document.querySelectorAll('.diary-dot');
 
 function updateDiaryDisplay() {
     const offset = -currentDiaryIndex * 100;
@@ -964,11 +950,6 @@ function updateDiaryDisplay() {
             `<i class="fas fa-fire"></i><span>0 kcal</span>`;
         document.getElementById('diarySummaryMacros').textContent = 'P: 0g • C: 0g • G: 0g';
     }
-    
-    // Atualizar dots
-    diaryDots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentDiaryIndex);
-    });
 }
 
 function navigateDiary(direction) {
