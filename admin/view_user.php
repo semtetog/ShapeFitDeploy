@@ -879,9 +879,14 @@ require_once __DIR__ . '/includes/header.php';
 
 <script>
 // Sistema de navegação do diário
-const diaryCards = document.querySelectorAll('.diary-day-card');
+let diaryCards = document.querySelectorAll('.diary-day-card');
 let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
 const diaryTrack = document.getElementById('diarySliderTrack');
+
+// Função para atualizar referência aos cards
+function updateDiaryCards() {
+    diaryCards = document.querySelectorAll('.diary-day-card');
+}
 
 function updateDiaryDisplay() {
     const offset = -currentDiaryIndex * 100;
@@ -1035,7 +1040,7 @@ function navigateDiary(direction) {
     
     // Se tentar ir para trás e já está no primeiro card (mais antigo)
     if (direction < 0 && newIndex < 0) {
-        // Carregar mais 30 dias anteriores
+        // Carregar mais 30 dias anteriores via AJAX
         const firstCard = diaryCards[0];
         if (firstCard) {
             const firstDate = firstCard.getAttribute('data-date');
@@ -1044,18 +1049,68 @@ function navigateDiary(direction) {
             dateObj.setDate(dateObj.getDate() - 1); // Um dia antes do primeiro
             const newEndDate = dateObj.toISOString().split('T')[0];
             
-            console.log('Carregando mais dias anteriores. Nova end_date:', newEndDate);
+            console.log('Carregando mais dias anteriores via AJAX. Nova end_date:', newEndDate);
             
-            // Recarregar página com nova data para buscar 30 dias anteriores
-            const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('end_date', newEndDate);
-            window.location.href = window.location.pathname + '?' + urlParams.toString();
+            // Carregar novos cards via AJAX
+            loadMoreDiaryDays(newEndDate);
             return;
         }
     }
     
     currentDiaryIndex = newIndex;
     updateDiaryDisplay();
+}
+
+async function loadMoreDiaryDays(endDate) {
+    try {
+        // Buscar novos dias via AJAX
+        const url = `${window.location.pathname}?end_date=${endDate}&ajax=1`;
+        const response = await fetch(url);
+        
+        if (response.ok) {
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Encontrar os novos cards de diário
+            const newCards = doc.querySelectorAll('.diary-day-card');
+            
+            if (newCards.length > 0) {
+                // Atualizar endDate na URL sem recarregar
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('end_date', endDate);
+                window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
+                
+                // Adicionar novos cards ANTES dos existentes
+                const diaryTrack = document.getElementById('diarySliderTrack');
+                const currentCards = diaryTrack.querySelectorAll('.diary-day-card');
+                const currentIndex = currentCards.length - 1; // Índice original
+                
+                // Criar container temporário
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = [...newCards].map(card => card.outerHTML).join('');
+                
+                // Adicionar novos cards no início
+                while (tempDiv.firstChild) {
+                    diaryTrack.insertBefore(tempDiv.firstChild, diaryTrack.firstChild);
+                }
+                
+                // Atualizar contador de cards
+                // Atualizar currentDiaryIndex para manter a posição visual
+                currentDiaryIndex = newCards.length + currentIndex;
+                
+                console.log(`Adicionados ${newCards.length} novos cards. Total: ${document.querySelectorAll('.diary-day-card').length}`);
+                
+                // Atualizar referência aos cards
+                updateDiaryCards();
+                
+                // Atualizar display
+                updateDiaryDisplay();
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao carregar mais dias:', error);
+    }
 }
 
 function goToDiaryIndex(index) {
