@@ -99,7 +99,7 @@ require_once __DIR__ . '/includes/header.php';
         <p class="stat-value"><?php echo $total_users; ?></p>
     </div>
     <div class="stat-card">
-        <h3>Cardápios no diário</h3>
+        <h3>Registros no diário</h3>
         <p class="stat-value"><?php echo $total_diaries; ?></p>
     </div>
 </div>
