@@ -906,19 +906,38 @@ function updateDiaryDisplay() {
     document.getElementById('diaryWeekday').textContent = weekdayNames[dateObj.getDay()];
     
     // Atualizar datas de navegação (anterior e próximo)
-    const prevIndex = (currentDiaryIndex - 1 + diaryCards.length) % diaryCards.length;
-    const nextIndex = (currentDiaryIndex + 1) % diaryCards.length;
+    const prevIndex = currentDiaryIndex - 1;
+    const nextIndex = currentDiaryIndex + 1;
     
-    if (diaryCards[prevIndex]) {
-        const prevDate = new Date(diaryCards[prevIndex].getAttribute('data-date') + 'T00:00:00');
-        document.getElementById('diaryPrevDate').textContent = 
-            `${prevDate.getDate()} ${monthNamesLower[prevDate.getMonth()]}`;
+    // Atualizar data anterior (se existir)
+    const prevBtn = document.getElementById('diaryPrevDate');
+    if (prevBtn) {
+        if (prevIndex >= 0 && diaryCards[prevIndex]) {
+            const prevDate = new Date(diaryCards[prevIndex].getAttribute('data-date') + 'T00:00:00');
+            prevBtn.textContent = `${prevDate.getDate()} ${monthNamesLower[prevDate.getMonth()]}`;
+            prevBtn.parentElement.style.visibility = 'visible';
+        } else {
+            prevBtn.parentElement.style.visibility = 'hidden';
+        }
     }
     
-    if (diaryCards[nextIndex]) {
-        const nextDate = new Date(diaryCards[nextIndex].getAttribute('data-date') + 'T00:00:00');
-        document.getElementById('diaryNextDate').textContent = 
-            `${nextDate.getDate()} ${monthNamesLower[nextDate.getMonth()]}`;
+    // Atualizar data próxima (se existir e não for futuro)
+    const nextBtn = document.getElementById('diaryNextDate');
+    if (nextBtn) {
+        if (nextIndex < diaryCards.length && diaryCards[nextIndex]) {
+            const nextDate = new Date(diaryCards[nextIndex].getAttribute('data-date') + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (nextDate <= today) {
+                nextBtn.textContent = `${nextDate.getDate()} ${monthNamesLower[nextDate.getMonth()]}`;
+                nextBtn.parentElement.style.visibility = 'visible';
+            } else {
+                nextBtn.parentElement.style.visibility = 'hidden';
+            }
+        } else {
+            nextBtn.parentElement.style.visibility = 'hidden';
+        }
     }
     
     // Buscar e atualizar resumo de calorias e macros do card atual
@@ -975,8 +994,8 @@ function navigateDiary(direction) {
     if (direction > 0) {
         // Verificar se o próximo dia seria futuro
         if (newIndex >= diaryCards.length) {
-            // Está no último card, volta pro primeiro
-            newIndex = 0;
+            // Já está no último, não faz nada
+            return;
         }
         
         const nextCard = diaryCards[newIndex];
@@ -995,21 +1014,8 @@ function navigateDiary(direction) {
     
     // Se tentar ir para trás e já está no primeiro card (mais antigo)
     if (direction < 0 && newIndex < 0) {
-        // Carregar 30 dias anteriores
-        const firstCard = diaryCards[0];
-        if (firstCard) {
-            const firstDate = firstCard.getAttribute('data-date');
-            // Calcular data 30 dias antes
-            const dateObj = new Date(firstDate + 'T00:00:00');
-            dateObj.setDate(dateObj.getDate() - 1); // Um dia antes do primeiro
-            const newEndDate = dateObj.toISOString().split('T')[0];
-            
-            // Recarregar página com nova data
-            const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('end_date', newEndDate);
-            window.location.href = window.location.pathname + '?' + urlParams.toString();
-            return;
-        }
+        // Já está no mais antigo, não faz nada
+        return;
     }
     
     currentDiaryIndex = newIndex;
