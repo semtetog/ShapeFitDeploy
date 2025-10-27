@@ -739,52 +739,216 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <div id="tab-diary" class="tab-content active">
-    <div class="dashboard-card">
-        <div class="card-header-flex">
-            <h3>Histórico do Diário</h3>
-            <form method="GET" class="date-filter-form">
-                <input type="hidden" name="id" value="<?php echo $user_id; ?>">
-                <label for="end_date">Mostrar semana terminando em:</label>
-                <input type="date" id="end_date" name="end_date" value="<?php echo htmlspecialchars($endDate); ?>" onchange="this.form.submit()">
-            </form>
+    <div class="diary-slider-container">
+        <div class="diary-slider-header">
+            <button class="diary-nav-btn diary-nav-prev" onclick="navigateDiary(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="diary-current-date" id="diaryCurrentDate">
+                <?php echo date('d \d\e F \d\e Y'); ?>
+            </div>
+            <button class="diary-nav-btn diary-nav-next" onclick="navigateDiary(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
-        <div class="diary-history-container">
-            <?php if (empty($meal_history)): ?>
-                <p class="empty-state">O paciente ainda não registrou nenhuma refeição neste período.</p>
-            <?php else: ?>
-                <?php foreach ($meal_history as $date => $meals): ?>
-                    <div class="diary-day-group">
-                        <h4 class="day-header"><?php echo date('d/m/Y', strtotime($date)); ?></h4>
-                        <?php foreach ($meals as $meal_type_slug => $items): 
-                            $total_kcal = array_sum(array_column($items, 'kcal_consumed'));
-                            $total_prot = array_sum(array_column($items, 'protein_consumed_g'));
-                            $total_carb = array_sum(array_column($items, 'carbs_consumed_g'));
-                            $total_fat  = array_sum(array_column($items, 'fat_consumed_g'));
-                        ?>
-                            <div class="meal-card">
-                                <div class="meal-card-header">
-                                    <h5><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
-                                    <div class="meal-card-totals">
-                                        <strong><?php echo round($total_kcal); ?> kcal</strong>
-                                        (P:<?php echo round($total_prot); ?>g, C:<?php echo round($total_carb); ?>g, G:<?php echo round($total_fat); ?>g)
-                                    </div>
-                                </div>
-                                <ul class="food-item-list">
-                                    <?php foreach ($items as $item): ?>
-                                        <li>
-                                            <span class="food-name"><?php echo htmlspecialchars($item['food_name']); ?></span>
-                                            <span class="food-quantity"><?php echo htmlspecialchars($item['quantity_display']); ?></span>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
+        
+        <div class="diary-slider-wrapper" id="diarySliderWrapper">
+            <div class="diary-slider-track" id="diarySliderTrack">
+                <?php 
+                // Converter meal_history para array ordenado por data
+                $dates_array = array_keys($meal_history);
+                rsort($dates_array); // Mais recente primeiro
+                
+                foreach ($dates_array as $date): 
+                    $meals = $meal_history[$date];
+                    $day_total_kcal = 0;
+                    $day_total_prot = 0;
+                    $day_total_carb = 0;
+                    $day_total_fat = 0;
+                    
+                    foreach ($meals as $meal_type_slug => $items) {
+                        $day_total_kcal += array_sum(array_column($items, 'kcal_consumed'));
+                        $day_total_prot += array_sum(array_column($items, 'protein_consumed_g'));
+                        $day_total_carb += array_sum(array_column($items, 'carbs_consumed_g'));
+                        $day_total_fat += array_sum(array_column($items, 'fat_consumed_g'));
+                    }
+                    
+                    // Formatar data por extenso
+                    $timestamp = strtotime($date);
+                    $day_of_week = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][date('w', $timestamp)];
+                    $day_number = date('d', $timestamp);
+                    $month_name = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][date('n', $timestamp) - 1];
+                    $year = date('Y', $timestamp);
+                ?>
+                <div class="diary-day-card" data-date="<?php echo $date; ?>">
+                    <div class="diary-day-header">
+                        <div class="diary-day-title">
+                            <span class="diary-day-name"><?php echo $day_of_week; ?></span>
+                            <span class="diary-day-number"><?php echo $day_number; ?></span>
+                            <span class="diary-day-month"><?php echo $month_name . ' ' . $year; ?></span>
+                        </div>
+                        <div class="diary-day-summary">
+                            <div class="diary-summary-item">
+                                <i class="fas fa-fire"></i>
+                                <span><?php echo round($day_total_kcal); ?> kcal</span>
                             </div>
-                        <?php endforeach; ?>
+                            <div class="diary-summary-macros">
+                                P: <?php echo round($day_total_prot); ?>g • 
+                                C: <?php echo round($day_total_carb); ?>g • 
+                                G: <?php echo round($day_total_fat); ?>g
+                            </div>
+                        </div>
                     </div>
+                    
+                    <div class="diary-day-meals">
+                        <?php if (empty($meals)): ?>
+                            <div class="diary-empty-state">
+                                <i class="fas fa-utensils"></i>
+                                <p>Nenhum registro neste dia</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($meals as $meal_type_slug => $items): 
+                                $total_kcal = array_sum(array_column($items, 'kcal_consumed'));
+                                $total_prot = array_sum(array_column($items, 'protein_consumed_g'));
+                                $total_carb = array_sum(array_column($items, 'carbs_consumed_g'));
+                                $total_fat  = array_sum(array_column($items, 'fat_consumed_g'));
+                            ?>
+                                <div class="diary-meal-card">
+                                    <div class="diary-meal-header">
+                                        <div class="diary-meal-icon">
+                                            <?php
+                                            $meal_icons = [
+                                                'breakfast' => 'fa-coffee',
+                                                'morning_snack' => 'fa-apple-alt',
+                                                'lunch' => 'fa-drumstick-bite',
+                                                'afternoon_snack' => 'fa-cookie-bite',
+                                                'dinner' => 'fa-pizza-slice',
+                                                'evening_snack' => 'fa-ice-cream'
+                                            ];
+                                            $icon = $meal_icons[$meal_type_slug] ?? 'fa-utensils';
+                                            ?>
+                                            <i class="fas <?php echo $icon; ?>"></i>
+                                        </div>
+                                        <div class="diary-meal-info">
+                                            <h5><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
+                                            <span class="diary-meal-totals">
+                                                <strong><?php echo round($total_kcal); ?> kcal</strong> • 
+                                                P:<?php echo round($total_prot); ?>g • 
+                                                C:<?php echo round($total_carb); ?>g • 
+                                                G:<?php echo round($total_fat); ?>g
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <ul class="diary-food-list">
+                                        <?php foreach ($items as $item): ?>
+                                            <li>
+                                                <span class="food-name"><?php echo htmlspecialchars($item['food_name']); ?></span>
+                                                <span class="food-quantity"><?php echo htmlspecialchars($item['quantity_display']); ?></span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
                 <?php endforeach; ?>
-            <?php endif; ?>
+            </div>
         </div>
+        
+        <div class="diary-slider-dots" id="diarySliderDots"></div>
     </div>
 </div>
+
+<script>
+// Sistema de navegação do diário
+let currentDiaryIndex = 0;
+const diaryCards = document.querySelectorAll('.diary-day-card');
+const diaryTrack = document.getElementById('diarySliderTrack');
+const diaryDateDisplay = document.getElementById('diaryCurrentDate');
+const diaryDotsContainer = document.getElementById('diarySliderDots');
+
+// Criar dots
+diaryCards.forEach((card, index) => {
+    const dot = document.createElement('button');
+    dot.className = 'diary-dot' + (index === 0 ? ' active' : '');
+    dot.onclick = () => goToDiaryIndex(index);
+    diaryDotsContainer.appendChild(dot);
+});
+
+const diaryDots = document.querySelectorAll('.diary-dot');
+
+function updateDiaryDisplay() {
+    const offset = -currentDiaryIndex * 100;
+    diaryTrack.style.transform = `translateX(${offset}%)`;
+    
+    // Atualizar data
+    const currentCard = diaryCards[currentDiaryIndex];
+    const date = currentCard.getAttribute('data-date');
+    const dateObj = new Date(date + 'T00:00:00');
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    diaryDateDisplay.textContent = dateObj.toLocaleDateString('pt-BR', options);
+    
+    // Atualizar dots
+    diaryDots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentDiaryIndex);
+    });
+    
+    // Desabilitar botões nas extremidades
+    document.querySelector('.diary-nav-prev').disabled = currentDiaryIndex === 0;
+    document.querySelector('.diary-nav-next').disabled = currentDiaryIndex === diaryCards.length - 1;
+}
+
+function navigateDiary(direction) {
+    const newIndex = currentDiaryIndex + direction;
+    if (newIndex >= 0 && newIndex < diaryCards.length) {
+        currentDiaryIndex = newIndex;
+        updateDiaryDisplay();
+    }
+}
+
+function goToDiaryIndex(index) {
+    currentDiaryIndex = index;
+    updateDiaryDisplay();
+}
+
+// Suporte a swipe/touch
+let touchStartX = 0;
+let touchEndX = 0;
+
+diaryTrack.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+});
+
+diaryTrack.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // Swipe left - próximo dia
+            navigateDiary(1);
+        } else {
+            // Swipe right - dia anterior
+            navigateDiary(-1);
+        }
+    }
+}
+
+// Suporte a teclado
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') navigateDiary(-1);
+    if (e.key === 'ArrowRight') navigateDiary(1);
+});
+
+// Inicializar
+updateDiaryDisplay();
+</script>
 
 <?php
 // Calcular insights automáticos
