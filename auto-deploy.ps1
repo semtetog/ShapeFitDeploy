@@ -90,9 +90,6 @@ $watcher.IncludeSubdirectories = $true
 $watcher.EnableRaisingEvents = $true
 $watcher.NotifyFilter = [System.IO.NotifyFilters]'FileName,LastWrite'
 
-# Filtro para ignorar a pasta .git completamente
-$watcher.Filters = @()
-
 # Registrar eventos
 $handlers = @()
 $handlers += Register-ObjectEvent $watcher "Changed" -Action $action
