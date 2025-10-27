@@ -58,9 +58,6 @@ if (!defined('BASE_ADMIN_URL')) {
                     <li class="<?php echo ($page_slug ?? '') === 'food_classification' ? 'active' : ''; ?>">
                         <a href="<?php echo BASE_ADMIN_URL; ?>/food_classification.php"><i class="fas fa-tags"></i> Classificar Alimentos</a>
                     </li>
-                    <li class="<?php echo ($page_slug ?? '') === 'foods_stats' ? 'active' : ''; ?>">
-                        <a href="<?php echo BASE_ADMIN_URL; ?>/foods_stats_new.php"><i class="fas fa-chart-bar"></i> Estatísticas</a>
-                    </li>
         <li class="<?php echo ($page_slug ?? '') === 'diet_plans' ? 'active' : ''; ?>">
             <a href="<?php echo BASE_ADMIN_URL; ?>/diet_plans.php"><i class="fas fa-clipboard-list"></i> Planos Alimentares</a>
         </li>
@@ -76,14 +73,29 @@ if (!defined('BASE_ADMIN_URL')) {
         <li class="<?php echo ($page_slug ?? '') === 'user_groups' ? 'active' : ''; ?>">
             <a href="<?php echo BASE_ADMIN_URL; ?>/user_groups.php"><i class="fas fa-layer-group"></i> Grupos de Usuários</a>
         </li>
-                    <li class="<?php echo ($page_slug ?? '') === 'plans' ? 'active' : ''; ?>">
-                        <a href="<?php echo BASE_ADMIN_URL; ?>/plans.php"><i class="fas fa-file-invoice-dollar"></i> Planos</a>
-                    </li>
                       <li class="<?php if ($page_slug === 'ranks') echo 'active'; ?>">
             <a href="ranks.php"><i class="fas fa-trophy"></i> Ranking</a>
         </li>
                 </ul>
             </nav>
+            
+            <!-- Card de Perfil do Admin -->
+            <div class="sidebar-admin-profile">
+                <div class="admin-profile-card">
+                    <div class="admin-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="admin-info">
+                        <div class="admin-name"><?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Administrador'); ?></div>
+                        <div class="admin-role">Administrador</div>
+                    </div>
+                    <div class="admin-actions">
+                        <button class="admin-logout-btn" onclick="window.location.href='<?php echo BASE_ADMIN_URL; ?>/logout.php'" title="Sair">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </aside>
         <main class="main-content">
             <header class="main-header">
