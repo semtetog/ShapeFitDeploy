@@ -1,7 +1,15 @@
 <?php
+header('Content-Type: text/html; charset=utf-8');
+
 require_once __DIR__ . '/../../includes/config.php';
-require_once __DIR__ . '/../../includes/db.php';
-require_once __DIR__ . '/../includes/auth_admin.php';
+$conn = require __DIR__ . '/../../includes/db.php';
+
+// Verificar se admin está logado (simplificado para AJAX)
+session_start();
+if (!isset($_SESSION['admin_id'])) {
+    http_response_code(403);
+    die('Acesso não autorizado');
+}
 
 $user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 $endDate = $_GET['end_date'] ?? date('Y-m-d');
@@ -154,7 +162,4 @@ foreach ($all_dates as $date):
 </div>
 
 <?php endforeach; ?>
-<?php
-$conn->close();
-?>
 
