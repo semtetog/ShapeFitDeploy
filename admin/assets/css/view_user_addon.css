@@ -1,5 +1,5 @@
 /* ========================================================================= */
-/*                   CSS VIEW_USER COMPLETO - TODOS OS ELEMENTOS             */
+/*           CSS VIEW_USER - REDESIGN COMPLETO MODERNO E RESPONSIVO         */
 /* ========================================================================= */
 
 :root {
@@ -32,21 +32,21 @@
   flex-wrap: wrap;
 }
 
-.profile-avatar-large {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid var(--accent-orange);
-  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
-  flex-shrink: 0;
-}
-
+.profile-avatar-large,
 .initials-avatar.large {
   width: 100px;
   height: 100px;
   border-radius: 50%;
   border: 4px solid var(--accent-orange);
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.profile-avatar-large {
+  object-fit: cover;
+}
+
+.initials-avatar.large {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,8 +54,6 @@
   font-weight: 700;
   color: white;
   text-transform: uppercase;
-  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
-  flex-shrink: 0;
 }
 
 .user-contact-details {
@@ -123,6 +121,100 @@
   color: #FFFFFF;
   margin: 0 0 1.5rem 0;
   font-family: 'Montserrat', sans-serif;
+}
+
+/* ========== CARD HEADER COM AÇÃO ========== */
+.card-header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.card-header-with-action h3 {
+  margin: 0;
+  flex: 1;
+}
+
+.btn-edit-inline {
+  padding: 0.5rem 1.25rem;
+  background: rgba(255, 107, 0, 0.2);
+  border: 1px solid var(--accent-orange);
+  border-radius: 8px;
+  color: var(--accent-orange);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-edit-inline:hover {
+  background: var(--accent-orange);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-edit-inline.cancel-mode {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: var(--danger-red);
+  color: var(--danger-red);
+}
+
+.btn-edit-inline.cancel-mode:hover {
+  background: var(--danger-red);
+  color: white;
+}
+
+/* ========== FORMULÁRIO INLINE DE METAS ========== */
+.edit-metas-inline-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.form-group-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group-inline label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group-inline input {
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.form-group-inline input:focus {
+  outline: none;
+  border-color: var(--accent-orange);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.form-buttons-inline {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 /* ========== CARDS DE DADOS ========== */
@@ -216,6 +308,8 @@
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 .meta-card-macros span {
@@ -225,46 +319,88 @@
   display: block;
 }
 
-/* ========== TABS ========== */
-.tabs-container {
+/* ========== TABS REDESIGN - 2 FILEIRAS ========== */
+.tabs-wrapper {
+  margin: 2rem 0;
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tabs-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
 }
 
 .tab-link {
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 1.5rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
-  border-radius: 10px 10px 0 0;
+  border-radius: 12px;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
-  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 80px;
+  text-align: center;
+}
+
+.tab-link i {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.tab-link span {
   font-size: 0.9rem;
 }
 
 .tab-link:hover {
   background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-orange);
   color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.tab-link:hover i {
+  transform: scale(1.1);
 }
 
 .tab-link.active {
-  background: var(--accent-orange);
+  background: linear-gradient(135deg, var(--accent-orange), #FF8533);
   border-color: var(--accent-orange);
   color: white;
+  box-shadow: 0 8px 25px rgba(255, 107, 0, 0.4);
+}
+
+.tab-link.active i {
+  transform: scale(1.15);
 }
 
 .tab-content {
   display: none;
+  animation: fadeIn 0.3s ease;
 }
 
 .tab-content.active {
   display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ========== DIÁRIO ========== */
@@ -408,65 +544,7 @@
   white-space: nowrap;
 }
 
-/* ========== EDITAR METAS ========== */
-.edit-goals-form {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-top: 2rem;
-}
-
-.edit-goals-form h4 {
-  color: var(--text-primary);
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.edit-goals-form h4 i {
-  color: var(--accent-orange);
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input[type="number"],
-.form-group input[type="text"] {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--accent-orange);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.form-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
+/* ========== BOTÕES ========== */
 .btn {
   padding: 0.75rem 1.5rem;
   border: none;
@@ -475,6 +553,9 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-primary {
@@ -538,6 +619,25 @@
 }
 
 /* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+  .tabs-row {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+  
+  .tab-link {
+    min-height: 70px;
+    padding: 0.75rem 1rem;
+  }
+  
+  .tab-link i {
+    font-size: 1.25rem;
+  }
+  
+  .tab-link span {
+    font-size: 0.85rem;
+  }
+}
+
 @media (max-width: 768px) {
   .view-user-header {
     padding: 1.5rem;
@@ -592,13 +692,35 @@
     gap: 0.75rem;
   }
   
-  .tabs-container {
-    gap: 0.25rem;
+  .tabs-row {
+    grid-template-columns: repeat(2, 1fr);
   }
   
   .tab-link {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
+    min-height: 65px;
+  }
+  
+  .card-header-with-action {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-edit-inline {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .edit-metas-inline-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-buttons-inline {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
   }
   
   .card-header-flex {
@@ -614,14 +736,6 @@
   .food-item-list li {
     flex-direction: column;
     align-items: flex-start;
-  }
-  
-  .form-buttons {
-    flex-direction: column;
-  }
-  
-  .btn {
-    width: 100%;
   }
 }
 
@@ -652,9 +766,12 @@
     padding: 0.75rem;
   }
   
+  .tabs-row {
+    grid-template-columns: 1fr;
+  }
+  
   .tab-link {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
+    min-height: 60px;
   }
   
   .dashboard-card {

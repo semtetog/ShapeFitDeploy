@@ -516,15 +516,63 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="details-grid-3-cols">
     <div class="dashboard-card">
-        <h3>Meta Calórica e Macros</h3>
-        <div class="meta-card-main">
-            <span class="meta-value"><?php echo $total_daily_calories_goal; ?></span>
-            <span class="meta-label">Kcal / dia</span>
+        <div class="card-header-with-action">
+            <h3>Meta Calórica e Macros</h3>
+            <button class="btn-edit-inline" onclick="toggleEditMetas()" id="btn-edit-metas">
+                <i class="fas fa-edit"></i> Editar
+            </button>
         </div>
-        <div class="meta-card-macros">
-            <div><span><?php echo $macros_goal['carbs_g']; ?>g</span>Carboidratos</div>
-            <div><span><?php echo $macros_goal['protein_g']; ?>g</span>Proteínas</div>
-            <div><span><?php echo $macros_goal['fat_g']; ?>g</span>Gorduras</div>
+        
+        <div id="meta-display-view">
+            <div class="meta-card-main">
+                <span class="meta-value" id="display-calories"><?php echo $total_daily_calories_goal; ?></span>
+                <span class="meta-label">Kcal / dia</span>
+            </div>
+            <div class="meta-card-macros">
+                <div><span id="display-carbs"><?php echo $macros_goal['carbs_g']; ?>g</span>Carboidratos</div>
+                <div><span id="display-protein"><?php echo $macros_goal['protein_g']; ?>g</span>Proteínas</div>
+                <div><span id="display-fat"><?php echo $macros_goal['fat_g']; ?>g</span>Gorduras</div>
+            </div>
+        </div>
+        
+        <div id="meta-edit-form" style="display: none;">
+            <form method="POST" action="<?php echo BASE_ADMIN_URL; ?>/actions/update_user_goals.php" class="edit-metas-inline-form">
+                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                
+                <div class="form-group-inline">
+                    <label for="daily_calories">Meta de Calorias (kcal/dia)</label>
+                    <input type="number" id="daily_calories" name="daily_calories" value="<?php echo $total_daily_calories_goal; ?>" min="800" max="5000" required>
+                </div>
+                
+                <div class="form-group-inline">
+                    <label for="protein_g">Meta de Proteínas (g/dia)</label>
+                    <input type="number" id="protein_g" name="protein_g" value="<?php echo $macros_goal['protein_g']; ?>" min="0" max="500" required>
+                </div>
+                
+                <div class="form-group-inline">
+                    <label for="carbs_g">Meta de Carboidratos (g/dia)</label>
+                    <input type="number" id="carbs_g" name="carbs_g" value="<?php echo $macros_goal['carbs_g']; ?>" min="0" max="1000" required>
+                </div>
+                
+                <div class="form-group-inline">
+                    <label for="fat_g">Meta de Gorduras (g/dia)</label>
+                    <input type="number" id="fat_g" name="fat_g" value="<?php echo $macros_goal['fat_g']; ?>" min="0" max="300" required>
+                </div>
+                
+                <div class="form-group-inline">
+                    <label for="water_ml">Meta de Hidratação (ml/dia)</label>
+                    <input type="number" id="water_ml" name="water_ml" value="<?php echo $water_goal_ml; ?>" min="500" max="10000" required>
+                </div>
+                
+                <div class="form-buttons-inline">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Metas
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleEditMetas()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -629,17 +677,51 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<div class="tabs-container">
-    <div class="tab-link active" data-tab="diary">Diário</div>
-    <div class="tab-link" data-tab="hydration">Hidratação</div>
-    <div class="tab-link" data-tab="nutrients">Nutrientes</div>
-    <div class="tab-link" data-tab="weekly_analysis">Análise Semanal</div>
-    <div class="tab-link" data-tab="feedback_analysis">Análise de Feedback</div>
-    <div class="tab-link" data-tab="diet_comparison">Comparação Dieta</div>
-    <div class="tab-link" data-tab="weekly_tracking">Rastreio Semanal</div>
-    <div class="tab-link" data-tab="personalized_goals">Metas Personalizadas</div>
-    <div class="tab-link" data-tab="progress">Progresso</div>
-    <div class="tab-link" data-tab="measurements">Medidas</div>
+<div class="tabs-wrapper">
+    <div class="tabs-row">
+        <div class="tab-link active" data-tab="diary">
+            <i class="fas fa-book"></i>
+            <span>Diário</span>
+        </div>
+        <div class="tab-link" data-tab="hydration">
+            <i class="fas fa-tint"></i>
+            <span>Hidratação</span>
+        </div>
+        <div class="tab-link" data-tab="nutrients">
+            <i class="fas fa-apple-alt"></i>
+            <span>Nutrientes</span>
+        </div>
+        <div class="tab-link" data-tab="progress">
+            <i class="fas fa-chart-line"></i>
+            <span>Progresso</span>
+        </div>
+        <div class="tab-link" data-tab="measurements">
+            <i class="fas fa-camera"></i>
+            <span>Medidas</span>
+        </div>
+    </div>
+    <div class="tabs-row">
+        <div class="tab-link" data-tab="weekly_analysis">
+            <i class="fas fa-calendar-week"></i>
+            <span>Análise Semanal</span>
+        </div>
+        <div class="tab-link" data-tab="feedback_analysis">
+            <i class="fas fa-comments"></i>
+            <span>Feedback</span>
+        </div>
+        <div class="tab-link" data-tab="diet_comparison">
+            <i class="fas fa-balance-scale"></i>
+            <span>Comparação</span>
+        </div>
+        <div class="tab-link" data-tab="weekly_tracking">
+            <i class="fas fa-tasks"></i>
+            <span>Rastreio</span>
+        </div>
+        <div class="tab-link" data-tab="personalized_goals">
+            <i class="fas fa-bullseye"></i>
+            <span>Metas</span>
+        </div>
+    </div>
 </div>
 
 <div id="tab-diary" class="tab-content active">
@@ -1106,6 +1188,25 @@ const nutrientsStats = {
     '90': <?php echo json_encode($nutrients_stats_90); ?>,
     'all': <?php echo json_encode($nutrients_stats_all); ?>
 };
+
+// Toggle para editar metas inline
+function toggleEditMetas() {
+    const displayView = document.getElementById('meta-display-view');
+    const editForm = document.getElementById('meta-edit-form');
+    const btnEdit = document.getElementById('btn-edit-metas');
+    
+    if (editForm.style.display === 'none') {
+        displayView.style.display = 'none';
+        editForm.style.display = 'block';
+        btnEdit.innerHTML = '<i class="fas fa-times"></i> Cancelar';
+        btnEdit.classList.add('cancel-mode');
+    } else {
+        displayView.style.display = 'block';
+        editForm.style.display = 'none';
+        btnEdit.innerHTML = '<i class="fas fa-edit"></i> Editar';
+        btnEdit.classList.remove('cancel-mode');
+    }
+}
 
 // Funcionalidade dos filtros de hidratação
 document.addEventListener('DOMContentLoaded', function() {
