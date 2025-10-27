@@ -369,13 +369,13 @@
 
 .tab-link {
   padding: 0.875rem 1.25rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-weight: 500;
+  transition: all 0.25s ease;
+  font-weight: 400;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -383,59 +383,42 @@
   gap: 0.75rem;
   min-height: 48px;
   text-align: left;
-  backdrop-filter: blur(10px);
   position: relative;
-  overflow: hidden;
   font-family: 'Montserrat', sans-serif;
-}
-
-.tab-link::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 3px;
-  background: var(--accent-orange);
-  transform: scaleY(0);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab-link i {
   font-size: 1.125rem;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   color: var(--text-secondary);
   flex-shrink: 0;
 }
 
 .tab-link span {
   font-size: 0.875rem;
-  letter-spacing: 0.02em;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+  transition: all 0.25s ease;
 }
 
 .tab-link:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 107, 0, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
-  transform: translateX(4px);
 }
 
 .tab-link:hover i {
-  color: var(--accent-orange);
-  transform: scale(1.1);
+  color: var(--text-primary);
+}
+
+.tab-link:hover span {
+  color: var(--text-primary);
 }
 
 .tab-link.active {
-  background: rgba(255, 107, 0, 0.08);
-  border-color: rgba(255, 107, 0, 0.4);
+  background: rgba(255, 107, 0, 0.06);
+  border-color: rgba(255, 107, 0, 0.2);
   color: var(--accent-orange);
-  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.15);
-}
-
-.tab-link.active::before {
-  transform: scaleY(1);
 }
 
 .tab-link.active i {
@@ -444,7 +427,7 @@
 
 .tab-link.active span {
   color: var(--accent-orange);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .tab-content {
