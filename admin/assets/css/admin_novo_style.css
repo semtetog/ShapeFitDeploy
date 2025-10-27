@@ -287,11 +287,7 @@ body {
 
 /* Header Principal */
 .main-header {
-  padding: 1.5rem 2rem;
-  border-bottom: none;
-  background: transparent;
-  display: flex;
-  justify-content: flex-end;
+  display: none;
 }
 
 .user-profile-card {
