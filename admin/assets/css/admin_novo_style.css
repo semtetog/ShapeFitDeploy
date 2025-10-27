@@ -364,9 +364,12 @@
 [data-theme="light"] .hydration-container,
 [data-theme="light"] .hydration-summary-card,
 [data-theme="light"] .hydration-insights,
-[data-theme="light"] .hydration-chart-improved {
-  background: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+[data-theme="light"] .hydration-chart-improved,
+[data-theme="light"] .hydration-periods-compact,
+[data-theme="light"] .hydration-records-collapsible,
+[data-theme="light"] .chart-section {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
 [data-theme="light"] .improved-bar-wrapper {
@@ -377,6 +380,48 @@
 [data-theme="light"] .improved-date,
 [data-theme="light"] .improved-ml {
   color: #4A5568;
+}
+
+[data-theme="light"] .hydration-periods-compact h4,
+[data-theme="light"] .chart-section-header h4,
+[data-theme="light"] .hydration-insights h4,
+[data-theme="light"] .hydration-records-collapsible h4 {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .period-item {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .period-label,
+[data-theme="light"] .period-value,
+[data-theme="light"] .period-percentage {
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .period-value {
+  color: #1A202C !important;
+  font-weight: 600;
+}
+
+[data-theme="light"] .collapse-toggle {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .collapse-toggle:hover {
+  background: rgba(255, 102, 0, 0.08) !important;
+  border-color: var(--accent-orange) !important;
+}
+
+[data-theme="light"] .records-content {
+  background: #FFFFFF !important;
+}
+
+[data-theme="light"] .records-table {
+  background: #FFFFFF !important;
 }
 
 /* === PROGRESS === */
@@ -426,6 +471,165 @@
 
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.25);
+}
+
+/* === FORÇAR CORES NO TEMA CLARO === */
+[data-theme="light"] .card-header,
+[data-theme="light"] .section-header,
+[data-theme="light"] .chart-header {
+  background: rgba(0, 0, 0, 0.02) !important;
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .summary-main,
+[data-theme="light"] .summary-info,
+[data-theme="light"] .summary-meta,
+[data-theme="light"] .summary-stats {
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .summary-info h3,
+[data-theme="light"] .stat-value,
+[data-theme="light"] .stat-label {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .summary-meta strong {
+  color: #FF6B00 !important;
+}
+
+[data-theme="light"] .insights-list li {
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .insights-list strong {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .text-success {
+  color: #15803D !important;
+}
+
+[data-theme="light"] .text-danger {
+  color: #B91C1C !important;
+}
+
+[data-theme="light"] .empty-chart p,
+[data-theme="light"] .empty-state {
+  color: #718096 !important;
+}
+
+/* Nutrients */
+[data-theme="light"] .nutrients-container,
+[data-theme="light"] .nutrients-header,
+[data-theme="light"] .nutrients-meta-info,
+[data-theme="light"] .nutrients-filters,
+[data-theme="light"] .nutrients-stats-detailed,
+[data-theme="light"] .nutrients-chart-improved,
+[data-theme="light"] .nutrients-list-simple {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .nutrients-container h3,
+[data-theme="light"] .nutrients-container h4 {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .filter-btn {
+  background: rgba(0, 0, 0, 0.03) !important;
+  color: #4A5568 !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .filter-btn:hover {
+  background: rgba(255, 102, 0, 0.08) !important;
+  color: #FF6B00 !important;
+}
+
+[data-theme="light"] .filter-btn.active {
+  background: rgba(255, 102, 0, 0.12) !important;
+  color: #FF6B00 !important;
+  border-color: #FF6B00 !important;
+}
+
+/* Diary */
+[data-theme="light"] .diary-history-container,
+[data-theme="light"] .diary-day-group {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .diary-date {
+  color: #1A202C !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+[data-theme="light"] .food-name {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .food-details {
+  color: #718096 !important;
+}
+
+/* Plano e Preferências */
+[data-theme="light"] .preference-item,
+[data-theme="light"] .plan-info {
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .preference-item strong,
+[data-theme="light"] .plan-info strong {
+  color: #1A202C !important;
+}
+
+/* Status Icons */
+[data-theme="light"] .summary-status {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .status-excellent {
+  color: #15803D !important;
+}
+
+[data-theme="light"] .status-good {
+  color: #1E40AF !important;
+}
+
+[data-theme="light"] .status-fair {
+  color: #B45309 !important;
+}
+
+[data-theme="light"] .status-poor {
+  color: #C2410C !important;
+}
+
+[data-theme="light"] .status-critical {
+  color: #B91C1C !important;
+}
+
+/* Ícones gerais */
+[data-theme="light"] .fa-tint,
+[data-theme="light"] .fa-calendar-alt,
+[data-theme="light"] .fa-chart-bar,
+[data-theme="light"] .fa-lightbulb,
+[data-theme="light"] i.fas {
+  color: inherit !important;
+}
+
+/* Dashboard stats icons */
+[data-theme="light"] .stat-icon,
+[data-theme="light"] .summary-icon {
+  color: #FF6B00 !important;
+}
+
+/* Garantir que ícones laranjas mantenham a cor */
+[data-theme="light"] .fa-users,
+[data-theme="light"] .fa-utensils,
+[data-theme="light"] .fa-apple-alt,
+[data-theme="light"] .fa-clipboard-list {
+  color: #FF6B00 !important;
 }
 
 /* Antialiasing global para todos os textos */
