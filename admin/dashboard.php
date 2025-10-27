@@ -89,6 +89,20 @@ $imc_chart_data = ['labels' => array_keys($imc_distribution), 'data' => array_va
 
 require_once __DIR__ . '/includes/header.php';
 ?>
+<style>
+/* Força espaçamentos reduzidos no dashboard */
+.content-wrapper {
+    padding: 0.5rem 2rem !important;
+}
+.content-wrapper > h2:first-of-type,
+h2 {
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
+}
+.stats-cards-grid {
+    margin-bottom: 1rem !important;
+}
+</style>
 
 <h2>Dashboard</h2>
 
