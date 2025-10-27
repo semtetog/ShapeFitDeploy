@@ -352,7 +352,8 @@ body {
   gap: 1rem;
 }
 
-.stats-grid {
+.stats-grid,
+.stats-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
@@ -365,8 +366,10 @@ body {
   border-radius: 20px;
   padding: 2rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  text-align: center;
+  gap: 1rem;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -378,6 +381,21 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
   border-color: var(--accent-orange);
+}
+
+.stat-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.stat-card .stat-value {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--accent-orange);
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .stat-icon-container {
@@ -572,33 +590,51 @@ body {
 }
 
 /* Charts Grid */
-.charts-grid {
+.charts-grid,
+.dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
 
-.chart-card {
+.chart-card,
+.dashboard-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
   border-radius: 20px;
   padding: 2rem;
   transition: all 0.3s ease;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.chart-card:hover {
+.chart-card:hover,
+.dashboard-card:hover {
   background: rgba(255, 255, 255, 0.08);
   transform: translateY(-1px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   border-color: var(--accent-orange);
 }
 
-.chart-card.large-card {
+.chart-card.large-card,
+.dashboard-card.large-card {
   grid-column: span 2;
+}
+
+.dashboard-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 1.5rem 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.dashboard-card canvas {
+  max-height: 300px !important;
+  height: 300px !important;
+  width: 100% !important;
 }
 
 .chart-header {
