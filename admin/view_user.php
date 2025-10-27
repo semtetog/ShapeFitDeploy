@@ -735,6 +735,9 @@ require_once __DIR__ . '/includes/header.php';
                     $all_dates[] = $current_date;
                 }
                 
+                // Inverter ordem: mais antigo à esquerda, mais recente à direita
+                $all_dates = array_reverse($all_dates);
+                
                 foreach ($all_dates as $date): 
                     $meals = $meal_history[$date] ?? [];
                     $day_total_kcal = 0;
@@ -856,8 +859,8 @@ require_once __DIR__ . '/includes/header.php';
 
 <script>
 // Sistema de navegação do diário
-let currentDiaryIndex = 0;
 const diaryCards = document.querySelectorAll('.diary-day-card');
+let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
 const diaryTrack = document.getElementById('diarySliderTrack');
 const diaryDateDisplay = document.getElementById('diaryCurrentDate');
 const diaryDotsContainer = document.getElementById('diarySliderDots');
@@ -865,7 +868,7 @@ const diaryDotsContainer = document.getElementById('diarySliderDots');
 // Criar dots
 diaryCards.forEach((card, index) => {
     const dot = document.createElement('button');
-    dot.className = 'diary-dot' + (index === 0 ? ' active' : '');
+    dot.className = 'diary-dot' + (index === diaryCards.length - 1 ? ' active' : '');
     dot.onclick = () => goToDiaryIndex(index);
     diaryDotsContainer.appendChild(dot);
 });
