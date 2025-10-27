@@ -789,25 +789,16 @@ require_once __DIR__ . '/includes/header.php';
                     $year = date('Y', $timestamp);
                 ?>
                 <div class="diary-day-card" data-date="<?php echo $date; ?>">
-                    <div class="diary-day-header">
-                        <div class="diary-day-title">
-                            <span class="diary-day-name"><?php echo $day_of_week; ?></span>
-                            <div class="diary-day-date-group">
-                                <span class="diary-day-number"><?php echo $day_number; ?></span>
-                                <span class="diary-day-month"><?php echo $month_name_abbr; ?></span>
-                            </div>
-                            <span class="diary-day-year"><?php echo $year; ?></span>
+                    <!-- Dados escondidos para o JavaScript buscar -->
+                    <div class="diary-day-summary" style="display: none;">
+                        <div class="diary-summary-item">
+                            <i class="fas fa-fire"></i>
+                            <span><?php echo round($day_total_kcal); ?> kcal</span>
                         </div>
-                        <div class="diary-day-summary">
-                            <div class="diary-summary-item">
-                                <i class="fas fa-fire"></i>
-                                <span><?php echo round($day_total_kcal); ?> kcal</span>
-                            </div>
-                            <div class="diary-summary-macros">
-                                P: <?php echo round($day_total_prot); ?>g • 
-                                C: <?php echo round($day_total_carb); ?>g • 
-                                G: <?php echo round($day_total_fat); ?>g
-                            </div>
+                        <div class="diary-summary-macros">
+                            P: <?php echo round($day_total_prot); ?>g • 
+                            C: <?php echo round($day_total_carb); ?>g • 
+                            G: <?php echo round($day_total_fat); ?>g
                         </div>
                     </div>
                     

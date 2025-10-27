@@ -681,64 +681,6 @@
   contain: layout style;
 }
 
-.diary-day-header {
-  background: var(--surface-color);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin: 0 0 1.5rem 0;
-  backdrop-filter: blur(10px);
-  box-sizing: border-box;
-  width: calc(100% - 2px);
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.diary-day-title {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.diary-day-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.diary-day-date-group {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-
-.diary-day-number {
-  font-size: 3.5rem;
-  font-weight: 800;
-  color: var(--accent-orange);
-  line-height: 1;
-}
-
-.diary-day-month {
-  font-size: 2rem;
-  color: var(--accent-orange);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.diary-day-year {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-  margin-top: -0.25rem;
-}
-
 .diary-day-summary {
   display: flex;
   align-items: center;
@@ -1045,10 +987,6 @@
 }
 
 @media (max-width: 768px) {
-  .diary-day-header {
-    padding: 1rem;
-  }
-  
   .diary-meal-card {
     padding: 1rem;
   }
@@ -1067,14 +1005,6 @@
   
   .diary-macros {
     font-size: 0.875rem;
-  }
-  
-  .diary-day-number {
-    font-size: 3rem;
-  }
-  
-  .diary-day-month {
-    font-size: 1.75rem;
   }
   
   /* View User adjustments */
