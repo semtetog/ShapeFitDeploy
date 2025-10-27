@@ -83,9 +83,9 @@ if (!empty($user_data['custom_water_goal_ml'])) {
     $water_goal_ml = (int)$user_data['custom_water_goal_ml'];
     $water_goal_cups = ceil($water_goal_ml / 250); // 250ml por copo
 } else {
-    $water_goal_data = getWaterIntakeSuggestion($user_data['weight_kg'] ?? 0);
-    $water_goal_ml = $water_goal_data['total_ml'];
-    $water_goal_cups = $water_goal_data['cups'];
+$water_goal_data = getWaterIntakeSuggestion($user_data['weight_kg'] ?? 0);
+$water_goal_ml = $water_goal_data['total_ml'];
+$water_goal_cups = $water_goal_data['cups'];
 }
 
 // --- DURAÇÕES DOS EXERCÍCIOS ---
@@ -109,7 +109,7 @@ $age_years = calculateAge($dob);
 if (!empty($user_data['custom_calories_goal'])) {
     $total_daily_calories_goal = (int)$user_data['custom_calories_goal'];
 } else {
-    $total_daily_calories_goal = calculateTargetDailyCalories($gender, $weight_kg, $height_cm, $age_years, $exercise_frequency, $objective);
+$total_daily_calories_goal = calculateTargetDailyCalories($gender, $weight_kg, $height_cm, $age_years, $exercise_frequency, $objective);
 }
 
 if (!empty($user_data['custom_protein_goal_g']) && !empty($user_data['custom_carbs_goal_g']) && !empty($user_data['custom_fat_goal_g'])) {
@@ -119,7 +119,7 @@ if (!empty($user_data['custom_protein_goal_g']) && !empty($user_data['custom_car
         'fat_g' => (float)$user_data['custom_fat_goal_g']
     ];
 } else {
-    $macros_goal = calculateMacronutrients($total_daily_calories_goal, $objective);
+$macros_goal = calculateMacronutrients($total_daily_calories_goal, $objective);
 }
 
 // Processar histórico de hidratação
@@ -546,11 +546,11 @@ require_once __DIR__ . '/includes/header.php';
 <div class="details-grid-3-cols">
     <div class="dashboard-card">
         <div class="card-header-with-action">
-            <h3>Meta Calórica e Macros</h3>
-            <button class="btn-secondary btn-revert-goals" 
-                    onclick="revertToAutoGoals(<?php echo $user_id; ?>)" 
+        <h3>Meta Calórica e Macros</h3>
+            <button class="btn-icon-only btn-revert-goals" 
+                    onclick="showRevertModal(<?php echo $user_id; ?>)" 
                     title="Reverter para cálculo automático">
-                <i class="fas fa-undo"></i> Reverter para Automático
+                <i class="fas fa-undo"></i>
             </button>
         </div>
         
@@ -719,7 +719,7 @@ require_once __DIR__ . '/includes/header.php';
             </button>
             <div class="diary-current-date" id="diaryCurrentDate">
                 <?php echo date('d \d\e F \d\e Y'); ?>
-            </div>
+        </div>
             <button class="diary-nav-btn diary-nav-next" onclick="navigateDiary(1)">
                 <i class="fas fa-chevron-right"></i>
             </button>
@@ -800,13 +800,13 @@ require_once __DIR__ . '/includes/header.php';
                                     ?>
                                 </p>
                             </div>
-                        <?php else: ?>
-                            <?php foreach ($meals as $meal_type_slug => $items): 
-                                $total_kcal = array_sum(array_column($items, 'kcal_consumed'));
-                                $total_prot = array_sum(array_column($items, 'protein_consumed_g'));
-                                $total_carb = array_sum(array_column($items, 'carbs_consumed_g'));
-                                $total_fat  = array_sum(array_column($items, 'fat_consumed_g'));
-                            ?>
+            <?php else: ?>
+                        <?php foreach ($meals as $meal_type_slug => $items): 
+                            $total_kcal = array_sum(array_column($items, 'kcal_consumed'));
+                            $total_prot = array_sum(array_column($items, 'protein_consumed_g'));
+                            $total_carb = array_sum(array_column($items, 'carbs_consumed_g'));
+                            $total_fat  = array_sum(array_column($items, 'fat_consumed_g'));
+                        ?>
                                 <div class="diary-meal-card">
                                     <div class="diary-meal-header">
                                         <div class="diary-meal-icon">
@@ -824,30 +824,30 @@ require_once __DIR__ . '/includes/header.php';
                                             <i class="fas <?php echo $icon; ?>"></i>
                                         </div>
                                         <div class="diary-meal-info">
-                                            <h5><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
+                                    <h5><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
                                             <span class="diary-meal-totals">
                                                 <strong><?php echo round($total_kcal); ?> kcal</strong> • 
                                                 P:<?php echo round($total_prot); ?>g • 
                                                 C:<?php echo round($total_carb); ?>g • 
                                                 G:<?php echo round($total_fat); ?>g
                                             </span>
-                                        </div>
                                     </div>
-                                    <ul class="diary-food-list">
-                                        <?php foreach ($items as $item): ?>
-                                            <li>
-                                                <span class="food-name"><?php echo htmlspecialchars($item['food_name']); ?></span>
-                                                <span class="food-quantity"><?php echo htmlspecialchars($item['quantity_display']); ?></span>
-                                            </li>
-                                        <?php endforeach; ?>
-                                    </ul>
                                 </div>
-                            <?php endforeach; ?>
+                                    <ul class="diary-food-list">
+                                    <?php foreach ($items as $item): ?>
+                                        <li>
+                                            <span class="food-name"><?php echo htmlspecialchars($item['food_name']); ?></span>
+                                            <span class="food-quantity"><?php echo htmlspecialchars($item['quantity_display']); ?></span>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
-                </div>
+                    </div>
                 <?php endforeach; ?>
-            </div>
+        </div>
         </div>
         
         <div class="diary-slider-dots" id="diarySliderDots"></div>
@@ -1062,7 +1062,7 @@ if (count($hydration_data) >= 7) {
             <div class="summary-main">
                 <div class="summary-icon">
                     <i class="fas fa-tint"></i>
-                </div>
+                    </div>
                 <div class="summary-info">
                     <h3>Hidratação</h3>
                     <div class="summary-meta">Meta diária: <strong><?php echo $water_goal_ml; ?>ml</strong></div>
@@ -1076,18 +1076,18 @@ if (count($hydration_data) >= 7) {
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $avg_ml_7; ?>ml</div>
                     <div class="stat-label">Média Atual (7 dias)</div>
-                </div>
+                    </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $avg_percentage_7; ?>%</div>
                     <div class="stat-label">da Meta Atingido</div>
-                </div>
+                    </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $days_with_goal; ?>/<?php echo $total_days_7; ?></div>
                     <div class="stat-label">Dias na Meta</div>
                 </div>
-            </div>
-        </div>
-
+                    </div>
+                </div>
+                
         <!-- 2. INSIGHTS AUTOMÁTICOS -->
         <?php if (!empty($insights)): ?>
         <div class="hydration-insights">
@@ -1097,7 +1097,7 @@ if (count($hydration_data) >= 7) {
                     <li><?php echo $insight; ?></li>
                 <?php endforeach; ?>
             </ul>
-        </div>
+                    </div>
         <?php endif; ?>
 
         <!-- 3. GRÁFICO SIMPLIFICADO -->
@@ -1153,19 +1153,19 @@ if (count($hydration_data) >= 7) {
                     <span class="period-label">Semana (7 dias)</span>
                     <span class="period-value"><?php echo $water_stats_7['avg_ml']; ?>ml</span>
                     <span class="period-percentage"><?php echo $water_stats_7['avg_percentage']; ?>%</span>
-                </div>
+            </div>
                 <div class="period-item">
                     <span class="period-label">Quinzena (15 dias)</span>
                     <span class="period-value"><?php echo $water_stats_15['avg_ml']; ?>ml</span>
                     <span class="period-percentage"><?php echo $water_stats_15['avg_percentage']; ?>%</span>
-                </div>
+                    </div>
                 <div class="period-item">
                     <span class="period-label">Mês (30 dias)</span>
                     <span class="period-value"><?php echo $water_stats_30['avg_ml']; ?>ml</span>
                     <span class="period-percentage"><?php echo $water_stats_30['avg_percentage']; ?>%</span>
-                </div>
-            </div>
-        </div>
+                            </div>
+                            </div>
+                        </div>
 
         <!-- 5. REGISTROS DETALHADOS (COLAPSÁVEL) -->
         <div class="hydration-records-collapsible">
@@ -1209,8 +1209,8 @@ if (count($hydration_data) >= 7) {
                                         </span>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -1609,15 +1609,62 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Função para reverter metas para cálculo automático
-async function revertToAutoGoals(userId) {
-    if (!confirm('Tem certeza que deseja reverter para o cálculo automático? As metas personalizadas serão removidas.')) {
-        return;
+// Sistema de modais customizados para reverter metas
+let currentUserIdToRevert = null;
+
+function showRevertModal(userId) {
+    currentUserIdToRevert = userId;
+    document.getElementById('revertGoalsModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeRevertModal() {
+    document.getElementById('revertGoalsModal').classList.remove('active');
+    document.body.style.overflow = '';
+    currentUserIdToRevert = null;
+}
+
+function showAlertModal(title, message, isSuccess = true) {
+    const modal = document.getElementById('alertModal');
+    const header = document.getElementById('alertModalHeader');
+    const icon = document.getElementById('alertModalIcon');
+    const titleEl = document.getElementById('alertModalTitle');
+    const messageEl = document.getElementById('alertModalMessage');
+    
+    // Configurar ícone e cor
+    if (isSuccess) {
+        header.style.color = 'var(--success-green)';
+        icon.className = 'fas fa-check-circle';
+    } else {
+        header.style.color = 'var(--danger-red)';
+        icon.className = 'fas fa-times-circle';
     }
+    
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAlertModal() {
+    const modal = document.getElementById('alertModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Se foi sucesso, recarregar a página
+    if (modal.dataset.reloadOnClose === 'true') {
+        location.reload();
+    }
+}
+
+async function confirmRevertGoals() {
+    if (!currentUserIdToRevert) return;
+    
+    closeRevertModal(); // Fechar modal de confirmação
     
     try {
         const formData = new FormData();
-        formData.append('user_id', userId);
+        formData.append('user_id', currentUserIdToRevert);
         
         const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/revert_to_auto_goals.php', {
             method: 'POST',
@@ -1630,14 +1677,15 @@ async function revertToAutoGoals(userId) {
         const data = await response.json();
         
         if (data.success) {
-            alert(data.message);
-            location.reload(); // Recarregar página para mostrar valores automáticos
+            const modal = document.getElementById('alertModal');
+            modal.dataset.reloadOnClose = 'true';
+            showAlertModal('Sucesso!', data.message, true);
         } else {
-            alert('Erro: ' + data.message);
+            showAlertModal('Erro', data.message, false);
         }
     } catch (error) {
         console.error('Erro ao reverter metas:', error);
-        alert('Erro ao reverter metas. Verifique o console para mais detalhes.');
+        showAlertModal('Erro', 'Erro ao reverter metas. Verifique o console para mais detalhes.', false);
     }
 }
 
@@ -4791,6 +4839,48 @@ document.addEventListener('click', function(e) {
     }
 });
 </script>
+
+<!-- Modal Customizado para Reverter Metas -->
+<div id="revertGoalsModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeRevertModal()"></div>
+    <div class="custom-modal-content">
+        <div class="custom-modal-header">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Reverter para Cálculo Automático?</h3>
+        </div>
+        <div class="custom-modal-body">
+            <p>Tem certeza que deseja reverter para o cálculo automático?</p>
+            <p class="modal-warning">As metas personalizadas serão removidas e o sistema voltará a calcular automaticamente com base nos dados do usuário.</p>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-cancel" onclick="closeRevertModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="btn-modal-confirm" onclick="confirmRevertGoals()">
+                <i class="fas fa-check"></i> Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Sucesso/Erro -->
+<div id="alertModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeAlertModal()"></div>
+    <div class="custom-modal-content custom-modal-small">
+        <div class="custom-modal-header" id="alertModalHeader">
+            <i id="alertModalIcon"></i>
+            <h3 id="alertModalTitle"></h3>
+        </div>
+        <div class="custom-modal-body">
+            <p id="alertModalMessage"></p>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-primary" onclick="closeAlertModal()">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
 
 <?php
 require_once __DIR__ . '/includes/footer.php';

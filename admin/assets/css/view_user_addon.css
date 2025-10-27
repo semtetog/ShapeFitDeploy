@@ -2235,29 +2235,184 @@
   }
 }
 
-/* ========== BOTÃO REVERTER METAS ========== */
-.btn-revert-goals {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* ========== BOTÃO REVERTER METAS (APENAS ÍCONE) ========== */
+.btn-icon-only {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-secondary);
-  padding: 0.5rem 1rem;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
 }
 
-.btn-revert-goals:hover {
+.btn-icon-only:hover {
   background: rgba(255, 107, 0, 0.1);
   border-color: var(--accent-orange);
   color: var(--accent-orange);
   transform: translateY(-2px);
 }
 
-.btn-revert-goals i {
-  font-size: 0.875rem;
+.btn-icon-only i {
+  font-size: 1rem;
+}
+
+/* ========== MODAL CUSTOMIZADO ========== */
+.custom-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.custom-modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.custom-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.custom-modal-content {
+  position: relative;
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 0;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.custom-modal.active .custom-modal-content {
+  transform: scale(1);
+}
+
+.custom-modal-content.custom-modal-small {
+  max-width: 400px;
+}
+
+.custom-modal-header {
+  padding: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--accent-orange);
+}
+
+.custom-modal-header i {
+  font-size: 1.75rem;
+}
+
+.custom-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.custom-modal-body {
+  padding: 2rem;
+}
+
+.custom-modal-body p {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.custom-modal-body p:last-child {
+  margin-bottom: 0;
+}
+
+.modal-warning {
+  color: var(--text-secondary) !important;
+  font-size: 0.9rem;
+  padding: 1rem;
+  background: rgba(255, 107, 0, 0.08);
+  border-left: 3px solid var(--accent-orange);
+  border-radius: 8px;
+}
+
+.custom-modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-modal-cancel,
+.btn-modal-confirm,
+.btn-modal-primary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.btn-modal-cancel {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-modal-cancel:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.btn-modal-confirm {
+  background: var(--accent-orange);
+  color: white;
+  border: 1px solid var(--accent-orange);
+}
+
+.btn-modal-confirm:hover {
+  background: #ff8533;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+}
+
+.btn-modal-primary {
+  background: var(--accent-orange);
+  color: white;
+  border: 1px solid var(--accent-orange);
+}
+
+.btn-modal-primary:hover {
+  background: #ff8533;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
 }
