@@ -11,11 +11,20 @@
   --danger-color: #F44336;
 }
 
+/* Antialiasing global para todos os textos */
+h1, h2, h3, h4, h5, h6, p, span, a, label, input, textarea, button {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Remover glow dos ícones Font Awesome */
@@ -35,6 +44,10 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-smooth: always;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 /* Scrollbar estilizada - tema escuro moderno */
@@ -342,6 +355,9 @@ h2 {
   margin: 0 0 2.5rem 0;
   font-family: 'Montserrat', sans-serif;
   letter-spacing: -0.5px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Content */
@@ -700,6 +716,9 @@ h2 {
   position: relative;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .chart-card:hover,
