@@ -1339,3 +1339,19 @@ h2 {
     max-width: none;
   }
 }
+
+/* ========================================================================= */
+/*                    CSS VIEW_USER - ESTILO MODERNO                         */
+/* ========================================================================= */
+
+.view-user-header {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+

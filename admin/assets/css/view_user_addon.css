@@ -1,0 +1,249 @@
+/* CSS VIEW_USER - COMPLEMENTO */
+
+.user-main-info {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.profile-avatar-large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--accent-orange);
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.user-contact-details {
+  flex: 1;
+  min-width: 250px;
+}
+
+.user-contact-details h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.user-contact-details p {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.user-contact-details .icon-sm {
+  color: var(--accent-orange);
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* Grids */
+.details-grid-3-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.details-grid-1-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+/* Cards de dados físicos */
+.physical-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.25rem;
+}
+
+.physical-data-grid-pref {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+.data-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.data-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--accent-orange);
+  transform: translateY(-2px);
+}
+
+.data-item .icon {
+  color: var(--accent-orange);
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.data-item label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.data-item span {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Meta Cards */
+.meta-card-main {
+  text-align: center;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.meta-value {
+  display: block;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--accent-orange);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.meta-label {
+  display: block;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.meta-card-macros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.meta-card-macros > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.meta-card-macros span {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-orange);
+  display: block;
+}
+
+.meta-card-macros div {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+  .view-user-header {
+    padding: 1.5rem;
+  }
+  
+  .user-main-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  
+  .profile-avatar-large {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .user-contact-details {
+    width: 100%;
+  }
+  
+  .user-contact-details h2 {
+    font-size: 1.5rem;
+  }
+  
+  .user-contact-details p {
+    justify-content: center;
+    font-size: 0.9rem;
+  }
+  
+  .details-grid-3-cols {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .physical-data-grid,
+  .physical-data-grid-pref {
+    grid-template-columns: 1fr;
+  }
+  
+  .meta-value {
+    font-size: 2.5rem;
+  }
+  
+  .meta-card-macros {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .dashboard-card {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .view-user-header {
+    padding: 1rem;
+  }
+  
+  .profile-avatar-large {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .user-contact-details h2 {
+    font-size: 1.25rem;
+  }
+  
+  .meta-value {
+    font-size: 2rem;
+  }
+  
+  .data-item {
+    padding: 0.75rem;
+  }
+}
+

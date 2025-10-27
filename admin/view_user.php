@@ -482,12 +482,25 @@ if (!empty($user_data['profile_image_filename'])) {
 if (empty($avatar_html)) {
     $name_parts = explode(' ', trim($user_data['name']));
     $initials = count($name_parts) > 1 ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : '??');
-    $bgColor = '#' . substr(md5($user_data['name']), 0, 6);
+    // Gerar cor escura para bom contraste com texto branco
+    $hash = md5($user_data['name']);
+    $r = hexdec(substr($hash, 0, 2)) % 156 + 50;  // 50-205
+    $g = hexdec(substr($hash, 2, 2)) % 156 + 50;  // 50-205
+    $b = hexdec(substr($hash, 4, 2)) % 156 + 50;  // 50-205
+    // Garantir que pelo menos um canal seja escuro
+    $max = max($r, $g, $b);
+    if ($max > 180) {
+        $r = (int)($r * 0.7);
+        $g = (int)($g * 0.7);
+        $b = (int)($b * 0.7);
+    }
+    $bgColor = sprintf('#%02x%02x%02x', $r, $g, $b);
     $avatar_html = '<div class="initials-avatar large" style="background-color: ' . $bgColor . ';">' . $initials . '</div>';
 }
 
 require_once __DIR__ . '/includes/header.php';
 ?>
+<link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/view_user_addon.css?v=<?php echo time(); ?>">
 
 <div class="view-user-header">
     <div class="user-main-info">
