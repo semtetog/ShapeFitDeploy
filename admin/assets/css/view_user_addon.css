@@ -563,8 +563,14 @@
   padding: 0.5rem;
 }
 
-.diary-nav-side:hover {
+.diary-nav-side:hover:not(.disabled) {
   color: var(--accent-orange);
+}
+
+.diary-nav-side.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .diary-nav-side i {

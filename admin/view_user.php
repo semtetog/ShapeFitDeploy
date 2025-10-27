@@ -941,16 +941,75 @@ function updateDiaryDisplay() {
             `<i class="fas fa-fire"></i><span>0 kcal</span>`;
         document.getElementById('diarySummaryMacros').textContent = 'P: 0g • C: 0g • G: 0g';
     }
+    
+    // Atualizar estado dos botões de navegação
+    updateNavigationButtons();
+}
+
+function updateNavigationButtons() {
+    const currentCard = diaryCards[currentDiaryIndex];
+    if (!currentCard) return;
+    
+    const currentDate = currentCard.getAttribute('data-date');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const currentDateObj = new Date(currentDate + 'T00:00:00');
+    
+    // Botão de avançar (direita) - desabilitar se estiver no dia atual
+    const nextBtn = document.querySelector('.diary-nav-right');
+    if (nextBtn) {
+        if (currentDateObj >= today) {
+            nextBtn.classList.add('disabled');
+            nextBtn.disabled = true;
+        } else {
+            nextBtn.classList.remove('disabled');
+            nextBtn.disabled = false;
+        }
+    }
 }
 
 function navigateDiary(direction) {
     let newIndex = currentDiaryIndex + direction;
     
-    // Navegação circular infinita
-    if (newIndex < 0) {
-        newIndex = diaryCards.length - 1; // Volta pro último
-    } else if (newIndex >= diaryCards.length) {
-        newIndex = 0; // Volta pro primeiro
+    // Se tentar ir para frente
+    if (direction > 0) {
+        // Verificar se o próximo dia seria futuro
+        if (newIndex >= diaryCards.length) {
+            // Está no último card, volta pro primeiro
+            newIndex = 0;
+        }
+        
+        const nextCard = diaryCards[newIndex];
+        if (nextCard) {
+            const nextDate = nextCard.getAttribute('data-date');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const nextDateObj = new Date(nextDate + 'T00:00:00');
+            
+            // Se o próximo dia for futuro, não permite
+            if (nextDateObj > today) {
+                return; // Bloqueia navegação
+            }
+        }
+    }
+    
+    // Se tentar ir para trás e já está no primeiro card (mais antigo)
+    if (direction < 0 && newIndex < 0) {
+        // Carregar 30 dias anteriores
+        const firstCard = diaryCards[0];
+        if (firstCard) {
+            const firstDate = firstCard.getAttribute('data-date');
+            // Calcular data 30 dias antes
+            const dateObj = new Date(firstDate + 'T00:00:00');
+            dateObj.setDate(dateObj.getDate() - 1); // Um dia antes do primeiro
+            const newEndDate = dateObj.toISOString().split('T')[0];
+            
+            // Recarregar página com nova data
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('end_date', newEndDate);
+            window.location.href = window.location.pathname + '?' + urlParams.toString();
+            return;
+        }
     }
     
     currentDiaryIndex = newIndex;
