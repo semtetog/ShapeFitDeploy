@@ -449,6 +449,8 @@
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
+  overflow: hidden;
+  position: relative;
 }
 
 .diary-slider-header {
@@ -467,11 +469,15 @@
   text-align: center;
   flex: 1;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .diary-nav-btn {
   width: 48px;
   height: 48px;
+  min-width: 48px;
   border-radius: 50%;
   background: var(--surface-color);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -482,6 +488,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 .diary-nav-btn:hover:not(:disabled) {
@@ -497,6 +504,7 @@
 
 .diary-slider-wrapper {
   width: 100%;
+  max-width: 100%;
   overflow: hidden;
   position: relative;
   border-radius: 16px;
@@ -506,21 +514,29 @@
   display: flex;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
+  width: 100%;
 }
 
 .diary-day-card {
   min-width: 100%;
+  max-width: 100%;
+  width: 100%;
   flex-shrink: 0;
-  padding: 0 1rem;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .diary-day-header {
   background: var(--surface-color);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1.5rem;
   margin-bottom: 1.5rem;
   backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .diary-day-title {
@@ -528,6 +544,8 @@
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 .diary-day-name {
@@ -599,6 +617,9 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .diary-empty-state {
@@ -606,11 +627,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
+  padding: 3rem 1.5rem;
   background: var(--surface-color);
   border: 1px dashed rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .diary-empty-state i {
@@ -623,6 +647,7 @@
   font-size: 1.125rem;
   color: var(--text-secondary);
   margin: 0;
+  text-align: center;
 }
 
 .diary-meal-card {
@@ -631,6 +656,9 @@
   border-radius: 12px;
   padding: 1.5rem;
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .diary-meal-card:hover {
@@ -696,6 +724,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 .diary-food-list li {
@@ -706,6 +736,10 @@
   background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
   transition: all 0.2s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .diary-food-list li:hover {
@@ -716,6 +750,9 @@
   font-weight: 500;
   color: var(--text-primary);
   flex: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
 .diary-food-list .food-quantity {
@@ -723,6 +760,8 @@
   color: var(--text-secondary);
   font-weight: 500;
   margin-left: 1rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .diary-slider-dots {
@@ -732,6 +771,9 @@
   gap: 0.5rem;
   padding: 2rem 0;
   margin-top: 1rem;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
 }
 
 .diary-dot {
@@ -743,6 +785,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .diary-dot:hover {
@@ -754,6 +797,39 @@
   background: var(--accent-orange);
   width: 32px;
   border-radius: 5px;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  .diary-day-header {
+    padding: 1rem;
+  }
+  
+  .diary-meal-card {
+    padding: 1rem;
+  }
+  
+  .diary-empty-state {
+    padding: 2rem 1rem;
+  }
+  
+  .diary-current-date {
+    font-size: 1.25rem;
+  }
+  
+  .diary-nav-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+  
+  .diary-day-number {
+    font-size: 3rem;
+  }
+  
+  .diary-day-month {
+    font-size: 1.75rem;
+  }
 }
 
 .diary-day-group {
