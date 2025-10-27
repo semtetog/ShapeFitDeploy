@@ -172,6 +172,7 @@
   gap: 1rem;
   align-items: start;
   grid-auto-rows: 100px;
+  margin-top: 5rem; /* Alinhar com os macros do primeiro card */
 }
 
 .physical-data-grid-pref {
@@ -180,6 +181,7 @@
   gap: 1rem;
   align-items: start;
   grid-auto-rows: 100px;
+  margin-top: 5rem; /* Alinhar com os macros do primeiro card */
 }
 
 .data-item {
