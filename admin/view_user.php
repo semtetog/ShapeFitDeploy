@@ -460,17 +460,12 @@ $location = !empty($user_data['city']) && !empty($user_data['uf']) ? htmlspecial
 
 // LÓGICA DO SONO
 $sleep_html = 'Não informado';
-$sleep_alert_html = '';
 if (!empty($user_data['sleep_time_bed']) && !empty($user_data['sleep_time_wake'])) {
     $bed_time = new DateTime($user_data['sleep_time_bed']);
     $wake_time = new DateTime($user_data['sleep_time_wake']);
     if ($wake_time < $bed_time) { $wake_time->modify('+1 day'); }
     $interval = $bed_time->diff($wake_time);
-    $sleep_duration_hours = $interval->h + ($interval->i / 60);
     $sleep_html = $interval->format('%H:%I');
-    if ($sleep_duration_hours < 6) { $sleep_alert_html = '<span class="status-badge error">Sono Ruim</span>'; } 
-    elseif ($sleep_duration_hours < 7.5) { $sleep_alert_html = '<span class="status-badge warning">Sono Regular</span>'; } 
-    else { $sleep_alert_html = '<span class="status-badge success">Sono Bom</span>'; }
 }
 
 // LÓGICA DE AVATAR
@@ -606,7 +601,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="data-item"><i class="fas fa-dumbbell icon"></i><label>Tipo de Treino</label><span><?php echo htmlspecialchars($user_data['exercise_type'] ?? 'N/I'); ?></span></div>
             <div class="data-item"><i class="fas fa-calendar-check icon"></i><label>Frequência</label><span><?php echo $exercise_freq_names[$user_data['exercise_frequency']] ?? 'N/I'; ?></span></div>
             <div class="data-item"><i class="fas fa-tint icon"></i><label>Consumo de Água</label><span><?php echo $water_intake_names[$user_data['water_intake_liters']] ?? 'N/I'; ?></span></div>
-            <div class="data-item"><i class="fas fa-bed icon"></i><label>Duração do Sono</label><span><?php echo $sleep_html . ' ' . $sleep_alert_html; ?></span></div>
+            <div class="data-item"><i class="fas fa-bed icon"></i><label>Duração do Sono</label><span><?php echo $sleep_html; ?></span></div>
         </div>
     </div>
 </div>
