@@ -161,5 +161,7 @@ foreach ($all_dates as $date):
     </div>
 </div>
 
-<?php endforeach; ?>
-
+<?php 
+endforeach; 
+$conn->close();
+?>
