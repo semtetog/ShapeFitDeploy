@@ -885,7 +885,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         ?>
         <div class="glass-card card-missions">
             <div class="card-header">
-                <h3>Jornada Diária</h3>
+                <h3>Jornada Diárias</h3>
                 <a href="<?php echo BASE_APP_URL; ?>/routine.php" class="view-all-link">Ver mais</a>
             </div>
             <div class="missions-progress">
