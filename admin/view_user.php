@@ -719,8 +719,8 @@ require_once __DIR__ . '/includes/header.php';
             </button>
             <div class="diary-current-date" id="diaryCurrentDate">
                 <?php echo date('d \d\e F \d\e Y'); ?>
-            </div>
-            <button class="diary-calendar-btn" onclick="openDiaryCalendar()" title="Ver calendário">
+        </div>
+            <button class="diary-calendar-btn" onclick="openDiaryCalendar()" type="button" title="Ver calendário">
                 <i class="fas fa-calendar-alt"></i>
             </button>
             <button class="diary-nav-btn diary-nav-next" onclick="navigateDiary(1)">
@@ -902,19 +902,21 @@ function updateDiaryDisplay() {
         dot.classList.toggle('active', index === currentDiaryIndex);
     });
     
-    // Desabilitar botões nas extremidades
-    const prevBtn = document.querySelector('.diary-nav-prev');
-    const nextBtn = document.querySelector('.diary-nav-next');
-    if (prevBtn) prevBtn.disabled = currentDiaryIndex === 0;
-    if (nextBtn) nextBtn.disabled = currentDiaryIndex === diaryCards.length - 1;
+    // Navegação infinita circular
 }
 
 function navigateDiary(direction) {
-    const newIndex = currentDiaryIndex + direction;
-    if (newIndex >= 0 && newIndex < diaryCards.length) {
-        currentDiaryIndex = newIndex;
-        updateDiaryDisplay();
+    let newIndex = currentDiaryIndex + direction;
+    
+    // Navegação circular infinita
+    if (newIndex < 0) {
+        newIndex = diaryCards.length - 1; // Volta pro último
+    } else if (newIndex >= diaryCards.length) {
+        newIndex = 0; // Volta pro primeiro
     }
+    
+    currentDiaryIndex = newIndex;
+    updateDiaryDisplay();
 }
 
 function goToDiaryIndex(index) {
@@ -4868,7 +4870,17 @@ function closeDiaryCalendar() {
 }
 
 function changeCalendarMonth(direction) {
-    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+    const newDate = new Date(currentCalendarDate);
+    newDate.setMonth(newDate.getMonth() + direction);
+    
+    // Não permitir ir além do mês atual
+    const now = new Date();
+    if (newDate.getFullYear() > now.getFullYear() || 
+        (newDate.getFullYear() === now.getFullYear() && newDate.getMonth() > now.getMonth())) {
+        return; // Não avança
+    }
+    
+    currentCalendarDate = newDate;
     renderCalendar();
 }
 
@@ -4990,19 +5002,21 @@ function goToDiaryDate(dateStr) {
 <div id="diaryCalendarModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeDiaryCalendar()"></div>
     <div class="custom-modal-content diary-calendar-modal-content">
-        <div class="custom-modal-header">
-            <i class="fas fa-calendar-alt"></i>
-            <h3 id="calendarMonthYear"></h3>
-            <button class="btn-icon-only calendar-close-btn" onclick="closeDiaryCalendar()">
+        <div class="custom-modal-header calendar-modal-header">
+            <div class="calendar-header-left">
+                <i class="fas fa-calendar-alt"></i>
+                <h3 id="calendarMonthYear"></h3>
+            </div>
+            <button class="btn-icon-only calendar-close-btn" onclick="closeDiaryCalendar()" type="button">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="custom-modal-body calendar-modal-body">
             <div class="calendar-nav">
-                <button class="btn-icon-only" onclick="changeCalendarMonth(-1)">
+                <button class="btn-icon-only" onclick="changeCalendarMonth(-1)" type="button" title="Mês anterior">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button class="btn-icon-only" onclick="changeCalendarMonth(1)">
+                <button class="btn-icon-only" onclick="changeCalendarMonth(1)" type="button" title="Próximo mês">
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>

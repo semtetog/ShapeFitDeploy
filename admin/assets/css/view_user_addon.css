@@ -2476,12 +2476,24 @@
   max-width: 450px;
 }
 
+.calendar-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.calendar-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .calendar-modal-body {
   padding: 1.5rem;
 }
 
 .calendar-close-btn {
-  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .calendar-nav {
