@@ -2046,7 +2046,7 @@ h2 {
   .stats-grid {
     grid-template-columns: 1fr;
   }
-
+  
   .content-container {
     padding: 1rem;
   }
