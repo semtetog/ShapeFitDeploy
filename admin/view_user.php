@@ -4998,45 +4998,48 @@ function goToDiaryDate(dateStr) {
     </div>
 </div>
 
-<!-- Modal de Calendário do Diário -->
+<!-- Modal de Calendário do Diário - REDESIGN COMPLETO -->
 <div id="diaryCalendarModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeDiaryCalendar()"></div>
-    <div class="custom-modal-content diary-calendar-modal-content">
-        <div class="custom-modal-header calendar-modal-header">
-            <button class="btn-icon-only" onclick="changeCalendarMonth(-1)" type="button" title="Mês anterior">
+    <div class="diary-calendar-wrapper">
+        <button class="calendar-btn-close" onclick="closeDiaryCalendar()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="calendar-header-title">
+            <i class="fas fa-calendar-alt"></i>
+            <h3 id="calendarMonthYear">Outubro 2025</h3>
+        </div>
+        
+        <div class="calendar-nav-buttons">
+            <button class="calendar-btn-nav" onclick="changeCalendarMonth(-1)" type="button">
                 <i class="fas fa-chevron-left"></i>
             </button>
-            <div class="calendar-header-center">
-                <i class="fas fa-calendar-alt"></i>
-                <h3 id="calendarMonthYear"></h3>
-            </div>
-            <button class="btn-icon-only" onclick="changeCalendarMonth(1)" type="button" title="Próximo mês">
+            <button class="calendar-btn-nav" onclick="changeCalendarMonth(1)" type="button">
                 <i class="fas fa-chevron-right"></i>
             </button>
-            <button class="btn-icon-only calendar-close-btn" onclick="closeDiaryCalendar()" type="button">
-                <i class="fas fa-times"></i>
-            </button>
         </div>
-        <div class="custom-modal-body calendar-modal-body">
-            <div class="calendar-weekdays">
-                <div>DOM</div>
-                <div>SEG</div>
-                <div>TER</div>
-                <div>QUA</div>
-                <div>QUI</div>
-                <div>SEX</div>
-                <div>SÁB</div>
+        
+        <div class="calendar-weekdays-row">
+            <span>DOM</span>
+            <span>SEG</span>
+            <span>TER</span>
+            <span>QUA</span>
+            <span>QUI</span>
+            <span>SEX</span>
+            <span>SÁB</span>
+        </div>
+        
+        <div class="calendar-days-grid" id="calendarDaysGrid"></div>
+        
+        <div class="calendar-footer-legend">
+            <div class="legend-row">
+                <span class="legend-marker has-data-marker"></span>
+                <span class="legend-text">Dias com dados registrados</span>
             </div>
-            <div class="calendar-days" id="calendarDaysGrid"></div>
-            <div class="calendar-legend">
-                <div class="legend-item">
-                    <span class="legend-dot has-data"></span>
-                    <span>Dias com dados registrados</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot no-data"></span>
-                    <span>Dias sem dados</span>
-                </div>
+            <div class="legend-row">
+                <span class="legend-marker no-data-marker"></span>
+                <span class="legend-text">Dias sem dados</span>
             </div>
         </div>
     </div>
