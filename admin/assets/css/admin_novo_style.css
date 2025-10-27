@@ -273,6 +273,18 @@ body,
   padding: 2rem;
 }
 
+/* Títulos principais das páginas */
+.content-wrapper > h2,
+.content-wrapper h2:first-child,
+h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent-orange);
+  margin: 0 0 2.5rem 0;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: -0.5px;
+}
+
 /* Content */
 .content-container {
   flex: 1;
