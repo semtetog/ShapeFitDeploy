@@ -1047,27 +1047,30 @@ function navigateDiary(direction) {
             return;
         }
         
-        // Se existe card anterior, navegar normalmente
-        if (newIndex >= 0 && diaryCards[newIndex]) {
-            currentDiaryIndex = newIndex;
-            updateDiaryDisplay();
-            return;
-        }
-        
-        // Se não existe card anterior, carregar 1 dia anterior via AJAX
+        // Calcular a data do dia anterior
         const currentCard = diaryCards[currentDiaryIndex];
         if (currentCard) {
             const currentDate = currentCard.getAttribute('data-date');
-            // Calcular 1 dia antes da data atual
             const dateObj = new Date(currentDate + 'T00:00:00');
             dateObj.setDate(dateObj.getDate() - 1);
-            const newEndDate = dateObj.toISOString().split('T')[0];
+            const prevDate = dateObj.toISOString().split('T')[0];
             
-            console.log('Carregando 1 dia anterior via AJAX. Data atual:', currentDate, 'Nova end_date:', newEndDate);
+            // Verificar se já existe um card para essa data
+            const existingCardIndex = Array.from(diaryCards).findIndex(card => 
+                card.getAttribute('data-date') === prevDate
+            );
             
-            // Carregar apenas 1 dia via AJAX
-            loadMoreDiaryDays(newEndDate, 1);
-            return;
+            if (existingCardIndex !== -1) {
+                // Se existe, navegar diretamente
+                currentDiaryIndex = existingCardIndex;
+                updateDiaryDisplay();
+                return;
+            } else {
+                // Se não existe, carregar via AJAX
+                console.log('Carregando 1 dia anterior via AJAX. Data atual:', currentDate, 'Nova end_date:', prevDate);
+                loadMoreDiaryDays(prevDate, 1);
+                return;
+            }
         }
     }
     
@@ -1131,13 +1134,13 @@ async function loadMoreDiaryDays(endDate, daysToLoad = 1) {
                 // Atualizar referência aos cards
                 updateDiaryCards();
                 
-                // Ajustar índice para manter a posição visual
-                currentDiaryIndex = currentDiaryIndex + 1;
+                // Navegar automaticamente para o dia carregado (primeiro card = mais antigo)
+                currentDiaryIndex = 0;
                 
                 console.log(`Adicionado 1 novo card. Total: ${diaryCards.length}`);
                 console.log('Primeira data após adição:', diaryCards[0]?.getAttribute('data-date'));
                 console.log('Última data após adição:', diaryCards[diaryCards.length - 1]?.getAttribute('data-date'));
-                console.log('Índice atual ajustado:', currentDiaryIndex);
+                console.log('Navegando para o dia carregado, índice:', currentDiaryIndex);
                 
                 // Atualizar endDate na URL sem recarregar
                 const urlParams = new URLSearchParams(window.location.search);
