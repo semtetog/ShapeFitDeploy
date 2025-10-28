@@ -289,10 +289,16 @@
   color: var(--text-secondary);
 }
 
-.meta-card-macros > div .icon {
+.macro-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.macro-title .icon {
   color: var(--accent-orange);
   font-size: 0.9rem;
-  margin-bottom: 0.25rem;
 }
 
 .meta-card-macros span {

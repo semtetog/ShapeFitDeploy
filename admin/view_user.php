@@ -564,31 +564,37 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="meta-card-macros">
             <div>
-                <i class="fas fa-bread-slice icon"></i>
                 <span class="editable-value" 
                       data-field="carbs_g" 
                       data-user-id="<?php echo $user_id; ?>"
                       data-original="<?php echo $macros_goal['carbs_g']; ?>"
                       title="Clique para editar"><?php echo $macros_goal['carbs_g']; ?>g</span>
-                Carboidratos
+                <div class="macro-title">
+                    <i class="fas fa-bread-slice icon"></i>
+                    Carboidratos
+                </div>
             </div>
             <div>
-                <i class="fas fa-drumstick-bite icon"></i>
                 <span class="editable-value" 
                       data-field="protein_g" 
                       data-user-id="<?php echo $user_id; ?>"
                       data-original="<?php echo $macros_goal['protein_g']; ?>"
                       title="Clique para editar"><?php echo $macros_goal['protein_g']; ?>g</span>
-                Proteínas
+                <div class="macro-title">
+                    <i class="fas fa-drumstick-bite icon"></i>
+                    Proteínas
+                </div>
             </div>
             <div>
-                <i class="fas fa-bacon icon"></i>
                 <span class="editable-value" 
                       data-field="fat_g" 
                       data-user-id="<?php echo $user_id; ?>"
                       data-original="<?php echo $macros_goal['fat_g']; ?>"
                       title="Clique para editar"><?php echo $macros_goal['fat_g']; ?>g</span>
-                Gorduras
+                <div class="macro-title">
+                    <i class="fas fa-bacon icon"></i>
+                    Gorduras
+                </div>
             </div>
         </div>
     </div>
