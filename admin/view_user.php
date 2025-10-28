@@ -922,15 +922,18 @@ function updateDiaryDisplay() {
     const prevIndex = currentDiaryIndex - 1;
     const nextIndex = currentDiaryIndex + 1;
     
-    // Atualizar data anterior (se existir)
+    // Atualizar data anterior (sempre mostrar o botão)
     const prevBtn = document.getElementById('diaryPrevDate');
     if (prevBtn) {
         if (prevIndex >= 0 && diaryCards[prevIndex]) {
+            // Se existe um card anterior, mostrar a data
             const prevDate = new Date(diaryCards[prevIndex].getAttribute('data-date') + 'T00:00:00');
             prevBtn.textContent = `${prevDate.getDate()} ${monthNamesLower[prevDate.getMonth()]}`;
             prevBtn.parentElement.style.visibility = 'visible';
         } else {
-            prevBtn.parentElement.style.visibility = 'hidden';
+            // Se não existe card anterior, mostrar "..." e manter visível para carregar
+            prevBtn.textContent = '...';
+            prevBtn.parentElement.style.visibility = 'visible';
         }
     }
     
@@ -1039,15 +1042,22 @@ function navigateDiary(direction) {
         }
     }
     
-    // Se tentar ir para trás e já está no primeiro card (mais antigo)
-    if (direction < 0 && newIndex < 0) {
+    // Se tentar ir para trás
+    if (direction < 0) {
         // Se já está carregando, ignora
         if (isLoadingMoreDays) {
             console.log('Já está carregando mais dias...');
             return;
         }
         
-        // Carregar apenas 1 dia anterior via AJAX
+        // Se existe card anterior, navegar normalmente
+        if (newIndex >= 0 && diaryCards[newIndex]) {
+            currentDiaryIndex = newIndex;
+            updateDiaryDisplay();
+            return;
+        }
+        
+        // Se não existe card anterior, carregar 1 dia anterior via AJAX
         const firstCard = diaryCards[0];
         if (firstCard) {
             const firstDate = firstCard.getAttribute('data-date');
