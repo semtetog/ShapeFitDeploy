@@ -2624,36 +2624,40 @@
 }
 
 .calendar-day:not(.empty):not(.other-month):hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(128, 128, 128, 0.15);
+  border-color: rgba(128, 128, 128, 0.3);
   color: var(--text-primary);
 }
 
 .calendar-day.has-data {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.4);
-  color: var(--text-primary);
+  background: rgba(255, 107, 0, 0.1);
+  border-color: rgba(255, 107, 0, 0.3);
+  color: var(--accent-orange);
   font-weight: 600;
 }
 
 .calendar-day.has-data:hover {
-  background: rgba(34, 197, 94, 0.25);
-  border-color: rgba(34, 197, 94, 0.6);
+  background: rgba(128, 128, 128, 0.2);
+  border-color: rgba(128, 128, 128, 0.4);
+  color: var(--text-primary);
 }
 
 .calendar-day.today {
   background: var(--accent-orange);
   color: white;
   border-color: var(--accent-orange);
-  font-weight: 600;
-  box-shadow: 0 0 15px rgba(255, 107, 0, 0.4);
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(255, 107, 0, 0.6), 0 0 40px rgba(255, 107, 0, 0.3);
+  transform: scale(1.05);
 }
 
 .calendar-day.has-data.today {
   background: var(--accent-orange);
   color: white;
   border-color: var(--accent-orange);
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(255, 107, 0, 0.6), 0 0 40px rgba(255, 107, 0, 0.3);
+  transform: scale(1.05);
 }
 
 /* Legenda */
@@ -2684,8 +2688,8 @@
 }
 
 .legend-marker.has-data-marker {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.4);
+  background: rgba(255, 107, 0, 0.1);
+  border: 1px solid rgba(255, 107, 0, 0.3);
 }
 
 .legend-marker.no-data-marker {
