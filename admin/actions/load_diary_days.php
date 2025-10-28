@@ -23,24 +23,15 @@ function getGroupedMealHistory($conn, $user_id, $startDate, $endDate) {
     $stmt = $conn->prepare("
         SELECT 
             DATE(log.logged_at) as date,
-            mt.name as meal_type,
-            CASE mt.id
-                WHEN 1 THEN 'lunch'
-                WHEN 2 THEN 'breakfast'
-                WHEN 3 THEN 'supper'
-                WHEN 4 THEN 'dinner'
-                WHEN 5 THEN 'snack'
-                ELSE 'breakfast'
-            END as meal_type_slug,
-            f.name_pt as food_name,
-            log.quantity,
-            f.energy_kcal_100g as kcal_per_100g,
-            f.protein_g_100g as protein_per_100g,
-            f.carbohydrate_g_100g as carbs_per_100g,
-            f.fat_g_100g as fat_per_100g
+            log.meal_type as meal_type,
+            log.meal_type as meal_type_slug,
+            COALESCE(log.custom_meal_name, 'Refeição') as food_name,
+            log.servings_consumed as quantity,
+            log.kcal_consumed as kcal_per_100g,
+            log.protein_consumed_g as protein_per_100g,
+            log.carbs_consumed_g as carbs_per_100g,
+            log.fat_consumed_g as fat_per_100g
         FROM sf_user_meal_log log
-        JOIN sf_food_items f ON log.food_id = f.id
-        JOIN sf_meal_times mt ON log.meal_type_id = mt.id
         WHERE log.user_id = ? 
             AND DATE(log.logged_at) >= ? 
             AND DATE(log.logged_at) <= ?
