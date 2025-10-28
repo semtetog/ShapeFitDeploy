@@ -498,6 +498,8 @@
   overflow: hidden !important;
   position: relative;
   contain: layout style paint;
+  min-height: auto;
+  height: auto;
 }
 
 /* Força o tab-content a conter o slider */
@@ -706,6 +708,8 @@
   position: relative;
   border-radius: 16px;
   contain: layout style;
+  min-height: auto;
+  height: auto;
 }
 
 .diary-slider-track {
@@ -714,6 +718,8 @@
   will-change: transform;
   width: 100%;
   max-width: 100%;
+  min-height: auto;
+  height: auto;
 }
 
 .diary-day-card {
