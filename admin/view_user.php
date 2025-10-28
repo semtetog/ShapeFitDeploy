@@ -866,6 +866,11 @@ require_once __DIR__ . '/includes/header.php';
     margin-bottom: 2px !important; /* distância bem menor para Dados Físicos e Anamnese */
 }
 
+/* Ajustar margin-top do physical-data-grid nas seções Dados Físicos e Anamnese */
+.details-grid-3-cols .physical-data-grid {
+    margin-top: -8px !important; /* subir os subcards para ficar mais próximo do título */
+}
+
 /* Descer ícone e label do topo */
 .details-grid-1-col .dashboard-card .data-item .icon {
     margin-top: 4px !important;
