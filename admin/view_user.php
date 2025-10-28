@@ -5381,6 +5381,16 @@ async function loadSpecificDate(dateStr) {
         
         <div class="calendar-days-grid" id="calendarDaysGrid"></div>
         
+        <div class="calendar-separator">
+            <div class="separator-line"></div>
+            <div class="separator-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div class="separator-line"></div>
+        </div>
+        
                <div class="calendar-footer-legend">
                    <div class="legend-row">
                        <span class="legend-marker today-marker"></span>
