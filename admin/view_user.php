@@ -1571,7 +1571,10 @@ if (count($hydration_data) >= 7) {
                 </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $water_stats_7['avg_percentage']; ?>%</div>
-                    <div class="stat-label">Aderência Geral</div>
+                    <div class="stat-label">
+                        Aderência Geral
+                        <i class="fas fa-question-circle help-icon" onclick="openHelpModal('hydration-adherence')" title="Clique para saber mais"></i>
+                    </div>
                     <div class="stat-description">Meta de hidratação atingida</div>
                 </div>
                 <div class="summary-stat">
@@ -1778,9 +1781,12 @@ function toggleNutrientsRecords() {
                     </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $nutrients_stats_7['avg_overall_percentage']; ?>%</div>
-                    <div class="stat-label">Aderência Geral</div>
+                    <div class="stat-label">
+                        Aderência Geral
+                        <i class="fas fa-question-circle help-icon" onclick="openHelpModal('nutrients-adherence')" title="Clique para saber mais"></i>
+                    </div>
                     <div class="stat-description">Meta calórica atingida</div>
-                        </div>
+                </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $nutrients_stats_7['days_with_consumption']; ?>/<?php echo $nutrients_stats_7['total_days']; ?></div>
                     <div class="stat-label">Dias com Registro</div>
@@ -5811,6 +5817,98 @@ async function loadSpecificDate(dateStr) {
                </div>
     </div>
 </div>
+
+<!-- Modal de Ajuda -->
+<div id="helpModal" class="help-modal">
+    <div class="help-modal-content">
+        <div class="help-modal-header">
+            <h3 id="helpModalTitle">Aderência Geral</h3>
+            <button class="help-modal-close" onclick="closeHelpModal()">&times;</button>
+        </div>
+        <div class="help-modal-body" id="helpModalBody">
+            <!-- Conteúdo será preenchido via JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Função para abrir modal de ajuda
+function openHelpModal(type) {
+    const modal = document.getElementById('helpModal');
+    const title = document.getElementById('helpModalTitle');
+    const body = document.getElementById('helpModalBody');
+    
+    if (type === 'hydration-adherence') {
+        title.textContent = 'Aderência Geral - Hidratação';
+        body.innerHTML = `
+            <p>A <strong>aderência geral</strong> representa o percentual médio de cumprimento da meta de hidratação nos últimos 7 dias.</p>
+            
+            <p><strong>Como é calculada:</strong></p>
+            <ul>
+                <li>Soma-se o percentual de cumprimento da meta de cada dia</li>
+                <li>Divide-se pelo número total de dias (7)</li>
+                <li>Inclui dias sem registro como 0%</li>
+            </ul>
+            
+            <p><strong>Exemplo:</strong></p>
+            <ul>
+                <li>Dia 1: 100% da meta</li>
+                <li>Dia 2: 0% (sem registro)</li>
+                <li>Dia 3: 80% da meta</li>
+                <li>Dia 4: 0% (sem registro)</li>
+                <li>Dia 5: 90% da meta</li>
+                <li>Dia 6: 0% (sem registro)</li>
+                <li>Dia 7: 70% da meta</li>
+            </ul>
+            <p><strong>Aderência = (100 + 0 + 80 + 0 + 90 + 0 + 70) ÷ 7 = 48.6%</strong></p>
+            
+            <p>Esta métrica ajuda o nutricionista a avaliar a <strong>consistência</strong> do paciente em manter a hidratação adequada ao longo da semana.</p>
+        `;
+    } else if (type === 'nutrients-adherence') {
+        title.textContent = 'Aderência Geral - Nutrientes';
+        body.innerHTML = `
+            <p>A <strong>aderência geral</strong> representa o percentual médio de cumprimento da meta calórica nos últimos 7 dias.</p>
+            
+            <p><strong>Como é calculada:</strong></p>
+            <ul>
+                <li>Soma-se o percentual de cumprimento da meta de cada dia</li>
+                <li>Divide-se pelo número total de dias (7)</li>
+                <li>Inclui dias sem registro como 0%</li>
+            </ul>
+            
+            <p><strong>Exemplo:</strong></p>
+            <ul>
+                <li>Dia 1: 95% da meta calórica</li>
+                <li>Dia 2: 0% (sem registro)</li>
+                <li>Dia 3: 110% da meta calórica</li>
+                <li>Dia 4: 0% (sem registro)</li>
+                <li>Dia 5: 85% da meta calórica</li>
+                <li>Dia 6: 0% (sem registro)</li>
+                <li>Dia 7: 100% da meta calórica</li>
+            </ul>
+            <p><strong>Aderência = (95 + 0 + 110 + 0 + 85 + 0 + 100) ÷ 7 = 55.7%</strong></p>
+            
+            <p>Esta métrica ajuda o nutricionista a avaliar a <strong>consistência</strong> do paciente em manter uma alimentação adequada ao longo da semana.</p>
+        `;
+    }
+    
+    modal.style.display = 'block';
+}
+
+// Função para fechar modal de ajuda
+function closeHelpModal() {
+    const modal = document.getElementById('helpModal');
+    modal.style.display = 'none';
+}
+
+// Fechar modal clicando fora dele
+window.onclick = function(event) {
+    const modal = document.getElementById('helpModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
 
 <?php
 require_once __DIR__ . '/includes/footer.php';
