@@ -807,23 +807,10 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div class="diary-day-meals">
-                        <?php if (empty($meals)): 
-                            $is_today = ($date === date('Y-m-d'));
-                            $is_future = (strtotime($date) > strtotime(date('Y-m-d')));
-                        ?>
+                        <?php if (empty($meals)): ?>
                             <div class="diary-empty-state">
                                 <i class="fas fa-utensils"></i>
-                                <p>
-                                    <?php 
-                                    if ($is_future) {
-                                        echo 'Dia futuro';
-                                    } elseif ($is_today) {
-                                        echo 'Nenhum registro ainda hoje';
-                                    } else {
-                                        echo 'Nenhum registro neste dia';
-                                    }
-                                    ?>
-                                </p>
+                                <p>Nenhum registro neste dia</p>
                             </div>
             <?php else: ?>
                         <?php foreach ($meals as $meal_type_slug => $items): 

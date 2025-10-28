@@ -117,28 +117,10 @@ foreach ($all_dates as $date):
     </div>
     
     <div class="diary-day-meals">
-        <?php if (empty($meals)): 
-            $is_today = ($date === date('Y-m-d'));
-            $is_future = (strtotime($date) > strtotime(date('Y-m-d')));
-        ?>
+        <?php if (empty($meals)): ?>
             <div class="diary-empty-state">
-                <?php if ($is_future): ?>
-                    <i class="fas fa-calendar-alt"></i>
-                    <p class="empty-state-title">Dia Futuro</p>
-                    <p class="empty-state-message">Este dia ainda não chegou</p>
-                <?php elseif ($is_today): ?>
-                    <i class="fas fa-utensils"></i>
-                    <p class="empty-state-title">Nenhum registro ainda hoje</p>
-                    <p class="empty-state-message">Adicione alimentos ao seu diário</p>
-                <?php else: ?>
-                    <i class="fas fa-file-alt"></i>
-                    <p class="empty-state-title">Nenhum registro neste dia</p>
-                    <p class="empty-state-message">Não há registros para este dia</p>
-                <?php endif; ?>
-                <div class="empty-calories">
-                    <i class="fas fa-fire"></i>
-                    <span>0 kcal</span>
-                </div>
+                <i class="fas fa-utensils"></i>
+                <p>Nenhum registro neste dia</p>
             </div>
         <?php else: ?>
             <?php foreach ($meals as $meal_type_slug => $items): ?>
