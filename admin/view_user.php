@@ -851,9 +851,14 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Reduzir altura do contorno dos subcards */
 .details-grid-1-col .dashboard-card .data-item {
-    padding: 12px 15px 8px 15px !important; /* top right bottom left */
+    padding: 12px 15px 4px 15px !important; /* top right bottom left - espaço vermelho menor */
     min-height: auto !important;
     line-height: 1.2 !important;
+}
+
+/* Aumentar espaço entre título do card e subcards */
+.details-grid-1-col .dashboard-card h3 {
+    margin-bottom: 20px !important;
 }
 
 /* Descer ícone e label do topo */
