@@ -1585,17 +1585,6 @@ if (count($hydration_data) >= 7) {
             </div>
         </div>
                 
-        <!-- 2. INSIGHTS AUTOMÁTICOS -->
-        <?php if (!empty($insights)): ?>
-        <div class="hydration-insights">
-            <h4><i class="fas fa-lightbulb"></i> Insights</h4>
-            <ul class="insights-list">
-                <?php foreach ($insights as $insight): ?>
-                    <li><?php echo $insight; ?></li>
-                <?php endforeach; ?>
-            </ul>
-                    </div>
-        <?php endif; ?>
 
         <!-- 3. GRÁFICO COM BOTÕES DE PERÍODO -->
         <div class="chart-section">
@@ -1799,16 +1788,6 @@ function toggleNutrientsRecords() {
         }
         ?>
         
-        <?php if (!empty($nutrients_insights)): ?>
-        <div class="nutrients-insights">
-            <h4><i class="fas fa-lightbulb"></i> Insights Nutricionais</h4>
-            <ul class="insights-list">
-                <?php foreach ($nutrients_insights as $insight): ?>
-                    <li><?php echo $insight; ?></li>
-                <?php endforeach; ?>
-            </ul>
-                        </div>
-        <?php endif; ?>
 
         <!-- 3. GRÁFICO COM BOTÕES DE PERÍODO -->
         <div class="chart-section">
