@@ -1596,7 +1596,8 @@ function toggleNutrientsRecords() {
                 </div>
                 <div class="summary-info">
                     <h3>Consumo Nutricional</h3>
-                    <div class="summary-meta">Meta diária: <strong><?php echo $total_daily_calories_goal; ?> kcal</strong></div>
+                    <div class="summary-meta">Meta calórica diária: <strong><?php echo $total_daily_calories_goal; ?> kcal</strong></div>
+                    <div class="summary-description">Baseado nos registros de refeições do paciente no aplicativo</div>
                 </div>
                 <div class="summary-status status-<?php echo $nutrients_stats_7['avg_overall_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_overall_percentage'] >= 70 ? 'good' : ($nutrients_stats_7['avg_overall_percentage'] >= 50 ? 'fair' : 'poor')); ?>">
                     <i class="fas <?php echo $nutrients_stats_7['avg_overall_percentage'] >= 90 ? 'fa-check-circle' : ($nutrients_stats_7['avg_overall_percentage'] >= 70 ? 'fa-check' : ($nutrients_stats_7['avg_overall_percentage'] >= 50 ? 'fa-exclamation-triangle' : 'fa-exclamation')); ?>"></i>
@@ -1606,15 +1607,18 @@ function toggleNutrientsRecords() {
             <div class="summary-stats">
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $nutrients_stats_7['avg_kcal']; ?> kcal</div>
-                    <div class="stat-label">Média Atual (7 dias)</div>
+                    <div class="stat-label">Média de Calorias</div>
+                    <div class="stat-description">Últimos 7 dias</div>
                 </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $nutrients_stats_7['avg_overall_percentage']; ?>%</div>
-                    <div class="stat-label">da Meta Atingido</div>
+                    <div class="stat-label">Aderência Geral</div>
+                    <div class="stat-description">Meta calórica atingida</div>
                 </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $nutrients_stats_7['excellent_days'] + $nutrients_stats_7['good_days']; ?>/<?php echo $nutrients_stats_7['total_days']; ?></div>
                     <div class="stat-label">Dias na Meta</div>
+                    <div class="stat-description">Dias com bom consumo</div>
                 </div>
             </div>
         </div>
@@ -1629,7 +1633,7 @@ function toggleNutrientsRecords() {
         $total_days = $nutrients_stats_7['total_days'];
         if ($total_days > 0) {
             $adherence_rate = round(($excellent_good_days / $total_days) * 100, 1);
-            $nutrients_insights[] = "O paciente atingiu as metas nutricionais em <strong>{$excellent_good_days} de {$total_days} dias</strong> analisados ({$adherence_rate}% de aderência).";
+            $nutrients_insights[] = "O paciente atingiu as metas nutricionais em <strong>{$excellent_good_days} de {$total_days} dias</strong> analisados ({$adherence_rate}% de aderência). <em>Baseado no consumo de calorias, proteínas, carboidratos e gorduras registrados no aplicativo.</em>";
         }
         
         // Insight sobre calorias
@@ -1727,22 +1731,26 @@ function toggleNutrientsRecords() {
 
         <!-- 4. MÉDIAS POR PERÍODO (COMPACTO) -->
         <div class="nutrients-periods-compact">
-            <h4><i class="fas fa-calendar-alt"></i> Médias por Período</h4>
+            <h4><i class="fas fa-calendar-alt"></i> Médias de Consumo por Período</h4>
+            <p class="section-description">Análise do consumo calórico médio em diferentes períodos para identificar tendências e padrões alimentares.</p>
             <div class="periods-grid">
                 <div class="period-item">
-                    <span class="period-label">Semana (7 dias)</span>
+                    <span class="period-label">Última Semana</span>
                     <span class="period-value"><?php echo $nutrients_stats_7['avg_kcal']; ?> kcal</span>
-                    <span class="period-percentage"><?php echo $nutrients_stats_7['avg_overall_percentage']; ?>%</span>
+                    <span class="period-percentage"><?php echo $nutrients_stats_7['avg_overall_percentage']; ?>% da meta</span>
+                    <div class="period-details">Média dos últimos 7 dias</div>
                 </div>
                 <div class="period-item">
-                    <span class="period-label">Quinzena (15 dias)</span>
+                    <span class="period-label">Última Quinzena</span>
                     <span class="period-value"><?php echo $nutrients_stats_15['avg_kcal']; ?> kcal</span>
-                    <span class="period-percentage"><?php echo $nutrients_stats_15['avg_overall_percentage']; ?>%</span>
+                    <span class="period-percentage"><?php echo $nutrients_stats_15['avg_overall_percentage']; ?>% da meta</span>
+                    <div class="period-details">Média dos últimos 15 dias</div>
                 </div>
                 <div class="period-item">
-                    <span class="period-label">Mês (30 dias)</span>
+                    <span class="period-label">Último Mês</span>
                     <span class="period-value"><?php echo $nutrients_stats_30['avg_kcal']; ?> kcal</span>
-                    <span class="period-percentage"><?php echo $nutrients_stats_30['avg_overall_percentage']; ?>%</span>
+                    <span class="period-percentage"><?php echo $nutrients_stats_30['avg_overall_percentage']; ?>% da meta</span>
+                    <div class="period-details">Média dos últimos 30 dias</div>
                 </div>
             </div>
         </div>
@@ -1750,6 +1758,7 @@ function toggleNutrientsRecords() {
         <!-- 5. DETALHAMENTO DE MACRONUTRIENTES -->
         <div class="nutrients-macros-detail">
             <h4><i class="fas fa-chart-pie"></i> Detalhamento de Macronutrientes</h4>
+            <p class="section-description">Análise detalhada do consumo de proteínas, carboidratos e gorduras baseado nos alimentos registrados pelo paciente no aplicativo.</p>
             <div class="macros-grid">
                 <div class="macro-card">
                     <div class="macro-header">
@@ -1758,7 +1767,7 @@ function toggleNutrientsRecords() {
                         </div>
                         <div class="macro-info">
                             <h5>Proteínas</h5>
-                            <p>Média dos últimos 7 dias</p>
+                            <p>Consumo médio dos últimos 7 dias</p>
                         </div>
                     </div>
                     <div class="macro-content">
@@ -1770,8 +1779,9 @@ function toggleNutrientsRecords() {
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: <?php echo min($nutrients_stats_7['avg_protein_percentage'], 100); ?>%"></div>
                             </div>
-                            <span class="percentage-text"><?php echo $nutrients_stats_7['avg_protein_percentage']; ?>%</span>
+                            <span class="percentage-text"><?php echo $nutrients_stats_7['avg_protein_percentage']; ?>% da meta</span>
                         </div>
+                        <div class="macro-description">Essencial para construção muscular e recuperação</div>
                     </div>
                 </div>
 
@@ -1782,7 +1792,7 @@ function toggleNutrientsRecords() {
                         </div>
                         <div class="macro-info">
                             <h5>Carboidratos</h5>
-                            <p>Média dos últimos 7 dias</p>
+                            <p>Consumo médio dos últimos 7 dias</p>
                         </div>
                     </div>
                     <div class="macro-content">
@@ -1794,8 +1804,9 @@ function toggleNutrientsRecords() {
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: <?php echo min($nutrients_stats_7['avg_carbs_percentage'], 100); ?>%"></div>
                             </div>
-                            <span class="percentage-text"><?php echo $nutrients_stats_7['avg_carbs_percentage']; ?>%</span>
+                            <span class="percentage-text"><?php echo $nutrients_stats_7['avg_carbs_percentage']; ?>% da meta</span>
                         </div>
+                        <div class="macro-description">Principal fonte de energia para o corpo</div>
                     </div>
                 </div>
 
@@ -1806,7 +1817,7 @@ function toggleNutrientsRecords() {
                         </div>
                         <div class="macro-info">
                             <h5>Gorduras</h5>
-                            <p>Média dos últimos 7 dias</p>
+                            <p>Consumo médio dos últimos 7 dias</p>
                         </div>
                     </div>
                     <div class="macro-content">
@@ -1818,8 +1829,9 @@ function toggleNutrientsRecords() {
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: <?php echo min($nutrients_stats_7['avg_fat_percentage'], 100); ?>%"></div>
                             </div>
-                            <span class="percentage-text"><?php echo $nutrients_stats_7['avg_fat_percentage']; ?>%</span>
+                            <span class="percentage-text"><?php echo $nutrients_stats_7['avg_fat_percentage']; ?>% da meta</span>
                         </div>
+                        <div class="macro-description">Importante para absorção de vitaminas e hormônios</div>
                     </div>
                 </div>
             </div>

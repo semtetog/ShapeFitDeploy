@@ -3352,6 +3352,47 @@
   font-weight: 500;
 }
 
+.nutrients-summary-card .summary-description {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.nutrients-summary-card .stat-description {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  margin-top: 0.125rem;
+  opacity: 0.8;
+}
+
+/* Descrições das seções */
+.section-description {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* Detalhes dos períodos */
+.period-details {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  opacity: 0.8;
+}
+
+/* Descrições dos macronutrientes */
+.macro-description {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.9;
+}
+
 /* Insights nutricionais */
 .nutrients-insights {
   background: rgba(255, 255, 255, 0.05);
@@ -3404,67 +3445,12 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .nutrients-periods-compact h4 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.nutrients-periods-compact .periods-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.nutrients-periods-compact .period-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  text-align: center;
-}
-
-.nutrients-periods-compact .period-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.nutrients-periods-compact .period-value {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.nutrients-periods-compact .period-percentage {
-  font-size: 0.875rem;
-  color: var(--accent-orange);
-  font-weight: 600;
-}
-
-/* Detalhamento de macronutrientes */
-.nutrients-macros-detail {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.nutrients-macros-detail h4 {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -3474,23 +3460,93 @@
   gap: 0.75rem;
 }
 
-.nutrients-macros-detail .macros-grid {
+.nutrients-periods-compact .periods-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
 
+.nutrients-periods-compact .period-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.nutrients-periods-compact .period-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.nutrients-periods-compact .period-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.nutrients-periods-compact .period-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.nutrients-periods-compact .period-percentage {
+  font-size: 0.875rem;
+  color: var(--accent-orange);
+  font-weight: 600;
+  background: rgba(255, 107, 0, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+/* Detalhamento de macronutrientes */
+.nutrients-macros-detail {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.nutrients-macros-detail h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nutrients-macros-detail .macros-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
 .nutrients-macros-detail .macro-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 1.25rem;
+  border-radius: 16px;
+  padding: 1.5rem;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .nutrients-macros-detail .macro-card:hover {
   background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 .nutrients-macros-detail .macro-header {
@@ -3523,6 +3579,14 @@
 .nutrients-macros-detail .macro-icon.fat {
   background: linear-gradient(135deg, #feca57, #ff9ff3);
   color: white;
+}
+
+/* Ícones dos títulos dos cards - laranja */
+.nutrients-insights h4 i,
+.nutrients-periods-compact h4 i,
+.nutrients-macros-detail h4 i,
+.chart-section-header h4 i {
+  color: var(--accent-orange);
 }
 
 .nutrients-macros-detail .macro-info h5 {
