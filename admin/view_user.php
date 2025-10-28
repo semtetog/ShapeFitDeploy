@@ -5150,10 +5150,11 @@ function changeCalendarMonth(direction) {
            const year = currentCalendarDate.getFullYear();
            const month = currentCalendarDate.getMonth();
            
-           // Atualizar título com mês abreviado
+           // Atualizar ano e mês separadamente
            const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
                                    'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
-           document.getElementById('calendarMonthYear').textContent = `${monthNamesShort[month]} ${year}`;
+           document.querySelector('.calendar-year').textContent = year;
+           document.querySelector('.calendar-month').textContent = monthNamesShort[month];
            
            // Primeiro e último dia do mês atual
            const firstDay = new Date(year, month, 1);
@@ -5341,10 +5342,10 @@ async function loadSpecificDate(dateStr) {
             <i class="fas fa-times"></i>
         </button>
         
-        <div class="calendar-header-title">
-            <i class="fas fa-calendar-alt"></i>
-            <h3 id="calendarMonthYear">Outubro 2025</h3>
-        </div>
+               <div class="calendar-header-title">
+                   <div class="calendar-year">2025</div>
+                   <div class="calendar-month">OUT</div>
+               </div>
         
         <div class="calendar-nav-buttons">
             <button class="calendar-btn-nav" onclick="changeCalendarMonth(-1)" type="button">

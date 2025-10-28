@@ -2511,21 +2511,25 @@
 /* Título centralizado */
 .calendar-header-title {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
   margin-bottom: 2rem;
 }
 
-.calendar-header-title i {
-  color: var(--accent-orange);
-  font-size: 1.5rem;
+.calendar-year {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-bottom: 0.25rem;
+  font-family: 'Montserrat', sans-serif;
 }
 
-.calendar-header-title h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
+.calendar-month {
+  font-size: 2rem;
+  font-weight: 700;
   color: var(--accent-orange);
+  letter-spacing: 1px;
   margin: 0;
   font-family: 'Montserrat', sans-serif;
 }
