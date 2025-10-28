@@ -203,11 +203,10 @@
   color: var(--accent-orange);
   font-size: 0.6rem !important;
   height: 0.6rem !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-bottom: 0.2rem;
+  display: inline-block !important;
+  vertical-align: top !important;
+  margin-right: 0.3rem !important;
+  margin-bottom: 0.2rem !important;
 }
 
 .data-item:hover {
@@ -342,7 +341,8 @@
   letter-spacing: 0.15px !important;
   line-height: 1.0 !important;
   height: auto !important;
-  display: block !important;
+  display: inline-block !important;
+  vertical-align: top !important;
   flex-shrink: 0 !important;
   margin-top: 0.1rem !important;
 }
@@ -357,6 +357,7 @@
   overflow-wrap: break-word !important;
   margin-top: auto !important;
   margin-bottom: 0.1rem !important;
+  text-align: left !important;
 }
 
 /* ========== META CARDS ========== */
