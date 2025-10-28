@@ -1064,6 +1064,12 @@ function navigateDiary(direction) {
         }
     }
     
+    // Se tentar ir para frente e já está no último card (mais recente)
+    if (direction > 0 && newIndex >= diaryCards.length) {
+        console.log('Já está no dia mais recente');
+        return;
+    }
+    
     currentDiaryIndex = newIndex;
     updateDiaryDisplay();
 }
@@ -1117,15 +1123,16 @@ async function loadMoreDiaryDays(endDate) {
                 }
                 diaryTrack.insertBefore(fragment, diaryTrack.firstChild);
                 
-                // Atualizar contador de cards - manter posição visual
-                currentDiaryIndex = newCards.length + currentIndex;
+                // Atualizar referência aos cards PRIMEIRO
+                updateDiaryCards();
                 
-                console.log(`Adicionados ${newCards.length} novos cards. Total: ${document.querySelectorAll('.diary-day-card').length}`);
+                // Manter a posição visual - o índice atual deve apontar para o mesmo dia
+                // Não alterar currentDiaryIndex, pois os novos cards foram adicionados ANTES
+                
+                console.log(`Adicionados ${newCards.length} novos cards. Total: ${diaryCards.length}`);
                 console.log('Primeira data após adição:', diaryCards[0]?.getAttribute('data-date'));
                 console.log('Última data após adição:', diaryCards[diaryCards.length - 1]?.getAttribute('data-date'));
-                
-                // Atualizar referência aos cards
-                updateDiaryCards();
+                console.log('Índice atual mantido:', currentDiaryIndex);
                 
                 // Atualizar endDate na URL sem recarregar
                 const urlParams = new URLSearchParams(window.location.search);
