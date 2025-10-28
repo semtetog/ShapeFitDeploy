@@ -904,7 +904,7 @@ require_once __DIR__ . '/includes/header.php';
 /* Subir conteúdo do card de calorias para alinhar com subcards da direita */
 .details-grid-3-cols .dashboard-card:first-child {
     padding-top: 8px !important; /* reduzir padding-top para subir o conteúdo */
-    padding-bottom: 8px !important; /* reduzir padding-bottom para alinhar */
+    padding-bottom: 16px !important; /* aumentar padding-bottom para não ficar colado */
 }
 
 /* Descer posicionamento dos subcards dentro do card pai */
