@@ -199,6 +199,17 @@
   position: relative;
 }
 
+.data-item .icon {
+  color: var(--accent-orange);
+  font-size: 0.6rem !important;
+  height: 0.6rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 0.2rem;
+}
+
 .data-item:hover {
   background: rgba(255, 255, 255, 0.06);
   border-color: var(--accent-orange);
@@ -333,6 +344,7 @@
   height: auto !important;
   display: block !important;
   flex-shrink: 0 !important;
+  margin-top: 0.1rem !important;
 }
 
 .data-item span {
@@ -344,6 +356,7 @@
   word-wrap: break-word !important;
   overflow-wrap: break-word !important;
   margin-top: auto !important;
+  margin-bottom: 0.1rem !important;
 }
 
 /* ========== META CARDS ========== */
