@@ -28,6 +28,7 @@ if (!defined('BASE_ADMIN_URL')) {
     
     <!-- Agora os caminhos usarão a constante corretamente -->
     <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/admin_novo_style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/view_user_addon.css?v=<?php echo time(); ?>">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
