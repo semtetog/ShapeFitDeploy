@@ -123,11 +123,48 @@ foreach ($all_dates as $date):
                 <p>Nenhum registro neste dia</p>
             </div>
         <?php else: ?>
-            <?php foreach ($meals as $meal_type_slug => $items): ?>
+            <?php 
+            // Mapear nomes dos tipos de refeição
+            $meal_type_names = [
+                'breakfast' => 'Café da Manhã',
+                'morning_snack' => 'Lanche da Manhã',
+                'lunch' => 'Almoço',
+                'afternoon_snack' => 'Lanche da Tarde',
+                'dinner' => 'Jantar',
+                'evening_snack' => 'Ceia'
+            ];
+            
+            foreach ($meals as $meal_type_slug => $items): 
+                $total_kcal = array_sum(array_column($items, 'kcal_consumed'));
+                $total_prot = array_sum(array_column($items, 'protein_consumed_g'));
+                $total_carb = array_sum(array_column($items, 'carbs_consumed_g'));
+                $total_fat = array_sum(array_column($items, 'fat_consumed_g'));
+            ?>
                 <div class="diary-meal-card">
                     <div class="diary-meal-header">
-                        <i class="fas fa-utensils"></i>
-                        <span><?php echo ucfirst(str_replace('_', ' ', $meal_type_slug)); ?></span>
+                        <div class="diary-meal-icon">
+                            <?php
+                            $meal_icons = [
+                                'breakfast' => 'fa-coffee',
+                                'morning_snack' => 'fa-apple-alt',
+                                'lunch' => 'fa-drumstick-bite',
+                                'afternoon_snack' => 'fa-cookie-bite',
+                                'dinner' => 'fa-pizza-slice',
+                                'evening_snack' => 'fa-ice-cream'
+                            ];
+                            $icon = $meal_icons[$meal_type_slug] ?? 'fa-utensils';
+                            ?>
+                            <i class="fas <?php echo $icon; ?>"></i>
+                        </div>
+                        <div class="diary-meal-info">
+                            <h5><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
+                            <span class="diary-meal-totals">
+                                <strong><?php echo round($total_kcal); ?> kcal</strong> • 
+                                P:<?php echo round($total_prot); ?>g • 
+                                C:<?php echo round($total_carb); ?>g • 
+                                G:<?php echo round($total_fat); ?>g
+                            </span>
+                        </div>
                     </div>
                     <ul class="diary-food-list">
                         <?php foreach ($items as $item): ?>
