@@ -849,8 +849,9 @@ require_once __DIR__ . '/includes/header.php';
     margin-top: 1px !important;
 }
 
-/* Reduzir altura dos subcards sem colar na borda */
+/* Reduzir altura do contorno dos subcards */
 .details-grid-1-col .dashboard-card .data-item {
+    padding: 8px 15px !important;
     min-height: auto !important;
     line-height: 1.2 !important;
 }
