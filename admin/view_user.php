@@ -14,10 +14,13 @@ requireAdminLogin();
 
 // --- VALIDAÇÃO E BUSCA DE DADOS ---
 $user_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+error_log("DEBUG - user_id obtido do GET: " . var_export($user_id, true));
 if (!$user_id) {
+    error_log("DEBUG - user_id inválido, redirecionando para users.php");
     header("Location: users.php");
     exit;
 }
+error_log("DEBUG - user_id válido: " . $user_id);
 
 // Busca completa dos dados do usuário, incluindo os novos campos da anamnese
 $stmt_user = $conn->prepare(
