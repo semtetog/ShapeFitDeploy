@@ -3568,17 +3568,22 @@
 
 .nutrients-macros-detail .macro-icon.protein {
   background: linear-gradient(135deg, #ff6b6b, #ff8e53);
-  color: white;
+  color: white !important;
 }
 
 .nutrients-macros-detail .macro-icon.carbs {
   background: linear-gradient(135deg, #4ecdc4, #44a08d);
-  color: white;
+  color: white !important;
 }
 
 .nutrients-macros-detail .macro-icon.fat {
   background: linear-gradient(135deg, #feca57, #ff9ff3);
-  color: white;
+  color: white !important;
+}
+
+/* Ícones dos macronutrientes - FORÇAR BRANCO */
+.nutrients-macros-detail .macro-icon i {
+  color: white !important;
 }
 
 /* Ícones dos títulos dos cards - laranja */
