@@ -268,24 +268,36 @@ $water_stats_today = calculateHydrationStatsByDate($hydration_data, $today);
 $water_stats_yesterday = calculateHydrationStatsByDate($hydration_data, $yesterday);
 
 // --- PROCESSAMENTO DE DADOS DE NUTRIENTES ---
-// Buscar dados de nutrientes dos últimos 120 dias
-$stmt_nutrients = $conn->prepare("
-    SELECT 
-        date,
-        SUM(kcal_consumed) as total_kcal,
-        SUM(protein_consumed_g) as total_protein,
-        SUM(carbs_consumed_g) as total_carbs,
-        SUM(fat_consumed_g) as total_fat
-    FROM sf_user_daily_tracking 
-    WHERE user_id = ? 
-    AND date >= DATE_SUB(CURDATE(), INTERVAL 120 DAY)
-    GROUP BY date 
-    ORDER BY date DESC
-");
-$stmt_nutrients->bind_param("i", $user_id);
-$stmt_nutrients->execute();
-$nutrients_history = $stmt_nutrients->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmt_nutrients->close();
+// Usar a mesma lógica do diário para buscar dados de nutrientes
+$nutrients_start_date = date('Y-m-d', strtotime('-120 days'));
+$nutrients_end_date = date('Y-m-d');
+$meal_history_nutrients = getGroupedMealHistory($conn, $user_id, $nutrients_start_date, $nutrients_end_date);
+
+// Processar dados de nutrientes usando a mesma lógica do diário
+$nutrients_history = [];
+foreach ($meal_history_nutrients as $date => $meals) {
+    $day_total_kcal = 0;
+    $day_total_prot = 0;
+    $day_total_carb = 0;
+    $day_total_fat = 0;
+    
+    if (!empty($meals)) {
+        foreach ($meals as $meal_type_slug => $items) {
+            $day_total_kcal += array_sum(array_column($items, 'kcal_consumed'));
+            $day_total_prot += array_sum(array_column($items, 'protein_consumed_g'));
+            $day_total_carb += array_sum(array_column($items, 'carbs_consumed_g'));
+            $day_total_fat += array_sum(array_column($items, 'fat_consumed_g'));
+        }
+    }
+    
+    $nutrients_history[] = [
+        'date' => $date,
+        'total_kcal' => $day_total_kcal,
+        'total_protein' => $day_total_prot,
+        'total_carbs' => $day_total_carb,
+        'total_fat' => $day_total_fat
+    ];
+}
 
 // Processar dados de nutrientes
 $nutrients_data = [];
@@ -451,27 +463,6 @@ error_log("DEBUG - Média 7 dias: " . $nutrients_stats_7['avg_kcal']);
 error_log("DEBUG - Média 15 dias: " . $nutrients_stats_15['avg_kcal']);
 error_log("DEBUG - Média 30 dias: " . $nutrients_stats_30['avg_kcal']);
 error_log("DEBUG - Total de dias disponíveis: " . count($nutrients_data));
-
-// CORREÇÃO: Garantir que as médias façam sentido lógico
-// Se há poucos dados, usar apenas os dados disponíveis
-if (count($nutrients_data) < 7) {
-    $nutrients_stats_7 = $nutrients_stats_all;
-}
-if (count($nutrients_data) < 15) {
-    $nutrients_stats_15 = $nutrients_stats_all;
-}
-if (count($nutrients_data) < 30) {
-    $nutrients_stats_30 = $nutrients_stats_all;
-}
-
-// Garantir que média de 7 dias >= média de 15 dias >= média de 30 dias
-// (pois períodos menores devem ter médias maiores ou iguais)
-if ($nutrients_stats_7['avg_kcal'] < $nutrients_stats_15['avg_kcal']) {
-    $nutrients_stats_15 = $nutrients_stats_7;
-}
-if ($nutrients_stats_15['avg_kcal'] < $nutrients_stats_30['avg_kcal']) {
-    $nutrients_stats_30 = $nutrients_stats_15;
-}
 $nutrients_stats_today = calculateNutrientsStatsByDate($nutrients_data, $today);
 $nutrients_stats_yesterday = calculateNutrientsStatsByDate($nutrients_data, $yesterday);
 
