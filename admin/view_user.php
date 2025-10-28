@@ -1588,118 +1588,483 @@ function toggleNutrientsRecords() {
     <div class="nutrients-container">
         
         <!-- 1. RESUMO GERAL -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <h3><i class="fas fa-chart-pie"></i> Análise Nutricional</h3>
-                <p>Comportamento nutricional baseado nos registros do diário</p>
+        <!-- CABEÇALHO PRINCIPAL -->
+        <div class="nutrients-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h3><i class="fas fa-chart-pie"></i> Análise de Nutrientes</h3>
+                    <p>Consumo nutricional detalhado e análise de macronutrientes</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="exportNutrientsData()">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="openNutrientsSettings()">
+                        <i class="fas fa-cog"></i>
+                        Configurações
+                    </button>
+                </div>
             </div>
             
-            <div class="card-content">
-                <div class="data-grid">
-                    <div class="data-section">
-                        <h4><i class="fas fa-bullseye"></i> Metas Diárias</h4>
-                        <div class="data-items">
-                            <div class="data-item">
-                                <i class="fas fa-fire"></i>
-                                <label>Calorias:</label>
-                                <span><?php echo $total_daily_calories_goal; ?> kcal</span>
-                            </div>
-                            <div class="data-item">
-                                <i class="fas fa-drumstick-bite"></i>
-                                <label>Proteína:</label>
-                                <span><?php echo $macros_goal['protein_g']; ?>g</span>
-                            </div>
-                            <div class="data-item">
-                                <i class="fas fa-bread-slice"></i>
-                                <label>Carboidrato:</label>
-                                <span><?php echo $macros_goal['carbs_g']; ?>g</span>
-                            </div>
-                            <div class="data-item">
-                                <i class="fas fa-seedling"></i>
-                                <label>Gordura:</label>
-                                <span><?php echo $macros_goal['fat_g']; ?>g</span>
-                            </div>
+            <!-- Filtros de Período -->
+            <div class="period-filters">
+                <button class="filter-btn" data-period="today">Hoje</button>
+                <button class="filter-btn" data-period="yesterday">Ontem</button>
+                <button class="filter-btn active" data-period="7">7 dias</button>
+                <button class="filter-btn" data-period="15">15 dias</button>
+                <button class="filter-btn" data-period="30">30 dias</button>
+                <button class="filter-btn" data-period="90">90 dias</button>
+            </div>
+        </div>
+
+        <!-- RESUMO NUTRICIONAL PRINCIPAL -->
+        <div class="nutrients-summary-section">
+            <div class="summary-cards-grid">
+                <!-- Card de Calorias -->
+                <div class="summary-card calories-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="card-title">
+                            <h4>Calorias</h4>
+                            <p>Consumo diário</p>
                         </div>
                     </div>
-                    
-                    <div class="data-section">
-                        <h4><i class="fas fa-chart-line"></i> Média Real (últimos 7 dias)</h4>
-                        <div class="data-items">
-                            <div class="data-item">
-                                <i class="fas fa-fire"></i>
-                                <label>Calorias:</label>
-                                <span><?php echo $nutrients_stats_7['avg_kcal']; ?> kcal</span>
-                                <small>(<?php echo $nutrients_stats_7['avg_kcal_percentage']; ?>% da meta)</small>
+                    <div class="card-content">
+                        <div class="main-value">
+                            <span class="value" id="nutrients-avg-kcal"><?php echo $nutrients_stats_7['avg_kcal']; ?></span>
+                            <span class="unit">kcal</span>
+                        </div>
+                        <div class="progress-info">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: <?php echo $nutrients_stats_7['avg_kcal_percentage']; ?>%"></div>
                             </div>
-                            <div class="data-item">
-                                <i class="fas fa-drumstick-bite"></i>
-                                <label>Proteína:</label>
-                                <span><?php echo $nutrients_stats_7['avg_protein']; ?>g</span>
-                                <small>(<?php echo $nutrients_stats_7['avg_protein_percentage']; ?>% da meta)</small>
-                            </div>
-                            <div class="data-item">
-                                <i class="fas fa-bread-slice"></i>
-                                <label>Carboidrato:</label>
-                                <span><?php echo $nutrients_stats_7['avg_carbs']; ?>g</span>
-                                <small>(<?php echo $nutrients_stats_7['avg_carbs_percentage']; ?>% da meta)</small>
-                            </div>
-                            <div class="data-item">
-                                <i class="fas fa-seedling"></i>
-                                <label>Gordura:</label>
-                                <span><?php echo $nutrients_stats_7['avg_fat']; ?>g</span>
-                                <small>(<?php echo $nutrients_stats_7['avg_fat_percentage']; ?>% da meta)</small>
+                            <div class="progress-text">
+                                <span><?php echo $nutrients_stats_7['avg_kcal_percentage']; ?>% da meta</span>
+                                <span>Meta: <?php echo $total_daily_calories_goal; ?> kcal</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="adherence-summary">
-                    <div class="adherence-item">
-                        <span class="adherence-label">Aderência geral:</span>
-                        <span class="adherence-value"><?php echo $nutrients_stats_7['avg_overall_percentage']; ?>% das calorias atingidas</span>
+
+                <!-- Card de Macronutrientes -->
+                <div class="summary-card macros-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="card-title">
+                            <h4>Macronutrientes</h4>
+                            <p>Distribuição diária</p>
+                        </div>
                     </div>
-                    <div class="adherence-item">
-                        <span class="adherence-label">Dias com meta de proteína:</span>
-                        <span class="adherence-value"><?php echo $nutrients_stats_7['excellent_days'] + $nutrients_stats_7['good_days']; ?> de <?php echo $nutrients_stats_7['total_days']; ?> dias</span>
+                    <div class="card-content">
+                        <div class="macros-distribution">
+                            <div class="macro-item">
+                                <div class="macro-icon protein">
+                                    <i class="fas fa-drumstick-bite"></i>
+                                </div>
+                                <div class="macro-info">
+                                    <span class="macro-value"><?php echo $nutrients_stats_7['avg_protein']; ?>g</span>
+                                    <span class="macro-label">Proteínas</span>
+                                    <span class="macro-percentage"><?php echo round(($nutrients_stats_7['avg_protein'] / $macros_goal['protein_g']) * 100); ?>%</span>
+                                </div>
+                            </div>
+                            <div class="macro-item">
+                                <div class="macro-icon carbs">
+                                    <i class="fas fa-bread-slice"></i>
+                                </div>
+                                <div class="macro-info">
+                                    <span class="macro-value"><?php echo $nutrients_stats_7['avg_carbs']; ?>g</span>
+                                    <span class="macro-label">Carboidratos</span>
+                                    <span class="macro-percentage"><?php echo round(($nutrients_stats_7['avg_carbs'] / $macros_goal['carbs_g']) * 100); ?>%</span>
+                                </div>
+                            </div>
+                            <div class="macro-item">
+                                <div class="macro-icon fat">
+                                    <i class="fas fa-seedling"></i>
+                                </div>
+                                <div class="macro-info">
+                                    <span class="macro-value"><?php echo $nutrients_stats_7['avg_fat']; ?>g</span>
+                                    <span class="macro-label">Gorduras</span>
+                                    <span class="macro-percentage"><?php echo round(($nutrients_stats_7['avg_fat'] / $macros_goal['fat_g']) * 100); ?>%</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. TENDÊNCIA DE PROGRESSO -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <h4><i class="fas fa-chart-line"></i> Tendência de Progresso</h4>
-                <p>Últimos 7 dias - Calorias consumidas vs meta diária</p>
+        <!-- ANÁLISE DETALHADA DE NUTRIENTES -->
+        <div class="nutrients-detailed-section">
+            <div class="section-header">
+                <h4><i class="fas fa-microscope"></i> Análise Detalhada</h4>
+                <div class="section-filters">
+                    <button class="filter-btn active">Hoje</button>
+                    <button class="filter-btn">7 dias</button>
+                    <button class="filter-btn">30 dias</button>
+                </div>
             </div>
-            <div class="card-content">
-                <div class="chart-section">
-                    <div class="improved-bars" id="nutrients-trend-bars">
-                        <?php 
-                        $display_data = array_slice($nutrients_data, 0, 7);
-                        foreach ($display_data as $day): 
-                            $percentage = $day['avg_percentage'];
-                            $barHeight = 0;
-                            if ($percentage === 0) {
-                                $barHeight = 0;
-                            } else if ($percentage >= 100) {
-                                $barHeight = 160 + min(($percentage - 100) * 0.4, 40);
-                            } else {
-                                $barHeight = ($percentage / 100) * 160;
-                            }
-                        ?>
-                            <div class="improved-bar-container">
-                                <div class="improved-bar-wrapper">
-                                    <div class="improved-bar <?php echo $day['status']; ?>" style="height: <?php echo $barHeight; ?>px"></div>
-                                    <div class="bar-percentage-text"><?php echo $percentage; ?>%</div>
-                                    <div class="improved-goal-line"></div>
-                                </div>
-                                <div class="improved-bar-info">
-                                    <span class="improved-date"><?php echo date('d/m', strtotime($day['date'])); ?></span>
-                                    <span class="improved-ml"><?php echo $day['kcal']; ?> kcal</span>
-                                </div>
+
+            <div class="detailed-cards-grid">
+                <!-- Vitaminas -->
+                <div class="nutrient-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <h5>Vitaminas</h5>
+                    </div>
+                    <div class="nutrients-list">
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Vitamina C</span>
+                                <span class="nutrient-unit">mg</span>
                             </div>
-                        <?php endforeach; ?>
+                            <div class="nutrient-values">
+                                <span class="current-value">95</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">90</span>
+                            </div>
+                            <div class="nutrient-status excellent">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Vitamina D</span>
+                                <span class="nutrient-unit">μg</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">8</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">15</span>
+                            </div>
+                            <div class="nutrient-status poor">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Vitamina B12</span>
+                                <span class="nutrient-unit">μg</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">2.4</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">2.4</span>
+                            </div>
+                            <div class="nutrient-status good">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Folato</span>
+                                <span class="nutrient-unit">μg</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">320</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">400</span>
+                            </div>
+                            <div class="nutrient-status fair">
+                                <i class="fas fa-minus"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Minerais -->
+                <div class="nutrient-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                        <h5>Minerais</h5>
+                    </div>
+                    <div class="nutrients-list">
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Ferro</span>
+                                <span class="nutrient-unit">mg</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">12</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">18</span>
+                            </div>
+                            <div class="nutrient-status fair">
+                                <i class="fas fa-minus"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Cálcio</span>
+                                <span class="nutrient-unit">mg</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">850</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">1000</span>
+                            </div>
+                            <div class="nutrient-status good">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Magnésio</span>
+                                <span class="nutrient-unit">mg</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">320</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">400</span>
+                            </div>
+                            <div class="nutrient-status fair">
+                                <i class="fas fa-minus"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Zinco</span>
+                                <span class="nutrient-unit">mg</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">11</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">11</span>
+                            </div>
+                            <div class="nutrient-status excellent">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Macronutrientes Detalhados -->
+                <div class="nutrient-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h5>Macronutrientes</h5>
+                    </div>
+                    <div class="nutrients-list">
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Proteínas</span>
+                                <span class="nutrient-unit">g</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value"><?php echo $nutrients_stats_7['avg_protein']; ?></span>
+                                <span class="separator">/</span>
+                                <span class="target-value"><?php echo $macros_goal['protein_g']; ?></span>
+                            </div>
+                            <div class="nutrient-status good">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Carboidratos</span>
+                                <span class="nutrient-unit">g</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value"><?php echo $nutrients_stats_7['avg_carbs']; ?></span>
+                                <span class="separator">/</span>
+                                <span class="target-value"><?php echo $macros_goal['carbs_g']; ?></span>
+                            </div>
+                            <div class="nutrient-status good">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Gorduras</span>
+                                <span class="nutrient-unit">g</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value"><?php echo $nutrients_stats_7['avg_fat']; ?></span>
+                                <span class="separator">/</span>
+                                <span class="target-value"><?php echo $macros_goal['fat_g']; ?></span>
+                            </div>
+                            <div class="nutrient-status good">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Fibras</span>
+                                <span class="nutrient-unit">g</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">28</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">35</span>
+                            </div>
+                            <div class="nutrient-status fair">
+                                <i class="fas fa-minus"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Água e Hidratação -->
+                <div class="nutrient-category-card">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <h5>Hidratação</h5>
+                    </div>
+                    <div class="nutrients-list">
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Água</span>
+                                <span class="nutrient-unit">ml</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">2,100</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">2,500</span>
+                            </div>
+                            <div class="nutrient-status good">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Sódio</span>
+                                <span class="nutrient-unit">mg</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">1,800</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">2,300</span>
+                            </div>
+                            <div class="nutrient-status good">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="nutrient-item">
+                            <div class="nutrient-info">
+                                <span class="nutrient-name">Potássio</span>
+                                <span class="nutrient-unit">mg</span>
+                            </div>
+                            <div class="nutrient-values">
+                                <span class="current-value">3,200</span>
+                                <span class="separator">/</span>
+                                <span class="target-value">4,700</span>
+                            </div>
+                            <div class="nutrient-status fair">
+                                <i class="fas fa-minus"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICO DE TENDÊNCIAS -->
+        <div class="nutrients-chart-section">
+            <div class="section-header">
+                <h4><i class="fas fa-chart-line"></i> Tendências dos Nutrientes</h4>
+                <div class="chart-controls">
+                    <button class="chart-btn active">7 dias</button>
+                    <button class="chart-btn">30 dias</button>
+                    <button class="chart-btn">90 dias</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="nutrients-chart-improved">
+                    <div class="improved-chart" id="nutrients-improved-chart">
+                    <?php if (empty($nutrients_data)): ?>
+                        <div class="empty-chart">
+                            <i class="fas fa-utensils"></i>
+                            <p>Nenhum registro encontrado</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="improved-bars" id="nutrients-improved-bars">
+                            <?php 
+                            $display_data = array_slice($nutrients_data, 0, 7);
+                            foreach ($display_data as $day): 
+                                // Calcular altura da barra: 0% = 0px, 100% = 160px, >100% pode ir até 200px
+                                $percentage = $day['avg_percentage'];
+                                $barHeight = 0;
+                                if ($percentage === 0) {
+                                    $barHeight = 0; // Sem altura para 0%
+                                } else if ($percentage >= 100) {
+                                    $barHeight = 160 + min(($percentage - 100) * 0.4, 40); // 100% = 160px, máximo 200px
+                                } else {
+                                    $barHeight = ($percentage / 100) * 160; // Proporcional entre 0px e 160px
+                                }
+                            ?>
+                                <div class="improved-bar-container">
+                                    <div class="improved-bar-wrapper">
+                                        <div class="improved-bar <?php echo $day['status']; ?>" style="height: <?php echo $barHeight; ?>px"></div>
+                                        <div class="bar-percentage-text"><?php echo $percentage; ?>%</div>
+                                        <div class="improved-goal-line"></div>
+                                    </div>
+                                    <div class="improved-bar-info">
+                                        <span class="improved-date"><?php echo date('d/m', strtotime($day['date'])); ?></span>
+                                        <span class="improved-ml"><?php echo $day['kcal']; ?> kcal</span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECOMENDAÇÕES -->
+        <div class="nutrients-recommendations-section">
+            <div class="section-header">
+                <h4><i class="fas fa-lightbulb"></i> Recomendações Nutricionais</h4>
+            </div>
+            <div class="recommendations-grid">
+                <div class="recommendation-card priority-high">
+                    <div class="recommendation-header">
+                        <div class="priority-badge high">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h5>Vitamina D</h5>
+                    </div>
+                    <p>Consumo abaixo do recomendado. Considere aumentar a exposição solar ou suplementação.</p>
+                    <div class="recommendation-actions">
+                        <button class="btn btn-sm btn-primary">Ver Alimentos</button>
+                    </div>
+                </div>
+
+                <div class="recommendation-card priority-medium">
+                    <div class="recommendation-header">
+                        <div class="priority-badge medium">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <h5>Fibras</h5>
+                    </div>
+                    <p>Inclua mais frutas, vegetais e grãos integrais para atingir a meta de fibras.</p>
+                    <div class="recommendation-actions">
+                        <button class="btn btn-sm btn-secondary">Ver Sugestões</button>
+                    </div>
+                </div>
+
+                <div class="recommendation-card priority-low">
+                    <div class="recommendation-header">
+                        <div class="priority-badge low">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h5>Proteínas</h5>
+                    </div>
+                    <p>Excelente consumo de proteínas! Continue mantendo essa qualidade nutricional.</p>
+                    <div class="recommendation-actions">
+                        <button class="btn btn-sm btn-secondary">Ver Detalhes</button>
                     </div>
                 </div>
             </div>
