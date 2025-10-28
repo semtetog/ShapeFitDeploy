@@ -2331,7 +2331,7 @@
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.1s ease;
 }
 
 .custom-modal.active {
@@ -2348,6 +2348,7 @@
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  transition: none !important;
 }
 
 .custom-modal-content {
