@@ -1916,11 +1916,15 @@ function closeAlertModal() {
 }
 
 async function confirmRevertGoals() {
-    console.log('confirmRevertGoals chamado, currentUserIdToRevert:', currentUserIdToRevert);
-    console.log('Tipo de currentUserIdToRevert:', typeof currentUserIdToRevert);
+    console.log('=== CONFIRM REVERT GOALS ===');
+    console.log('currentUserIdToRevert:', currentUserIdToRevert);
+    console.log('Tipo:', typeof currentUserIdToRevert);
+    console.log('É null?', currentUserIdToRevert === null);
+    console.log('É undefined?', currentUserIdToRevert === undefined);
     
     if (!currentUserIdToRevert) {
-        console.error('currentUserIdToRevert é null ou undefined');
+        console.error('ERRO: currentUserIdToRevert é null ou undefined');
+        alert('Erro: ID do usuário não encontrado. Recarregue a página e tente novamente.');
         return;
     }
     
@@ -1930,10 +1934,10 @@ async function confirmRevertGoals() {
         const formData = new FormData();
         formData.append('user_id', currentUserIdToRevert);
         
-        console.log('Enviando user_id:', currentUserIdToRevert);
+        console.log('FormData criado com user_id:', currentUserIdToRevert);
         console.log('FormData entries:');
         for (let [key, value] of formData.entries()) {
-            console.log(key, value);
+            console.log(`${key}: ${value} (tipo: ${typeof value})`);
         }
         
         const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/revert_to_auto_goals.php', {
