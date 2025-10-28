@@ -1129,10 +1129,10 @@ function navigateDiary(direction) {
                        console.log('Última data após adição:', diaryCards[diaryCards.length - 1]?.getAttribute('data-date'));
                        console.log('Navegando para o dia carregado, índice:', currentDiaryIndex);
                        
-                       // Atualizar endDate na URL sem recarregar
-                       const urlParams = new URLSearchParams(window.location.search);
-                       urlParams.set('end_date', endDate);
-                       window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
+                       // Manter URL inalterada - não atualizar endDate na URL
+                       // const urlParams = new URLSearchParams(window.location.search);
+                       // urlParams.set('end_date', endDate);
+                       // window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
                        
                        // Simular swipe: primeiro ir para posição anterior, depois para a correta
                        const previousIndex = currentDiaryIndex + 1;
