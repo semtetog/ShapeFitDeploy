@@ -376,12 +376,12 @@ foreach ($last_7_days as $date) {
     $last_7_days_data[] = $day_data;
 }
 
-// Calcular médias dos períodos (igual ao progress.php)
+// Calcular médias dos períodos (dividir pelo número total de dias no período, não pelos dias com registro)
 $nutrients_stats_7 = [
-    'avg_kcal' => ($last_7_days_data['days_tracked'] ?? 0) > 0 ? round(($last_7_days_data['total_kcal'] ?? 0) / 7, 0) : 0,
-    'avg_protein' => ($last_7_days_data['days_tracked'] ?? 0) > 0 ? round(($last_7_days_data['total_protein'] ?? 0) / 7, 1) : 0,
-    'avg_carbs' => ($last_7_days_data['days_tracked'] ?? 0) > 0 ? round(($last_7_days_data['total_carbs'] ?? 0) / 7, 1) : 0,
-    'avg_fat' => ($last_7_days_data['days_tracked'] ?? 0) > 0 ? round(($last_7_days_data['total_fat'] ?? 0) / 7, 1) : 0,
+    'avg_kcal' => round(($last_7_days_data['total_kcal'] ?? 0) / 7, 0),
+    'avg_protein' => round(($last_7_days_data['total_protein'] ?? 0) / 7, 1),
+    'avg_carbs' => round(($last_7_days_data['total_carbs'] ?? 0) / 7, 1),
+    'avg_fat' => round(($last_7_days_data['total_fat'] ?? 0) / 7, 1),
     'avg_kcal_percentage' => $total_daily_calories_goal > 0 ? round((($last_7_days_data['total_kcal'] ?? 0) / 7 / $total_daily_calories_goal) * 100, 1) : 0,
     'avg_protein_percentage' => $macros_goal['protein_g'] > 0 ? round((($last_7_days_data['total_protein'] ?? 0) / 7 / $macros_goal['protein_g']) * 100, 1) : 0,
     'avg_carbs_percentage' => $macros_goal['carbs_g'] > 0 ? round((($last_7_days_data['total_carbs'] ?? 0) / 7 / $macros_goal['carbs_g']) * 100, 1) : 0,
@@ -390,10 +390,10 @@ $nutrients_stats_7 = [
 ];
 
 $nutrients_stats_15 = [
-    'avg_kcal' => ($last_15_days_data['days_tracked'] ?? 0) > 0 ? round(($last_15_days_data['total_kcal'] ?? 0) / 15, 0) : 0,
-    'avg_protein' => ($last_15_days_data['days_tracked'] ?? 0) > 0 ? round(($last_15_days_data['total_protein'] ?? 0) / 15, 1) : 0,
-    'avg_carbs' => ($last_15_days_data['days_tracked'] ?? 0) > 0 ? round(($last_15_days_data['total_carbs'] ?? 0) / 15, 1) : 0,
-    'avg_fat' => ($last_15_days_data['days_tracked'] ?? 0) > 0 ? round(($last_15_days_data['total_fat'] ?? 0) / 15, 1) : 0,
+    'avg_kcal' => round(($last_15_days_data['total_kcal'] ?? 0) / 15, 0),
+    'avg_protein' => round(($last_15_days_data['total_protein'] ?? 0) / 15, 1),
+    'avg_carbs' => round(($last_15_days_data['total_carbs'] ?? 0) / 15, 1),
+    'avg_fat' => round(($last_15_days_data['total_fat'] ?? 0) / 15, 1),
     'avg_kcal_percentage' => $total_daily_calories_goal > 0 ? round((($last_15_days_data['total_kcal'] ?? 0) / 15 / $total_daily_calories_goal) * 100, 1) : 0,
     'avg_protein_percentage' => $macros_goal['protein_g'] > 0 ? round((($last_15_days_data['total_protein'] ?? 0) / 15 / $macros_goal['protein_g']) * 100, 1) : 0,
     'avg_carbs_percentage' => $macros_goal['carbs_g'] > 0 ? round((($last_15_days_data['total_carbs'] ?? 0) / 15 / $macros_goal['carbs_g']) * 100, 1) : 0,
@@ -402,10 +402,10 @@ $nutrients_stats_15 = [
 ];
 
 $nutrients_stats_30 = [
-    'avg_kcal' => ($last_30_days_data['days_tracked'] ?? 0) > 0 ? round(($last_30_days_data['total_kcal'] ?? 0) / 30, 0) : 0,
-    'avg_protein' => ($last_30_days_data['days_tracked'] ?? 0) > 0 ? round(($last_30_days_data['total_protein'] ?? 0) / 30, 1) : 0,
-    'avg_carbs' => ($last_30_days_data['days_tracked'] ?? 0) > 0 ? round(($last_30_days_data['total_carbs'] ?? 0) / 30, 1) : 0,
-    'avg_fat' => ($last_30_days_data['days_tracked'] ?? 0) > 0 ? round(($last_30_days_data['total_fat'] ?? 0) / 30, 1) : 0,
+    'avg_kcal' => round(($last_30_days_data['total_kcal'] ?? 0) / 30, 0),
+    'avg_protein' => round(($last_30_days_data['total_protein'] ?? 0) / 30, 1),
+    'avg_carbs' => round(($last_30_days_data['total_carbs'] ?? 0) / 30, 1),
+    'avg_fat' => round(($last_30_days_data['total_fat'] ?? 0) / 30, 1),
     'avg_kcal_percentage' => $total_daily_calories_goal > 0 ? round((($last_30_days_data['total_kcal'] ?? 0) / 30 / $total_daily_calories_goal) * 100, 1) : 0,
     'avg_protein_percentage' => $macros_goal['protein_g'] > 0 ? round((($last_30_days_data['total_protein'] ?? 0) / 30 / $macros_goal['protein_g']) * 100, 1) : 0,
     'avg_carbs_percentage' => $macros_goal['carbs_g'] > 0 ? round((($last_30_days_data['total_carbs'] ?? 0) / 30 / $macros_goal['carbs_g']) * 100, 1) : 0,
