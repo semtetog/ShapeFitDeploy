@@ -270,151 +270,165 @@ $water_stats_yesterday = calculateHydrationStatsByDate($hydration_data, $yesterd
 // --- PROCESSAMENTO DE DADOS DE NUTRIENTES (LÓGICA DEFINITIVA) ---
 // Função robusta que garante range completo de datas com LEFT JOIN
 
-function getNutrientStats($conn, $userId, $periodDays, $macros_goal, $total_daily_calories_goal) {
-    $today = date('Y-m-d');
-    $startDate = date('Y-m-d', strtotime("-" . ($periodDays - 1) . " days", strtotime($today)));
-
-    // 1. Gerar calendário real com todos os dias do período
+function getNutrientStats($conn, $userId, $macros_goal, $total_daily_calories_goal) {
     $hoje = new DateTime();
-    $datas = [];
-    for ($i = 0; $i < $periodDays; $i++) {
-        $d = clone $hoje;
-        $d->modify("-$i days");
-        $datas[$d->format('Y-m-d')] = [
-            'kcal' => 0,
-            'protein' => 0,
-            'carbs' => 0,
-            'fat' => 0
-        ];
-    }
 
-    // 2. Query para buscar dados dos dias com registro
-    $sql = "
-        SELECT 
-            DATE(date_consumed) AS dia,
-            SUM(kcal_consumed) AS total_kcal,
-            SUM(protein_consumed_g) AS total_protein,
-            SUM(carbs_consumed_g) AS total_carbs,
-            SUM(fat_consumed_g) AS total_fat
-        FROM sf_user_meal_log
-        WHERE user_id = ? 
-        AND DATE(date_consumed) BETWEEN ? AND ?
-        GROUP BY DATE(date_consumed)
-        ORDER BY DATE(date_consumed) ASC
-    ";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iss", $userId, $startDate, $today);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    // 3. Preencher calendário com dados reais
-    $daysWithData = 0;
-    $excellentDays = 0;
-    $goodDays = 0;
-    $dailyData = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $dia = $row['dia'];
-        if (isset($datas[$dia])) {
-            $datas[$dia] = [
-                'kcal' => (int)$row['total_kcal'],
-                'protein' => (float)$row['total_protein'],
-                'carbs' => (float)$row['total_carbs'],
-                'fat' => (float)$row['total_fat']
+    // Helper function pra montar o calendário real
+    function gerarPeriodo($dias, $userId, $conn, $macros_goal, $total_daily_calories_goal) {
+        $hoje = new DateTime();
+        $datas = [];
+        
+        // Gerar calendário com todos os dias do período
+        for ($i = 0; $i < $dias; $i++) {
+            $d = clone $hoje;
+            $d->modify("-$i days");
+            $datas[$d->format('Y-m-d')] = [
+                'kcal' => 0,
+                'protein' => 0,
+                'carbs' => 0,
+                'fat' => 0
             ];
-            
-            if ($row['total_kcal'] > 0) {
-                $daysWithData++;
+        }
+
+        $startDate = (clone $hoje)->modify("-" . ($dias - 1) . " days")->format('Y-m-d');
+        $endDate = $hoje->format('Y-m-d');
+
+        $stmt = $conn->prepare("
+            SELECT 
+                DATE(date_consumed) AS dia,
+                SUM(kcal_consumed) AS total_kcal,
+                SUM(protein_consumed_g) AS total_protein,
+                SUM(carbs_consumed_g) AS total_carbs,
+                SUM(fat_consumed_g) AS total_fat
+            FROM sf_user_meal_log
+            WHERE user_id = ? 
+              AND DATE(date_consumed) BETWEEN ? AND ?
+            GROUP BY DATE(date_consumed)
+            ORDER BY DATE(date_consumed) ASC
+        ");
+        $stmt->bind_param("iss", $userId, $startDate, $endDate);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $daysWithData = 0;
+        $excellentDays = 0;
+        $goodDays = 0;
+
+        while ($row = $result->fetch_assoc()) {
+            $dia = $row['dia'];
+            if (isset($datas[$dia])) {
+                $datas[$dia] = [
+                    'kcal' => (int)$row['total_kcal'],
+                    'protein' => (float)$row['total_protein'],
+                    'carbs' => (float)$row['total_carbs'],
+                    'fat' => (float)$row['total_fat']
+                ];
                 
-                // Calcular percentual do dia para classificar qualidade
-                $dayKcalPercentage = $total_daily_calories_goal > 0 ? round(($row['total_kcal'] / $total_daily_calories_goal) * 100, 1) : 0;
-                if ($dayKcalPercentage >= 90) {
-                    $excellentDays++;
-                } elseif ($dayKcalPercentage >= 70) {
-                    $goodDays++;
+                if ($row['total_kcal'] > 0) {
+                    $daysWithData++;
+                    
+                    // Calcular percentual do dia para classificar qualidade
+                    $dayKcalPercentage = $total_daily_calories_goal > 0 ? round(($row['total_kcal'] / $total_daily_calories_goal) * 100, 1) : 0;
+                    if ($dayKcalPercentage >= 90) {
+                        $excellentDays++;
+                    } elseif ($dayKcalPercentage >= 70) {
+                        $goodDays++;
+                    }
                 }
             }
         }
-    }
 
-    // 4. Calcular totais do período (incluindo dias com 0)
-    $totalKcal = 0;
-    $totalProtein = 0;
-    $totalCarbs = 0;
-    $totalFat = 0;
+        // Calcular totais do período (incluindo dias com 0)
+        $totalKcal = 0;
+        $totalProtein = 0;
+        $totalCarbs = 0;
+        $totalFat = 0;
+        $dailyData = [];
 
-    foreach ($datas as $dia => $valores) {
-        $totalKcal += $valores['kcal'];
-        $totalProtein += $valores['protein'];
-        $totalCarbs += $valores['carbs'];
-        $totalFat += $valores['fat'];
+        foreach ($datas as $dia => $valores) {
+            $totalKcal += $valores['kcal'];
+            $totalProtein += $valores['protein'];
+            $totalCarbs += $valores['carbs'];
+            $totalFat += $valores['fat'];
+            
+            $dailyData[] = [
+                'date' => $dia,
+                'kcal_consumed' => $valores['kcal'],
+                'protein_consumed_g' => $valores['protein'],
+                'carbs_consumed_g' => $valores['carbs'],
+                'fat_consumed_g' => $valores['fat']
+            ];
+        }
+
+        // Média ponderada (todos os dias do período)
+        $avgKcal = round($totalKcal / $dias, 0);
+        $avgProtein = round($totalProtein / $dias, 1);
+        $avgCarbs = round($totalCarbs / $dias, 1);
+        $avgFat = round($totalFat / $dias, 1);
         
-        $dailyData[] = [
-            'date' => $dia,
-            'kcal_consumed' => $valores['kcal'],
-            'protein_consumed_g' => $valores['protein'],
-            'carbs_consumed_g' => $valores['carbs'],
-            'fat_consumed_g' => $valores['fat']
+        // Média real (apenas dias com registro)
+        $avgRealKcal = $daysWithData > 0 ? round($totalKcal / $daysWithData, 0) : 0;
+        $avgRealProtein = $daysWithData > 0 ? round($totalProtein / $daysWithData, 1) : 0;
+        $avgRealCarbs = $daysWithData > 0 ? round($totalCarbs / $daysWithData, 1) : 0;
+        $avgRealFat = $daysWithData > 0 ? round($totalFat / $daysWithData, 1) : 0;
+        
+        // Percentuais da meta (baseados na média ponderada)
+        $avgKcalPercentage = $total_daily_calories_goal > 0 ? round(($avgKcal / $total_daily_calories_goal) * 100, 1) : 0;
+        $avgProteinPercentage = $macros_goal['protein_g'] > 0 ? round(($avgProtein / $macros_goal['protein_g']) * 100, 1) : 0;
+        $avgCarbsPercentage = $macros_goal['carbs_g'] > 0 ? round(($avgCarbs / $macros_goal['carbs_g']) * 100, 1) : 0;
+        $avgFatPercentage = $macros_goal['fat_g'] > 0 ? round(($avgFat / $macros_goal['fat_g']) * 100, 1) : 0;
+        
+        // Percentual geral da meta
+        $avgOverallPercentage = round(($avgKcalPercentage + $avgProteinPercentage + $avgCarbsPercentage + $avgFatPercentage) / 4, 1);
+        
+        // Aderência (dias com registro / total de dias)
+        $adherencePercentage = round(($daysWithData / $dias) * 100, 1);
+
+        return [
+            // Médias ponderadas (para cards - mostram disciplina/constância)
+            'avg_kcal' => $avgKcal,
+            'avg_protein' => $avgProtein,
+            'avg_carbs' => $avgCarbs,
+            'avg_fat' => $avgFat,
+            'avg_kcal_percentage' => $avgKcalPercentage,
+            'avg_protein_percentage' => $avgProteinPercentage,
+            'avg_carbs_percentage' => $avgCarbsPercentage,
+            'avg_fat_percentage' => $avgFatPercentage,
+            'avg_overall_percentage' => $avgOverallPercentage,
+            
+            // Médias reais (para referência - mostram consumo quando registra)
+            'avg_real_kcal' => $avgRealKcal,
+            'avg_real_protein' => $avgRealProtein,
+            'avg_real_carbs' => $avgRealCarbs,
+            'avg_real_fat' => $avgRealFat,
+            
+            // Aderência e qualidade
+            'excellent_days' => $excellentDays,
+            'good_days' => $goodDays,
+            'days_with_consumption' => $daysWithData,
+            'adherence_percentage' => $adherencePercentage,
+            'total_days' => $dias,
+            'daily_data' => $dailyData
         ];
     }
 
-    // 5. Média ponderada (todos os dias do período) - para cards e percentuais
-    $avgKcal = round($totalKcal / $periodDays, 0);
-    $avgProtein = round($totalProtein / $periodDays, 1);
-    $avgCarbs = round($totalCarbs / $periodDays, 1);
-    $avgFat = round($totalFat / $periodDays, 1);
-    
-    // 6. Média real (apenas dias com registro) - para referência
-    $avgRealKcal = $daysWithData > 0 ? round($totalKcal / $daysWithData, 0) : 0;
-    $avgRealProtein = $daysWithData > 0 ? round($totalProtein / $daysWithData, 1) : 0;
-    $avgRealCarbs = $daysWithData > 0 ? round($totalCarbs / $daysWithData, 1) : 0;
-    $avgRealFat = $daysWithData > 0 ? round($totalFat / $daysWithData, 1) : 0;
-    
-    // 7. Percentuais da meta (baseados na média ponderada)
-    $avgKcalPercentage = $total_daily_calories_goal > 0 ? round(($avgKcal / $total_daily_calories_goal) * 100, 1) : 0;
-    $avgProteinPercentage = $macros_goal['protein_g'] > 0 ? round(($avgProtein / $macros_goal['protein_g']) * 100, 1) : 0;
-    $avgCarbsPercentage = $macros_goal['carbs_g'] > 0 ? round(($avgCarbs / $macros_goal['carbs_g']) * 100, 1) : 0;
-    $avgFatPercentage = $macros_goal['fat_g'] > 0 ? round(($avgFat / $macros_goal['fat_g']) * 100, 1) : 0;
-    
-    // 8. Percentual geral da meta
-    $avgOverallPercentage = round(($avgKcalPercentage + $avgProteinPercentage + $avgCarbsPercentage + $avgFatPercentage) / 4, 1);
-    
-    // 9. Aderência (dias com registro / total de dias)
-    $adherencePercentage = round(($daysWithData / $periodDays) * 100, 1);
+    // Calcula cada período isoladamente
+    $semana = gerarPeriodo(7, $userId, $conn, $macros_goal, $total_daily_calories_goal);
+    $quinzena = gerarPeriodo(15, $userId, $conn, $macros_goal, $total_daily_calories_goal);
+    $mes = gerarPeriodo(30, $userId, $conn, $macros_goal, $total_daily_calories_goal);
 
     return [
-        // Médias ponderadas (para cards - mostram disciplina/constância)
-        'avg_kcal' => $avgKcal,
-        'avg_protein' => $avgProtein,
-        'avg_carbs' => $avgCarbs,
-        'avg_fat' => $avgFat,
-        'avg_kcal_percentage' => $avgKcalPercentage,
-        'avg_protein_percentage' => $avgProteinPercentage,
-        'avg_carbs_percentage' => $avgCarbsPercentage,
-        'avg_fat_percentage' => $avgFatPercentage,
-        'avg_overall_percentage' => $avgOverallPercentage,
-        
-        // Médias reais (para referência - mostram consumo quando registra)
-        'avg_real_kcal' => $avgRealKcal,
-        'avg_real_protein' => $avgRealProtein,
-        'avg_real_carbs' => $avgRealCarbs,
-        'avg_real_fat' => $avgRealFat,
-        
-        // Aderência e qualidade
-        'excellent_days' => $excellentDays,
-        'good_days' => $goodDays,
-        'days_with_consumption' => $daysWithData,
-        'adherence_percentage' => $adherencePercentage,
-        'total_days' => $periodDays,
-        'daily_data' => $dailyData
+        'semana' => $semana,
+        'quinzena' => $quinzena,
+        'mes' => $mes
     ];
 }
 
 // Calcular estatísticas para cada período
-$nutrients_stats_7 = getNutrientStats($conn, $user_id, 7, $macros_goal, $total_daily_calories_goal);
-$nutrients_stats_15 = getNutrientStats($conn, $user_id, 15, $macros_goal, $total_daily_calories_goal);
-$nutrients_stats_30 = getNutrientStats($conn, $user_id, 30, $macros_goal, $total_daily_calories_goal);
+$nutrients_stats_all = getNutrientStats($conn, $user_id, $macros_goal, $total_daily_calories_goal);
+$nutrients_stats_7 = $nutrients_stats_all['semana'];
+$nutrients_stats_15 = $nutrients_stats_all['quinzena'];
+$nutrients_stats_30 = $nutrients_stats_all['mes'];
 
 // Buscar TODOS os registros do mês atual para o gráfico
 $currentMonth = date('Y-m');
