@@ -872,20 +872,20 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Ajustar padding interno dos cards da seção "Plano e Preferências" */
 .details-grid-1-col .physical-data-grid .data-item {
-    padding: 24px 48px 12px 48px !important; /* top right bottom left - padding triplicado */
+    padding: 8px 12px 8px 12px !important; /* top right bottom left - padding reduzido */
     min-height: auto !important;
     height: auto !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: center !important;
-    align-items: flex-start !important;
+    justify-content: flex-start !important; /* colar no topo */
+    align-items: flex-start !important; /* colar na esquerda */
 }
 
 .details-grid-1-col .physical-data-grid .data-item .data-title {
     display: flex !important;
     align-items: center !important;
-    margin-bottom: 12px !important;
-    gap: 8px !important;
+    margin-bottom: 4px !important; /* reduzir espaço entre ícone/label e texto */
+    gap: 6px !important;
 }
 
 .details-grid-1-col .physical-data-grid .data-item .data-title .icon {
