@@ -222,6 +222,81 @@
   flex-shrink: 0;
 }
 
+/* Ícone de detalhes do sono */
+.sleep-details-icon {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  margin-left: auto;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.sleep-details-icon:hover {
+  color: var(--accent-orange);
+}
+
+.sleep-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sleep-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-orange);
+}
+
+/* Modal de detalhes do sono */
+.sleep-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sleep-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sleep-detail-item i {
+  color: var(--accent-orange);
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+}
+
+.sleep-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.sleep-detail-content label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.sleep-detail-content span {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.no-data {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 2rem;
+}
+
 .data-item label {
   font-size: 0.65rem;
   color: var(--text-secondary);

@@ -658,10 +658,11 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 <span><?php echo $water_intake_names[$user_data['water_intake_liters']] ?? 'N/I'; ?></span>
             </div>
-            <div class="data-item">
+            <div class="data-item sleep-item" onclick="openSleepDetailsModal()">
                 <div class="data-title">
                     <i class="fas fa-bed icon"></i>
                     <label>Duração do Sono</label>
+                    <i class="fas fa-question-circle sleep-details-icon" title="Ver detalhes do sono"></i>
                 </div>
                 <span><?php echo $sleep_html; ?></span>
             </div>
@@ -1986,6 +1987,17 @@ function closeAlertModal() {
     if (modal.dataset.reloadOnClose === 'true') {
         location.reload();
     }
+}
+
+// Funções para modal de detalhes do sono
+function openSleepDetailsModal() {
+    document.body.style.overflow = 'hidden';
+    document.getElementById('sleepDetailsModal').classList.add('active');
+}
+
+function closeSleepDetailsModal() {
+    document.getElementById('sleepDetailsModal').classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 async function confirmRevertGoals() {
@@ -5424,6 +5436,57 @@ async function loadSpecificDate(dateStr) {
         <div class="custom-modal-footer">
             <button class="btn-modal-primary" onclick="closeAlertModal()">
                 OK
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalhes do Sono -->
+<div id="sleepDetailsModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeSleepDetailsModal()"></div>
+    <div class="custom-modal-content custom-modal-small">
+        <div class="custom-modal-header">
+            <i class="fas fa-bed"></i>
+            <h3>Detalhes do Sono</h3>
+        </div>
+        <div class="custom-modal-body">
+            <?php if (!empty($user_data['sleep_time_bed']) && !empty($user_data['sleep_time_wake'])): ?>
+                <div class="sleep-details">
+                    <div class="sleep-detail-item">
+                        <i class="fas fa-moon"></i>
+                        <div class="sleep-detail-content">
+                            <label>Horário de Dormir</label>
+                            <span><?php echo date('H:i', strtotime($user_data['sleep_time_bed'])); ?></span>
+                        </div>
+                    </div>
+                    <div class="sleep-detail-item">
+                        <i class="fas fa-sun"></i>
+                        <div class="sleep-detail-content">
+                            <label>Horário de Acordar</label>
+                            <span><?php echo date('H:i', strtotime($user_data['sleep_time_wake'])); ?></span>
+                        </div>
+                    </div>
+                    <div class="sleep-detail-item">
+                        <i class="fas fa-clock"></i>
+                        <div class="sleep-detail-content">
+                            <label>Duração Total</label>
+                            <span><?php 
+                                $bed_time = new DateTime($user_data['sleep_time_bed']);
+                                $wake_time = new DateTime($user_data['sleep_time_wake']);
+                                if ($wake_time < $bed_time) { $wake_time->modify('+1 day'); }
+                                $interval = $bed_time->diff($wake_time);
+                                echo $interval->format('%H:%I');
+                            ?></span>
+                        </div>
+                    </div>
+                </div>
+            <?php else: ?>
+                <p class="no-data">Nenhum horário de sono foi definido pelo usuário.</p>
+            <?php endif; ?>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-primary" onclick="closeSleepDetailsModal()">
+                Fechar
             </button>
         </div>
     </div>
