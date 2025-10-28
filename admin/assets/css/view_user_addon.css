@@ -2565,6 +2565,21 @@
   color: var(--accent-orange);
 }
 
+.calendar-btn-nav.disabled {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.calendar-btn-nav.disabled:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  transform: none;
+}
+
 /* Dias da semana */
 .calendar-weekdays-row {
   display: grid;

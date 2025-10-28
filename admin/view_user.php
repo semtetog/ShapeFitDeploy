@@ -5156,6 +5156,19 @@ function changeCalendarMonth(direction) {
            document.querySelector('.calendar-year').textContent = year;
            document.querySelector('.calendar-month').textContent = monthNamesShort[month];
            
+           // Verificar se estamos no mês atual para desabilitar setinha de próximo mês
+           const today = new Date();
+           const isCurrentMonth = (year === today.getFullYear() && month === today.getMonth());
+           const nextMonthBtn = document.getElementById('nextMonthBtn');
+           
+           if (isCurrentMonth) {
+               nextMonthBtn.classList.add('disabled');
+               nextMonthBtn.disabled = true;
+           } else {
+               nextMonthBtn.classList.remove('disabled');
+               nextMonthBtn.disabled = false;
+           }
+           
            // Primeiro e último dia do mês atual
            const firstDay = new Date(year, month, 1);
            const lastDay = new Date(year, month + 1, 0);
@@ -5351,7 +5364,7 @@ async function loadSpecificDate(dateStr) {
                 <i class="fas fa-chevron-left"></i>
             </button>
             <div class="calendar-month">OUT</div>
-            <button class="calendar-btn-nav" onclick="changeCalendarMonth(1)" type="button">
+            <button class="calendar-btn-nav" id="nextMonthBtn" onclick="changeCalendarMonth(1)" type="button">
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
