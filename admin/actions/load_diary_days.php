@@ -2,6 +2,7 @@
 header('Content-Type: text/html; charset=utf-8');
 
 require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/functions_admin.php';
 $conn = require __DIR__ . '/../../includes/db.php';
 
 // Verificar se admin está logado (simplificado para AJAX)
@@ -18,58 +19,7 @@ $endDate = $_GET['end_date'] ?? date('Y-m-d');
 $daysToShow = isset($_GET['days']) ? (int)$_GET['days'] : 1; // Padrão: 1 dia
 $startDate = date('Y-m-d', strtotime($endDate . " -" . ($daysToShow - 1) . " days"));
 
-// Buscar histórico de refeições
-function getGroupedMealHistory($conn, $user_id, $startDate, $endDate) {
-    $stmt = $conn->prepare("
-        SELECT 
-            DATE(log.logged_at) as date,
-            log.meal_type as meal_type,
-            log.meal_type as meal_type_slug,
-            COALESCE(log.custom_meal_name, 'Refeição') as food_name,
-            log.servings_consumed as quantity,
-            log.kcal_consumed as kcal_per_100g,
-            log.protein_consumed_g as protein_per_100g,
-            log.carbs_consumed_g as carbs_per_100g,
-            log.fat_consumed_g as fat_per_100g
-        FROM sf_user_meal_log log
-        WHERE log.user_id = ? 
-            AND DATE(log.logged_at) >= ? 
-            AND DATE(log.logged_at) <= ?
-        ORDER BY DATE(log.logged_at) DESC, log.logged_at DESC
-    ");
-    $stmt->bind_param("iss", $user_id, $startDate, $endDate);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $grouped = [];
-    while ($row = $result->fetch_assoc()) {
-        $date = $row['date'];
-        $kcal_consumed = ($row['kcal_per_100g'] / 100) * $row['quantity'];
-        $protein_consumed = ($row['protein_per_100g'] / 100) * $row['quantity'];
-        $carbs_consumed = ($row['carbs_per_100g'] / 100) * $row['quantity'];
-        $fat_consumed = ($row['fat_per_100g'] / 100) * $row['quantity'];
-        
-        if (!isset($grouped[$date])) {
-            $grouped[$date] = [];
-        }
-        
-        if (!isset($grouped[$date][$row['meal_type_slug']])) {
-            $grouped[$date][$row['meal_type_slug']] = [];
-        }
-        
-        $grouped[$date][$row['meal_type_slug']][] = [
-            'name' => $row['food_name'],
-            'quantity' => $row['quantity'],
-            'kcal_consumed' => $kcal_consumed,
-            'protein_consumed_g' => $protein_consumed,
-            'carbs_consumed_g' => $carbs_consumed,
-            'fat_consumed_g' => $fat_consumed
-        ];
-    }
-    $stmt->close();
-    return $grouped;
-}
-
+// Usar a função correta do functions_admin.php
 $meal_history = getGroupedMealHistory($conn, $user_id, $startDate, $endDate);
 
 // Gerar array com TODOS os dias, mesmo se não houver dados
@@ -169,8 +119,8 @@ foreach ($all_dates as $date):
                     <ul class="diary-food-list">
                         <?php foreach ($items as $item): ?>
                             <li>
-                                <span class="food-name"><?php echo htmlspecialchars($item['name']); ?></span>
-                                <span class="food-quantity"><?php echo round($item['quantity']); ?>g</span>
+                                <span class="food-name"><?php echo htmlspecialchars($item['food_name']); ?></span>
+                                <span class="food-quantity"><?php echo htmlspecialchars($item['quantity_display']); ?></span>
                             </li>
                         <?php endforeach; ?>
                     </ul>
