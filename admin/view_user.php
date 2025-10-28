@@ -299,6 +299,38 @@ foreach ($meal_history_nutrients as $date => $meals) {
     ];
 }
 
+// CORREÇÃO: Criar array com TODOS os últimos 7 dias do calendário, mesmo sem dados
+$last_7_days = [];
+for ($i = 6; $i >= 0; $i--) {
+    $date = date('Y-m-d', strtotime("-$i days"));
+    $last_7_days[] = $date;
+}
+
+// Buscar dados para os últimos 7 dias do calendário
+$last_7_days_data = [];
+foreach ($last_7_days as $date) {
+    $day_data = null;
+    foreach ($nutrients_history as $day) {
+        if ($day['date'] === $date) {
+            $day_data = $day;
+            break;
+        }
+    }
+    
+    // Se não encontrou dados para este dia, criar entrada com zeros
+    if (!$day_data) {
+        $day_data = [
+            'date' => $date,
+            'total_kcal' => 0,
+            'total_protein' => 0,
+            'total_carbs' => 0,
+            'total_fat' => 0
+        ];
+    }
+    
+    $last_7_days_data[] = $day_data;
+}
+
 // Processar dados de nutrientes
 $nutrients_data = [];
 foreach ($nutrients_history as $day) {
@@ -413,7 +445,12 @@ function calculateNutrientsStats($data, $days = null, $offset = 0) {
         'critical_days' => 0
     ];
     
-    $filtered_data = $days ? array_slice($data, $offset, $days) : $data;
+    // Se $days é especificado, pegar os últimos $days elementos (mais recentes)
+    if ($days) {
+        $filtered_data = array_slice($data, -$days);
+    } else {
+        $filtered_data = $data;
+    }
     
     $avg_kcal = array_sum(array_column($filtered_data, 'kcal')) / count($filtered_data);
     $avg_protein = array_sum(array_column($filtered_data, 'protein')) / count($filtered_data);
@@ -456,7 +493,7 @@ $nutrients_stats_all = calculateNutrientsStats($nutrients_data);
 $nutrients_stats_90 = calculateNutrientsStats($nutrients_data, 90);
 $nutrients_stats_30 = calculateNutrientsStats($nutrients_data, 30);
 $nutrients_stats_15 = calculateNutrientsStats($nutrients_data, 15);
-$nutrients_stats_7 = calculateNutrientsStats($nutrients_data, 7);
+$nutrients_stats_7 = calculateNutrientsStats($last_7_days_data); // Usar dados dos últimos 7 dias do calendário
 
 // Debug: Verificar se as médias fazem sentido
 error_log("DEBUG - Média 7 dias: " . $nutrients_stats_7['avg_kcal']);
