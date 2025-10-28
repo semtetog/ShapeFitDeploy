@@ -1956,6 +1956,483 @@
   margin-bottom: 1.5rem;
 }
 
+/* ========== ESTRUTURA DE ANÁLISE NUTRICIONAL ========== */
+
+/* 1. Card Overview Geral */
+.nutrients-overview-card {
+  background: var(--surface-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.overview-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.overview-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-orange), #ff8c42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.overview-title h3 {
+  margin: 0 0 0.25rem 0;
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.overview-title p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.overview-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.overview-goals {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.goals-section h4,
+.reality-section h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.goals-grid,
+.reality-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.goal-item,
+.reality-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.goal-label,
+.reality-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.goal-value {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.reality-value {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.reality-percentage {
+  font-size: 0.8rem;
+  color: var(--accent-orange);
+  font-weight: 600;
+}
+
+.overview-adherence {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.overview-adherence h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adherence-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.adherence-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.adherence-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.adherence-value {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* 2. Card Tendência de Progresso */
+.nutrients-trend-card {
+  background: var(--surface-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.trend-header h4 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trend-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.trend-filter {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.trend-filter:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.trend-filter.active {
+  background: var(--accent-orange);
+  color: white;
+  border-color: var(--accent-orange);
+}
+
+.trend-chart {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* 3. Card Médias por Período */
+.nutrients-periods-card {
+  background: var(--surface-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.nutrients-periods-card h4 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.periods-table {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.periods-table .table-header {
+  background: rgba(255, 255, 255, 0.05);
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.8fr 0.8fr 0.8fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.periods-table .table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.8fr 0.8fr 0.8fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  align-items: center;
+}
+
+.periods-table .table-row:last-child {
+  border-bottom: none;
+}
+
+.periods-table .table-cell {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.periods-table .period-label {
+  font-weight: 600;
+  color: var(--accent-orange);
+}
+
+/* 4. Card Distribuição de Macros */
+.nutrients-distribution-card {
+  background: var(--surface-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.nutrients-distribution-card h4 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.distribution-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.distribution-chart {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.macro-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.macro-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.macro-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.macro-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.macro-item.protein .macro-fill {
+  background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+}
+
+.macro-item.carbs .macro-fill {
+  background: linear-gradient(90deg, #4ecdc4, #6dd5ed);
+}
+
+.macro-item.fat .macro-fill {
+  background: linear-gradient(90deg, #ffe66d, #ffb347);
+}
+
+.macro-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.macro-label {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.macro-percentage {
+  font-size: 0.9rem;
+  color: var(--accent-orange);
+  font-weight: 600;
+}
+
+.distribution-comment {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.distribution-comment i {
+  color: var(--accent-orange);
+  font-size: 1.2rem;
+}
+
+.distribution-comment p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* 5. Card Aderência Detalhada */
+.nutrients-adherence-card {
+  background: var(--surface-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.nutrients-adherence-card h4 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adherence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.adherence-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.adherence-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.adherence-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.adherence-header i {
+  font-size: 1.5rem;
+  color: var(--accent-orange);
+}
+
+.adherence-header span {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.adherence-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.adherence-status {
+  font-size: 1.5rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .overview-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .goals-grid,
+  .reality-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .distribution-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .trend-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .periods-table .table-header,
+  .periods-table .table-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .adherence-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .summary-main {
   display: flex;
   align-items: center;
