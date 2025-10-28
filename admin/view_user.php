@@ -1871,17 +1871,23 @@ function showRevertModal(userId) {
     console.log('showRevertModal chamado com userId:', userId);
     currentUserIdToRevert = userId;
     
-    // Aplicar blur imediatamente
-    document.body.style.backdropFilter = 'blur(10px)';
+    const modal = document.getElementById('revertGoalsModal');
+    const overlay = modal.querySelector('.custom-modal-overlay');
+    
+    // Aplicar blur imediatamente no overlay
+    overlay.style.backdropFilter = 'blur(10px)';
     document.body.style.overflow = 'hidden';
     
-    document.getElementById('revertGoalsModal').classList.add('active');
+    modal.classList.add('active');
 }
 
 function closeRevertModal() {
-    document.getElementById('revertGoalsModal').classList.remove('active');
+    const modal = document.getElementById('revertGoalsModal');
+    const overlay = modal.querySelector('.custom-modal-overlay');
+    
+    modal.classList.remove('active');
     document.body.style.overflow = '';
-    document.body.style.backdropFilter = '';
+    overlay.style.backdropFilter = '';
     currentUserIdToRevert = null;
 }
 
@@ -5135,13 +5141,24 @@ const daysWithData = new Set();
 function openDiaryCalendar() {
     currentCalendarDate = new Date();
     renderCalendar();
-    document.getElementById('diaryCalendarModal').classList.add('active');
+    
+    const modal = document.getElementById('diaryCalendarModal');
+    const overlay = modal.querySelector('.custom-modal-overlay');
+    
+    // Aplicar blur imediatamente no overlay
+    overlay.style.backdropFilter = 'blur(10px)';
     document.body.style.overflow = 'hidden';
+    
+    modal.classList.add('active');
 }
 
 function closeDiaryCalendar() {
-    document.getElementById('diaryCalendarModal').classList.remove('active');
+    const modal = document.getElementById('diaryCalendarModal');
+    const overlay = modal.querySelector('.custom-modal-overlay');
+    
+    modal.classList.remove('active');
     document.body.style.overflow = '';
+    overlay.style.backdropFilter = '';
 }
 
 function changeCalendarMonth(direction) {
