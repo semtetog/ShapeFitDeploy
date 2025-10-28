@@ -881,9 +881,14 @@ require_once __DIR__ . '/includes/header.php';
     align-items: flex-start !important; /* colar na esquerda */
 }
 
-/* Diminuir padding do card principal "Plano e Preferências" */
+/* Ajustar padding do card principal "Plano e Preferências" */
 .details-grid-1-col .dashboard-card {
-    padding: 11px 13px 5px 13px !important; /* top right bottom left - padding reduzido 1,5x do card principal */
+    padding: 16px 20px 12px 20px !important; /* top right bottom left - padding aumentado do card principal */
+}
+
+/* Descer posicionamento dos subcards dentro do card pai */
+.details-grid-1-col .physical-data-grid {
+    margin-top: 8px !important; /* descer os subcards */
 }
 
 .details-grid-1-col .physical-data-grid .data-item .data-title {
