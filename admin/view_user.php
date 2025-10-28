@@ -1134,19 +1134,8 @@ function navigateDiary(direction) {
                        urlParams.set('end_date', endDate);
                        window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
                        
-                       // Atualizar display com animação de swipe
+                       // Atualizar display com animação de swipe (mesma do swipe normal)
                        updateDiaryDisplay();
-                       
-                       // Adicionar animação de swipe no card de baixo
-                       diaryTrack.style.transition = 'transform 0.3s ease-in-out';
-                       
-                       // Pequena animação de "bounce" para indicar que algo novo foi carregado
-                       setTimeout(() => {
-                           diaryTrack.style.transform = `translateX(${-currentDiaryIndex * 100}%) scale(1.02)`;
-                           setTimeout(() => {
-                               diaryTrack.style.transform = `translateX(${-currentDiaryIndex * 100}%) scale(1)`;
-                           }, 150);
-                       }, 50);
                    } else {
                        console.log('Nenhum novo card encontrado na resposta');
                    }
