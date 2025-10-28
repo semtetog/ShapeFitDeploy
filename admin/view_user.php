@@ -863,12 +863,12 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Diminuir distância entre títulos e subcards das seções Dados Físicos e Anamnese */
 .details-grid-3-cols .dashboard-card h3 {
-    margin-bottom: 12px !important; /* distância aumentada 2x para Dados Físicos e Anamnese */
+    margin-bottom: 24px !important; /* distância aumentada mais 2x para Dados Físicos e Anamnese */
 }
 
 /* Ajustar margin-top do physical-data-grid nas seções Dados Físicos e Anamnese */
 .details-grid-3-cols .physical-data-grid {
-    margin-top: 4px !important; /* subir menos os subcards para ficar com distância adequada */
+    margin-top: 12px !important; /* subir menos os subcards para ficar com distância adequada */
 }
 
 /* Descer ícone e label do topo */
