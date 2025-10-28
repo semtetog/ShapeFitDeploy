@@ -1939,8 +1939,11 @@ async function confirmRevertGoals() {
     closeRevertModal(); // Fechar modal de confirmação
     
     try {
+        console.log('ANTES do FormData - currentUserIdToRevert:', currentUserIdToRevert);
+        console.log('Tipo ANTES do FormData:', typeof currentUserIdToRevert);
+        
         const formData = new FormData();
-        formData.append('user_id', currentUserIdToRevert);
+        formData.append('user_id', String(currentUserIdToRevert));
         
         console.log('FormData criado com user_id:', currentUserIdToRevert);
         console.log('FormData entries:');
