@@ -383,41 +383,50 @@ body {
 
 /* --- 7.4. Card de Plano e Preferências (compacto) --- */
 .physical-data-grid-pref {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 colunas */
-    gap: 12px; /* Espaçamento menor */
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important; /* 2 colunas */
+    gap: 8px !important; /* Espaçamento menor */
 }
 
 .physical-data-grid-pref .data-item {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Espaçamento menor entre ícone e texto */
-    padding: 8px 0; /* Padding vertical menor */
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important; /* Espaçamento menor entre ícone e texto */
+    padding: 6px 0 !important; /* Padding vertical menor */
+    flex-direction: column !important; /* Empilhar verticalmente */
+    text-align: center !important;
+}
+
+.physical-data-grid-pref .data-item .data-title {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 4px !important;
 }
 
 .physical-data-grid-pref .data-item .icon {
-    color: var(--accent-orange);
-    width: 16px; /* Ícone menor */
-    text-align: center;
-    font-size: 14px; /* Fonte menor */
-    opacity: 0.8;
+    color: var(--accent-orange) !important;
+    width: 20px !important; /* Ícone um pouco maior */
+    text-align: center !important;
+    font-size: 16px !important; /* Fonte um pouco maior */
+    opacity: 0.9 !important;
 }
 
 .physical-data-grid-pref .data-item label {
-    color: var(--secondary-text-color);
-    margin: 0;
-    font-size: 12px; /* Fonte menor */
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
+    color: var(--secondary-text-color) !important;
+    margin: 0 !important;
+    font-size: 11px !important; /* Fonte menor */
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
 }
 
 .physical-data-grid-pref .data-item span {
-    margin-left: auto;
-    font-weight: 500;
-    color: var(--primary-text-color);
-    text-align: right;
-    font-size: 13px; /* Fonte menor */
+    margin-left: 0 !important;
+    font-weight: 600 !important;
+    color: var(--primary-text-color) !important;
+    text-align: center !important;
+    font-size: 12px !important; /* Fonte menor */
 }
 
 /* --- 8. ESTILOS PARA ABAS E CONTEÚDO EM VIEW_USER.PHP --- */
