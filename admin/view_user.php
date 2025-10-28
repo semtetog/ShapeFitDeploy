@@ -869,6 +869,11 @@ require_once __DIR__ . '/includes/header.php';
 .details-grid-1-col .dashboard-card .data-item .label {
     margin-top: 4px !important;
 }
+
+/* Reduzir espaçamento vertical entre cards da seção "Plano e Preferências" */
+.physical-data-grid .data-item {
+    margin-bottom: 8px !important;
+}
 </style>
 
 <div class="details-grid-1-col" style="margin-top:24px;">
