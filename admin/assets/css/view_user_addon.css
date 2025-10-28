@@ -3783,6 +3783,11 @@
   margin-bottom: 0.5rem;
 }
 
+/* Seção do gráfico com espaçamento */
+.chart-section {
+  margin-bottom: 2rem;
+}
+
 /* Cabeçalho do gráfico dentro do card */
 .chart-header {
   display: flex;

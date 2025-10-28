@@ -1587,16 +1587,17 @@ if (count($hydration_data) >= 7) {
                 
 
         <!-- 3. GRÁFICO COM BOTÕES DE PERÍODO -->
-        <div class="hydration-chart-improved">
-            <div class="chart-header">
-                <h4><i class="fas fa-chart-bar"></i> Progresso de Hidratação</h4>
-                <div class="period-buttons">
-                    <button class="period-btn active" onclick="changeHydrationPeriod(7)" data-period="7">7 dias</button>
-                    <button class="period-btn" onclick="changeHydrationPeriod(15)" data-period="15">15 dias</button>
-                    <button class="period-btn" onclick="changeHydrationPeriod(30)" data-period="30">30 dias</button>
+        <div class="chart-section">
+            <div class="hydration-chart-improved">
+                <div class="chart-header">
+                    <h4><i class="fas fa-chart-bar"></i> Progresso de Hidratação</h4>
+                    <div class="period-buttons">
+                        <button class="period-btn active" onclick="changeHydrationPeriod(7)" data-period="7">7 dias</button>
+                        <button class="period-btn" onclick="changeHydrationPeriod(15)" data-period="15">15 dias</button>
+                        <button class="period-btn" onclick="changeHydrationPeriod(30)" data-period="30">30 dias</button>
+                    </div>
                 </div>
-            </div>
-            <div class="improved-chart" id="hydration-chart">
+                <div class="improved-chart" id="hydration-chart">
                 <?php if (empty($hydration_data)): ?>
                     <div class="empty-chart">
                         <i class="fas fa-tint"></i>
@@ -1789,16 +1790,17 @@ function toggleNutrientsRecords() {
         
 
         <!-- 3. GRÁFICO COM BOTÕES DE PERÍODO -->
-        <div class="nutrients-chart-improved">
-            <div class="chart-header">
-                <h4><i class="fas fa-chart-bar"></i> Progresso Nutricional</h4>
-                <div class="period-buttons">
-                    <button class="period-btn active" onclick="changeNutrientsPeriod(7)" data-period="7">7 dias</button>
-                    <button class="period-btn" onclick="changeNutrientsPeriod(15)" data-period="15">15 dias</button>
-                    <button class="period-btn" onclick="changeNutrientsPeriod(30)" data-period="30">30 dias</button>
+        <div class="chart-section">
+            <div class="nutrients-chart-improved">
+                <div class="chart-header">
+                    <h4><i class="fas fa-chart-bar"></i> Progresso Nutricional</h4>
+                    <div class="period-buttons">
+                        <button class="period-btn active" onclick="changeNutrientsPeriod(7)" data-period="7">7 dias</button>
+                        <button class="period-btn" onclick="changeNutrientsPeriod(15)" data-period="15">15 dias</button>
+                        <button class="period-btn" onclick="changeNutrientsPeriod(30)" data-period="30">30 dias</button>
+                    </div>
                 </div>
-            </div>
-            <div class="improved-chart" id="nutrients-chart">
+                <div class="improved-chart" id="nutrients-chart">
                 <?php if (empty($last_7_days_data)): ?>
                     <div class="empty-chart">
                         <i class="fas fa-utensils"></i>
