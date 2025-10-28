@@ -903,8 +903,13 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Subir conteúdo do card de calorias para alinhar com subcards da direita */
 .details-grid-3-cols .dashboard-card:first-child {
-    padding-top: 8px !important; /* reduzir padding-top para subir o conteúdo */
-    padding-bottom: 16px !important; /* aumentar padding-bottom para não ficar colado */
+    padding-top: 4px !important; /* reduzir mais padding-top para subir o conteúdo */
+    padding-bottom: 20px !important; /* aumentar mais padding-bottom */
+}
+
+/* Subir um pouquinho os blocos de proteína, carbo e gordura */
+.details-grid-3-cols .dashboard-card:first-child .meta-card-macros {
+    margin-top: -4px !important; /* subir os blocos de macros */
 }
 
 /* Descer posicionamento dos subcards dentro do card pai */
