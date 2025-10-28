@@ -1135,7 +1135,6 @@ function navigateDiary(direction) {
                        window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
                        
                        // Forçar animação de swipe no card de baixo (mesma do swipe normal)
-                       const diaryTrack = document.getElementById('diarySliderTrack');
                        diaryTrack.style.transition = 'transform 0.3s ease-in-out';
                        
                        // Atualizar display com animação
