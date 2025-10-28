@@ -870,14 +870,10 @@ require_once __DIR__ . '/includes/header.php';
     margin-top: 4px !important;
 }
 
-/* Reduzir espaçamento vertical entre cards da seção "Plano e Preferências" */
+/* Ajustar padding interno dos cards da seção "Plano e Preferências" */
 .physical-data-grid-pref .data-item {
-    margin-bottom: 4px !important;
-    padding-bottom: 0 !important;
-}
-
-.physical-data-grid-pref {
-    row-gap: 4px !important;
+    padding-top: 10px !important;
+    padding-bottom: 6px !important; /* reduz o respiro interno inferior */
 }
 </style>
 
