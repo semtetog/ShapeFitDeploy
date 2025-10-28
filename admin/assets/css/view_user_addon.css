@@ -3607,10 +3607,6 @@
   flex-shrink: 0;
 }
 
-.hydration-summary-card .summary-info {
-  flex: 1;
-}
-
 .hydration-summary-card .summary-info h3 {
   font-size: 1.5rem;
   font-weight: 700;
@@ -3619,50 +3615,19 @@
 }
 
 .hydration-summary-card .summary-meta {
-  font-size: 0.9rem;
   color: var(--text-secondary);
-  margin-bottom: 0.25rem;
-}
-
-.hydration-summary-card .summary-description {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  opacity: 0.8;
+  font-size: 0.875rem;
 }
 
 .hydration-summary-card .summary-status {
+  margin-left: auto;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
   font-weight: 600;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.hydration-summary-card .summary-status.status-success {
-  background: rgba(76, 175, 80, 0.1);
-  color: #4CAF50;
-  border: 1px solid rgba(76, 175, 80, 0.2);
-}
-
-.hydration-summary-card .summary-status.status-info {
-  background: rgba(54, 162, 235, 0.1);
-  color: #36A2EB;
-  border: 1px solid rgba(54, 162, 235, 0.2);
-}
-
-.hydration-summary-card .summary-status.status-warning {
-  background: rgba(255, 193, 7, 0.1);
-  color: #FFC107;
-  border: 1px solid rgba(255, 193, 7, 0.2);
-}
-
-.hydration-summary-card .summary-status.status-error {
-  background: rgba(244, 67, 54, 0.1);
-  color: #F44336;
-  border: 1px solid rgba(244, 67, 54, 0.2);
+  font-size: 0.875rem;
 }
 
 .hydration-summary-card .summary-stats {
@@ -3673,10 +3638,6 @@
 
 .hydration-summary-card .summary-stat {
   text-align: center;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .hydration-summary-card .stat-value {
@@ -3687,15 +3648,22 @@
 }
 
 .hydration-summary-card .stat-label {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.hydration-summary-card .summary-description {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  font-style: italic;
 }
 
 .hydration-summary-card .stat-description {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--text-secondary);
+  margin-top: 0.125rem;
   opacity: 0.8;
 }
 
