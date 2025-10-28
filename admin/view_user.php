@@ -14,13 +14,10 @@ requireAdminLogin();
 
 // --- VALIDAÇÃO E BUSCA DE DADOS ---
 $user_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-error_log("DEBUG - user_id obtido do GET: " . var_export($user_id, true));
 if (!$user_id) {
-    error_log("DEBUG - user_id inválido, redirecionando para users.php");
     header("Location: users.php");
     exit;
 }
-error_log("DEBUG - user_id válido: " . $user_id);
 
 // Busca completa dos dados do usuário, incluindo os novos campos da anamnese
 $stmt_user = $conn->prepare(
@@ -555,9 +552,6 @@ require_once __DIR__ . '/includes/header.php';
                     title="Reverter para cálculo automático">
                 <i class="fas fa-undo"></i>
             </button>
-            <script>
-                console.log('PHP user_id:', <?php echo $user_id; ?>);
-            </script>
         </div>
         
         <div class="meta-card-main">
@@ -1875,13 +1869,7 @@ let currentUserIdToRevert = null;
 
 function showRevertModal(userId) {
     console.log('showRevertModal chamado com userId:', userId);
-    console.log('Tipo do userId:', typeof userId);
-    console.log('userId é null?', userId === null);
-    console.log('userId é undefined?', userId === undefined);
-    
     currentUserIdToRevert = userId;
-    console.log('currentUserIdToRevert definido como:', currentUserIdToRevert);
-    
     document.body.style.overflow = 'hidden';
     document.getElementById('revertGoalsModal').classList.add('active');
 }
