@@ -268,38 +268,83 @@ $water_stats_today = calculateHydrationStatsByDate($hydration_data, $today);
 $water_stats_yesterday = calculateHydrationStatsByDate($hydration_data, $yesterday);
 
 // --- PROCESSAMENTO DE DADOS DE NUTRIENTES ---
-// Usar a mesma lógica do diário para buscar dados de nutrientes
-$nutrients_start_date = date('Y-m-d', strtotime('-120 days'));
-$nutrients_end_date = date('Y-m-d');
-$meal_history_nutrients = getGroupedMealHistory($conn, $user_id, $nutrients_start_date, $nutrients_end_date);
+// Usar a mesma lógica do progress.php - consultas diretas com SUM/AVG
 
-// Processar dados de nutrientes usando a mesma lógica do diário
-$nutrients_history = [];
-foreach ($meal_history_nutrients as $date => $meals) {
-    $day_total_kcal = 0;
-    $day_total_prot = 0;
-    $day_total_carb = 0;
-    $day_total_fat = 0;
-    
-    if (!empty($meals)) {
-        foreach ($meals as $meal_type_slug => $items) {
-            $day_total_kcal += array_sum(array_column($items, 'kcal_consumed'));
-            $day_total_prot += array_sum(array_column($items, 'protein_consumed_g'));
-            $day_total_carb += array_sum(array_column($items, 'carbs_consumed_g'));
-            $day_total_fat += array_sum(array_column($items, 'fat_consumed_g'));
-        }
-    }
-    
-    $nutrients_history[] = [
-        'date' => $date,
-        'total_kcal' => $day_total_kcal,
-        'total_protein' => $day_total_prot,
-        'total_carbs' => $day_total_carb,
-        'total_fat' => $day_total_fat
-    ];
-}
+// Dados dos últimos 7 dias do calendário
+$last_7_days_start = date('Y-m-d', strtotime('-6 days'));
+$last_7_days_end = date('Y-m-d');
 
-// CORREÇÃO: Criar array com TODOS os últimos 7 dias do calendário, mesmo sem dados
+$stmt_7_days = $conn->prepare("
+    SELECT 
+        SUM(kcal_consumed) as total_kcal,
+        SUM(protein_consumed_g) as total_protein,
+        SUM(carbs_consumed_g) as total_carbs,
+        SUM(fat_consumed_g) as total_fat,
+        COUNT(*) as days_tracked
+    FROM sf_user_daily_tracking 
+    WHERE user_id = ? AND date BETWEEN ? AND ?
+");
+$stmt_7_days->bind_param("iss", $user_id, $last_7_days_start, $last_7_days_end);
+$stmt_7_days->execute();
+$last_7_days_data = $stmt_7_days->get_result()->fetch_assoc();
+$stmt_7_days->close();
+
+// Dados dos últimos 15 dias do calendário
+$last_15_days_start = date('Y-m-d', strtotime('-14 days'));
+$last_15_days_end = date('Y-m-d');
+
+$stmt_15_days = $conn->prepare("
+    SELECT 
+        SUM(kcal_consumed) as total_kcal,
+        SUM(protein_consumed_g) as total_protein,
+        SUM(carbs_consumed_g) as total_carbs,
+        SUM(fat_consumed_g) as total_fat,
+        COUNT(*) as days_tracked
+    FROM sf_user_daily_tracking 
+    WHERE user_id = ? AND date BETWEEN ? AND ?
+");
+$stmt_15_days->bind_param("iss", $user_id, $last_15_days_start, $last_15_days_end);
+$stmt_15_days->execute();
+$last_15_days_data = $stmt_15_days->get_result()->fetch_assoc();
+$stmt_15_days->close();
+
+// Dados dos últimos 30 dias do calendário
+$last_30_days_start = date('Y-m-d', strtotime('-29 days'));
+$last_30_days_end = date('Y-m-d');
+
+$stmt_30_days = $conn->prepare("
+    SELECT 
+        SUM(kcal_consumed) as total_kcal,
+        SUM(protein_consumed_g) as total_protein,
+        SUM(carbs_consumed_g) as total_carbs,
+        SUM(fat_consumed_g) as total_fat,
+        COUNT(*) as days_tracked
+    FROM sf_user_daily_tracking 
+    WHERE user_id = ? AND date BETWEEN ? AND ?
+");
+$stmt_30_days->bind_param("iss", $user_id, $last_30_days_start, $last_30_days_end);
+$stmt_30_days->execute();
+$last_30_days_data = $stmt_30_days->get_result()->fetch_assoc();
+$stmt_30_days->close();
+
+// Buscar dados individuais dos últimos 7 dias para o gráfico
+$stmt_individual_7_days = $conn->prepare("
+    SELECT 
+        date,
+        kcal_consumed,
+        protein_consumed_g,
+        carbs_consumed_g,
+        fat_consumed_g
+    FROM sf_user_daily_tracking 
+    WHERE user_id = ? AND date BETWEEN ? AND ?
+    ORDER BY date ASC
+");
+$stmt_individual_7_days->bind_param("iss", $user_id, $last_7_days_start, $last_7_days_end);
+$stmt_individual_7_days->execute();
+$individual_7_days_data = $stmt_individual_7_days->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt_individual_7_days->close();
+
+// Criar array com TODOS os últimos 7 dias do calendário, mesmo sem dados
 $last_7_days = [];
 for ($i = 6; $i >= 0; $i--) {
     $date = date('Y-m-d', strtotime("-$i days"));
@@ -310,7 +355,7 @@ for ($i = 6; $i >= 0; $i--) {
 $last_7_days_data = [];
 foreach ($last_7_days as $date) {
     $day_data = null;
-    foreach ($nutrients_history as $day) {
+    foreach ($individual_7_days_data as $day) {
         if ($day['date'] === $date) {
             $day_data = $day;
             break;
@@ -321,179 +366,102 @@ foreach ($last_7_days as $date) {
     if (!$day_data) {
         $day_data = [
             'date' => $date,
-            'total_kcal' => 0,
-            'total_protein' => 0,
-            'total_carbs' => 0,
-            'total_fat' => 0
+            'kcal_consumed' => 0,
+            'protein_consumed_g' => 0,
+            'carbs_consumed_g' => 0,
+            'fat_consumed_g' => 0
         ];
     }
     
     $last_7_days_data[] = $day_data;
 }
 
-// Processar dados de nutrientes
-$nutrients_data = [];
-foreach ($nutrients_history as $day) {
-    $kcal = (float)$day['total_kcal'];
-    $protein = (float)$day['total_protein'];
-    $carbs = (float)$day['total_carbs'];
-    $fat = (float)$day['total_fat'];
-    
-    
-    // Calcular porcentagens em relação às metas (NÃO limitar a 100% para nutrientes)
-    $kcal_percentage = $total_daily_calories_goal > 0 ? round(($kcal / $total_daily_calories_goal) * 100, 1) : 0;
-    $protein_percentage = $macros_goal['protein_g'] > 0 ? round(($protein / $macros_goal['protein_g']) * 100, 1) : 0;
-    $carbs_percentage = $macros_goal['carbs_g'] > 0 ? round(($carbs / $macros_goal['carbs_g']) * 100, 1) : 0;
-    $fat_percentage = $macros_goal['fat_g'] > 0 ? round(($fat / $macros_goal['fat_g']) * 100, 1) : 0;
-    
-    // Determinar status geral baseado na média das porcentagens
-    $avg_percentage = ($kcal_percentage + $protein_percentage + $carbs_percentage + $fat_percentage) / 4;
-    
-    $status = 'excellent';
-    $status_text = 'Excelente';
-    $status_class = 'success';
-    
-    if ($avg_percentage == 0) {
-        $status = 'empty';
-        $status_text = 'Sem dados';
-        $status_class = 'info';
-    } elseif ($avg_percentage >= 100) {
-        $status = 'excellent';
-        $status_text = 'Meta atingida';
-        $status_class = 'success';
-    } elseif ($avg_percentage >= 90) {
-        $status = 'good';
-        $status_text = 'Quase na meta';
-        $status_class = 'info';
-    } elseif ($avg_percentage >= 70) {
-        $status = 'fair';
-        $status_text = 'Abaixo da meta';
-        $status_class = 'warning';
-    } elseif ($avg_percentage >= 50) {
-        $status = 'poor';
-        $status_text = 'Muito abaixo';
-        $status_class = 'warning';
-    } else {
-        $status = 'critical';
-        $status_text = 'Crítico';
-        $status_class = 'error';
-    }
-    
-    $nutrients_data[] = [
-        'date' => $day['date'],
-        'kcal' => $kcal,
-        'protein' => $protein,
-        'carbs' => $carbs,
-        'fat' => $fat,
-        'kcal_percentage' => $kcal_percentage,
-        'protein_percentage' => $protein_percentage,
-        'carbs_percentage' => $carbs_percentage,
-        'fat_percentage' => $fat_percentage,
-        'avg_percentage' => round($avg_percentage, 1),
-        'status' => $status,
-        'status_text' => $status_text,
-        'status_class' => $status_class
-    ];
-}
+// Calcular médias dos períodos (igual ao progress.php)
+$nutrients_stats_7 = [
+    'avg_kcal' => $last_7_days_data['days_tracked'] > 0 ? round($last_7_days_data['total_kcal'] / 7, 0) : 0,
+    'avg_protein' => $last_7_days_data['days_tracked'] > 0 ? round($last_7_days_data['total_protein'] / 7, 1) : 0,
+    'avg_carbs' => $last_7_days_data['days_tracked'] > 0 ? round($last_7_days_data['total_carbs'] / 7, 1) : 0,
+    'avg_fat' => $last_7_days_data['days_tracked'] > 0 ? round($last_7_days_data['total_fat'] / 7, 1) : 0,
+    'avg_kcal_percentage' => $total_daily_calories_goal > 0 ? round(($last_7_days_data['avg_kcal'] / $total_daily_calories_goal) * 100, 1) : 0,
+    'avg_protein_percentage' => $macros_goal['protein_g'] > 0 ? round(($last_7_days_data['avg_protein'] / $macros_goal['protein_g']) * 100, 1) : 0,
+    'avg_carbs_percentage' => $macros_goal['carbs_g'] > 0 ? round(($last_7_days_data['avg_carbs'] / $macros_goal['carbs_g']) * 100, 1) : 0,
+    'avg_fat_percentage' => $macros_goal['fat_g'] > 0 ? round(($last_7_days_data['avg_fat'] / $macros_goal['fat_g']) * 100, 1) : 0,
+    'total_days' => $last_7_days_data['days_tracked']
+];
 
-// Calcular estatísticas de nutrientes por data específica
-function calculateNutrientsStatsByDate($data, $target_date) {
-    $filtered_data = array_filter($data, function($day) use ($target_date) {
-        return $day['date'] === $target_date;
-    });
-    
-    if (empty($filtered_data)) {
-        return [
-            'avg_kcal' => 0,
-            'avg_protein' => 0,
-            'avg_carbs' => 0,
-            'avg_fat' => 0,
-            'avg_kcal_percentage' => 0,
-            'avg_protein_percentage' => 0,
-            'avg_carbs_percentage' => 0,
-            'avg_fat_percentage' => 0,
-            'avg_overall_percentage' => 0,
-            'total_days' => 0,
-            'excellent_days' => 0,
-            'good_days' => 0,
-            'fair_days' => 0,
-            'poor_days' => 0,
-            'critical_days' => 0
-        ];
-    }
-    
-    return calculateNutrientsStats($filtered_data);
-}
+$nutrients_stats_15 = [
+    'avg_kcal' => $last_15_days_data['days_tracked'] > 0 ? round($last_15_days_data['total_kcal'] / 15, 0) : 0,
+    'avg_protein' => $last_15_days_data['days_tracked'] > 0 ? round($last_15_days_data['total_protein'] / 15, 1) : 0,
+    'avg_carbs' => $last_15_days_data['days_tracked'] > 0 ? round($last_15_days_data['total_carbs'] / 15, 1) : 0,
+    'avg_fat' => $last_15_days_data['days_tracked'] > 0 ? round($last_15_days_data['total_fat'] / 15, 1) : 0,
+    'avg_kcal_percentage' => $total_daily_calories_goal > 0 ? round(($last_15_days_data['avg_kcal'] / $total_daily_calories_goal) * 100, 1) : 0,
+    'avg_protein_percentage' => $macros_goal['protein_g'] > 0 ? round(($last_15_days_data['avg_protein'] / $macros_goal['protein_g']) * 100, 1) : 0,
+    'avg_carbs_percentage' => $macros_goal['carbs_g'] > 0 ? round(($last_15_days_data['avg_carbs'] / $macros_goal['carbs_g']) * 100, 1) : 0,
+    'avg_fat_percentage' => $macros_goal['fat_g'] > 0 ? round(($last_15_days_data['avg_fat'] / $macros_goal['fat_g']) * 100, 1) : 0,
+    'total_days' => $last_15_days_data['days_tracked']
+];
 
-// Calcular estatísticas de nutrientes
-function calculateNutrientsStats($data, $days = null, $offset = 0) {
-    if (empty($data)) return [
-        'avg_kcal' => 0,
-        'avg_protein' => 0,
-        'avg_carbs' => 0,
-        'avg_fat' => 0,
-        'avg_kcal_percentage' => 0,
-        'avg_protein_percentage' => 0,
-        'avg_carbs_percentage' => 0,
-        'avg_fat_percentage' => 0,
-        'avg_overall_percentage' => 0,
-        'total_days' => 0,
-        'excellent_days' => 0,
-        'good_days' => 0,
-        'fair_days' => 0,
-        'poor_days' => 0,
-        'critical_days' => 0
-    ];
-    
-    // Se $days é especificado, pegar os últimos $days elementos (mais recentes)
-    if ($days) {
-        $filtered_data = array_slice($data, -$days);
-    } else {
-        $filtered_data = $data;
-    }
-    
-    $avg_kcal = array_sum(array_column($filtered_data, 'kcal')) / count($filtered_data);
-    $avg_protein = array_sum(array_column($filtered_data, 'protein')) / count($filtered_data);
-    $avg_carbs = array_sum(array_column($filtered_data, 'carbs')) / count($filtered_data);
-    $avg_fat = array_sum(array_column($filtered_data, 'fat')) / count($filtered_data);
-    
-    $avg_kcal_percentage = array_sum(array_column($filtered_data, 'kcal_percentage')) / count($filtered_data);
-    $avg_protein_percentage = array_sum(array_column($filtered_data, 'protein_percentage')) / count($filtered_data);
-    $avg_carbs_percentage = array_sum(array_column($filtered_data, 'carbs_percentage')) / count($filtered_data);
-    $avg_fat_percentage = array_sum(array_column($filtered_data, 'fat_percentage')) / count($filtered_data);
-    $avg_overall_percentage = array_sum(array_column($filtered_data, 'avg_percentage')) / count($filtered_data);
-    
-    // Contar status
-    $excellent_days = count(array_filter($filtered_data, fn($d) => $d['status'] === 'excellent'));
-    $good_days = count(array_filter($filtered_data, fn($d) => $d['status'] === 'good'));
-    $fair_days = count(array_filter($filtered_data, fn($d) => $d['status'] === 'fair'));
-    $poor_days = count(array_filter($filtered_data, fn($d) => $d['status'] === 'poor'));
-    $critical_days = count(array_filter($filtered_data, fn($d) => $d['status'] === 'critical'));
-    
-    return [
-        'avg_kcal' => round($avg_kcal, 0),
-        'avg_protein' => round($avg_protein, 1),
-        'avg_carbs' => round($avg_carbs, 1),
-        'avg_fat' => round($avg_fat, 1),
-        'avg_kcal_percentage' => round($avg_kcal_percentage, 1),
-        'avg_protein_percentage' => round($avg_protein_percentage, 1),
-        'avg_carbs_percentage' => round($avg_carbs_percentage, 1),
-        'avg_fat_percentage' => round($avg_fat_percentage, 1),
-        'avg_overall_percentage' => round($avg_overall_percentage, 1),
-        'total_days' => count($filtered_data),
-        'excellent_days' => $excellent_days,
-        'good_days' => $good_days,
-        'fair_days' => $fair_days,
-        'poor_days' => $poor_days,
-        'critical_days' => $critical_days
-    ];
-}
+$nutrients_stats_30 = [
+    'avg_kcal' => $last_30_days_data['days_tracked'] > 0 ? round($last_30_days_data['total_kcal'] / 30, 0) : 0,
+    'avg_protein' => $last_30_days_data['days_tracked'] > 0 ? round($last_30_days_data['total_protein'] / 30, 1) : 0,
+    'avg_carbs' => $last_30_days_data['days_tracked'] > 0 ? round($last_30_days_data['total_carbs'] / 30, 1) : 0,
+    'avg_fat' => $last_30_days_data['days_tracked'] > 0 ? round($last_30_days_data['total_fat'] / 30, 1) : 0,
+    'avg_kcal_percentage' => $total_daily_calories_goal > 0 ? round(($last_30_days_data['avg_kcal'] / $total_daily_calories_goal) * 100, 1) : 0,
+    'avg_protein_percentage' => $macros_goal['protein_g'] > 0 ? round(($last_30_days_data['avg_protein'] / $macros_goal['protein_g']) * 100, 1) : 0,
+    'avg_carbs_percentage' => $macros_goal['carbs_g'] > 0 ? round(($last_30_days_data['avg_carbs'] / $macros_goal['carbs_g']) * 100, 1) : 0,
+    'avg_fat_percentage' => $macros_goal['fat_g'] > 0 ? round(($last_30_days_data['avg_fat'] / $macros_goal['fat_g']) * 100, 1) : 0,
+    'total_days' => $last_30_days_data['days_tracked']
+];
 
-$nutrients_stats_all = calculateNutrientsStats($nutrients_data);
-$nutrients_stats_90 = calculateNutrientsStats($nutrients_data, 90);
-$nutrients_stats_30 = calculateNutrientsStats($nutrients_data, 30);
-$nutrients_stats_15 = calculateNutrientsStats($nutrients_data, 15);
-$nutrients_stats_7 = calculateNutrientsStats($last_7_days_data); // Usar dados dos últimos 7 dias do calendário
+// Dados para hoje e ontem
+$today = date('Y-m-d');
+$yesterday = date('Y-m-d', strtotime('-1 day'));
+
+$stmt_today = $conn->prepare("
+    SELECT 
+        kcal_consumed, protein_consumed_g, carbs_consumed_g, fat_consumed_g
+    FROM sf_user_daily_tracking 
+    WHERE user_id = ? AND date = ?
+");
+$stmt_today->bind_param("is", $user_id, $today);
+$stmt_today->execute();
+$today_data = $stmt_today->get_result()->fetch_assoc();
+$stmt_today->close();
+
+$stmt_yesterday = $conn->prepare("
+    SELECT 
+        kcal_consumed, protein_consumed_g, carbs_consumed_g, fat_consumed_g
+    FROM sf_user_daily_tracking 
+    WHERE user_id = ? AND date = ?
+");
+$stmt_yesterday->bind_param("is", $user_id, $yesterday);
+$stmt_yesterday->execute();
+$yesterday_data = $stmt_yesterday->get_result()->fetch_assoc();
+$stmt_yesterday->close();
+
+$nutrients_stats_today = [
+    'avg_kcal' => $today_data['kcal_consumed'] ?? 0,
+    'avg_protein' => $today_data['protein_consumed_g'] ?? 0,
+    'avg_carbs' => $today_data['carbs_consumed_g'] ?? 0,
+    'avg_fat' => $today_data['fat_consumed_g'] ?? 0,
+    'avg_kcal_percentage' => $total_daily_calories_goal > 0 ? round((($today_data['kcal_consumed'] ?? 0) / $total_daily_calories_goal) * 100, 1) : 0,
+    'avg_protein_percentage' => $macros_goal['protein_g'] > 0 ? round((($today_data['protein_consumed_g'] ?? 0) / $macros_goal['protein_g']) * 100, 1) : 0,
+    'avg_carbs_percentage' => $macros_goal['carbs_g'] > 0 ? round((($today_data['carbs_consumed_g'] ?? 0) / $macros_goal['carbs_g']) * 100, 1) : 0,
+    'avg_fat_percentage' => $macros_goal['fat_g'] > 0 ? round((($today_data['fat_consumed_g'] ?? 0) / $macros_goal['fat_g']) * 100, 1) : 0,
+    'total_days' => 1
+];
+
+$nutrients_stats_yesterday = [
+    'avg_kcal' => $yesterday_data['kcal_consumed'] ?? 0,
+    'avg_protein' => $yesterday_data['protein_consumed_g'] ?? 0,
+    'avg_carbs' => $yesterday_data['carbs_consumed_g'] ?? 0,
+    'avg_fat' => $yesterday_data['fat_consumed_g'] ?? 0,
+    'avg_kcal_percentage' => $total_daily_calories_goal > 0 ? round((($yesterday_data['kcal_consumed'] ?? 0) / $total_daily_calories_goal) * 100, 1) : 0,
+    'avg_protein_percentage' => $macros_goal['protein_g'] > 0 ? round((($yesterday_data['protein_consumed_g'] ?? 0) / $macros_goal['protein_g']) * 100, 1) : 0,
+    'avg_carbs_percentage' => $macros_goal['carbs_g'] > 0 ? round((($yesterday_data['carbs_consumed_g'] ?? 0) / $macros_goal['carbs_g']) * 100, 1) : 0,
+    'avg_fat_percentage' => $macros_goal['fat_g'] > 0 ? round((($yesterday_data['fat_consumed_g'] ?? 0) / $macros_goal['fat_g']) * 100, 1) : 0,
+    'total_days' => 1
+];
 
 // Debug: Verificar se as médias fazem sentido
 error_log("DEBUG - Média 7 dias: " . $nutrients_stats_7['avg_kcal']);
