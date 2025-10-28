@@ -27,6 +27,7 @@ if (!defined('BASE_ADMIN_URL')) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     <!-- Agora os caminhos usarão a constante corretamente -->
+    <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/admin_style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/admin_novo_style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/view_user_addon.css?v=<?php echo time(); ?>">
     
