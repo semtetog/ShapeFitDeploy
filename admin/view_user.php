@@ -5841,38 +5841,32 @@ function openHelpModal(type) {
     if (type === 'hydration-adherence') {
         title.textContent = 'Aderência Geral - Hidratação';
         body.innerHTML = `
-            <p>A <strong>aderência geral</strong> representa o percentual médio de cumprimento da meta de hidratação nos últimos 7 dias.</p>
+            <p>Percentual médio de cumprimento da meta de hidratação nos últimos 7 dias.</p>
             
-            <p><strong>Como é calculada:</strong></p>
-            <ul>
-                <li>Soma-se o percentual de cumprimento da meta de cada dia</li>
-                <li>Divide-se pelo número total de dias (7)</li>
-                <li>Inclui dias sem registro como 0%</li>
-            </ul>
+            <p><strong>Cálculo:</strong><br>
+            Soma dos percentuais de cada dia ÷ 7 dias<br>
+            <em>(dias sem registro = 0%)</em></p>
             
-            <p><strong>Exemplo prático:</strong></p>
-            <p>Se o paciente atingiu 100%, 0%, 80%, 0%, 90%, 0%, 70% da meta em cada dia:</p>
-            <p><strong>Aderência = (100 + 0 + 80 + 0 + 90 + 0 + 70) ÷ 7 = 48.6%</strong></p>
+            <p><strong>Exemplo:</strong><br>
+            Se atingiu 100%, 0%, 80%, 0%, 90%, 0%, 70% da meta:<br>
+            <strong>Aderência = (100+0+80+0+90+0+70) ÷ 7 = 48.6%</strong></p>
             
-            <p>Esta métrica avalia a <strong>consistência</strong> do paciente em manter a hidratação adequada.</p>
+            <p>Avalia a <strong>consistência</strong> do paciente.</p>
         `;
     } else if (type === 'nutrients-adherence') {
         title.textContent = 'Aderência Geral - Nutrientes';
         body.innerHTML = `
-            <p>A <strong>aderência geral</strong> representa o percentual médio de cumprimento da meta calórica nos últimos 7 dias.</p>
+            <p>Percentual médio de cumprimento da meta calórica nos últimos 7 dias.</p>
             
-            <p><strong>Como é calculada:</strong></p>
-            <ul>
-                <li>Soma-se o percentual de cumprimento da meta de cada dia</li>
-                <li>Divide-se pelo número total de dias (7)</li>
-                <li>Inclui dias sem registro como 0%</li>
-            </ul>
+            <p><strong>Cálculo:</strong><br>
+            Soma dos percentuais de cada dia ÷ 7 dias<br>
+            <em>(dias sem registro = 0%)</em></p>
             
-            <p><strong>Exemplo prático:</strong></p>
-            <p>Se o paciente atingiu 95%, 0%, 110%, 0%, 85%, 0%, 100% da meta em cada dia:</p>
-            <p><strong>Aderência = (95 + 0 + 110 + 0 + 85 + 0 + 100) ÷ 7 = 55.7%</strong></p>
+            <p><strong>Exemplo:</strong><br>
+            Se atingiu 95%, 0%, 110%, 0%, 85%, 0%, 100% da meta:<br>
+            <strong>Aderência = (95+0+110+0+85+0+100) ÷ 7 = 55.7%</strong></p>
             
-            <p>Esta métrica avalia a <strong>consistência</strong> do paciente em manter uma alimentação adequada.</p>
+            <p>Avalia a <strong>consistência</strong> do paciente.</p>
         `;
     }
     

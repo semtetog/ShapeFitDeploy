@@ -3699,15 +3699,13 @@
   background: var(--surface-color);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90%;
-  max-width: 450px;
-  max-height: 80vh;
-  overflow-y: auto;
+  max-width: 400px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: modalSlideIn 0.3s ease;
 }
