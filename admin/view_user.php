@@ -548,7 +548,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="card-header-with-action">
         <h3>Meta Calórica e Macros</h3>
             <button class="btn-icon-only btn-revert-goals" 
-                    onclick="showRevertModal(<?php echo $user_id; ?>)" 
+                    onclick="console.log('Botão clicado!'); showRevertModal(<?php echo $user_id; ?>)" 
                     title="Reverter para cálculo automático">
                 <i class="fas fa-undo"></i>
             </button>
