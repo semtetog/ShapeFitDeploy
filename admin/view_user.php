@@ -445,6 +445,12 @@ $nutrients_stats_90 = calculateNutrientsStats($nutrients_data, 90);
 $nutrients_stats_30 = calculateNutrientsStats($nutrients_data, 30);
 $nutrients_stats_15 = calculateNutrientsStats($nutrients_data, 15);
 $nutrients_stats_7 = calculateNutrientsStats($nutrients_data, 7);
+
+// Debug: Verificar se as médias fazem sentido
+error_log("DEBUG - Média 7 dias: " . $nutrients_stats_7['avg_kcal']);
+error_log("DEBUG - Média 15 dias: " . $nutrients_stats_15['avg_kcal']);
+error_log("DEBUG - Média 30 dias: " . $nutrients_stats_30['avg_kcal']);
+error_log("DEBUG - Total de dias disponíveis: " . count($nutrients_data));
 $nutrients_stats_today = calculateNutrientsStatsByDate($nutrients_data, $today);
 $nutrients_stats_yesterday = calculateNutrientsStatsByDate($nutrients_data, $yesterday);
 
