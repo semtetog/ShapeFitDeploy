@@ -908,10 +908,17 @@ require_once __DIR__ . '/includes/header.php';
     line-height: 1.2 !important; /* altura de linha consistente */
 }
 
-/* Alinhar margens dos 3 cards principais */
+/* Alinhar alturas dos 3 cards principais para ficarem nivelados */
+.details-grid-3-cols {
+    align-items: stretch !important; /* esticar cards para mesma altura */
+}
+
 .details-grid-3-cols .dashboard-card {
+    height: 100% !important; /* altura total do container */
     padding-top: 20px !important; /* padding-top igual para todos os cards */
     padding-bottom: 20px !important; /* padding-bottom igual para todos os cards */
+    display: flex !important; /* flex para controlar altura interna */
+    flex-direction: column !important; /* direção vertical */
 }
 
 /* Ajustar posicionamento dos blocos de macros dentro do card */
@@ -919,10 +926,16 @@ require_once __DIR__ . '/includes/header.php';
     margin-top: 8px !important; /* espaçamento consistente após o título */
 }
 
-/* Descer os 8 subcards para alinhar com os blocos de macronutrientes */
+/* Alinhar subcards com blocos de macronutrientes usando flexbox */
 .details-grid-3-cols .dashboard-card .physical-data-grid,
 .details-grid-3-cols .dashboard-card .habits-grid {
-    margin-top: 16px !important; /* descer os subcards para alinhar com macros */
+    margin-top: auto !important; /* empurrar subcards para baixo */
+    margin-bottom: 0 !important; /* remover margem inferior */
+}
+
+/* Garantir que o conteúdo interno dos cards se distribua corretamente */
+.details-grid-3-cols .dashboard-card > * {
+    flex-shrink: 0 !important; /* não encolher elementos */
 }
 
 /* Descer posicionamento dos subcards dentro do card pai */
