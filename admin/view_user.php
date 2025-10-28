@@ -1871,23 +1871,13 @@ function showRevertModal(userId) {
     console.log('showRevertModal chamado com userId:', userId);
     currentUserIdToRevert = userId;
     
-    const modal = document.getElementById('revertGoalsModal');
-    const overlay = modal.querySelector('.custom-modal-overlay');
-    
-    // Aplicar blur imediatamente no overlay
-    overlay.style.backdropFilter = 'blur(10px)';
     document.body.style.overflow = 'hidden';
-    
-    modal.classList.add('active');
+    document.getElementById('revertGoalsModal').classList.add('active');
 }
 
 function closeRevertModal() {
-    const modal = document.getElementById('revertGoalsModal');
-    const overlay = modal.querySelector('.custom-modal-overlay');
-    
-    modal.classList.remove('active');
+    document.getElementById('revertGoalsModal').classList.remove('active');
     document.body.style.overflow = '';
-    overlay.style.backdropFilter = '';
     currentUserIdToRevert = null;
 }
 
@@ -5141,24 +5131,13 @@ const daysWithData = new Set();
 function openDiaryCalendar() {
     currentCalendarDate = new Date();
     renderCalendar();
-    
-    const modal = document.getElementById('diaryCalendarModal');
-    const overlay = modal.querySelector('.custom-modal-overlay');
-    
-    // Aplicar blur imediatamente no overlay
-    overlay.style.backdropFilter = 'blur(10px)';
     document.body.style.overflow = 'hidden';
-    
-    modal.classList.add('active');
+    document.getElementById('diaryCalendarModal').classList.add('active');
 }
 
 function closeDiaryCalendar() {
-    const modal = document.getElementById('diaryCalendarModal');
-    const overlay = modal.querySelector('.custom-modal-overlay');
-    
-    modal.classList.remove('active');
+    document.getElementById('diaryCalendarModal').classList.remove('active');
     document.body.style.overflow = '';
-    overlay.style.backdropFilter = '';
 }
 
 function changeCalendarMonth(direction) {
