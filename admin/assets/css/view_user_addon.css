@@ -344,7 +344,7 @@
   display: inline-block !important;
   vertical-align: top !important;
   flex-shrink: 0 !important;
-  margin-top: 0.1rem !important;
+  margin-top: -0.1rem !important;
 }
 
 .data-item span {
