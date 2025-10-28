@@ -1885,9 +1885,12 @@ function showRevertModal(userId) {
 }
 
 function closeRevertModal() {
+    console.log('=== CLOSE REVERT MODAL ===');
+    console.log('currentUserIdToRevert ANTES de fechar:', currentUserIdToRevert);
     document.getElementById('revertGoalsModal').classList.remove('active');
     document.body.style.overflow = '';
     currentUserIdToRevert = null;
+    console.log('currentUserIdToRevert DEPOIS de fechar:', currentUserIdToRevert);
 }
 
 function showAlertModal(title, message, isSuccess = true) {
@@ -1936,16 +1939,20 @@ async function confirmRevertGoals() {
         return;
     }
     
+    // Salvar o user_id antes de fechar o modal
+    const userIdToRevert = currentUserIdToRevert;
+    console.log('userIdToRevert salvo:', userIdToRevert);
+    
     closeRevertModal(); // Fechar modal de confirmação
     
     try {
-        console.log('ANTES do FormData - currentUserIdToRevert:', currentUserIdToRevert);
-        console.log('Tipo ANTES do FormData:', typeof currentUserIdToRevert);
+        console.log('ANTES do FormData - userIdToRevert:', userIdToRevert);
+        console.log('Tipo ANTES do FormData:', typeof userIdToRevert);
         
         const formData = new FormData();
-        formData.append('user_id', String(currentUserIdToRevert));
+        formData.append('user_id', String(userIdToRevert));
         
-        console.log('FormData criado com user_id:', currentUserIdToRevert);
+        console.log('FormData criado com user_id:', userIdToRevert);
         console.log('FormData entries:');
         for (let [key, value] of formData.entries()) {
             console.log(`${key}: ${value} (tipo: ${typeof value})`);
