@@ -922,19 +922,16 @@ function updateDiaryDisplay() {
     const prevIndex = currentDiaryIndex - 1;
     const nextIndex = currentDiaryIndex + 1;
     
-    // Atualizar data anterior (sempre mostrar o botão)
+    // Atualizar data anterior (sempre mostrar o dia anterior real)
     const prevBtn = document.getElementById('diaryPrevDate');
     if (prevBtn) {
-        if (prevIndex >= 0 && diaryCards[prevIndex]) {
-            // Se existe um card anterior, mostrar a data
-            const prevDate = new Date(diaryCards[prevIndex].getAttribute('data-date') + 'T00:00:00');
-            prevBtn.textContent = `${prevDate.getDate()} ${monthNamesLower[prevDate.getMonth()]}`;
-            prevBtn.parentElement.style.visibility = 'visible';
-        } else {
-            // Se não existe card anterior, mostrar "..." e manter visível para carregar
-            prevBtn.textContent = '...';
-            prevBtn.parentElement.style.visibility = 'visible';
-        }
+        // Calcular sempre o dia anterior baseado na data atual
+        const currentDate = new Date(date + 'T00:00:00');
+        const prevDate = new Date(currentDate);
+        prevDate.setDate(prevDate.getDate() - 1);
+        
+        prevBtn.textContent = `${prevDate.getDate()} ${monthNamesLower[prevDate.getMonth()]}`;
+        prevBtn.parentElement.style.visibility = 'visible';
     }
     
     // Atualizar data próxima (se existir e não for futuro)
@@ -1058,15 +1055,15 @@ function navigateDiary(direction) {
         }
         
         // Se não existe card anterior, carregar 1 dia anterior via AJAX
-        const firstCard = diaryCards[0];
-        if (firstCard) {
-            const firstDate = firstCard.getAttribute('data-date');
-            // Calcular apenas 1 dia antes do primeiro dia disponível
-            const dateObj = new Date(firstDate + 'T00:00:00');
-            dateObj.setDate(dateObj.getDate() - 1); // 1 dia antes do primeiro
+        const currentCard = diaryCards[currentDiaryIndex];
+        if (currentCard) {
+            const currentDate = currentCard.getAttribute('data-date');
+            // Calcular 1 dia antes da data atual
+            const dateObj = new Date(currentDate + 'T00:00:00');
+            dateObj.setDate(dateObj.getDate() - 1);
             const newEndDate = dateObj.toISOString().split('T')[0];
             
-            console.log('Carregando 1 dia anterior via AJAX. Primeira data atual:', firstDate, 'Nova end_date:', newEndDate);
+            console.log('Carregando 1 dia anterior via AJAX. Data atual:', currentDate, 'Nova end_date:', newEndDate);
             
             // Carregar apenas 1 dia via AJAX
             loadMoreDiaryDays(newEndDate, 1);
