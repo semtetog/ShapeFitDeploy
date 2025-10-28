@@ -5131,57 +5131,75 @@ function changeCalendarMonth(direction) {
     renderCalendar();
 }
 
-function renderCalendar() {
-    const year = currentCalendarDate.getFullYear();
-    const month = currentCalendarDate.getMonth();
-    
-    // Atualizar título
-    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
-    
-    // Primeiro e último dia do mês
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-    
-    // Grid de dias
-    const grid = document.getElementById('calendarDaysGrid');
-    grid.innerHTML = '';
-    
-    // Dias vazios antes do primeiro dia
-    for (let i = 0; i < startingDayOfWeek; i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'calendar-day empty';
-        grid.appendChild(emptyDay);
-    }
-    
-    // Dias do mês
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dayEl = document.createElement('button');
-        dayEl.className = 'calendar-day';
-        dayEl.textContent = day;
-        
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        // Verificar se tem dados
-        if (daysWithData.has(dateStr)) {
-            dayEl.classList.add('has-data');
-        }
-        
-        // Marcar hoje
-        const today = new Date();
-        if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
-            dayEl.classList.add('today');
-        }
-        
-        // Click handler
-        dayEl.onclick = () => goToDiaryDate(dateStr);
-        
-        grid.appendChild(dayEl);
-    }
-}
+       function renderCalendar() {
+           const year = currentCalendarDate.getFullYear();
+           const month = currentCalendarDate.getMonth();
+           
+           // Atualizar título com mês abreviado
+           const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
+                                   'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+           document.getElementById('calendarMonthYear').textContent = `${monthNamesShort[month]} ${year}`;
+           
+           // Primeiro e último dia do mês atual
+           const firstDay = new Date(year, month, 1);
+           const lastDay = new Date(year, month + 1, 0);
+           const daysInMonth = lastDay.getDate();
+           const startingDayOfWeek = firstDay.getDay();
+           
+           // Calcular dias do mês anterior para preencher
+           const prevMonth = new Date(year, month - 1, 0);
+           const daysInPrevMonth = prevMonth.getDate();
+           
+           // Grid de dias
+           const grid = document.getElementById('calendarDaysGrid');
+           grid.innerHTML = '';
+           
+           // Dias do mês anterior (não clicáveis)
+           for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+               const dayEl = document.createElement('div');
+               dayEl.className = 'calendar-day other-month';
+               dayEl.textContent = daysInPrevMonth - i;
+               grid.appendChild(dayEl);
+           }
+           
+           // Dias do mês atual
+           for (let day = 1; day <= daysInMonth; day++) {
+               const dayEl = document.createElement('button');
+               dayEl.className = 'calendar-day current-month';
+               dayEl.textContent = day;
+               
+               const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+               
+               // Verificar se tem dados
+               if (daysWithData.has(dateStr)) {
+                   dayEl.classList.add('has-data');
+               }
+               
+               // Marcar hoje
+               const today = new Date();
+               if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                   dayEl.classList.add('today');
+               }
+               
+               // Click handler
+               dayEl.onclick = () => goToDiaryDate(dateStr);
+               
+               grid.appendChild(dayEl);
+           }
+           
+           // Calcular quantos dias faltam para completar a grade (6 semanas = 42 dias)
+           const totalCells = 42;
+           const usedCells = startingDayOfWeek + daysInMonth;
+           const remainingCells = totalCells - usedCells;
+           
+           // Dias do próximo mês (não clicáveis)
+           for (let day = 1; day <= remainingCells; day++) {
+               const dayEl = document.createElement('div');
+               dayEl.className = 'calendar-day other-month';
+               dayEl.textContent = day;
+               grid.appendChild(dayEl);
+           }
+       }
 
 function goToDiaryDate(dateStr) {
     // Encontrar o card correspondente
@@ -5279,16 +5297,24 @@ function goToDiaryDate(dateStr) {
         
         <div class="calendar-days-grid" id="calendarDaysGrid"></div>
         
-        <div class="calendar-footer-legend">
-            <div class="legend-row">
-                <span class="legend-marker has-data-marker"></span>
-                <span class="legend-text">Dias com dados registrados</span>
-            </div>
-            <div class="legend-row">
-                <span class="legend-marker no-data-marker"></span>
-                <span class="legend-text">Dias sem dados</span>
-            </div>
-        </div>
+               <div class="calendar-footer-legend">
+                   <div class="legend-row">
+                       <span class="legend-marker today-marker"></span>
+                       <span class="legend-text">Hoje</span>
+                   </div>
+                   <div class="legend-row">
+                       <span class="legend-marker has-data-marker"></span>
+                       <span class="legend-text">Dias com registros</span>
+                   </div>
+                   <div class="legend-row">
+                       <span class="legend-marker no-data-marker"></span>
+                       <span class="legend-text">Dias sem registros</span>
+                   </div>
+                   <div class="legend-row">
+                       <span class="legend-marker other-month-marker"></span>
+                       <span class="legend-text">Outros meses</span>
+                   </div>
+               </div>
     </div>
 </div>
 
