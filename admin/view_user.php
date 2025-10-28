@@ -884,7 +884,7 @@ require_once __DIR__ . '/includes/header.php';
 .details-grid-1-col .physical-data-grid .data-item .data-title {
     display: flex !important;
     align-items: center !important;
-    margin-bottom: 4px !important; /* reduzir espaço entre ícone/label e texto */
+    margin-bottom: 8px !important; /* aumentar um pouco o espaço entre ícone/label e texto */
     gap: 6px !important;
 }
 
