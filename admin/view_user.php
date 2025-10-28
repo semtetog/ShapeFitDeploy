@@ -6001,6 +6001,40 @@ function renderNutrientsChart(data) {
     chartContainer.innerHTML = chartHTML;
 }
 
+// Função para resetar botões de período para 7 dias
+function resetPeriodButtons() {
+    // Resetar botões de hidratação
+    const hydrationButtons = document.querySelectorAll('#tab-hydration .period-btn');
+    hydrationButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-period') === '7') {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Resetar botões de nutrientes
+    const nutrientsButtons = document.querySelectorAll('#tab-nutrients .period-btn');
+    nutrientsButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-period') === '7') {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Resetar dados dos gráficos para 7 dias
+    const hydrationBars = document.getElementById('hydration-bars');
+    if (hydrationBars) {
+        hydrationBars.setAttribute('data-period', '7');
+        loadHydrationData(7);
+    }
+    
+    const nutrientsBars = document.getElementById('nutrients-bars');
+    if (nutrientsBars) {
+        nutrientsBars.setAttribute('data-period', '7');
+        loadNutrientsData(7);
+    }
+}
+
 // Inicializar layout correto quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar gráfico de hidratação com 7 dias
@@ -6014,6 +6048,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (nutrientsBars) {
         nutrientsBars.setAttribute('data-period', '7');
     }
+    
+    // Adicionar listeners para mudança de abas
+    const tabLinks = document.querySelectorAll('.tab-link');
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            // Aguardar um pouco para a aba ser ativada
+            setTimeout(() => {
+                resetPeriodButtons();
+            }, 100);
+        });
+    });
 });
 </script>
 
