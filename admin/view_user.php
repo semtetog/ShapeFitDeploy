@@ -485,7 +485,17 @@ if (!empty($user_data['sleep_time_bed']) && !empty($user_data['sleep_time_wake']
     $wake_time = new DateTime($user_data['sleep_time_wake']);
     if ($wake_time < $bed_time) { $wake_time->modify('+1 day'); }
     $interval = $bed_time->diff($wake_time);
-    $sleep_html = $interval->format('%H:%I');
+    
+    // Calcular horas totais de sono
+    $total_hours = $interval->h + ($interval->i / 60);
+    $rounded_hours = round($total_hours);
+    
+    // Formatar de forma mais amigável
+    if ($rounded_hours == 1) {
+        $sleep_html = "Média de {$rounded_hours} hora por dia";
+    } else {
+        $sleep_html = "Média de {$rounded_hours} horas por dia";
+    }
 }
 
 // LÓGICA DE AVATAR
