@@ -1875,7 +1875,12 @@ let currentUserIdToRevert = null;
 
 function showRevertModal(userId) {
     console.log('showRevertModal chamado com userId:', userId);
+    console.log('Tipo do userId:', typeof userId);
+    console.log('userId é null?', userId === null);
+    console.log('userId é undefined?', userId === undefined);
+    
     currentUserIdToRevert = userId;
+    console.log('currentUserIdToRevert definido como:', currentUserIdToRevert);
     
     document.body.style.overflow = 'hidden';
     document.getElementById('revertGoalsModal').classList.add('active');
