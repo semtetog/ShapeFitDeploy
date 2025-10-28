@@ -344,6 +344,21 @@ function getNutrientStats($conn, $userId, $periodDays, $macros_goal, $total_dail
     $avgProteinPercentage = $macros_goal['protein_g'] > 0 ? round(($avgProtein / $macros_goal['protein_g']) * 100, 1) : 0;
     $avgCarbsPercentage = $macros_goal['carbs_g'] > 0 ? round(($avgCarbs / $macros_goal['carbs_g']) * 100, 1) : 0;
     $avgFatPercentage = $macros_goal['fat_g'] > 0 ? round(($avgFat / $macros_goal['fat_g']) * 100, 1) : 0;
+    
+    // Calcular percentual geral da meta (média dos percentuais de todos os macronutrientes)
+    $avgOverallPercentage = round(($avgKcalPercentage + $avgProteinPercentage + $avgCarbsPercentage + $avgFatPercentage) / 4, 1);
+    
+    // Calcular dias excelentes e bons (baseado no percentual geral)
+    $excellentDays = 0;
+    $goodDays = 0;
+    foreach ($dailyData as $day) {
+        $dayKcalPercentage = $total_daily_calories_goal > 0 ? round(($day['kcal_consumed'] / $total_daily_calories_goal) * 100, 1) : 0;
+        if ($dayKcalPercentage >= 90) {
+            $excellentDays++;
+        } elseif ($dayKcalPercentage >= 70) {
+            $goodDays++;
+        }
+    }
 
     return [
         'avg_kcal' => $avgKcal,
@@ -354,6 +369,9 @@ function getNutrientStats($conn, $userId, $periodDays, $macros_goal, $total_dail
         'avg_protein_percentage' => $avgProteinPercentage,
         'avg_carbs_percentage' => $avgCarbsPercentage,
         'avg_fat_percentage' => $avgFatPercentage,
+        'avg_overall_percentage' => $avgOverallPercentage,
+        'excellent_days' => $excellentDays,
+        'good_days' => $goodDays,
         'total_days' => $periodDays,
         'daily_data' => $dailyData
     ];
@@ -1675,7 +1693,20 @@ function toggleNutrientsRecords() {
                         <?php 
                         $display_data = array_slice($last_7_days_data, 0, 7);
                         foreach ($display_data as $day): 
-                            $percentage = $day['avg_percentage'];
+                            // Calcular percentual baseado na meta calórica diária
+                            $percentage = $total_daily_calories_goal > 0 ? round(($day['kcal_consumed'] / $total_daily_calories_goal) * 100, 1) : 0;
+                            
+                            // Determinar status da barra
+                            $status = 'poor';
+                            if ($percentage >= 90) {
+                                $status = 'excellent';
+                            } elseif ($percentage >= 70) {
+                                $status = 'good';
+                            } elseif ($percentage >= 50) {
+                                $status = 'fair';
+                            }
+                            
+                            // Calcular altura da barra
                             $barHeight = 0;
                             if ($percentage === 0) {
                                 $barHeight = 0;
@@ -1687,13 +1718,13 @@ function toggleNutrientsRecords() {
                         ?>
                             <div class="improved-bar-container">
                                 <div class="improved-bar-wrapper">
-                                    <div class="improved-bar <?php echo $day['status']; ?>" style="height: <?php echo $barHeight; ?>px"></div>
+                                    <div class="improved-bar <?php echo $status; ?>" style="height: <?php echo $barHeight; ?>px"></div>
                                     <div class="bar-percentage-text"><?php echo $percentage; ?>%</div>
                                     <div class="improved-goal-line"></div>
                                 </div>
                                 <div class="improved-bar-info">
                                     <span class="improved-date"><?php echo date('d/m', strtotime($day['date'])); ?></span>
-                                    <span class="improved-ml"><?php echo $day['kcal']; ?> kcal</span>
+                                    <span class="improved-ml"><?php echo $day['kcal_consumed']; ?> kcal</span>
                                 </div>
                             </div>
                         <?php endforeach; ?>
