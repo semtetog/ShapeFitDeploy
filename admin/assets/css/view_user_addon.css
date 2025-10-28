@@ -3443,8 +3443,57 @@
 }
 
 /* Ícone de lâmpada amarelo */
-.nutrients-insights h4 i {
+.nutrients-insights h4 i,
+.hydration-insights h4 i {
   color: #FFD700 !important;
+}
+
+/* Estilo da hidratação igual ao de nutrientes */
+.hydration-insights {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.hydration-insights h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hydration-insights .insights-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hydration-insights .insights-list li {
+  padding: 0.75rem 0 0.75rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  position: relative;
+}
+
+.hydration-insights .insights-list li:last-child {
+  border-bottom: none;
+}
+
+.hydration-insights .insights-list li::before {
+  content: "▶";
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  color: var(--accent-orange);
+  font-size: 0.75rem;
 }
 
 /* Gráfico de nutrientes */
