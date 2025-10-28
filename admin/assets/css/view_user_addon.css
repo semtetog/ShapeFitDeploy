@@ -3783,6 +3783,116 @@
   margin-bottom: 0.5rem;
 }
 
+/* Botões de período - estilo clean como calendário */
+.chart-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.period-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.period-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.period-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.period-btn.active {
+  background: var(--accent-orange);
+  color: white;
+  border-color: var(--accent-orange);
+}
+
+/* Layout em fileiras para as barras */
+.improved-bars {
+  display: grid;
+  gap: 1rem;
+  justify-content: center;
+  max-width: 100%;
+}
+
+/* 7 dias: 1 fileira de 7 */
+.improved-bars[data-period="7"] {
+  grid-template-columns: repeat(7, 1fr);
+  max-width: 100%;
+}
+
+/* 15 dias: 3 fileiras de 5 */
+.improved-bars[data-period="15"] {
+  grid-template-columns: repeat(5, 1fr);
+  max-width: 100%;
+}
+
+/* 30 dias: 3 fileiras de 10 */
+.improved-bars[data-period="30"] {
+  grid-template-columns: repeat(10, 1fr);
+  max-width: 100%;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .improved-bars[data-period="30"] {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .period-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .improved-bars[data-period="7"] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .improved-bars[data-period="15"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .improved-bars[data-period="30"] {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .improved-bars[data-period="7"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .improved-bars[data-period="15"] {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .improved-bars[data-period="30"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* Gráfico de nutrientes */
 .nutrients-chart-improved {
   background: rgba(255, 255, 255, 0.05);
