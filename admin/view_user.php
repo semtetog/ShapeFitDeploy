@@ -1867,13 +1867,21 @@ document.addEventListener('DOMContentLoaded', function() {
 // Sistema de modais customizados para reverter metas
 let currentUserIdToRevert = null;
 
-console.log('JavaScript carregado! currentUserIdToRevert:', currentUserIdToRevert);
+try {
+    console.log('JavaScript carregado! currentUserIdToRevert:', currentUserIdToRevert);
+} catch (error) {
+    console.error('ERRO no JavaScript:', error);
+}
 
 function showRevertModal(userId) {
-    console.log('showRevertModal chamado com userId:', userId);
+    console.log('=== SHOW REVERT MODAL ===');
+    console.log('userId recebido:', userId);
+    console.log('Tipo do userId:', typeof userId);
     currentUserIdToRevert = userId;
+    console.log('currentUserIdToRevert definido como:', currentUserIdToRevert);
     document.body.style.overflow = 'hidden';
     document.getElementById('revertGoalsModal').classList.add('active');
+    console.log('Modal aberto!');
 }
 
 function closeRevertModal() {
