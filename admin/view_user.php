@@ -812,14 +812,14 @@ require_once __DIR__ . '/includes/header.php';
             <div class="data-item">
                 <div class="data-title">
                     <i class="fas fa-tint icon"></i>
-                    <label>Consumo de Água</label>
+                    <label>Consumo de Água por Dia</label>
             </div>
                 <span><?php echo $water_intake_names[$user_data['water_intake_liters']] ?? 'N/I'; ?></span>
         </div>
             <div class="data-item sleep-item" onclick="openSleepDetailsModal()">
                 <div class="data-title">
                     <i class="fas fa-bed icon"></i>
-                    <label>Duração do Sono</label>
+                    <label>Sono</label>
                     <i class="fas fa-question-circle sleep-details-icon" title="Ver detalhes do sono"></i>
                 </div>
                 <span><?php echo $sleep_html; ?></span>
