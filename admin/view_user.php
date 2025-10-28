@@ -5169,7 +5169,7 @@ function changeCalendarMonth(direction) {
            const grid = document.getElementById('calendarDaysGrid');
            grid.innerHTML = '';
            
-           // Dias do mês anterior (não clicáveis)
+           // Dias do mês anterior (bloqueados)
            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
                const dayEl = document.createElement('div');
                dayEl.className = 'calendar-day other-month';
@@ -5214,7 +5214,7 @@ function changeCalendarMonth(direction) {
            const usedCells = startingDayOfWeek + daysInMonth;
            const remainingCells = totalCells - usedCells;
            
-           // Dias do próximo mês (não clicáveis)
+           // Dias do próximo mês (bloqueados)
            for (let day = 1; day <= remainingCells; day++) {
                const dayEl = document.createElement('div');
                dayEl.className = 'calendar-day other-month';
@@ -5379,14 +5379,6 @@ async function loadSpecificDate(dateStr) {
                    <div class="legend-row">
                        <span class="legend-marker no-data-marker"></span>
                        <span class="legend-text">Sem registros</span>
-                   </div>
-                   <div class="legend-row">
-                       <span class="legend-marker future-day-marker"></span>
-                       <span class="legend-text">Dias futuros</span>
-                   </div>
-                   <div class="legend-row">
-                       <span class="legend-marker other-month-marker"></span>
-                       <span class="legend-text">Outros meses</span>
                    </div>
                </div>
     </div>
