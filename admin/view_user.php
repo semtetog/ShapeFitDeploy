@@ -569,10 +569,7 @@ require_once __DIR__ . '/includes/header.php';
                       data-user-id="<?php echo $user_id; ?>"
                       data-original="<?php echo $macros_goal['carbs_g']; ?>"
                       title="Clique para editar"><?php echo $macros_goal['carbs_g']; ?>g</span>
-                <div class="macro-title">
-                    <i class="fas fa-bread-slice icon"></i>
-                    Carboidratos
-                </div>
+                Carboidratos
             </div>
             <div>
                 <span class="editable-value" 
@@ -580,10 +577,7 @@ require_once __DIR__ . '/includes/header.php';
                       data-user-id="<?php echo $user_id; ?>"
                       data-original="<?php echo $macros_goal['protein_g']; ?>"
                       title="Clique para editar"><?php echo $macros_goal['protein_g']; ?>g</span>
-                <div class="macro-title">
-                    <i class="fas fa-drumstick-bite icon"></i>
-                    Proteínas
-                </div>
+                Proteínas
             </div>
             <div>
                 <span class="editable-value" 
@@ -591,10 +585,7 @@ require_once __DIR__ . '/includes/header.php';
                       data-user-id="<?php echo $user_id; ?>"
                       data-original="<?php echo $macros_goal['fat_g']; ?>"
                       title="Clique para editar"><?php echo $macros_goal['fat_g']; ?>g</span>
-                <div class="macro-title">
-                    <i class="fas fa-bacon icon"></i>
-                    Gorduras
-                </div>
+                Gorduras
             </div>
         </div>
     </div>
@@ -602,20 +593,68 @@ require_once __DIR__ . '/includes/header.php';
     <div class="dashboard-card">
         <h3>Dados Físicos</h3>
         <div class="physical-data-grid">
-            <div class="data-item"><i class="fas fa-birthday-cake icon"></i><label>Idade</label><span><?php echo $age_years; ?> anos</span></div>
-            <div class="data-item"><i class="fas fa-weight icon"></i><label>Peso Atual</label><span><?php echo number_format((float)($user_data['weight_kg'] ?? 0), 1, ',', '.'); ?> kg</span></div>
-            <div class="data-item"><i class="fas fa-ruler-vertical icon"></i><label>Altura</label><span><?php echo htmlspecialchars($user_data['height_cm'] ?? 'N/A'); ?> cm</span></div>
-            <div class="data-item"><i class="fas fa-venus-mars icon"></i><label>Gênero</label><span><?php echo $gender_names[$user_data['gender']] ?? 'Não informado'; ?></span></div>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-birthday-cake icon"></i>
+                    <label>Idade</label>
+                </div>
+                <span><?php echo $age_years; ?> anos</span>
+            </div>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-weight icon"></i>
+                    <label>Peso Atual</label>
+                </div>
+                <span><?php echo number_format((float)($user_data['weight_kg'] ?? 0), 1, ',', '.'); ?> kg</span>
+            </div>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-ruler-vertical icon"></i>
+                    <label>Altura</label>
+                </div>
+                <span><?php echo htmlspecialchars($user_data['height_cm'] ?? 'N/A'); ?> cm</span>
+            </div>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-venus-mars icon"></i>
+                    <label>Gênero</label>
+                </div>
+                <span><?php echo $gender_names[$user_data['gender']] ?? 'Não informado'; ?></span>
+            </div>
         </div>
     </div>
     
     <div class="dashboard-card">
         <h3>Anamnese e Hábitos</h3>
         <div class="physical-data-grid">
-            <div class="data-item"><i class="fas fa-dumbbell icon"></i><label>Tipo de Treino</label><span><?php echo htmlspecialchars($user_data['exercise_type'] ?? 'N/I'); ?></span></div>
-            <div class="data-item"><i class="fas fa-calendar-check icon"></i><label>Frequência</label><span><?php echo $exercise_freq_names[$user_data['exercise_frequency']] ?? 'N/I'; ?></span></div>
-            <div class="data-item"><i class="fas fa-tint icon"></i><label>Consumo de Água</label><span><?php echo $water_intake_names[$user_data['water_intake_liters']] ?? 'N/I'; ?></span></div>
-            <div class="data-item"><i class="fas fa-bed icon"></i><label>Duração do Sono</label><span><?php echo $sleep_html; ?></span></div>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-dumbbell icon"></i>
+                    <label>Tipo de Treino</label>
+                </div>
+                <span><?php echo htmlspecialchars($user_data['exercise_type'] ?? 'N/I'); ?></span>
+            </div>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-calendar-check icon"></i>
+                    <label>Frequência</label>
+                </div>
+                <span><?php echo $exercise_freq_names[$user_data['exercise_frequency']] ?? 'N/I'; ?></span>
+            </div>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-tint icon"></i>
+                    <label>Consumo de Água</label>
+                </div>
+                <span><?php echo $water_intake_names[$user_data['water_intake_liters']] ?? 'N/I'; ?></span>
+            </div>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-bed icon"></i>
+                    <label>Duração do Sono</label>
+                </div>
+                <span><?php echo $sleep_html; ?></span>
+            </div>
         </div>
     </div>
 </div>
