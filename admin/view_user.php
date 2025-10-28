@@ -888,7 +888,7 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Descer posicionamento dos subcards dentro do card pai */
 .details-grid-1-col .physical-data-grid {
-    margin-top: 8px !important; /* descer os subcards */
+    margin-top: 16px !important; /* descer mais os subcards */
 }
 
 .details-grid-1-col .physical-data-grid .data-item .data-title {
