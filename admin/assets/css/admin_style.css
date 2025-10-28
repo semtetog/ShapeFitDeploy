@@ -381,6 +381,45 @@ body {
     color: var(--primary-text-color);
 }
 
+/* --- 7.4. Card de Plano e Preferências (compacto) --- */
+.physical-data-grid-pref {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas */
+    gap: 12px; /* Espaçamento menor */
+}
+
+.physical-data-grid-pref .data-item {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espaçamento menor entre ícone e texto */
+    padding: 8px 0; /* Padding vertical menor */
+}
+
+.physical-data-grid-pref .data-item .icon {
+    color: var(--accent-orange);
+    width: 16px; /* Ícone menor */
+    text-align: center;
+    font-size: 14px; /* Fonte menor */
+    opacity: 0.8;
+}
+
+.physical-data-grid-pref .data-item label {
+    color: var(--secondary-text-color);
+    margin: 0;
+    font-size: 12px; /* Fonte menor */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.physical-data-grid-pref .data-item span {
+    margin-left: auto;
+    font-weight: 500;
+    color: var(--primary-text-color);
+    text-align: right;
+    font-size: 13px; /* Fonte menor */
+}
+
 /* --- 8. ESTILOS PARA ABAS E CONTEÚDO EM VIEW_USER.PHP --- */
 .tabs-container { display: flex; border-bottom: 1px solid var(--border-color); margin-top: 30px; margin-bottom: 25px; }
 .tab-link { padding: 12px 25px; cursor: pointer; font-size: 16px; font-weight: 500; color: var(--secondary-text-color); border-bottom: 3px solid transparent; transition: color 0.2s ease, border-color 0.2s ease; margin-bottom: -1px; }
