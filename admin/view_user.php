@@ -1134,7 +1134,11 @@ function navigateDiary(direction) {
                        urlParams.set('end_date', endDate);
                        window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
                        
-                       // Atualizar display com animação de swipe (mesma do swipe normal)
+                       // Forçar animação de swipe no card de baixo (mesma do swipe normal)
+                       const diaryTrack = document.getElementById('diarySliderTrack');
+                       diaryTrack.style.transition = 'transform 0.3s ease-in-out';
+                       
+                       // Atualizar display com animação
                        updateDiaryDisplay();
                    } else {
                        console.log('Nenhum novo card encontrado na resposta');
