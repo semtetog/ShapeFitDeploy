@@ -1053,10 +1053,10 @@ function navigateDiary(direction) {
             const firstDate = firstCard.getAttribute('data-date');
             // Calcular data 30 dias antes do primeiro dia disponível
             const dateObj = new Date(firstDate + 'T00:00:00');
-            dateObj.setDate(dateObj.getDate() - 1); // Um dia antes do primeiro
+            dateObj.setDate(dateObj.getDate() - 30); // 30 dias antes do primeiro
             const newEndDate = dateObj.toISOString().split('T')[0];
             
-            console.log('Carregando mais dias anteriores via AJAX. Nova end_date:', newEndDate);
+            console.log('Carregando mais dias anteriores via AJAX. Primeira data atual:', firstDate, 'Nova end_date:', newEndDate);
             
             // Carregar novos cards via AJAX
             loadMoreDiaryDays(newEndDate);
@@ -1110,15 +1110,19 @@ async function loadMoreDiaryDays(endDate) {
             console.log('Novos cards encontrados:', newCards.length);
             
             if (newCards.length > 0) {
-                // Adicionar novos cards no início
+                // Adicionar novos cards no início (mais antigos primeiro)
+                const fragment = document.createDocumentFragment();
                 while (tempDiv.firstChild) {
-                    diaryTrack.insertBefore(tempDiv.firstChild, diaryTrack.firstChild);
+                    fragment.appendChild(tempDiv.firstChild);
                 }
+                diaryTrack.insertBefore(fragment, diaryTrack.firstChild);
                 
-                // Atualizar contador de cards
+                // Atualizar contador de cards - manter posição visual
                 currentDiaryIndex = newCards.length + currentIndex;
                 
                 console.log(`Adicionados ${newCards.length} novos cards. Total: ${document.querySelectorAll('.diary-day-card').length}`);
+                console.log('Primeira data após adição:', diaryCards[0]?.getAttribute('data-date'));
+                console.log('Última data após adição:', diaryCards[diaryCards.length - 1]?.getAttribute('data-date'));
                 
                 // Atualizar referência aos cards
                 updateDiaryCards();
