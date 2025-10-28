@@ -280,35 +280,23 @@ function getNutrientStats($conn, $userId, $periodDays, $macros_goal, $total_dail
         $dates[] = date('Y-m-d', strtotime("-$i days", strtotime($today)));
     }
 
-    // Monta o SQL com LEFT JOIN para incluir dias sem refeição
+    // Query para buscar dados dos dias com registro
     $sql = "
         SELECT 
-            d.date AS dia,
-            COALESCE(SUM(t.kcal_consumed), 0) AS total_kcal,
-            COALESCE(SUM(t.protein_consumed_g), 0) AS total_protein,
-            COALESCE(SUM(t.carbs_consumed_g), 0) AS total_carbs,
-            COALESCE(SUM(t.fat_consumed_g), 0) AS total_fat
-        FROM (
-            SELECT DATE('$today' - INTERVAL n DAY) AS date
-            FROM (
-                SELECT 0 AS n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
-                UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 
-                UNION SELECT 10 UNION SELECT 11 UNION SELECT 12 UNION SELECT 13 UNION SELECT 14 
-                UNION SELECT 15 UNION SELECT 16 UNION SELECT 17 UNION SELECT 18 UNION SELECT 19 
-                UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23 UNION SELECT 24 
-                UNION SELECT 25 UNION SELECT 26 UNION SELECT 27 UNION SELECT 28 UNION SELECT 29
-            ) AS x
-            WHERE DATE('$today' - INTERVAL n DAY) BETWEEN '$startDate' AND '$today'
-        ) AS d
-        LEFT JOIN sf_user_daily_tracking t 
-            ON DATE(t.date) = d.date 
-            AND t.user_id = ?
-        GROUP BY d.date
-        ORDER BY d.date ASC
+            DATE(date_consumed) AS dia,
+            SUM(kcal_consumed) AS total_kcal,
+            SUM(protein_consumed_g) AS total_protein,
+            SUM(carbs_consumed_g) AS total_carbs,
+            SUM(fat_consumed_g) AS total_fat
+        FROM sf_user_meal_log
+        WHERE user_id = ? 
+        AND DATE(date_consumed) BETWEEN ? AND ?
+        GROUP BY DATE(date_consumed)
+        ORDER BY DATE(date_consumed) ASC
     ";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $userId);
+    $stmt->bind_param("iss", $userId, $startDate, $today);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -412,15 +400,15 @@ $lastDayOfMonth = date('Y-m-t'); // Último dia do mês
 
 $stmt_month = $conn->prepare("
     SELECT 
-        DATE(date) as dia,
+        DATE(date_consumed) as dia,
         SUM(kcal_consumed) as total_kcal,
         SUM(protein_consumed_g) as total_protein,
         SUM(carbs_consumed_g) as total_carbs,
         SUM(fat_consumed_g) as total_fat
-    FROM sf_user_daily_tracking
-    WHERE user_id = ? AND DATE(date) BETWEEN ? AND ?
-    GROUP BY DATE(date)
-    ORDER BY DATE(date) DESC
+    FROM sf_user_meal_log
+    WHERE user_id = ? AND DATE(date_consumed) BETWEEN ? AND ?
+    GROUP BY DATE(date_consumed)
+    ORDER BY DATE(date_consumed) DESC
 ");
 $stmt_month->bind_param("iss", $user_id, $firstDayOfMonth, $lastDayOfMonth);
 $stmt_month->execute();
@@ -460,9 +448,12 @@ $yesterday = date('Y-m-d', strtotime('-1 day'));
 
 $stmt_today = $conn->prepare("
     SELECT 
-        kcal_consumed, protein_consumed_g, carbs_consumed_g, fat_consumed_g
-    FROM sf_user_daily_tracking 
-    WHERE user_id = ? AND date = ?
+        SUM(kcal_consumed) as kcal_consumed, 
+        SUM(protein_consumed_g) as protein_consumed_g, 
+        SUM(carbs_consumed_g) as carbs_consumed_g, 
+        SUM(fat_consumed_g) as fat_consumed_g
+    FROM sf_user_meal_log 
+    WHERE user_id = ? AND DATE(date_consumed) = ?
 ");
 $stmt_today->bind_param("is", $user_id, $today);
 $stmt_today->execute();
@@ -471,9 +462,12 @@ $stmt_today->close();
 
 $stmt_yesterday = $conn->prepare("
     SELECT 
-        kcal_consumed, protein_consumed_g, carbs_consumed_g, fat_consumed_g
-    FROM sf_user_daily_tracking 
-    WHERE user_id = ? AND date = ?
+        SUM(kcal_consumed) as kcal_consumed, 
+        SUM(protein_consumed_g) as protein_consumed_g, 
+        SUM(carbs_consumed_g) as carbs_consumed_g, 
+        SUM(fat_consumed_g) as fat_consumed_g
+    FROM sf_user_meal_log 
+    WHERE user_id = ? AND DATE(date_consumed) = ?
 ");
 $stmt_yesterday->bind_param("is", $user_id, $yesterday);
 $stmt_yesterday->execute();
