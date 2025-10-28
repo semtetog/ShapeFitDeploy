@@ -1690,7 +1690,7 @@ function toggleNutrientsRecords() {
                     <i class="fas fa-utensils"></i>
                 </div>
                 <div class="summary-info">
-                    <h3>Consumo Nutricional</h3>
+                    <h3>🔥 TESTE DEPLOY FUNCIONANDO 🔥</h3>
                     <div class="summary-meta">Meta calórica diária: <strong><?php echo $total_daily_calories_goal; ?> kcal</strong></div>
                     <div class="summary-description">Baseado nos registros de refeições do paciente no aplicativo</div>
                 </div>
