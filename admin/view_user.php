@@ -848,6 +848,11 @@ require_once __DIR__ . '/includes/header.php';
 .details-grid-1-col .dashboard-card .data-item span {
     margin-top: 2px !important;
 }
+
+/* Reduzir altura dos subcards */
+.details-grid-1-col .dashboard-card .data-item {
+    padding: 6px 0 !important;
+}
 </style>
 
 <div class="details-grid-1-col" style="margin-top:24px;">
