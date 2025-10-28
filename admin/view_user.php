@@ -872,10 +872,14 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Ajustar padding interno dos cards da seção "Plano e Preferências" */
 .details-grid-1-col .physical-data-grid .data-item {
-    padding-top: 8px !important;
-    padding-bottom: 2px !important; /* reduz o respiro interno inferior */
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    padding: 4px 12px 1px 12px !important; /* top right bottom left - padding bem reduzido */
+    min-height: auto !important;
+    height: auto !important;
+}
+
+.details-grid-1-col .physical-data-grid .data-item span {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
 }
 </style>
 
