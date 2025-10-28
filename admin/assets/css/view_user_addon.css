@@ -760,6 +760,28 @@
   padding-bottom: 0;
 }
 
+/* Remover qualquer espaço extra do diário */
+.diary-day-card * {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.diary-day-card .diary-meal-card:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.diary-day-card .diary-food-list:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Forçar o card a terminar exatamente no conteúdo */
+.diary-day-card {
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}
+
 .diary-day-summary {
   display: flex;
   align-items: center;
