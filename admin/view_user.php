@@ -5850,19 +5850,11 @@ function openHelpModal(type) {
                 <li>Inclui dias sem registro como 0%</li>
             </ul>
             
-            <p><strong>Exemplo:</strong></p>
-            <ul>
-                <li>Dia 1: 100% da meta</li>
-                <li>Dia 2: 0% (sem registro)</li>
-                <li>Dia 3: 80% da meta</li>
-                <li>Dia 4: 0% (sem registro)</li>
-                <li>Dia 5: 90% da meta</li>
-                <li>Dia 6: 0% (sem registro)</li>
-                <li>Dia 7: 70% da meta</li>
-            </ul>
+            <p><strong>Exemplo prático:</strong></p>
+            <p>Se o paciente atingiu 100%, 0%, 80%, 0%, 90%, 0%, 70% da meta em cada dia:</p>
             <p><strong>Aderência = (100 + 0 + 80 + 0 + 90 + 0 + 70) ÷ 7 = 48.6%</strong></p>
             
-            <p>Esta métrica ajuda o nutricionista a avaliar a <strong>consistência</strong> do paciente em manter a hidratação adequada ao longo da semana.</p>
+            <p>Esta métrica avalia a <strong>consistência</strong> do paciente em manter a hidratação adequada.</p>
         `;
     } else if (type === 'nutrients-adherence') {
         title.textContent = 'Aderência Geral - Nutrientes';
@@ -5876,19 +5868,11 @@ function openHelpModal(type) {
                 <li>Inclui dias sem registro como 0%</li>
             </ul>
             
-            <p><strong>Exemplo:</strong></p>
-            <ul>
-                <li>Dia 1: 95% da meta calórica</li>
-                <li>Dia 2: 0% (sem registro)</li>
-                <li>Dia 3: 110% da meta calórica</li>
-                <li>Dia 4: 0% (sem registro)</li>
-                <li>Dia 5: 85% da meta calórica</li>
-                <li>Dia 6: 0% (sem registro)</li>
-                <li>Dia 7: 100% da meta calórica</li>
-            </ul>
+            <p><strong>Exemplo prático:</strong></p>
+            <p>Se o paciente atingiu 95%, 0%, 110%, 0%, 85%, 0%, 100% da meta em cada dia:</p>
             <p><strong>Aderência = (95 + 0 + 110 + 0 + 85 + 0 + 100) ÷ 7 = 55.7%</strong></p>
             
-            <p>Esta métrica ajuda o nutricionista a avaliar a <strong>consistência</strong> do paciente em manter uma alimentação adequada ao longo da semana.</p>
+            <p>Esta métrica avalia a <strong>consistência</strong> do paciente em manter uma alimentação adequada.</p>
         `;
     }
     
