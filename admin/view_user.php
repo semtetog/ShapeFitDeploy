@@ -405,8 +405,54 @@ $nutrients_stats_7 = getNutrientStats($conn, $user_id, 7, $macros_goal, $total_d
 $nutrients_stats_15 = getNutrientStats($conn, $user_id, 15, $macros_goal, $total_daily_calories_goal);
 $nutrients_stats_30 = getNutrientStats($conn, $user_id, 30, $macros_goal, $total_daily_calories_goal);
 
-// Dados para o gráfico dos últimos 7 dias
-$last_7_days_data = $nutrients_stats_7['daily_data'];
+// Buscar TODOS os registros do mês atual para o gráfico
+$currentMonth = date('Y-m');
+$firstDayOfMonth = $currentMonth . '-01';
+$lastDayOfMonth = date('Y-m-t'); // Último dia do mês
+
+$stmt_month = $conn->prepare("
+    SELECT 
+        DATE(date) as dia,
+        SUM(kcal_consumed) as total_kcal,
+        SUM(protein_consumed_g) as total_protein,
+        SUM(carbs_consumed_g) as total_carbs,
+        SUM(fat_consumed_g) as total_fat
+    FROM sf_user_daily_tracking
+    WHERE user_id = ? AND DATE(date) BETWEEN ? AND ?
+    GROUP BY DATE(date)
+    ORDER BY DATE(date) DESC
+");
+$stmt_month->bind_param("iss", $user_id, $firstDayOfMonth, $lastDayOfMonth);
+$stmt_month->execute();
+$month_result = $stmt_month->get_result();
+
+$last_7_days_data = [];
+while ($row = $month_result->fetch_assoc()) {
+    $dayKcal = (int)$row['total_kcal'];
+    $dayPercentage = $total_daily_calories_goal > 0 ? round(($dayKcal / $total_daily_calories_goal) * 100, 1) : 0;
+    
+    $status = 'empty';
+    if ($dayPercentage >= 90) {
+        $status = 'excellent';
+    } elseif ($dayPercentage >= 70) {
+        $status = 'good';
+    } elseif ($dayPercentage >= 50) {
+        $status = 'fair';
+    } elseif ($dayPercentage > 0) {
+        $status = 'poor';
+    }
+    
+    $last_7_days_data[] = [
+        'date' => $row['dia'],
+        'kcal' => $dayKcal,
+        'protein' => round((float)$row['total_protein'], 1),
+        'carbs' => round((float)$row['total_carbs'], 1),
+        'fat' => round((float)$row['total_fat'], 1),
+        'avg_percentage' => $dayPercentage,
+        'status' => $status
+    ];
+}
+$stmt_month->close();
 
 // Dados para hoje e ontem
 $today = date('Y-m-d');
