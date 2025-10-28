@@ -9,7 +9,20 @@ function getGroupedMealHistory(mysqli $conn, int $user_id, string $startDate, st
             log.date_consumed,
             log.meal_type,
             COALESCE(log.custom_meal_name, recipe.name, 'Alimento Registrado') as food_name,
-            CONCAT(log.servings_consumed, ' porção(ões)') as quantity_display,
+            CASE 
+                WHEN log.servings_consumed = 1 THEN '1 porção'
+                WHEN log.servings_consumed = 2 THEN '2 porções'
+                WHEN log.servings_consumed = 3 THEN '3 porções'
+                WHEN log.servings_consumed = 4 THEN '4 porções'
+                WHEN log.servings_consumed = 5 THEN '5 porções'
+                WHEN log.servings_consumed = 6 THEN '6 porções'
+                WHEN log.servings_consumed = 7 THEN '7 porções'
+                WHEN log.servings_consumed = 8 THEN '8 porções'
+                WHEN log.servings_consumed = 9 THEN '9 porções'
+                WHEN log.servings_consumed = 10 THEN '10 porções'
+                WHEN log.servings_consumed > 10 THEN CONCAT(log.servings_consumed, ' porções')
+                ELSE CONCAT(log.servings_consumed, ' porção(ões)')
+            END as quantity_display,
             log.kcal_consumed,
             log.protein_consumed_g,
             log.carbs_consumed_g,
