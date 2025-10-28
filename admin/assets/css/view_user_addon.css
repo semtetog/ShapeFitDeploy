@@ -205,7 +205,7 @@
   height: 0.6rem !important;
   display: inline-block !important;
   vertical-align: top !important;
-  margin-right: 0.3rem !important;
+  margin-right: 0.1rem !important;
   margin-bottom: 0.2rem !important;
 }
 
@@ -344,7 +344,7 @@
   display: inline-block !important;
   vertical-align: top !important;
   flex-shrink: 0 !important;
-  margin-top: -0.1rem !important;
+  margin-top: -0.2rem !important;
 }
 
 .data-item span {
