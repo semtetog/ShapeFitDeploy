@@ -710,7 +710,7 @@
 
 .diary-slider-track {
   display: flex;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s ease-in-out;
   will-change: transform;
   width: 100%;
   max-width: 100%;

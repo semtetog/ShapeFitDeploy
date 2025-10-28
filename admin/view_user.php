@@ -890,6 +890,9 @@ function updateDiaryCards() {
 }
 
 function updateDiaryDisplay() {
+    // Adicionar transição suave para o slider
+    diaryTrack.style.transition = 'transform 0.3s ease-in-out';
+    
     const offset = -currentDiaryIndex * 100;
     diaryTrack.style.transform = `translateX(${offset}%)`;
     
