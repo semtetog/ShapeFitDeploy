@@ -5445,6 +5445,9 @@ async function loadSpecificDate(dateStr) {
 <div id="sleepDetailsModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeSleepDetailsModal()"></div>
     <div class="custom-modal-content custom-modal-small">
+        <button class="sleep-modal-close" onclick="closeSleepDetailsModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
         <div class="custom-modal-header">
             <i class="fas fa-bed"></i>
             <h3>Detalhes do Sono</h3>
@@ -5483,11 +5486,6 @@ async function loadSpecificDate(dateStr) {
             <?php else: ?>
                 <p class="no-data">Nenhum horário de sono foi definido pelo usuário.</p>
             <?php endif; ?>
-        </div>
-        <div class="custom-modal-footer">
-            <button class="btn-modal-primary" onclick="closeSleepDetailsModal()">
-                Fechar
-            </button>
         </div>
     </div>
 </div>

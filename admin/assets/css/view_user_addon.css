@@ -297,6 +297,32 @@
   padding: 2rem;
 }
 
+/* Botão X clean do modal de sono */
+.sleep-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.sleep-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-orange);
+}
+
 .data-item label {
   font-size: 0.65rem;
   color: var(--text-secondary);
