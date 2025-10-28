@@ -473,7 +473,6 @@ error_log("DEBUG - Total de dias disponíveis: " . count($last_7_days_data));
 error_log("DEBUG - Data de hoje: " . $today);
 error_log("DEBUG - Data de ontem: " . $yesterday);
 error_log("DEBUG - Primeiras 3 datas de hidratação: " . json_encode(array_slice(array_column($hydration_data, 'date'), 0, 3)));
-error_log("DEBUG - Primeiras 3 datas de nutrientes: " . json_encode(array_slice(array_column($nutrients_data, 'date'), 0, 3)));
 
 // Debug: Verificar estatísticas de hoje e ontem
 error_log("DEBUG - Stats hoje hidratação: " . json_encode($water_stats_today));
@@ -1712,7 +1711,7 @@ function toggleNutrientsRecords() {
             </div>
             <div class="nutrients-chart-improved">
                 <div class="improved-chart" id="nutrients-improved-chart">
-                <?php if (empty($nutrients_data)): ?>
+                <?php if (empty($last_7_days_data)): ?>
                     <div class="empty-chart">
                         <i class="fas fa-utensils"></i>
                         <p>Nenhum registro encontrado</p>
@@ -1720,7 +1719,7 @@ function toggleNutrientsRecords() {
                 <?php else: ?>
                     <div class="improved-bars" id="nutrients-improved-bars">
                         <?php 
-                        $display_data = array_slice($nutrients_data, 0, 7);
+                        $display_data = array_slice($last_7_days_data, 0, 7);
                         foreach ($display_data as $day): 
                             $percentage = $day['avg_percentage'];
                             $barHeight = 0;
@@ -1871,7 +1870,7 @@ const waterStats = {
     'all': <?php echo json_encode($water_stats_all); ?>
 };
 
-const nutrientsData = <?php echo json_encode($nutrients_data); ?>;
+const nutrientsData = <?php echo json_encode($last_7_days_data); ?>;
 const nutrientsStats = {
     'today': <?php echo json_encode($nutrients_stats_today); ?>,
     'yesterday': <?php echo json_encode($nutrients_stats_yesterday); ?>,
@@ -3430,7 +3429,7 @@ let currentWeekOffset = 0;
 let weeklyChart = null;
 
 // Dados para o rastreio semanal (serão preenchidos via PHP)
-const weeklyData = <?php echo json_encode($nutrients_data); ?>;
+const weeklyData = <?php echo json_encode($last_7_days_data); ?>;
 const dailyCalorieGoal = <?php echo $total_daily_calories_goal; ?>;
 
 // Função para mudar a semana
