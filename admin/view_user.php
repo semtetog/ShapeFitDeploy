@@ -842,16 +842,17 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Reduzir espaço entre ícone/label e valor nos subcards */
 .details-grid-1-col .dashboard-card .data-item .data-title {
-    margin-bottom: 2px !important;
+    margin-bottom: 1px !important;
 }
 
 .details-grid-1-col .dashboard-card .data-item span {
-    margin-top: 2px !important;
+    margin-top: 1px !important;
 }
 
-/* Reduzir altura dos subcards */
+/* Reduzir altura dos subcards sem colar na borda */
 .details-grid-1-col .dashboard-card .data-item {
-    padding: 6px 0 !important;
+    min-height: auto !important;
+    line-height: 1.2 !important;
 }
 </style>
 
