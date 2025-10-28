@@ -5374,15 +5374,19 @@ async function loadSpecificDate(dateStr) {
                    </div>
                    <div class="legend-row">
                        <span class="legend-marker has-data-marker"></span>
-                       <span class="legend-text">Dias com registros</span>
+                       <span class="legend-text">Com registros</span>
                    </div>
                    <div class="legend-row">
                        <span class="legend-marker no-data-marker"></span>
-                       <span class="legend-text">Dias sem registros</span>
+                       <span class="legend-text">Sem registros</span>
                    </div>
                    <div class="legend-row">
                        <span class="legend-marker future-day-marker"></span>
                        <span class="legend-text">Dias futuros</span>
+                   </div>
+                   <div class="legend-row">
+                       <span class="legend-marker other-month-marker"></span>
+                       <span class="legend-text">Outros meses</span>
                    </div>
                </div>
     </div>
