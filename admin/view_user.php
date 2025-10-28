@@ -1093,10 +1093,7 @@ async function loadMoreDiaryDays(endDate, daysToLoad = 1) {
     isLoadingMoreDays = true;
     
     try {
-        // Mostrar loading
-        showDiaryLoading(true);
-        
-        // Buscar apenas 1 dia via AJAX
+        // Buscar apenas 1 dia via AJAX (sem loading visual)
         const userId = <?php echo $user_id; ?>;
         const url = `actions/load_diary_days.php?user_id=${userId}&end_date=${endDate}&days=${daysToLoad}`;
         
@@ -1147,7 +1144,7 @@ async function loadMoreDiaryDays(endDate, daysToLoad = 1) {
                 urlParams.set('end_date', endDate);
                 window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
                 
-                // Atualizar display
+                // Atualizar display com animação de swipe
                 updateDiaryDisplay();
             } else {
                 console.log('Nenhum novo card encontrado na resposta');
@@ -1159,34 +1156,10 @@ async function loadMoreDiaryDays(endDate, daysToLoad = 1) {
         console.error('Erro ao carregar mais dias:', error);
         alert('Erro ao carregar mais dias: ' + error.message);
     } finally {
-        // Ocultar loading
-        showDiaryLoading(false);
         isLoadingMoreDays = false;
     }
 }
 
-function showDiaryLoading(show) {
-    const header = document.querySelector('.diary-header-redesign');
-    if (!header) return;
-    
-    if (show) {
-        // Criar overlay de loading
-        if (!header.querySelector('.diary-loading-overlay')) {
-            const overlay = document.createElement('div');
-            overlay.className = 'diary-loading-overlay';
-            overlay.innerHTML = `
-                <div class="diary-loading-spinner"></div>
-                <p>Carregando mais dias...</p>
-            `;
-            header.appendChild(overlay);
-        }
-    } else {
-        const overlay = header.querySelector('.diary-loading-overlay');
-        if (overlay) {
-            overlay.remove();
-        }
-    }
-}
 
 function goToDiaryIndex(index) {
     currentDiaryIndex = index;
