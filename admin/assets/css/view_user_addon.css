@@ -3783,42 +3783,64 @@
   margin-bottom: 0.5rem;
 }
 
-/* Botões de período - estilo clean como calendário */
-.chart-section-header {
+/* Cabeçalho do gráfico dentro do card */
+.chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.period-buttons {
+.chart-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
+.chart-header h4 i {
+  color: var(--accent-orange);
+  font-size: 1rem;
+}
+
+/* Botões de período - estilo harmonioso */
+.period-buttons {
+  display: flex;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.25rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 .period-btn {
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.4rem 0.8rem;
+  background: transparent;
+  border: none;
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  position: relative;
 }
 
 .period-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .period-btn.active {
   background: var(--accent-orange);
   color: white;
-  border-color: var(--accent-orange);
+  box-shadow: 0 2px 8px rgba(255, 140, 66, 0.2);
 }
 
 /* Layout em fileiras para as barras */
@@ -3874,7 +3896,7 @@
 }
 
 @media (max-width: 768px) {
-  .chart-section-header {
+  .chart-header {
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
