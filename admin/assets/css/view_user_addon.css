@@ -3844,6 +3844,11 @@
   justify-items: center;
 }
 
+/* Barras mais gordinhas para 15 dias */
+.improved-bars[data-period="15"] .improved-bar-container {
+  max-width: 100px;
+}
+
 /* 30 dias: 3 fileiras de 10 */
 .improved-bars[data-period="30"] {
   grid-template-columns: repeat(10, 1fr);
