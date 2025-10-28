@@ -333,13 +333,37 @@ function getNutrientStats($conn, $userId, $periodDays, $macros_goal, $total_dail
         ];
     }
 
-    // Divide sempre pelo total de dias fixos
-    $avgKcal = round($totalKcal / $periodDays, 0);
-    $avgProtein = round($totalProtein / $periodDays, 1);
-    $avgCarbs = round($totalCarbs / $periodDays, 1);
-    $avgFat = round($totalFat / $periodDays, 1);
+    // Calcular dias com consumo real (kcal > 0)
+    $daysWithConsumption = 0;
+    $excellentDays = 0;
+    $goodDays = 0;
+    foreach ($dailyData as $day) {
+        if ($day['kcal_consumed'] > 0) {
+            $daysWithConsumption++;
+            
+            $dayKcalPercentage = $total_daily_calories_goal > 0 ? round(($day['kcal_consumed'] / $total_daily_calories_goal) * 100, 1) : 0;
+            if ($dayKcalPercentage >= 90) {
+                $excellentDays++;
+            } elseif ($dayKcalPercentage >= 70) {
+                $goodDays++;
+            }
+        }
+    }
     
-    // Calcular percentuais
+    // Calcular médias apenas dos dias com consumo real
+    if ($daysWithConsumption > 0) {
+        $avgKcal = round($totalKcal / $daysWithConsumption, 0);
+        $avgProtein = round($totalProtein / $daysWithConsumption, 1);
+        $avgCarbs = round($totalCarbs / $daysWithConsumption, 1);
+        $avgFat = round($totalFat / $daysWithConsumption, 1);
+    } else {
+        $avgKcal = 0;
+        $avgProtein = 0;
+        $avgCarbs = 0;
+        $avgFat = 0;
+    }
+    
+    // Calcular percentuais baseados na média real
     $avgKcalPercentage = $total_daily_calories_goal > 0 ? round(($avgKcal / $total_daily_calories_goal) * 100, 1) : 0;
     $avgProteinPercentage = $macros_goal['protein_g'] > 0 ? round(($avgProtein / $macros_goal['protein_g']) * 100, 1) : 0;
     $avgCarbsPercentage = $macros_goal['carbs_g'] > 0 ? round(($avgCarbs / $macros_goal['carbs_g']) * 100, 1) : 0;
@@ -348,17 +372,8 @@ function getNutrientStats($conn, $userId, $periodDays, $macros_goal, $total_dail
     // Calcular percentual geral da meta (média dos percentuais de todos os macronutrientes)
     $avgOverallPercentage = round(($avgKcalPercentage + $avgProteinPercentage + $avgCarbsPercentage + $avgFatPercentage) / 4, 1);
     
-    // Calcular dias excelentes e bons (baseado no percentual geral)
-    $excellentDays = 0;
-    $goodDays = 0;
-    foreach ($dailyData as $day) {
-        $dayKcalPercentage = $total_daily_calories_goal > 0 ? round(($day['kcal_consumed'] / $total_daily_calories_goal) * 100, 1) : 0;
-        if ($dayKcalPercentage >= 90) {
-            $excellentDays++;
-        } elseif ($dayKcalPercentage >= 70) {
-            $goodDays++;
-        }
-    }
+    // Calcular aderência (dias com registro / total de dias)
+    $adherencePercentage = round(($daysWithConsumption / $periodDays) * 100, 1);
 
     return [
         'avg_kcal' => $avgKcal,
@@ -372,6 +387,8 @@ function getNutrientStats($conn, $userId, $periodDays, $macros_goal, $total_dail
         'avg_overall_percentage' => $avgOverallPercentage,
         'excellent_days' => $excellentDays,
         'good_days' => $goodDays,
+        'days_with_consumption' => $daysWithConsumption,
+        'adherence_percentage' => $adherencePercentage,
         'total_days' => $periodDays,
         'daily_data' => $dailyData
     ];
@@ -1608,9 +1625,9 @@ function toggleNutrientsRecords() {
                     <div class="stat-description">Meta calórica atingida</div>
                 </div>
                 <div class="summary-stat">
-                    <div class="stat-value"><?php echo $nutrients_stats_7['excellent_days'] + $nutrients_stats_7['good_days']; ?>/<?php echo $nutrients_stats_7['total_days']; ?></div>
-                    <div class="stat-label">Dias na Meta</div>
-                    <div class="stat-description">Dias com bom consumo</div>
+                    <div class="stat-value"><?php echo $nutrients_stats_7['days_with_consumption']; ?>/<?php echo $nutrients_stats_7['total_days']; ?></div>
+                    <div class="stat-label">Dias com Registro</div>
+                    <div class="stat-description"><?php echo $nutrients_stats_7['adherence_percentage']; ?>% de aderência</div>
                 </div>
             </div>
         </div>
@@ -1622,10 +1639,19 @@ function toggleNutrientsRecords() {
         
         // Insight sobre aderência geral
         $excellent_good_days = $nutrients_stats_7['excellent_days'] + $nutrients_stats_7['good_days'];
+        $days_with_consumption = $nutrients_stats_7['days_with_consumption'];
         $total_days = $nutrients_stats_7['total_days'];
-        if ($total_days > 0) {
-            $adherence_rate = round(($excellent_good_days / $total_days) * 100, 1);
-            $nutrients_insights[] = "O paciente atingiu as metas nutricionais em <strong>{$excellent_good_days} de {$total_days} dias</strong> analisados ({$adherence_rate}% de aderência). <em>Baseado no consumo de calorias, proteínas, carboidratos e gorduras registrados no aplicativo.</em>";
+        $adherence_percentage = $nutrients_stats_7['adherence_percentage'];
+        
+        if ($days_with_consumption > 0) {
+            $nutrients_insights[] = "O paciente registrou refeições em <strong>{$days_with_consumption} de {$total_days} dias</strong> analisados ({$adherence_percentage}% de aderência). <em>Baseado nos registros de refeições do paciente no aplicativo.</em>";
+            
+            if ($excellent_good_days > 0) {
+                $quality_rate = round(($excellent_good_days / $days_with_consumption) * 100, 1);
+                $nutrients_insights[] = "Dos dias com registro, <strong>{$excellent_good_days} dias</strong> atingiram as metas nutricionais ({$quality_rate}% de qualidade).";
+            }
+        } else {
+            $nutrients_insights[] = "O paciente não registrou refeições nos últimos 7 dias. <em>Nenhum dado nutricional disponível para análise.</em>";
         }
         
         // Insight sobre calorias
