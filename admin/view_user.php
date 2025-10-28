@@ -1644,7 +1644,7 @@ if (count($hydration_data) >= 7) {
 
         <!-- 4. MÉDIAS DE PERÍODOS (COMPACTO) -->
         <div class="hydration-periods-compact">
-            <h4><i class="fas fa-calendar-alt"></i> Médias de Consumo por Período</h4>
+            <h4><i class="fas fa-calendar-alt" style="color: var(--accent-orange);"></i> Médias de Consumo por Período</h4>
             <p class="section-description">Análise do consumo de água médio em diferentes períodos para identificar tendências e padrões de hidratação.</p>
             <div class="periods-grid">
                 <div class="period-item">
@@ -1668,76 +1668,10 @@ if (count($hydration_data) >= 7) {
             </div>
         </div>
 
-        <!-- 5. REGISTROS DETALHADOS (COLAPSÁVEL) -->
-        <div class="hydration-records-collapsible">
-            <button class="collapse-toggle" onclick="toggleHydrationRecords()">
-                <i class="fas fa-chevron-down"></i>
-                <span>Mostrar Registros Detalhados</span>
-            </button>
-            <div class="records-content" id="hydration-records-content" style="display: none;">
-                <table class="records-table">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Consumo</th>
-                            <th>% da Meta</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($hydration_data)): ?>
-                            <tr>
-                                <td colspan="4" class="empty-state">Nenhum registro de hidratação</td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach (array_slice($hydration_data, 0, 30) as $day): ?>
-                                <tr>
-                                    <td><?php echo date('d/m/Y', strtotime($day['date'])); ?></td>
-                                    <td><strong><?php echo $day['ml']; ?>ml</strong></td>
-                                    <td><?php echo $day['percentage']; ?>%</td>
-                                    <td>
-                                        <span class="status-badge status-<?php echo $day['status']; ?>">
-                                            <?php 
-                                            $status_labels = [
-                                                'excellent' => 'Excelente',
-                                                'good' => 'Bom',
-                                                'fair' => 'Regular',
-                                                'poor' => 'Baixo',
-                                                'critical' => 'Crítico'
-                                            ];
-                                            echo $status_labels[$day['status']] ?? $day['status'];
-                                            ?>
-                                        </span>
-                                    </td>
-                                </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
 </div>
 
 <script>
-function toggleHydrationRecords() {
-    const content = document.getElementById('hydration-records-content');
-    const button = event.currentTarget;
-    const icon = button.querySelector('i');
-    const text = button.querySelector('span');
-    
-    if (content.style.display === 'none') {
-        content.style.display = 'block';
-        icon.classList.remove('fa-chevron-down');
-        icon.classList.add('fa-chevron-up');
-        text.textContent = 'Ocultar Registros Detalhados';
-    } else {
-        content.style.display = 'none';
-        icon.classList.remove('fa-chevron-up');
-        icon.classList.add('fa-chevron-down');
-        text.textContent = 'Mostrar Registros Detalhados';
-    }
-}
 
 function toggleNutrientsRecords() {
     const content = document.getElementById('nutrients-records-content');
