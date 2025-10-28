@@ -812,9 +812,9 @@ require_once __DIR__ . '/includes/header.php';
             <div class="data-item">
                 <div class="data-title">
                     <i class="fas fa-tint icon"></i>
-                    <label>Consumo de Água por Dia</label>
+                    <label>Hidratação</label>
             </div>
-                <span><?php echo $water_intake_names[$user_data['water_intake_liters']] ?? 'N/I'; ?></span>
+                <span><?php echo ($water_intake_names[$user_data['water_intake_liters']] ?? 'N/I') . ($user_data['water_intake_liters'] ? ' por dia' : ''); ?></span>
         </div>
             <div class="data-item sleep-item" onclick="openSleepDetailsModal()">
                 <div class="data-title">
