@@ -2635,9 +2635,7 @@
 }
 
 .calendar-day.has-data:hover {
-  background: rgba(128, 128, 128, 0.2);
-  border-color: rgba(128, 128, 128, 0.4);
-  color: var(--text-primary);
+  transform: scale(1.05);
 }
 
 .calendar-day.today {
