@@ -919,6 +919,12 @@ require_once __DIR__ . '/includes/header.php';
     margin-top: 8px !important; /* espaçamento consistente após o título */
 }
 
+/* Descer os 8 subcards para alinhar com os blocos de macronutrientes */
+.details-grid-3-cols .dashboard-card .physical-data-grid,
+.details-grid-3-cols .dashboard-card .habits-grid {
+    margin-top: 16px !important; /* descer os subcards para alinhar com macros */
+}
+
 /* Descer posicionamento dos subcards dentro do card pai */
 .details-grid-1-col .physical-data-grid {
     margin-top: 24px !important; /* descer ainda mais os subcards */
