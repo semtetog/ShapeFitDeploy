@@ -2624,9 +2624,10 @@
 }
 
 .calendar-day:not(.empty):not(.other-month):hover {
-  background: rgba(128, 128, 128, 0.15);
-  border-color: rgba(128, 128, 128, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent-orange);
   color: var(--text-primary);
+  transform: translateY(-2px);
 }
 
 .calendar-day.has-data {
@@ -2647,8 +2648,6 @@
   color: white;
   border-color: var(--accent-orange);
   font-weight: 700;
-  box-shadow: 0 0 20px rgba(255, 107, 0, 0.6), 0 0 40px rgba(255, 107, 0, 0.3);
-  transform: scale(1.05);
 }
 
 .calendar-day.has-data.today {
@@ -2656,8 +2655,6 @@
   color: white;
   border-color: var(--accent-orange);
   font-weight: 700;
-  box-shadow: 0 0 20px rgba(255, 107, 0, 0.6), 0 0 40px rgba(255, 107, 0, 0.3);
-  transform: scale(1.05);
 }
 
 /* Legenda */
