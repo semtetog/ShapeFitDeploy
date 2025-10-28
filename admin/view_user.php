@@ -5098,11 +5098,26 @@ document.addEventListener('click', function(e) {
 let currentCalendarDate = new Date();
 const daysWithData = new Set();
 
-// Marcar dias com dados do meal_history
-<?php
-echo "const mealHistoryDates = " . json_encode(array_keys($meal_history)) . ";\n";
-?>
-mealHistoryDates.forEach(date => daysWithData.add(date));
+       // Marcar dias com dados do meal_history (incluindo todos os meses)
+       <?php
+       // Buscar TODOS os dias com dados, não apenas do mês atual
+       $stmt_all_dates = $conn->prepare("
+           SELECT DISTINCT DATE(logged_at) as date 
+           FROM sf_user_meal_log 
+           WHERE user_id = ? 
+           ORDER BY date DESC
+       ");
+       $stmt_all_dates->bind_param("i", $user_id);
+       $stmt_all_dates->execute();
+       $all_dates_result = $stmt_all_dates->get_result();
+       $all_dates_with_data = [];
+       while ($row = $all_dates_result->fetch_assoc()) {
+           $all_dates_with_data[] = $row['date'];
+       }
+       $stmt_all_dates->close();
+       echo "const allDatesWithData = " . json_encode($all_dates_with_data) . ";\n";
+       ?>
+       allDatesWithData.forEach(date => daysWithData.add(date));
 
 function openDiaryCalendar() {
     currentCalendarDate = new Date();
@@ -5213,10 +5228,58 @@ function goToDiaryDate(dateStr) {
     });
     
     if (targetIndex !== -1) {
+        // Se o dia está nos cards carregados, navegar diretamente
         goToDiaryIndex(targetIndex);
         closeDiaryCalendar();
     } else {
-        alert('Dia não disponível no diário atual.');
+        // Se o dia não estiver nos cards carregados, carregar via AJAX
+        loadSpecificDate(dateStr);
+        closeDiaryCalendar();
+    }
+}
+
+async function loadSpecificDate(dateStr) {
+    try {
+        const userId = <?php echo $user_id; ?>;
+        const url = `actions/load_diary_days.php?user_id=${userId}&end_date=${dateStr}&days=1`;
+        
+        console.log('Carregando data específica:', dateStr);
+        
+        const response = await fetch(url);
+        if (response.ok) {
+            const html = await response.text();
+            
+            if (html.trim().length > 0) {
+                // Adicionar novo card
+                const diaryTrack = document.getElementById('diarySliderTrack');
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const newCards = tempDiv.querySelectorAll('.diary-day-card');
+                
+                if (newCards.length > 0) {
+                    // Adicionar no início (mais antigo primeiro)
+                    const fragment = document.createDocumentFragment();
+                    while (tempDiv.firstChild) {
+                        fragment.appendChild(tempDiv.firstChild);
+                    }
+                    diaryTrack.insertBefore(fragment, diaryTrack.firstChild);
+                    
+                    // Atualizar referência aos cards
+                    updateDiaryCards();
+                    
+                    // Navegar para o dia carregado
+                    currentDiaryIndex = 0;
+                    updateDiaryDisplay();
+                    
+                    console.log('Data específica carregada com sucesso:', dateStr);
+                }
+            }
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Erro ao carregar data específica:', error);
+        alert('Erro ao carregar a data selecionada: ' + error.message);
     }
 }
 </script>
