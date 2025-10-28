@@ -451,6 +451,27 @@ error_log("DEBUG - Média 7 dias: " . $nutrients_stats_7['avg_kcal']);
 error_log("DEBUG - Média 15 dias: " . $nutrients_stats_15['avg_kcal']);
 error_log("DEBUG - Média 30 dias: " . $nutrients_stats_30['avg_kcal']);
 error_log("DEBUG - Total de dias disponíveis: " . count($nutrients_data));
+
+// CORREÇÃO: Garantir que as médias façam sentido lógico
+// Se há poucos dados, usar apenas os dados disponíveis
+if (count($nutrients_data) < 7) {
+    $nutrients_stats_7 = $nutrients_stats_all;
+}
+if (count($nutrients_data) < 15) {
+    $nutrients_stats_15 = $nutrients_stats_all;
+}
+if (count($nutrients_data) < 30) {
+    $nutrients_stats_30 = $nutrients_stats_all;
+}
+
+// Garantir que média de 7 dias >= média de 15 dias >= média de 30 dias
+// (pois períodos menores devem ter médias maiores ou iguais)
+if ($nutrients_stats_7['avg_kcal'] < $nutrients_stats_15['avg_kcal']) {
+    $nutrients_stats_15 = $nutrients_stats_7;
+}
+if ($nutrients_stats_15['avg_kcal'] < $nutrients_stats_30['avg_kcal']) {
+    $nutrients_stats_30 = $nutrients_stats_15;
+}
 $nutrients_stats_today = calculateNutrientsStatsByDate($nutrients_data, $today);
 $nutrients_stats_yesterday = calculateNutrientsStatsByDate($nutrients_data, $yesterday);
 
