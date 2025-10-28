@@ -1947,7 +1947,8 @@
 /* ========== NOVA ESTRUTURA SIMPLIFICADA DE HIDRATAÇÃO ========== */
 
 /* 1. Card Resumo Compacto */
-.hydration-summary-card {
+.hydration-summary-card,
+.nutrients-summary-card {
   background: var(--surface-color);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -2052,7 +2053,8 @@
 }
 
 /* 2. Insights Automáticos */
-.hydration-insights {
+.hydration-insights,
+.nutrients-insights {
   background: var(--surface-color);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -2106,7 +2108,8 @@
 }
 
 /* 3. Médias por Período (Compacto) */
-.hydration-periods-compact {
+.hydration-periods-compact,
+.nutrients-periods-compact {
   background: var(--surface-color);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -2159,7 +2162,8 @@
 }
 
 /* 4. Registros Colapsáveis */
-.hydration-records-collapsible {
+.hydration-records-collapsible,
+.nutrients-records-collapsible {
   background: var(--surface-color);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
