@@ -828,63 +828,10 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<style>
-/* CSS específico para card Plano e Preferências */
-.physical-data-grid-pref {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px !important;
-    margin-top: 10px !important;
-}
-
-.physical-data-grid-pref .data-item {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
-    padding: 6px 0 !important;
-    gap: 4px !important;
-}
-
-.physical-data-grid-pref .data-item .data-title {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 4px !important;
-}
-
-.physical-data-grid-pref .data-item .icon {
-    color: #FF6B00 !important;
-    font-size: 16px !important;
-    opacity: 0.9 !important;
-}
-
-.physical-data-grid-pref .data-item label {
-    color: #A0A0A0 !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    margin: 0 !important;
-}
-
-.physical-data-grid-pref .data-item span {
-    color: #EAEAEA !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    text-align: center !important;
-    margin: 0 !important;
-}
-
-.dashboard-card:has(.physical-data-grid-pref) h3 {
-    margin-bottom: 10px !important;
-}
-</style>
-
 <div class="details-grid-1-col" style="margin-top:24px;">
     <div class="dashboard-card">
         <h3>Plano e Preferências</h3>
-         <div class="physical-data-grid-pref">
+         <div class="physical-data-grid">
             <div class="data-item">
                 <div class="data-title">
                     <i class="fas fa-bullseye icon"></i>
