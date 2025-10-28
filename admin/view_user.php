@@ -267,81 +267,102 @@ $yesterday = date('Y-m-d', strtotime('-1 day'));
 $water_stats_today = calculateHydrationStatsByDate($hydration_data, $today);
 $water_stats_yesterday = calculateHydrationStatsByDate($hydration_data, $yesterday);
 
-// --- PROCESSAMENTO DE DADOS DE NUTRIENTES (LÓGICA CORRIGIDA) ---
-// Gerar range de datas completo e fazer LEFT JOIN para garantir que todos os dias sejam considerados
+// --- PROCESSAMENTO DE DADOS DE NUTRIENTES (LÓGICA DEFINITIVA) ---
+// Função robusta que garante range completo de datas com LEFT JOIN
 
-// Função para gerar range de datas e calcular médias corretas
-function calculateNutrientsStatsWithDateRange($conn, $user_id, $days, $macros_goal, $total_daily_calories_goal) {
-    $end_date = date('Y-m-d');
-    $start_date = date('Y-m-d', strtotime("-" . ($days - 1) . " days"));
-    
-    // Gerar range de datas completo
-    $date_range = [];
-    for ($i = 0; $i < $days; $i++) {
-        $date_range[] = date('Y-m-d', strtotime($start_date . " +$i days"));
+function getNutrientStats($conn, $userId, $periodDays, $macros_goal, $total_daily_calories_goal) {
+    $today = date('Y-m-d');
+    $startDate = date('Y-m-d', strtotime("-" . ($periodDays - 1) . " days", strtotime($today)));
+
+    // Gera um range completo de dias (garante que até os dias sem registro apareçam)
+    $dates = [];
+    for ($i = 0; $i < $periodDays; $i++) {
+        $dates[] = date('Y-m-d', strtotime("-$i days", strtotime($today)));
     }
-    
-    // Query com LEFT JOIN para garantir que todos os dias apareçam
-    $placeholders = str_repeat('?,', count($date_range) - 1) . '?';
-    $stmt = $conn->prepare("
+
+    // Monta o SQL com LEFT JOIN para incluir dias sem refeição
+    $sql = "
         SELECT 
-            d.date,
-            COALESCE(SUM(t.kcal_consumed), 0) as total_kcal,
-            COALESCE(SUM(t.protein_consumed_g), 0) as total_protein,
-            COALESCE(SUM(t.carbs_consumed_g), 0) as total_carbs,
-            COALESCE(SUM(t.fat_consumed_g), 0) as total_fat
+            d.date AS dia,
+            COALESCE(SUM(t.kcal_consumed), 0) AS total_kcal,
+            COALESCE(SUM(t.protein_consumed_g), 0) AS total_protein,
+            COALESCE(SUM(t.carbs_consumed_g), 0) AS total_carbs,
+            COALESCE(SUM(t.fat_consumed_g), 0) AS total_fat
         FROM (
-            " . implode(' UNION ALL ', array_fill(0, count($date_range), 'SELECT ? as date')) . "
-        ) d
-        LEFT JOIN sf_user_daily_tracking t ON d.date = t.date AND t.user_id = ?
+            SELECT DATE('$today' - INTERVAL n DAY) AS date
+            FROM (
+                SELECT 0 AS n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+                UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 
+                UNION SELECT 10 UNION SELECT 11 UNION SELECT 12 UNION SELECT 13 UNION SELECT 14 
+                UNION SELECT 15 UNION SELECT 16 UNION SELECT 17 UNION SELECT 18 UNION SELECT 19 
+                UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23 UNION SELECT 24 
+                UNION SELECT 25 UNION SELECT 26 UNION SELECT 27 UNION SELECT 28 UNION SELECT 29
+            ) AS x
+            WHERE DATE('$today' - INTERVAL n DAY) BETWEEN '$startDate' AND '$today'
+        ) AS d
+        LEFT JOIN sf_user_daily_tracking t 
+            ON DATE(t.date) = d.date 
+            AND t.user_id = ?
         GROUP BY d.date
         ORDER BY d.date ASC
-    ");
-    
-    // Bind parameters: todas as datas + user_id
-    $params = array_merge($date_range, [$user_id]);
-    $types = str_repeat('s', count($date_range)) . 'i';
-    $stmt->bind_param($types, ...$params);
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $userId);
     $stmt->execute();
-    $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
-    
-    // Calcular totais
-    $total_kcal = array_sum(array_column($result, 'total_kcal'));
-    $total_protein = array_sum(array_column($result, 'total_protein'));
-    $total_carbs = array_sum(array_column($result, 'total_carbs'));
-    $total_fat = array_sum(array_column($result, 'total_fat'));
-    
-    // Calcular médias (sempre dividir pelo número total de dias)
-    $avg_kcal = round($total_kcal / $days, 0);
-    $avg_protein = round($total_protein / $days, 1);
-    $avg_carbs = round($total_carbs / $days, 1);
-    $avg_fat = round($total_fat / $days, 1);
+    $result = $stmt->get_result();
+
+    $totalKcal = 0;
+    $totalProtein = 0;
+    $totalCarbs = 0;
+    $totalFat = 0;
+    $dailyData = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $totalKcal += $row['total_kcal'];
+        $totalProtein += $row['total_protein'];
+        $totalCarbs += $row['total_carbs'];
+        $totalFat += $row['total_fat'];
+        
+        $dailyData[] = [
+            'date' => $row['dia'],
+            'kcal_consumed' => $row['total_kcal'],
+            'protein_consumed_g' => $row['total_protein'],
+            'carbs_consumed_g' => $row['total_carbs'],
+            'fat_consumed_g' => $row['total_fat']
+        ];
+    }
+
+    // Divide sempre pelo total de dias fixos
+    $avgKcal = round($totalKcal / $periodDays, 0);
+    $avgProtein = round($totalProtein / $periodDays, 1);
+    $avgCarbs = round($totalCarbs / $periodDays, 1);
+    $avgFat = round($totalFat / $periodDays, 1);
     
     // Calcular percentuais
-    $avg_kcal_percentage = $total_daily_calories_goal > 0 ? round(($avg_kcal / $total_daily_calories_goal) * 100, 1) : 0;
-    $avg_protein_percentage = $macros_goal['protein_g'] > 0 ? round(($avg_protein / $macros_goal['protein_g']) * 100, 1) : 0;
-    $avg_carbs_percentage = $macros_goal['carbs_g'] > 0 ? round(($avg_carbs / $macros_goal['carbs_g']) * 100, 1) : 0;
-    $avg_fat_percentage = $macros_goal['fat_g'] > 0 ? round(($avg_fat / $macros_goal['fat_g']) * 100, 1) : 0;
-    
+    $avgKcalPercentage = $total_daily_calories_goal > 0 ? round(($avgKcal / $total_daily_calories_goal) * 100, 1) : 0;
+    $avgProteinPercentage = $macros_goal['protein_g'] > 0 ? round(($avgProtein / $macros_goal['protein_g']) * 100, 1) : 0;
+    $avgCarbsPercentage = $macros_goal['carbs_g'] > 0 ? round(($avgCarbs / $macros_goal['carbs_g']) * 100, 1) : 0;
+    $avgFatPercentage = $macros_goal['fat_g'] > 0 ? round(($avgFat / $macros_goal['fat_g']) * 100, 1) : 0;
+
     return [
-        'avg_kcal' => $avg_kcal,
-        'avg_protein' => $avg_protein,
-        'avg_carbs' => $avg_carbs,
-        'avg_fat' => $avg_fat,
-        'avg_kcal_percentage' => $avg_kcal_percentage,
-        'avg_protein_percentage' => $avg_protein_percentage,
-        'avg_carbs_percentage' => $avg_carbs_percentage,
-        'avg_fat_percentage' => $avg_fat_percentage,
-        'total_days' => count($result),
-        'daily_data' => $result
+        'avg_kcal' => $avgKcal,
+        'avg_protein' => $avgProtein,
+        'avg_carbs' => $avgCarbs,
+        'avg_fat' => $avgFat,
+        'avg_kcal_percentage' => $avgKcalPercentage,
+        'avg_protein_percentage' => $avgProteinPercentage,
+        'avg_carbs_percentage' => $avgCarbsPercentage,
+        'avg_fat_percentage' => $avgFatPercentage,
+        'total_days' => $periodDays,
+        'daily_data' => $dailyData
     ];
 }
 
 // Calcular estatísticas para cada período
-$nutrients_stats_7 = calculateNutrientsStatsWithDateRange($conn, $user_id, 7, $macros_goal, $total_daily_calories_goal);
-$nutrients_stats_15 = calculateNutrientsStatsWithDateRange($conn, $user_id, 15, $macros_goal, $total_daily_calories_goal);
-$nutrients_stats_30 = calculateNutrientsStatsWithDateRange($conn, $user_id, 30, $macros_goal, $total_daily_calories_goal);
+$nutrients_stats_7 = getNutrientStats($conn, $user_id, 7, $macros_goal, $total_daily_calories_goal);
+$nutrients_stats_15 = getNutrientStats($conn, $user_id, 15, $macros_goal, $total_daily_calories_goal);
+$nutrients_stats_30 = getNutrientStats($conn, $user_id, 30, $macros_goal, $total_daily_calories_goal);
 
 // Dados para o gráfico dos últimos 7 dias
 $last_7_days_data = $nutrients_stats_7['daily_data'];
