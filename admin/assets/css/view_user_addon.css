@@ -3420,15 +3420,31 @@
 }
 
 .nutrients-insights .insights-list li {
-  padding: 0.75rem 0;
+  padding: 0.75rem 0 0.75rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-secondary);
   font-size: 0.875rem;
   line-height: 1.5;
+  position: relative;
 }
 
 .nutrients-insights .insights-list li:last-child {
   border-bottom: none;
+}
+
+/* Setinhas dos insights */
+.nutrients-insights .insights-list li::before {
+  content: "▶";
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  color: var(--accent-orange);
+  font-size: 0.75rem;
+}
+
+/* Ícone de lâmpada amarelo */
+.nutrients-insights h4 i {
+  color: #FFD700 !important;
 }
 
 /* Gráfico de nutrientes */
