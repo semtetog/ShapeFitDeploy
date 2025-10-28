@@ -172,7 +172,7 @@ function getHydrationStats($conn, $userId, $water_goal_ml) {
             $data = $row['dia'];
             $cups = (int)$row['total_cups'];
             $water_ml = $cups * 250; // 250ml por copo
-            $raw_percentage = $water_goal_ml > 0 ? ($water_ml / $water_goal_ml) * 100 : 0;
+    $raw_percentage = $water_goal_ml > 0 ? ($water_ml / $water_goal_ml) * 100 : 0;
             $percentage = min(round($raw_percentage, 1), 100);
             
             if (isset($datas[$data])) {
@@ -182,7 +182,7 @@ function getHydrationStats($conn, $userId, $water_goal_ml) {
                 $datas[$data]['goal_reached'] = $water_ml >= $water_goal_ml;
                 
                 // Determinar status
-                if ($percentage == 0) {
+    if ($percentage == 0) {
                     $datas[$data]['status'] = 'empty';
                     $datas[$data]['status_text'] = 'Sem dados';
                     $datas[$data]['status_class'] = 'info';
@@ -190,19 +190,19 @@ function getHydrationStats($conn, $userId, $water_goal_ml) {
                     $datas[$data]['status'] = 'excellent';
                     $datas[$data]['status_text'] = 'Meta atingida';
                     $datas[$data]['status_class'] = 'success';
-                } elseif ($percentage >= 90) {
+    } elseif ($percentage >= 90) {
                     $datas[$data]['status'] = 'good';
                     $datas[$data]['status_text'] = 'Quase na meta';
                     $datas[$data]['status_class'] = 'info';
-                } elseif ($percentage >= 70) {
+    } elseif ($percentage >= 70) {
                     $datas[$data]['status'] = 'fair';
                     $datas[$data]['status_text'] = 'Abaixo da meta';
                     $datas[$data]['status_class'] = 'warning';
-                } elseif ($percentage >= 50) {
+    } elseif ($percentage >= 50) {
                     $datas[$data]['status'] = 'poor';
                     $datas[$data]['status_text'] = 'Muito abaixo';
                     $datas[$data]['status_class'] = 'warning';
-                } else {
+    } else {
                     $datas[$data]['status'] = 'critical';
                     $datas[$data]['status_text'] = 'Crítico';
                     $datas[$data]['status_class'] = 'error';
@@ -863,12 +863,12 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Diminuir distância entre títulos e subcards das seções Dados Físicos e Anamnese */
 .details-grid-3-cols .dashboard-card h3 {
-    margin-bottom: 120px !important; /* distância aumentada mais 5x para Dados Físicos e Anamnese */
+    margin-bottom: 24px !important; /* distância reduzida 5x para Dados Físicos e Anamnese */
 }
 
 /* Ajustar margin-top do physical-data-grid nas seções Dados Físicos e Anamnese */
 .details-grid-3-cols .physical-data-grid {
-    margin-top: 60px !important; /* subir menos os subcards para ficar com distância adequada */
+    margin-top: 12px !important; /* subir menos os subcards para ficar com distância adequada */
 }
 
 /* Diminuir padding-bottom dos cards das seções Dados Físicos e Anamnese */
@@ -1192,16 +1192,16 @@ require_once __DIR__ . '/includes/header.php';
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
-                            </div>
-                        <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
                     </div>
                 <?php endforeach; ?>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
+                <?php endforeach; ?>
 </div>
+                </div>
+            </div>
+        </div>
 
 <script>
 // Sistema de navegação do diário
@@ -1656,31 +1656,31 @@ if (count($hydration_data) >= 7) {
             <div class="summary-main">
                 <div class="summary-icon">
                     <i class="fas fa-tint"></i>
-                </div>
+                    </div>
                 <div class="summary-info">
                     <h3>Hidratação</h3>
                     <div class="summary-meta">Meta diária: <strong><?php echo $water_goal_ml; ?>ml</strong></div>
                     <div class="summary-description">Baseado nos registros de hidratação do paciente no aplicativo</div>
-                </div>
+                    </div>
                 <div class="summary-status status-<?php echo $status_class; ?>">
                     <i class="fas <?php echo $status_icon; ?>"></i>
                     <span><?php echo $status_text; ?></span>
                 </div>
-            </div>
+                    </div>
             <div class="summary-stats">
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $water_stats_7['avg_ml']; ?>ml</div>
                     <div class="stat-label">Média de Água</div>
                     <div class="stat-description">Últimos 7 dias</div>
-                </div>
+                    </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $water_stats_7['avg_percentage']; ?>%</div>
                     <div class="stat-label">
                         Aderência Geral
                         <i class="fas fa-question-circle help-icon" onclick="openHelpModal('hydration-adherence')" title="Clique para saber mais"></i>
-                    </div>
-                    <div class="stat-description">Meta de hidratação atingida</div>
                 </div>
+                    <div class="stat-description">Meta de hidratação atingida</div>
+                    </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $water_stats_7['days_with_consumption']; ?>/<?php echo $water_stats_7['total_days']; ?></div>
                     <div class="stat-label">Dias com Registro</div>
@@ -1688,7 +1688,7 @@ if (count($hydration_data) >= 7) {
                 </div>
             </div>
         </div>
-                
+
 
         <!-- 3. GRÁFICO COM BOTÕES DE PERÍODO -->
         <div class="chart-section">
@@ -1699,8 +1699,8 @@ if (count($hydration_data) >= 7) {
                         <button class="period-btn active" onclick="changeHydrationPeriod(7)" data-period="7">7 dias</button>
                         <button class="period-btn" onclick="changeHydrationPeriod(15)" data-period="15">15 dias</button>
                         <button class="period-btn" onclick="changeHydrationPeriod(30)" data-period="30">30 dias</button>
-                    </div>
                 </div>
+            </div>
                 <div class="improved-chart" id="hydration-chart">
                 <?php if (empty($hydration_data)): ?>
                     <div class="empty-chart">
@@ -1750,21 +1750,21 @@ if (count($hydration_data) >= 7) {
                     <span class="period-value"><?php echo $water_stats_7['avg_ml']; ?>ml</span>
                     <span class="period-percentage"><?php echo $water_stats_7['avg_percentage']; ?>% da meta</span>
                     <div class="period-details">Média dos últimos 7 dias</div>
-                </div>
+            </div>
                 <div class="period-item">
                     <span class="period-label">Última Quinzena</span>
                     <span class="period-value"><?php echo $water_stats_15['avg_ml']; ?>ml</span>
                     <span class="period-percentage"><?php echo $water_stats_15['avg_percentage']; ?>% da meta</span>
                     <div class="period-details">Média dos últimos 15 dias</div>
-                </div>
+                    </div>
                 <div class="period-item">
                     <span class="period-label">Último Mês</span>
                     <span class="period-value"><?php echo $water_stats_30['avg_ml']; ?>ml</span>
                     <span class="period-percentage"><?php echo $water_stats_30['avg_percentage']; ?>% da meta</span>
                     <div class="period-details">Média dos últimos 30 dias</div>
-                </div>
-            </div>
-        </div>
+                            </div>
+                            </div>
+                        </div>
 
     </div>
 </div>
@@ -1816,9 +1816,9 @@ function toggleNutrientsRecords() {
                     <div class="stat-label">
                         Aderência Geral
                         <i class="fas fa-question-circle help-icon" onclick="openHelpModal('nutrients-adherence')" title="Clique para saber mais"></i>
-                    </div>
+                        </div>
                     <div class="stat-description">Meta calórica atingida</div>
-                </div>
+                            </div>
                 <div class="summary-stat">
                     <div class="stat-value"><?php echo $nutrients_stats_7['days_with_consumption']; ?>/<?php echo $nutrients_stats_7['total_days']; ?></div>
                     <div class="stat-label">Dias com Registro</div>
@@ -1902,15 +1902,15 @@ function toggleNutrientsRecords() {
                         <button class="period-btn active" onclick="changeNutrientsPeriod(7)" data-period="7">7 dias</button>
                         <button class="period-btn" onclick="changeNutrientsPeriod(15)" data-period="15">15 dias</button>
                         <button class="period-btn" onclick="changeNutrientsPeriod(30)" data-period="30">30 dias</button>
-                    </div>
                 </div>
+            </div>
                 <div class="improved-chart" id="nutrients-chart">
                 <?php if (empty($last_7_days_data)): ?>
-                    <div class="empty-chart">
-                        <i class="fas fa-utensils"></i>
-                        <p>Nenhum registro encontrado</p>
-                    </div>
-                <?php else: ?>
+                        <div class="empty-chart">
+                            <i class="fas fa-utensils"></i>
+                            <p>Nenhum registro encontrado</p>
+                        </div>
+                    <?php else: ?>
                     <div class="improved-bars" id="nutrients-bars">
                             <?php 
                         $display_data = array_slice($last_7_days_data, 0, 7);
