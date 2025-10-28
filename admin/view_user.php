@@ -1587,219 +1587,265 @@ function toggleNutrientsRecords() {
 <div id="tab-nutrients" class="tab-content">
     <div class="nutrients-container">
         
-        <!-- 1. RESUMO GERAL (OVERVIEW RÁPIDO) -->
-        <div class="nutrients-overview-card">
-            <div class="overview-header">
-                <div class="overview-icon">
-                    <i class="fas fa-chart-pie"></i>
-                </div>
-                <div class="overview-title">
-                    <h3>Análise Nutricional</h3>
-                    <p>Comportamento nutricional baseado nos registros do diário</p>
-                </div>
+        <!-- 1. RESUMO GERAL -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3><i class="fas fa-chart-pie"></i> Análise Nutricional</h3>
+                <p>Comportamento nutricional baseado nos registros do diário</p>
             </div>
             
-            <div class="overview-content">
-                <div class="overview-goals">
-                    <div class="goals-section">
+            <div class="card-content">
+                <div class="data-grid">
+                    <div class="data-section">
                         <h4><i class="fas fa-bullseye"></i> Metas Diárias</h4>
-                        <div class="goals-grid">
-                            <div class="goal-item">
-                                <span class="goal-label">Calorias:</span>
-                                <span class="goal-value"><?php echo $total_daily_calories_goal; ?> kcal</span>
+                        <div class="data-items">
+                            <div class="data-item">
+                                <i class="fas fa-fire"></i>
+                                <label>Calorias:</label>
+                                <span><?php echo $total_daily_calories_goal; ?> kcal</span>
                             </div>
-                            <div class="goal-item">
-                                <span class="goal-label">Proteína:</span>
-                                <span class="goal-value"><?php echo $macros_goal['protein_g']; ?>g</span>
+                            <div class="data-item">
+                                <i class="fas fa-drumstick-bite"></i>
+                                <label>Proteína:</label>
+                                <span><?php echo $macros_goal['protein_g']; ?>g</span>
                             </div>
-                            <div class="goal-item">
-                                <span class="goal-label">Carboidrato:</span>
-                                <span class="goal-value"><?php echo $macros_goal['carbs_g']; ?>g</span>
+                            <div class="data-item">
+                                <i class="fas fa-bread-slice"></i>
+                                <label>Carboidrato:</label>
+                                <span><?php echo $macros_goal['carbs_g']; ?>g</span>
                             </div>
-                            <div class="goal-item">
-                                <span class="goal-label">Gordura:</span>
-                                <span class="goal-value"><?php echo $macros_goal['fat_g']; ?>g</span>
+                            <div class="data-item">
+                                <i class="fas fa-seedling"></i>
+                                <label>Gordura:</label>
+                                <span><?php echo $macros_goal['fat_g']; ?>g</span>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="reality-section">
-                        <h4><i class="fas fa-chart-line"></i> Média Real (7 dias)</h4>
-                        <div class="reality-grid">
-                            <div class="reality-item">
-                                <span class="reality-label">Calorias:</span>
-                                <span class="reality-value"><?php echo $nutrients_stats_7['avg_kcal']; ?> kcal</span>
-                                <span class="reality-percentage"><?php echo $nutrients_stats_7['avg_kcal_percentage']; ?>%</span>
+                    <div class="data-section">
+                        <h4><i class="fas fa-chart-line"></i> Média Real (últimos 7 dias)</h4>
+                        <div class="data-items">
+                            <div class="data-item">
+                                <i class="fas fa-fire"></i>
+                                <label>Calorias:</label>
+                                <span><?php echo $nutrients_stats_7['avg_kcal']; ?> kcal</span>
+                                <small>(<?php echo $nutrients_stats_7['avg_kcal_percentage']; ?>% da meta)</small>
                             </div>
-                            <div class="reality-item">
-                                <span class="reality-label">Proteína:</span>
-                                <span class="reality-value"><?php echo $nutrients_stats_7['avg_protein']; ?>g</span>
-                                <span class="reality-percentage"><?php echo $nutrients_stats_7['avg_protein_percentage']; ?>%</span>
+                            <div class="data-item">
+                                <i class="fas fa-drumstick-bite"></i>
+                                <label>Proteína:</label>
+                                <span><?php echo $nutrients_stats_7['avg_protein']; ?>g</span>
+                                <small>(<?php echo $nutrients_stats_7['avg_protein_percentage']; ?>% da meta)</small>
                             </div>
-                            <div class="reality-item">
-                                <span class="reality-label">Carboidrato:</span>
-                                <span class="reality-value"><?php echo $nutrients_stats_7['avg_carbs']; ?>g</span>
-                                <span class="reality-percentage"><?php echo $nutrients_stats_7['avg_carbs_percentage']; ?>%</span>
+                            <div class="data-item">
+                                <i class="fas fa-bread-slice"></i>
+                                <label>Carboidrato:</label>
+                                <span><?php echo $nutrients_stats_7['avg_carbs']; ?>g</span>
+                                <small>(<?php echo $nutrients_stats_7['avg_carbs_percentage']; ?>% da meta)</small>
                             </div>
-                            <div class="reality-item">
-                                <span class="reality-label">Gordura:</span>
-                                <span class="reality-value"><?php echo $nutrients_stats_7['avg_fat']; ?>g</span>
-                                <span class="reality-percentage"><?php echo $nutrients_stats_7['avg_fat_percentage']; ?>%</span>
+                            <div class="data-item">
+                                <i class="fas fa-seedling"></i>
+                                <label>Gordura:</label>
+                                <span><?php echo $nutrients_stats_7['avg_fat']; ?>g</span>
+                                <small>(<?php echo $nutrients_stats_7['avg_fat_percentage']; ?>% da meta)</small>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="overview-adherence">
-                    <h4><i class="fas fa-target"></i> Aderência Geral</h4>
-                    <div class="adherence-stats">
-                        <div class="adherence-item">
-                            <span class="adherence-label">Calorias atingidas:</span>
-                            <span class="adherence-value"><?php echo $nutrients_stats_7['avg_overall_percentage']; ?>%</span>
-                        </div>
-                        <div class="adherence-item">
-                            <span class="adherence-label">Dias com meta de proteína:</span>
-                            <span class="adherence-value"><?php echo $nutrients_stats_7['excellent_days'] + $nutrients_stats_7['good_days']; ?> de <?php echo $nutrients_stats_7['total_days']; ?></span>
-                        </div>
+                <div class="adherence-summary">
+                    <div class="adherence-item">
+                        <span class="adherence-label">Aderência geral:</span>
+                        <span class="adherence-value"><?php echo $nutrients_stats_7['avg_overall_percentage']; ?>% das calorias atingidas</span>
+                    </div>
+                    <div class="adherence-item">
+                        <span class="adherence-label">Dias com meta de proteína:</span>
+                        <span class="adherence-value"><?php echo $nutrients_stats_7['excellent_days'] + $nutrients_stats_7['good_days']; ?> de <?php echo $nutrients_stats_7['total_days']; ?> dias</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 2. TENDÊNCIA DE PROGRESSO -->
-        <div class="nutrients-trend-card">
-            <div class="trend-header">
+        <div class="dashboard-card">
+            <div class="card-header">
                 <h4><i class="fas fa-chart-line"></i> Tendência de Progresso</h4>
-                <div class="trend-filters">
-                    <button class="trend-filter active" data-macro="kcal">Calorias</button>
-                    <button class="trend-filter" data-macro="protein">Proteína</button>
-                    <button class="trend-filter" data-macro="carbs">Carboidrato</button>
-                    <button class="trend-filter" data-macro="fat">Gordura</button>
-                </div>
+                <p>Últimos 7 dias - Calorias consumidas vs meta diária</p>
             </div>
-            <div class="trend-chart">
-                <div class="improved-bars" id="nutrients-trend-bars">
-                    <?php 
-                    $display_data = array_slice($nutrients_data, 0, 7);
-                    foreach ($display_data as $day): 
-                        $percentage = $day['avg_percentage'];
-                        $barHeight = 0;
-                        if ($percentage === 0) {
+            <div class="card-content">
+                <div class="chart-section">
+                    <div class="improved-bars" id="nutrients-trend-bars">
+                        <?php 
+                        $display_data = array_slice($nutrients_data, 0, 7);
+                        foreach ($display_data as $day): 
+                            $percentage = $day['avg_percentage'];
                             $barHeight = 0;
-                        } else if ($percentage >= 100) {
-                            $barHeight = 160 + min(($percentage - 100) * 0.4, 40);
-                        } else {
-                            $barHeight = ($percentage / 100) * 160;
-                        }
-                    ?>
-                        <div class="improved-bar-container">
-                            <div class="improved-bar-wrapper">
-                                <div class="improved-bar <?php echo $day['status']; ?>" style="height: <?php echo $barHeight; ?>px"></div>
-                                <div class="bar-percentage-text"><?php echo $percentage; ?>%</div>
-                                <div class="improved-goal-line"></div>
+                            if ($percentage === 0) {
+                                $barHeight = 0;
+                            } else if ($percentage >= 100) {
+                                $barHeight = 160 + min(($percentage - 100) * 0.4, 40);
+                            } else {
+                                $barHeight = ($percentage / 100) * 160;
+                            }
+                        ?>
+                            <div class="improved-bar-container">
+                                <div class="improved-bar-wrapper">
+                                    <div class="improved-bar <?php echo $day['status']; ?>" style="height: <?php echo $barHeight; ?>px"></div>
+                                    <div class="bar-percentage-text"><?php echo $percentage; ?>%</div>
+                                    <div class="improved-goal-line"></div>
+                                </div>
+                                <div class="improved-bar-info">
+                                    <span class="improved-date"><?php echo date('d/m', strtotime($day['date'])); ?></span>
+                                    <span class="improved-ml"><?php echo $day['kcal']; ?> kcal</span>
+                                </div>
                             </div>
-                            <div class="improved-bar-info">
-                                <span class="improved-date"><?php echo date('d/m', strtotime($day['date'])); ?></span>
-                                <span class="improved-ml"><?php echo $day['kcal']; ?> kcal</span>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- 3. MÉDIAS POR PERÍODO -->
-        <div class="nutrients-periods-card">
-            <h4><i class="fas fa-calendar-alt"></i> Médias por Período</h4>
-            <div class="periods-table">
-                <div class="table-header">
-                    <div class="header-cell">Período</div>
-                    <div class="header-cell">Calorias</div>
-                    <div class="header-cell">P</div>
-                    <div class="header-cell">C</div>
-                    <div class="header-cell">G</div>
-                    <div class="header-cell">% Meta</div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell period-label">Semana</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_7['avg_kcal']; ?> kcal</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_7['avg_protein']; ?>g</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_7['avg_carbs']; ?>g</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_7['avg_fat']; ?>g</div>
-                    <div class="table-cell">
-                        <span class="percentage-badge status-<?php echo $nutrients_stats_7['avg_overall_percentage'] >= 80 ? 'excellent' : ($nutrients_stats_7['avg_overall_percentage'] >= 60 ? 'good' : 'fair'); ?>">
-                            <?php echo $nutrients_stats_7['avg_overall_percentage']; ?>%
-                        </span>
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h4><i class="fas fa-calendar-alt"></i> Médias por Período</h4>
+                <p>Comparação de aderência nutricional em diferentes períodos</p>
+            </div>
+            <div class="card-content">
+                <div class="periods-grid">
+                    <div class="period-card">
+                        <div class="period-header">
+                            <h5>Semana (7 dias)</h5>
+                            <span class="period-badge status-<?php echo $nutrients_stats_7['avg_overall_percentage'] >= 80 ? 'excellent' : ($nutrients_stats_7['avg_overall_percentage'] >= 60 ? 'good' : 'fair'); ?>">
+                                <?php echo $nutrients_stats_7['avg_overall_percentage']; ?>%
+                            </span>
+                        </div>
+                        <div class="period-details">
+                            <div class="period-item">
+                                <span>Calorias:</span>
+                                <span><?php echo $nutrients_stats_7['avg_kcal']; ?> kcal</span>
+                            </div>
+                            <div class="period-item">
+                                <span>Proteína:</span>
+                                <span><?php echo $nutrients_stats_7['avg_protein']; ?>g</span>
+                            </div>
+                            <div class="period-item">
+                                <span>Carboidrato:</span>
+                                <span><?php echo $nutrients_stats_7['avg_carbs']; ?>g</span>
+                            </div>
+                            <div class="period-item">
+                                <span>Gordura:</span>
+                                <span><?php echo $nutrients_stats_7['avg_fat']; ?>g</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell period-label">15 dias</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_15['avg_kcal']; ?> kcal</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_15['avg_protein']; ?>g</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_15['avg_carbs']; ?>g</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_15['avg_fat']; ?>g</div>
-                    <div class="table-cell">
-                        <span class="percentage-badge status-<?php echo $nutrients_stats_15['avg_overall_percentage'] >= 80 ? 'excellent' : ($nutrients_stats_15['avg_overall_percentage'] >= 60 ? 'good' : 'fair'); ?>">
-                            <?php echo $nutrients_stats_15['avg_overall_percentage']; ?>%
-                        </span>
+                    
+                    <div class="period-card">
+                        <div class="period-header">
+                            <h5>15 dias</h5>
+                            <span class="period-badge status-<?php echo $nutrients_stats_15['avg_overall_percentage'] >= 80 ? 'excellent' : ($nutrients_stats_15['avg_overall_percentage'] >= 60 ? 'good' : 'fair'); ?>">
+                                <?php echo $nutrients_stats_15['avg_overall_percentage']; ?>%
+                            </span>
+                        </div>
+                        <div class="period-details">
+                            <div class="period-item">
+                                <span>Calorias:</span>
+                                <span><?php echo $nutrients_stats_15['avg_kcal']; ?> kcal</span>
+                            </div>
+                            <div class="period-item">
+                                <span>Proteína:</span>
+                                <span><?php echo $nutrients_stats_15['avg_protein']; ?>g</span>
+                            </div>
+                            <div class="period-item">
+                                <span>Carboidrato:</span>
+                                <span><?php echo $nutrients_stats_15['avg_carbs']; ?>g</span>
+                            </div>
+                            <div class="period-item">
+                                <span>Gordura:</span>
+                                <span><?php echo $nutrients_stats_15['avg_fat']; ?>g</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell period-label">Mês</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_30['avg_kcal']; ?> kcal</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_30['avg_protein']; ?>g</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_30['avg_carbs']; ?>g</div>
-                    <div class="table-cell"><?php echo $nutrients_stats_30['avg_fat']; ?>g</div>
-                    <div class="table-cell">
-                        <span class="percentage-badge status-<?php echo $nutrients_stats_30['avg_overall_percentage'] >= 80 ? 'excellent' : ($nutrients_stats_30['avg_overall_percentage'] >= 60 ? 'good' : 'fair'); ?>">
-                            <?php echo $nutrients_stats_30['avg_overall_percentage']; ?>%
-                        </span>
+                    
+                    <div class="period-card">
+                        <div class="period-header">
+                            <h5>Mês (30 dias)</h5>
+                            <span class="period-badge status-<?php echo $nutrients_stats_30['avg_overall_percentage'] >= 80 ? 'excellent' : ($nutrients_stats_30['avg_overall_percentage'] >= 60 ? 'good' : 'fair'); ?>">
+                                <?php echo $nutrients_stats_30['avg_overall_percentage']; ?>%
+                            </span>
+                        </div>
+                        <div class="period-details">
+                            <div class="period-item">
+                                <span>Calorias:</span>
+                                <span><?php echo $nutrients_stats_30['avg_kcal']; ?> kcal</span>
+                            </div>
+                            <div class="period-item">
+                                <span>Proteína:</span>
+                                <span><?php echo $nutrients_stats_30['avg_protein']; ?>g</span>
+                            </div>
+                            <div class="period-item">
+                                <span>Carboidrato:</span>
+                                <span><?php echo $nutrients_stats_30['avg_carbs']; ?>g</span>
+                            </div>
+                            <div class="period-item">
+                                <span>Gordura:</span>
+                                <span><?php echo $nutrients_stats_30['avg_fat']; ?>g</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 4. DISTRIBUIÇÃO DE MACROS -->
-        <div class="nutrients-distribution-card">
-            <h4><i class="fas fa-chart-pie"></i> Distribuição de Macros (Médias)</h4>
-            <div class="distribution-content">
-                <div class="distribution-chart">
-                    <div class="macro-distribution">
-                        <div class="macro-item protein">
-                            <div class="macro-bar">
-                                <div class="macro-fill" style="width: <?php echo ($nutrients_stats_7['avg_protein'] * 4) / $nutrients_stats_7['avg_kcal'] * 100; ?>%"></div>
-                            </div>
-                            <div class="macro-info">
-                                <span class="macro-label">Proteína</span>
-                                <span class="macro-percentage"><?php echo round(($nutrients_stats_7['avg_protein'] * 4) / $nutrients_stats_7['avg_kcal'] * 100, 1); ?>%</span>
-                            </div>
-                        </div>
-                        <div class="macro-item carbs">
-                            <div class="macro-bar">
-                                <div class="macro-fill" style="width: <?php echo ($nutrients_stats_7['avg_carbs'] * 4) / $nutrients_stats_7['avg_kcal'] * 100; ?>%"></div>
-                            </div>
-                            <div class="macro-info">
-                                <span class="macro-label">Carboidrato</span>
-                                <span class="macro-percentage"><?php echo round(($nutrients_stats_7['avg_carbs'] * 4) / $nutrients_stats_7['avg_kcal'] * 100, 1); ?>%</span>
-                            </div>
-                        </div>
-                        <div class="macro-item fat">
-                            <div class="macro-bar">
-                                <div class="macro-fill" style="width: <?php echo ($nutrients_stats_7['avg_fat'] * 9) / $nutrients_stats_7['avg_kcal'] * 100; ?>%"></div>
-                            </div>
-                            <div class="macro-info">
-                                <span class="macro-label">Gordura</span>
-                                <span class="macro-percentage"><?php echo round(($nutrients_stats_7['avg_fat'] * 9) / $nutrients_stats_7['avg_kcal'] * 100, 1); ?>%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="distribution-comment">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h4><i class="fas fa-chart-pie"></i> Distribuição de Macros</h4>
+                <p>Percentual de cada macronutriente na dieta (baseado na média de 7 dias)</p>
+            </div>
+            <div class="card-content">
+                <div class="macro-distribution">
                     <?php
                     $protein_pct = round(($nutrients_stats_7['avg_protein'] * 4) / $nutrients_stats_7['avg_kcal'] * 100, 1);
                     $carbs_pct = round(($nutrients_stats_7['avg_carbs'] * 4) / $nutrients_stats_7['avg_kcal'] * 100, 1);
                     $fat_pct = round(($nutrients_stats_7['avg_fat'] * 9) / $nutrients_stats_7['avg_kcal'] * 100, 1);
+                    ?>
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <i class="fas fa-drumstick-bite"></i>
+                            <span>Proteína</span>
+                            <span class="macro-percentage"><?php echo $protein_pct; ?>%</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-fill protein" style="width: <?php echo $protein_pct; ?>%"></div>
+                        </div>
+                    </div>
                     
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <i class="fas fa-bread-slice"></i>
+                            <span>Carboidrato</span>
+                            <span class="macro-percentage"><?php echo $carbs_pct; ?>%</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-fill carbs" style="width: <?php echo $carbs_pct; ?>%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <i class="fas fa-seedling"></i>
+                            <span>Gordura</span>
+                            <span class="macro-percentage"><?php echo $fat_pct; ?>%</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-fill fat" style="width: <?php echo $fat_pct; ?>%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="macro-comment">
+                    <?php
                     $comment = "";
                     if ($carbs_pct > 55) {
                         $comment .= "Distribuição <strong>alta em carboidratos</strong>.";
@@ -1821,7 +1867,7 @@ function toggleNutrientsRecords() {
 
         <!-- 5. INSIGHTS AUTOMÁTICOS -->
         <?php
-        // Gerar insights mais detalhados para nutrientes
+        // Gerar insights baseados em dados reais
         $nutrients_insights = [];
         $total_days_7 = $nutrients_stats_7['total_days'];
         $days_with_goal = $nutrients_stats_7['excellent_days'] + $nutrients_stats_7['good_days'];
@@ -1829,20 +1875,20 @@ function toggleNutrientsRecords() {
         if ($total_days_7 > 0) {
             // Aderência calórica
             if ($nutrients_stats_7['avg_kcal_percentage'] >= 90) {
-                $nutrients_insights[] = "Excelente <strong>aderência calórica</strong> com " . $nutrients_stats_7['avg_kcal_percentage'] . "% da meta atingida.";
+                $nutrients_insights[] = "Excelente <strong>aderência calórica</strong> com " . $nutrients_stats_7['avg_kcal_percentage'] . "% da meta atingida (baseado em " . $total_days_7 . " dias de registro).";
             } elseif ($nutrients_stats_7['avg_kcal_percentage'] >= 70) {
-                $nutrients_insights[] = "Boa <strong>aderência calórica</strong> com " . $nutrients_stats_7['avg_kcal_percentage'] . "% da meta atingida.";
+                $nutrients_insights[] = "Boa <strong>aderência calórica</strong> com " . $nutrients_stats_7['avg_kcal_percentage'] . "% da meta atingida (baseado em " . $total_days_7 . " dias de registro).";
             } else {
-                $nutrients_insights[] = "Aderência calórica <strong class='text-warning'>precisa melhorar</strong> com apenas " . $nutrients_stats_7['avg_kcal_percentage'] . "% da meta.";
+                $nutrients_insights[] = "Aderência calórica <strong class='text-warning'>precisa melhorar</strong> com apenas " . $nutrients_stats_7['avg_kcal_percentage'] . "% da meta (baseado em " . $total_days_7 . " dias de registro).";
             }
             
             // Aderência de proteína
             if ($nutrients_stats_7['avg_protein_percentage'] >= 90) {
-                $nutrients_insights[] = "Meta de <strong>proteína atingida</strong> em " . $nutrients_stats_7['avg_protein_percentage'] . "% dos dias.";
+                $nutrients_insights[] = "Meta de <strong>proteína atingida</strong> em " . $nutrients_stats_7['avg_protein_percentage'] . "% dos dias (média de " . $nutrients_stats_7['avg_protein'] . "g/dia).";
             } elseif ($nutrients_stats_7['avg_protein_percentage'] >= 70) {
-                $nutrients_insights[] = "Meta de <strong>proteína próxima</strong> com " . $nutrients_stats_7['avg_protein_percentage'] . "% da meta.";
+                $nutrients_insights[] = "Meta de <strong>proteína próxima</strong> com " . $nutrients_stats_7['avg_protein_percentage'] . "% da meta (média de " . $nutrients_stats_7['avg_protein'] . "g/dia).";
             } else {
-                $nutrients_insights[] = "Meta de <strong class='text-danger'>proteína baixa</strong> com apenas " . $nutrients_stats_7['avg_protein_percentage'] . "% da meta.";
+                $nutrients_insights[] = "Meta de <strong class='text-danger'>proteína baixa</strong> com apenas " . $nutrients_stats_7['avg_protein_percentage'] . "% da meta (média de " . $nutrients_stats_7['avg_protein'] . "g/dia).";
             }
             
             // Comparação temporal
@@ -1851,75 +1897,85 @@ function toggleNutrientsRecords() {
                 $diff = $nutrients_stats_7['avg_kcal'] - $avg_kcal_14;
                 if (abs($diff) > 50) {
                     if ($diff > 0) {
-                        $nutrients_insights[] = "Tendência <strong class='text-success'>positiva</strong> com aumento de " . round($diff) . " kcal na média semanal.";
+                        $nutrients_insights[] = "Tendência <strong class='text-success'>positiva</strong> com aumento de " . round($diff) . " kcal na média semanal (comparado aos 15 dias anteriores).";
                     } else {
-                        $nutrients_insights[] = "Tendência <strong class='text-warning'>negativa</strong> com redução de " . round(abs($diff)) . " kcal na média semanal.";
+                        $nutrients_insights[] = "Tendência <strong class='text-warning'>negativa</strong> com redução de " . round(abs($diff)) . " kcal na média semanal (comparado aos 15 dias anteriores).";
                     }
                 }
             }
             
             // Consistência
             if ($nutrients_stats_7['consistency_score'] > 80) {
-                $nutrients_insights[] = "Excelente <strong>consistência nutricional</strong> nos últimos 7 dias.";
+                $nutrients_insights[] = "Excelente <strong>consistência nutricional</strong> nos últimos 7 dias (score: " . $nutrients_stats_7['consistency_score'] . ").";
             } elseif ($nutrients_stats_7['consistency_score'] < 50) {
-                $nutrients_insights[] = "Consistência nutricional <strong class='text-warning'>irregular</strong> - variação alta entre os dias.";
+                $nutrients_insights[] = "Consistência nutricional <strong class='text-warning'>irregular</strong> - variação alta entre os dias (score: " . $nutrients_stats_7['consistency_score'] . ").";
             }
         }
         ?>
         
         <?php if (!empty($nutrients_insights)): ?>
-        <div class="nutrients-insights">
-            <h4><i class="fas fa-lightbulb"></i> Insights Automáticos</h4>
-            <ul class="insights-list">
-                <?php foreach ($nutrients_insights as $insight): ?>
-                    <li><?php echo $insight; ?></li>
-                <?php endforeach; ?>
-            </ul>
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h4><i class="fas fa-lightbulb"></i> Insights Automáticos</h4>
+                <p>Análise baseada nos dados reais dos registros do diário</p>
+            </div>
+            <div class="card-content">
+                <ul class="insights-list">
+                    <?php foreach ($nutrients_insights as $insight): ?>
+                        <li><?php echo $insight; ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
         </div>
         <?php endif; ?>
 
         <!-- 6. ADERÊNCIA DETALHADA -->
-        <div class="nutrients-adherence-card">
-            <h4><i class="fas fa-target"></i> Aderência Detalhada por Macro</h4>
-            <div class="adherence-grid">
-                <div class="adherence-item">
-                    <div class="adherence-header">
-                        <i class="fas fa-fire"></i>
-                        <span>Calorias</span>
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h4><i class="fas fa-target"></i> Aderência Detalhada por Macro</h4>
+                <p>Percentual de aderência individual para cada macronutriente (últimos 7 dias)</p>
+            </div>
+            <div class="card-content">
+                <div class="adherence-grid">
+                    <div class="adherence-item">
+                        <div class="adherence-header">
+                            <i class="fas fa-fire"></i>
+                            <span>Calorias</span>
+                        </div>
+                        <div class="adherence-value"><?php echo $nutrients_stats_7['avg_kcal_percentage']; ?>%</div>
+                        <div class="adherence-status status-<?php echo $nutrients_stats_7['avg_kcal_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_kcal_percentage'] >= 70 ? 'good' : 'fair'); ?>">
+                            <?php echo $nutrients_stats_7['avg_kcal_percentage'] >= 90 ? '🟢' : ($nutrients_stats_7['avg_kcal_percentage'] >= 70 ? '🟡' : '🔴'); ?>
+                        </div>
                     </div>
-                    <div class="adherence-value"><?php echo $nutrients_stats_7['avg_kcal_percentage']; ?>%</div>
-                    <div class="adherence-status status-<?php echo $nutrients_stats_7['avg_kcal_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_kcal_percentage'] >= 70 ? 'good' : 'fair'); ?>">
-                        <?php echo $nutrients_stats_7['avg_kcal_percentage'] >= 90 ? '🟢' : ($nutrients_stats_7['avg_kcal_percentage'] >= 70 ? '🟡' : '🔴'); ?>
+                    <div class="adherence-item">
+                        <div class="adherence-header">
+                            <i class="fas fa-drumstick-bite"></i>
+                            <span>Proteína</span>
+                        </div>
+                        <div class="adherence-value"><?php echo $nutrients_stats_7['avg_protein_percentage']; ?>%</div>
+                        <div class="adherence-status status-<?php echo $nutrients_stats_7['avg_protein_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_protein_percentage'] >= 70 ? 'good' : 'fair'); ?>">
+                            <?php echo $nutrients_stats_7['avg_protein_percentage'] >= 90 ? '🟢' : ($nutrients_stats_7['avg_protein_percentage'] >= 70 ? '🟡' : '🔴'); ?>
+                        </div>
                     </div>
-                </div>
-                <div class="adherence-item">
-                    <div class="adherence-header">
-                        <i class="fas fa-drumstick-bite"></i>
-                        <span>Proteína</span>
+                    <div class="adherence-item">
+                        <div class="adherence-header">
+                            <i class="fas fa-bread-slice"></i>
+                            <span>Carboidrato</span>
+                        </div>
+                        <div class="adherence-value"><?php echo $nutrients_stats_7['avg_carbs_percentage']; ?>%</div>
+                        <div class="adherence-status status-<?php echo $nutrients_stats_7['avg_carbs_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_carbs_percentage'] >= 70 ? 'good' : 'fair'); ?>">
+                            <?php echo $nutrients_stats_7['avg_carbs_percentage'] >= 90 ? '🟢' : ($nutrients_stats_7['avg_carbs_percentage'] >= 70 ? '🟡' : '🔴'); ?>
+                        </div>
                     </div>
-                    <div class="adherence-value"><?php echo $nutrients_stats_7['avg_protein_percentage']; ?>%</div>
-                    <div class="adherence-status status-<?php echo $nutrients_stats_7['avg_protein_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_protein_percentage'] >= 70 ? 'good' : 'fair'); ?>">
-                        <?php echo $nutrients_stats_7['avg_protein_percentage'] >= 90 ? '🟢' : ($nutrients_stats_7['avg_protein_percentage'] >= 70 ? '🟡' : '🔴'); ?>
-                    </div>
-                </div>
-                <div class="adherence-item">
-                    <div class="adherence-header">
-                        <i class="fas fa-bread-slice"></i>
-                        <span>Carboidrato</span>
-                    </div>
-                    <div class="adherence-value"><?php echo $nutrients_stats_7['avg_carbs_percentage']; ?>%</div>
-                    <div class="adherence-status status-<?php echo $nutrients_stats_7['avg_carbs_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_carbs_percentage'] >= 70 ? 'good' : 'fair'); ?>">
-                        <?php echo $nutrients_stats_7['avg_carbs_percentage'] >= 90 ? '🟢' : ($nutrients_stats_7['avg_carbs_percentage'] >= 70 ? '🟡' : '🔴'); ?>
-                    </div>
-                </div>
-                <div class="adherence-item">
-                    <div class="adherence-header">
-                        <i class="fas fa-seedling"></i>
-                        <span>Gordura</span>
-                    </div>
-                    <div class="adherence-value"><?php echo $nutrients_stats_7['avg_fat_percentage']; ?>%</div>
-                    <div class="adherence-status status-<?php echo $nutrients_stats_7['avg_fat_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_fat_percentage'] >= 70 ? 'good' : 'fair'); ?>">
-                        <?php echo $nutrients_stats_7['avg_fat_percentage'] >= 90 ? '🟢' : ($nutrients_stats_7['avg_fat_percentage'] >= 70 ? '🟡' : '🔴'); ?>
+                    <div class="adherence-item">
+                        <div class="adherence-header">
+                            <i class="fas fa-seedling"></i>
+                            <span>Gordura</span>
+                        </div>
+                        <div class="adherence-value"><?php echo $nutrients_stats_7['avg_fat_percentage']; ?>%</div>
+                        <div class="adherence-status status-<?php echo $nutrients_stats_7['avg_fat_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_fat_percentage'] >= 70 ? 'good' : 'fair'); ?>">
+                            <?php echo $nutrients_stats_7['avg_fat_percentage'] >= 90 ? '🟢' : ($nutrients_stats_7['avg_fat_percentage'] >= 70 ? '🟡' : '🔴'); ?>
+                        </div>
                     </div>
                 </div>
             </div>
