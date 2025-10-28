@@ -856,9 +856,9 @@ require_once __DIR__ . '/includes/header.php';
     line-height: 1.2 !important;
 }
 
-/* Aumentar espaço entre título do card e subcards */
+/* Ajustar espaço entre título do card e subcards */
 .details-grid-1-col .dashboard-card h3 {
-    margin-bottom: 32px !important; /* aumentar distância entre título e subcards */
+    margin-bottom: 16px !important; /* diminuir distância entre título e subcards */
 }
 
 /* Descer ícone e label do topo */
