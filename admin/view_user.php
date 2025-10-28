@@ -1868,14 +1868,20 @@ document.addEventListener('DOMContentLoaded', function() {
 let currentUserIdToRevert = null;
 
 function showRevertModal(userId) {
+    console.log('showRevertModal chamado com userId:', userId);
     currentUserIdToRevert = userId;
-    document.getElementById('revertGoalsModal').classList.add('active');
+    
+    // Aplicar blur imediatamente
+    document.body.style.backdropFilter = 'blur(10px)';
     document.body.style.overflow = 'hidden';
+    
+    document.getElementById('revertGoalsModal').classList.add('active');
 }
 
 function closeRevertModal() {
     document.getElementById('revertGoalsModal').classList.remove('active');
     document.body.style.overflow = '';
+    document.body.style.backdropFilter = '';
     currentUserIdToRevert = null;
 }
 
@@ -1913,13 +1919,20 @@ function closeAlertModal() {
 }
 
 async function confirmRevertGoals() {
-    if (!currentUserIdToRevert) return;
+    console.log('confirmRevertGoals chamado, currentUserIdToRevert:', currentUserIdToRevert);
+    
+    if (!currentUserIdToRevert) {
+        console.error('currentUserIdToRevert é null ou undefined');
+        return;
+    }
     
     closeRevertModal(); // Fechar modal de confirmação
     
     try {
         const formData = new FormData();
         formData.append('user_id', currentUserIdToRevert);
+        
+        console.log('Enviando user_id:', currentUserIdToRevert);
         
         const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/revert_to_auto_goals.php', {
             method: 'POST',

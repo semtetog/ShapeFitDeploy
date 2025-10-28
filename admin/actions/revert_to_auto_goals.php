@@ -20,8 +20,11 @@ try {
 
     $user_id = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
     
+    error_log("revert_to_auto_goals.php - user_id recebido: " . var_export($user_id, true));
+    error_log("revert_to_auto_goals.php - POST data: " . print_r($_POST, true));
+    
     if ($user_id === false || $user_id <= 0) {
-        throw new Exception("ID de usuário inválido.");
+        throw new Exception("ID de usuário inválido. Recebido: " . var_export($user_id, true));
     }
 
     // Limpar (set NULL) todas as metas customizadas
