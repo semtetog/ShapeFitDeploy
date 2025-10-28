@@ -15,7 +15,7 @@ if (!isset($_SESSION['admin_id'])) {
 
 $user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 $endDate = $_GET['end_date'] ?? date('Y-m-d');
-$daysToShow = 30;
+$daysToShow = isset($_GET['days']) ? (int)$_GET['days'] : 1; // Padrão: 1 dia
 $startDate = date('Y-m-d', strtotime($endDate . " -" . ($daysToShow - 1) . " days"));
 
 // Buscar histórico de refeições

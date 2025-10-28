@@ -1047,19 +1047,19 @@ function navigateDiary(direction) {
             return;
         }
         
-        // Carregar mais 30 dias anteriores via AJAX
+        // Carregar apenas 1 dia anterior via AJAX
         const firstCard = diaryCards[0];
         if (firstCard) {
             const firstDate = firstCard.getAttribute('data-date');
-            // Calcular data 30 dias antes do primeiro dia disponível
+            // Calcular apenas 1 dia antes do primeiro dia disponível
             const dateObj = new Date(firstDate + 'T00:00:00');
-            dateObj.setDate(dateObj.getDate() - 30); // 30 dias antes do primeiro
+            dateObj.setDate(dateObj.getDate() - 1); // 1 dia antes do primeiro
             const newEndDate = dateObj.toISOString().split('T')[0];
             
-            console.log('Carregando mais dias anteriores via AJAX. Primeira data atual:', firstDate, 'Nova end_date:', newEndDate);
+            console.log('Carregando 1 dia anterior via AJAX. Primeira data atual:', firstDate, 'Nova end_date:', newEndDate);
             
-            // Carregar novos cards via AJAX
-            loadMoreDiaryDays(newEndDate);
+            // Carregar apenas 1 dia via AJAX
+            loadMoreDiaryDays(newEndDate, 1);
             return;
         }
     }
@@ -1074,7 +1074,7 @@ function navigateDiary(direction) {
     updateDiaryDisplay();
 }
 
-async function loadMoreDiaryDays(endDate) {
+async function loadMoreDiaryDays(endDate, daysToLoad = 1) {
     if (isLoadingMoreDays) {
         console.log('Já está carregando, ignorando chamada duplicada...');
         return;
@@ -1086,9 +1086,9 @@ async function loadMoreDiaryDays(endDate) {
         // Mostrar loading
         showDiaryLoading(true);
         
-        // Buscar novos dias via AJAX
+        // Buscar apenas 1 dia via AJAX
         const userId = <?php echo $user_id; ?>;
-        const url = `actions/load_diary_days.php?user_id=${userId}&end_date=${endDate}`;
+        const url = `actions/load_diary_days.php?user_id=${userId}&end_date=${endDate}&days=${daysToLoad}`;
         
         console.log('Fazendo requisição AJAX para:', url);
         
@@ -1103,10 +1103,8 @@ async function loadMoreDiaryDays(endDate) {
                 throw new Error('Resposta vazia do servidor');
             }
             
-            // Adicionar novos cards ANTES dos existentes
+            // Adicionar novo card ANTES dos existentes
             const diaryTrack = document.getElementById('diarySliderTrack');
-            const currentCards = diaryTrack.querySelectorAll('.diary-day-card');
-            const currentIndex = currentDiaryIndex;
             
             // Criar container temporário
             const tempDiv = document.createElement('div');
@@ -1116,23 +1114,23 @@ async function loadMoreDiaryDays(endDate) {
             console.log('Novos cards encontrados:', newCards.length);
             
             if (newCards.length > 0) {
-                // Adicionar novos cards no início (mais antigos primeiro)
+                // Adicionar novo card no início (mais antigo primeiro)
                 const fragment = document.createDocumentFragment();
                 while (tempDiv.firstChild) {
                     fragment.appendChild(tempDiv.firstChild);
                 }
                 diaryTrack.insertBefore(fragment, diaryTrack.firstChild);
                 
-                // Atualizar referência aos cards PRIMEIRO
+                // Atualizar referência aos cards
                 updateDiaryCards();
                 
-                // Manter a posição visual - o índice atual deve apontar para o mesmo dia
-                // Não alterar currentDiaryIndex, pois os novos cards foram adicionados ANTES
+                // Ajustar índice para manter a posição visual
+                currentDiaryIndex = currentDiaryIndex + 1;
                 
-                console.log(`Adicionados ${newCards.length} novos cards. Total: ${diaryCards.length}`);
+                console.log(`Adicionado 1 novo card. Total: ${diaryCards.length}`);
                 console.log('Primeira data após adição:', diaryCards[0]?.getAttribute('data-date'));
                 console.log('Última data após adição:', diaryCards[diaryCards.length - 1]?.getAttribute('data-date'));
-                console.log('Índice atual mantido:', currentDiaryIndex);
+                console.log('Índice atual ajustado:', currentDiaryIndex);
                 
                 // Atualizar endDate na URL sem recarregar
                 const urlParams = new URLSearchParams(window.location.search);
