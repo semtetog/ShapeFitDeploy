@@ -663,8 +663,18 @@ require_once __DIR__ . '/includes/header.php';
     <div class="dashboard-card">
         <h3>Plano e Preferências</h3>
          <div class="physical-data-grid-pref">
-            <div class="data-item"><i class="fas fa-bullseye icon"></i><label>Objetivo</label><span><?php echo $objective_names[$user_data['objective']] ?? 'N/I'; ?></span></div>
-            <div class="data-item"><i class="fas fa-drumstick-bite icon"></i><label>Consumo de Carne</label>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-bullseye icon"></i>
+                    <label>Objetivo</label>
+                </div>
+                <span><?php echo $objective_names[$user_data['objective']] ?? 'N/I'; ?></span>
+            </div>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-drumstick-bite icon"></i>
+                    <label>Consumo de Carne</label>
+                </div>
                 <span>
                     <?php 
                         if (isset($user_data['meat_consumption'])) {
@@ -673,7 +683,11 @@ require_once __DIR__ . '/includes/header.php';
                     ?>
                 </span>
             </div>
-             <div class="data-item"><i class="fas fa-ban icon"></i><label>Intolerâncias</label>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-ban icon"></i>
+                    <label>Intolerâncias</label>
+                </div>
                 <span>
                     <?php 
                         $intolerances = [];
@@ -683,7 +697,11 @@ require_once __DIR__ . '/includes/header.php';
                     ?>
                 </span>
             </div>
-            <div class="data-item"><i class="fas fa-leaf icon"></i><label>Restrições Alimentares</label>
+            <div class="data-item">
+                <div class="data-title">
+                    <i class="fas fa-leaf icon"></i>
+                    <label>Restrições Alimentares</label>
+                </div>
                 <span>
                     <?php 
                         // Carregar restrições do usuário
