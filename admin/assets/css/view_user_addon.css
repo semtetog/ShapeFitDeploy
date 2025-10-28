@@ -168,10 +168,10 @@
 /* ========== CARDS DE DADOS ========== */
 .physical-data-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
   gap: 1rem;
   align-items: start;
-  grid-auto-rows: 120px;
+  grid-auto-rows: 100px;
   margin-top: 5rem; /* Alinhar com os macros do primeiro card */
 }
 
@@ -193,7 +193,7 @@
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
-  height: 120px;
+  height: 100px;
   justify-content: flex-start;
   overflow: hidden;
   position: relative;
@@ -324,14 +324,14 @@
 }
 
 .data-item label {
-  font-size: 0.5rem;
+  font-size: 0.3rem;
   color: var(--text-secondary);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.2px;
-  line-height: 1.1;
+  letter-spacing: 0.1px;
+  line-height: 0.8;
   height: auto;
-  max-height: 1.4rem;
+  max-height: 0.8rem;
   display: block;
   flex-shrink: 0;
   overflow: hidden;
@@ -339,16 +339,16 @@
 }
 
 .data-item span {
-  font-size: 0.6rem;
+  font-size: 0.35rem;
   color: var(--text-primary);
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 0.9;
   display: block;
   word-wrap: break-word;
   overflow-wrap: break-word;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: 2.5rem;
+  max-height: 1.5rem;
   margin-top: auto;
 }
 
