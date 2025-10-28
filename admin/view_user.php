@@ -871,8 +871,13 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 /* Reduzir espaçamento vertical entre cards da seção "Plano e Preferências" */
-.physical-data-grid .data-item {
-    margin-bottom: 8px !important;
+.details-grid-1-col .physical-data-grid .data-item {
+    margin-bottom: 4px !important;
+    padding-bottom: 0 !important;
+}
+
+.details-grid-1-col .physical-data-grid {
+    row-gap: 6px !important;
 }
 </style>
 
