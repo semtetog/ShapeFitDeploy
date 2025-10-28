@@ -548,7 +548,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="card-header-with-action">
         <h3>Meta Calórica e Macros</h3>
             <button class="btn-icon-only btn-revert-goals" 
-                    onclick="console.log('Botão clicado!'); showRevertModal(<?php echo $user_id; ?>)" 
+                    onclick="showRevertModal(<?php echo $user_id; ?>)" 
                     title="Reverter para cálculo automático">
                 <i class="fas fa-undo"></i>
             </button>
@@ -1867,30 +1867,16 @@ document.addEventListener('DOMContentLoaded', function() {
 // Sistema de modais customizados para reverter metas
 let currentUserIdToRevert = null;
 
-try {
-    console.log('JavaScript carregado! currentUserIdToRevert:', currentUserIdToRevert);
-} catch (error) {
-    console.error('ERRO no JavaScript:', error);
-}
-
 function showRevertModal(userId) {
-    console.log('=== SHOW REVERT MODAL ===');
-    console.log('userId recebido:', userId);
-    console.log('Tipo do userId:', typeof userId);
     currentUserIdToRevert = userId;
-    console.log('currentUserIdToRevert definido como:', currentUserIdToRevert);
     document.body.style.overflow = 'hidden';
     document.getElementById('revertGoalsModal').classList.add('active');
-    console.log('Modal aberto!');
 }
 
 function closeRevertModal() {
-    console.log('=== CLOSE REVERT MODAL ===');
-    console.log('currentUserIdToRevert ANTES de fechar:', currentUserIdToRevert);
     document.getElementById('revertGoalsModal').classList.remove('active');
     document.body.style.overflow = '';
     currentUserIdToRevert = null;
-    console.log('currentUserIdToRevert DEPOIS de fechar:', currentUserIdToRevert);
 }
 
 function showAlertModal(title, message, isSuccess = true) {
@@ -1927,36 +1913,19 @@ function closeAlertModal() {
 }
 
 async function confirmRevertGoals() {
-    console.log('=== CONFIRM REVERT GOALS ===');
-    console.log('currentUserIdToRevert:', currentUserIdToRevert);
-    console.log('Tipo:', typeof currentUserIdToRevert);
-    console.log('É null?', currentUserIdToRevert === null);
-    console.log('É undefined?', currentUserIdToRevert === undefined);
-    
     if (!currentUserIdToRevert) {
-        console.error('ERRO: currentUserIdToRevert é null ou undefined');
         alert('Erro: ID do usuário não encontrado. Recarregue a página e tente novamente.');
         return;
     }
     
     // Salvar o user_id antes de fechar o modal
     const userIdToRevert = currentUserIdToRevert;
-    console.log('userIdToRevert salvo:', userIdToRevert);
     
     closeRevertModal(); // Fechar modal de confirmação
     
     try {
-        console.log('ANTES do FormData - userIdToRevert:', userIdToRevert);
-        console.log('Tipo ANTES do FormData:', typeof userIdToRevert);
-        
         const formData = new FormData();
         formData.append('user_id', String(userIdToRevert));
-        
-        console.log('FormData criado com user_id:', userIdToRevert);
-        console.log('FormData entries:');
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}: ${value} (tipo: ${typeof value})`);
-        }
         
         const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/revert_to_auto_goals.php', {
             method: 'POST',

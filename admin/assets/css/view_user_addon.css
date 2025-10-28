@@ -725,6 +725,8 @@
   box-sizing: border-box;
   overflow: hidden;
   contain: layout style;
+  min-height: auto;
+  height: auto;
 }
 
 .diary-day-summary {
