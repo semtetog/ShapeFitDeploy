@@ -1867,6 +1867,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // Sistema de modais customizados para reverter metas
 let currentUserIdToRevert = null;
 
+console.log('JavaScript carregado! currentUserIdToRevert:', currentUserIdToRevert);
+
 function showRevertModal(userId) {
     console.log('showRevertModal chamado com userId:', userId);
     currentUserIdToRevert = userId;
