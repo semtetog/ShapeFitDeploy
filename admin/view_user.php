@@ -122,56 +122,166 @@ if (!empty($user_data['custom_protein_goal_g']) && !empty($user_data['custom_car
 $macros_goal = calculateMacronutrients($total_daily_calories_goal, $objective);
 }
 
-// Processar histórico de hidratação
-$hydration_data = [];
-foreach ($water_history as $day) {
-    $water_ml = $day['water_consumed_cups'] * 250; // 250ml por copo
-    $raw_percentage = $water_goal_ml > 0 ? ($water_ml / $water_goal_ml) * 100 : 0;
-    $percentage = min(round($raw_percentage, 1), 100); // Limitar a 100% máximo
+// Função para gerar dados de hidratação dos últimos 7 dias (calendário real)
+function getHydrationStats($conn, $userId, $water_goal_ml) {
+    $hoje = new DateTime();
     
-    // Determinar status detalhado
-    $status = 'excellent';
-    $status_text = 'Excelente';
-    $status_class = 'success';
-    
-    if ($percentage == 0) {
-        $status = 'empty';
-        $status_text = 'Sem dados';
-        $status_class = 'info';
-    } elseif ($percentage == 100) {
-        $status = 'excellent';
-        $status_text = 'Meta atingida';
-        $status_class = 'success';
-    } elseif ($percentage >= 90) {
-        $status = 'good';
-        $status_text = 'Quase na meta';
-        $status_class = 'info';
-    } elseif ($percentage >= 70) {
-        $status = 'fair';
-        $status_text = 'Abaixo da meta';
-        $status_class = 'warning';
-    } elseif ($percentage >= 50) {
-        $status = 'poor';
-        $status_text = 'Muito abaixo';
-        $status_class = 'warning';
-    } else {
-        $status = 'critical';
-        $status_text = 'Crítico';
-        $status_class = 'error';
+    function gerarPeriodoHidratacao($dias, $userId, $conn, $water_goal_ml) {
+        $hoje = new DateTime();
+        $datas = [];
+        
+        // 1. Gera o calendário dos últimos X dias (ANTES da query)
+        for ($i = 0; $i < $dias; $i++) {
+            $d = clone $hoje;
+            $d->modify("-$i days");
+            $dataStr = $d->format('Y-m-d');
+            $datas[$dataStr] = [
+                'ml' => 0,
+                'cups' => 0,
+                'percentage' => 0,
+                'goal_reached' => false,
+                'status' => 'empty',
+                'status_text' => 'Sem dados',
+                'status_class' => 'info'
+            ];
+        }
+        
+        $startDate = (clone $hoje)->modify("-" . ($dias - 1) . " days")->format('Y-m-d');
+        $endDate = $hoje->format('Y-m-d');
+        
+        // 2. Busca os dados reais
+        $stmt = $conn->prepare("
+            SELECT 
+                DATE(date) AS dia,
+                SUM(water_consumed_cups) AS total_cups
+            FROM sf_user_daily_tracking
+            WHERE user_id = ? 
+              AND DATE(date) BETWEEN ? AND ?
+            GROUP BY DATE(date)
+        ");
+        $stmt->bind_param("iss", $userId, $startDate, $endDate);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $daysWithData = 0;
+        $excellentDays = 0;
+        $goodDays = 0;
+        
+        // 3. Preenche no calendário os dias com registro
+        while ($row = $result->fetch_assoc()) {
+            $data = $row['dia'];
+            $cups = (int)$row['total_cups'];
+            $water_ml = $cups * 250; // 250ml por copo
+            $raw_percentage = $water_goal_ml > 0 ? ($water_ml / $water_goal_ml) * 100 : 0;
+            $percentage = min(round($raw_percentage, 1), 100);
+            
+            if (isset($datas[$data])) {
+                $datas[$data]['ml'] = $water_ml;
+                $datas[$data]['cups'] = $cups;
+                $datas[$data]['percentage'] = $percentage;
+                $datas[$data]['goal_reached'] = $water_ml >= $water_goal_ml;
+                
+                // Determinar status
+                if ($percentage == 0) {
+                    $datas[$data]['status'] = 'empty';
+                    $datas[$data]['status_text'] = 'Sem dados';
+                    $datas[$data]['status_class'] = 'info';
+                } elseif ($percentage >= 100) {
+                    $datas[$data]['status'] = 'excellent';
+                    $datas[$data]['status_text'] = 'Meta atingida';
+                    $datas[$data]['status_class'] = 'success';
+                } elseif ($percentage >= 90) {
+                    $datas[$data]['status'] = 'good';
+                    $datas[$data]['status_text'] = 'Quase na meta';
+                    $datas[$data]['status_class'] = 'info';
+                } elseif ($percentage >= 70) {
+                    $datas[$data]['status'] = 'fair';
+                    $datas[$data]['status_text'] = 'Abaixo da meta';
+                    $datas[$data]['status_class'] = 'warning';
+                } elseif ($percentage >= 50) {
+                    $datas[$data]['status'] = 'poor';
+                    $datas[$data]['status_text'] = 'Muito abaixo';
+                    $datas[$data]['status_class'] = 'warning';
+                } else {
+                    $datas[$data]['status'] = 'critical';
+                    $datas[$data]['status_text'] = 'Crítico';
+                    $datas[$data]['status_class'] = 'error';
+                }
+                
+                if ($water_ml > 0) {
+                    $daysWithData++;
+                    if ($percentage >= 90) {
+                        $excellentDays++;
+                    } elseif ($percentage >= 70) {
+                        $goodDays++;
+                    }
+                }
+            }
+        }
+        
+        // 4. Calcula médias fixas (sempre divide por todos os dias)
+        $somaMl = array_sum(array_column($datas, 'ml'));
+        $somaPercentage = array_sum(array_column($datas, 'percentage'));
+        
+        $mediaMl = $somaMl / $dias;
+        $mediaPercentage = $somaPercentage / $dias;
+        
+        // 5. Média real (apenas dias com registro)
+        $avgRealMl = $daysWithData > 0 ? round($somaMl / $daysWithData, 0) : 0;
+        $avgRealPercentage = $daysWithData > 0 ? round($somaPercentage / $daysWithData, 1) : 0;
+        
+        // 6. Aderência (dias com registro / total de dias)
+        $adherencePercentage = round(($daysWithData / $dias) * 100, 1);
+        
+        // 7. Preparar dados para o gráfico (ordem cronológica)
+        $dailyData = [];
+        foreach (array_reverse($datas, true) as $dia => $valores) {
+            $dailyData[] = [
+                'date' => $dia,
+                'ml' => $valores['ml'],
+                'cups' => $valores['cups'],
+                'percentage' => $valores['percentage'],
+                'goal_reached' => $valores['goal_reached'],
+                'status' => $valores['status'],
+                'status_text' => $valores['status_text'],
+                'status_class' => $valores['status_class']
+            ];
+        }
+        
+        return [
+            'avg_ml' => round($mediaMl),
+            'avg_percentage' => round($mediaPercentage, 1),
+            'avg_real_ml' => $avgRealMl,
+            'avg_real_percentage' => $avgRealPercentage,
+            'excellent_days' => $excellentDays,
+            'good_days' => $goodDays,
+            'days_with_consumption' => $daysWithData,
+            'adherence_percentage' => $adherencePercentage,
+            'total_days' => $dias,
+            'daily_data' => $dailyData
+        ];
     }
     
-    $hydration_data[] = [
-        'date' => $day['date'],
-        'ml' => $water_ml,
-        'cups' => $day['water_consumed_cups'],
-        'percentage' => $percentage,
-        'raw_percentage' => $raw_percentage, // Manter porcentagem real para referência
-        'goal_reached' => $water_ml >= $water_goal_ml,
-        'status' => $status,
-        'status_text' => $status_text,
-        'status_class' => $status_class
+    // Calcula cada período isoladamente
+    $semana = gerarPeriodoHidratacao(7, $userId, $conn, $water_goal_ml);
+    $quinzena = gerarPeriodoHidratacao(15, $userId, $conn, $water_goal_ml);
+    $mes = gerarPeriodoHidratacao(30, $userId, $conn, $water_goal_ml);
+    
+    return [
+        'semana' => $semana,
+        'quinzena' => $quinzena,
+        'mes' => $mes
     ];
 }
+
+// Calcular estatísticas de hidratação para cada período
+$hydration_stats_all = getHydrationStats($conn, $user_id, $water_goal_ml);
+$hydration_stats_7 = $hydration_stats_all['semana'];
+$hydration_stats_15 = $hydration_stats_all['quinzena'];
+$hydration_stats_30 = $hydration_stats_all['mes'];
+
+// Usar os dados da função para o gráfico
+$hydration_data = $hydration_stats_7['daily_data'];
 
 // Calcular estatísticas por data específica
 function calculateHydrationStatsByDate($data, $target_date) {
@@ -253,16 +363,15 @@ function calculateHydrationStats($data, $days = null, $offset = 0) {
     ];
 }
 
-$water_stats_all = calculateHydrationStats($hydration_data);
-$water_stats_90 = calculateHydrationStats($hydration_data, 90);
-$water_stats_30 = calculateHydrationStats($hydration_data, 30);
-$water_stats_15 = calculateHydrationStats($hydration_data, 15);
-$water_stats_7 = calculateHydrationStats($hydration_data, 7);
+// Usar os dados da função getHydrationStats
+$water_stats_7 = $hydration_stats_7;
+$water_stats_15 = $hydration_stats_15;
+$water_stats_30 = $hydration_stats_30;
+$water_stats_90 = $hydration_stats_30; // Usar 30 dias como 90 por enquanto
+
 // Calcular estatísticas para hoje e ontem baseado na data real
 $today = date('Y-m-d');
 $yesterday = date('Y-m-d', strtotime('-1 day'));
-
-// Debug: Verificar datas (movido para depois do processamento de nutrientes)
 
 $water_stats_today = calculateHydrationStatsByDate($hydration_data, $today);
 $water_stats_yesterday = calculateHydrationStatsByDate($hydration_data, $yesterday);
@@ -1528,25 +1637,29 @@ if (count($hydration_data) >= 7) {
 
         <!-- 4. MÉDIAS DE PERÍODOS (COMPACTO) -->
         <div class="hydration-periods-compact">
-            <h4><i class="fas fa-calendar-alt"></i> Médias por Período</h4>
+            <h4><i class="fas fa-calendar-alt"></i> Médias de Consumo por Período</h4>
+            <p class="section-description">Análise do consumo de água médio em diferentes períodos para identificar tendências e padrões de hidratação.</p>
             <div class="periods-grid">
                 <div class="period-item">
-                    <span class="period-label">Semana (7 dias)</span>
+                    <span class="period-label">Última Semana</span>
                     <span class="period-value"><?php echo $water_stats_7['avg_ml']; ?>ml</span>
-                    <span class="period-percentage"><?php echo $water_stats_7['avg_percentage']; ?>%</span>
-            </div>
+                    <span class="period-percentage"><?php echo $water_stats_7['avg_percentage']; ?>% da meta</span>
+                    <div class="period-details">Média dos últimos 7 dias</div>
+                </div>
                 <div class="period-item">
-                    <span class="period-label">Quinzena (15 dias)</span>
+                    <span class="period-label">Última Quinzena</span>
                     <span class="period-value"><?php echo $water_stats_15['avg_ml']; ?>ml</span>
-                    <span class="period-percentage"><?php echo $water_stats_15['avg_percentage']; ?>%</span>
-                    </div>
+                    <span class="period-percentage"><?php echo $water_stats_15['avg_percentage']; ?>% da meta</span>
+                    <div class="period-details">Média dos últimos 15 dias</div>
+                </div>
                 <div class="period-item">
-                    <span class="period-label">Mês (30 dias)</span>
+                    <span class="period-label">Último Mês</span>
                     <span class="period-value"><?php echo $water_stats_30['avg_ml']; ?>ml</span>
-                    <span class="period-percentage"><?php echo $water_stats_30['avg_percentage']; ?>%</span>
-                            </div>
-                            </div>
-                        </div>
+                    <span class="period-percentage"><?php echo $water_stats_30['avg_percentage']; ?>% da meta</span>
+                    <div class="period-details">Média dos últimos 30 dias</div>
+                </div>
+            </div>
+        </div>
 
         <!-- 5. REGISTROS DETALHADOS (COLAPSÁVEL) -->
         <div class="hydration-records-collapsible">
