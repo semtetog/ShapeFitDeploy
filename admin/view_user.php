@@ -1137,7 +1137,16 @@ function navigateDiary(direction) {
                        // Forçar animação de swipe no card de baixo (mesma do swipe normal)
                        diaryTrack.style.transition = 'transform 0.3s ease-in-out';
                        
-                       // Atualizar display com animação
+                       // Forçar animação: mover ligeiramente para a direita e depois para a posição correta
+                       const currentOffset = -currentDiaryIndex * 100;
+                       diaryTrack.style.transform = `translateX(${currentOffset + 10}%)`;
+                       
+                       // Usar setTimeout para garantir que a animação aconteça
+                       setTimeout(() => {
+                           diaryTrack.style.transform = `translateX(${currentOffset}%)`;
+                       }, 10);
+                       
+                       // Atualizar display
                        updateDiaryDisplay();
                    } else {
                        console.log('Nenhum novo card encontrado na resposta');
