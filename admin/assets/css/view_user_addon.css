@@ -224,15 +224,15 @@
 
 /* Ícone de detalhes do sono */
 .sleep-details-icon {
-  color: var(--text-secondary);
+  color: var(--accent-orange);
   font-size: 0.8rem;
   margin-left: auto;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .sleep-details-icon:hover {
-  color: var(--accent-orange);
+  opacity: 0.7;
 }
 
 .sleep-item {
@@ -2596,8 +2596,7 @@
 
 .btn-modal-primary:hover {
   background: #ff8533;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+  opacity: 0.9;
 }
 
 /* ========== MODAL DE CALENDÁRIO - REDESIGN COMPLETO ========== */
