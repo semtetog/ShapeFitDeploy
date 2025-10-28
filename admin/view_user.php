@@ -1087,181 +1087,330 @@ require_once __DIR__ . '/includes/header.php';
     color: #f44336;
 }
 
-/* Estilos para a aba de Rotina */
+/* Estilos para a aba de Rotina - DESIGN INTELIGENTE */
 .routine-container {
-    padding: 20px;
+    padding: 25px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 0;
 }
 
-.routine-container .dashboard-card {
+.routine-main-card {
     margin-bottom: 0;
+    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--accent-orange);
 }
 
 .card-header h3 {
     margin: 0;
     color: var(--primary-text-color);
-    font-size: 1.3rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+}
+
+.card-header h3 i {
+    color: var(--accent-orange);
+    font-size: 1.3rem;
 }
 
 .period-buttons {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    background: var(--glass-bg);
+    padding: 4px;
+    border-radius: 25px;
+    border: 1px solid var(--border-color);
 }
 
 .period-btn {
-    padding: 8px 16px;
-    border: 1px solid var(--border-color);
-    background: var(--card-bg);
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
     color: var(--secondary-text-color);
     border-radius: 20px;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .period-btn:hover {
-    background: var(--hover-bg);
+    background: rgba(255, 255, 255, 0.1);
     color: var(--primary-text-color);
 }
 
 .period-btn.active {
     background: var(--accent-orange);
     color: white;
-    border-color: var(--accent-orange);
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
 }
 
-.routine-content {
+.routine-main-content {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 35px;
 }
 
-.routine-section {
+/* Grid de Métricas Principais */
+.routine-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 10px;
+}
+
+.metric-card {
     background: var(--glass-bg);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 25px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--accent-orange);
+    border-radius: 16px 16px 0 0;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.metric-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-orange), #ff8a00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--primary-text-color);
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.metric-subtitle {
+    font-size: 0.8rem;
+    color: var(--accent-orange);
+    font-weight: 500;
+}
+
+.metric-progress {
+    margin-top: 10px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-orange), #ff8a00);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    font-size: 0.75rem;
+    color: var(--secondary-text-color);
+    font-weight: 500;
+}
+
+/* Grid de Gráficos */
+.routine-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 25px;
+}
+
+.chart-container {
+    background: var(--glass-bg);
+    border-radius: 16px;
+    padding: 25px;
     border: 1px solid var(--border-color);
 }
 
-.routine-section h4 {
-    margin: 0 0 15px 0;
+.chart-container h4 {
+    margin: 0 0 20px 0;
     color: var(--primary-text-color);
     font-size: 1.1rem;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
-.routine-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
+.chart-container h4 i {
+    color: var(--accent-orange);
+    font-size: 1rem;
 }
 
-.routine-stats .stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 15px;
-    background: var(--card-bg);
-    border-radius: 8px;
+.chart-container canvas {
+    width: 100% !important;
+    height: 200px !important;
+}
+
+/* Seção de Exercícios Recentes */
+.exercise-recent-section {
+    background: var(--glass-bg);
+    border-radius: 16px;
+    padding: 25px;
     border: 1px solid var(--border-color);
 }
 
-.routine-stats .stat-label {
-    color: var(--secondary-text-color);
-    font-size: 0.8rem;
-    margin-bottom: 5px;
-}
-
-.routine-stats .stat-value {
+.exercise-recent-section h4 {
+    margin: 0 0 20px 0;
     color: var(--primary-text-color);
-    font-weight: 700;
     font-size: 1.2rem;
-}
-
-.routine-chart {
-    height: 250px;
-    margin-top: 20px;
-}
-
-.exercise-list h5 {
-    margin: 0 0 15px 0;
-    color: var(--primary-text-color);
-    font-size: 1rem;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.exercise-recent-section h4 i {
+    color: var(--accent-orange);
+    font-size: 1.1rem;
+}
+
+.exercise-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
 }
 
 .exercise-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px;
+    padding: 18px;
     background: var(--card-bg);
-    border-radius: 8px;
-    margin-bottom: 8px;
+    border-radius: 12px;
     border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.exercise-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-orange);
 }
 
 .exercise-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .exercise-name {
     color: var(--primary-text-color);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 .exercise-date {
     color: var(--secondary-text-color);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
 }
 
 .exercise-duration {
     color: var(--accent-orange);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .empty-state {
     text-align: center;
     color: var(--secondary-text-color);
+    padding: 40px;
+    grid-column: 1 / -1;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--accent-orange);
+    margin-bottom: 15px;
+    display: block;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 1rem;
     font-style: italic;
-    padding: 20px;
 }
 
 /* Responsividade */
+@media (max-width: 1200px) {
+    .routine-metrics-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .routine-charts-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 @media (max-width: 768px) {
     .routine-container {
-        padding: 15px;
-        gap: 20px;
+        padding: 20px;
     }
     
     .card-header {
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
         align-items: flex-start;
     }
     
@@ -1270,8 +1419,26 @@ require_once __DIR__ . '/includes/header.php';
         justify-content: center;
     }
     
-    .routine-stats {
+    .routine-metrics-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .routine-charts-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .exercise-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .metric-card {
+        padding: 20px;
+    }
+    
+    .metric-value {
+        font-size: 1.8rem;
     }
 }
 
@@ -4022,10 +4189,10 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="tab-routine" class="tab-content">
     <div class="routine-container">
         
-        <!-- CARD DE PASSOS E EXERCÍCIOS -->
-        <div class="dashboard-card">
+        <!-- CARD PRINCIPAL - ATIVIDADE FÍSICA -->
+        <div class="dashboard-card routine-main-card">
             <div class="card-header">
-                <h3><i class="fas fa-walking"></i> Passos e Exercícios</h3>
+                <h3><i class="fas fa-dumbbell"></i> Atividade Física & Movimento</h3>
                 <div class="period-buttons">
                     <button class="period-btn active" data-period="7">7 dias</button>
                     <button class="period-btn" data-period="15">15 dias</button>
@@ -4033,100 +4200,89 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             
-            <div class="routine-content">
-                <!-- Seção de Passos -->
-                <div class="routine-section">
-                    <h4><i class="fas fa-walking"></i> Passos Diários</h4>
-                    <div class="routine-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Hoje</span>
-                            <span class="stat-value" id="stepsToday"><?php echo $routine_steps_data[0]['steps_daily'] ?? 0; ?></span>
+            <div class="routine-main-content">
+                <!-- Seção Superior - Métricas Principais -->
+                <div class="routine-metrics-grid">
+                    <div class="metric-card steps-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-walking"></i>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Meta Diária</span>
-                            <span class="stat-value">10.000</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Média 7 dias</span>
-                            <span class="stat-value" id="stepsAverage7">0</span>
+                        <div class="metric-content">
+                            <div class="metric-value" id="stepsToday"><?php echo number_format($routine_steps_data[0]['steps_daily'] ?? 0, 0, ',', '.'); ?></div>
+                            <div class="metric-label">Passos Hoje</div>
+                            <div class="metric-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="stepsProgress" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text" id="stepsProgressText">0% da meta</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="routine-chart">
-                        <canvas id="stepsChart" width="400" height="200"></canvas>
+                    
+                    <div class="metric-card exercise-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value" id="exerciseTotalTime">0</div>
+                            <div class="metric-label">Minutos de Exercício</div>
+                            <div class="metric-subtitle" id="exerciseCount">0 exercícios no período</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card sleep-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value" id="sleepToday"><?php echo $routine_sleep_data[0]['sleep_hours'] ?? 0; ?>h</div>
+                            <div class="metric-label">Sono Hoje</div>
+                            <div class="metric-subtitle" id="sleepAverage">Média: 0h</div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Seção de Exercícios -->
-                <div class="routine-section">
-                    <h4><i class="fas fa-dumbbell"></i> Exercícios Praticados</h4>
-                    <div class="routine-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Total de Exercícios</span>
-                            <span class="stat-value" id="exerciseCount"><?php echo count($routine_exercise_data); ?></span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Tempo Total</span>
-                            <span class="stat-value" id="exerciseTotalTime">0 min</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Último Exercício</span>
-                            <span class="stat-value" id="lastExercise"><?php echo !empty($routine_exercise_data) ? $routine_exercise_data[0]['exercise_name'] : 'Nenhum'; ?></span>
-                        </div>
+                <!-- Seção Inferior - Gráficos -->
+                <div class="routine-charts-grid">
+                    <div class="chart-container">
+                        <h4><i class="fas fa-chart-line"></i> Evolução dos Passos</h4>
+                        <canvas id="stepsChart" width="400" height="200"></canvas>
                     </div>
-                    <div class="exercise-list">
-                        <h5>Exercícios Recentes</h5>
-                        <div id="exerciseListContent">
-                            <?php if (!empty($routine_exercise_data)): ?>
-                                <?php foreach (array_slice($routine_exercise_data, 0, 5) as $exercise): ?>
-                                    <div class="exercise-item">
-                                        <div class="exercise-info">
-                                            <span class="exercise-name"><?php echo htmlspecialchars($exercise['exercise_name']); ?></span>
-                                            <span class="exercise-date"><?php echo date('d/m/Y', strtotime($exercise['updated_at'])); ?></span>
-                                        </div>
-                                        <div class="exercise-duration">
-                                            <?php echo $exercise['duration_minutes']; ?> min
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <p class="empty-state">Nenhum exercício registrado</p>
-                            <?php endif; ?>
-                        </div>
+                    
+                    <div class="chart-container">
+                        <h4><i class="fas fa-chart-bar"></i> Tempo de Exercícios</h4>
+                        <canvas id="exerciseChart" width="400" height="200"></canvas>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARD DE SONO -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <h3><i class="fas fa-bed"></i> Qualidade do Sono</h3>
-                <div class="period-buttons">
-                    <button class="period-btn active" data-period="7">7 dias</button>
-                    <button class="period-btn" data-period="15">15 dias</button>
-                    <button class="period-btn" data-period="30">30 dias</button>
-                </div>
-            </div>
-            
-            <div class="routine-content">
-                <div class="routine-section">
-                    <h4><i class="fas fa-bed"></i> Horas de Sono</h4>
-                    <div class="routine-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Hoje</span>
-                            <span class="stat-value" id="sleepToday"><?php echo $routine_sleep_data[0]['sleep_hours'] ?? 0; ?>h</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Meta Diária</span>
-                            <span class="stat-value">8h</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Média 7 dias</span>
-                            <span class="stat-value" id="sleepAverage7">0h</span>
-                        </div>
-                    </div>
-                    <div class="routine-chart">
+                    
+                    <div class="chart-container">
+                        <h4><i class="fas fa-moon"></i> Qualidade do Sono</h4>
                         <canvas id="sleepChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Seção de Exercícios Recentes -->
+                <div class="exercise-recent-section">
+                    <h4><i class="fas fa-history"></i> Exercícios Recentes</h4>
+                    <div class="exercise-list" id="exerciseListContent">
+                        <?php if (!empty($routine_exercise_data)): ?>
+                            <?php foreach (array_slice($routine_exercise_data, 0, 8) as $exercise): ?>
+                                <div class="exercise-item">
+                                    <div class="exercise-info">
+                                        <div class="exercise-name"><?php echo htmlspecialchars($exercise['exercise_name']); ?></div>
+                                        <div class="exercise-date"><?php echo date('d/m/Y H:i', strtotime($exercise['updated_at'])); ?></div>
+                                    </div>
+                                    <div class="exercise-duration">
+                                        <i class="fas fa-clock"></i>
+                                        <?php echo $exercise['duration_minutes']; ?> min
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="empty-state">
+                                <i class="fas fa-dumbbell"></i>
+                                <p>Nenhum exercício registrado no período</p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -4149,6 +4305,7 @@ const userViewData = {
 
 // --- FUNCIONALIDADES DA ABA ROTINA ---
 let stepsChart = null;
+let exerciseChart = null;
 let sleepChart = null;
 
 // Função para calcular estatísticas de passos
@@ -4203,18 +4360,29 @@ function calculateExerciseStats(data, period) {
 function updateRoutineData(period = 7) {
     // Atualizar passos
     const stepsStats = calculateStepsStats(userViewData.routineData.steps, period);
-    document.getElementById('stepsAverage7').textContent = stepsStats.average.toLocaleString('pt-BR');
+    const stepsToday = userViewData.routineData.steps[0] ? parseInt(userViewData.routineData.steps[0].steps_daily) : 0;
+    const stepsGoal = 10000;
+    const stepsProgress = Math.min((stepsToday / stepsGoal) * 100, 100);
+    
+    document.getElementById('stepsToday').textContent = stepsToday.toLocaleString('pt-BR');
+    document.getElementById('stepsProgress').style.width = stepsProgress + '%';
+    document.getElementById('stepsProgressText').textContent = Math.round(stepsProgress) + '% da meta';
     
     // Atualizar sono
     const sleepStats = calculateSleepStats(userViewData.routineData.sleep, period);
-    document.getElementById('sleepAverage7').textContent = sleepStats.average + 'h';
+    const sleepToday = userViewData.routineData.sleep[0] ? parseFloat(userViewData.routineData.sleep[0].sleep_hours) : 0;
+    
+    document.getElementById('sleepToday').textContent = sleepToday + 'h';
+    document.getElementById('sleepAverage').textContent = 'Média: ' + sleepStats.average + 'h';
     
     // Atualizar exercícios
     const exerciseStats = calculateExerciseStats(userViewData.routineData.exercise, period);
-    document.getElementById('exerciseTotalTime').textContent = exerciseStats.totalTime + ' min';
+    document.getElementById('exerciseTotalTime').textContent = exerciseStats.totalTime;
+    document.getElementById('exerciseCount').textContent = exerciseStats.count + ' exercícios no período';
     
     // Atualizar gráficos
     updateStepsChart(period);
+    updateExerciseChart(period);
     updateSleepChart(period);
 }
 
@@ -4250,6 +4418,85 @@ function updateStepsChart(period) {
                 data: stepsData,
                 backgroundColor: 'rgba(33, 150, 243, 0.8)',
                 borderColor: 'rgba(33, 150, 243, 1)',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#b0b0b0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#b0b0b0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Função para atualizar gráfico de exercícios
+function updateExerciseChart(period) {
+    const ctx = document.getElementById('exerciseChart');
+    if (!ctx) return;
+    
+    if (exerciseChart) {
+        exerciseChart.destroy();
+    }
+    
+    const today = new Date();
+    const filteredData = userViewData.routineData.exercise.filter(item => {
+        const itemDate = new Date(item.updated_at);
+        const daysDiff = Math.floor((today - itemDate) / (1000 * 60 * 60 * 24));
+        return daysDiff < period;
+    });
+    
+    // Agrupar por data
+    const exerciseByDate = {};
+    filteredData.forEach(item => {
+        const date = item.updated_at.split(' ')[0]; // Pegar só a data
+        if (!exerciseByDate[date]) {
+            exerciseByDate[date] = 0;
+        }
+        exerciseByDate[date] += parseInt(item.duration_minutes) || 0;
+    });
+    
+    // Ordenar datas e criar arrays para o gráfico
+    const sortedDates = Object.keys(exerciseByDate).sort();
+    const labels = sortedDates.map(date => {
+        const d = new Date(date);
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    });
+    
+    const exerciseData = sortedDates.map(date => exerciseByDate[date]);
+    
+    exerciseChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Minutos de Exercício',
+                data: exerciseData,
+                backgroundColor: 'rgba(255, 152, 0, 0.8)',
+                borderColor: 'rgba(255, 152, 0, 1)',
                 borderWidth: 1,
                 borderRadius: 4
             }]
