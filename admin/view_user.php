@@ -5344,13 +5344,13 @@ async function loadSpecificDate(dateStr) {
         
                <div class="calendar-header-title">
                    <div class="calendar-year">2025</div>
-                   <div class="calendar-month">OUT</div>
                </div>
         
         <div class="calendar-nav-buttons">
             <button class="calendar-btn-nav" onclick="changeCalendarMonth(-1)" type="button">
                 <i class="fas fa-chevron-left"></i>
             </button>
+            <div class="calendar-month">OUT</div>
             <button class="calendar-btn-nav" onclick="changeCalendarMonth(1)" type="button">
                 <i class="fas fa-chevron-right"></i>
             </button>

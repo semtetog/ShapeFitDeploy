@@ -2514,7 +2514,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .calendar-year {
@@ -2525,6 +2525,15 @@
   font-family: 'Montserrat', sans-serif;
 }
 
+/* Botões de navegação (setas) com mês no meio */
+.calendar-nav-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
 .calendar-month {
   font-size: 2rem;
   font-weight: 700;
@@ -2532,14 +2541,8 @@
   letter-spacing: 1px;
   margin: 0;
   font-family: 'Montserrat', sans-serif;
-}
-
-/* Botões de navegação (setas) */
-.calendar-nav-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  min-width: 80px;
+  text-align: center;
 }
 
 .calendar-btn-nav {
