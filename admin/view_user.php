@@ -5927,6 +5927,10 @@ function renderHydrationChart(data) {
         return;
     }
     
+    // Aplicar o atributo data-period baseado na quantidade de dados
+    const period = data.length;
+    chartContainer.setAttribute('data-period', period);
+    
     let chartHTML = '';
     data.forEach(day => {
         const limitedPercentage = Math.min(day.percentage, 100);
@@ -5972,6 +5976,10 @@ function renderNutrientsChart(data) {
         return;
     }
     
+    // Aplicar o atributo data-period baseado na quantidade de dados
+    const period = data.length;
+    chartContainer.setAttribute('data-period', period);
+    
     const dailyGoal = <?php echo $total_daily_calories_goal; ?>;
     
     let chartHTML = '';
@@ -6013,6 +6021,21 @@ function renderNutrientsChart(data) {
     
     chartContainer.innerHTML = chartHTML;
 }
+
+// Inicializar layout correto quando a página carrega
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar gráfico de hidratação com 7 dias
+    const hydrationBars = document.getElementById('hydration-bars');
+    if (hydrationBars) {
+        hydrationBars.setAttribute('data-period', '7');
+    }
+    
+    // Inicializar gráfico de nutrientes com 7 dias
+    const nutrientsBars = document.getElementById('nutrients-bars');
+    if (nutrientsBars) {
+        nutrientsBars.setAttribute('data-period', '7');
+    }
+});
 </script>
 
 <?php

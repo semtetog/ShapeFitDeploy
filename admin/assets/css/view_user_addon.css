@@ -3827,24 +3827,38 @@
   gap: 1rem;
   justify-content: center;
   max-width: 100%;
+  margin: 0 auto;
 }
 
 /* 7 dias: 1 fileira de 7 */
 .improved-bars[data-period="7"] {
   grid-template-columns: repeat(7, 1fr);
   max-width: 100%;
+  justify-items: center;
 }
 
 /* 15 dias: 3 fileiras de 5 */
 .improved-bars[data-period="15"] {
   grid-template-columns: repeat(5, 1fr);
   max-width: 100%;
+  justify-items: center;
 }
 
 /* 30 dias: 3 fileiras de 10 */
 .improved-bars[data-period="30"] {
   grid-template-columns: repeat(10, 1fr);
   max-width: 100%;
+  justify-items: center;
+}
+
+/* Garantir que as barras individuais sejam centralizadas */
+.improved-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 80px;
 }
 
 /* Responsividade */
