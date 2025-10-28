@@ -938,6 +938,102 @@ require_once __DIR__ . '/includes/header.php';
     flex-shrink: 0 !important; /* não encolher elementos */
 }
 
+/* Estilos para a aba de Rotina */
+.routine-container {
+    padding: 20px;
+}
+
+.routine-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.routine-chart-container {
+    margin-bottom: 30px;
+}
+
+.routine-chart-container h4 {
+    margin-bottom: 15px;
+    color: var(--primary-text-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.routine-chart-container canvas {
+    max-height: 300px;
+}
+
+.routine-table-container h4 {
+    margin-bottom: 15px;
+    color: var(--primary-text-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.routine-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.routine-table th,
+.routine-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.routine-table th {
+    background: var(--primary-bg);
+    color: var(--primary-text-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.routine-table td {
+    color: var(--secondary-text-color);
+    font-size: 0.9rem;
+}
+
+.routine-table tbody tr:hover {
+    background: var(--hover-bg);
+}
+
+.text-success {
+    color: #4caf50 !important;
+}
+
+.text-danger {
+    color: #f44336 !important;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.badge-warning {
+    background: rgba(255, 152, 0, 0.2);
+    color: #ff9800;
+}
+
+.badge-danger {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
 /* Descer posicionamento dos subcards dentro do card pai */
 .details-grid-1-col .physical-data-grid {
     margin-top: 24px !important; /* descer ainda mais os subcards */
@@ -1058,27 +1154,15 @@ require_once __DIR__ . '/includes/header.php';
             <i class="fas fa-chart-line"></i>
             <span>Progresso</span>
         </div>
-        <div class="tab-link" data-tab="measurements">
-            <i class="fas fa-camera"></i>
-            <span>Medidas</span>
+        <div class="tab-link" data-tab="routine">
+            <i class="fas fa-tasks"></i>
+            <span>Rotina</span>
         </div>
     </div>
     <div class="tabs-row">
-        <div class="tab-link" data-tab="weekly_analysis">
-            <i class="fas fa-calendar-week"></i>
-            <span>Análise Semanal</span>
-        </div>
         <div class="tab-link" data-tab="feedback_analysis">
             <i class="fas fa-comments"></i>
             <span>Feedback</span>
-        </div>
-        <div class="tab-link" data-tab="diet_comparison">
-            <i class="fas fa-balance-scale"></i>
-            <span>Comparação</span>
-        </div>
-        <div class="tab-link" data-tab="weekly_tracking">
-            <i class="fas fa-tasks"></i>
-            <span>Rastreio</span>
         </div>
         <div class="tab-link" data-tab="personalized_goals">
             <i class="fas fa-bullseye"></i>
@@ -3653,10 +3737,117 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<div id="tab-measurements" class="tab-content">
+<!-- Card de Medidas dentro da aba Progresso -->
+<div id="tab-progress" class="tab-content">
     <div class="dashboard-card">
-        <h3>Histórico de Medidas Corporais</h3>
-        <p class="empty-state">Funcionalidade a ser implementada.</p>
+        <h3><i class="fas fa-camera"></i> Histórico de Medidas Corporais</h3>
+        <div class="measurements-content">
+            <?php if (empty($photo_history)): ?>
+                <p class="empty-state">Nenhuma foto de progresso encontrada.</p>
+            <?php else: ?>
+                <div class="photo-gallery">
+                    <?php 
+                    $displayed_count = 0;
+                    foreach($photo_history as $photo_set): 
+                        if ($displayed_count >= 6) break;
+                        foreach(['photo_front' => 'Frente', 'photo_side' => 'Lado', 'photo_back' => 'Costas'] as $photo_type => $label): 
+                            if ($displayed_count >= 6) break;
+                            if(!empty($photo_set[$photo_type])): 
+                                $displayed_count++;
+                    ?>
+                                <?php 
+                                $timestamp = !empty($photo_set['created_at']) ? strtotime($photo_set['created_at']) : strtotime($photo_set['date_recorded']);
+                                $display_date = $timestamp ? date('d/m/Y H:i', $timestamp) : date('d/m/Y H:i');
+                                ?>
+                                <div class="photo-item" onclick="openPhotoModal('<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>', '<?php echo $label; ?>', '<?php echo $display_date; ?>')">
+                                    <img src="<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>" loading="lazy" alt="Foto de progresso - <?php echo $label; ?>" onerror="this.style.display='none'">
+                                    <div class="photo-date">
+                                        <span><?php echo $label; ?></span>
+                                        <span><?php echo $display_date; ?></span>
+                                    </div>
+                                </div>
+                            <?php 
+                            endif; 
+                        endforeach; 
+                    endforeach; 
+                    ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- Nova aba de Rotina -->
+<div id="tab-routine" class="tab-content">
+    <div class="routine-container">
+        <div class="dashboard-card">
+            <h3><i class="fas fa-tasks"></i> Dados de Rotinas Completadas</h3>
+            <p class="section-description">Análise das rotinas diárias completadas pelo usuário</p>
+            
+            <!-- Cards de Resumo -->
+            <div class="routine-summary-cards">
+                <div class="summary-card">
+                    <div class="card-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="card-content">
+                        <h5>Rotinas Hoje</h5>
+                        <div class="card-value" id="todayRoutines">0/4</div>
+                        <div class="card-subtitle">Completadas hoje</div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="card-icon">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="card-content">
+                        <h5>Esta Semana</h5>
+                        <div class="card-value" id="weekRoutines">0/28</div>
+                        <div class="card-subtitle">Total de 7 dias</div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="card-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="card-content">
+                        <h5>Taxa de Aderência</h5>
+                        <div class="card-value" id="adherenceRate">0%</div>
+                        <div class="card-subtitle">Últimos 7 dias</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráfico de Rotinas -->
+            <div class="routine-chart-container">
+                <h4><i class="fas fa-chart-bar"></i> Progresso das Rotinas</h4>
+                <canvas id="routineChart" width="400" height="200"></canvas>
+            </div>
+            
+            <!-- Tabela de Rotinas -->
+            <div class="routine-table-container">
+                <h4><i class="fas fa-table"></i> Histórico de Rotinas</h4>
+                <div class="table-responsive">
+                    <table class="routine-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Exercício</th>
+                                <th>Alimentação</th>
+                                <th>Hidratação</th>
+                                <th>Sono</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="routineTableBody">
+                            <!-- Dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -3872,10 +4063,158 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     updateFeedbackAnalysis();
                 }, 100);
+            } else if (this.dataset.tab === 'routine') {
+                setTimeout(() => {
+                    updateRoutineData();
+                }, 100);
             }
         });
     });
 });
+
+// --- FUNCIONALIDADES DA ABA ROTINA ---
+
+// Dados simulados para rotinas (em produção, viriam do banco)
+const routineData = {
+    today: { exercise: 1, nutrition: 1, hydration: 0, sleep: 1 },
+    week: [
+        { date: '2024-10-01', exercise: 1, nutrition: 1, hydration: 1, sleep: 0 },
+        { date: '2024-09-30', exercise: 0, nutrition: 1, hydration: 1, sleep: 1 },
+        { date: '2024-09-29', exercise: 1, nutrition: 1, hydration: 0, sleep: 1 },
+        { date: '2024-09-28', exercise: 1, nutrition: 0, hydration: 1, sleep: 1 },
+        { date: '2024-09-27', exercise: 0, nutrition: 1, hydration: 1, sleep: 0 },
+        { date: '2024-09-26', exercise: 1, nutrition: 1, hydration: 1, sleep: 1 },
+        { date: '2024-09-25', exercise: 1, nutrition: 0, hydration: 0, sleep: 1 }
+    ]
+};
+
+// Função para atualizar dados da rotina
+function updateRoutineData() {
+    // Calcular totais
+    const todayTotal = Object.values(routineData.today).reduce((sum, val) => sum + val, 0);
+    const weekTotal = routineData.week.reduce((sum, day) => {
+        return sum + Object.values(day).slice(1).reduce((daySum, val) => daySum + val, 0);
+    }, 0);
+    const adherenceRate = Math.round((weekTotal / (routineData.week.length * 4)) * 100);
+    
+    // Atualizar cards de resumo
+    document.getElementById('todayRoutines').textContent = `${todayTotal}/4`;
+    document.getElementById('weekRoutines').textContent = `${weekTotal}/28`;
+    document.getElementById('adherenceRate').textContent = `${adherenceRate}%`;
+    
+    // Atualizar gráfico
+    updateRoutineChart();
+    
+    // Atualizar tabela
+    updateRoutineTable();
+}
+
+// Função para atualizar gráfico de rotinas
+function updateRoutineChart() {
+    const ctx = document.getElementById('routineChart');
+    if (!ctx) return;
+    
+    const labels = routineData.week.map(day => 
+        new Date(day.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+    );
+    
+    const exerciseData = routineData.week.map(day => day.exercise);
+    const nutritionData = routineData.week.map(day => day.nutrition);
+    const hydrationData = routineData.week.map(day => day.hydration);
+    const sleepData = routineData.week.map(day => day.sleep);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Exercício',
+                    data: exerciseData,
+                    backgroundColor: 'rgba(76, 175, 80, 0.8)',
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Alimentação',
+                    data: nutritionData,
+                    backgroundColor: 'rgba(255, 152, 0, 0.8)',
+                    borderColor: 'rgba(255, 152, 0, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Hidratação',
+                    data: hydrationData,
+                    backgroundColor: 'rgba(33, 150, 243, 0.8)',
+                    borderColor: 'rgba(33, 150, 243, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Sono',
+                    data: sleepData,
+                    backgroundColor: 'rgba(156, 39, 176, 0.8)',
+                    borderColor: 'rgba(156, 39, 176, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#b0b0b0'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    ticks: {
+                        stepSize: 1,
+                        color: '#b0b0b0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#b0b0b0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Função para atualizar tabela de rotinas
+function updateRoutineTable() {
+    const tbody = document.getElementById('routineTableBody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = routineData.week.map(day => {
+        const total = Object.values(day).slice(1).reduce((sum, val) => sum + val, 0);
+        const date = new Date(day.date).toLocaleDateString('pt-BR');
+        
+        return `
+            <tr>
+                <td>${date}</td>
+                <td><i class="fas ${day.exercise ? 'fa-check text-success' : 'fa-times text-danger'}"></i></td>
+                <td><i class="fas ${day.nutrition ? 'fa-check text-success' : 'fa-times text-danger'}"></i></td>
+                <td><i class="fas ${day.hydration ? 'fa-check text-success' : 'fa-times text-danger'}"></i></td>
+                <td><i class="fas ${day.sleep ? 'fa-check text-success' : 'fa-times text-danger'}"></i></td>
+                <td><span class="badge ${total >= 3 ? 'badge-success' : total >= 2 ? 'badge-warning' : 'badge-danger'}">${total}/4</span></td>
+            </tr>
+        `;
+    }).join('');
+}
 
 // --- FUNCIONALIDADES DA ANÁLISE DE FEEDBACK ---
 
