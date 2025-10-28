@@ -861,6 +861,11 @@ require_once __DIR__ . '/includes/header.php';
     margin-bottom: 16px !important; /* diminuir distância entre título e subcards */
 }
 
+/* Diminuir distância entre títulos e subcards das seções Dados Físicos e Anamnese */
+.details-grid-3-cols .dashboard-card h3 {
+    margin-bottom: 8px !important; /* distância menor para Dados Físicos e Anamnese */
+}
+
 /* Descer ícone e label do topo */
 .details-grid-1-col .dashboard-card .data-item .icon {
     margin-top: 4px !important;
