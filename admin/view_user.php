@@ -5184,20 +5184,27 @@ function changeCalendarMonth(direction) {
                dayEl.textContent = day;
                
                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-               
-               // Verificar se tem dados
-               if (daysWithData.has(dateStr)) {
-                   dayEl.classList.add('has-data');
-               }
-               
-               // Marcar hoje
                const today = new Date();
-               if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
-                   dayEl.classList.add('today');
-               }
+               const currentDate = new Date(year, month, day);
                
-               // Click handler
-               dayEl.onclick = () => goToDiaryDate(dateStr);
+               // Verificar se é dia futuro
+               if (currentDate > today) {
+                   dayEl.classList.add('future-day');
+                   dayEl.disabled = true;
+               } else {
+                   // Verificar se tem dados
+                   if (daysWithData.has(dateStr)) {
+                       dayEl.classList.add('has-data');
+                   }
+                   
+                   // Marcar hoje
+                   if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                       dayEl.classList.add('today');
+                   }
+                   
+                   // Click handler apenas para dias não futuros
+                   dayEl.onclick = () => goToDiaryDate(dateStr);
+               }
                
                grid.appendChild(dayEl);
            }
@@ -5374,8 +5381,8 @@ async function loadSpecificDate(dateStr) {
                        <span class="legend-text">Dias sem registros</span>
                    </div>
                    <div class="legend-row">
-                       <span class="legend-marker other-month-marker"></span>
-                       <span class="legend-text">Outros meses</span>
+                       <span class="legend-marker future-day-marker"></span>
+                       <span class="legend-text">Dias futuros</span>
                    </div>
                </div>
     </div>

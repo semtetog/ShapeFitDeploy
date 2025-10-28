@@ -2623,6 +2623,20 @@
   border-color: rgba(255, 255, 255, 0.08);
 }
 
+.calendar-day.future-day {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-secondary);
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.calendar-day.future-day:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+  transform: none;
+}
+
 .calendar-day:not(.empty):not(.other-month):hover {
   transform: scale(1.05);
 }
@@ -2689,10 +2703,10 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.legend-marker.other-month-marker {
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  opacity: 0.4;
+.legend-marker.future-day-marker {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  opacity: 0.3;
 }
 
 .legend-text {
