@@ -1134,17 +1134,20 @@ function navigateDiary(direction) {
                        urlParams.set('end_date', endDate);
                        window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
                        
-                       // Forçar animação de swipe no card de baixo (mesma do swipe normal)
+                       // Simular swipe: primeiro ir para posição anterior, depois para a correta
+                       const previousIndex = currentDiaryIndex + 1;
+                       const previousOffset = -previousIndex * 100;
+                       
+                       // Posicionar no card anterior (como se estivesse vindo da direita)
+                       diaryTrack.style.transition = 'none';
+                       diaryTrack.style.transform = `translateX(${previousOffset}%)`;
+                       
+                       // Forçar reflow
+                       diaryTrack.offsetHeight;
+                       
+                       // Agora animar para a posição correta
                        diaryTrack.style.transition = 'transform 0.3s ease-in-out';
-                       
-                       // Forçar animação: mover ligeiramente para a direita e depois para a posição correta
-                       const currentOffset = -currentDiaryIndex * 100;
-                       diaryTrack.style.transform = `translateX(${currentOffset + 10}%)`;
-                       
-                       // Usar setTimeout para garantir que a animação aconteça
-                       setTimeout(() => {
-                           diaryTrack.style.transform = `translateX(${currentOffset}%)`;
-                       }, 10);
+                       diaryTrack.style.transform = `translateX(${-currentDiaryIndex * 100}%)`;
                        
                        // Atualizar display
                        updateDiaryDisplay();
