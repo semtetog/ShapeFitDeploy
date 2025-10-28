@@ -901,15 +901,22 @@ require_once __DIR__ . '/includes/header.php';
     padding: 20px 24px 3px 24px !important; /* top right bottom left - padding aumentado e bottom reduzido */
 }
 
-/* Subir conteúdo do card de calorias para alinhar com subcards da direita */
-.details-grid-3-cols .dashboard-card:first-child {
-    padding-top: 4px !important; /* reduzir mais padding-top para subir o conteúdo */
-    padding-bottom: 20px !important; /* aumentar mais padding-bottom */
+/* Alinhar títulos dos 3 cards principais */
+.details-grid-3-cols .dashboard-card h3 {
+    margin-top: 0 !important; /* remover margem superior dos títulos */
+    padding-top: 0 !important; /* remover padding superior dos títulos */
+    line-height: 1.2 !important; /* altura de linha consistente */
 }
 
-/* Subir um pouquinho os blocos de proteína, carbo e gordura */
+/* Alinhar margens dos 3 cards principais */
+.details-grid-3-cols .dashboard-card {
+    padding-top: 20px !important; /* padding-top igual para todos os cards */
+    padding-bottom: 20px !important; /* padding-bottom igual para todos os cards */
+}
+
+/* Ajustar posicionamento dos blocos de macros dentro do card */
 .details-grid-3-cols .dashboard-card:first-child .meta-card-macros {
-    margin-top: -4px !important; /* subir os blocos de macros */
+    margin-top: 8px !important; /* espaçamento consistente após o título */
 }
 
 /* Descer posicionamento dos subcards dentro do card pai */
