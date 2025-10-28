@@ -214,8 +214,8 @@
 
 .data-title .icon {
   color: var(--accent-orange);
-  font-size: 0.9rem;
-  height: 0.9rem;
+  font-size: 0.6rem !important;
+  height: 0.6rem !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -324,7 +324,7 @@
 }
 
 .data-item label {
-  font-size: 0.35rem !important;
+  font-size: 0.7rem !important;
   color: var(--text-secondary) !important;
   font-weight: 500 !important;
   text-transform: uppercase !important;
@@ -336,7 +336,7 @@
 }
 
 .data-item span {
-  font-size: 0.45rem !important;
+  font-size: 0.9rem !important;
   color: var(--text-primary) !important;
   font-weight: 600 !important;
   line-height: 1.05 !important;
