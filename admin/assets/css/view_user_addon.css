@@ -733,6 +733,14 @@
   contain: layout style;
   min-height: auto;
   height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.diary-day-meals {
+  flex: 0 1 auto;
+  padding: 0;
+  margin: 0;
 }
 
 .diary-day-summary {
