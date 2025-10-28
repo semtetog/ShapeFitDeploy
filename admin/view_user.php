@@ -828,6 +828,13 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<style>
+/* Reduzir espaço entre título e subcards do Plano e Preferências */
+.dashboard-card h3 {
+    margin-bottom: 10px !important;
+}
+</style>
+
 <div class="details-grid-1-col" style="margin-top:24px;">
     <div class="dashboard-card">
         <h3>Plano e Preferências</h3>
