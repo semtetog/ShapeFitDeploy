@@ -18409,3 +18409,25 @@ Stack trace:
 #1 C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\test_integration.php(3): require_once('C:\\Users\\Brenno...')
 #2 {main}
   thrown in C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\includes\db.php on line 7
+[28-Oct-2025 00:19:50 America/Sao_Paulo] DEBUG - Data de hoje: 2025-10-28
+[28-Oct-2025 00:19:50 America/Sao_Paulo] DEBUG - Data de ontem: 2025-10-27
+[28-Oct-2025 00:19:50 America/Sao_Paulo] DEBUG - Primeiras 3 datas de hidratação: ["2025-10-01","2025-09-30","2025-09-29"]
+[28-Oct-2025 00:19:50 America/Sao_Paulo] DEBUG - Primeiras 3 datas de nutrientes: ["2025-10-27","2025-10-24","2025-10-23"]
+[28-Oct-2025 00:19:50 America/Sao_Paulo] DEBUG - Stats hoje hidratação: {"avg_ml":0,"avg_percentage":0,"compliance_rate":0,"total_days":0,"excellent_days":0,"good_days":0,"fair_days":0,"poor_days":0,"critical_days":0,"best_day":0,"worst_day":0,"consistency_score":0}
+[28-Oct-2025 00:19:50 America/Sao_Paulo] DEBUG - Stats ontem hidratação: {"avg_ml":0,"avg_percentage":0,"compliance_rate":0,"total_days":0,"excellent_days":0,"good_days":0,"fair_days":0,"poor_days":0,"critical_days":0,"best_day":0,"worst_day":0,"consistency_score":0}
+[28-Oct-2025 00:19:50 America/Sao_Paulo] DEBUG - Stats hoje nutrientes: {"avg_kcal":0,"avg_protein":0,"avg_carbs":0,"avg_fat":0,"avg_kcal_percentage":0,"avg_protein_percentage":0,"avg_carbs_percentage":0,"avg_fat_percentage":0,"avg_overall_percentage":0,"total_days":0,"excellent_days":0,"good_days":0,"fair_days":0,"poor_days":0,"critical_days":0}
+[28-Oct-2025 00:19:50 America/Sao_Paulo] DEBUG - Stats ontem nutrientes: {"avg_kcal":1884,"avg_protein":124.8,"avg_carbs":135.5,"avg_fat":99.5,"avg_kcal_percentage":103.1,"avg_protein_percentage":68.2,"avg_carbs_percentage":98.9,"avg_fat_percentage":163.1,"avg_overall_percentage":108.3,"total_days":1,"excellent_days":1,"good_days":0,"fair_days":0,"poor_days":0,"critical_days":0}
+[28-Oct-2025 00:19:50 America/Sao_Paulo] PHP Warning:  Undefined array key "consistency_score" in /home/u785537399/domains/appshapefit.com/public_html/admin/view_user.php on line 1908
+[28-Oct-2025 00:19:50 America/Sao_Paulo] PHP Warning:  Undefined array key "consistency_score" in /home/u785537399/domains/appshapefit.com/public_html/admin/view_user.php on line 1910
+[28-Oct-2025 00:19:50 America/Sao_Paulo] PHP Warning:  Undefined array key "consistency_score" in /home/u785537399/domains/appshapefit.com/public_html/admin/view_user.php on line 1911
+[28-Oct-2025 11:18:45 America/Sao_Paulo] DEBUG - Data de hoje: 2025-10-28
+[28-Oct-2025 11:18:45 America/Sao_Paulo] DEBUG - Data de ontem: 2025-10-27
+[28-Oct-2025 11:18:45 America/Sao_Paulo] DEBUG - Primeiras 3 datas de hidratação: ["2025-10-01","2025-09-30","2025-09-29"]
+[28-Oct-2025 11:18:45 America/Sao_Paulo] DEBUG - Primeiras 3 datas de nutrientes: ["2025-10-28","2025-10-27","2025-10-24"]
+[28-Oct-2025 11:18:45 America/Sao_Paulo] DEBUG - Stats hoje hidratação: {"avg_ml":0,"avg_percentage":0,"compliance_rate":0,"total_days":0,"excellent_days":0,"good_days":0,"fair_days":0,"poor_days":0,"critical_days":0,"best_day":0,"worst_day":0,"consistency_score":0}
+[28-Oct-2025 11:18:45 America/Sao_Paulo] DEBUG - Stats ontem hidratação: {"avg_ml":0,"avg_percentage":0,"compliance_rate":0,"total_days":0,"excellent_days":0,"good_days":0,"fair_days":0,"poor_days":0,"critical_days":0,"best_day":0,"worst_day":0,"consistency_score":0}
+[28-Oct-2025 11:18:45 America/Sao_Paulo] DEBUG - Stats hoje nutrientes: {"avg_kcal":0,"avg_protein":0,"avg_carbs":0,"avg_fat":0,"avg_kcal_percentage":0,"avg_protein_percentage":0,"avg_carbs_percentage":0,"avg_fat_percentage":0,"avg_overall_percentage":0,"total_days":1,"excellent_days":0,"good_days":0,"fair_days":0,"poor_days":0,"critical_days":0}
+[28-Oct-2025 11:18:45 America/Sao_Paulo] DEBUG - Stats ontem nutrientes: {"avg_kcal":1884,"avg_protein":124.8,"avg_carbs":135.5,"avg_fat":99.5,"avg_kcal_percentage":103.1,"avg_protein_percentage":68.2,"avg_carbs_percentage":98.9,"avg_fat_percentage":163.1,"avg_overall_percentage":108.3,"total_days":1,"excellent_days":1,"good_days":0,"fair_days":0,"poor_days":0,"critical_days":0}
+[28-Oct-2025 11:18:45 America/Sao_Paulo] PHP Warning:  Undefined array key "consistency_score" in /home/u785537399/domains/appshapefit.com/public_html/admin/view_user.php on line 1908
+[28-Oct-2025 11:18:45 America/Sao_Paulo] PHP Warning:  Undefined array key "consistency_score" in /home/u785537399/domains/appshapefit.com/public_html/admin/view_user.php on line 1910
+[28-Oct-2025 11:18:45 America/Sao_Paulo] PHP Warning:  Undefined array key "consistency_score" in /home/u785537399/domains/appshapefit.com/public_html/admin/view_user.php on line 1911
