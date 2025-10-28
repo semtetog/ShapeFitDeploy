@@ -1916,6 +1916,7 @@ function closeAlertModal() {
 
 async function confirmRevertGoals() {
     console.log('confirmRevertGoals chamado, currentUserIdToRevert:', currentUserIdToRevert);
+    console.log('Tipo de currentUserIdToRevert:', typeof currentUserIdToRevert);
     
     if (!currentUserIdToRevert) {
         console.error('currentUserIdToRevert é null ou undefined');
@@ -1929,6 +1930,10 @@ async function confirmRevertGoals() {
         formData.append('user_id', currentUserIdToRevert);
         
         console.log('Enviando user_id:', currentUserIdToRevert);
+        console.log('FormData entries:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
         
         const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/revert_to_auto_goals.php', {
             method: 'POST',
