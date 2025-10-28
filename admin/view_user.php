@@ -1888,7 +1888,7 @@ function toggleNutrientsRecords() {
                 <div class="macro-card">
                     <div class="macro-header">
                         <div class="macro-icon fat">
-                            <i class="fas fa-seedling"></i>
+                            <i class="fas fa-tint"></i>
                         </div>
                         <div class="macro-info">
                             <h5>Gorduras</h5>
