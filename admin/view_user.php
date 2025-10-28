@@ -839,6 +839,17 @@ require_once __DIR__ . '/includes/header.php';
     margin-top: 5px !important;
     padding-top: 0 !important;
 }
+
+/* Reduzir espaço entre título e conteúdo de cada subcard */
+.details-grid-1-col .dashboard-card .data-item .data-title {
+    margin-bottom: 2px !important;
+    padding-bottom: 0 !important;
+}
+
+.details-grid-1-col .dashboard-card .data-item {
+    padding: 8px 0 !important;
+    gap: 5px !important;
+}
 </style>
 
 <div class="details-grid-1-col" style="margin-top:24px;">
