@@ -840,15 +840,13 @@ require_once __DIR__ . '/includes/header.php';
     padding-top: 0 !important;
 }
 
-/* Reduzir espaço entre título e conteúdo de cada subcard */
+/* Reduzir espaço entre ícone/label e valor nos subcards */
 .details-grid-1-col .dashboard-card .data-item .data-title {
     margin-bottom: 2px !important;
-    padding-bottom: 0 !important;
 }
 
-.details-grid-1-col .dashboard-card .data-item {
-    padding: 8px 0 !important;
-    gap: 5px !important;
+.details-grid-1-col .dashboard-card .data-item span {
+    margin-top: 2px !important;
 }
 </style>
 
