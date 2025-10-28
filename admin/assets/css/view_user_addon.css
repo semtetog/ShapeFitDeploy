@@ -2624,10 +2624,7 @@
 }
 
 .calendar-day:not(.empty):not(.other-month):hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--accent-orange);
-  color: var(--text-primary);
-  transform: translateY(-2px);
+  transform: scale(1.05);
 }
 
 .calendar-day.has-data {
