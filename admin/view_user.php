@@ -872,13 +872,18 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Ajustar padding interno dos cards da seção "Plano e Preferências" */
 .details-grid-1-col .physical-data-grid .data-item {
-    padding: 6px 10px 6px 10px !important; /* top right bottom left - padding ainda menor */
+    padding: 8px 12px 8px 12px !important; /* top right bottom left - padding original */
     min-height: auto !important;
     height: auto !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important; /* colar no topo */
     align-items: flex-start !important; /* colar na esquerda */
+}
+
+/* Diminuir padding do card principal "Plano e Preferências" */
+.details-grid-1-col .dashboard-card {
+    padding: 20px 24px 16px 24px !important; /* top right bottom left - padding reduzido do card principal */
 }
 
 .details-grid-1-col .physical-data-grid .data-item .data-title {
