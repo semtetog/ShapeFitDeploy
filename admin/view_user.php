@@ -552,6 +552,9 @@ require_once __DIR__ . '/includes/header.php';
                     title="Reverter para cálculo automático">
                 <i class="fas fa-undo"></i>
             </button>
+            <script>
+                console.log('PHP user_id:', <?php echo $user_id; ?>);
+            </script>
         </div>
         
         <div class="meta-card-main">
