@@ -1552,10 +1552,11 @@ if (count($hydration_data) >= 7) {
             <div class="summary-main">
                 <div class="summary-icon">
                     <i class="fas fa-tint"></i>
-                    </div>
+                </div>
                 <div class="summary-info">
                     <h3>Hidratação</h3>
                     <div class="summary-meta">Meta diária: <strong><?php echo $water_goal_ml; ?>ml</strong></div>
+                    <div class="summary-description">Baseado nos registros de hidratação do paciente no aplicativo</div>
                 </div>
                 <div class="summary-status status-<?php echo $status_class; ?>">
                     <i class="fas <?php echo $status_icon; ?>"></i>
@@ -1564,19 +1565,22 @@ if (count($hydration_data) >= 7) {
             </div>
             <div class="summary-stats">
                 <div class="summary-stat">
-                    <div class="stat-value"><?php echo $avg_ml_7; ?>ml</div>
-                    <div class="stat-label">Média Atual (7 dias)</div>
-                    </div>
-                <div class="summary-stat">
-                    <div class="stat-value"><?php echo $avg_percentage_7; ?>%</div>
-                    <div class="stat-label">da Meta Atingido</div>
-                    </div>
-                <div class="summary-stat">
-                    <div class="stat-value"><?php echo $days_with_goal; ?>/<?php echo $total_days_7; ?></div>
-                    <div class="stat-label">Dias na Meta</div>
+                    <div class="stat-value"><?php echo $water_stats_7['avg_ml']; ?>ml</div>
+                    <div class="stat-label">Média de Água</div>
+                    <div class="stat-description">Últimos 7 dias</div>
                 </div>
-                    </div>
+                <div class="summary-stat">
+                    <div class="stat-value"><?php echo $water_stats_7['avg_percentage']; ?>%</div>
+                    <div class="stat-label">Aderência Geral</div>
+                    <div class="stat-description">Meta de hidratação atingida</div>
                 </div>
+                <div class="summary-stat">
+                    <div class="stat-value"><?php echo $water_stats_7['days_with_consumption']; ?>/<?php echo $water_stats_7['total_days']; ?></div>
+                    <div class="stat-label">Dias com Registro</div>
+                    <div class="stat-description"><?php echo $water_stats_7['adherence_percentage']; ?>% de aderência</div>
+                </div>
+            </div>
+        </div>
                 
         <!-- 2. INSIGHTS AUTOMÁTICOS -->
         <?php if (!empty($insights)): ?>
