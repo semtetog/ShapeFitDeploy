@@ -884,16 +884,20 @@ require_once __DIR__ . '/includes/header.php';
 .details-grid-1-col .physical-data-grid .data-item .data-title {
     display: flex !important;
     align-items: center !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 12px !important;
+    gap: 8px !important;
 }
 
 .details-grid-1-col .physical-data-grid .data-item .data-title .icon {
-    margin-right: 8px !important;
+    margin-right: 0 !important;
     margin-top: 0 !important;
+    flex-shrink: 0 !important;
 }
 
 .details-grid-1-col .physical-data-grid .data-item .data-title .label {
     margin-top: 0 !important;
+    margin-left: 0 !important;
+    font-weight: 500 !important;
 }
 
 .details-grid-1-col .physical-data-grid .data-item span {
