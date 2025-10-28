@@ -1781,7 +1781,6 @@ function toggleNutrientsRecords() {
                             </div>
                             <span class="percentage-text"><?php echo $nutrients_stats_7['avg_protein_percentage']; ?>% da meta</span>
                         </div>
-                        <div class="macro-description">Essencial para construção muscular e recuperação</div>
                     </div>
                 </div>
 
@@ -1806,7 +1805,6 @@ function toggleNutrientsRecords() {
                             </div>
                             <span class="percentage-text"><?php echo $nutrients_stats_7['avg_carbs_percentage']; ?>% da meta</span>
                         </div>
-                        <div class="macro-description">Principal fonte de energia para o corpo</div>
                     </div>
                 </div>
 
@@ -1831,7 +1829,6 @@ function toggleNutrientsRecords() {
                             </div>
                             <span class="percentage-text"><?php echo $nutrients_stats_7['avg_fat_percentage']; ?>% da meta</span>
                         </div>
-                        <div class="macro-description">Importante para absorção de vitaminas e hormônios</div>
                     </div>
                 </div>
             </div>
