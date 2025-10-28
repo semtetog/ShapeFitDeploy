@@ -883,7 +883,7 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Ajustar padding do card principal "Plano e Preferências" */
 .details-grid-1-col .dashboard-card {
-    padding: 16px 20px 12px 20px !important; /* top right bottom left - padding aumentado do card principal */
+    padding: 16px 20px 6px 20px !important; /* top right bottom left - padding-bottom reduzido */
 }
 
 /* Descer posicionamento dos subcards dentro do card pai */
