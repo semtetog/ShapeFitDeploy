@@ -1835,7 +1835,7 @@ function toggleNutrientsRecords() {
         <!-- 5. DETALHAMENTO DE MACRONUTRIENTES -->
         <div class="nutrients-macros-detail">
             <h4><i class="fas fa-chart-pie"></i> Detalhamento de Macronutrientes</h4>
-            <p class="section-description">Análise detalhada do consumo de proteínas, carboidratos e gorduras baseado nos alimentos registrados pelo paciente no aplicativo.</p>
+            <p class="section-description">Análise detalhada do consumo de proteínas, carboidratos e gorduras baseado nas refeições registradas pelo paciente no aplicativo.</p>
             <div class="macros-grid">
                 <div class="macro-card">
                     <div class="macro-header">
