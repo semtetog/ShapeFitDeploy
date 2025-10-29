@@ -5477,8 +5477,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
 
-        <!-- 2. CALENDÁRIO (IDÊNTICO AO DA ABA DIÁRIO) -->
-        <div class="diary-slider-container" style="margin-top: 25px;">
+        <!-- 2. CALENDÁRIO IDÊNTICO AO DIÁRIO (MAS MOSTRANDO MISSÕES) -->
+        <div class="diary-slider-container">
             <div class="diary-header-redesign">
                 <!-- Ano no topo -->
                 <div class="diary-year" id="routineYear">2025</div>
@@ -5520,220 +5520,71 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <div class="diary-slider-wrapper" id="routineSliderWrapper">
                 <div class="diary-slider-track" id="routineSliderTrack">
-                    <!-- Dias serão gerados pelo JavaScript -->
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. ROTINA DO DIA SELECIONADO -->
-        <div class="routine-day-details" id="routine-day-details" style="display: none;">
-            <h4 style="margin-top: 30px; color: var(--primary-text-color);">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
-                    <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-                </svg>
-                Rotina do Dia: <span id="selected-date-display"></span>
-            </h4>
-
-            <!-- 3.1. MISSÕES DIÁRIAS -->
-            <div class="dashboard-card" style="margin-top: 20px;">
-                <div class="card-header">
-                    <h4>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
-                            <path d="M9 11L12 14L22 4" stroke="#ff6f00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#ff6f00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Missões Diárias
-                    </h4>
-                    <div class="mission-progress-bar" style="position: relative; height: 24px; background: var(--glass-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);">
-                        <div class="mission-progress-fill" id="mission-progress-bar" style="position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, #ff6f00, #ff8a00); width: 0%; transition: width 0.3s ease;"></div>
-                        <span class="mission-progress-text" id="mission-progress-text" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: var(--primary-text-color); font-weight: 600; font-size: 0.85rem; z-index: 1;">0 de 0 concluídas</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="missions-list" id="missions-list">
-                        <p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">
-                            Selecione um dia no calendário para ver as missões
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3.2. ATIVIDADES FÍSICAS -->
-            <div class="dashboard-card" style="margin-top: 20px;">
-                <div class="card-header">
-                    <h4>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
-                            <path d="M12 5V19M5 12H19" stroke="#ff6f00" stroke-width="2" stroke-linecap="round"/>
-                            <circle cx="5" cy="5" r="2" fill="#ff6f00"/>
-                            <circle cx="19" cy="5" r="2" fill="#ff6f00"/>
-                            <circle cx="5" cy="19" r="2" fill="#ff6f00"/>
-                            <circle cx="19" cy="19" r="2" fill="#ff6f00"/>
-                        </svg>
-                        Atividades Físicas do Dia
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <div class="activities-list" id="activities-list">
-                        <p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">
-                            Selecione um dia no calendário para ver as atividades
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3.3. SONO -->
-            <div class="dashboard-card" style="margin-top: 20px;">
-                <div class="card-header">
-                    <h4>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="#ff6f00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Sono
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <div class="sleep-info" id="sleep-info">
-                        <p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">
-                            Selecione um dia no calendário para ver o sono
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. GERENCIADOR DE MISSÕES DE ROTINA (CRUD) -->
-        <div class="dashboard-card" style="margin-top: 30px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin: 0;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
-                        <path d="M12 5v14M5 12h14" stroke="#ff6f00" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    Gerenciar Missões de Rotina
-                </h4>
-                <button class="btn btn-primary" onclick="openMissionModal()" style="padding: 8px 16px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 6px;">
-                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    Adicionar Missão
-                </button>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="routine-table" style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: var(--glass-bg);">
-                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Ícone</th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Nome da Missão</th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Tipo</th>
-                                <th style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="missions-admin-table">
-                            <?php if (empty($routine_items_data)): ?>
-                            <tr>
-                                <td colspan="4" style="text-align: center; padding: 40px; color: var(--secondary-text-color);">
-                                    Nenhuma missão cadastrada. Clique em "Adicionar Missão" para começar.
-                                </td>
-                            </tr>
+                    <?php 
+                    // Gerar array com TODOS os dias, mesmo se não houver dados
+                    $all_dates = [];
+                    for ($i = 0; $i < $daysToShow; $i++) {
+                        $current_date = date('Y-m-d', strtotime($endDate . " -$i days"));
+                        $all_dates[] = $current_date;
+                    }
+                    
+                    // Inverter ordem: mais antigo à esquerda, mais recente à direita
+                    $all_dates = array_reverse($all_dates);
+                    
+                    foreach ($all_dates as $date): 
+                        // Buscar missões concluídas para este dia
+                        $day_missions = [];
+                        foreach ($routine_log_data as $log) {
+                            if ($log['date'] === $date && $log['is_completed'] == 1) {
+                                $day_missions[] = $log;
+                            }
+                        }
+                        
+                        // Formatar data por extenso
+                        $timestamp = strtotime($date);
+                        $day_of_week = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][date('w', $timestamp)];
+                        $day_number = date('d', $timestamp);
+                        $month_name_abbr = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][date('n', $timestamp) - 1];
+                        $year = date('Y', $timestamp);
+                    ?>
+                    <div class="diary-day-card" data-date="<?php echo $date; ?>">
+                        <!-- Dados escondidos para o JavaScript buscar -->
+                        <div class="diary-day-summary" style="display: none;">
+                            <div class="diary-summary-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span><?php echo count($day_missions); ?> missões</span>
+                            </div>
+                            <div class="diary-summary-macros">
+                                <?php echo count($day_missions); ?> concluídas
+                            </div>
+                        </div>
+                        
+                        <div class="diary-day-meals">
+                            <?php if (empty($day_missions)): ?>
+                                <div class="diary-empty-state">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <p>Nenhum registro neste dia</p>
+                                </div>
                             <?php else: ?>
-                                <?php foreach ($routine_items_data as $mission): ?>
-                                <tr>
-                                    <td style="padding: 12px;">
-                                        <div class="mission-table-icon" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255, 111, 0, 0.1); color: var(--accent-orange); border-radius: 50%;">
-                                            <i class="<?php echo htmlspecialchars($mission['icon_class']); ?>" style="font-size: 16px;"></i>
+                                <?php foreach ($day_missions as $mission): ?>
+                                    <div class="diary-meal-card">
+                                        <div class="diary-meal-header">
+                                            <div class="diary-meal-icon">
+                                                <i class="<?php echo htmlspecialchars($mission['icon_class']); ?>"></i>
+                                            </div>
+                                            <div class="diary-meal-info">
+                                                <h5><?php echo htmlspecialchars($mission['title']); ?></h5>
+                                                <span class="diary-meal-totals">
+                                                    <strong><?php echo $mission['exercise_duration_minutes'] ? $mission['exercise_duration_minutes'] . 'min' : 'Concluída'; ?></strong>
+                                                </span>
+                                            </div>
                                         </div>
-                                    </td>
-                                    <td style="padding: 12px;">
-                                        <strong><?php echo htmlspecialchars($mission['title']); ?></strong>
-                                        <?php if ($mission['description']): ?>
-                                            <br><small style="color: var(--secondary-text-color);"><?php echo htmlspecialchars($mission['description']); ?></small>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td style="padding: 12px;">
-                                        <span class="mission-type-badge" style="display: inline-block; padding: 4px 12px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.85rem; color: var(--secondary-text-color);">
-                                            <?php echo $mission['is_exercise'] ? 'Com Duração' : 'Sim/Não'; ?>
-                                        </span>
-                                    </td>
-                                    <td style="padding: 12px; text-align: center;">
-                                        <div class="mission-table-actions" style="display: flex; gap: 8px; justify-content: center;">
-                                            <button class="action-btn" onclick="editMission(<?php echo $mission['id']; ?>)" title="Editar" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
-                                                <i class="fa fa-edit" style="font-size: 14px;"></i>
-                                            </button>
-                                            <button class="action-btn delete" onclick="deleteMission(<?php echo $mission['id']; ?>, '<?php echo addslashes($mission['title']); ?>')" title="Excluir" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
-                                                <i class="fa fa-trash" style="font-size: 14px;"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                    </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- 5. GERENCIADOR DE EXERCÍCIOS DO ONBOARDING -->
-        <div class="dashboard-card" style="margin-top: 30px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin: 0;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
-                        <path d="M6.5 6.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0" stroke="#ff6f00" stroke-width="2"/>
-                        <path d="M17.5 17.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0" stroke="#ff6f00" stroke-width="2"/>
-                        <path d="M6.5 9v3l3.5 3l3.5 -3v-3" stroke="#ff6f00" stroke-width="2"/>
-                        <path d="M17.5 15v-3l-3.5 -3l-3.5 3v3" stroke="#ff6f00" stroke-width="2"/>
-                    </svg>
-                    Exercícios Cadastrados pelo Paciente
-                </h4>
-                <button class="btn btn-primary" onclick="openExerciseModal()" style="padding: 8px 16px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 6px;">
-                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    Adicionar Exercício
-                </button>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="routine-table" style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: var(--glass-bg);">
-                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Exercício</th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Data de Cadastro</th>
-                                <th style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="exercises-admin-table">
-                            <?php if (empty($onboarding_activities)): ?>
-                            <tr>
-                                <td colspan="3" style="text-align: center; padding: 40px; color: var(--secondary-text-color);">
-                                    Nenhum exercício cadastrado. Clique em "Adicionar Exercício" para começar.
-                                </td>
-                            </tr>
-                            <?php else: ?>
-                                <?php foreach ($onboarding_activities as $exercise): ?>
-                                <tr>
-                                    <td style="padding: 12px;">
-                                        <strong><?php echo htmlspecialchars($exercise['activity_name']); ?></strong>
-                                    </td>
-                                    <td style="padding: 12px;">
-                                        <?php echo date('d/m/Y', strtotime($exercise['completion_date'])); ?>
-                                    </td>
-                                    <td style="padding: 12px; text-align: center;">
-                                        <div class="mission-table-actions" style="display: flex; gap: 8px; justify-content: center;">
-                                            <button class="action-btn" onclick="editExercise(<?php echo $exercise['id']; ?>)" title="Editar" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
-                                                <i class="fa fa-edit" style="font-size: 14px;"></i>
-                                            </button>
-                                            <button class="action-btn delete" onclick="deleteExercise(<?php echo $exercise['id']; ?>, '<?php echo addslashes($exercise['activity_name']); ?>')" title="Excluir" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
-                                                <i class="fa fa-trash" style="font-size: 14px;"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
