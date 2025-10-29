@@ -8997,7 +8997,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentRoutineIndex === -1) {
             currentRoutineIndex = routineCards.length - 1;
         }
-        updateRoutineDisplay();
+        updateRoutineSliderDisplay();
         
         console.log('=== GENERATE_ROUTINE_SLIDER FINALIZADO ===');
     };
@@ -9216,8 +9216,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Aguardar um pouco mais para os dados carregarem
                 setTimeout(() => {
-                    console.log('Chamando updateRoutineDisplay() com currentRoutineIndex:', currentRoutineIndex);
-                    updateRoutineDisplay();
+                    console.log('Chamando updateRoutineSliderDisplay() com currentRoutineIndex:', currentRoutineIndex);
+                    updateRoutineSliderDisplay();
                 }, 500);
             }, 100);
         });
@@ -9881,7 +9881,7 @@ function updateRoutineCards() {
     routineCards = document.querySelectorAll('#routineSliderTrack .diary-day-card');
 }
 
-function updateRoutineDisplay() {
+function updateRoutineSliderDisplay() {
     console.log('=== UPDATE_ROUTINE_DISPLAY DEBUG ===');
     console.log('currentRoutineIndex:', currentRoutineIndex);
     console.log('routineCards.length:', routineCards.length);
@@ -10020,7 +10020,7 @@ window.navigateRoutine = function(direction) {
     
     // Atualizar índice e display
     currentRoutineIndex = newIndex;
-    updateRoutineDisplay();
+    updateRoutineSliderDisplay();
 };
 
 // Inicializar rotina quando a aba for ativada
