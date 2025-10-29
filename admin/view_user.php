@@ -8866,8 +8866,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Gerar slider de dias da rotina (igual ao da aba Diário)
     function generateRoutineSlider() {
+        console.log('=== GENERATE_ROUTINE_SLIDER INICIADO ===');
         const sliderTrack = document.getElementById('routineSliderTrack');
-        if (!sliderTrack) return;
+        console.log('Slider track encontrado:', sliderTrack);
+        if (!sliderTrack) {
+            console.error('Slider track não encontrado!');
+            return;
+        }
         
         const today = new Date();
         const daysToShow = 7; // Mostrar 7 dias
@@ -8942,6 +8947,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         sliderTrack.innerHTML = sliderHTML;
+        console.log('HTML gerado:', sliderHTML);
         
         // Atualizar navegação
         updateRoutineNavigation();
@@ -8949,11 +8955,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Selecionar o dia atual automaticamente
         const todayString = today.toISOString().split('T')[0];
         const todayCard = document.querySelector(`.diary-day-card[data-date="${todayString}"]`);
+        console.log('Card de hoje encontrado:', todayCard);
         if (todayCard) {
             todayCard.classList.add('selected');
             selectedRoutineDay = todayString;
             updateRoutineDayDetails(todayString);
         }
+        console.log('=== GENERATE_ROUTINE_SLIDER FINALIZADO ===');
     }
     
     // Função para exibir detalhes do dia selecionado
