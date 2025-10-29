@@ -9774,6 +9774,132 @@ function selectRoutineDay(dateStr) {
     // Atualizar detalhes do dia
     updateRoutineDayDetails(dateStr);
 }
+
+// Atualizar detalhes do dia selecionado
+function updateRoutineDayDetails(dateStr) {
+    const detailsContainer = document.getElementById('routine-day-details');
+    if (!detailsContainer) return;
+    
+    // Mostrar container de detalhes
+    detailsContainer.style.display = 'block';
+    
+    // Buscar dados do dia
+    const dayMissions = routineLogData.filter(log => log.date === dateStr);
+    const dayExercises = exerciseData.filter(ex => ex.updated_at.startsWith(dateStr));
+    const daySleep = sleepData.filter(sleep => sleep.date === dateStr);
+    
+    // Atualizar missões
+    updateMissionsList(dayMissions);
+    
+    // Atualizar atividades físicas
+    updateActivitiesList(dayExercises);
+    
+    // Atualizar sono
+    updateSleepInfo(daySleep);
+}
+
+// Atualizar lista de missões
+function updateMissionsList(dayMissions) {
+    const missionsContainer = document.getElementById('missions-list');
+    if (!missionsContainer) return;
+    
+    if (dayMissions.length === 0) {
+        missionsContainer.innerHTML = '<p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">Nenhuma missão registrada neste dia</p>';
+        return;
+    }
+    
+    let missionsHTML = '';
+    dayMissions.forEach(mission => {
+        const missionItem = routineItemsData.find(item => item.id === mission.routine_item_id);
+        if (missionItem) {
+            const statusIcon = mission.is_completed ? 'check-circle' : 'x-circle';
+            const statusColor = mission.is_completed ? 'var(--accent-orange)' : 'var(--secondary-text-color)';
+            
+            missionsHTML += `
+                <div class="mission-item" style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border-color);">
+                    <div class="mission-icon" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255, 111, 0, 0.1); border-radius: 50%; margin-right: 12px;">
+                        <i class="${missionItem.icon_class}" style="color: var(--accent-orange); font-size: 18px;"></i>
+                    </div>
+                    <div class="mission-content" style="flex: 1;">
+                        <div class="mission-name" style="font-weight: 600; color: var(--primary-text-color);">${missionItem.title}</div>
+                        <div class="mission-status" style="color: var(--secondary-text-color); font-size: 0.9rem;">
+                            <i class="fa fa-${statusIcon}" style="color: ${statusColor}; margin-right: 6px;"></i>
+                            ${mission.is_completed ? 'Concluída' : 'Não concluída'}
+                            ${mission.exercise_duration_minutes ? ` - ${mission.exercise_duration_minutes}min` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+    
+    missionsContainer.innerHTML = missionsHTML;
+}
+
+// Atualizar lista de atividades físicas
+function updateActivitiesList(dayExercises) {
+    const activitiesContainer = document.getElementById('activities-list');
+    if (!activitiesContainer) return;
+    
+    if (dayExercises.length === 0) {
+        activitiesContainer.innerHTML = '<p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">Nenhuma atividade física registrada neste dia</p>';
+        return;
+    }
+    
+    let activitiesHTML = '';
+    dayExercises.forEach(exercise => {
+        activitiesHTML += `
+            <div class="activity-item" style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border-color);">
+                <div class="activity-icon" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255, 111, 0, 0.1); border-radius: 50%; margin-right: 12px;">
+                    <i class="fa fa-dumbbell" style="color: var(--accent-orange); font-size: 18px;"></i>
+                </div>
+                <div class="activity-content" style="flex: 1;">
+                    <div class="activity-name" style="font-weight: 600; color: var(--primary-text-color);">${exercise.exercise_name}</div>
+                    <div class="activity-duration" style="color: var(--secondary-text-color); font-size: 0.9rem;">
+                        <i class="fa fa-clock" style="margin-right: 6px;"></i>
+                        ${exercise.duration_minutes}min
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    activitiesContainer.innerHTML = activitiesHTML;
+}
+
+// Atualizar informações de sono
+function updateSleepInfo(daySleep) {
+    const sleepContainer = document.getElementById('sleep-info');
+    if (!sleepContainer) return;
+    
+    if (daySleep.length === 0) {
+        sleepContainer.innerHTML = '<p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">Nenhum registro de sono neste dia</p>';
+        return;
+    }
+    
+    const sleep = daySleep[0];
+    const hours = Math.floor(sleep.hours);
+    const minutes = Math.round((sleep.hours - hours) * 60);
+    const sleepGoal = 8; // Meta de 8 horas
+    const goalPercentage = Math.min((sleep.hours / sleepGoal) * 100, 100);
+    
+    sleepContainer.innerHTML = `
+        <div class="sleep-display" style="text-align: center; padding: 20px;">
+            <div class="sleep-icon" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(255, 111, 0, 0.1); border-radius: 50%; margin: 0 auto 16px;">
+                <i class="fa fa-moon" style="color: var(--accent-orange); font-size: 24px;"></i>
+            </div>
+            <div class="sleep-time" style="font-size: 1.5rem; font-weight: 600; color: var(--primary-text-color); margin-bottom: 8px;">
+                ${hours}h${minutes > 0 ? minutes.toString().padStart(2, '0') : ''}
+            </div>
+            <div class="sleep-goal" style="color: var(--secondary-text-color); margin-bottom: 16px;">
+                Meta: ${sleepGoal}h — ${sleep.hours >= sleepGoal ? 'dentro da média' : 'abaixo da meta'}
+            </div>
+            <div class="sleep-progress" style="width: 100%; height: 4px; background: var(--glass-bg); border-radius: 2px; overflow: hidden;">
+                <div class="sleep-progress-bar" style="width: ${goalPercentage}%; height: 100%; background: var(--accent-orange); transition: width 0.3s ease;"></div>
+            </div>
+        </div>
+    `;
+}
 </script>
 
 <?php

@@ -43,61 +43,118 @@ if ($patient_id <= 0) {
 try {
     switch ($action) {
         case 'list_missions':
-            listMissions($conn, $patient_id);
+            $result = listMissions($conn, $patient_id);
+            echo json_encode(['success' => true, 'data' => $result]);
             break;
-        
+            
         case 'get_mission':
-            getMission($conn, $patient_id);
+            $id = intval($_GET['id'] ?? 0);
+            if (!$id) {
+                throw new Exception('ID da missão é obrigatório');
+            }
+            $result = getMission($conn, $id, $patient_id);
+            echo json_encode(['success' => true, 'data' => $result]);
             break;
-        
+            
         case 'create_mission':
-            createMission($conn, $patient_id);
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new Exception('Dados inválidos');
+            }
+            createMission($conn, $data, $patient_id);
             break;
-        
+            
         case 'update_mission':
-            updateMission($conn, $patient_id);
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new Exception('Dados inválidos');
+            }
+            updateMission($conn, $data, $patient_id);
             break;
-        
+            
         case 'delete_mission':
-            deleteMission($conn, $patient_id);
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data || !isset($data['id'])) {
+                throw new Exception('ID da missão é obrigatório');
+            }
+            deleteMission($conn, intval($data['id']), $patient_id);
             break;
-        
+            
         case 'list_exercises':
-            listExercises($conn, $patient_id);
+            $result = listExercises($conn, $patient_id);
+            echo json_encode(['success' => true, 'data' => $result]);
             break;
-        
+            
+        case 'get_exercise':
+            $id = intval($_GET['id'] ?? 0);
+            if (!$id) {
+                throw new Exception('ID do exercício é obrigatório');
+            }
+            $result = getExercise($conn, $id, $patient_id);
+            echo json_encode(['success' => true, 'data' => $result]);
+            break;
+            
         case 'create_exercise':
-            createExercise($conn, $patient_id);
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new Exception('Dados inválidos');
+            }
+            createExercise($conn, $data, $patient_id);
             break;
-        
+            
         case 'update_exercise':
-            updateExercise($conn, $patient_id);
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new Exception('Dados inválidos');
+            }
+            updateExercise($conn, $data, $patient_id);
             break;
-        
+            
         case 'delete_exercise':
-            deleteExercise($conn, $patient_id);
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data || !isset($data['id'])) {
+                throw new Exception('ID do exercício é obrigatório');
+            }
+            deleteExercise($conn, intval($data['id']), $patient_id);
             break;
-        
+            
         default:
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Ação inválida']);
+            throw new Exception('Ação não reconhecida');
     }
 } catch (Exception $e) {
-    http_response_code(500);
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+} finally {
+    $conn->close();
 }
-
-$conn->close();
 
 /**
  * Listar missões do paciente
  */
 function listMissions($conn, $patient_id) {
-    $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
-            default_for_all_users, user_id_creator
-            FROM sf_routine_items 
-            WHERE is_active = 1 AND (default_for_all_users = 1 OR user_id_creator = ?)
-            ORDER BY id";
+    $sql = "SELECT i.id, i.title, i.icon_class, i.description, i.is_exercise, i.exercise_type, 
+                   i.default_for_all_users, i.user_id_creator
+            FROM sf_routine_items i 
+            WHERE i.is_active = 1 AND (i.default_for_all_users = 1 OR i.user_id_creator = ?)
+            ORDER BY i.id";
     
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('i', $patient_id);
@@ -109,49 +166,40 @@ function listMissions($conn, $patient_id) {
         $missions[] = $row;
     }
     
-    echo json_encode(['success' => true, 'data' => $missions]);
+    $stmt->close();
+    return $missions;
 }
 
 /**
- * Obter uma missão específica
+ * Obter missão específica
  */
-function getMission($conn, $patient_id) {
-    $id = intval($_GET['id'] ?? 0);
+function getMission($conn, $id, $patient_id) {
+    $sql = "SELECT i.id, i.title, i.icon_class, i.description, i.is_exercise, i.exercise_type, 
+                   i.default_for_all_users, i.user_id_creator
+            FROM sf_routine_items i 
+            WHERE i.id = ? AND i.is_active = 1 AND (i.default_for_all_users = 1 OR i.user_id_creator = ?)";
     
-    if ($id <= 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'ID inválido']);
-        return;
-    }
-    
-    $stmt = $conn->prepare("SELECT id, title, icon_class, description, is_exercise, exercise_type
-                            FROM sf_routine_items 
-                            WHERE id = ? AND is_active = 1 AND (default_for_all_users = 1 OR user_id_creator = ?)");
+    $stmt = $conn->prepare($sql);
     $stmt->bind_param('ii', $id, $patient_id);
     $stmt->execute();
     $result = $stmt->get_result();
     
-    if ($result->num_rows === 0) {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Missão não encontrada']);
-        return;
+    if ($row = $result->fetch_assoc()) {
+        $stmt->close();
+        return $row;
+    } else {
+        $stmt->close();
+        throw new Exception('Missão não encontrada');
     }
-    
-    $mission = $result->fetch_assoc();
-    echo json_encode(['success' => true, 'data' => $mission]);
 }
 
 /**
  * Criar nova missão
  */
-function createMission($conn, $patient_id) {
-    $data = json_decode(file_get_contents('php://input'), true);
-    
+function createMission($conn, $data, $patient_id) {
     // Validações
     if (empty($data['title'])) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Título da missão é obrigatório']);
-        return;
+        throw new Exception('Título da missão é obrigatório');
     }
     
     $title = $conn->real_escape_string(trim($data['title']));
@@ -176,29 +224,19 @@ function createMission($conn, $patient_id) {
     } else {
         throw new Exception('Erro ao criar missão: ' . $conn->error);
     }
+    
+    $stmt->close();
 }
 
 /**
- * Atualizar missão existente
+ * Atualizar missão
  */
-function updateMission($conn, $patient_id) {
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    $id = intval($data['id'] ?? 0);
-    
-    if ($id <= 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'ID inválido']);
-        return;
+function updateMission($conn, $data, $patient_id) {
+    if (empty($data['id'])) {
+        throw new Exception('ID da missão é obrigatório');
     }
     
-    // Validações
-    if (empty($data['title'])) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Título da missão é obrigatório']);
-        return;
-    }
-    
+    $id = intval($data['id']);
     $title = $conn->real_escape_string(trim($data['title']));
     $description = isset($data['description']) ? $conn->real_escape_string(trim($data['description'])) : null;
     $icon_class = $conn->real_escape_string($data['icon_class'] ?? 'fa-check-circle');
@@ -206,12 +244,14 @@ function updateMission($conn, $patient_id) {
     $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : null;
     
     $stmt = $conn->prepare("UPDATE sf_routine_items 
-                           SET title = ?, icon_class = ?, description = ?, 
-                               is_exercise = ?, exercise_type = ?
-                           WHERE id = ? AND user_id_creator = ?");
+                           SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
+                           WHERE id = ? AND (default_for_all_users = 1 OR user_id_creator = ?)");
     $stmt->bind_param('sssisi', $title, $icon_class, $description, $is_exercise, $exercise_type, $id, $patient_id);
     
     if ($stmt->execute()) {
+        if ($stmt->affected_rows === 0) {
+            throw new Exception('Missão não encontrada ou não pode ser editada');
+        }
         echo json_encode([
             'success' => true, 
             'message' => 'Missão atualizada com sucesso'
@@ -219,31 +259,24 @@ function updateMission($conn, $patient_id) {
     } else {
         throw new Exception('Erro ao atualizar missão: ' . $conn->error);
     }
+    
+    $stmt->close();
 }
 
 /**
  * Excluir missão
  */
-function deleteMission($conn, $patient_id) {
-    $data = json_decode(file_get_contents('php://input'), true);
-    $id = intval($data['id'] ?? $_GET['id'] ?? 0);
-    
-    if ($id <= 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'ID inválido']);
-        return;
-    }
-    
-    // Iniciar transação
+function deleteMission($conn, $id, $patient_id) {
     $conn->begin_transaction();
     
     try {
-        // Excluir registros de log do usuário
+        // Excluir logs da missão
         $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ? AND user_id = ?");
         $stmt1->bind_param('ii', $id, $patient_id);
         $stmt1->execute();
+        $stmt1->close();
         
-        // Excluir a missão (apenas se foi criada pelo usuário)
+        // Excluir a missão
         $stmt2 = $conn->prepare("DELETE FROM sf_routine_items WHERE id = ? AND user_id_creator = ?");
         $stmt2->bind_param('ii', $id, $patient_id);
         $stmt2->execute();
@@ -261,6 +294,8 @@ function deleteMission($conn, $patient_id) {
         $conn->rollback();
         throw $e;
     }
+    
+    $stmt2->close();
 }
 
 /**
@@ -282,61 +317,69 @@ function listExercises($conn, $patient_id) {
         $exercises[] = $row;
     }
     
-    echo json_encode(['success' => true, 'data' => $exercises]);
+    $stmt->close();
+    return $exercises;
+}
+
+/**
+ * Obter exercício específico
+ */
+function getExercise($conn, $id, $patient_id) {
+    $sql = "SELECT id, activity_name, completion_date 
+            FROM sf_user_onboarding_completion 
+            WHERE id = ? AND user_id = ?";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('ii', $id, $patient_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($row = $result->fetch_assoc()) {
+        $stmt->close();
+        return $row;
+    } else {
+        $stmt->close();
+        throw new Exception('Exercício não encontrado');
+    }
 }
 
 /**
  * Criar novo exercício
  */
-function createExercise($conn, $patient_id) {
-    $data = json_decode(file_get_contents('php://input'), true);
-    
+function createExercise($conn, $data, $patient_id) {
     if (empty($data['activity_name'])) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Nome do exercício é obrigatório']);
-        return;
+        throw new Exception('Nome do exercício é obrigatório');
     }
     
     $activity_name = $conn->real_escape_string(trim($data['activity_name']));
     $completion_date = $data['completion_date'] ?? date('Y-m-d');
     
-    $stmt = $conn->prepare("INSERT INTO sf_user_onboarding_completion 
-                           (user_id, activity_name, completion_date) 
-                           VALUES (?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO sf_user_onboarding_completion (user_id, activity_name, completion_date) VALUES (?, ?, ?)");
     $stmt->bind_param('iss', $patient_id, $activity_name, $completion_date);
     
     if ($stmt->execute()) {
         $new_id = $conn->insert_id;
         echo json_encode([
             'success' => true, 
-            'message' => 'Exercício adicionado com sucesso',
+            'message' => 'Exercício criado com sucesso',
             'id' => $new_id
         ]);
     } else {
-        throw new Exception('Erro ao adicionar exercício: ' . $conn->error);
+        throw new Exception('Erro ao criar exercício: ' . $conn->error);
     }
+    
+    $stmt->close();
 }
 
 /**
  * Atualizar exercício
  */
-function updateExercise($conn, $patient_id) {
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    $id = intval($data['id'] ?? 0);
-    
-    if ($id <= 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'ID inválido']);
-        return;
+function updateExercise($conn, $data, $patient_id) {
+    if (empty($data['id'])) {
+        throw new Exception('ID do exercício é obrigatório');
     }
     
-    if (empty($data['activity_name'])) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Nome do exercício é obrigatório']);
-        return;
-    }
-    
+    $id = intval($data['id']);
     $activity_name = $conn->real_escape_string(trim($data['activity_name']));
     $completion_date = $data['completion_date'] ?? date('Y-m-d');
     
@@ -346,6 +389,9 @@ function updateExercise($conn, $patient_id) {
     $stmt->bind_param('ssii', $activity_name, $completion_date, $id, $patient_id);
     
     if ($stmt->execute()) {
+        if ($stmt->affected_rows === 0) {
+            throw new Exception('Exercício não encontrado ou não pode ser editado');
+        }
         echo json_encode([
             'success' => true, 
             'message' => 'Exercício atualizado com sucesso'
@@ -353,25 +399,21 @@ function updateExercise($conn, $patient_id) {
     } else {
         throw new Exception('Erro ao atualizar exercício: ' . $conn->error);
     }
+    
+    $stmt->close();
 }
 
 /**
  * Excluir exercício
  */
-function deleteExercise($conn, $patient_id) {
-    $data = json_decode(file_get_contents('php://input'), true);
-    $id = intval($data['id'] ?? $_GET['id'] ?? 0);
-    
-    if ($id <= 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'ID inválido']);
-        return;
-    }
-    
+function deleteExercise($conn, $id, $patient_id) {
     $stmt = $conn->prepare("DELETE FROM sf_user_onboarding_completion WHERE id = ? AND user_id = ?");
     $stmt->bind_param('ii', $id, $patient_id);
     
     if ($stmt->execute()) {
+        if ($stmt->affected_rows === 0) {
+            throw new Exception('Exercício não encontrado ou não pode ser excluído');
+        }
         echo json_encode([
             'success' => true, 
             'message' => 'Exercício excluído com sucesso'
@@ -379,147 +421,7 @@ function deleteExercise($conn, $patient_id) {
     } else {
         throw new Exception('Erro ao excluir exercício: ' . $conn->error);
     }
-}
-
-// Tratamento de erro global
-try {
-    // Processar requisição baseada na ação
-    switch ($action) {
-        case 'list_missions':
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$patient_id) {
-                throw new Exception('ID do paciente é obrigatório');
-            }
-            $result = listMissions($conn, $patient_id);
-            echo json_encode(['success' => true, 'data' => $result]);
-            break;
-            
-        case 'get_mission':
-            $id = intval($_GET['id'] ?? 0);
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$id || !$patient_id) {
-                throw new Exception('ID da missão e ID do paciente são obrigatórios');
-            }
-            $result = getMission($conn, $id, $patient_id);
-            echo json_encode(['success' => true, 'data' => $result]);
-            break;
-            
-        case 'create_mission':
-            if ($method !== 'POST') {
-                throw new Exception('Método não permitido');
-            }
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (!$data) {
-                throw new Exception('Dados inválidos');
-            }
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$patient_id) {
-                throw new Exception('ID do paciente é obrigatório');
-            }
-            createMission($conn, $data, $patient_id);
-            break;
-            
-        case 'update_mission':
-            if ($method !== 'POST') {
-                throw new Exception('Método não permitido');
-            }
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (!$data) {
-                throw new Exception('Dados inválidos');
-            }
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$patient_id) {
-                throw new Exception('ID do paciente é obrigatório');
-            }
-            updateMission($conn, $data, $patient_id);
-            break;
-            
-        case 'delete_mission':
-            if ($method !== 'POST') {
-                throw new Exception('Método não permitido');
-            }
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (!$data || !isset($data['id'])) {
-                throw new Exception('ID da missão é obrigatório');
-            }
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$patient_id) {
-                throw new Exception('ID do paciente é obrigatório');
-            }
-            deleteMission($conn, intval($data['id']), $patient_id);
-            break;
-            
-        case 'list_exercises':
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$patient_id) {
-                throw new Exception('ID do paciente é obrigatório');
-            }
-            $result = listExercises($conn, $patient_id);
-            echo json_encode(['success' => true, 'data' => $result]);
-            break;
-            
-        case 'get_exercise':
-            $id = intval($_GET['id'] ?? 0);
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$id || !$patient_id) {
-                throw new Exception('ID do exercício e ID do paciente são obrigatórios');
-            }
-            $result = getExercise($conn, $id, $patient_id);
-            echo json_encode(['success' => true, 'data' => $result]);
-            break;
-            
-        case 'create_exercise':
-            if ($method !== 'POST') {
-                throw new Exception('Método não permitido');
-            }
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (!$data) {
-                throw new Exception('Dados inválidos');
-            }
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$patient_id) {
-                throw new Exception('ID do paciente é obrigatório');
-            }
-            createExercise($conn, $data, $patient_id);
-            break;
-            
-        case 'update_exercise':
-            if ($method !== 'POST') {
-                throw new Exception('Método não permitido');
-            }
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (!$data) {
-                throw new Exception('Dados inválidos');
-            }
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$patient_id) {
-                throw new Exception('ID do paciente é obrigatório');
-            }
-            updateExercise($conn, $data, $patient_id);
-            break;
-            
-        case 'delete_exercise':
-            if ($method !== 'POST') {
-                throw new Exception('Método não permitido');
-            }
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (!$data || !isset($data['id'])) {
-                throw new Exception('ID do exercício é obrigatório');
-            }
-            $patient_id = intval($_GET['patient_id'] ?? 0);
-            if (!$patient_id) {
-                throw new Exception('ID do paciente é obrigatório');
-            }
-            deleteExercise($conn, intval($data['id']), $patient_id);
-            break;
-            
-        default:
-            throw new Exception('Ação não reconhecida');
-    }
-} catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-} finally {
-    $conn->close();
+    
+    $stmt->close();
 }
 ?>
