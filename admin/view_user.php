@@ -9024,7 +9024,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Verificar se tem dados
             const hasData = routineLogData.some(log => log.date === dateStr) || 
-                           exerciseData.some(ex => ex.updated_at.startsWith(dateStr)) ||
+                           exerciseData.some(ex => ex.completion_date === dateStr) ||
                            sleepData.some(sleep => sleep.date === dateStr);
             
             const isToday = i === 0;
@@ -9036,7 +9036,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Calcular resumo do dia
             const dayMissions = routineLogData.filter(log => log.date === dateStr && log.is_completed === 1);
-            const dayExercises = exerciseData.filter(ex => ex.updated_at.startsWith(dateStr));
+            const dayExercises = exerciseData.filter(ex => ex.completion_date === dateStr);
             const daySleep = sleepData.filter(sleep => sleep.date === dateStr);
             
             // Gerar conteúdo baseado nos dados reais
@@ -9064,11 +9064,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Exercícios realizados
                 if (dayExercises.length > 0) {
                     dayExercises.forEach(exercise => {
-                        const duration = exercise.duration_minutes || 0;
-                        const hours = Math.floor(duration / 60);
-                        const minutes = duration % 60;
-                        const timeStr = hours > 0 ? `${hours}h${minutes > 0 ? minutes.toString().padStart(2, '0') : ''}` : `${minutes}min`;
-                        
                         contentHTML += `
                             <div class="diary-meal-card">
                                 <div class="diary-meal-header">
@@ -9076,9 +9071,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <i class="fas fa-dumbbell"></i>
                                     </div>
                                     <div class="diary-meal-info">
-                                        <h5>${exercise.exercise_name}</h5>
+                                        <h5>${exercise.activity_name}</h5>
                                         <span class="diary-meal-totals">
-                                            <strong>${timeStr}</strong> de treino
+                                            <strong>Exercício</strong> realizado
                                         </span>
                                     </div>
                                 </div>
