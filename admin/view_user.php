@@ -750,6 +750,11 @@ require_once __DIR__ . '/includes/header.php';
     right: 0 !important;
     width: 100% !important;
 }
+
+/* Estilo específico para o ícone do card da rotina - gradiente roxo */
+#tab-routine .routine-icon {
+    background: linear-gradient(135deg, #9c27b0, #ba68c8) !important;
+}
 </style>
 
 <div class="view-user-header">
@@ -4757,9 +4762,9 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="routine-container">
         
         <!-- 1. CARD RESUMO COMPACTO - MESMO ESTILO DA HIDRATAÇÃO E NUTRIENTES -->
-        <div class="hydration-summary-card">
+        <div class="hydration-summary-card routine-summary-card">
             <div class="summary-main">
-                <div class="summary-icon">
+                <div class="summary-icon routine-icon">
                     <i class="fas fa-tasks"></i>
                 </div>
                 <div class="summary-info">
