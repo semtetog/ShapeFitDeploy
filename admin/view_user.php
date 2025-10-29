@@ -5722,6 +5722,19 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+        <!-- 3. MISSÕES CONFIGURADAS PELO ADMIN (cards) -->
+        <div class="dashboard-card" style="margin-top: 20px;">
+            <div class="section-header">
+                <h4><i class="fas fa-tasks"></i> Missões do Usuário</h4>
+                <button class="btn btn-primary" id="add-mission-btn" type="button">
+                    <i class="fas fa-plus"></i> Adicionar Missão
+                </button>
+            </div>
+            <div id="missions-cards" class="missions-cards-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                <!-- Preenchido via JS em renderMissionsCards() -->
+            </div>
+        </div>
+
     </div>
 </div>
 
