@@ -5601,10 +5601,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <!-- Preenchido via JS em renderMissionsCards() -->
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Modal para Adicionar/Editar Missão -->
+        
+        <!-- Modal para Adicionar/Editar Missão -->
 <div id="mission-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
     <div class="modal-content" style="background: var(--card-bg); border-radius: 12px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color);">
         <div class="modal-header" style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
@@ -5645,8 +5643,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             </div>
-
-<!-- Modal para Adicionar/Editar Exercício -->
+            
+            <!-- Modal para Adicionar/Editar Exercício -->
 <div id="exercise-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
     <div class="modal-content" style="background: var(--card-bg); border-radius: 12px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color);">
         <div class="modal-header" style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
@@ -5737,6 +5735,8 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+    </div>
+</div>
 
 <script>
 const userViewData = {
@@ -9368,8 +9368,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         missions.forEach(mission => {
-            const typeLabel = mission.mission_type === 'binary' ? 'Sim/Não' : 'Exercício';
-            const durationInfo = mission.default_duration_minutes ? `${mission.default_duration_minutes}min padrão` : '';
+            const typeLabel = mission.is_exercise ? 'Exercício' : 'Sim/Não';
+            const durationInfo = mission.exercise_type ? `${mission.exercise_type}` : '';
 
             if (tbody) {
                 const row = document.createElement('tr');
@@ -9383,7 +9383,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </td>
                     <td>
-                        <strong>${mission.name}</strong>
+                        <strong>${mission.title}</strong>
                         ${mission.description ? `<br><small style=\"color: var(--secondary-text-color);\">${mission.description}</small>` : ''}
                     </td>
                     <td>
@@ -9392,7 +9392,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         <div class="mission-table-actions">
                             <button class="action-btn" onclick="editMission(${mission.id})" title="Editar">✏️</button>
-                            <button class="action-btn delete" onclick="deleteMission(${mission.id}, '${mission.name.replace(/'/g, "\\'")}')" title="Excluir">🗑️</button>
+                            <button class="action-btn delete" onclick="deleteMission(${mission.id}, '${mission.title.replace(/'/g, "\\'")}')" title="Excluir">🗑️</button>
                         </div>
                     </td>
                 `;
@@ -9409,14 +9409,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             <i class="${iconClass}"></i>
                         </div>
                         <div class="diary-meal-info">
-                            <h5>${mission.name}</h5>
+                            <h5>${mission.title}</h5>
                             <span class="diary-meal-totals">
                                 ${typeLabel}${durationInfo ? ` • ${durationInfo}` : ''}
                             </span>
                         </div>
                         <div style="margin-left:auto; display:flex; gap:8px;">
                             <button class="btn btn-secondary" onclick="editMission(${mission.id})" type="button">Editar</button>
-                            <button class="btn btn-danger" onclick="deleteMission(${mission.id}, '${mission.name.replace(/'/g, "\\'")}')" type="button">Excluir</button>
+                            <button class="btn btn-danger" onclick="deleteMission(${mission.id}, '${mission.title.replace(/'/g, "\\'")}')" type="button">Excluir</button>
                         </div>
                     </div>
                 `;
@@ -9439,7 +9439,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Mostrar modal
             missionModal.style.display = 'flex';
-            initMissionIconPicker();
+            // Aguardar um pouco para o modal aparecer antes de inicializar o picker
+            setTimeout(() => {
+                initMissionIconPicker();
+            }, 100);
         });
     }
     
@@ -9538,19 +9541,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Expor funções globais de edição/remoção para usar nos cards
-    window.editMission = function(id) {
-        if (!window.routineItemsData) return;
-        const mission = window.routineItemsData.find(m => m.id === id);
-        if (!mission) return;
-        document.getElementById('mission-id').value = mission.id;
-        document.getElementById('mission-name').value = mission.name || mission.title || '';
-        document.getElementById('mission-type').value = mission.is_exercise == 1 || mission.mission_type === 'duration' ? 'duration' : 'binary';
-        document.getElementById('mission-icon').value = (mission.icon_class || '').replace('fas ','').trim();
-        document.querySelector('#mission-modal .modal-header h3').textContent = 'Editar Missão';
-        missionModal.style.display = 'flex';
-        initMissionIconPicker(document.getElementById('mission-icon').value);
-    }
+    // Função editMission será definida globalmente mais abaixo
     
     // Fechar modal ao clicar fora
     window.addEventListener('click', function(event) {
@@ -9767,7 +9758,7 @@ window.deleteMission = function(id, name) {
         return;
     }
     
-    fetch('api/routine_crud.php?action=delete_mission', {
+    fetch(`api/routine_crud.php?action=delete_mission&patient_id=${patientId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -9803,6 +9794,10 @@ window.openMissionModal = function() {
     
     // Mostrar modal
     document.getElementById('mission-modal').style.display = 'flex';
+    // Aguardar um pouco para o modal aparecer antes de inicializar o picker
+    setTimeout(() => {
+        initMissionIconPicker();
+    }, 100);
 };
 
 // Fechar modal de missão
