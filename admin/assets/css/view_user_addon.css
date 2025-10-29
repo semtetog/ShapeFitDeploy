@@ -4581,3 +4581,214 @@
   color: #F44336;
   border: 1px solid rgba(244, 67, 54, 0.3);
 }
+
+/* ========== CARDS DE ROTINA MODERNOS ========== */
+.routine-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.routine-card-modern {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.routine-card-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-orange), #FFA500);
+  border-radius: 20px 20px 0 0;
+}
+
+.routine-card-modern:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.routine-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.routine-card-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.routine-card-icon.steps-icon {
+  background: linear-gradient(135deg, #4CAF50, #66BB6A);
+}
+
+.routine-card-icon.exercise-icon {
+  background: linear-gradient(135deg, #FF6B00, #FFA500);
+}
+
+.routine-card-icon.sleep-icon {
+  background: linear-gradient(135deg, #9C27B0, #BA68C8);
+}
+
+.routine-card-title h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.routine-card-title p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.routine-card-progress {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.progress-circle {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.progress-circle svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 8;
+}
+
+.progress-fill {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 314;
+  transition: stroke-dashoffset 0.8s ease;
+}
+
+.steps-fill {
+  stroke: #4CAF50;
+}
+
+.exercise-fill {
+  stroke: #FF6B00;
+}
+
+.sleep-fill {
+  stroke: #9C27B0;
+}
+
+.progress-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.progress-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.progress-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.routine-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-percentage {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent-orange);
+}
+
+.status-indicator {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-indicator.status-excellent {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-indicator.status-good {
+  background: rgba(255, 193, 7, 0.2);
+  color: #FFC107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-indicator.status-poor {
+  background: rgba(244, 67, 54, 0.2);
+  color: #F44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .routine-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .routine-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .routine-card-modern {
+    padding: 1.5rem;
+  }
+  
+  .routine-card-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .routine-card-progress {
+    margin-bottom: 1.5rem;
+  }
+}

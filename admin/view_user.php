@@ -4797,7 +4797,8 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
 
         <!-- 2. CARDS DE PROGRESSO CIRCULAR -->
-        <div class="routine-progress-cards">
+        <!-- Cards de Rotina - Estilo Moderno -->
+        <div class="routine-cards-grid">
             <?php 
             // Calcular dados para os círculos
             $avg_steps_7 = count($routine_steps_data) > 0 ? array_sum(array_column(array_slice($routine_steps_data, 0, 7), 'steps_daily')) / min(7, count($routine_steps_data)) : 0;
@@ -4815,80 +4816,98 @@ document.addEventListener('DOMContentLoaded', function() {
             ?>
             
             <!-- Card de Passos -->
-            <div class="routine-circle-card">
-                <div class="circle-card-header">
-                    <i class="fas fa-walking"></i>
-                    <h5>Passos Diários</h5>
-                </div>
-                <div class="circle-progress-container">
-                    <svg class="circle-progress" viewBox="0 0 200 200">
-                        <circle class="circle-bg" cx="100" cy="100" r="85"></circle>
-                        <circle class="circle-fill" cx="100" cy="100" r="85" 
-                                style="stroke-dashoffset: <?php echo 534 - (534 * $steps_percentage / 100); ?>"></circle>
-                    </svg>
-                    <div class="circle-content">
-                        <div class="circle-value"><?php echo number_format($avg_steps_7, 0, ',', '.'); ?></div>
-                        <div class="circle-label">passos/dia</div>
-                        <div class="circle-percentage"><?php echo round($steps_percentage); ?>%</div>
+            <div class="routine-card-modern">
+                <div class="routine-card-header">
+                    <div class="routine-card-icon steps-icon">
+                        <i class="fas fa-walking"></i>
+                    </div>
+                    <div class="routine-card-title">
+                        <h4>Passos Diários</h4>
+                        <p>Meta: 10.000 passos</p>
                     </div>
                 </div>
-                <div class="circle-card-footer">
-                    <span>Meta: 10.000 passos</span>
-                    <span class="status-badge status-<?php echo $steps_percentage >= 90 ? 'excellent' : ($steps_percentage >= 70 ? 'good' : 'poor'); ?>">
+                <div class="routine-card-progress">
+                    <div class="progress-circle">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="progress-bg" cx="60" cy="60" r="50"></circle>
+                            <circle class="progress-fill steps-fill" cx="60" cy="60" r="50" 
+                                    style="stroke-dashoffset: <?php echo 314 - (314 * $steps_percentage / 100); ?>"></circle>
+                        </svg>
+                        <div class="progress-content">
+                            <span class="progress-value"><?php echo number_format($avg_steps_7, 0, ',', '.'); ?></span>
+                            <span class="progress-label">passos</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="routine-card-footer">
+                    <div class="progress-percentage"><?php echo round($steps_percentage); ?>%</div>
+                    <div class="status-indicator status-<?php echo $steps_percentage >= 90 ? 'excellent' : ($steps_percentage >= 70 ? 'good' : 'poor'); ?>">
                         <?php echo $steps_percentage >= 90 ? 'Excelente' : ($steps_percentage >= 70 ? 'Bom' : 'Abaixo'); ?>
-                    </span>
+                    </div>
                 </div>
             </div>
 
             <!-- Card de Exercícios -->
-            <div class="routine-circle-card">
-                <div class="circle-card-header">
-                    <i class="fas fa-dumbbell"></i>
-                    <h5>Exercícios Semanais</h5>
-                </div>
-                <div class="circle-progress-container">
-                    <svg class="circle-progress" viewBox="0 0 200 200">
-                        <circle class="circle-bg" cx="100" cy="100" r="85"></circle>
-                        <circle class="circle-fill circle-fill-orange" cx="100" cy="100" r="85" 
-                                style="stroke-dashoffset: <?php echo 534 - (534 * $exercise_percentage / 100); ?>"></circle>
-                    </svg>
-                    <div class="circle-content">
-                        <div class="circle-value"><?php echo $total_exercise_minutes; ?></div>
-                        <div class="circle-label">minutos</div>
-                        <div class="circle-percentage"><?php echo round($exercise_percentage); ?>%</div>
+            <div class="routine-card-modern">
+                <div class="routine-card-header">
+                    <div class="routine-card-icon exercise-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <div class="routine-card-title">
+                        <h4>Exercícios Semanais</h4>
+                        <p>Meta: 150 min/semana</p>
                     </div>
                 </div>
-                <div class="circle-card-footer">
-                    <span>Meta: 150 min/semana</span>
-                    <span class="status-badge status-<?php echo $exercise_percentage >= 90 ? 'excellent' : ($exercise_percentage >= 70 ? 'good' : 'poor'); ?>">
+                <div class="routine-card-progress">
+                    <div class="progress-circle">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="progress-bg" cx="60" cy="60" r="50"></circle>
+                            <circle class="progress-fill exercise-fill" cx="60" cy="60" r="50" 
+                                    style="stroke-dashoffset: <?php echo 314 - (314 * $exercise_percentage / 100); ?>"></circle>
+                        </svg>
+                        <div class="progress-content">
+                            <span class="progress-value"><?php echo $total_exercise_minutes; ?></span>
+                            <span class="progress-label">minutos</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="routine-card-footer">
+                    <div class="progress-percentage"><?php echo round($exercise_percentage); ?>%</div>
+                    <div class="status-indicator status-<?php echo $exercise_percentage >= 90 ? 'excellent' : ($exercise_percentage >= 70 ? 'good' : 'poor'); ?>">
                         <?php echo $exercise_percentage >= 90 ? 'Excelente' : ($exercise_percentage >= 70 ? 'Bom' : 'Abaixo'); ?>
-                    </span>
+                    </div>
                 </div>
             </div>
 
             <!-- Card de Sono -->
-            <div class="routine-circle-card">
-                <div class="circle-card-header">
-                    <i class="fas fa-bed"></i>
-                    <h5>Sono Diário</h5>
-                </div>
-                <div class="circle-progress-container">
-                    <svg class="circle-progress" viewBox="0 0 200 200">
-                        <circle class="circle-bg" cx="100" cy="100" r="85"></circle>
-                        <circle class="circle-fill circle-fill-purple" cx="100" cy="100" r="85" 
-                                style="stroke-dashoffset: <?php echo 534 - (534 * $sleep_percentage / 100); ?>"></circle>
-                    </svg>
-                    <div class="circle-content">
-                        <div class="circle-value"><?php echo number_format($avg_sleep_7, 1); ?></div>
-                        <div class="circle-label">horas/dia</div>
-                        <div class="circle-percentage"><?php echo round($sleep_percentage); ?>%</div>
+            <div class="routine-card-modern">
+                <div class="routine-card-header">
+                    <div class="routine-card-icon sleep-icon">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <div class="routine-card-title">
+                        <h4>Sono Diário</h4>
+                        <p>Meta: 8 horas</p>
                     </div>
                 </div>
-                <div class="circle-card-footer">
-                    <span>Meta: 8 horas</span>
-                    <span class="status-badge status-<?php echo $sleep_percentage >= 90 ? 'excellent' : ($sleep_percentage >= 70 ? 'good' : 'poor'); ?>">
+                <div class="routine-card-progress">
+                    <div class="progress-circle">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="progress-bg" cx="60" cy="60" r="50"></circle>
+                            <circle class="progress-fill sleep-fill" cx="60" cy="60" r="50" 
+                                    style="stroke-dashoffset: <?php echo 314 - (314 * $sleep_percentage / 100); ?>"></circle>
+                        </svg>
+                        <div class="progress-content">
+                            <span class="progress-value"><?php echo number_format($avg_sleep_7, 1); ?></span>
+                            <span class="progress-label">horas</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="routine-card-footer">
+                    <div class="progress-percentage"><?php echo round($sleep_percentage); ?>%</div>
+                    <div class="status-indicator status-<?php echo $sleep_percentage >= 90 ? 'excellent' : ($sleep_percentage >= 70 ? 'good' : 'poor'); ?>">
                         <?php echo $sleep_percentage >= 90 ? 'Excelente' : ($sleep_percentage >= 70 ? 'Bom' : 'Abaixo'); ?>
-                    </span>
+                    </div>
                 </div>
             </div>
         </div>
