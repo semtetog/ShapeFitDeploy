@@ -22,10 +22,23 @@ require_once __DIR__ . '/../../includes/config.php';
 header('Content-Type: application/json; charset=utf-8');
 
 // Verificar se o usuário está autenticado
+error_log('Verificando autenticação...');
+error_log('SESSION user_id: ' . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'NÃO DEFINIDO'));
+error_log('SESSION user_role: ' . (isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'NÃO DEFINIDO'));
+error_log('SESSION completo: ' . print_r($_SESSION, true));
+
 if (!isset($_SESSION['user_id'])) {
     error_log('ERRO: Usuário não autenticado');
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Usuário não autenticado']);
+    exit;
+}
+
+// Verificar se é admin (remover verificação de role por enquanto)
+if (isset($_SESSION['user_role']) && $_SESSION['user_role'] !== 'admin') {
+    error_log('ERRO: Usuário não é admin. Role: ' . $_SESSION['user_role']);
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Acesso negado - apenas administradores']);
     exit;
 }
 
