@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 }
 
 // Headers para JSON
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 // Obter método e ação
 $method = $_SERVER['REQUEST_METHOD'];
@@ -379,5 +379,147 @@ function deleteExercise($conn, $patient_id) {
     } else {
         throw new Exception('Erro ao excluir exercício: ' . $conn->error);
     }
+}
+
+// Tratamento de erro global
+try {
+    // Processar requisição baseada na ação
+    switch ($action) {
+        case 'list_missions':
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$patient_id) {
+                throw new Exception('ID do paciente é obrigatório');
+            }
+            $result = listMissions($conn, $patient_id);
+            echo json_encode(['success' => true, 'data' => $result]);
+            break;
+            
+        case 'get_mission':
+            $id = intval($_GET['id'] ?? 0);
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$id || !$patient_id) {
+                throw new Exception('ID da missão e ID do paciente são obrigatórios');
+            }
+            $result = getMission($conn, $id, $patient_id);
+            echo json_encode(['success' => true, 'data' => $result]);
+            break;
+            
+        case 'create_mission':
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new Exception('Dados inválidos');
+            }
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$patient_id) {
+                throw new Exception('ID do paciente é obrigatório');
+            }
+            createMission($conn, $data, $patient_id);
+            break;
+            
+        case 'update_mission':
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new Exception('Dados inválidos');
+            }
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$patient_id) {
+                throw new Exception('ID do paciente é obrigatório');
+            }
+            updateMission($conn, $data, $patient_id);
+            break;
+            
+        case 'delete_mission':
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data || !isset($data['id'])) {
+                throw new Exception('ID da missão é obrigatório');
+            }
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$patient_id) {
+                throw new Exception('ID do paciente é obrigatório');
+            }
+            deleteMission($conn, intval($data['id']), $patient_id);
+            break;
+            
+        case 'list_exercises':
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$patient_id) {
+                throw new Exception('ID do paciente é obrigatório');
+            }
+            $result = listExercises($conn, $patient_id);
+            echo json_encode(['success' => true, 'data' => $result]);
+            break;
+            
+        case 'get_exercise':
+            $id = intval($_GET['id'] ?? 0);
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$id || !$patient_id) {
+                throw new Exception('ID do exercício e ID do paciente são obrigatórios');
+            }
+            $result = getExercise($conn, $id, $patient_id);
+            echo json_encode(['success' => true, 'data' => $result]);
+            break;
+            
+        case 'create_exercise':
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new Exception('Dados inválidos');
+            }
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$patient_id) {
+                throw new Exception('ID do paciente é obrigatório');
+            }
+            createExercise($conn, $data, $patient_id);
+            break;
+            
+        case 'update_exercise':
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new Exception('Dados inválidos');
+            }
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$patient_id) {
+                throw new Exception('ID do paciente é obrigatório');
+            }
+            updateExercise($conn, $data, $patient_id);
+            break;
+            
+        case 'delete_exercise':
+            if ($method !== 'POST') {
+                throw new Exception('Método não permitido');
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data || !isset($data['id'])) {
+                throw new Exception('ID do exercício é obrigatório');
+            }
+            $patient_id = intval($_GET['patient_id'] ?? 0);
+            if (!$patient_id) {
+                throw new Exception('ID do paciente é obrigatório');
+            }
+            deleteExercise($conn, intval($data['id']), $patient_id);
+            break;
+            
+        default:
+            throw new Exception('Ação não reconhecida');
+    }
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+} finally {
+    $conn->close();
 }
 ?>

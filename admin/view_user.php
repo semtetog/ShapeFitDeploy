@@ -8909,7 +8909,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <span>${dayMissions.length} missões</span>
                         </div>
                         <div class="diary-summary-macros">
-                            ${dayExercises.length} exercícios • ${daySleep.length > 0 ? daySleep[0].hours.toFixed(1) + 'h sono' : 'Sem sono'}
+                            ${dayExercises.length} exercícios • ${daySleep.length > 0 && daySleep[0].hours ? daySleep[0].hours.toFixed(1) + 'h sono' : 'Sem sono'}
                         </div>
                     </div>
                     
@@ -9150,12 +9150,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carregar lista de missões
     function loadMissionsAdminList() {
         fetch(`api/routine_crud.php?action=list_missions&patient_id=${patientId}`)
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    renderMissionsTable(result.data);
-                } else {
-                    console.error('Erro ao carregar missões:', result.message);
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text(); // Primeiro como texto para debug
+            })
+            .then(text => {
+                try {
+                    const result = JSON.parse(text);
+                    if (result.success) {
+                        renderMissionsTable(result.data);
+                    } else {
+                        console.error('Erro ao carregar missões:', result.message);
+                    }
+                } catch (e) {
+                    console.error('Erro ao fazer parse do JSON:', e);
+                    console.error('Resposta recebida:', text);
                 }
             })
             .catch(error => {
@@ -9320,12 +9331,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carregar lista de exercícios
     function loadExercisesAdminList() {
         fetch(`api/routine_crud.php?action=list_exercises&patient_id=${patientId}`)
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    renderExercisesTable(result.data);
-                } else {
-                    console.error('Erro ao carregar exercícios:', result.message);
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text(); // Primeiro como texto para debug
+            })
+            .then(text => {
+                try {
+                    const result = JSON.parse(text);
+                    if (result.success) {
+                        renderExercisesTable(result.data);
+                    } else {
+                        console.error('Erro ao carregar exercícios:', result.message);
+                    }
+                } catch (e) {
+                    console.error('Erro ao fazer parse do JSON:', e);
+                    console.error('Resposta recebida:', text);
                 }
             })
             .catch(error => {
