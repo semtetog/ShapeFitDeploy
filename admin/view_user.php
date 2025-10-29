@@ -8856,288 +8856,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Função para inicializar o calendário da rotina
     function initRoutineCalendar() {
         generateRoutineSlider();
-        updateRoutineCards();
-        currentRoutineIndex = routineCards.length - 1; // Iniciar no último (hoje)
-        updateRoutineDisplay();
         updateRoutineSummary();
     }
     
-    // Sistema de navegação da rotina (IGUAL AO DIÁRIO)
-    let routineCards = document.querySelectorAll('.diary-day-card');
-    let currentRoutineIndex = routineCards.length - 1; // Iniciar no último (dia mais recente)
-    const routineTrack = document.getElementById('routineSliderTrack');
-    let isLoadingMoreRoutineDays = false; // Flag para evitar múltiplas chamadas
-
-    // Função para atualizar referência aos cards
-    function updateRoutineCards() {
-        routineCards = document.querySelectorAll('.diary-day-card');
-    }
-
-    function updateRoutineDisplay() {
-        // Adicionar transição suave para o slider
-        routineTrack.style.transition = 'transform 0.3s ease-in-out';
-        
-        const offset = -currentRoutineIndex * 100;
-        routineTrack.style.transform = `translateX(${offset}%)`;
-        
-        const currentCard = routineCards[currentRoutineIndex];
-        if (!currentCard) return;
-        
-        const date = currentCard.getAttribute('data-date');
-        const dateObj = new Date(date + 'T00:00:00');
-        
-        // Nomes dos meses e dias da semana
-        const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
-        const monthNamesLower = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-        const weekdayNames = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
-        
-        // Debug
-        console.log('Routine index:', currentRoutineIndex, 'Date:', date, 'Month:', dateObj.getMonth());
-        
-        // Atualizar ano
-        document.getElementById('routineYear').textContent = dateObj.getFullYear();
-        
-        // Atualizar dia e mês principal
-        const day = dateObj.getDate();
-        const month = monthNamesShort[dateObj.getMonth()];
-        document.getElementById('routineDayMonth').textContent = `${day} ${month}`;
-        
-        // Atualizar dia da semana
-        document.getElementById('routineWeekday').textContent = weekdayNames[dateObj.getDay()];
-        
-        // Atualizar datas de navegação (anterior e próximo)
-        const prevIndex = currentRoutineIndex - 1;
-        const nextIndex = currentRoutineIndex + 1;
-        
-        // Atualizar data anterior (sempre mostrar o dia anterior real)
-        const prevBtn = document.getElementById('routinePrevDate');
-        if (prevBtn) {
-            // Calcular sempre o dia anterior baseado na data atual
-            const currentDate = new Date(date + 'T00:00:00');
-            const prevDate = new Date(currentDate);
-            prevDate.setDate(prevDate.getDate() - 1);
-            
-            prevBtn.textContent = `${prevDate.getDate()} ${monthNamesLower[prevDate.getMonth()]}`;
-            prevBtn.parentElement.style.visibility = 'visible';
-        }
-        
-        // Atualizar data próxima (se existir e não for futuro)
-        const nextBtn = document.getElementById('routineNextDate');
-        if (nextBtn) {
-            if (nextIndex < routineCards.length && routineCards[nextIndex]) {
-                const nextDate = new Date(routineCards[nextIndex].getAttribute('data-date') + 'T00:00:00');
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                if (nextDate <= today) {
-                    nextBtn.textContent = `${nextDate.getDate()} ${monthNamesLower[nextDate.getMonth()]}`;
-                    nextBtn.parentElement.style.visibility = 'visible';
-                } else {
-                    nextBtn.parentElement.style.visibility = 'hidden';
-                }
-            } else {
-                nextBtn.parentElement.style.visibility = 'hidden';
-            }
-        }
-        
-        // Atualizar estado dos botões de navegação
-        updateRoutineNavigationButtons();
-    }
-
-    function updateRoutineNavigationButtons() {
-        const currentCard = routineCards[currentRoutineIndex];
-        if (!currentCard) return;
-        
-        const currentDate = currentCard.getAttribute('data-date');
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const currentDateObj = new Date(currentDate + 'T00:00:00');
-        
-        console.log('Current routine date:', currentDate, 'Today:', today.toISOString().split('T')[0]);
-        
-        // Botão de avançar (direita) - desabilitar se estiver no dia atual ou futuro
-        const nextBtn = document.querySelector('.diary-nav-right');
-        if (nextBtn) {
-            // Verificar se existe um próximo card e se ele não é futuro
-            const nextIndex = currentRoutineIndex + 1;
-            if (nextIndex < routineCards.length) {
-                const nextCard = routineCards[nextIndex];
-                const nextDate = nextCard.getAttribute('data-date');
-                const nextDateObj = new Date(nextDate + 'T00:00:00');
-                
-                if (nextDateObj > today) {
-                    nextBtn.classList.add('disabled');
-                    nextBtn.disabled = true;
-                } else {
-                    nextBtn.classList.remove('disabled');
-                    nextBtn.disabled = false;
-                }
-            } else {
-                // Não há próximo card
-                nextBtn.classList.add('disabled');
-                nextBtn.disabled = true;
-            }
-        }
-    }
-
-    function navigateRoutine(direction) {
-        let newIndex = currentRoutineIndex + direction;
-        
-        // Se tentar ir para frente
-        if (direction > 0) {
-            // Verificar se o próximo dia seria futuro
-            if (newIndex >= routineCards.length) {
-                // Já está no último, não faz nada
-                return;
-            }
-            
-            const nextCard = routineCards[newIndex];
-            if (nextCard) {
-                const nextDate = nextCard.getAttribute('data-date');
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const nextDateObj = new Date(nextDate + 'T00:00:00');
-                
-                // Se o próximo dia for futuro, não permite
-                if (nextDateObj > today) {
-                    return; // Bloqueia navegação
-                }
-            }
-        }
-        
-        // Se tentar ir para trás
-        if (direction < 0) {
-            // Se já está carregando, ignora
-            if (isLoadingMoreRoutineDays) {
-                console.log('Já está carregando mais dias da rotina...');
-                return;
-            }
-            
-            // Calcular a data do dia anterior
-            const currentCard = routineCards[currentRoutineIndex];
-            if (currentCard) {
-                const currentDate = currentCard.getAttribute('data-date');
-                const dateObj = new Date(currentDate + 'T00:00:00');
-                dateObj.setDate(dateObj.getDate() - 1);
-                const prevDate = dateObj.toISOString().split('T')[0];
-                
-                // Verificar se já existe um card para essa data
-                const existingCardIndex = Array.from(routineCards).findIndex(card => 
-                    card.getAttribute('data-date') === prevDate
-                );
-                
-                if (existingCardIndex !== -1) {
-                    // Se existe, navegar diretamente
-                    currentRoutineIndex = existingCardIndex;
-                    updateRoutineDisplay();
-                    return;
-                } else {
-                    // Se não existe, carregar via AJAX
-                    console.log('Carregando 1 dia anterior da rotina via AJAX. Data atual:', currentDate, 'Nova end_date:', prevDate);
-                    loadMoreRoutineDays(prevDate, 1);
-                    return;
-                }
-            }
-        }
-        
-        // Navegação normal
-        if (newIndex >= 0 && newIndex < routineCards.length) {
-            currentRoutineIndex = newIndex;
-            updateRoutineDisplay();
-        }
-    }
-
-    async function loadMoreRoutineDays(endDate, daysToLoad = 1) {
-        if (isLoadingMoreRoutineDays) {
-            console.log('Já está carregando rotina, ignorando chamada duplicada...');
-            return;
-        }
-        
-        isLoadingMoreRoutineDays = true;
-        
-        try {
-            // Buscar apenas 1 dia via AJAX (sem loading visual)
-            const userId = <?php echo $user_id; ?>;
-            const url = `actions/load_routine_days.php?user_id=${userId}&end_date=${endDate}&days=${daysToLoad}`;
-            
-            console.log('Fazendo requisição AJAX para rotina:', url);
-            
-            const response = await fetch(url);
-            console.log('Resposta recebida, status:', response.status);
-            
-            if (response.ok) {
-                const html = await response.text();
-                console.log('HTML recebido, tamanho:', html.length);
-                
-                if (html.trim().length === 0) {
-                    throw new Error('Resposta vazia do servidor');
-                }
-                
-                // Adicionar novo card ANTES dos existentes
-                const routineTrack = document.getElementById('routineSliderTrack');
-                
-                // Criar container temporário
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = html;
-                const newCards = tempDiv.querySelectorAll('.diary-day-card');
-                
-                console.log('Novos cards de rotina encontrados:', newCards.length);
-                
-                if (newCards.length > 0) {
-                    // Adicionar novo card no início (mais antigo primeiro)
-                    const fragment = document.createDocumentFragment();
-                    while (tempDiv.firstChild) {
-                        fragment.appendChild(tempDiv.firstChild);
-                    }
-                    routineTrack.insertBefore(fragment, routineTrack.firstChild);
-                    
-                    // Atualizar referência aos cards
-                    updateRoutineCards();
-                    
-                    // Navegar automaticamente para o dia carregado (primeiro card = mais antigo)
-                    currentRoutineIndex = 0;
-                    
-                    console.log(`Adicionado 1 novo card de rotina. Total: ${routineCards.length}`);
-                    console.log('Primeira data após adição:', routineCards[0]?.getAttribute('data-date'));
-                    console.log('Última data após adição:', routineCards[routineCards.length - 1]?.getAttribute('data-date'));
-                    console.log('Navegando para o dia carregado, índice:', currentRoutineIndex);
-                    
-                    // Simular swipe: primeiro ir para posição anterior, depois para a correta
-                    const previousIndex = currentRoutineIndex + 1;
-                    const previousOffset = -previousIndex * 100;
-                    
-                    // Posicionar no card anterior (como se estivesse vindo da direita)
-                    routineTrack.style.transition = 'none';
-                    routineTrack.style.transform = `translateX(${previousOffset}%)`;
-                    
-                    // Forçar reflow
-                    routineTrack.offsetHeight;
-                    
-                    // Agora animar para a posição correta
-                    routineTrack.style.transition = 'transform 0.3s ease-in-out';
-                    routineTrack.style.transform = `translateX(${-currentRoutineIndex * 100}%)`;
-                    
-                    // Atualizar display
-                    updateRoutineDisplay();
-                } else {
-                    console.log('Nenhum novo card de rotina encontrado na resposta');
-                }
-            } else {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-        } catch (error) {
-            console.error('Erro ao carregar mais dias da rotina:', error);
-            alert('Erro ao carregar mais dias da rotina: ' + error.message);
-        } finally {
-            isLoadingMoreRoutineDays = false;
-        }
-    }
-
-    function goToRoutineIndex(index) {
-        currentRoutineIndex = index;
-        updateRoutineDisplay();
-    }
-
     // Gerar slider de dias da rotina (igual ao da aba Diário)
     window.generateRoutineSlider = function() {
         console.log('=== GENERATE_ROUTINE_SLIDER INICIADO ===');
@@ -9153,8 +8874,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let sliderHTML = '';
         
         for (let i = daysToShow - 1; i >= 0; i--) {
-            const today = new Date();
-            const date = new Date(today);
+            const date = new Date(currentRoutineDate);
             date.setDate(date.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
             
@@ -9977,39 +9697,23 @@ window.deleteExercise = function(id, name) {
     });
 };
 
-// ============ FUNÇÕES GLOBAIS DO CALENDÁRIO DA ROTINA (IGUAL AO DIÁRIO) ============
-
-// Marcar dias com dados de rotina (incluindo todos os meses)
-<?php
-// Buscar TODOS os dias com dados de rotina, não apenas do mês atual
-$stmt_routine_dates = $conn->prepare("
-    SELECT DISTINCT DATE(created_at) as date 
-    FROM sf_user_routine_log 
-    WHERE user_id = ? 
-    UNION
-    SELECT DISTINCT date 
-    FROM sf_user_sleep_log 
-    WHERE user_id = ?
-    ORDER BY date DESC
-");
-$stmt_routine_dates->bind_param("ii", $user_id, $user_id);
-$stmt_routine_dates->execute();
-$routine_dates_result = $stmt_routine_dates->get_result();
-$routine_dates_with_data = [];
-while ($row = $routine_dates_result->fetch_assoc()) {
-    $routine_dates_with_data[] = $row['date'];
-}
-$stmt_routine_dates->close();
-echo "const routineDatesWithData = " . json_encode($routine_dates_with_data) . ";\n";
-?>
-routineDatesWithData.forEach(date => routineDaysWithData.add(date));
+// ============ FUNÇÕES GLOBAIS DO CALENDÁRIO DA ROTINA ============
 
 // Abrir modal do calendário da rotina
 window.openRoutineCalendar = function() {
+    console.log('=== OPEN_ROUTINE_CALENDAR CHAMADO ===');
     currentRoutineCalendarDate = new Date();
+    console.log('Data atual do calendário:', currentRoutineCalendarDate);
     renderRoutineCalendar();
     document.body.style.overflow = 'hidden';
-    document.getElementById('routineCalendarModal').classList.add('active');
+    const modal = document.getElementById('routineCalendarModal');
+    console.log('Modal encontrado:', modal);
+    if (modal) {
+        modal.classList.add('active');
+        console.log('Modal ativado com sucesso');
+    } else {
+        console.error('Modal routineCalendarModal não encontrado!');
+    }
 };
 
 // Fechar modal do calendário da rotina
@@ -10034,12 +9738,12 @@ window.changeRoutineCalendarMonth = function(direction) {
     renderRoutineCalendar();
 };
 
-// Renderizar calendário da rotina (IGUAL AO DIÁRIO)
+// Renderizar calendário da rotina
 function renderRoutineCalendar() {
     const year = currentRoutineCalendarDate.getFullYear();
     const month = currentRoutineCalendarDate.getMonth();
     
-    // Atualizar ano e mês separadamente
+    // Atualizar ano e mês
     const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
                             'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
     document.querySelector('#routineCalendarModal .calendar-year').textContent = year;
@@ -10058,144 +9762,46 @@ function renderRoutineCalendar() {
         nextMonthBtn.disabled = false;
     }
     
-    // Primeiro e último dia do mês atual
+    // Gerar grid dos dias
+    const daysGrid = document.getElementById('routineCalendarDaysGrid');
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
     
-    // Calcular dias do mês anterior para preencher
-    const prevMonth = new Date(year, month - 1, 0);
-    const daysInPrevMonth = prevMonth.getDate();
+    let calendarHTML = '';
     
-    // Grid de dias
-    const grid = document.getElementById('routineCalendarDaysGrid');
-    grid.innerHTML = '';
-    
-    // Dias do mês anterior (bloqueados)
-    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-        const dayEl = document.createElement('div');
-        dayEl.className = 'calendar-day other-month';
-        dayEl.textContent = daysInPrevMonth - i;
-        grid.appendChild(dayEl);
+    // Dias vazios do início do mês
+    for (let i = 0; i < startingDayOfWeek; i++) {
+        calendarHTML += '<div class="calendar-day empty"></div>';
     }
     
-    // Dias do mês atual
+    // Dias do mês
     for (let day = 1; day <= daysInMonth; day++) {
-        const dayEl = document.createElement('button');
-        dayEl.className = 'calendar-day current-month';
-        dayEl.textContent = day;
-        
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const today = new Date();
-        const currentDate = new Date(year, month, day);
+        const hasData = routineLogData.some(log => log.date === dateStr) || 
+                       exerciseData.some(ex => ex.updated_at.startsWith(dateStr)) ||
+                       sleepData.some(sleep => sleep.date === dateStr);
+        const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
         
-        // Verificar se é dia futuro
-        if (currentDate > today) {
-            dayEl.classList.add('future-day');
-            dayEl.disabled = true;
-        } else {
-            // Verificar se tem dados
-            if (routineDaysWithData.has(dateStr)) {
-                dayEl.classList.add('has-data');
-            }
-            
-            // Marcar hoje
-            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
-                dayEl.classList.add('today');
-            }
-            
-            // Click handler apenas para dias não futuros
-            dayEl.onclick = () => goToRoutineDate(dateStr);
-        }
-        
-        grid.appendChild(dayEl);
+        calendarHTML += `
+            <div class="calendar-day ${hasData ? 'has-data' : ''} ${isToday ? 'today' : ''}" 
+                 data-date="${dateStr}" 
+                 onclick="selectRoutineDayFromCalendar('${dateStr}')">
+                <span class="day-number">${day}</span>
+                ${hasData ? '<div class="day-indicator"></div>' : ''}
+            </div>
+        `;
     }
     
-    // Calcular quantos dias faltam para completar a grade (6 semanas = 42 dias)
-    const totalCells = 42;
-    const usedCells = startingDayOfWeek + daysInMonth;
-    const remainingCells = totalCells - usedCells;
-    
-    // Dias do próximo mês (bloqueados)
-    for (let day = 1; day <= remainingCells; day++) {
-        const dayEl = document.createElement('div');
-        dayEl.className = 'calendar-day other-month';
-        dayEl.textContent = day;
-        grid.appendChild(dayEl);
-    }
+    daysGrid.innerHTML = calendarHTML;
 }
 
 // Selecionar dia do calendário da rotina
 window.selectRoutineDayFromCalendar = function(dateStr) {
     closeRoutineCalendar();
-    goToRoutineDate(dateStr);
+    selectRoutineDay(dateStr);
 };
-
-function goToRoutineDate(dateStr) {
-    // Encontrar o card correspondente
-    const cards = document.querySelectorAll('.diary-day-card');
-    let targetIndex = -1;
-    
-    cards.forEach((card, index) => {
-        if (card.getAttribute('data-date') === dateStr) {
-            targetIndex = index;
-        }
-    });
-    
-    if (targetIndex !== -1) {
-        // Se o dia está nos cards carregados, navegar diretamente
-        goToRoutineIndex(targetIndex);
-    } else {
-        // Se o dia não estiver nos cards carregados, carregar via AJAX
-        loadSpecificRoutineDate(dateStr);
-    }
-}
-
-async function loadSpecificRoutineDate(dateStr) {
-    try {
-        const userId = <?php echo $user_id; ?>;
-        const url = `actions/load_routine_days.php?user_id=${userId}&end_date=${dateStr}&days=1`;
-        
-        console.log('Carregando data específica da rotina:', dateStr);
-        
-        const response = await fetch(url);
-        if (response.ok) {
-            const html = await response.text();
-            
-            if (html.trim().length > 0) {
-                // Adicionar novo card
-                const routineTrack = document.getElementById('routineSliderTrack');
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = html;
-                const newCards = tempDiv.querySelectorAll('.diary-day-card');
-                
-                if (newCards.length > 0) {
-                    // Adicionar no início (mais antigo primeiro)
-                    const fragment = document.createDocumentFragment();
-                    while (tempDiv.firstChild) {
-                        fragment.appendChild(tempDiv.firstChild);
-                    }
-                    routineTrack.insertBefore(fragment, routineTrack.firstChild);
-                    
-                    // Atualizar referência aos cards
-                    updateRoutineCards();
-                    
-                    // Navegar para o dia carregado
-                    const targetIndex = Array.from(routineCards).findIndex(card => 
-                        card.getAttribute('data-date') === dateStr
-                    );
-                    
-                    if (targetIndex !== -1) {
-                        goToRoutineIndex(targetIndex);
-                    }
-                }
-            }
-        }
-    } catch (error) {
-        console.error('Erro ao carregar data específica da rotina:', error);
-    }
-}
 
 // Sistema de navegação da rotina (COPIADO DO DIÁRIO)
 let routineCards = document.querySelectorAll('.diary-day-card');
