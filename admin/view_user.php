@@ -5601,6 +5601,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <!-- Preenchido via JS em renderMissionsCards() -->
             </div>
         </div>
+    </div>
+</div>
 
 <!-- Modal para Adicionar/Editar Missão -->
 <div id="mission-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
@@ -9290,6 +9292,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Carregar missões ao abrir a aba Rotina pela primeira vez
+    if (document.getElementById('tab-routine') && document.getElementById('tab-routine').style.display !== 'none') {
+        loadMissionsAdminList();
+        loadExercisesAdminList();
+    }
+    
     // ============ CRUD DE MISSÕES ============
     
     // Modal de missões
@@ -9300,6 +9308,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Carregar lista de missões
     function loadMissionsAdminList() {
+        // Só carregar se estivermos na aba Rotina
+        const routineTab = document.getElementById('tab-routine');
+        if (routineTab && routineTab.style.display === 'none') return;
+        
         console.log('=== LOAD_MISSIONS_ADMIN_LIST INICIADO ===');
         console.log('Patient ID:', patientId);
         console.log('URL:', `api/routine_crud.php?action=list_missions&patient_id=${patientId}`);
