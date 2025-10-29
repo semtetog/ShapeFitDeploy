@@ -2261,6 +2261,32 @@ require_once __DIR__ . '/includes/header.php';
     min-height: 0 !important;
 }
 
+/* Garantir 100% - Correção adicional para todos os containers */
+.diary-slider-container,
+.diary-slider-wrapper,
+.diary-slider-track {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 0 1 auto !important;
+}
+
+.diary-day-meals {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.diary-empty-state {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: auto !important;
+    padding: 20px 0 !important;
+}
+
 .routine-summary-card {
     background: var(--card-bg);
     border-radius: 12px;
