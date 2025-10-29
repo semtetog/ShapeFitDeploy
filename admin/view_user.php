@@ -4762,7 +4762,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="routine-container">
         
         <!-- 1. CARD RESUMO COMPACTO - MESMO ESTILO DA HIDRATAÇÃO E NUTRIENTES -->
-        <div class="hydration-summary-card routine-summary-card">
+        <div class="nutrients-summary-card">
             <div class="summary-main">
                 <div class="summary-icon routine-icon">
                     <i class="fas fa-tasks"></i>
