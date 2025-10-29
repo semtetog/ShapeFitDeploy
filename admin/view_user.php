@@ -8980,18 +8980,25 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('HTML gerado:', sliderHTML);
         
         // Atualizar navegação
-        updateRoutineNavigation();
+        updateRoutineCards();
         
         // Selecionar o dia atual automaticamente (hoje)
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
-        const todayCard = document.querySelector(`.diary-day-card[data-date="${todayStr}"]`);
+        const todayCard = document.querySelector(`#routineSliderTrack .diary-day-card[data-date="${todayStr}"]`);
         console.log('Card do dia atual encontrado:', todayCard);
         if (todayCard) {
             todayCard.classList.add('selected');
             selectedRoutineDay = todayStr;
-            updateRoutineDayDetails(todayStr);
         }
+        
+        // Atualizar display para o dia de hoje
+        currentRoutineIndex = Array.from(routineCards).findIndex(card => card.getAttribute('data-date') === todayStr);
+        if (currentRoutineIndex === -1) {
+            currentRoutineIndex = routineCards.length - 1;
+        }
+        updateRoutineDisplay();
+        
         console.log('=== GENERATE_ROUTINE_SLIDER FINALIZADO ===');
     };
     
@@ -9171,7 +9178,26 @@ document.addEventListener('DOMContentLoaded', function() {
     if (routineTabButton) {
         routineTabButton.addEventListener('click', function() {
             setTimeout(() => {
-                initRoutineCalendar();
+                // NÃO chamar generateRoutineSlider porque o PHP já gera os cards
+                // Apenas inicializar navegação e display
+                updateRoutineCards();
+                
+                // Buscar o card do dia de HOJE
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
+                
+                // Procurar o índice do card de hoje
+                let targetIndex = routineCards.length - 1; // Default: último card
+                
+                for (let i = 0; i < routineCards.length; i++) {
+                    if (routineCards[i].getAttribute('data-date') === todayStr) {
+                        targetIndex = i;
+                        break;
+                    }
+                }
+                
+                currentRoutineIndex = targetIndex;
+                updateRoutineDisplay();
             }, 100);
         });
     }
