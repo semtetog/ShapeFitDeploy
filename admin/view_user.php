@@ -3509,6 +3509,7 @@ require_once __DIR__ . '/includes/header.php';
 // Variáveis globais
 let diaryCards = [];
 let currentDiaryIndex = 0;
+let diaryTrack = null;
 let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
 
 // Função para atualizar referência aos cards
@@ -3517,7 +3518,7 @@ function updateDiaryCards() {
 }
 
 function updateDiaryDisplay() {
-    const diaryTrack = document.getElementById('diarySliderTrack');
+    diaryTrack = document.getElementById('diarySliderTrack');
     if (!diaryTrack) return; // <-- evita erro se o elemento não existir ainda
     
     const currentCard = diaryCards[currentDiaryIndex];
@@ -3797,15 +3798,18 @@ function navigateDiary(direction) {
                        const previousOffset = -previousIndex * 100;
                        
                        // Posicionar no card anterior (como se estivesse vindo da direita)
-                       diaryTrack.style.transition = 'none';
-                       diaryTrack.style.transform = `translateX(${previousOffset}%)`;
-                       
-                       // Forçar reflow
-                       diaryTrack.offsetHeight;
-                       
-                       // Agora animar para a posição correta
-                       diaryTrack.style.transition = 'transform 0.3s ease-in-out';
-                       diaryTrack.style.transform = `translateX(${-currentDiaryIndex * 100}%)`;
+                       diaryTrack = document.getElementById('diarySliderTrack');
+                       if (diaryTrack) {
+                           diaryTrack.style.transition = 'none';
+                           diaryTrack.style.transform = `translateX(${previousOffset}%)`;
+                           
+                           // Forçar reflow
+                           diaryTrack.offsetHeight;
+                           
+                           // Agora animar para a posição correta
+                           diaryTrack.style.transition = 'transform 0.3s ease-in-out';
+                           diaryTrack.style.transform = `translateX(${-currentDiaryIndex * 100}%)`;
+                       }
                        
                        // Atualizar display
                        updateDiaryDisplay();
@@ -10521,7 +10525,8 @@ window.selectDiaryDayFromCalendar = function(dateStr) {
     }
     
     // Posicionar imediatamente sem animação para evitar flicker
-    if (typeof diaryTrack !== 'undefined' && diaryTrack) {
+    diaryTrack = document.getElementById('diarySliderTrack');
+    if (diaryTrack) {
         diaryTrack.style.transition = 'none';
         diaryTrack.style.transform = `translateX(${-currentDiaryIndex * 100}%)`;
     }
