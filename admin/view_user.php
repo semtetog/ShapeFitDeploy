@@ -3800,9 +3800,23 @@ function initDiary() {
     }
 }
 
-// ======== DIÁRIO: INIT SEGURO ========
-document.addEventListener("DOMContentLoaded", () => {
-  // ====== Referências iniciais ======
+// ======== DIÁRIO: POLLING GARANTIDO ========
+function waitForDiaryElements() {
+  const track = document.getElementById('diarySliderTrack');
+  const calendar =
+    document.getElementById('calendarButton') ||
+    document.querySelector('.diary-calendar-icon-btn') ||
+    document.querySelector('.calendar-btn');
+
+  if (track && calendar) {
+    console.log("🎯 Diário pronto — inicializando");
+    initDiaryListeners();
+  } else {
+    setTimeout(waitForDiaryElements, 300); // tenta novamente a cada 300ms
+  }
+}
+
+function initDiaryListeners() {
   diaryCards = Array.from(document.querySelectorAll('#diarySliderTrack .diary-day-card'));
   diaryTrack = document.getElementById('diarySliderTrack');
 
@@ -3811,7 +3825,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // ====== Selecionar dia atual ======
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayIdx = diaryCards.findIndex(c => c.getAttribute('data-date') === todayStr);
   currentDiaryIndex = (todayIdx !== -1) ? todayIdx : (diaryCards.length - 1);
@@ -3819,35 +3832,25 @@ document.addEventListener("DOMContentLoaded", () => {
   setActiveDiaryCard(currentDiaryIndex);
   updateDiaryDisplay();
 
-  // ====== Navegação (setas) ======
   const prevBtn = document.querySelector('.diary-nav-left');
   const nextBtn = document.querySelector('.diary-nav-right');
-  if (prevBtn) prevBtn.addEventListener('click', () => navigateDiary(-1));
-  if (nextBtn) nextBtn.addEventListener('click', () => navigateDiary(1));
-
-  // ====== Botão do calendário (com fallback seguro) ======
   const calendarBtn =
     document.getElementById('calendarButton') ||
     document.querySelector('.diary-calendar-icon-btn') ||
     document.querySelector('.calendar-btn');
-  if (calendarBtn) {
-    calendarBtn.addEventListener('click', openDiaryCalendarSafely);
-  } else {
-    console.warn('Botão do calendário do diário não encontrado.');
-  }
 
-  // ====== Suporte a swipe/touch ======
+  if (prevBtn) prevBtn.addEventListener('click', () => navigateDiary(-1));
+  if (nextBtn) nextBtn.addEventListener('click', () => navigateDiary(1));
+  if (calendarBtn) calendarBtn.addEventListener('click', openDiaryCalendarSafely);
+
   let touchStartX = 0, touchEndX = 0;
-  diaryTrack.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  });
-  diaryTrack.addEventListener('touchend', (e) => {
+  diaryTrack.addEventListener('touchstart', e => (touchStartX = e.changedTouches[0].screenX));
+  diaryTrack.addEventListener('touchend', e => {
     touchEndX = e.changedTouches[0].screenX;
     handleSwipe();
   });
 
-  // ====== Teclado ======
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') navigateDiary(-1);
     if (e.key === 'ArrowRight') navigateDiary(1);
   });
@@ -3861,7 +3864,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-});
+
+  console.log("✅ Listeners do diário iniciados");
+}
+
+// inicia o loop até encontrar os elementos
+waitForDiaryElements();
 </script>
 
 <?php
