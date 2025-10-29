@@ -1791,9 +1791,11 @@ require_once __DIR__ . '/includes/header.php';
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 24px;
-    margin: 24px 0;
+    margin: 0 0 24px 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    min-height: auto;
+    height: auto;
 }
 
 .routine-missions-card:hover {
@@ -1805,7 +1807,7 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--border-color);
 }
@@ -1871,7 +1873,10 @@ require_once __DIR__ . '/includes/header.php';
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 16px;
-    margin-top: 20px;
+    margin: 0;
+    padding: 0;
+    min-height: auto;
+    height: auto;
 }
 
 .mission-item {

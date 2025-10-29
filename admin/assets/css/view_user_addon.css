@@ -853,13 +853,6 @@
   display: block;
 }
 
-.diary-day-meals {
-  flex: 0 1 auto;
-  padding: 0;
-  margin: 0;
-  min-height: 0;
-  height: auto;
-}
 
 .diary-meal-card {
   margin-bottom: 0;
@@ -931,6 +924,11 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  flex: 0 1 auto;
+  padding: 0;
+  margin: 0;
+  min-height: 0;
+  height: auto;
 }
 
 .diary-empty-state {
