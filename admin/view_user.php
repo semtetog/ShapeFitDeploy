@@ -2295,6 +2295,8 @@ require_once __DIR__ . '/includes/header.php';
 
 .diary-day-card.active {
     display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .routine-summary-card {
@@ -3509,6 +3511,11 @@ let diaryCards = document.querySelectorAll('#diarySliderTrack .diary-day-card');
 let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
 const diaryTrack = document.getElementById('diarySliderTrack');
 let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
+
+// Exibir o card inicial ao carregar
+diaryCards.forEach((card, index) => {
+    card.classList.toggle('active', index === currentDiaryIndex);
+});
 
 // Função para atualizar referência aos cards
 function updateDiaryCards() {
