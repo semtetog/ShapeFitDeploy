@@ -810,6 +810,53 @@ require_once __DIR__ . '/includes/header.php';
     margin-top: 25px;
 }
 
+/* Garantir que o slider da rotina funcione igual ao diário */
+#tab-routine .diary-slider-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow: hidden !important;
+    position: relative;
+    contain: layout style paint;
+    min-height: auto;
+    height: auto;
+}
+
+#tab-routine .diary-slider-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden !important;
+    position: relative;
+    border-radius: 16px;
+    contain: layout style;
+    min-height: auto;
+    height: auto;
+}
+
+#tab-routine .diary-slider-track {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+    will-change: transform;
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+    height: auto;
+}
+
+#tab-routine .diary-day-card {
+    min-width: 100%;
+    max-width: 100%;
+    width: 100%;
+    flex-shrink: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    contain: layout style;
+    min-height: auto;
+    height: auto;
+    display: block;
+}
+
 .calendar-header h4 {
     color: var(--primary-text-color);
     font-size: 1.2rem;
