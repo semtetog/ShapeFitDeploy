@@ -3154,7 +3154,7 @@ function navigateDiary(direction) {
     // Se tentar ir para trás
     if (direction < 0) {
         // Se já está carregando, ignora
-        if (isLoadingMoreDays) {
+        if (window.isLoadingMoreDays) {
             console.log('Já está carregando mais dias...');
             return;
         }
@@ -9802,7 +9802,6 @@ window.selectRoutineDayFromCalendar = function(dateStr) {
 let routineCards = document.querySelectorAll('.diary-day-card');
 let currentRoutineIndex = routineCards.length - 1; // Iniciar no último (dia mais recente)
 const routineTrack = document.getElementById('routineSliderTrack');
-let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
 
 // Função para atualizar referência aos cards
 function updateRoutineCards() {
@@ -9905,7 +9904,7 @@ window.navigateRoutine = function(direction) {
     // Se tentar ir para trás
     if (direction < 0) {
         // Se já está carregando, ignora
-        if (isLoadingMoreDays) {
+        if (window.isLoadingMoreDays) {
             console.log('Já está carregando mais dias...');
             return;
         }
