@@ -920,44 +920,6 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0;
 }
 
-#tab-routine .diary-day-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 0 0 16px 16px;
-}
-
-#tab-routine .diary-day-date {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-#tab-routine .diary-day-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--accent-orange);
-    line-height: 1;
-}
-
-#tab-routine .diary-day-month {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-#tab-routine .diary-day-weekday {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
 
 #tab-routine .diary-empty-state {
     display: flex;
@@ -9078,6 +9040,79 @@ document.addEventListener('DOMContentLoaded', function() {
             const dayExercises = exerciseData.filter(ex => ex.updated_at.startsWith(dateStr));
             const daySleep = sleepData.filter(sleep => sleep.date === dateStr);
             
+            // Gerar conteúdo baseado nos dados reais
+            let contentHTML = '';
+            if (hasData) {
+                // Missões concluídas
+                if (dayMissions.length > 0) {
+                    contentHTML += `
+                        <div class="diary-meal-card">
+                            <div class="diary-meal-header">
+                                <div class="diary-meal-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="diary-meal-info">
+                                    <h5>Missões Concluídas</h5>
+                                    <span class="diary-meal-totals">
+                                        <strong>${dayMissions.length} missões</strong> concluídas
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Exercícios realizados
+                if (dayExercises.length > 0) {
+                    dayExercises.forEach(exercise => {
+                        const duration = exercise.duration_minutes || 0;
+                        const hours = Math.floor(duration / 60);
+                        const minutes = duration % 60;
+                        const timeStr = hours > 0 ? `${hours}h${minutes > 0 ? minutes.toString().padStart(2, '0') : ''}` : `${minutes}min`;
+                        
+                        contentHTML += `
+                            <div class="diary-meal-card">
+                                <div class="diary-meal-header">
+                                    <div class="diary-meal-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="diary-meal-info">
+                                        <h5>${exercise.exercise_name}</h5>
+                                        <span class="diary-meal-totals">
+                                            <strong>${timeStr}</strong> de treino
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Sono registrado
+                if (daySleep.length > 0 && daySleep[0].hours) {
+                    const sleepHours = daySleep[0].hours;
+                    const hours = Math.floor(sleepHours);
+                    const minutes = Math.round((sleepHours - hours) * 60);
+                    const timeStr = `${hours}h${minutes > 0 ? minutes.toString().padStart(2, '0') : ''}`;
+                    
+                    contentHTML += `
+                        <div class="diary-meal-card">
+                            <div class="diary-meal-header">
+                                <div class="diary-meal-icon">
+                                    <i class="fas fa-bed"></i>
+                                </div>
+                                <div class="diary-meal-info">
+                                    <h5>Sono Registrado</h5>
+                                    <span class="diary-meal-totals">
+                                        <strong>${timeStr}</strong> de sono
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
             sliderHTML += `
                 <div class="diary-day-card ${hasData ? 'has-data' : ''} ${isToday ? 'today' : ''}" 
                      data-date="${dateStr}" 
@@ -9094,30 +9129,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     
                     <div class="diary-day-meals">
-                        ${hasData ? `
-                            <div class="diary-day-content">
-                                <div class="diary-day-icon">
-                                    <i class="fas fa-check-circle"></i>
-                                </div>
-                                <div class="diary-day-info">
-                                    <div class="diary-day-title">Rotina Registrada</div>
-                                    <div class="diary-day-subtitle">${dayMissions.length} missões concluídas</div>
-                                </div>
-                            </div>
-                        ` : `
+                        ${hasData ? contentHTML : `
                             <div class="diary-empty-state">
                                 <i class="fas fa-calendar-day"></i>
                                 <p>Nenhum registro neste dia</p>
                             </div>
                         `}
-                    </div>
-                    
-                    <div class="diary-day-footer">
-                        <div class="diary-day-date">
-                            <span class="diary-day-number">${dayNumber}</span>
-                            <span class="diary-day-month">${monthName}</span>
-                        </div>
-                        <div class="diary-day-weekday">${dayOfWeek}</div>
                     </div>
                 </div>
             `;
