@@ -2226,38 +2226,39 @@ require_once __DIR__ . '/includes/header.php';
     }
 }
 
-/* ========== CORREÇÃO DEFINITIVA DO ESPAÇO MORTO ========== */
-/* Corrige espaço extra quando não há refeições registradas */
+/* === CORREÇÃO FINAL DO ESPAÇO VAZIO DO DIÁRIO === */
 .diary-day-card {
     height: auto !important;
-    min-height: unset !important;
+    min-height: 0 !important;
+    flex: 0 1 auto !important;
+    display: block !important;
     padding-bottom: 0 !important;
 }
 
+/* Container interno */
 .diary-day-meals {
-    display: block !important;
     height: auto !important;
     min-height: 0 !important;
-    padding: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* Centraliza o placeholder sem empurrar o layout */
+/* Placeholder */
 .diary-empty-state {
+    height: auto !important;
     padding: 20px 0 !important;
     display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: auto !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-direction: column !important;
 }
 
-/* Remove altura forçada do wrapper do slider */
-.diary-slider-container,
-.diary-slider-wrapper,
+/* Remove altura forçada da faixa de slider */
 .diary-slider-track {
+    display: flex !important;
+    align-items: flex-start !important;
     height: auto !important;
-    min-height: auto !important;
+    min-height: 0 !important;
 }
 
 .routine-summary-card {
