@@ -15,12 +15,18 @@ if (!is_dir($session_save_path)) {
 }
 
 // 3. A ORDEM MAIS IMPORTANTE: Diz ao PHP para usar esta pasta para salvar as sessões.
-session_save_path($session_save_path);
+// Só configura se a sessão ainda não foi iniciada
+if (session_status() == PHP_SESSION_NONE) {
+    session_save_path($session_save_path);
+}
 
 // 4. Define que o cookie da sessão deve durar 1 mês (em segundos)
 // Esta é a parte que já tínhamos tentado, mas que SÓ FUNCIONA em conjunto com a de cima.
-$cookie_lifetime = 60 * 60 * 24 * 30; // 30 dias
-session_set_cookie_params($cookie_lifetime);
+// Só configura se a sessão ainda não foi iniciada
+if (session_status() == PHP_SESSION_NONE) {
+    $cookie_lifetime = 60 * 60 * 24 * 30; // 30 dias
+    session_set_cookie_params($cookie_lifetime);
+}
 
 // =========================================================================
 // FIM DA SOLUÇÃO

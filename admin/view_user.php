@@ -9153,7 +9153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Patient ID:', patientId);
         console.log('URL:', `api/routine_crud.php?action=list_missions&patient_id=${patientId}`);
         
-        fetch(`api/routine_crud_test.php?action=list_missions&patient_id=${patientId}`)
+        fetch(`api/routine_crud.php?action=list_missions&patient_id=${patientId}`)
             .then(response => {
                 console.log('Response status:', response.status);
                 console.log('Response headers:', response.headers);
@@ -9347,7 +9347,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Patient ID:', patientId);
         console.log('URL:', `api/routine_crud.php?action=list_exercises&patient_id=${patientId}`);
         
-        fetch(`api/routine_crud_test.php?action=list_exercises&patient_id=${patientId}`)
+        fetch(`api/routine_crud.php?action=list_exercises&patient_id=${patientId}`)
             .then(response => {
                 console.log('Response status:', response.status);
                 console.log('Response headers:', response.headers);
