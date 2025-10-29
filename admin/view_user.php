@@ -1593,7 +1593,6 @@ require_once __DIR__ . '/includes/header.php';
 .details-grid-1-col .dashboard-card .data-item span {
     margin-top: 1px !important;
 }
-
 /* Reduzir altura do contorno dos subcards */
 .details-grid-1-col .dashboard-card .data-item {
     padding: 8px 15px 2px 15px !important; /* top right bottom left - margem de baixo menor */
@@ -2393,7 +2392,6 @@ require_once __DIR__ . '/includes/header.php';
     border-radius: 25px;
     border: 1px solid var(--border-color);
 }
-
 .period-btn {
     padding: 10px 20px;
     border: none;
@@ -3130,7 +3128,6 @@ function updateNavigationButtons() {
         }
     }
 }
-
 function navigateDiary(direction) {
     let newIndex = currentDiaryIndex + direction;
     
@@ -3702,7 +3699,7 @@ function toggleNutrientsRecords() {
                     <div class="improved-bars" id="nutrients-bars">
                             <?php 
                         $display_data = array_slice($last_7_days_data, 0, 7);
-                            foreach ($display_data as $day): 
+                        foreach ($display_data as $day): 
                             // Calcular percentual baseado na meta calórica diária
                             $percentage = $total_daily_calories_goal > 0 ? round(($day['kcal_consumed'] / $total_daily_calories_goal) * 100, 1) : 0;
                             
@@ -3875,7 +3872,6 @@ const nutrientsStats = {
     '90': <?php echo json_encode($nutrients_stats_90 ?? []); ?>,
     'all': <?php echo json_encode($nutrients_stats_all ?? []); ?>
 };
-
 // Sistema de edição inline para metas
 document.addEventListener('DOMContentLoaded', function() {
     const editableValues = document.querySelectorAll('.editable-value');
@@ -4611,7 +4607,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
-
 <!-- ===== ANÁLISE DE FEEDBACK - DADOS SUBJETIVOS ===== -->
 <div id="tab-feedback_analysis" class="tab-content">
     <div class="feedback-analysis-container">
@@ -5403,7 +5398,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
-
 <!-- Card de Medidas dentro da aba Progresso -->
 <div id="tab-progress" class="tab-content">
     <div class="dashboard-card">
@@ -5623,6 +5617,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <label for="mission-icon" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Ícone (nome do ícone)</label>
                     <input type="text" id="mission-icon" name="mission_icon" placeholder="Ex: leaf, water-drop, heart-pulse" style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
                     <small style="color: var(--secondary-text-color); display: block; margin-top: 4px;">Deixe em branco para usar ícone padrão</small>
+                    <div id="mission-icon-picker" style="margin-top:10px; display:grid; grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); gap:8px;">
+                        <!-- Ícones serão injetados via JS -->
+                    </div>
                 </div>
                 
                 <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
@@ -6156,7 +6153,6 @@ function updateWeeklyTable(data) {
         tbody.appendChild(row);
     });
 }
-
 // Função para atualizar gráfico semanal
 function updateWeeklyChart(data) {
     const ctx = document.getElementById('weeklyChart');
@@ -6915,7 +6911,6 @@ function updateWeeklyAnalysis() {
     updateWeeklyChart(data, metric);
     updateWeeklyTable(data, metric);
 }
-
 function generateWeeklyAnalysisData(metric, period) {
     // Dados simulados - em produção, fazer requisição AJAX
     const data = {
@@ -7686,7 +7681,6 @@ function getFeedbackLabel(chartName) {
     font-weight: 500;
 }
 </style>
-
 <!-- Modal de Galeria Completa -->
 <div id="galleryModal" class="gallery-modal">
     <div class="gallery-modal-content">
@@ -8479,7 +8473,6 @@ function changeHydrationPeriod(days) {
         loadHydrationData(days);
     }
 }
-
 function changeNutrientsPeriod(days) {
     // Atualizar botões ativos
     document.querySelectorAll('.period-buttons .period-btn').forEach(btn => {
@@ -8786,7 +8779,6 @@ function resetPeriodButtons() {
         loadNutrientsData(7);
     }
 }
-
 // Inicializar layout correto quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar gráfico de hidratação com 7 dias
@@ -9338,60 +9330,73 @@ document.addEventListener('DOMContentLoaded', function() {
     // Renderizar tabela de missões
     function renderMissionsTable(missions) {
         const tbody = document.querySelector('#missions-admin-table tbody');
-        if (!tbody) return;
+        const cardsContainer = document.getElementById('missions-cards');
+        if (!tbody && !cardsContainer) return;
         
-        tbody.innerHTML = '';
+        if (tbody) tbody.innerHTML = '';
+        if (cardsContainer) cardsContainer.innerHTML = '';
         
         if (missions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--secondary-text-color); padding: 20px;">Nenhuma missão cadastrada</td></tr>';
+            if (tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--secondary-text-color); padding: 20px;">Nenhuma missão cadastrada</td></tr>';
+            if (cardsContainer) cardsContainer.innerHTML = '<p style="color: var(--secondary-text-color); text-align: center; padding: 12px;">Nenhuma missão cadastrada</p>';
             return;
         }
         
         missions.forEach(mission => {
-            const row = document.createElement('tr');
-            
-            const typeLabel = mission.mission_type === 'binary' ? 'Sim/Não' : 'Com Duração';
-            const durationInfo = mission.default_duration_minutes 
-                ? ` (${mission.default_duration_minutes}min padrão)` 
-                : '';
-            
-            row.innerHTML = `
-                <td>
-                    <div class="mission-table-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
-                        </svg>
-                    </div>
-                </td>
-                <td>
-                    <strong>${mission.name}</strong>
-                    ${mission.description ? `<br><small style="color: var(--secondary-text-color);">${mission.description}</small>` : ''}
-                </td>
-                <td>
-                    <span class="mission-type-badge">${typeLabel}${durationInfo}</span>
-                </td>
-                <td>
-                    <div class="mission-table-actions">
-                        <button class="action-btn" onclick="editMission(${mission.id})" title="Editar">
+            const typeLabel = mission.mission_type === 'binary' ? 'Sim/Não' : 'Exercício';
+            const durationInfo = mission.default_duration_minutes ? `${mission.default_duration_minutes}min padrão` : '';
+
+            if (tbody) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="mission-table-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
                             </svg>
-                        </button>
-                        <button class="action-btn delete" onclick="deleteMission(${mission.id}, '${mission.name.replace(/'/g, "\\'")}')" title="Excluir">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="3 6 5 6 21 6"/>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                <line x1="10" y1="11" x2="10" y2="17"/>
-                                <line x1="14" y1="11" x2="14" y2="17"/>
-                            </svg>
-                        </button>
+                        </div>
+                    </td>
+                    <td>
+                        <strong>${mission.name}</strong>
+                        ${mission.description ? `<br><small style=\"color: var(--secondary-text-color);\">${mission.description}</small>` : ''}
+                    </td>
+                    <td>
+                        <span class="mission-type-badge">${typeLabel}${durationInfo ? ` (${durationInfo})` : ''}</span>
+                    </td>
+                    <td>
+                        <div class="mission-table-actions">
+                            <button class="action-btn" onclick="editMission(${mission.id})" title="Editar">✏️</button>
+                            <button class="action-btn delete" onclick="deleteMission(${mission.id}, '${mission.name.replace(/'/g, "\\'")}')" title="Excluir">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+
+            if (cardsContainer) {
+                const card = document.createElement('div');
+                const iconClass = mission.icon_class ? `fas ${mission.icon_class}` : 'fas fa-clipboard-check';
+                card.className = 'diary-meal-card';
+                card.innerHTML = `
+                    <div class="diary-meal-header">
+                        <div class="diary-meal-icon">
+                            <i class="${iconClass}"></i>
+                        </div>
+                        <div class="diary-meal-info">
+                            <h5>${mission.name}</h5>
+                            <span class="diary-meal-totals">
+                                ${typeLabel}${durationInfo ? ` • ${durationInfo}` : ''}
+                            </span>
+                        </div>
+                        <div style="margin-left:auto; display:flex; gap:8px;">
+                            <button class="btn btn-secondary" onclick="editMission(${mission.id})" type="button">Editar</button>
+                            <button class="btn btn-danger" onclick="deleteMission(${mission.id}, '${mission.name.replace(/'/g, "\\'")}')" type="button">Excluir</button>
+                        </div>
                     </div>
-                </td>
-            `;
-            
-            tbody.appendChild(row);
+                `;
+                cardsContainer.appendChild(card);
+            }
         });
     }
     
@@ -9409,6 +9414,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Mostrar modal
             missionModal.style.display = 'flex';
+            initMissionIconPicker();
         });
     }
     
@@ -9478,6 +9484,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Erro ao salvar missão');
             });
         });
+    }
+
+    // Inicializar grade de ícones do modal
+    function initMissionIconPicker(selected = '') {
+        const picker = document.getElementById('mission-icon-picker');
+        if (!picker) return;
+        const icons = [
+            'fa-dumbbell','fa-running','fa-bicycle','fa-walking','fa-heart','fa-heartbeat','fa-fire',
+            'fa-apple-alt','fa-seedling','fa-leaf','fa-carrot','fa-utensils','fa-water','fa-tint',
+            'fa-bed','fa-moon','fa-sun','fa-clock','fa-check-circle','fa-clipboard-check','fa-weight',
+            'fa-brain','fa-spa','fa-yin-yang','fa-meditation','fa-bolt'
+        ];
+        picker.innerHTML = '';
+        icons.forEach(ic => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.style.cssText = 'background: var(--glass-bg); border:1px solid var(--border-color); border-radius:8px; padding:8px; cursor:pointer;';
+            btn.innerHTML = `<i class="fas ${ic}" style="font-size:18px;"></i>`;
+            if (selected && selected === ic) btn.style.outline = '2px solid var(--accent-orange)';
+            btn.addEventListener('click', () => {
+                document.getElementById('mission-icon').value = ic;
+                // destacar seleção
+                Array.from(picker.children).forEach(c => c.style.outline = 'none');
+                btn.style.outline = '2px solid var(--accent-orange)';
+            });
+            picker.appendChild(btn);
+        });
+    }
+
+    // Expor funções globais de edição/remoção para usar nos cards
+    window.editMission = function(id) {
+        if (!window.routineItemsData) return;
+        const mission = window.routineItemsData.find(m => m.id === id);
+        if (!mission) return;
+        document.getElementById('mission-id').value = mission.id;
+        document.getElementById('mission-name').value = mission.name || mission.title || '';
+        document.getElementById('mission-type').value = mission.is_exercise == 1 || mission.mission_type === 'duration' ? 'duration' : 'binary';
+        document.getElementById('mission-icon').value = (mission.icon_class || '').replace('fas ','').trim();
+        document.querySelector('#mission-modal .modal-header h3').textContent = 'Editar Missão';
+        missionModal.style.display = 'flex';
+        initMissionIconPicker(document.getElementById('mission-icon').value);
     }
     
     // Fechar modal ao clicar fora
@@ -9566,7 +9613,6 @@ document.addEventListener('DOMContentLoaded', function() {
             tbody.appendChild(row);
         });
     }
-    
     // Funções de exercícios movidas para escopo global
     
     // Salvar exercício
@@ -10345,7 +10391,6 @@ function updateSleepInfo(daySleep) {
         </div>
     `;
 }
-
 // Atualizar resumo da rotina
 function updateRoutineSummary() {
     const today = new Date().toISOString().split('T')[0];
