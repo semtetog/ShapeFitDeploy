@@ -8872,97 +8872,89 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!sliderTrack) return;
         
         const today = new Date();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
+        const daysToShow = 7; // Mostrar 7 dias
         
-        // Limpar calendário
-        calendarContainer.innerHTML = '';
+        let sliderHTML = '';
         
-        // Criar grid do calendário
-        const calendarGrid = document.createElement('div');
-        calendarGrid.className = 'routine-calendar-grid';
-        
-        // Obter primeiro e último dia do mês
-        const firstDay = new Date(currentYear, currentMonth, 1);
-        const lastDay = new Date(currentYear, currentMonth + 1, 0);
-        
-        // Dias da semana
-        const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-        
-        // Adicionar cabeçalhos dos dias da semana
-        dayNames.forEach(dayName => {
-            const dayHeader = document.createElement('div');
-            dayHeader.style.textAlign = 'center';
-            dayHeader.style.color = 'var(--secondary-text-color)';
-            dayHeader.style.fontSize = '0.8rem';
-            dayHeader.style.fontWeight = '600';
-            dayHeader.style.marginBottom = '8px';
-            dayHeader.textContent = dayName;
-            calendarGrid.appendChild(dayHeader);
-        });
-        
-        // Adicionar células vazias para os dias antes do primeiro dia do mês
-        const firstDayOfWeek = firstDay.getDay();
-        for (let i = 0; i < firstDayOfWeek; i++) {
-            const emptyCell = document.createElement('div');
-            calendarGrid.appendChild(emptyCell);
+        for (let i = daysToShow - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            
+            // Verificar se tem dados
+            const hasData = routineLogData.some(log => log.date === dateStr) || 
+                           exerciseData.some(ex => ex.updated_at.startsWith(dateStr)) ||
+                           sleepData.some(sleep => sleep.date === dateStr);
+            
+            const isToday = i === 0;
+            
+            // Formatar data
+            const dayOfWeek = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][date.getDay()];
+            const dayNumber = date.getDate();
+            const monthName = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][date.getMonth()];
+            
+            // Calcular resumo do dia
+            const dayMissions = routineLogData.filter(log => log.date === dateStr && log.is_completed === 1);
+            const dayExercises = exerciseData.filter(ex => ex.updated_at.startsWith(dateStr));
+            const daySleep = sleepData.filter(sleep => sleep.date === dateStr);
+            
+            sliderHTML += `
+                <div class="diary-day-card ${hasData ? 'has-data' : ''} ${isToday ? 'today' : ''}" 
+                     data-date="${dateStr}" 
+                     onclick="selectRoutineDay('${dateStr}')">
+                    
+                    <div class="diary-day-summary" style="display: none;">
+                        <div class="diary-summary-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>${dayMissions.length} missões</span>
+                        </div>
+                        <div class="diary-summary-macros">
+                            ${dayExercises.length} exercícios • ${daySleep.length > 0 ? daySleep[0].hours.toFixed(1) + 'h sono' : 'Sem sono'}
+                        </div>
+                    </div>
+                    
+                    <div class="diary-day-meals">
+                        ${hasData ? `
+                            <div class="diary-day-content">
+                                <div class="diary-day-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="diary-day-info">
+                                    <div class="diary-day-title">Rotina Registrada</div>
+                                    <div class="diary-day-subtitle">${dayMissions.length} missões concluídas</div>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="diary-empty-state">
+                                <i class="fas fa-calendar-day"></i>
+                                <p>Nenhum registro neste dia</p>
+                            </div>
+                        `}
+                    </div>
+                    
+                    <div class="diary-day-footer">
+                        <div class="diary-day-date">
+                            <span class="diary-day-number">${dayNumber}</span>
+                            <span class="diary-day-month">${monthName}</span>
+                        </div>
+                        <div class="diary-day-weekday">${dayOfWeek}</div>
+                    </div>
+                </div>
+            `;
         }
         
-        // Adicionar os dias do mês
-        for (let day = 1; day <= lastDay.getDate(); day++) {
-            const dayDate = new Date(currentYear, currentMonth, day);
-            const dayString = dayDate.toISOString().split('T')[0];
-            
-            const dayCell = document.createElement('div');
-            dayCell.className = 'routine-calendar-day';
-            dayCell.dataset.date = dayString;
-            
-            // Verificar se há dados para este dia
-            const hasData = routineLogData.some(log => log.date === dayString) ||
-                           exerciseData.some(ex => ex.updated_at.startsWith(dayString)) ||
-                           sleepData.some(sl => sl.date === dayString);
-            
-            if (hasData) {
-                dayCell.classList.add('has-data');
-            }
-            
-            // Marcar dia atual
-            if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
-                dayCell.classList.add('today');
-            }
-            
-            // Número do dia
-            const dayNumber = document.createElement('div');
-            dayNumber.className = 'routine-calendar-day-number';
-            dayNumber.textContent = day;
-            
-            dayCell.appendChild(dayNumber);
-            
-            // Evento de clique
-            dayCell.addEventListener('click', function() {
-                // Remover seleção anterior
-                document.querySelectorAll('.routine-calendar-day').forEach(d => {
-                    d.classList.remove('selected');
-                });
-                
-                // Adicionar seleção ao dia clicado
-                this.classList.add('selected');
-                selectedRoutineDay = this.dataset.date;
-                
-                // Exibir detalhes do dia
-                showRoutineDayDetails(selectedRoutineDay);
-            });
-            
-            calendarGrid.appendChild(dayCell);
-        }
+        sliderTrack.innerHTML = sliderHTML;
         
-        calendarContainer.appendChild(calendarGrid);
+        // Atualizar navegação
+        updateRoutineNavigation();
         
         // Selecionar o dia atual automaticamente
         const todayString = today.toISOString().split('T')[0];
-        const todayCell = document.querySelector(`.routine-calendar-day[data-date="${todayString}"]`);
-        if (todayCell) {
-            todayCell.click();
+        const todayCard = document.querySelector(`.diary-day-card[data-date="${todayString}"]`);
+        if (todayCard) {
+            todayCard.classList.add('selected');
+            selectedRoutineDay = todayString;
+            updateRoutineDayDetails(todayString);
         }
     }
     
@@ -9720,6 +9712,46 @@ window.navigateRoutine = function(direction) {
     // Implementar navegação se necessário
     console.log('Navegar rotina:', direction);
 };
+
+// Atualizar navegação da rotina
+function updateRoutineNavigation() {
+    const today = new Date();
+    const prevDate = new Date(today);
+    prevDate.setDate(prevDate.getDate() - 1);
+    const nextDate = new Date(today);
+    nextDate.setDate(nextDate.getDate() + 1);
+    
+    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    
+    const routineYear = document.getElementById('routineYear');
+    const routineDayMonth = document.getElementById('routineDayMonth');
+    const routineWeekday = document.getElementById('routineWeekday');
+    const routinePrevDate = document.getElementById('routinePrevDate');
+    const routineNextDate = document.getElementById('routineNextDate');
+    
+    if (routineYear) routineYear.textContent = today.getFullYear();
+    if (routineDayMonth) routineDayMonth.textContent = `${today.getDate().toString().padStart(2, '0')} ${monthNames[today.getMonth()]}`;
+    if (routineWeekday) routineWeekday.textContent = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][today.getDay()];
+    if (routinePrevDate) routinePrevDate.textContent = `${prevDate.getDate()} ${monthNames[prevDate.getMonth()].toLowerCase()}`;
+    if (routineNextDate) routineNextDate.textContent = `${nextDate.getDate()} ${monthNames[nextDate.getMonth()].toLowerCase()}`;
+}
+
+// Selecionar dia na rotina
+function selectRoutineDay(dateStr) {
+    selectedRoutineDay = dateStr;
+    
+    // Atualizar visual do slider
+    document.querySelectorAll('.diary-day-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    const selectedCard = document.querySelector(`[data-date="${dateStr}"]`);
+    if (selectedCard) {
+        selectedCard.classList.add('selected');
+    }
+    
+    // Atualizar detalhes do dia
+    updateRoutineDayDetails(dateStr);
+}
 </script>
 
 <?php
