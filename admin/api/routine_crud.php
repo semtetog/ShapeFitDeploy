@@ -129,6 +129,78 @@ try {
             echo json_encode(['success' => true, 'data' => $exercises]);
             break;
             
+        case 'get_mission':
+            error_log('Executando get_mission...');
+            $id = intval($_GET['id'] ?? 0);
+            if (!$id) {
+                throw new Exception('ID da missão é obrigatório');
+            }
+            
+            $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
+                           default_for_all_users, user_id_creator
+                    FROM sf_routine_items 
+                    WHERE id = ? AND is_active = 1";
+            
+            error_log('SQL: ' . $sql);
+            error_log('ID da missão: ' . $id);
+            
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                error_log('ERRO ao preparar statement: ' . $conn->error);
+                throw new Exception('Erro ao preparar statement: ' . $conn->error);
+            }
+            
+            $stmt->bind_param('i', $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($row = $result->fetch_assoc()) {
+                error_log('Missão encontrada: ' . print_r($row, true));
+                $stmt->close();
+                echo json_encode(['success' => true, 'data' => $row]);
+            } else {
+                error_log('Missão não encontrada');
+                $stmt->close();
+                throw new Exception('Missão não encontrada');
+            }
+            break;
+            
+        case 'get_exercise':
+            error_log('Executando get_exercise...');
+            $id = intval($_GET['id'] ?? 0);
+            if (!$id) {
+                throw new Exception('ID do exercício é obrigatório');
+            }
+            
+            $sql = "SELECT id, activity_name, completion_date 
+                    FROM sf_user_onboarding_completion 
+                    WHERE id = ? AND user_id = ?";
+            
+            error_log('SQL: ' . $sql);
+            error_log('ID do exercício: ' . $id);
+            error_log('Patient ID: ' . $patient_id);
+            
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                error_log('ERRO ao preparar statement: ' . $conn->error);
+                throw new Exception('Erro ao preparar statement: ' . $conn->error);
+            }
+            
+            $stmt->bind_param('ii', $id, $patient_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($row = $result->fetch_assoc()) {
+                error_log('Exercício encontrado: ' . print_r($row, true));
+                $stmt->close();
+                echo json_encode(['success' => true, 'data' => $row]);
+            } else {
+                error_log('Exercício não encontrado');
+                $stmt->close();
+                throw new Exception('Exercício não encontrado');
+            }
+            break;
+            
         case 'create_mission':
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 throw new Exception('Método não permitido');
