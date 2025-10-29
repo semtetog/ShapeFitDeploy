@@ -932,25 +932,27 @@ require_once __DIR__ . '/includes/header.php';
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3rem 1.5rem;
+    padding: 2rem 1rem;
     background: var(--surface-color);
     border: 1px dashed rgba(255, 255, 255, 0.2);
     border-radius: 16px;
-    gap: 1rem;
+    gap: 0.75rem;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
     margin: 0;
+    min-height: auto;
+    height: auto;
 }
 
 #tab-routine .diary-empty-state i {
-    font-size: 3rem;
+    font-size: 2.5rem;
     color: var(--text-secondary);
     opacity: 0.5;
 }
 
 #tab-routine .diary-empty-state p {
-    font-size: 1.125rem;
+    font-size: 1rem;
     color: var(--text-secondary);
     margin: 0;
     text-align: center;

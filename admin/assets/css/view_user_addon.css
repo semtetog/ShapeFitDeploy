@@ -938,24 +938,26 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1.5rem;
+  padding: 2rem 1rem;
   background: var(--surface-color);
   border: 1px dashed rgba(255, 255, 255, 0.2);
   border-radius: 16px;
-  gap: 1rem;
+  gap: 0.75rem;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  min-height: auto;
+  height: auto;
 }
 
 .diary-empty-state i {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: var(--text-secondary);
   opacity: 0.5;
 }
 
 .diary-empty-state p {
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: var(--text-secondary);
   margin: 0;
   text-align: center;
@@ -1198,7 +1200,7 @@
   }
   
   .diary-empty-state {
-    padding: 2rem 1rem;
+    padding: 1.5rem 0.75rem;
   }
   
   .diary-day-month {
@@ -4304,7 +4306,7 @@
   opacity: 0.8;
 }
  
- / *   C a r d s   d e   c Ã ­ r c u l o   d a   r o t i n a   -   m e s m o   e s t i l o   d o s   o u t r o s   c a r d s   * / 
+ / *   C a r d s   d e   c ï¿½ ï¿½ r c u l o   d a   r o t i n a   -   m e s m o   e s t i l o   d o s   o u t r o s   c a r d s   * / 
  . r o u t i n e - c i r c l e - c a r d   { 
      b a c k g r o u n d :   r g b a ( 2 5 5 ,   2 5 5 ,   2 5 5 ,   0 . 0 5 ) ; 
      b o r d e r :   1 p x   s o l i d   v a r ( - - g l a s s - b o r d e r ) ; 
@@ -4441,7 +4443,8 @@
      b a c k g r o u n d :   r g b a ( 2 4 4 ,   6 7 ,   5 4 ,   0 . 2 ) ; 
      c o l o r :   # F 4 4 3 3 6 ; 
      b o r d e r :   1 p x   s o l i d   r g b a ( 2 4 4 ,   6 7 ,   5 4 ,   0 . 3 ) ; 
- }  
+ } 
+ 
  
 /* Cards de cÃ­rculo da rotina - mesmo estilo dos outros cards */
 .routine-circle-card {
