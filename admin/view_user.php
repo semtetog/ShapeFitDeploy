@@ -4756,8 +4756,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="tab-routine" class="tab-content">
     <div class="routine-container">
         
-        <!-- 1. CARD RESUMO COMPACTO - COPIA EXATA DA HIDRATAÇÃO -->
-        <div class="routine-summary-card">
+        <!-- 1. CARD RESUMO COMPACTO - MESMO ESTILO DA HIDRATAÇÃO E NUTRIENTES -->
+        <div class="hydration-summary-card">
             <div class="summary-main">
                 <div class="summary-icon">
                     <i class="fas fa-tasks"></i>
