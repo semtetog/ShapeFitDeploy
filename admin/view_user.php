@@ -8892,6 +8892,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Calcular resumo do dia - APENAS missões concluídas
             const dayMissions = routineLogData.filter(log => log.date === dateStr && log.is_completed === 1);
+            const dayExercises = exerciseData.filter(ex => ex.updated_at && ex.updated_at.startsWith(dateStr));
             const daySleep = sleepData.filter(sleep => sleep.date === dateStr);
             
             // Gerar conteúdo baseado nos dados reais
@@ -9968,11 +9969,21 @@ window.navigateRoutine = function(direction) {
 function initRoutineCalendar() {
     updateRoutineCards();
     
-    // Atualizar o índice para o último card (dia mais recente)
-    if (routineCards.length > 0) {
-        currentRoutineIndex = routineCards.length - 1;
+    // Buscar o card do dia de HOJE
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    // Procurar o índice do card de hoje
+    let targetIndex = routineCards.length - 1; // Default: último card
+    
+    for (let i = 0; i < routineCards.length; i++) {
+        if (routineCards[i].getAttribute('data-date') === todayStr) {
+            targetIndex = i;
+            break;
+        }
     }
     
+    currentRoutineIndex = targetIndex;
     updateRoutineDisplay();
 }
 
