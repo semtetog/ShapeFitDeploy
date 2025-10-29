@@ -3718,7 +3718,7 @@ const waterStats = {
     '15': <?php echo json_encode($water_stats_15); ?>,
     '30': <?php echo json_encode($water_stats_30); ?>,
     '90': <?php echo json_encode($water_stats_90); ?>,
-    'all': <?php echo json_encode($water_stats_all); ?>
+    'all': <?php echo json_encode($water_stats_all ?? []); ?>
 };
 
 const nutrientsData = <?php echo json_encode($last_7_days_data); ?>;
@@ -3728,8 +3728,8 @@ const nutrientsStats = {
     '7': <?php echo json_encode($nutrients_stats_7); ?>,
     '15': <?php echo json_encode($nutrients_stats_15); ?>,
     '30': <?php echo json_encode($nutrients_stats_30); ?>,
-    '90': <?php echo json_encode($nutrients_stats_90); ?>,
-    'all': <?php echo json_encode($nutrients_stats_all); ?>
+    '90': <?php echo json_encode($nutrients_stats_90 ?? []); ?>,
+    'all': <?php echo json_encode($nutrients_stats_all ?? []); ?>
 };
 
 // Sistema de edição inline para metas
