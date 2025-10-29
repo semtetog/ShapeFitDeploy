@@ -1783,6 +1783,442 @@ require_once __DIR__ . '/includes/header.php';
     padding: 0;
 }
 
+/* ========== CARD DE GERENCIAMENTO DE MISSÕES ========== */
+.routine-missions-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 24px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.routine-missions-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.title-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff6f00, #ff8a00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.title-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-text-color);
+    margin: 0 0 4px 0;
+}
+
+.title-content p {
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+    margin: 0;
+}
+
+.btn-add-mission {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #ff6f00, #ff8a00);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(255, 111, 0, 0.3);
+}
+
+.btn-add-mission:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(255, 111, 0, 0.4);
+}
+
+.btn-add-mission i {
+    font-size: 14px;
+}
+
+.missions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.mission-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.mission-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 111, 0, 0.3);
+}
+
+.mission-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ff6f00, #ff8a00);
+}
+
+.mission-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.mission-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 111, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff6f00;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.mission-info h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin: 0 0 4px 0;
+}
+
+.mission-type {
+    font-size: 0.8rem;
+    color: var(--secondary-text-color);
+    background: rgba(255, 111, 0, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.mission-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.btn-edit, .btn-delete {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-edit {
+    background: rgba(255, 111, 0, 0.1);
+    color: #ff6f00;
+    border: 1px solid rgba(255, 111, 0, 0.2);
+}
+
+.btn-edit:hover {
+    background: rgba(255, 111, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.btn-delete:hover {
+    background: rgba(220, 53, 69, 0.2);
+    transform: translateY(-1px);
+}
+
+.loading-missions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--secondary-text-color);
+    gap: 12px;
+}
+
+.loading-missions i {
+    font-size: 24px;
+    color: #ff6f00;
+}
+
+.empty-missions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--secondary-text-color);
+    text-align: center;
+}
+
+.empty-missions i {
+    font-size: 48px;
+    color: #ff6f00;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-missions h4 {
+    font-size: 1.2rem;
+    margin: 0 0 8px 0;
+    color: var(--primary-text-color);
+}
+
+.empty-missions p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* ========== MODAL DE MISSÕES ========== */
+#missionModal .modal-header {
+    padding: 24px 24px 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#missionModal .modal-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+#missionModal .title-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff6f00, #ff8a00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+#missionModal .title-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-text-color);
+    margin: 0 0 4px 0;
+}
+
+#missionModal .title-content p {
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+    margin: 0;
+}
+
+#missionModal .modal-body {
+    padding: 24px;
+}
+
+#missionModal .form-group {
+    margin-bottom: 24px;
+}
+
+#missionModal .form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+#missionModal .form-group input,
+#missionModal .form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--primary-text-color);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+#missionModal .form-group input:focus,
+#missionModal .form-group select:focus {
+    outline: none;
+    border-color: #ff6f00;
+    box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.1);
+}
+
+#missionModal .icon-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 8px;
+    background: var(--glass-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.icon-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: var(--card-bg);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #ff6f00;
+    font-size: 20px;
+}
+
+.icon-option:hover {
+    background: rgba(255, 111, 0, 0.1);
+    border-color: rgba(255, 111, 0, 0.3);
+    transform: scale(1.05);
+}
+
+.icon-option.selected {
+    background: rgba(255, 111, 0, 0.2);
+    border-color: #ff6f00;
+    transform: scale(1.1);
+}
+
+#missionModal .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+#missionModal .btn-cancel,
+#missionModal .btn-save {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#missionModal .btn-cancel {
+    background: var(--glass-bg);
+    color: var(--secondary-text-color);
+    border: 1px solid var(--border-color);
+}
+
+#missionModal .btn-cancel:hover {
+    background: var(--border-color);
+    transform: translateY(-1px);
+}
+
+#missionModal .btn-save {
+    background: linear-gradient(135deg, #ff6f00, #ff8a00);
+    color: white;
+    box-shadow: 0 2px 10px rgba(255, 111, 0, 0.3);
+}
+
+#missionModal .btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(255, 111, 0, 0.4);
+}
+
+#missionModal .btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .card-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+    
+    .card-title {
+        justify-content: center;
+    }
+    
+    .missions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mission-actions {
+        justify-content: center;
+    }
+    
+    #missionModal .modal-title {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    #missionModal .form-actions {
+        flex-direction: column;
+    }
+    
+    #missionModal .btn-cancel,
+    #missionModal .btn-save {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 .routine-summary-card {
     background: var(--card-bg);
     border-radius: 12px;
@@ -5589,77 +6025,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     </div>
 
-        <!-- Modal para Adicionar/Editar Missão -->
-<div id="mission-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
-    <div class="modal-content" style="background: var(--card-bg); border-radius: 12px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color);">
-        <div class="modal-header" style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-            <h3 id="mission-modal-title" style="margin: 0; color: var(--primary-text-color);">Adicionar Missão</h3>
-            <button class="modal-close" onclick="closeMissionModal()" style="background: none; border: none; font-size: 24px; color: var(--secondary-text-color); cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;">&times;</button>
-                </div>
-        <div class="modal-body" style="padding: 20px;">
-            <form id="mission-form">
-                <input type="hidden" id="mission-id" name="mission_id">
-                
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="mission-name" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Nome da Missão</label>
-                    <input type="text" id="mission-name" name="mission_name" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
-                        </div>
-                
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="mission-type" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Tipo</label>
-                    <select id="mission-type" name="mission_type" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
-                        <option value="binary">Sim/Não (Binária)</option>
-                        <option value="duration">Com Duração</option>
-                    </select>
-                    </div>
-                
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="mission-icon" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Ícone (nome do ícone)</label>
-                    <input type="text" id="mission-icon" name="mission_icon" placeholder="Ex: leaf, water-drop, heart-pulse" style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
-                    <small style="color: var(--secondary-text-color); display: block; margin-top: 4px;">Deixe em branco para usar ícone padrão</small>
-                    <div id="mission-icon-picker" style="margin-top:10px; display:grid; grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); gap:8px;">
-                        <!-- Ícones serão injetados via JS -->
-                    </div>
-                </div>
-                
-                <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
-                    <button type="button" class="btn btn-secondary" onclick="closeMissionModal()" style="padding: 10px 20px;">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Salvar</button>
-                </div>
-            </form>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Modal para Adicionar/Editar Exercício -->
-<div id="exercise-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
-    <div class="modal-content" style="background: var(--card-bg); border-radius: 12px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color);">
-        <div class="modal-header" style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-            <h3 id="exercise-modal-title" style="margin: 0; color: var(--primary-text-color);">Adicionar Exercício</h3>
-            <button class="modal-close" onclick="closeExerciseModal()" style="background: none; border: none; font-size: 24px; color: var(--secondary-text-color); cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;">&times;</button>
-                    </div>
-        <div class="modal-body" style="padding: 20px;">
-            <form id="exercise-form">
-                <input type="hidden" id="exercise-id" name="exercise_id">
-                
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="exercise-name" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Nome do Exercício</label>
-                    <input type="text" id="exercise-name" name="exercise_name" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
-                    </div>
-                
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="exercise-date" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Data de Cadastro</label>
-                    <input type="date" id="exercise-date" name="exercise_date" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
-                </div>
-                
-                <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
-                    <button type="button" class="btn btn-secondary" onclick="closeExerciseModal()" style="padding: 10px 20px;">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Salvar</button>
-                        </div>
-            </form>
-                    </div>
-                </div>
-                    </div>
 
 <!-- Modal do Calendário da Rotina (idêntico ao da aba Diário) -->
 <div id="routineCalendarModal" class="custom-modal">
@@ -5722,7 +6087,92 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+        <!-- 2. CARD DE GERENCIAMENTO DE MISSÕES -->
+        <div class="routine-missions-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="title-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="title-content">
+                        <h3>Missões do Usuário</h3>
+                        <p>Gerencie as missões de rotina personalizadas para este paciente</p>
+                    </div>
+                </div>
+                <button class="btn-add-mission" onclick="openMissionModal()">
+                    <i class="fas fa-plus"></i>
+                    <span>Adicionar Missão</span>
+                </button>
+            </div>
+            
+            <div class="missions-grid" id="missions-container">
+                <!-- Missões serão carregadas aqui via JavaScript -->
+                <div class="loading-missions">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Carregando missões...</span>
+                </div>
+            </div>
+        </div>
 
+    </div>
+</div>
+
+<!-- Modal de Gerenciamento de Missões -->
+<div id="missionModal" class="custom-modal" style="display: none;">
+    <div class="custom-modal-overlay" onclick="closeMissionModal()"></div>
+    <div class="diary-calendar-wrapper">
+        <button class="calendar-btn-close" onclick="closeMissionModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="modal-header">
+            <div class="modal-title">
+                <div class="title-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="title-content">
+                    <h3 id="missionModalTitle">Adicionar Nova Missão</h3>
+                    <p>Configure uma missão personalizada para este paciente</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-body">
+            <form id="missionForm">
+                <input type="hidden" id="missionId" name="mission_id">
+                
+                <div class="form-group">
+                    <label for="missionName">Nome da Missão</label>
+                    <input type="text" id="missionName" name="mission_name" placeholder="Ex: Beber 2L de água por dia" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="missionType">Tipo de Missão</label>
+                    <select id="missionType" name="mission_type" required>
+                        <option value="binary">Sim/Não (Binária)</option>
+                        <option value="duration">Com Duração (Exercício)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Escolha um Ícone</label>
+                    <div class="icon-picker" id="iconPicker">
+                        <!-- Ícones serão carregados via JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeMissionModal()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        <span id="saveButtonText">Salvar Missão</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
