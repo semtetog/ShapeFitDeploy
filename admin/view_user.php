@@ -933,13 +933,14 @@ require_once __DIR__ . '/includes/header.php';
     align-items: center;
     justify-content: center;
     padding: 3rem 1.5rem;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--surface-color);
     border: 1px dashed rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     gap: 1rem;
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
-    margin: 1.5rem;
+    margin: 0;
 }
 
 #tab-routine .diary-empty-state i {
