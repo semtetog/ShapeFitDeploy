@@ -671,13 +671,15 @@ while ($row = $routine_exercise_result->fetch_assoc()) {
 }
 $stmt_routine_exercise->close();
 
-// Buscar dados de rotina (missões) dos últimos 30 dias
+// Buscar dados de rotina (missões) dos últimos 30 dias com JOIN para pegar título e ícone
 $routine_log_data = [];
 $stmt_routine_log = $conn->prepare("
-    SELECT date, routine_item_id, is_completed, exercise_duration_minutes
-    FROM sf_user_routine_log 
-    WHERE user_id = ? AND date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-    ORDER BY date DESC
+    SELECT rl.date, rl.routine_item_id, rl.is_completed, rl.exercise_duration_minutes,
+           ri.title, ri.icon_class, ri.is_exercise
+    FROM sf_user_routine_log rl
+    LEFT JOIN sf_routine_items ri ON rl.routine_item_id = ri.id
+    WHERE rl.user_id = ? AND rl.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    ORDER BY rl.date DESC
 ");
 $stmt_routine_log->bind_param("i", $user_id);
 $stmt_routine_log->execute();
@@ -9024,7 +9026,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Verificar se tem dados
             const hasData = routineLogData.some(log => log.date === dateStr) || 
-                           exerciseData.some(ex => ex.completion_date === dateStr) ||
                            sleepData.some(sleep => sleep.date === dateStr);
             
             const isToday = i === 0;
@@ -9034,46 +9035,31 @@ document.addEventListener('DOMContentLoaded', function() {
             const dayNumber = date.getDate();
             const monthName = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][date.getMonth()];
             
-            // Calcular resumo do dia
+            // Calcular resumo do dia - APENAS missões concluídas
             const dayMissions = routineLogData.filter(log => log.date === dateStr && log.is_completed === 1);
-            const dayExercises = exerciseData.filter(ex => ex.completion_date === dateStr);
             const daySleep = sleepData.filter(sleep => sleep.date === dateStr);
             
             // Gerar conteúdo baseado nos dados reais
             let contentHTML = '';
             if (hasData) {
-                // Missões concluídas
+                // Missões concluídas - mostrar cada uma individualmente
                 if (dayMissions.length > 0) {
-                    contentHTML += `
-                        <div class="diary-meal-card">
-                            <div class="diary-meal-header">
-                                <div class="diary-meal-icon">
-                                    <i class="fas fa-check-circle"></i>
-                                </div>
-                                <div class="diary-meal-info">
-                                    <h5>Missões Concluídas</h5>
-                                    <span class="diary-meal-totals">
-                                        <strong>${dayMissions.length} missões</strong> concluídas
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // Exercícios realizados
-                if (dayExercises.length > 0) {
-                    dayExercises.forEach(exercise => {
+                    dayMissions.forEach(mission => {
+                        const duration = mission.exercise_duration_minutes || 0;
+                        const hours = Math.floor(duration / 60);
+                        const minutes = duration % 60;
+                        const timeStr = duration > 0 ? (hours > 0 ? `${hours}h${minutes > 0 ? minutes.toString().padStart(2, '0') : ''}` : `${minutes}min`) : '';
+                        
                         contentHTML += `
                             <div class="diary-meal-card">
                                 <div class="diary-meal-header">
                                     <div class="diary-meal-icon">
-                                        <i class="fas fa-dumbbell"></i>
+                                        <i class="${mission.icon_class}"></i>
                                     </div>
                                     <div class="diary-meal-info">
-                                        <h5>${exercise.activity_name}</h5>
+                                        <h5>${mission.title}</h5>
                                         <span class="diary-meal-totals">
-                                            <strong>Exercício</strong> realizado
+                                            <strong>${timeStr ? timeStr + ' de duração' : 'Concluída'}</strong>
                                         </span>
                                     </div>
                                 </div>
