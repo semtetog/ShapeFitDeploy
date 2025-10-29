@@ -822,6 +822,10 @@ require_once __DIR__ . '/includes/header.php';
     contain: layout style paint;
     min-height: auto;
     height: auto;
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
 }
 
 #tab-routine .diary-slider-wrapper {
