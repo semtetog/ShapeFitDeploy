@@ -8874,7 +8874,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let sliderHTML = '';
         
         for (let i = daysToShow - 1; i >= 0; i--) {
-            const date = new Date(currentRoutineDate);
+            const today = new Date();
+            const date = new Date(today);
             date.setDate(date.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
             
@@ -8980,16 +8981,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Atualizar navegação
         updateRoutineNavigation();
         
-        // Selecionar o dia atual automaticamente (primeiro dia da semana)
-        const firstDayString = new Date(currentRoutineDate);
-        firstDayString.setDate(firstDayString.getDate() - 6);
-        const firstDayStr = firstDayString.toISOString().split('T')[0];
-        const firstDayCard = document.querySelector(`.diary-day-card[data-date="${firstDayStr}"]`);
-        console.log('Card do primeiro dia encontrado:', firstDayCard);
-        if (firstDayCard) {
-            firstDayCard.classList.add('selected');
-            selectedRoutineDay = firstDayStr;
-            updateRoutineDayDetails(firstDayStr);
+        // Selecionar o dia atual automaticamente (hoje)
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        const todayCard = document.querySelector(`.diary-day-card[data-date="${todayStr}"]`);
+        console.log('Card do dia atual encontrado:', todayCard);
+        if (todayCard) {
+            todayCard.classList.add('selected');
+            selectedRoutineDay = todayStr;
+            updateRoutineDayDetails(todayStr);
         }
         console.log('=== GENERATE_ROUTINE_SLIDER FINALIZADO ===');
     };
