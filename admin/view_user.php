@@ -9004,7 +9004,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Gerar slider de dias da rotina (igual ao da aba Diário)
-    function generateRoutineSlider() {
+    window.generateRoutineSlider = function() {
         console.log('=== GENERATE_ROUTINE_SLIDER INICIADO ===');
         const sliderTrack = document.getElementById('routineSliderTrack');
         console.log('Slider track encontrado:', sliderTrack);
@@ -9157,7 +9157,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateRoutineDayDetails(firstDayStr);
         }
         console.log('=== GENERATE_ROUTINE_SLIDER FINALIZADO ===');
-    }
+    };
     
     // Função para exibir detalhes do dia selecionado
     function showRoutineDayDetails(dateString) {
@@ -9972,11 +9972,11 @@ let currentRoutineDate = new Date();
 window.navigateRoutine = function(direction) {
     console.log('Navegar rotina:', direction);
     
-    // Atualizar a data atual
-    currentRoutineDate.setDate(currentRoutineDate.getDate() + (direction * 7));
+    // Atualizar a data atual (navegar por dias, não semanas)
+    currentRoutineDate.setDate(currentRoutineDate.getDate() + direction);
     
     // Regenerar o slider com a nova data
-    generateRoutineSlider();
+    window.generateRoutineSlider();
     
     // Atualizar a navegação
     updateRoutineNavigation();
@@ -9985,9 +9985,9 @@ window.navigateRoutine = function(direction) {
 // Atualizar navegação da rotina
 function updateRoutineNavigation() {
     const prevDate = new Date(currentRoutineDate);
-    prevDate.setDate(prevDate.getDate() - 7);
+    prevDate.setDate(prevDate.getDate() - 1);
     const nextDate = new Date(currentRoutineDate);
-    nextDate.setDate(nextDate.getDate() + 7);
+    nextDate.setDate(nextDate.getDate() + 1);
     
     const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     
