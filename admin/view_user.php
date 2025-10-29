@@ -3506,22 +3506,14 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
 <script>
-// Sistema de navegação do diário
-let diaryCards = document.querySelectorAll('#diarySliderTrack .diary-day-card');
-let currentDiaryIndex = diaryCards.findIndex(card => {
-    return card.getAttribute('data-date') === new Date().toISOString().slice(0, 10);
-});
-if (currentDiaryIndex === -1) currentDiaryIndex = diaryCards.length - 1;
+// Variáveis globais
+let diaryCards = [];
+let currentDiaryIndex = 0;
 let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
-
-// Exibir o card inicial ao carregar
-diaryCards.forEach((card, index) => {
-    card.classList.toggle('active', index === currentDiaryIndex);
-});
 
 // Função para atualizar referência aos cards
 function updateDiaryCards() {
-    diaryCards = document.querySelectorAll('#diarySliderTrack .diary-day-card');
+    diaryCards = Array.from(document.querySelectorAll('#diarySliderTrack .diary-day-card'));
 }
 
 function updateDiaryDisplay() {
@@ -3881,18 +3873,24 @@ function initDiary() {
 // Aguardar DOM estar pronto antes de inicializar
 document.addEventListener("DOMContentLoaded", () => {
     // Atualizar referência aos cards após DOM estar pronto
-    diaryCards = document.querySelectorAll('#diarySliderTrack .diary-day-card');
+    diaryCards = Array.from(document.querySelectorAll('#diarySliderTrack .diary-day-card'));
     
-    // Recalcular currentDiaryIndex com os cards atualizados
+    // Determina o índice do dia atual
     currentDiaryIndex = diaryCards.findIndex(card => {
         return card.getAttribute('data-date') === new Date().toISOString().slice(0, 10);
     });
     if (currentDiaryIndex === -1) currentDiaryIndex = diaryCards.length - 1;
     
-    // Exibir o card inicial ao carregar
-    diaryCards.forEach((card, index) => {
-        card.classList.toggle('active', index === currentDiaryIndex);
-    });
+    // Exibe apenas o card ativo
+    diaryCards.forEach((card, i) => card.classList.toggle('active', i === currentDiaryIndex));
+    
+    // Protege updateDiaryDisplay
+    const diaryTrack = document.getElementById('diarySliderTrack');
+    if (diaryTrack) updateDiaryDisplay();
+    
+    // Corrige event listeners
+    const calendarButton = document.getElementById('calendarButton');
+    if (calendarButton) calendarButton.addEventListener('click', openCalendar);
     
     // Inicializar se a aba já estiver ativa
     if (document.getElementById('tab-diary').classList.contains('active')) {
@@ -3901,12 +3899,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Observar mudanças de aba
-const tabLinks = document.querySelectorAll('.tab-link');
-tabLinks.forEach(link => {
-    link.addEventListener('click', function() {
-        if (this.getAttribute('data-tab') === 'diary') {
-            setTimeout(initDiary, 100);
-        }
+document.addEventListener("DOMContentLoaded", () => {
+    const tabLinks = document.querySelectorAll('.tab-link');
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (this.getAttribute('data-tab') === 'diary') {
+                setTimeout(initDiary, 100);
+            }
+        });
     });
 });
 </script>
