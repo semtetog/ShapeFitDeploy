@@ -5477,7 +5477,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
 
-        <!-- 2. CALENDÁRIO IDÊNTICO AO DIÁRIO (MAS MOSTRANDO MISSÕES) -->
+        <!-- 2. CALENDÁRIO EXATAMENTE IGUAL AO DIÁRIO (MAS COM MISSÕES) -->
         <div class="diary-slider-container">
             <div class="diary-header-redesign">
                 <!-- Ano no topo -->
@@ -5532,13 +5532,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     $all_dates = array_reverse($all_dates);
                     
                     foreach ($all_dates as $date): 
-                        // Buscar missões concluídas para este dia
-                        $day_missions = [];
-                        foreach ($routine_log_data as $log) {
-                            if ($log['date'] === $date && $log['is_completed'] == 1) {
-                                $day_missions[] = $log;
-                            }
-                        }
+                        // Buscar missões do dia usando a mesma lógica do routine.php
+                        $day_missions = getRoutineItemsForUser($conn, $user_id, $date, $user_profile);
+                        $completed_missions = array_filter($day_missions, function($mission) {
+                            return $mission['completion_status'] == 1;
+                        });
                         
                         // Formatar data por extenso
                         $timestamp = strtotime($date);
@@ -5552,21 +5550,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="diary-day-summary" style="display: none;">
                             <div class="diary-summary-item">
                                 <i class="fas fa-check-circle"></i>
-                                <span><?php echo count($day_missions); ?> missões</span>
+                                <span><?php echo count($completed_missions); ?> missões</span>
                             </div>
                             <div class="diary-summary-macros">
-                                <?php echo count($day_missions); ?> concluídas
+                                <?php echo count($completed_missions); ?> concluídas
                             </div>
                         </div>
                         
                         <div class="diary-day-meals">
-                            <?php if (empty($day_missions)): ?>
+                            <?php if (empty($completed_missions)): ?>
                                 <div class="diary-empty-state">
                                     <i class="fas fa-calendar-day"></i>
                                     <p>Nenhum registro neste dia</p>
                                 </div>
                             <?php else: ?>
-                                <?php foreach ($day_missions as $mission): ?>
+                                <?php foreach ($completed_missions as $mission): ?>
                                     <div class="diary-meal-card">
                                         <div class="diary-meal-header">
                                             <div class="diary-meal-icon">
@@ -5575,7 +5573,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <div class="diary-meal-info">
                                                 <h5><?php echo htmlspecialchars($mission['title']); ?></h5>
                                                 <span class="diary-meal-totals">
-                                                    <strong><?php echo $mission['exercise_duration_minutes'] ? $mission['exercise_duration_minutes'] . 'min' : 'Concluída'; ?></strong>
+                                                    <strong><?php echo isset($mission['duration_minutes']) && $mission['duration_minutes'] ? $mission['duration_minutes'] . 'min' : 'Concluída'; ?></strong>
                                                 </span>
                                             </div>
                                         </div>
