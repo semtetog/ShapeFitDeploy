@@ -1076,9 +1076,27 @@ function updateMacros() {
     }
 }
 
+// Função auxiliar para extrair ID numérico de um ID que pode ter prefixo
+function extractNumericId(id) {
+    if (typeof id === 'string' && id.includes('_')) {
+        const parts = id.split('_');
+        const numeric = parseInt(parts[parts.length - 1]);
+        return isNaN(numeric) || numeric <= 0 ? null : numeric;
+    }
+    const numeric = parseInt(id);
+    return isNaN(numeric) || numeric <= 0 ? null : numeric;
+}
+
 function calculateNutritionWithUnits(quantity, unitId) {
+    // Extrair ID numérico do alimento
+    const numericFoodId = extractNumericId(selectedRecipe.id);
+    if (!numericFoodId) {
+        console.error('❌ ID inválido para cálculo:', selectedRecipe.id);
+        return;
+    }
+    
     const formData = new FormData();
-    formData.append('food_id', selectedRecipe.id);
+    formData.append('food_id', numericFoodId);
     formData.append('quantity', quantity);
     formData.append('unit_id', unitId);
     formData.append('is_recipe', selectedRecipe.is_food ? '0' : '1');
@@ -1125,13 +1143,23 @@ function closeModal() {
 
 function loadUnitsForFood(foodId, isRecipe) {
     console.log('🔍 LOAD UNITS FOR FOOD - INÍCIO');
-    console.log('Food ID:', foodId);
+    console.log('Food ID original:', foodId);
     console.log('Is Recipe:', isRecipe);
+    
+    // Extrair o número do ID se vier com prefixo (ex: "taco_66" -> "66")
+    const numericId = extractNumericId(foodId);
+    if (!numericId) {
+        console.error('❌ ID inválido após extração:', foodId);
+        showNoUnitsMessage();
+        return;
+    }
+    
+    console.log('✅ Food ID numérico final:', numericId);
     
     const unitSelect = document.getElementById('unit-select');
     unitSelect.innerHTML = '<option value="">Carregando...</option>';
     
-    const url = `<?php echo BASE_APP_URL; ?>/api/get_units.php?action=for_food&food_id=${foodId}`;
+    const url = `<?php echo BASE_APP_URL; ?>/api/get_units.php?action=for_food&food_id=${numericId}`;
     console.log('URL da API:', url);
     
     fetch(url)
