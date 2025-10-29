@@ -9197,7 +9197,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 currentRoutineIndex = targetIndex;
-                updateRoutineDisplay();
+                
+                // Aguardar carregamento dos dados antes de atualizar display
+                loadMissionsAdminList();
+                loadExercisesAdminList();
+                
+                // Aguardar um pouco mais para os dados carregarem
+                setTimeout(() => {
+                    updateRoutineDisplay();
+                }, 500);
             }, 100);
         });
     }
