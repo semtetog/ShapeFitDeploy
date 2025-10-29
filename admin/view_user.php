@@ -855,6 +855,136 @@ require_once __DIR__ . '/includes/header.php';
     min-height: auto;
     height: auto;
     display: block;
+    background: var(--surface-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+#tab-routine .diary-day-card:hover {
+    border-color: rgba(255, 102, 0, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#tab-routine .diary-day-card.selected {
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
+}
+
+#tab-routine .diary-day-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#tab-routine .diary-day-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 102, 0, 0.1);
+    border: 1px solid rgba(255, 102, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#tab-routine .diary-day-icon i {
+    font-size: 1.5rem;
+    color: var(--accent-orange);
+}
+
+#tab-routine .diary-day-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#tab-routine .diary-day-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+#tab-routine .diary-day-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+#tab-routine .diary-day-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0 0 16px 16px;
+}
+
+#tab-routine .diary-day-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#tab-routine .diary-day-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    line-height: 1;
+}
+
+#tab-routine .diary-day-month {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#tab-routine .diary-day-weekday {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#tab-routine .diary-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 1.5rem;
+}
+
+#tab-routine .diary-empty-state i {
+    font-size: 3rem;
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+#tab-routine .diary-empty-state p {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    margin: 0;
+    text-align: center;
 }
 
 .calendar-header h4 {
