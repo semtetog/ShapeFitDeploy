@@ -3773,18 +3773,9 @@ function goToDiaryIndex(index) {
     updateDiaryDisplay();
 }
 
-// Suporte a swipe/touch
+// Suporte a swipe/touch (movido para dentro do DOMContentLoaded)
 let touchStartX = 0;
 let touchEndX = 0;
-
-diaryTrack.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-});
-
-diaryTrack.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-});
 
 function handleSwipe() {
     const swipeThreshold = 50;
@@ -3801,11 +3792,6 @@ function handleSwipe() {
     }
 }
 
-// Suporte a teclado
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') navigateDiary(-1);
-    if (e.key === 'ArrowRight') navigateDiary(1);
-});
 
 // Inicializar quando a aba de diário estiver ativa
 function initDiary() {
@@ -3839,18 +3825,32 @@ document.addEventListener("DOMContentLoaded", () => {
   if (prevBtn) prevBtn.addEventListener('click', () => navigateDiary(-1));
   if (nextBtn) nextBtn.addEventListener('click', () => navigateDiary(1));
   if (calendarBtn) calendarBtn.addEventListener('click', openDiaryCalendarSafely);
-});
 
-// Observar mudanças de aba
-document.addEventListener("DOMContentLoaded", () => {
-    const tabLinks = document.querySelectorAll('.tab-link');
-    tabLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            if (this.getAttribute('data-tab') === 'diary') {
-                setTimeout(initDiary, 100);
-            }
-        });
+  // Suporte a swipe/touch (agora dentro do DOMContentLoaded)
+  diaryTrack.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+
+  diaryTrack.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
+
+  // Suporte a teclado
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') navigateDiary(-1);
+    if (e.key === 'ArrowRight') navigateDiary(1);
+  });
+
+  // Observar mudanças de aba
+  const tabLinks = document.querySelectorAll('.tab-link');
+  tabLinks.forEach(link => {
+    link.addEventListener('click', function() {
+      if (this.getAttribute('data-tab') === 'diary') {
+        setTimeout(initDiary, 100);
+      }
     });
+  });
 });
 </script>
 
