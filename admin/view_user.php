@@ -3508,8 +3508,10 @@ require_once __DIR__ . '/includes/header.php';
 <script>
 // Sistema de navegação do diário
 let diaryCards = document.querySelectorAll('#diarySliderTrack .diary-day-card');
-let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
-const diaryTrack = document.getElementById('diarySliderTrack');
+let currentDiaryIndex = diaryCards.findIndex(card => {
+    return card.getAttribute('data-date') === new Date().toISOString().slice(0, 10);
+});
+if (currentDiaryIndex === -1) currentDiaryIndex = diaryCards.length - 1;
 let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
 
 // Exibir o card inicial ao carregar
@@ -3523,33 +3525,33 @@ function updateDiaryCards() {
 }
 
 function updateDiaryDisplay() {
+    const diaryTrack = document.getElementById('diarySliderTrack');
+    if (!diaryTrack) return; // <-- evita erro se o elemento não existir ainda
+    
+    const currentCard = diaryCards[currentDiaryIndex];
+    if (!currentCard) return;
+    
     // Adicionar transição suave para o slider
     diaryTrack.style.transition = 'transform 0.3s ease-in-out';
     
     const offset = -currentDiaryIndex * 100;
     diaryTrack.style.transform = `translateX(${offset}%)`;
     
-    const currentCard = diaryCards[currentDiaryIndex];
-    if (!currentCard) return;
-    
     // CORREÇÃO PRINCIPAL: Ajustar altura do slider dinamicamente
-    const diaryTrack = document.getElementById('diarySliderTrack');
-    if (diaryTrack && currentCard) {
-        // Garantir que apenas o card ativo fique visível
-        diaryCards.forEach((card, index) => {
-            card.classList.toggle('active', index === currentDiaryIndex);
-        });
-        
-        // Resetar altura para auto primeiro
-        diaryTrack.style.height = 'auto';
-        
-        // Aguardar um frame para o layout se ajustar
-        requestAnimationFrame(() => {
-            // Definir altura baseada no card atual (agora só o ativo)
-            const cardHeight = currentCard.scrollHeight;
-            diaryTrack.style.height = cardHeight + 'px';
-        });
-    }
+    // Garantir que apenas o card ativo fique visível
+    diaryCards.forEach((card, index) => {
+        card.classList.toggle('active', index === currentDiaryIndex);
+    });
+    
+    // Resetar altura para auto primeiro
+    diaryTrack.style.height = 'auto';
+    
+    // Aguardar um frame para o layout se ajustar
+    requestAnimationFrame(() => {
+        // Definir altura baseada no card atual (agora só o ativo)
+        const cardHeight = currentCard.scrollHeight;
+        diaryTrack.style.height = cardHeight + 'px';
+    });
     
     const date = currentCard.getAttribute('data-date');
     const dateObj = new Date(date + 'T00:00:00');
@@ -3876,10 +3878,27 @@ function initDiary() {
     }
 }
 
-// Inicializar se a aba já estiver ativa ou quando for aberta
-if (document.getElementById('tab-diary').classList.contains('active')) {
-    initDiary();
-}
+// Aguardar DOM estar pronto antes de inicializar
+document.addEventListener("DOMContentLoaded", () => {
+    // Atualizar referência aos cards após DOM estar pronto
+    diaryCards = document.querySelectorAll('#diarySliderTrack .diary-day-card');
+    
+    // Recalcular currentDiaryIndex com os cards atualizados
+    currentDiaryIndex = diaryCards.findIndex(card => {
+        return card.getAttribute('data-date') === new Date().toISOString().slice(0, 10);
+    });
+    if (currentDiaryIndex === -1) currentDiaryIndex = diaryCards.length - 1;
+    
+    // Exibir o card inicial ao carregar
+    diaryCards.forEach((card, index) => {
+        card.classList.toggle('active', index === currentDiaryIndex);
+    });
+    
+    // Inicializar se a aba já estiver ativa
+    if (document.getElementById('tab-diary').classList.contains('active')) {
+        initDiary();
+    }
+});
 
 // Observar mudanças de aba
 const tabLinks = document.querySelectorAll('.tab-link');
