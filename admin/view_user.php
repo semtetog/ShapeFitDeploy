@@ -9706,6 +9706,9 @@ const patientId = <?php echo $user_id; ?>;
 
 // Dados de rotina do PHP (escopo global)
 const routineLogData = <?php echo json_encode($routine_log_data); ?>;
+console.log('=== ROUTINE LOG DATA DEBUG ===');
+console.log('Total de registros de rotina:', routineLogData.length);
+console.log('Dados de rotina:', routineLogData);
 const exerciseData = <?php echo json_encode($routine_exercise_data); ?>;
 const sleepData = <?php echo json_encode($routine_sleep_data); ?>;
 const routineItemsData = <?php echo json_encode($routine_items_data); ?>;
