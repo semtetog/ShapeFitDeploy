@@ -9970,8 +9970,25 @@ window.selectDiaryDayFromCalendar = function(dateStr) {
         return;
     }
     currentDiaryIndex = targetIndex;
-    // Mover slider e atualizar cabeçalho
-    updateDiaryDisplay();
+    
+    // Fechar modal do calendário se existir
+    if (typeof closeDiaryCalendar === 'function') {
+        try { closeDiaryCalendar(); } catch (e) {}
+    } else {
+        const modal = document.getElementById('diaryCalendarModal');
+        if (modal) modal.style.display = 'none';
+    }
+    
+    // Posicionar imediatamente sem animação para evitar flicker
+    if (typeof diaryTrack !== 'undefined' && diaryTrack) {
+        diaryTrack.style.transition = 'none';
+        diaryTrack.style.transform = `translateX(${-currentDiaryIndex * 100}%)`;
+    }
+    
+    // Atualizar UI
+    setTimeout(() => {
+        updateDiaryDisplay();
+    }, 50);
     // Seleção visual
     document.querySelectorAll('#diarySliderTrack .diary-day-card').forEach(card => card.classList.remove('selected'));
     const selectedCard = document.querySelector(`#diarySliderTrack .diary-day-card[data-date="${dateStr}"]`);
