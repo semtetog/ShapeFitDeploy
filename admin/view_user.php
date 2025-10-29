@@ -8801,6 +8801,21 @@ document.addEventListener('DOMContentLoaded', function() {
         nutrientsBars.setAttribute('data-period', '7');
     }
     
+    // Pré-posicionar o slider da aba Rotina no dia de HOJE (evita flicker ao abrir a aba)
+    (function prepositionRoutineSlider() {
+        const track = document.getElementById('routineSliderTrack');
+        if (!track) return;
+        const cards = track.querySelectorAll('.diary-day-card');
+        if (cards.length === 0) return;
+        const todayStr = new Date().toISOString().split('T')[0];
+        let idx = cards.length - 1;
+        for (let i = 0; i < cards.length; i++) {
+            if (cards[i].getAttribute('data-date') === todayStr) { idx = i; break; }
+        }
+        track.style.transition = 'none';
+        track.style.transform = `translateX(${-idx * 100}%)`;
+    })();
+
     // Adicionar listeners para mudança de abas
     const tabLinks = document.querySelectorAll('.tab-link');
     tabLinks.forEach(link => {
@@ -9177,7 +9192,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const routineTabButton = document.querySelector('[data-tab="routine"]');
     if (routineTabButton) {
         routineTabButton.addEventListener('click', function() {
-            setTimeout(() => {
                 // NÃO chamar generateRoutineSlider porque o PHP já gera os cards
                 // Apenas inicializar navegação e display
                 updateRoutineCards();
@@ -9216,17 +9230,52 @@ document.addEventListener('DOMContentLoaded', function() {
                     const initialOffset = -currentRoutineIndex * 100;
                     routineTrack.style.transform = `translateX(${initialOffset}%)`;
                 }
+            
+            // Atualizar cabeçalho imediatamente (sem depender da função de display)
+            const dateObj = new Date(todayStr + 'T00:00:00');
+            const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+            const monthNamesLower = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+            const weekdayNames = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+            const routineYear = document.getElementById('routineYear');
+            const dayMonth = document.getElementById('routineDayMonth');
+            const weekday = document.getElementById('routineWeekday');
+            const prevDate = document.getElementById('routinePrevDate');
+            const nextDate = document.getElementById('routineNextDate');
+            if (routineYear) routineYear.textContent = dateObj.getFullYear();
+            if (dayMonth) dayMonth.textContent = `${dateObj.getDate()} ${monthNamesShort[dateObj.getMonth()]}`;
+            if (weekday) weekday.textContent = weekdayNames[dateObj.getDay()];
+            // prev/next labels
+            if (prevDate) {
+                const prev = new Date(dateObj); prev.setDate(prev.getDate() - 1);
+                prevDate.textContent = `${prev.getDate()} ${monthNamesLower[prev.getMonth()]}`;
+                if (prevDate.parentElement) prevDate.parentElement.style.visibility = 'visible';
+            }
+            if (nextDate) {
+                const cards = routineCards;
+                const nextIndex = currentRoutineIndex + 1;
+                const today = new Date(); today.setHours(0,0,0,0);
+                if (nextIndex < cards.length && cards[nextIndex]) {
+                    const nd = new Date(cards[nextIndex].getAttribute('data-date') + 'T00:00:00');
+                    if (nd <= today) {
+                        nextDate.textContent = `${nd.getDate()} ${monthNamesLower[nd.getMonth()]}`;
+                        if (nextDate.parentElement) nextDate.parentElement.style.visibility = 'visible';
+                    } else if (nextDate.parentElement) {
+                        nextDate.parentElement.style.visibility = 'hidden';
+                    }
+                } else if (nextDate.parentElement) {
+                    nextDate.parentElement.style.visibility = 'hidden';
+                }
+            }
                 
                 // Aguardar carregamento dos dados antes de atualizar display
                 loadMissionsAdminList();
                 loadExercisesAdminList();
                 
-                // Aguardar um pouco mais para os dados carregarem
+                // Aguardar um pouco para os dados carregarem e o DOM aplicar o transform
                 setTimeout(() => {
                     console.log('Chamando updateRoutineSliderDisplay() com currentRoutineIndex:', currentRoutineIndex);
                     updateRoutineSliderDisplay();
-                }, 500);
-            }, 100);
+                }, 200);
         });
     }
     
@@ -10049,7 +10098,7 @@ function initRoutineCalendar() {
     }
     
     currentRoutineIndex = targetIndex;
-    updateRoutineDisplay();
+    updateRoutineSliderDisplay();
 }
 
 // Selecionar dia na rotina
