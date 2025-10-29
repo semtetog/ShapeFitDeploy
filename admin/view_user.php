@@ -9800,43 +9800,149 @@ window.selectRoutineDayFromCalendar = function(dateStr) {
     selectRoutineDay(dateStr);
 };
 
-// Navegar entre dias da rotina
-// Variável global para controlar a data atual do slider
-let currentRoutineDate = new Date();
+// Sistema de navegação da rotina (COPIADO DO DIÁRIO)
+let routineCards = document.querySelectorAll('.diary-day-card');
+let currentRoutineIndex = routineCards.length - 1; // Iniciar no último (dia mais recente)
+const routineTrack = document.getElementById('routineSliderTrack');
+let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
 
+// Função para atualizar referência aos cards
+function updateRoutineCards() {
+    routineCards = document.querySelectorAll('.diary-day-card');
+}
+
+function updateRoutineDisplay() {
+    // Adicionar transição suave para o slider
+    routineTrack.style.transition = 'transform 0.3s ease-in-out';
+    
+    const offset = -currentRoutineIndex * 100;
+    routineTrack.style.transform = `translateX(${offset}%)`;
+    
+    const currentCard = routineCards[currentRoutineIndex];
+    if (!currentCard) return;
+    
+    const date = currentCard.getAttribute('data-date');
+    const dateObj = new Date(date + 'T00:00:00');
+    
+    // Atualizar informações do cabeçalho
+    const dayMonth = document.getElementById('routineDayMonth');
+    const weekday = document.getElementById('routineWeekday');
+    const prevDate = document.getElementById('routinePrevDate');
+    const nextDate = document.getElementById('routineNextDate');
+    
+    if (dayMonth) {
+        const day = dateObj.getDate();
+        const month = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'][dateObj.getMonth()];
+        dayMonth.textContent = `${day} ${month}`;
+    }
+    
+    if (weekday) {
+        const weekdays = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+        weekday.textContent = weekdays[dateObj.getDay()];
+    }
+    
+    // Atualizar datas de navegação
+    if (prevDate) {
+        const prevDateObj = new Date(dateObj);
+        prevDateObj.setDate(prevDateObj.getDate() - 1);
+        const prevDay = prevDateObj.getDate();
+        const prevMonth = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'][prevDateObj.getMonth()];
+        prevDate.textContent = `${prevDay} ${prevMonth}`;
+    }
+    
+    if (nextDate) {
+        const nextDateObj = new Date(dateObj);
+        nextDateObj.setDate(nextDateObj.getDate() + 1);
+        const nextDay = nextDateObj.getDate();
+        const nextMonth = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'][nextDateObj.getMonth()];
+        nextDate.textContent = `${nextDay} ${nextMonth}`;
+    }
+    
+    // Atualizar resumo de missões
+    updateRoutineSummary(date);
+}
+
+function updateRoutineSummary(date) {
+    const dayMissions = routineLogData.filter(log => log.date === date && log.is_completed === 1);
+    const summaryMissions = document.getElementById('routineSummaryMissions');
+    const summaryProgress = document.getElementById('routineSummaryProgress');
+    
+    if (summaryMissions) {
+        summaryMissions.querySelector('span').textContent = `${dayMissions.length} missões`;
+    }
+    
+    if (summaryProgress) {
+        const totalMissions = routineItemsData.length;
+        const percentage = totalMissions > 0 ? Math.round((dayMissions.length / totalMissions) * 100) : 0;
+        summaryProgress.textContent = `Progresso: ${percentage}%`;
+    }
+}
+
+// Função para navegar entre dias (COPIADA DO DIÁRIO)
 window.navigateRoutine = function(direction) {
-    console.log('Navegar rotina:', direction);
+    let newIndex = currentRoutineIndex + direction;
     
-    // Atualizar a data atual (navegar por dias, não semanas)
-    currentRoutineDate.setDate(currentRoutineDate.getDate() + direction);
+    // Se tentar ir para frente
+    if (direction > 0) {
+        // Verificar se o próximo dia seria futuro
+        if (newIndex >= routineCards.length) {
+            // Já está no último, não faz nada
+            return;
+        }
+        
+        const nextCard = routineCards[newIndex];
+        if (nextCard) {
+            const nextDate = nextCard.getAttribute('data-date');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const nextDateObj = new Date(nextDate + 'T00:00:00');
+            
+            // Se o próximo dia for futuro, não permite
+            if (nextDateObj > today) {
+                return; // Bloqueia navegação
+            }
+        }
+    }
     
-    // Regenerar o slider com a nova data
-    window.generateRoutineSlider();
+    // Se tentar ir para trás
+    if (direction < 0) {
+        // Se já está carregando, ignora
+        if (isLoadingMoreDays) {
+            console.log('Já está carregando mais dias...');
+            return;
+        }
+        
+        // Calcular a data do dia anterior
+        const currentCard = routineCards[currentRoutineIndex];
+        if (currentCard) {
+            const currentDate = currentCard.getAttribute('data-date');
+            const dateObj = new Date(currentDate + 'T00:00:00');
+            dateObj.setDate(dateObj.getDate() - 1);
+            const prevDate = dateObj.toISOString().split('T')[0];
+            
+            // Verificar se já existe um card para essa data
+            const existingCardIndex = Array.from(routineCards).findIndex(card => 
+                card.getAttribute('data-date') === prevDate
+            );
+            
+            if (existingCardIndex !== -1) {
+                // Se existe, navegar diretamente
+                currentRoutineIndex = existingCardIndex;
+                updateRoutineDisplay();
+                return;
+            }
+        }
+    }
     
-    // Atualizar a navegação
-    updateRoutineNavigation();
+    // Atualizar índice e display
+    currentRoutineIndex = newIndex;
+    updateRoutineDisplay();
 };
 
-// Atualizar navegação da rotina
-function updateRoutineNavigation() {
-    const prevDate = new Date(currentRoutineDate);
-    prevDate.setDate(prevDate.getDate() - 1);
-    const nextDate = new Date(currentRoutineDate);
-    nextDate.setDate(nextDate.getDate() + 1);
-    
-    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    
-    const routineYear = document.getElementById('routineYear');
-    const routineDayMonth = document.getElementById('routineDayMonth');
-    const routineWeekday = document.getElementById('routineWeekday');
-    const routinePrevDate = document.getElementById('routinePrevDate');
-    const routineNextDate = document.getElementById('routineNextDate');
-    
-    if (routineYear) routineYear.textContent = currentRoutineDate.getFullYear();
-    if (routineDayMonth) routineDayMonth.textContent = `${currentRoutineDate.getDate().toString().padStart(2, '0')} ${monthNames[currentRoutineDate.getMonth()]}`;
-    if (routineWeekday) routineWeekday.textContent = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][currentRoutineDate.getDay()];
-    if (routinePrevDate) routinePrevDate.textContent = `${prevDate.getDate()} ${monthNames[prevDate.getMonth()].toLowerCase()}`;
-    if (routineNextDate) routineNextDate.textContent = `${nextDate.getDate()} ${monthNames[nextDate.getMonth()].toLowerCase()}`;
+// Inicializar rotina quando a aba for ativada
+function initRoutineCalendar() {
+    updateRoutineCards();
+    updateRoutineDisplay();
 }
 
 // Selecionar dia na rotina
