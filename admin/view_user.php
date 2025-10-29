@@ -3802,61 +3802,62 @@ function initDiary() {
 
 // ======== DIÁRIO: INIT SEGURO ========
 document.addEventListener("DOMContentLoaded", () => {
-  // Coleta os cards e garante array
+  // ====== Referências iniciais ======
   diaryCards = Array.from(document.querySelectorAll('#diarySliderTrack .diary-day-card'));
   diaryTrack = document.getElementById('diarySliderTrack');
 
-  if (!diaryTrack || diaryCards.length === 0) return;
+  if (!diaryTrack || diaryCards.length === 0) {
+    console.warn('Nenhum card de diário encontrado.');
+    return;
+  }
 
-  // Descobre índice do dia de hoje (YYYY-MM-DD)
-  const todayStr = new Date().toISOString().slice(0,10);
+  // ====== Selecionar dia atual ======
+  const todayStr = new Date().toISOString().slice(0, 10);
   const todayIdx = diaryCards.findIndex(c => c.getAttribute('data-date') === todayStr);
   currentDiaryIndex = (todayIdx !== -1) ? todayIdx : (diaryCards.length - 1);
 
-  // Mostra só o card ativo já no load
   setActiveDiaryCard(currentDiaryIndex);
   updateDiaryDisplay();
 
-  // Listeners (proteção + seletor correto do seu HTML)
+  // ====== Navegação (setas) ======
   const prevBtn = document.querySelector('.diary-nav-left');
   const nextBtn = document.querySelector('.diary-nav-right');
-  
-  // Capturar botão do calendário (diário) com fallback
+  if (prevBtn) prevBtn.addEventListener('click', () => navigateDiary(-1));
+  if (nextBtn) nextBtn.addEventListener('click', () => navigateDiary(1));
+
+  // ====== Botão do calendário (com fallback seguro) ======
   const calendarBtn =
     document.getElementById('calendarButton') ||
     document.querySelector('.diary-calendar-icon-btn') ||
     document.querySelector('.calendar-btn');
-
-  if (prevBtn) prevBtn.addEventListener('click', () => navigateDiary(-1));
-  if (nextBtn) nextBtn.addEventListener('click', () => navigateDiary(1));
   if (calendarBtn) {
     calendarBtn.addEventListener('click', openDiaryCalendarSafely);
   } else {
     console.warn('Botão do calendário do diário não encontrado.');
   }
 
-  // Suporte a swipe/touch (agora dentro do DOMContentLoaded)
+  // ====== Suporte a swipe/touch ======
+  let touchStartX = 0, touchEndX = 0;
   diaryTrack.addEventListener('touchstart', (e) => {
     touchStartX = e.changedTouches[0].screenX;
   });
-
   diaryTrack.addEventListener('touchend', (e) => {
     touchEndX = e.changedTouches[0].screenX;
     handleSwipe();
   });
 
-  // Suporte a teclado
+  // ====== Teclado ======
   document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') navigateDiary(-1);
     if (e.key === 'ArrowRight') navigateDiary(1);
   });
 
-  // Observar mudanças de aba
+  // ====== Quando trocar de aba ======
   const tabLinks = document.querySelectorAll('.tab-link');
   tabLinks.forEach(link => {
     link.addEventListener('click', function() {
       if (this.getAttribute('data-tab') === 'diary') {
-        setTimeout(initDiary, 100);
+        setTimeout(initDiary, 150);
       }
     });
   });
