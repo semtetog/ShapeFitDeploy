@@ -9882,17 +9882,28 @@ function updateRoutineCards() {
 }
 
 function updateRoutineDisplay() {
+    console.log('=== UPDATE_ROUTINE_DISPLAY DEBUG ===');
+    console.log('currentRoutineIndex:', currentRoutineIndex);
+    console.log('routineCards.length:', routineCards.length);
+    
     // Adicionar transição suave para o slider
     routineTrack.style.transition = 'transform 0.3s ease-in-out';
     
     const offset = -currentRoutineIndex * 100;
     routineTrack.style.transform = `translateX(${offset}%)`;
+    console.log('Offset calculado:', offset);
     
     const currentCard = routineCards[currentRoutineIndex];
-    if (!currentCard) return;
+    console.log('currentCard:', currentCard);
+    if (!currentCard) {
+        console.log('ERRO: currentCard não encontrado!');
+        return;
+    }
     
     const date = currentCard.getAttribute('data-date');
     const dateObj = new Date(date + 'T00:00:00');
+    console.log('Data do card selecionado:', date);
+    console.log('dateObj:', dateObj);
     
     // Nomes dos meses e dias da semana
     const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
