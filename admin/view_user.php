@@ -9149,17 +9149,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Carregar lista de missões
     function loadMissionsAdminList() {
+        console.log('=== LOAD_MISSIONS_ADMIN_LIST INICIADO ===');
+        console.log('Patient ID:', patientId);
+        console.log('URL:', `api/routine_crud.php?action=list_missions&patient_id=${patientId}`);
+        
         fetch(`api/routine_crud.php?action=list_missions&patient_id=${patientId}`)
             .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.text(); // Primeiro como texto para debug
             })
             .then(text => {
+                console.log('Response text:', text);
                 try {
                     const result = JSON.parse(text);
+                    console.log('Parsed result:', result);
                     if (result.success) {
+                        console.log('Dados das missões:', result.data);
                         renderMissionsTable(result.data);
                     } else {
                         console.error('Erro ao carregar missões:', result.message);
@@ -9171,6 +9180,10 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Erro na requisição:', error);
+                console.error('Stack trace:', error.stack);
+            })
+            .finally(() => {
+                console.log('=== LOAD_MISSIONS_ADMIN_LIST FINALIZADO ===');
             });
     }
     
@@ -9330,17 +9343,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Carregar lista de exercícios
     function loadExercisesAdminList() {
+        console.log('=== LOAD_EXERCISES_ADMIN_LIST INICIADO ===');
+        console.log('Patient ID:', patientId);
+        console.log('URL:', `api/routine_crud.php?action=list_exercises&patient_id=${patientId}`);
+        
         fetch(`api/routine_crud.php?action=list_exercises&patient_id=${patientId}`)
             .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.text(); // Primeiro como texto para debug
             })
             .then(text => {
+                console.log('Response text:', text);
                 try {
                     const result = JSON.parse(text);
+                    console.log('Parsed result:', result);
                     if (result.success) {
+                        console.log('Dados dos exercícios:', result.data);
                         renderExercisesTable(result.data);
                     } else {
                         console.error('Erro ao carregar exercícios:', result.message);
@@ -9352,6 +9374,10 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Erro na requisição:', error);
+                console.error('Stack trace:', error.stack);
+            })
+            .finally(() => {
+                console.log('=== LOAD_EXERCISES_ADMIN_LIST FINALIZADO ===');
             });
     }
     
