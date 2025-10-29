@@ -6183,20 +6183,18 @@ const routineData = {
 
 // Função para atualizar dados da rotina
 function updateRoutineData() {
-    // Calcular totais
-    const todayTotal = Object.values(routineData.today).reduce((sum, val) => sum + val, 0);
-    const weekTotal = routineData.week.reduce((sum, day) => {
-        return sum + Object.values(day).slice(1).reduce((daySum, val) => daySum + val, 0);
-    }, 0);
-    const adherenceRate = Math.round((weekTotal / (routineData.week.length * 4)) * 100);
+    // Esta função é chamada pelo código existente, mas não é necessária para a nova implementação
+    // Mantida para compatibilidade
+    console.log('updateRoutineData chamada');
     
-    // Atualizar cards de resumo
-    document.getElementById('todayRoutines').textContent = `${todayTotal}/4`;
-    document.getElementById('weekRoutines').textContent = `${weekTotal}/28`;
-    document.getElementById('adherenceRate').textContent = `${adherenceRate}%`;
+    // Verificar se os elementos existem antes de tentar acessá-los
+    const todayRoutines = document.getElementById('todayRoutines');
+    const weekRoutines = document.getElementById('weekRoutines');
+    const adherenceRate = document.getElementById('adherenceRate');
     
-    // Atualizar gráfico
-    updateRoutineChart();
+    if (todayRoutines) todayRoutines.textContent = '0/0';
+    if (weekRoutines) weekRoutines.textContent = '0/0';
+    if (adherenceRate) adherenceRate.textContent = '0%';
     
     // Atualizar tabela
     updateRoutineTable();
@@ -8763,6 +8761,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Variável global para o dia selecionado
     let selectedRoutineDay = null;
     
+    // Função para atualizar dados da rotina (compatibilidade com código existente)
+    function updateRoutineDisplay(period) {
+        // Esta função é chamada pelo código existente, mas não é necessária para a nova implementação
+        // Mantida para compatibilidade
+        console.log('updateRoutineDisplay chamada com período:', period);
+    }
+    
     // Dados de rotina do PHP
     const routineLogData = <?php echo json_encode($routine_log_data); ?>;
     const exerciseData = <?php echo json_encode($routine_exercise_data); ?>;
@@ -9153,62 +9158,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Editar missão (função global)
-    window.editMission = function(id) {
-        fetch(`api/routine_crud.php?action=get_mission&id=${id}&patient_id=${patientId}`)
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    const mission = result.data;
-                    
-                    // Preencher formulário
-                    document.getElementById('mission-id').value = mission.id;
-                    document.getElementById('mission-name').value = mission.title;
-                    document.getElementById('mission-type').value = mission.is_exercise ? 'duration' : 'binary';
-                    document.getElementById('mission-icon').value = mission.icon_class;
-                    
-                    // Atualizar título do modal
-                    document.querySelector('#mission-modal .modal-header h3').textContent = 'Editar Missão';
-                    
-                    // Mostrar modal
-                    missionModal.style.display = 'flex';
-                } else {
-                    alert('Erro ao carregar missão: ' + result.message);
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao carregar missão:', error);
-                alert('Erro ao carregar missão');
-            });
-    };
-    
-    // Excluir missão (função global)
-    window.deleteMission = function(id, name) {
-        if (!confirm(`Tem certeza que deseja excluir a missão "${name}"?`)) {
-            return;
-        }
-        
-        fetch('api/routine_crud.php?action=delete_mission', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: id })
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('Missão excluída com sucesso!');
-                loadMissionsAdminList();
-            } else {
-                alert('Erro ao excluir missão: ' + result.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao excluir missão:', error);
-            alert('Erro ao excluir missão');
-        });
-    };
+    // Funções movidas para escopo global
     
     // Cancelar edição
     if (cancelMissionBtn) {
@@ -9339,72 +9289,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Funções globais para exercícios
-    window.openExerciseModal = function() {
-        // Limpar formulário
-        document.getElementById('exercise-id').value = '';
-        document.getElementById('exercise-name').value = '';
-        document.getElementById('exercise-date').value = new Date().toISOString().split('T')[0];
-        
-        // Mostrar modal
-        document.getElementById('exercise-modal').style.display = 'flex';
-    };
-    
-    window.editExercise = function(id) {
-        fetch(`api/routine_crud.php?action=get_exercise&id=${id}&patient_id=${patientId}`)
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    const exercise = result.data;
-                    
-                    // Preencher formulário
-                    document.getElementById('exercise-id').value = exercise.id;
-                    document.getElementById('exercise-name').value = exercise.activity_name;
-                    document.getElementById('exercise-date').value = exercise.completion_date;
-                    
-                    // Mostrar modal
-                    document.getElementById('exercise-modal').style.display = 'flex';
-                } else {
-                    alert('Erro ao carregar exercício: ' + result.message);
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao carregar exercício:', error);
-                alert('Erro ao carregar exercício');
-            });
-    };
-    
-    window.deleteExercise = function(id, name) {
-        if (!confirm(`Tem certeza que deseja excluir o exercício "${name}"?`)) {
-            return;
-        }
-        
-        fetch('api/routine_crud.php?action=delete_exercise', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: id })
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('Exercício excluído com sucesso!');
-                loadExercisesAdminList();
-            } else {
-                alert('Erro ao excluir exercício: ' + result.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao excluir exercício:', error);
-            alert('Erro ao excluir exercício');
-        });
-    };
-    
-    // Fechar modal de exercícios
-    window.closeExerciseModal = function() {
-        document.getElementById('exercise-modal').style.display = 'none';
-    };
+    // Funções de exercícios movidas para escopo global
     
     // Salvar exercício
     document.getElementById('exercise-form').addEventListener('submit', function(e) {
@@ -9482,6 +9367,159 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ============ FUNÇÕES GLOBAIS PARA ROTINA ============
+
+// Definir patientId globalmente
+const patientId = <?php echo $user_id; ?>;
+
+// Editar missão (função global)
+window.editMission = function(id) {
+    fetch(`api/routine_crud.php?action=get_mission&id=${id}&patient_id=${patientId}`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                const mission = result.data;
+                
+                // Preencher formulário
+                document.getElementById('mission-id').value = mission.id;
+                document.getElementById('mission-name').value = mission.title;
+                document.getElementById('mission-type').value = mission.is_exercise ? 'duration' : 'binary';
+                document.getElementById('mission-icon').value = mission.icon_class;
+                
+                // Atualizar título do modal
+                document.querySelector('#mission-modal .modal-header h3').textContent = 'Editar Missão';
+                
+                // Mostrar modal
+                document.getElementById('mission-modal').style.display = 'flex';
+            } else {
+                alert('Erro ao carregar missão: ' + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar missão:', error);
+            alert('Erro ao carregar missão');
+        });
+};
+
+// Excluir missão (função global)
+window.deleteMission = function(id, name) {
+    if (!confirm(`Tem certeza que deseja excluir a missão "${name}"?`)) {
+        return;
+    }
+    
+    fetch('api/routine_crud.php?action=delete_mission', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: id })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Missão excluída com sucesso!');
+            // Recarregar a página para atualizar a lista
+            location.reload();
+        } else {
+            alert('Erro ao excluir missão: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao excluir missão:', error);
+        alert('Erro ao excluir missão');
+    });
+};
+
+// Abrir modal de missão
+window.openMissionModal = function() {
+    // Limpar formulário
+    document.getElementById('mission-id').value = '';
+    document.getElementById('mission-name').value = '';
+    document.getElementById('mission-type').value = 'binary';
+    document.getElementById('mission-icon').value = 'fa-check-circle';
+    
+    // Atualizar título do modal
+    document.querySelector('#mission-modal .modal-header h3').textContent = 'Adicionar Nova Missão';
+    
+    // Mostrar modal
+    document.getElementById('mission-modal').style.display = 'flex';
+};
+
+// Fechar modal de missão
+window.closeMissionModal = function() {
+    document.getElementById('mission-modal').style.display = 'none';
+};
+
+// Abrir modal de exercício
+window.openExerciseModal = function() {
+    // Limpar formulário
+    document.getElementById('exercise-id').value = '';
+    document.getElementById('exercise-name').value = '';
+    document.getElementById('exercise-date').value = new Date().toISOString().split('T')[0];
+    
+    // Mostrar modal
+    document.getElementById('exercise-modal').style.display = 'flex';
+};
+
+// Fechar modal de exercício
+window.closeExerciseModal = function() {
+    document.getElementById('exercise-modal').style.display = 'none';
+};
+
+// Editar exercício (função global)
+window.editExercise = function(id) {
+    fetch(`api/routine_crud.php?action=get_exercise&id=${id}&patient_id=${patientId}`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                const exercise = result.data;
+                
+                // Preencher formulário
+                document.getElementById('exercise-id').value = exercise.id;
+                document.getElementById('exercise-name').value = exercise.activity_name;
+                document.getElementById('exercise-date').value = exercise.completion_date;
+                
+                // Mostrar modal
+                document.getElementById('exercise-modal').style.display = 'flex';
+            } else {
+                alert('Erro ao carregar exercício: ' + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar exercício:', error);
+            alert('Erro ao carregar exercício');
+        });
+};
+
+// Excluir exercício (função global)
+window.deleteExercise = function(id, name) {
+    if (!confirm(`Tem certeza que deseja excluir o exercício "${name}"?`)) {
+        return;
+    }
+    
+    fetch('api/routine_crud.php?action=delete_exercise', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: id })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Exercício excluído com sucesso!');
+            // Recarregar a página para atualizar a lista
+            location.reload();
+        } else {
+            alert('Erro ao excluir exercício: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao excluir exercício:', error);
+        alert('Erro ao excluir exercício');
+    });
+};
 </script>
 
 <?php
