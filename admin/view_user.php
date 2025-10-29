@@ -9900,6 +9900,38 @@ function updateSleepInfo(daySleep) {
         </div>
     `;
 }
+
+// Atualizar resumo da rotina
+function updateRoutineSummary() {
+    const today = new Date().toISOString().split('T')[0];
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    // Calcular missões concluídas na semana
+    const weekMissions = routineLogData.filter(log => 
+        log.date >= weekAgo && log.date <= today && log.is_completed === 1
+    );
+    
+    // Calcular tempo médio de sono na semana
+    const weekSleep = sleepData.filter(sleep => 
+        sleep.date >= weekAgo && sleep.date <= today
+    );
+    const avgSleep = weekSleep.length > 0 ? 
+        weekSleep.reduce((sum, sleep) => sum + sleep.hours, 0) / weekSleep.length : 0;
+    
+    // Calcular dias com treino na semana
+    const weekExercises = exerciseData.filter(ex => 
+        ex.updated_at.startsWith(weekAgo) || ex.updated_at.startsWith(today)
+    );
+    const uniqueExerciseDays = new Set(weekExercises.map(ex => ex.updated_at.split(' ')[0])).size;
+    
+    // Atualizar cards de resumo
+    const summaryCards = document.querySelectorAll('.routine-summary .stat-value');
+    if (summaryCards.length >= 3) {
+        summaryCards[0].textContent = `${weekMissions.length} missões`;
+        summaryCards[1].textContent = `${avgSleep.toFixed(1)}h`;
+        summaryCards[2].textContent = `${uniqueExerciseDays} dias`;
+    }
+}
 </script>
 
 <?php

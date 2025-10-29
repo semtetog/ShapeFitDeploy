@@ -7,6 +7,14 @@
 session_start();
 require_once __DIR__ . '/../config.php';
 
+// Debug: verificar se as constantes estão definidas
+if (!defined('DB_HOST') || !defined('DB_USER') || !defined('DB_PASS') || !defined('DB_NAME')) {
+    error_log('DEBUG - Constantes de banco não definidas');
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Configuração de banco não encontrada']);
+    exit;
+}
+
 // Verificar se o usuário está autenticado e é admin/nutricionista
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     http_response_code(403);
@@ -24,8 +32,9 @@ $action = $_GET['action'] ?? '';
 // Conexão com o banco
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($conn->connect_error) {
+    error_log('DEBUG - Erro de conexão: ' . $conn->connect_error);
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Erro de conexão com o banco']);
+    echo json_encode(['success' => false, 'message' => 'Erro de conexão com o banco: ' . $conn->connect_error]);
     exit;
 }
 
@@ -41,6 +50,7 @@ if ($patient_id <= 0) {
 
 // Processar ação
 try {
+    error_log('DEBUG - Ação: ' . $action . ', Patient ID: ' . $patient_id);
     switch ($action) {
         case 'list_missions':
             $result = listMissions($conn, $patient_id);
