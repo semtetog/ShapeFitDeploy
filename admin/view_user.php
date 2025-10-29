@@ -2993,14 +2993,14 @@ require_once __DIR__ . '/includes/header.php';
 
 <script>
 // Sistema de navegação do diário
-let diaryCards = document.querySelectorAll('.diary-day-card');
+let diaryCards = document.querySelectorAll('#diarySliderTrack .diary-day-card');
 let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
 const diaryTrack = document.getElementById('diarySliderTrack');
 let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
 
 // Função para atualizar referência aos cards
 function updateDiaryCards() {
-    diaryCards = document.querySelectorAll('.diary-day-card');
+    diaryCards = document.querySelectorAll('#diarySliderTrack .diary-day-card');
 }
 
 function updateDiaryDisplay() {
@@ -5573,7 +5573,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <div class="diary-meal-card">
                                         <div class="diary-meal-header">
                                             <div class="diary-meal-icon">
-                                                <i class="<?php echo htmlspecialchars($mission['icon_class']); ?>"></i>
+                                                <i class="fas <?php echo htmlspecialchars($mission['icon_class']); ?>"></i>
                     </div>
                                             <div class="diary-meal-info">
                                                 <h5><?php echo htmlspecialchars($mission['title']); ?></h5>
@@ -8917,7 +8917,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dayMissions.length > 0) {
                     dayMissions.forEach(mission => {
                         const missionItem = (typeof routineItemsData !== 'undefined') ? routineItemsData.find(item => item.id === mission.routine_item_id) : null;
-                        const iconClass = missionItem?.icon_class || 'fas fa-clipboard-check';
+                        const baseIcon = missionItem?.icon_class || 'fa-clipboard-check';
+                        const iconClass = `fas ${baseIcon}`;
                         const title = missionItem?.title || mission.title || `Missão #${mission.routine_item_id}`;
                         const duration = mission.exercise_duration_minutes || 0;
                         const hours = Math.floor(duration / 60);
@@ -9314,6 +9315,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Parsed result:', result);
                     if (result.success) {
                         console.log('Dados das missões:', result.data);
+                        // Tornar disponível globalmente para cálculo de progresso
+                        window.routineItemsData = result.data;
                         renderMissionsTable(result.data);
                     } else {
                         console.error('Erro ao carregar missões:', result.message);
@@ -10086,8 +10089,27 @@ function updateRoutineSliderDisplay() {
         }
     }
     
-    // Atualizar resumo de missões
-    updateRoutineSummary(date);
+    // Atualizar resumo de missões (baseado no DOM, com fallback para dados globais)
+    const summaryDiv = currentCard.querySelector('.diary-day-summary');
+    let completedCount = 0;
+    if (summaryDiv) {
+        const span = summaryDiv.querySelector('.diary-summary-item span');
+        if (span) {
+            const match = span.textContent.match(/(\d+)/);
+            if (match) completedCount = parseInt(match[1], 10) || 0;
+        }
+    }
+    const summaryMissions = document.getElementById('routineSummaryMissions');
+    const summaryProgress = document.getElementById('routineSummaryProgress');
+    if (summaryMissions) {
+        const s = summaryMissions.querySelector('span');
+        if (s) s.textContent = `${completedCount} missões`;
+    }
+    if (summaryProgress) {
+        const totalMissions = (window.routineItemsData && Array.isArray(window.routineItemsData)) ? window.routineItemsData.length : 0;
+        const percentage = totalMissions > 0 ? Math.round((completedCount / totalMissions) * 100) : (completedCount > 0 ? 100 : 0);
+        summaryProgress.textContent = `Progresso: ${percentage}%`;
+    }
 }
 
 function updateRoutineSummary(date) {
