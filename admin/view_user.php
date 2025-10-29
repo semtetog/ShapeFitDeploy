@@ -2253,10 +2253,10 @@ require_once __DIR__ . '/includes/header.php';
     flex-direction: column !important;
 }
 
-/* Remove altura forçada da faixa de slider */
+/* Remove altura forçada da faixa de slider - CORREÇÃO PRINCIPAL */
 .diary-slider-track {
     display: flex !important;
-    align-items: flex-start !important;
+    align-items: flex-start !important; /* <- CORREÇÃO CHAVE: não estica mais */
     height: auto !important;
     min-height: 0 !important;
 }
@@ -3514,6 +3514,20 @@ function updateDiaryDisplay() {
     
     const currentCard = diaryCards[currentDiaryIndex];
     if (!currentCard) return;
+    
+    // CORREÇÃO PRINCIPAL: Ajustar altura do slider dinamicamente
+    const diaryTrack = document.getElementById('diarySliderTrack');
+    if (diaryTrack && currentCard) {
+        // Resetar altura para auto primeiro
+        diaryTrack.style.height = 'auto';
+        
+        // Aguardar um frame para o layout se ajustar
+        requestAnimationFrame(() => {
+            // Definir altura baseada no card atual
+            const cardHeight = currentCard.scrollHeight;
+            diaryTrack.style.height = cardHeight + 'px';
+        });
+    }
     
     const date = currentCard.getAttribute('data-date');
     const dateObj = new Date(date + 'T00:00:00');
