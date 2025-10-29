@@ -3870,6 +3870,24 @@ function initDiaryListeners() {
 
 // inicia o loop até encontrar os elementos
 waitForDiaryElements();
+
+// ============ INICIALIZAÇÃO SEGURA DO CALENDÁRIO DO DIÁRIO ============
+document.addEventListener("DOMContentLoaded", () => {
+  const nextBtn = document.getElementById('diaryNextMonthBtn');
+  const prevBtn = document.getElementById('diaryPrevMonthBtn');
+  const closeBtn = document.getElementById('diaryCloseCalendar');
+  const openBtn =
+    document.getElementById('diaryCalendarButton') ||
+    document.querySelector('.diary-calendar-icon-btn') ||
+    document.querySelector('.calendar-btn');
+
+  if (nextBtn) nextBtn.addEventListener('click', () => changeDiaryCalendarMonth(1));
+  if (prevBtn) prevBtn.addEventListener('click', () => changeDiaryCalendarMonth(-1));
+  if (closeBtn) closeBtn.addEventListener('click', closeDiaryCalendar);
+  if (openBtn) openBtn.addEventListener('click', openDiaryCalendarSafely);
+
+  console.log('📅 Listeners do calendário do Diário inicializados com segurança');
+});
 </script>
 
 <?php
@@ -8604,6 +8622,11 @@ function changeCalendarMonth(direction) {
     currentCalendarDate = newDate;
     renderCalendar();
 }
+
+       function changeDiaryCalendarMonth(direction) {
+           currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+           renderCalendar();
+       }
 
        function renderCalendar() {
            const year = currentCalendarDate.getFullYear();
