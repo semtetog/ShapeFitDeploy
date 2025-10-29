@@ -3506,15 +3506,20 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
 <script>
-// Variáveis globais
+// ======== DIÁRIO: VARS GLOBAIS ========
 let diaryCards = [];
 let currentDiaryIndex = 0;
 let diaryTrack = null;
-let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
+let isLoadingMoreDays = false; // se você usa lazy load
 
-// Função para atualizar referência aos cards
-function updateDiaryCards() {
-    diaryCards = Array.from(document.querySelectorAll('#diarySliderTrack .diary-day-card'));
+// ======== DIÁRIO: MOSTRAR APENAS O CARD ATIVO ========
+function setActiveDiaryCard(index) {
+  diaryCards.forEach((card, i) => {
+    card.classList.toggle('active', i === index);
+    // opcional: evita layout shift quando escondido
+    if (i !== index) card.style.display = 'none';
+    else card.style.display = 'block';
+  });
 }
 
 function updateDiaryDisplay() {
@@ -3874,32 +3879,31 @@ function initDiary() {
     }
 }
 
-// Aguardar DOM estar pronto antes de inicializar
+// ======== DIÁRIO: INIT SEGURO ========
 document.addEventListener("DOMContentLoaded", () => {
-    // Atualizar referência aos cards após DOM estar pronto
-    diaryCards = Array.from(document.querySelectorAll('#diarySliderTrack .diary-day-card'));
-    
-    // Determina o índice do dia atual
-    currentDiaryIndex = diaryCards.findIndex(card => {
-        return card.getAttribute('data-date') === new Date().toISOString().slice(0, 10);
-    });
-    if (currentDiaryIndex === -1) currentDiaryIndex = diaryCards.length - 1;
-    
-    // Exibe apenas o card ativo
-    diaryCards.forEach((card, i) => card.classList.toggle('active', i === currentDiaryIndex));
-    
-    // Protege updateDiaryDisplay
-    const diaryTrack = document.getElementById('diarySliderTrack');
-    if (diaryTrack) updateDiaryDisplay();
-    
-    // Corrige event listeners
-    const calendarButton = document.getElementById('calendarButton');
-    if (calendarButton) calendarButton.addEventListener('click', openCalendar);
-    
-    // Inicializar se a aba já estiver ativa
-    if (document.getElementById('tab-diary').classList.contains('active')) {
-        initDiary();
-    }
+  // Coleta os cards e garante array
+  diaryCards = Array.from(document.querySelectorAll('#diarySliderTrack .diary-day-card'));
+  diaryTrack = document.getElementById('diarySliderTrack');
+
+  if (!diaryTrack || diaryCards.length === 0) return;
+
+  // Descobre índice do dia de hoje (YYYY-MM-DD)
+  const todayStr = new Date().toISOString().slice(0,10);
+  const todayIdx = diaryCards.findIndex(c => c.getAttribute('data-date') === todayStr);
+  currentDiaryIndex = (todayIdx !== -1) ? todayIdx : (diaryCards.length - 1);
+
+  // Mostra só o card ativo já no load
+  setActiveDiaryCard(currentDiaryIndex);
+  updateDiaryDisplay();
+
+  // Listeners (proteção + seletor correto do seu HTML)
+  const prevBtn = document.querySelector('.diary-nav-left');
+  const nextBtn = document.querySelector('.diary-nav-right');
+  const calendarBtn = document.querySelector('.diary-calendar-icon-btn'); // <- seu HTML usa classe
+
+  if (prevBtn) prevBtn.addEventListener('click', () => navigateDiary(-1));
+  if (nextBtn) nextBtn.addEventListener('click', () => navigateDiary(1));
+  if (calendarBtn) calendarBtn.addEventListener('click', openDiaryCalendarSafely);
 });
 
 // Observar mudanças de aba
