@@ -5567,33 +5567,33 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="diary-empty-state">
                                     <i class="fas fa-calendar-day"></i>
                                     <p>Nenhum registro neste dia</p>
-                                </div>
+                    </div>
                             <?php else: ?>
                                 <?php foreach ($completed_missions as $mission): ?>
                                     <div class="diary-meal-card">
                                         <div class="diary-meal-header">
                                             <div class="diary-meal-icon">
                                                 <i class="<?php echo htmlspecialchars($mission['icon_class']); ?>"></i>
-                                            </div>
+                    </div>
                                             <div class="diary-meal-info">
                                                 <h5><?php echo htmlspecialchars($mission['title']); ?></h5>
                                                 <span class="diary-meal-totals">
                                                     <strong><?php echo isset($mission['duration_minutes']) && $mission['duration_minutes'] ? $mission['duration_minutes'] . 'min' : 'Concluída'; ?></strong>
                                                 </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                </div>
                         </div>
                     </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                </div>
+                    </div>
                     <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </div>
-</div>
+                    </div>
+                    </div>
 
 <!-- Modal para Adicionar/Editar Missão -->
 <div id="mission-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
@@ -5601,7 +5601,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-header" style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
             <h3 id="mission-modal-title" style="margin: 0; color: var(--primary-text-color);">Adicionar Missão</h3>
             <button class="modal-close" onclick="closeMissionModal()" style="background: none; border: none; font-size: 24px; color: var(--secondary-text-color); cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;">&times;</button>
-        </div>
+                </div>
         <div class="modal-body" style="padding: 20px;">
             <form id="mission-form">
                 <input type="hidden" id="mission-id" name="mission_id">
@@ -5609,7 +5609,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label for="mission-name" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Nome da Missão</label>
                     <input type="text" id="mission-name" name="mission_name" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
-                </div>
+                        </div>
                 
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label for="mission-type" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Tipo</label>
@@ -5617,7 +5617,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <option value="binary">Sim/Não (Binária)</option>
                         <option value="duration">Com Duração</option>
                     </select>
-                </div>
+                    </div>
                 
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label for="mission-icon" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Ícone (nome do ícone)</label>
@@ -5630,9 +5630,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Salvar</button>
                 </div>
             </form>
-        </div>
-    </div>
-</div>
+                    </div>
+                </div>
+            </div>
 
 <!-- Modal para Adicionar/Editar Exercício -->
 <div id="exercise-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
@@ -5640,7 +5640,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-header" style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
             <h3 id="exercise-modal-title" style="margin: 0; color: var(--primary-text-color);">Adicionar Exercício</h3>
             <button class="modal-close" onclick="closeExerciseModal()" style="background: none; border: none; font-size: 24px; color: var(--secondary-text-color); cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;">&times;</button>
-        </div>
+                    </div>
         <div class="modal-body" style="padding: 20px;">
             <form id="exercise-form">
                 <input type="hidden" id="exercise-id" name="exercise_id">
@@ -5648,7 +5648,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label for="exercise-name" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Nome do Exercício</label>
                     <input type="text" id="exercise-name" name="exercise_name" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
-                </div>
+                    </div>
                 
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label for="exercise-date" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Data de Cadastro</label>
@@ -5658,11 +5658,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
                     <button type="button" class="btn btn-secondary" onclick="closeExerciseModal()" style="padding: 10px 20px;">Cancelar</button>
                     <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Salvar</button>
-                </div>
+                        </div>
             </form>
-        </div>
-    </div>
-</div>
+                    </div>
+                </div>
+                    </div>
 
 <!-- Modal do Calendário da Rotina (idêntico ao da aba Diário) -->
 <div id="routineCalendarModal" class="custom-modal">
@@ -5674,7 +5674,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         <div class="calendar-header-title">
             <div class="calendar-year">2025</div>
-        </div>
+                </div>
 
         <div class="calendar-nav-buttons">
             <button class="calendar-btn-nav" onclick="changeRoutineCalendarMonth(-1)" type="button">
@@ -5684,7 +5684,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <button class="calendar-btn-nav" id="routineNextMonthBtn" onclick="changeRoutineCalendarMonth(1)" type="button">
                 <i class="fas fa-chevron-right"></i>
             </button>
-        </div>
+            </div>
         
         <div class="calendar-weekdays-row">
             <span>DOM</span>
@@ -5695,7 +5695,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <span>SEX</span>
             <span>SÁB</span>
         </div>
-        
+
         <div class="calendar-days-grid" id="routineCalendarDaysGrid"></div>
         
         <div class="calendar-separator">
@@ -5704,15 +5704,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="dot"></div>
                 <div class="dot"></div>
                 <div class="dot"></div>
-            </div>
+                </div>
             <div class="separator-line"></div>
-        </div>
+                </div>
         
         <div class="calendar-footer-legend">
             <div class="legend-row">
                 <span class="legend-marker today-marker"></span>
                 <span class="legend-text">Hoje</span>
-            </div>
+                </div>
             <div class="legend-row">
                 <span class="legend-marker has-data-marker"></span>
                 <span class="legend-text">Com registros</span>
@@ -5720,7 +5720,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="legend-row">
                 <span class="legend-marker no-data-marker"></span>
                 <span class="legend-text">Sem registros</span>
-            </div>
+        </div>
         </div>
     </div>
 </div>
@@ -9768,12 +9768,15 @@ function renderRoutineCalendar() {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
+    const prevMonth = new Date(year, month, 0);
+    const daysInPrevMonth = prevMonth.getDate();
     
     let calendarHTML = '';
     
-    // Dias vazios do início do mês
-    for (let i = 0; i < startingDayOfWeek; i++) {
-        calendarHTML += '<div class="calendar-day empty"></div>';
+    // Dias do mês anterior (bloqueados), preenchendo o início da grade
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+        const dayNum = daysInPrevMonth - i;
+        calendarHTML += `<div class="calendar-day other-month">${dayNum}</div>`;
     }
     
     // Dias do mês
@@ -9783,15 +9786,32 @@ function renderRoutineCalendar() {
                        exerciseData.some(ex => ex.updated_at.startsWith(dateStr)) ||
                        sleepData.some(sleep => sleep.date === dateStr);
         const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+        const currentDateObj = new Date(year, month, day);
+        const isFuture = currentDateObj > today;
+        
+        const classes = [
+            'calendar-day',
+            hasData ? 'has-data' : '',
+            isToday ? 'today' : '',
+            isFuture ? 'future-day' : ''
+        ].filter(Boolean).join(' ');
+        
+        const clickAttr = isFuture ? '' : `onclick="selectRoutineDayFromCalendar('${dateStr}')"`;
         
         calendarHTML += `
-            <div class="calendar-day ${hasData ? 'has-data' : ''} ${isToday ? 'today' : ''}" 
-                 data-date="${dateStr}" 
-                 onclick="selectRoutineDayFromCalendar('${dateStr}')">
+            <div class="${classes}" data-date="${dateStr}" ${clickAttr}>
                 <span class="day-number">${day}</span>
                 ${hasData ? '<div class="day-indicator"></div>' : ''}
             </div>
         `;
+    }
+    
+    // Dias do próximo mês para completar 6 semanas (42 células)
+    const totalCells = 42;
+    const usedCells = startingDayOfWeek + daysInMonth;
+    const remainingCells = totalCells - usedCells;
+    for (let day = 1; day <= remainingCells; day++) {
+        calendarHTML += `<div class="calendar-day other-month">${day}</div>`;
     }
     
     daysGrid.innerHTML = calendarHTML;
@@ -9804,13 +9824,13 @@ window.selectRoutineDayFromCalendar = function(dateStr) {
 };
 
 // Sistema de navegação da rotina (COPIADO DO DIÁRIO)
-let routineCards = document.querySelectorAll('.diary-day-card');
+let routineCards = document.querySelectorAll('#routineSliderTrack .diary-day-card');
 let currentRoutineIndex = routineCards.length - 1; // Iniciar no último (dia mais recente)
 const routineTrack = document.getElementById('routineSliderTrack');
 
 // Função para atualizar referência aos cards
 function updateRoutineCards() {
-    routineCards = document.querySelectorAll('.diary-day-card');
+    routineCards = document.querySelectorAll('#routineSliderTrack .diary-day-card');
 }
 
 function updateRoutineDisplay() {
@@ -9826,6 +9846,17 @@ function updateRoutineDisplay() {
     const date = currentCard.getAttribute('data-date');
     const dateObj = new Date(date + 'T00:00:00');
     
+    // Nomes dos meses e dias da semana
+    const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+    const monthNamesLower = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const weekdayNames = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+    
+    // Atualizar ano
+    const routineYear = document.getElementById('routineYear');
+    if (routineYear) {
+        routineYear.textContent = dateObj.getFullYear();
+    }
+    
     // Atualizar informações do cabeçalho
     const dayMonth = document.getElementById('routineDayMonth');
     const weekday = document.getElementById('routineWeekday');
@@ -9834,30 +9865,53 @@ function updateRoutineDisplay() {
     
     if (dayMonth) {
         const day = dateObj.getDate();
-        const month = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'][dateObj.getMonth()];
+        const month = monthNamesShort[dateObj.getMonth()];
         dayMonth.textContent = `${day} ${month}`;
     }
     
     if (weekday) {
-        const weekdays = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
-        weekday.textContent = weekdays[dateObj.getDay()];
+        weekday.textContent = weekdayNames[dateObj.getDay()];
     }
     
-    // Atualizar datas de navegação
+    // Atualizar datas de navegação (anterior e próximo)
+    const prevIndex = currentRoutineIndex - 1;
+    const nextIndex = currentRoutineIndex + 1;
+    
+    // Atualizar data anterior (sempre mostrar o dia anterior real)
     if (prevDate) {
-        const prevDateObj = new Date(dateObj);
+        // Calcular sempre o dia anterior baseado na data atual
+        const currentDate = new Date(date + 'T00:00:00');
+        const prevDateObj = new Date(currentDate);
         prevDateObj.setDate(prevDateObj.getDate() - 1);
-        const prevDay = prevDateObj.getDate();
-        const prevMonth = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'][prevDateObj.getMonth()];
-        prevDate.textContent = `${prevDay} ${prevMonth}`;
+        
+        prevDate.textContent = `${prevDateObj.getDate()} ${monthNamesLower[prevDateObj.getMonth()]}`;
+        if (prevDate.parentElement) {
+            prevDate.parentElement.style.visibility = 'visible';
+        }
     }
     
+    // Atualizar data próxima (se existir e não for futuro)
     if (nextDate) {
-        const nextDateObj = new Date(dateObj);
-        nextDateObj.setDate(nextDateObj.getDate() + 1);
-        const nextDay = nextDateObj.getDate();
-        const nextMonth = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'][nextDateObj.getMonth()];
-        nextDate.textContent = `${nextDay} ${nextMonth}`;
+        if (nextIndex < routineCards.length && routineCards[nextIndex]) {
+            const nextDateObj = new Date(routineCards[nextIndex].getAttribute('data-date') + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (nextDateObj <= today) {
+                nextDate.textContent = `${nextDateObj.getDate()} ${monthNamesLower[nextDateObj.getMonth()]}`;
+                if (nextDate.parentElement) {
+                    nextDate.parentElement.style.visibility = 'visible';
+                }
+            } else {
+                if (nextDate.parentElement) {
+                    nextDate.parentElement.style.visibility = 'hidden';
+                }
+            }
+        } else {
+            if (nextDate.parentElement) {
+                nextDate.parentElement.style.visibility = 'hidden';
+            }
+        }
     }
     
     // Atualizar resumo de missões
@@ -9880,18 +9934,17 @@ function updateRoutineSummary(date) {
     }
 }
 
-// Função para navegar entre dias (COPIADA DO DIÁRIO)
+// Função para navegar entre dias (IGUAL AO DIÁRIO)
 window.navigateRoutine = function(direction) {
-    let newIndex = currentRoutineIndex + direction;
+    const newIndex = currentRoutineIndex + direction;
+    
+    // Verificar limites
+    if (newIndex < 0 || newIndex >= routineCards.length) {
+        return; // Não navega se estiver nos limites
+    }
     
     // Se tentar ir para frente
     if (direction > 0) {
-        // Verificar se o próximo dia seria futuro
-        if (newIndex >= routineCards.length) {
-            // Já está no último, não faz nada
-            return;
-        }
-        
         const nextCard = routineCards[newIndex];
         if (nextCard) {
             const nextDate = nextCard.getAttribute('data-date');
@@ -9899,38 +9952,8 @@ window.navigateRoutine = function(direction) {
             today.setHours(0, 0, 0, 0);
             const nextDateObj = new Date(nextDate + 'T00:00:00');
             
-            // Se o próximo dia for futuro, não permite
+            // Se o próximo dia for futuro, não permite navegação
             if (nextDateObj > today) {
-                return; // Bloqueia navegação
-            }
-        }
-    }
-    
-    // Se tentar ir para trás
-    if (direction < 0) {
-        // Se já está carregando, ignora
-        if (window.isLoadingMoreDays) {
-            console.log('Já está carregando mais dias...');
-            return;
-        }
-        
-        // Calcular a data do dia anterior
-        const currentCard = routineCards[currentRoutineIndex];
-        if (currentCard) {
-            const currentDate = currentCard.getAttribute('data-date');
-            const dateObj = new Date(currentDate + 'T00:00:00');
-            dateObj.setDate(dateObj.getDate() - 1);
-            const prevDate = dateObj.toISOString().split('T')[0];
-            
-            // Verificar se já existe um card para essa data
-            const existingCardIndex = Array.from(routineCards).findIndex(card => 
-                card.getAttribute('data-date') === prevDate
-            );
-            
-            if (existingCardIndex !== -1) {
-                // Se existe, navegar diretamente
-                currentRoutineIndex = existingCardIndex;
-                updateRoutineDisplay();
                 return;
             }
         }
@@ -9944,6 +9967,12 @@ window.navigateRoutine = function(direction) {
 // Inicializar rotina quando a aba for ativada
 function initRoutineCalendar() {
     updateRoutineCards();
+    
+    // Atualizar o índice para o último card (dia mais recente)
+    if (routineCards.length > 0) {
+        currentRoutineIndex = routineCards.length - 1;
+    }
+    
     updateRoutineDisplay();
 }
 
@@ -9951,11 +9980,11 @@ function initRoutineCalendar() {
 function selectRoutineDay(dateStr) {
     selectedRoutineDay = dateStr;
     
-    // Atualizar visual do slider
-    document.querySelectorAll('.diary-day-card').forEach(card => {
+    // Atualizar visual do slider (apenas na aba Rotina)
+    document.querySelectorAll('#routineSliderTrack .diary-day-card').forEach(card => {
         card.classList.remove('selected');
     });
-    const selectedCard = document.querySelector(`[data-date="${dateStr}"]`);
+    const selectedCard = document.querySelector(`#routineSliderTrack .diary-day-card[data-date="${dateStr}"]`);
     if (selectedCard) {
         selectedCard.classList.add('selected');
     }
