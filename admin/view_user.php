@@ -861,10 +861,10 @@ require_once __DIR__ . '/includes/header.php';
     min-height: auto;
     height: auto;
     display: block;
-    background: var(--surface-color);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    margin-bottom: 1rem;
+    background: none;
+    border: none;
+    border-radius: 0;
+    margin-bottom: 0;
     transition: all 0.3s ease;
     cursor: pointer;
 }
