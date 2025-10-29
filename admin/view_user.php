@@ -671,6 +671,22 @@ while ($row = $routine_exercise_result->fetch_assoc()) {
 }
 $stmt_routine_exercise->close();
 
+// Buscar dados de rotina (missões) dos últimos 30 dias
+$routine_log_data = [];
+$stmt_routine_log = $conn->prepare("
+    SELECT date, routine_item_id, is_completed, exercise_duration_minutes
+    FROM sf_user_routine_log 
+    WHERE user_id = ? AND date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    ORDER BY date DESC
+");
+$stmt_routine_log->bind_param("i", $user_id);
+$stmt_routine_log->execute();
+$routine_log_result = $stmt_routine_log->get_result();
+while ($row = $routine_log_result->fetch_assoc()) {
+    $routine_log_data[] = $row;
+}
+$stmt_routine_log->close();
+
 // --- PREPARAÇÃO DE DADOS PARA EXIBIÇÃO ---
 $page_slug = 'users';
 $page_title = 'Dossiê: ' . htmlspecialchars($user_data['name']);
@@ -751,9 +767,504 @@ require_once __DIR__ . '/includes/header.php';
     width: 100% !important;
 }
 
-/* Estilo específico para o ícone do card da rotina - gradiente roxo */
+/* Estilo específico para o ícone do card da rotina - gradiente laranja */
 #tab-routine .routine-icon {
-    background: linear-gradient(135deg, #9c27b0, #ba68c8) !important;
+    background: linear-gradient(135deg, #ff6f00, #ff8a00) !important;
+}
+
+/* Estilos para o calendário da rotina */
+.routine-calendar-section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid var(--border-color);
+}
+
+.calendar-header h4 {
+    color: var(--primary-text-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+}
+
+.calendar-header .section-description {
+    color: var(--secondary-text-color);
+    font-size: 0.9rem;
+    margin: 0 0 20px 0;
+}
+
+.routine-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.routine-calendar-day {
+    aspect-ratio: 1;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.routine-calendar-day:hover {
+    background: rgba(255, 111, 0, 0.1);
+    border-color: var(--accent-orange);
+    transform: translateY(-2px);
+}
+
+.routine-calendar-day.selected {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: white !important;
+}
+
+.routine-calendar-day.has-data {
+    border-color: var(--accent-orange);
+}
+
+.routine-calendar-day.has-data::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    width: 4px;
+    height: 4px;
+    background: var(--accent-orange);
+    border-radius: 50%;
+}
+
+.routine-calendar-day.selected::after {
+    background: white;
+}
+
+.routine-calendar-day-number {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+}
+
+.routine-calendar-day.selected .routine-calendar-day-number {
+    color: white;
+}
+
+.routine-calendar-day-name {
+    font-size: 0.7rem;
+    color: var(--secondary-text-color);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.routine-calendar-day.selected .routine-calendar-day-name {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Estilos para missões */
+.missions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mission-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.mission-item:hover {
+    background: rgba(255, 111, 0, 0.05);
+}
+
+.mission-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 111, 0, 0.1);
+    color: var(--accent-orange);
+    flex-shrink: 0;
+}
+
+.mission-info {
+    flex: 1;
+}
+
+.mission-name {
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-bottom: 2px;
+}
+
+.mission-duration {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+}
+
+.mission-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.mission-status.completed {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.mission-status.pending {
+    background: rgba(158, 158, 158, 0.2);
+    color: #9e9e9e;
+}
+
+/* Estilos para atividades físicas */
+.activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 111, 0, 0.1);
+    color: var(--accent-orange);
+}
+
+.activity-info {
+    flex: 1;
+}
+
+.activity-name {
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-bottom: 2px;
+}
+
+.activity-duration {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+}
+
+/* Estilos para sono */
+.sleep-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sleep-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.sleep-stat-label {
+    color: var(--secondary-text-color);
+    font-size: 0.9rem;
+}
+
+.sleep-stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-text-color);
+}
+
+.sleep-progress {
+    margin-top: 8px;
+}
+
+.sleep-progress-bar {
+    height: 8px;
+    background: var(--glass-bg);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.sleep-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6f00, #ff8a00);
+    transition: width 0.3s ease;
+}
+
+.sleep-progress-text {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+    margin-top: 4px;
+    display: block;
+}
+
+/* Responsividade do calendário */
+@media (max-width: 768px) {
+    .routine-calendar-grid {
+        gap: 4px;
+    }
+    
+    .routine-calendar-day-number {
+        font-size: 0.9rem;
+    }
+    
+    .routine-calendar-day-name {
+        font-size: 0.6rem;
+    }
+}
+
+/* Estilos para modal de missões */
+.mission-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.modal-header h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-text-color);
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--primary-text-color);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    background: rgba(255, 111, 0, 0.05);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 30px;
+}
+
+.btn-cancel,
+.btn-save {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel {
+    background: var(--glass-bg);
+    color: var(--secondary-text-color);
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #ff6f00, #ff8a00);
+    color: white;
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 111, 0, 0.3);
+}
+
+/* Estilos para tabela de missões administrativas */
+.missions-admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.missions-admin-table thead {
+    background: var(--glass-bg);
+}
+
+.missions-admin-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--secondary-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.missions-admin-table td {
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+    color: var(--primary-text-color);
+}
+
+.missions-admin-table tbody tr {
+    transition: background 0.2s;
+}
+
+.missions-admin-table tbody tr:hover {
+    background: rgba(255, 111, 0, 0.05);
+}
+
+.mission-table-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 111, 0, 0.1);
+    color: var(--accent-orange);
+    border-radius: 50%;
+}
+
+.mission-type-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+}
+
+.mission-table-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--secondary-text-color);
+}
+
+.action-btn:hover {
+    background: rgba(255, 111, 0, 0.1);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+.action-btn.delete:hover {
+    background: rgba(244, 67, 54, 0.1);
+    border-color: #f44336;
+    color: #f44336;
+}
+
+/* Estilos para botão adicionar missão */
+.add-mission-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #ff6f00, #ff8a00);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-mission-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 111, 0, 0.3);
+}
+
+.add-mission-btn svg {
+    width: 18px;
+    height: 18px;
 }
 </style>
 
@@ -4757,187 +5268,218 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<!-- Aba de Rotina -->
+<!-- Aba de Rotina - REFATORADA COMPLETAMENTE -->
 <div id="tab-routine" class="tab-content">
     <div class="routine-container">
         
-        <!-- 1. CARD RESUMO COMPACTO - MESMO ESTILO DA HIDRATAÇÃO E NUTRIENTES -->
+        <!-- 1. CARD DE RESUMO DA ROTINA -->
         <div class="nutrients-summary-card">
             <div class="summary-main">
                 <div class="summary-icon routine-icon">
-                    <i class="fas fa-tasks"></i>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
                 <div class="summary-info">
-                    <h3>Rotina Diária</h3>
-                    <div class="summary-meta">Meta diária: <strong>10.000 passos</strong> | <strong>8h de sono</strong></div>
-                    <div class="summary-description">Baseado nos registros de atividade física e sono do paciente no aplicativo</div>
-                </div>
-                <div class="summary-status status-<?php echo ($routine_steps_data[0]['steps_daily'] ?? 0) >= 9000 ? 'excellent' : (($routine_steps_data[0]['steps_daily'] ?? 0) >= 7000 ? 'good' : (($routine_steps_data[0]['steps_daily'] ?? 0) >= 5000 ? 'fair' : 'poor')); ?>">
-                    <i class="fas <?php echo ($routine_steps_data[0]['steps_daily'] ?? 0) >= 9000 ? 'fa-check-circle' : (($routine_steps_data[0]['steps_daily'] ?? 0) >= 7000 ? 'fa-check' : (($routine_steps_data[0]['steps_daily'] ?? 0) >= 5000 ? 'fa-exclamation-triangle' : 'fa-exclamation')); ?>"></i>
-                    <span><?php echo ($routine_steps_data[0]['steps_daily'] ?? 0) >= 9000 ? 'Excelente' : (($routine_steps_data[0]['steps_daily'] ?? 0) >= 7000 ? 'Bom' : (($routine_steps_data[0]['steps_daily'] ?? 0) >= 5000 ? 'Regular' : 'Abaixo da meta')); ?></span>
+                    <h3>Resumo da Rotina Semanal</h3>
+                    <div class="summary-meta">Acompanhamento de missões, treinos e sono dos últimos 7 dias</div>
+                    <div class="summary-description">Dados baseados nos registros diários do paciente no aplicativo</div>
                 </div>
             </div>
             <div class="summary-stats">
                 <div class="summary-stat">
-                    <div class="stat-value"><?php echo number_format($routine_steps_data[0]['steps_daily'] ?? 0, 0, ',', '.'); ?></div>
-                    <div class="stat-label">Passos Hoje</div>
-                    <div class="stat-description">Último registro</div>
+                    <div class="stat-value" id="routine-missions-completed">0/0</div>
+                    <div class="stat-label">Missões Concluídas</div>
+                    <div class="stat-description">Última semana</div>
                 </div>
                 <div class="summary-stat">
-                    <div class="stat-value"><?php echo count($routine_exercise_data); ?></div>
-                    <div class="stat-label">Exercícios Registrados</div>
-                    <div class="stat-description">Últimos 30 dias</div>
+                    <div class="stat-value" id="routine-sleep-avg"><?php echo number_format($avg_sleep_7 ?? 0, 1); ?>h</div>
+                    <div class="stat-label">Sono Médio</div>
+                    <div class="stat-description">Últimos 7 dias</div>
                 </div>
                 <div class="summary-stat">
-                    <div class="stat-value"><?php echo $routine_sleep_data[0]['sleep_hours'] ?? 0; ?>h</div>
-                    <div class="stat-label">Sono Hoje</div>
-                    <div class="stat-description">Último registro</div>
+                    <div class="stat-value" id="routine-workouts-days"><?php echo count(array_slice($routine_exercise_data, 0, 7)); ?></div>
+                    <div class="stat-label">Dias com Treino</div>
+                    <div class="stat-description">Última semana</div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. CARDS DE PROGRESSO CIRCULAR -->
-        <!-- Cards de Rotina - Estilo Moderno -->
-        <div class="routine-cards-grid">
-            <?php 
-            // Calcular dados para os círculos
-            $avg_steps_7 = count($routine_steps_data) > 0 ? array_sum(array_column(array_slice($routine_steps_data, 0, 7), 'steps_daily')) / min(7, count($routine_steps_data)) : 0;
-            $steps_percentage = min(($avg_steps_7 / 10000) * 100, 100);
-            
-            $total_exercise_minutes = 0;
-            foreach (array_slice($routine_exercise_data, 0, 7) as $exercise) {
-                $total_exercise_minutes += intval($exercise['duration_minutes'] ?? 0);
-            }
-            $exercise_goal = 150; // 150 minutos por semana
-            $exercise_percentage = min(($total_exercise_minutes / $exercise_goal) * 100, 100);
-            
-            $avg_sleep_7 = count($routine_sleep_data) > 0 ? array_sum(array_column(array_slice($routine_sleep_data, 0, 7), 'sleep_hours')) / min(7, count($routine_sleep_data)) : 0;
-            $sleep_percentage = min(($avg_sleep_7 / 8) * 100, 100);
-            ?>
-            
-            <!-- Card de Passos -->
-            <div class="routine-card-modern">
-                <div class="routine-card-header">
-                    <div class="routine-card-icon steps-icon">
-                        <i class="fas fa-walking"></i>
-                    </div>
-                    <div class="routine-card-title">
-                        <h4>Passos Diários</h4>
-                        <p>Meta: 10.000 passos</p>
-                    </div>
-                </div>
-                <div class="routine-card-progress">
-                    <div class="progress-circle">
-                        <svg viewBox="0 0 120 120">
-                            <circle class="progress-bg" cx="60" cy="60" r="50"></circle>
-                            <circle class="progress-fill steps-fill" cx="60" cy="60" r="50" 
-                                    style="stroke-dashoffset: <?php echo 314 - (314 * $steps_percentage / 100); ?>"></circle>
+        <!-- 2. CALENDÁRIO (IDÊNTICO AO DA ABA DIÁRIO) -->
+        <div class="routine-calendar-section" style="margin-top: 25px;">
+            <div class="calendar-header">
+                <h4>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                        <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                        <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"></line>
+                    </svg>
+                    Calendário de Rotina
+                </h4>
+                <p class="section-description">Clique em um dia para ver os detalhes da rotina</p>
+            </div>
+            <div class="routine-calendar-grid" id="routine-calendar">
+                <!-- Calendar will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- 3. ROTINA DO DIA SELECIONADO -->
+        <div class="routine-day-details" id="routine-day-details" style="display: none;">
+            <h4 style="margin-top: 30px; color: var(--primary-text-color);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
+                    <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                </svg>
+                Rotina do Dia: <span id="selected-date-display"></span>
+            </h4>
+
+            <!-- 3.1. MISSÕES DIÁRIAS -->
+            <div class="dashboard-card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                            <path d="M9 11L12 14L22 4" stroke="#ff6f00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#ff6f00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <div class="progress-content">
-                            <span class="progress-value"><?php echo number_format($avg_steps_7, 0, ',', '.'); ?></span>
-                            <span class="progress-label">passos</span>
-                        </div>
+                        Missões Diárias
+                    </h4>
+                    <div class="mission-progress-bar" style="position: relative; height: 24px; background: var(--glass-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);">
+                        <div class="mission-progress-fill" id="mission-progress-bar" style="position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, #ff6f00, #ff8a00); width: 0%; transition: width 0.3s ease;"></div>
+                        <span class="mission-progress-text" id="mission-progress-text" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: var(--primary-text-color); font-weight: 600; font-size: 0.85rem; z-index: 1;">0 de 0 concluídas</span>
                     </div>
                 </div>
-                <div class="routine-card-footer">
-                    <div class="progress-percentage"><?php echo round($steps_percentage); ?>%</div>
-                    <div class="status-indicator status-<?php echo $steps_percentage >= 90 ? 'excellent' : ($steps_percentage >= 70 ? 'good' : 'poor'); ?>">
-                        <?php echo $steps_percentage >= 90 ? 'Excelente' : ($steps_percentage >= 70 ? 'Bom' : 'Abaixo'); ?>
+                <div class="card-body">
+                    <div class="missions-list" id="missions-list">
+                        <p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">
+                            Selecione um dia no calendário para ver as missões
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Card de Exercícios -->
-            <div class="routine-card-modern">
-                <div class="routine-card-header">
-                    <div class="routine-card-icon exercise-icon">
-                        <i class="fas fa-dumbbell"></i>
-                    </div>
-                    <div class="routine-card-title">
-                        <h4>Exercícios Semanais</h4>
-                        <p>Meta: 150 min/semana</p>
-                    </div>
-                </div>
-                <div class="routine-card-progress">
-                    <div class="progress-circle">
-                        <svg viewBox="0 0 120 120">
-                            <circle class="progress-bg" cx="60" cy="60" r="50"></circle>
-                            <circle class="progress-fill exercise-fill" cx="60" cy="60" r="50" 
-                                    style="stroke-dashoffset: <?php echo 314 - (314 * $exercise_percentage / 100); ?>"></circle>
+            <!-- 3.2. ATIVIDADES FÍSICAS -->
+            <div class="dashboard-card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                            <path d="M12 5V19M5 12H19" stroke="#ff6f00" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="5" cy="5" r="2" fill="#ff6f00"/>
+                            <circle cx="19" cy="5" r="2" fill="#ff6f00"/>
+                            <circle cx="5" cy="19" r="2" fill="#ff6f00"/>
+                            <circle cx="19" cy="19" r="2" fill="#ff6f00"/>
                         </svg>
-                        <div class="progress-content">
-                            <span class="progress-value"><?php echo $total_exercise_minutes; ?></span>
-                            <span class="progress-label">minutos</span>
-                        </div>
-                    </div>
+                        Atividades Físicas do Dia
+                    </h4>
                 </div>
-                <div class="routine-card-footer">
-                    <div class="progress-percentage"><?php echo round($exercise_percentage); ?>%</div>
-                    <div class="status-indicator status-<?php echo $exercise_percentage >= 90 ? 'excellent' : ($exercise_percentage >= 70 ? 'good' : 'poor'); ?>">
-                        <?php echo $exercise_percentage >= 90 ? 'Excelente' : ($exercise_percentage >= 70 ? 'Bom' : 'Abaixo'); ?>
+                <div class="card-body">
+                    <div class="activities-list" id="activities-list">
+                        <p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">
+                            Selecione um dia no calendário para ver as atividades
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Card de Sono -->
-            <div class="routine-card-modern">
-                <div class="routine-card-header">
-                    <div class="routine-card-icon sleep-icon">
-                        <i class="fas fa-bed"></i>
-                    </div>
-                    <div class="routine-card-title">
-                        <h4>Sono Diário</h4>
-                        <p>Meta: 8 horas</p>
-                    </div>
-                </div>
-                <div class="routine-card-progress">
-                    <div class="progress-circle">
-                        <svg viewBox="0 0 120 120">
-                            <circle class="progress-bg" cx="60" cy="60" r="50"></circle>
-                            <circle class="progress-fill sleep-fill" cx="60" cy="60" r="50" 
-                                    style="stroke-dashoffset: <?php echo 314 - (314 * $sleep_percentage / 100); ?>"></circle>
+            <!-- 3.3. SONO -->
+            <div class="dashboard-card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="#ff6f00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <div class="progress-content">
-                            <span class="progress-value"><?php echo number_format($avg_sleep_7, 1); ?></span>
-                            <span class="progress-label">horas</span>
-                        </div>
-                    </div>
+                        Sono
+                    </h4>
                 </div>
-                <div class="routine-card-footer">
-                    <div class="progress-percentage"><?php echo round($sleep_percentage); ?>%</div>
-                    <div class="status-indicator status-<?php echo $sleep_percentage >= 90 ? 'excellent' : ($sleep_percentage >= 70 ? 'good' : 'poor'); ?>">
-                        <?php echo $sleep_percentage >= 90 ? 'Excelente' : ($sleep_percentage >= 70 ? 'Bom' : 'Abaixo'); ?>
+                <div class="card-body">
+                    <div class="sleep-info" id="sleep-info">
+                        <p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">
+                            Selecione um dia no calendário para ver o sono
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. MÉDIAS DE PERÍODOS - COPIA EXATA DA HIDRATAÇÃO -->
-        <div class="routine-periods-compact">
-            <h4><i class="fas fa-calendar-alt" style="color: var(--accent-orange);"></i> Médias de Atividade por Período</h4>
-            <p class="section-description">Análise da atividade física média em diferentes períodos para identificar tendências e padrões de rotina.</p>
-            <div class="periods-grid">
-                <div class="period-item">
-                    <span class="period-label">Última Semana</span>
-                    <span class="period-value"><?php echo number_format(array_sum(array_column(array_slice($routine_steps_data, 0, 7), 'steps_daily')) / 7, 0, ',', '.'); ?> passos</span>
-                    <span class="period-percentage">Média diária</span>
-                    <div class="period-details">Últimos 7 dias</div>
-                </div>
-                <div class="period-item">
-                    <span class="period-label">Última Quinzena</span>
-                    <span class="period-value"><?php echo number_format(array_sum(array_column(array_slice($routine_steps_data, 0, 15), 'steps_daily')) / 15, 0, ',', '.'); ?> passos</span>
-                    <span class="period-percentage">Média diária</span>
-                    <div class="period-details">Últimos 15 dias</div>
-                </div>
-                <div class="period-item">
-                    <span class="period-label">Último Mês</span>
-                    <span class="period-value"><?php echo number_format(array_sum(array_column($routine_steps_data, 'steps_daily')) / count($routine_steps_data), 0, ',', '.'); ?> passos</span>
-                    <span class="period-percentage">Média diária</span>
-                    <div class="period-details">Últimos 30 dias</div>
+        <!-- 4. GERENCIADOR DE MISSÕES DE ROTINA (CRUD) -->
+        <div class="dashboard-card" style="margin-top: 30px;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                        <path d="M12 5v14M5 12h14" stroke="#ff6f00" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Gerenciar Missões de Rotina
+                </h4>
+                <button class="btn btn-primary" onclick="openMissionModal()" style="padding: 8px 16px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 6px;">
+                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Adicionar Missão
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="routine-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--glass-bg);">
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Ícone</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Nome da Missão</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Tipo</th>
+                                <th style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="missions-admin-table">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 40px; color: var(--secondary-text-color);">
+                                    Nenhuma missão cadastrada. Clique em "Adicionar Missão" para começar.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
+    </div>
+</div>
+
+<!-- Modal para Adicionar/Editar Missão -->
+<div id="mission-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background: var(--card-bg); border-radius: 12px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color);">
+        <div class="modal-header" style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="mission-modal-title" style="margin: 0; color: var(--primary-text-color);">Adicionar Missão</h3>
+            <button class="modal-close" onclick="closeMissionModal()" style="background: none; border: none; font-size: 24px; color: var(--secondary-text-color); cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <form id="mission-form">
+                <input type="hidden" id="mission-id" name="mission_id">
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="mission-name" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Nome da Missão</label>
+                    <input type="text" id="mission-name" name="mission_name" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="mission-type" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Tipo</label>
+                    <select id="mission-type" name="mission_type" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
+                        <option value="binary">Sim/Não (Binária)</option>
+                        <option value="duration">Com Duração</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="mission-icon" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Ícone (nome do ícone)</label>
+                    <input type="text" id="mission-icon" name="mission_icon" placeholder="Ex: leaf, water-drop, heart-pulse" style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
+                    <small style="color: var(--secondary-text-color); display: block; margin-top: 4px;">Deixe em branco para usar ícone padrão</small>
+                </div>
+                
+                <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeMissionModal()" style="padding: 10px 20px;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Salvar</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -8056,6 +8598,538 @@ document.addEventListener('DOMContentLoaded', function() {
             updateRoutineDisplay(period);
         });
     });
+    
+    // ============ NOVO CÓDIGO: CALENDÁRIO DA ROTINA ============
+    
+    // Variável global para o dia selecionado
+    let selectedRoutineDay = null;
+    
+    // Dados de rotina do PHP
+    const routineLogData = <?php echo json_encode($routine_log_data); ?>;
+    const exerciseData = <?php echo json_encode($routine_exercise_data); ?>;
+    const sleepData = <?php echo json_encode($routine_sleep_data); ?>;
+    
+    // Função para inicializar o calendário da rotina
+    function initRoutineCalendar() {
+        const calendarContainer = document.getElementById('routine-calendar');
+        if (!calendarContainer) return;
+        
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        
+        // Limpar calendário
+        calendarContainer.innerHTML = '';
+        
+        // Criar grid do calendário
+        const calendarGrid = document.createElement('div');
+        calendarGrid.className = 'routine-calendar-grid';
+        
+        // Obter primeiro e último dia do mês
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const lastDay = new Date(currentYear, currentMonth + 1, 0);
+        
+        // Dias da semana
+        const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        
+        // Adicionar cabeçalhos dos dias da semana
+        dayNames.forEach(dayName => {
+            const dayHeader = document.createElement('div');
+            dayHeader.style.textAlign = 'center';
+            dayHeader.style.color = 'var(--secondary-text-color)';
+            dayHeader.style.fontSize = '0.8rem';
+            dayHeader.style.fontWeight = '600';
+            dayHeader.style.marginBottom = '8px';
+            dayHeader.textContent = dayName;
+            calendarGrid.appendChild(dayHeader);
+        });
+        
+        // Adicionar células vazias para os dias antes do primeiro dia do mês
+        const firstDayOfWeek = firstDay.getDay();
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            const emptyCell = document.createElement('div');
+            calendarGrid.appendChild(emptyCell);
+        }
+        
+        // Adicionar os dias do mês
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+            const dayDate = new Date(currentYear, currentMonth, day);
+            const dayString = dayDate.toISOString().split('T')[0];
+            
+            const dayCell = document.createElement('div');
+            dayCell.className = 'routine-calendar-day';
+            dayCell.dataset.date = dayString;
+            
+            // Verificar se há dados para este dia
+            const hasData = routineLogData.some(log => log.date === dayString) ||
+                           exerciseData.some(ex => ex.updated_at.startsWith(dayString)) ||
+                           sleepData.some(sl => sl.date === dayString);
+            
+            if (hasData) {
+                dayCell.classList.add('has-data');
+            }
+            
+            // Marcar dia atual
+            if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+                dayCell.classList.add('today');
+            }
+            
+            // Número do dia
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'routine-calendar-day-number';
+            dayNumber.textContent = day;
+            
+            dayCell.appendChild(dayNumber);
+            
+            // Evento de clique
+            dayCell.addEventListener('click', function() {
+                // Remover seleção anterior
+                document.querySelectorAll('.routine-calendar-day').forEach(d => {
+                    d.classList.remove('selected');
+                });
+                
+                // Adicionar seleção ao dia clicado
+                this.classList.add('selected');
+                selectedRoutineDay = this.dataset.date;
+                
+                // Exibir detalhes do dia
+                showRoutineDayDetails(selectedRoutineDay);
+            });
+            
+            calendarGrid.appendChild(dayCell);
+        }
+        
+        calendarContainer.appendChild(calendarGrid);
+        
+        // Selecionar o dia atual automaticamente
+        const todayString = today.toISOString().split('T')[0];
+        const todayCell = document.querySelector(`.routine-calendar-day[data-date="${todayString}"]`);
+        if (todayCell) {
+            todayCell.click();
+        }
+    }
+    
+    // Função para exibir detalhes do dia selecionado
+    function showRoutineDayDetails(dateString) {
+        const detailsContainer = document.getElementById('routine-day-details');
+        if (!detailsContainer) return;
+        
+        // Mostrar a seção de detalhes
+        detailsContainer.style.display = 'grid';
+        
+        // Filtrar dados do dia
+        const dayRoutines = routineLogData.filter(log => log.date === dateString);
+        const dayExercises = exerciseData.filter(ex => ex.updated_at.startsWith(dateString));
+        const daySleep = sleepData.find(sl => sl.date === dateString);
+        
+        // Atualizar missões
+        updateMissionsList(dayRoutines);
+        
+        // Atualizar atividades físicas
+        updateActivitiesList(dayExercises);
+        
+        // Atualizar sono
+        updateSleepInfo(daySleep);
+    }
+    
+    // Função para atualizar lista de missões
+    function updateMissionsList(routines) {
+        const progressText = document.getElementById('missions-progress-text');
+        const progressBar = document.getElementById('missions-progress-bar');
+        const missionsList = document.getElementById('missions-list');
+        
+        if (!missionsList) return;
+        
+        // Calcular progresso
+        const totalMissions = routines.length;
+        const completedMissions = routines.filter(r => r.is_completed == 1).length;
+        const progressPercent = totalMissions > 0 ? (completedMissions / totalMissions) * 100 : 0;
+        
+        // Atualizar texto de progresso
+        if (progressText) {
+            progressText.textContent = `${completedMissions} de ${totalMissions} missões concluídas`;
+        }
+        
+        // Atualizar barra de progresso
+        if (progressBar) {
+            progressBar.style.width = progressPercent + '%';
+        }
+        
+        // Limpar lista
+        missionsList.innerHTML = '';
+        
+        if (totalMissions === 0) {
+            missionsList.innerHTML = '<p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">Nenhuma missão registrada para este dia.</p>';
+            return;
+        }
+        
+        // Adicionar missões
+        routines.forEach(routine => {
+            const missionItem = document.createElement('div');
+            missionItem.className = 'mission-item';
+            
+            const isCompleted = routine.is_completed == 1;
+            const statusClass = isCompleted ? 'completed' : 'pending';
+            const statusIcon = isCompleted ? '✓' : '✕';
+            
+            let durationText = '';
+            if (routine.exercise_duration_minutes && routine.exercise_duration_minutes > 0) {
+                const hours = Math.floor(routine.exercise_duration_minutes / 60);
+                const mins = routine.exercise_duration_minutes % 60;
+                durationText = hours > 0 ? `${hours}h${mins > 0 ? mins.toString().padStart(2, '0') : ''}` : `${mins}min`;
+            }
+            
+            missionItem.innerHTML = `
+                <div class="mission-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </div>
+                <div class="mission-info">
+                    <div class="mission-name">Missão #${routine.routine_item_id}</div>
+                    ${durationText ? `<div class="mission-duration">${durationText}</div>` : ''}
+                </div>
+                <div class="mission-status ${statusClass}">
+                    <span>${statusIcon}</span>
+                    <span>${isCompleted ? 'Concluída' : 'Pendente'}</span>
+                </div>
+            `;
+            
+            missionsList.appendChild(missionItem);
+        });
+    }
+    
+    // Função para atualizar lista de atividades físicas
+    function updateActivitiesList(exercises) {
+        const activitiesList = document.getElementById('activities-list');
+        if (!activitiesList) return;
+        
+        // Limpar lista
+        activitiesList.innerHTML = '';
+        
+        if (exercises.length === 0) {
+            activitiesList.innerHTML = '<p style="color: var(--secondary-text-color); text-align: center; padding: 20px;">Nenhuma atividade registrada para este dia.</p>';
+            return;
+        }
+        
+        // Adicionar atividades
+        exercises.forEach(exercise => {
+            const activityItem = document.createElement('div');
+            activityItem.className = 'activity-item';
+            
+            const hours = Math.floor(exercise.duration_minutes / 60);
+            const mins = exercise.duration_minutes % 60;
+            const durationText = hours > 0 ? `${hours}h${mins > 0 ? mins.toString().padStart(2, '0') : ''}` : `${mins}min`;
+            
+            activityItem.innerHTML = `
+                <div class="activity-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6.5 6.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"/>
+                        <path d="M17.5 17.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"/>
+                        <path d="M6.5 9v3l3.5 3l3.5 -3v-3"/>
+                        <path d="M17.5 15v-3l-3.5 -3l-3.5 3v3"/>
+                    </svg>
+                </div>
+                <div class="activity-info">
+                    <div class="activity-name">${exercise.exercise_name}</div>
+                    <div class="activity-duration">${durationText}</div>
+                </div>
+            `;
+            
+            activitiesList.appendChild(activityItem);
+        });
+    }
+    
+    // Função para atualizar informações de sono
+    function updateSleepInfo(sleepData) {
+        const sleepValue = document.getElementById('sleep-hours-value');
+        const sleepProgressBar = document.getElementById('sleep-progress-bar');
+        const sleepProgressText = document.getElementById('sleep-progress-text');
+        
+        if (!sleepValue) return;
+        
+        if (!sleepData || !sleepData.sleep_hours || sleepData.sleep_hours == 0) {
+            sleepValue.textContent = '--';
+            if (sleepProgressBar) sleepProgressBar.style.width = '0%';
+            if (sleepProgressText) sleepProgressText.textContent = 'Nenhum registro de sono para este dia';
+            return;
+        }
+        
+        const hours = Math.floor(sleepData.sleep_hours);
+        const mins = Math.round((sleepData.sleep_hours - hours) * 60);
+        const timeText = `${hours}h${mins > 0 ? mins.toString().padStart(2, '0') : ''}`;
+        
+        sleepValue.textContent = timeText;
+        
+        // Meta de sono (8 horas como padrão)
+        const sleepGoal = 8;
+        const progressPercent = Math.min((sleepData.sleep_hours / sleepGoal) * 100, 100);
+        
+        if (sleepProgressBar) {
+            sleepProgressBar.style.width = progressPercent + '%';
+        }
+        
+        if (sleepProgressText) {
+            const diff = sleepData.sleep_hours - sleepGoal;
+            if (diff >= 0) {
+                sleepProgressText.textContent = `Meta: ${sleepGoal}h — dentro da média`;
+            } else {
+                sleepProgressText.textContent = `Meta: ${sleepGoal}h — ${Math.abs(diff).toFixed(1)}h abaixo da meta`;
+            }
+        }
+    }
+    
+    // Inicializar calendário quando a aba de rotina for aberta
+    const routineTabButton = document.querySelector('[data-tab="routine"]');
+    if (routineTabButton) {
+        routineTabButton.addEventListener('click', function() {
+            setTimeout(() => {
+                initRoutineCalendar();
+            }, 100);
+        });
+    }
+    
+    // ============ CRUD DE MISSÕES ============
+    
+    // Modal de missões
+    const missionModal = document.getElementById('mission-modal');
+    const addMissionBtn = document.getElementById('add-mission-btn');
+    const cancelMissionBtn = document.getElementById('cancel-mission-btn');
+    const saveMissionBtn = document.getElementById('save-mission-btn');
+    
+    // Carregar lista de missões
+    function loadMissionsAdminList() {
+        fetch('api/routine_missions_crud.php?action=list')
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    renderMissionsTable(result.data);
+                } else {
+                    console.error('Erro ao carregar missões:', result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
+    }
+    
+    // Renderizar tabela de missões
+    function renderMissionsTable(missions) {
+        const tbody = document.querySelector('#missions-admin-table tbody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        
+        if (missions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--secondary-text-color); padding: 20px;">Nenhuma missão cadastrada</td></tr>';
+            return;
+        }
+        
+        missions.forEach(mission => {
+            const row = document.createElement('tr');
+            
+            const typeLabel = mission.mission_type === 'binary' ? 'Sim/Não' : 'Com Duração';
+            const durationInfo = mission.default_duration_minutes 
+                ? ` (${mission.default_duration_minutes}min padrão)` 
+                : '';
+            
+            row.innerHTML = `
+                <td>
+                    <div class="mission-table-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                </td>
+                <td>
+                    <strong>${mission.name}</strong>
+                    ${mission.description ? `<br><small style="color: var(--secondary-text-color);">${mission.description}</small>` : ''}
+                </td>
+                <td>
+                    <span class="mission-type-badge">${typeLabel}${durationInfo}</span>
+                </td>
+                <td>
+                    <div class="mission-table-actions">
+                        <button class="action-btn" onclick="editMission(${mission.id})" title="Editar">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                        <button class="action-btn delete" onclick="deleteMission(${mission.id}, '${mission.name.replace(/'/g, "\\'")}')" title="Excluir">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                <line x1="10" y1="11" x2="10" y2="17"/>
+                                <line x1="14" y1="11" x2="14" y2="17"/>
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+    
+    // Abrir modal para adicionar missão
+    if (addMissionBtn) {
+        addMissionBtn.addEventListener('click', function() {
+            // Limpar formulário
+            document.getElementById('mission-id').value = '';
+            document.getElementById('mission-name').value = '';
+            document.getElementById('mission-type').value = 'binary';
+            document.getElementById('mission-icon').value = 'clock';
+            
+            // Atualizar título do modal
+            document.querySelector('#mission-modal .modal-header h3').textContent = 'Adicionar Nova Missão';
+            
+            // Mostrar modal
+            missionModal.style.display = 'flex';
+        });
+    }
+    
+    // Editar missão (função global)
+    window.editMission = function(id) {
+        fetch(`api/routine_missions_crud.php?action=get&id=${id}`)
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const mission = result.data;
+                    
+                    // Preencher formulário
+                    document.getElementById('mission-id').value = mission.id;
+                    document.getElementById('mission-name').value = mission.name;
+                    document.getElementById('mission-type').value = mission.mission_type;
+                    document.getElementById('mission-icon').value = mission.icon_name;
+                    
+                    // Atualizar título do modal
+                    document.querySelector('#mission-modal .modal-header h3').textContent = 'Editar Missão';
+                    
+                    // Mostrar modal
+                    missionModal.style.display = 'flex';
+                } else {
+                    alert('Erro ao carregar missão: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar missão:', error);
+                alert('Erro ao carregar missão');
+            });
+    };
+    
+    // Excluir missão (função global)
+    window.deleteMission = function(id, name) {
+        if (!confirm(`Tem certeza que deseja excluir a missão "${name}"?`)) {
+            return;
+        }
+        
+        fetch('api/routine_missions_crud.php?action=delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Missão excluída com sucesso!');
+                loadMissionsAdminList();
+            } else {
+                alert('Erro ao excluir missão: ' + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao excluir missão:', error);
+            alert('Erro ao excluir missão');
+        });
+    };
+    
+    // Cancelar edição
+    if (cancelMissionBtn) {
+        cancelMissionBtn.addEventListener('click', function() {
+            missionModal.style.display = 'none';
+        });
+    }
+    
+    // Salvar missão
+    if (saveMissionBtn) {
+        saveMissionBtn.addEventListener('click', function() {
+            const missionId = document.getElementById('mission-id').value;
+            const missionName = document.getElementById('mission-name').value.trim();
+            const missionType = document.getElementById('mission-type').value;
+            const missionIcon = document.getElementById('mission-icon').value;
+            
+            if (!missionName) {
+                alert('Por favor, insira o nome da missão.');
+                return;
+            }
+            
+            const data = {
+                name: missionName,
+                mission_type: missionType,
+                icon_name: missionIcon
+            };
+            
+            const isEdit = missionId !== '';
+            if (isEdit) {
+                data.id = parseInt(missionId);
+            }
+            
+            const action = isEdit ? 'update' : 'create';
+            
+            // Desabilitar botão enquanto processa
+            saveMissionBtn.disabled = true;
+            saveMissionBtn.textContent = 'Salvando...';
+            
+            fetch(`api/routine_missions_crud.php?action=${action}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                saveMissionBtn.disabled = false;
+                saveMissionBtn.textContent = 'Salvar';
+                
+                if (result.success) {
+                    alert(isEdit ? 'Missão atualizada com sucesso!' : 'Missão criada com sucesso!');
+                    missionModal.style.display = 'none';
+                    loadMissionsAdminList();
+                } else {
+                    alert('Erro ao salvar missão: ' + result.message);
+                }
+            })
+            .catch(error => {
+                saveMissionBtn.disabled = false;
+                saveMissionBtn.textContent = 'Salvar';
+                console.error('Erro ao salvar missão:', error);
+                alert('Erro ao salvar missão');
+            });
+        });
+    }
+    
+    // Fechar modal ao clicar fora
+    window.addEventListener('click', function(event) {
+        if (event.target === missionModal) {
+            missionModal.style.display = 'none';
+        }
+    });
+    
+    // Carregar lista de missões quando a aba de rotina for aberta
+    const routineTabBtn = document.querySelector('[data-tab="routine"]');
+    if (routineTabBtn) {
+        routineTabBtn.addEventListener('click', function() {
+            setTimeout(() => {
+                loadMissionsAdminList();
+            }, 200);
+        });
+    }
 });
 </script>
 
