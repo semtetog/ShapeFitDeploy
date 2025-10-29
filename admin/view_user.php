@@ -3630,112 +3630,47 @@ function updateDiaryDisplay() {
     }
     
     // Atualizar estado dos botões de navegação
-    updateNavigationButtons();
+    updateDiaryNavButtons();
 }
 
-function updateNavigationButtons() {
-    const currentCard = diaryCards[currentDiaryIndex];
-    if (!currentCard) return;
-    
-    const currentDate = currentCard.getAttribute('data-date');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const currentDateObj = new Date(currentDate + 'T00:00:00');
-    
-    console.log('Current date:', currentDate, 'Today:', today.toISOString().split('T')[0]);
-    
-    // Botão de avançar (direita) - desabilitar se estiver no dia atual ou futuro
-    const nextBtn = document.querySelector('.diary-nav-right');
-    if (nextBtn) {
-        // Verificar se existe um próximo card e se ele não é futuro
-        const nextIndex = currentDiaryIndex + 1;
-        if (nextIndex < diaryCards.length) {
-            const nextCard = diaryCards[nextIndex];
-            const nextDate = nextCard.getAttribute('data-date');
-            const nextDateObj = new Date(nextDate + 'T00:00:00');
-            
-            if (nextDateObj > today) {
-                nextBtn.classList.add('disabled');
-                nextBtn.disabled = true;
-            } else {
-                nextBtn.classList.remove('disabled');
-                nextBtn.disabled = false;
-            }
-        } else {
-            // Não há próximo card
-            nextBtn.classList.add('disabled');
-            nextBtn.disabled = true;
-        }
-    }
+function updateDiaryNavButtons() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const nextBtn = document.querySelector('.diary-nav-right');
+  if (!nextBtn) return;
+  const nextIdx = currentDiaryIndex + 1;
+  if (nextIdx >= diaryCards.length) {
+    nextBtn.classList.add('disabled'); nextBtn.disabled = true; return;
+  }
+  const nextDateObj = new Date(diaryCards[nextIdx].getAttribute('data-date') + 'T00:00:00');
+  const allow = nextDateObj <= today;
+  nextBtn.classList.toggle('disabled', !allow);
+  nextBtn.disabled = !allow;
 }
 function navigateDiary(direction) {
-    let newIndex = currentDiaryIndex + direction;
-    
-    // Se tentar ir para frente
-    if (direction > 0) {
-        // Verificar se o próximo dia seria futuro
-        if (newIndex >= diaryCards.length) {
-            // Já está no último, não faz nada
-            return;
-        }
-        
-        const nextCard = diaryCards[newIndex];
-        if (nextCard) {
-            const nextDate = nextCard.getAttribute('data-date');
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const nextDateObj = new Date(nextDate + 'T00:00:00');
-            
-            // Se o próximo dia for futuro, não permite
-            if (nextDateObj > today) {
-                return; // Bloqueia navegação
-            }
-        }
-    }
-    
-    // Se tentar ir para trás
-    if (direction < 0) {
-        // Se já está carregando, ignora
-        if (window.isLoadingMoreDays) {
-            console.log('Já está carregando mais dias...');
-            return;
-        }
-        
-        // Calcular a data do dia anterior
-        const currentCard = diaryCards[currentDiaryIndex];
-        if (currentCard) {
-            const currentDate = currentCard.getAttribute('data-date');
-            const dateObj = new Date(currentDate + 'T00:00:00');
-            dateObj.setDate(dateObj.getDate() - 1);
-            const prevDate = dateObj.toISOString().split('T')[0];
-            
-            // Verificar se já existe um card para essa data
-            const existingCardIndex = Array.from(diaryCards).findIndex(card => 
-                card.getAttribute('data-date') === prevDate
-            );
-            
-            if (existingCardIndex !== -1) {
-                // Se existe, navegar diretamente
-                currentDiaryIndex = existingCardIndex;
-                updateDiaryDisplay();
-                return;
-            } else {
-                // Se não existe, carregar via AJAX
-                console.log('Carregando 1 dia anterior via AJAX. Data atual:', currentDate, 'Nova end_date:', prevDate);
-                loadMoreDiaryDays(prevDate, 1);
-                return;
-            }
-        }
-    }
-    
-    // Se tentar ir para frente e já está no último card (mais recente)
-    if (direction > 0 && newIndex >= diaryCards.length) {
-        console.log('Já está no dia mais recente');
-        return;
-    }
-    
-    currentDiaryIndex = newIndex;
-    updateDiaryDisplay();
+  if (!Array.isArray(diaryCards) || diaryCards.length === 0) return;
+
+  const nextIdx = currentDiaryIndex + direction;
+
+  // Bloqueia avançar para futuro
+  if (direction > 0) {
+    if (nextIdx >= diaryCards.length) return;
+    const nd = new Date(diaryCards[nextIdx].getAttribute('data-date') + 'T00:00:00');
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (nd > today) return;
+  }
+
+  // Válida voltar
+  if (nextIdx < 0) return;
+
+  currentDiaryIndex = nextIdx;
+  setActiveDiaryCard(currentDiaryIndex);
+  updateDiaryDisplay();
+}
+
+// ======== DIÁRIO: CALENDÁRIO ========
+function openDiaryCalendarSafely() {
+  // chama sua função existente de calendário, só garantimos que não quebre
+  if (typeof openDiaryCalendar === 'function') openDiaryCalendar();
 }
 
        async function loadMoreDiaryDays(endDate, daysToLoad = 1) {
