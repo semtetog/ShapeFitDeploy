@@ -2287,6 +2287,16 @@ require_once __DIR__ . '/includes/header.php';
     padding: 20px 0 !important;
 }
 
+/* Exibe apenas o card do dia atual */
+.diary-day-card {
+    display: none !important;
+    width: 100% !important;
+}
+
+.diary-day-card.active {
+    display: block !important;
+}
+
 .routine-summary-card {
     background: var(--card-bg);
     border-radius: 12px;
@@ -3518,12 +3528,17 @@ function updateDiaryDisplay() {
     // CORREÇÃO PRINCIPAL: Ajustar altura do slider dinamicamente
     const diaryTrack = document.getElementById('diarySliderTrack');
     if (diaryTrack && currentCard) {
+        // Garantir que apenas o card ativo fique visível
+        diaryCards.forEach((card, index) => {
+            card.classList.toggle('active', index === currentDiaryIndex);
+        });
+        
         // Resetar altura para auto primeiro
         diaryTrack.style.height = 'auto';
         
         // Aguardar um frame para o layout se ajustar
         requestAnimationFrame(() => {
-            // Definir altura baseada no card atual
+            // Definir altura baseada no card atual (agora só o ativo)
             const cardHeight = currentCard.scrollHeight;
             diaryTrack.style.height = cardHeight + 'px';
         });

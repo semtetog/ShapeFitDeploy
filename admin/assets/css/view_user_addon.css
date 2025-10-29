@@ -4854,3 +4854,13 @@
   height: auto !important;
   padding: 20px 0 !important;
 }
+
+/* Exibe apenas o card do dia atual */
+.diary-day-card {
+  display: none !important;
+  width: 100% !important;
+}
+
+.diary-day-card.active {
+  display: block !important;
+}
