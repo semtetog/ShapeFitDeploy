@@ -5337,7 +5337,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
 
         <!-- 2. CALENDÁRIO (IDÊNTICO AO DA ABA DIÁRIO) -->
-        <div class="routine-calendar-section" style="margin-top: 25px;">
+        <div class="diary-slider-container" style="margin-top: 25px;">
             <div class="diary-header-redesign">
                 <!-- Ano no topo -->
                 <div class="diary-year" id="routineYear">2025</div>
