@@ -10444,8 +10444,6 @@ window.selectRoutineDayFromCalendar = function(dateStr) {
 
 // Diário: selecionar dia pelo calendário (delegation para garantir funcionamento)
 window.selectDiaryDayFromCalendar = function(dateStr) {
-    // Atualizar referência aos cards
-    updateDiaryCards();
     // Encontrar índice
     const cardsArray = Array.from(diaryCards);
     const targetIndex = cardsArray.findIndex(card => card.getAttribute('data-date') === dateStr);
@@ -10453,8 +10451,14 @@ window.selectDiaryDayFromCalendar = function(dateStr) {
         console.warn('Dia selecionado no calendário (diário) não encontrado:', dateStr);
         return;
     }
+
+    // Atualizar índice global
     currentDiaryIndex = targetIndex;
-    
+
+    // Atualizar card ativo e exibir o dia selecionado
+    setActiveDiaryCard(currentDiaryIndex);
+    updateDiaryDisplay();
+
     // Fechar modal do calendário se existir
     if (typeof closeDiaryCalendar === 'function') {
         try { closeDiaryCalendar(); } catch (e) {}
@@ -10462,22 +10466,6 @@ window.selectDiaryDayFromCalendar = function(dateStr) {
         const modal = document.getElementById('diaryCalendarModal');
         if (modal) modal.style.display = 'none';
     }
-    
-    // Posicionar imediatamente sem animação para evitar flicker
-    diaryTrack = document.getElementById('diarySliderTrack');
-    if (diaryTrack) {
-        diaryTrack.style.transition = 'none';
-        diaryTrack.style.transform = `translateX(${-currentDiaryIndex * 100}%)`;
-    }
-    
-    // Atualizar UI
-    setTimeout(() => {
-        updateDiaryDisplay();
-    }, 50);
-    // Seleção visual
-    document.querySelectorAll('#diarySliderTrack .diary-day-card').forEach(card => card.classList.remove('selected'));
-    const selectedCard = document.querySelector(`#diarySliderTrack .diary-day-card[data-date="${dateStr}"]`);
-    if (selectedCard) selectedCard.classList.add('selected');
 };
 
 // Delegar clique no calendário do Diário caso o HTML não tenha onclicks
