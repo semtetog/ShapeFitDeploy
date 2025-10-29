@@ -9923,8 +9923,31 @@ function renderRoutineCalendar() {
 
 // Selecionar dia do calendário da rotina
 window.selectRoutineDayFromCalendar = function(dateStr) {
+    // Fechar modal do calendário
     closeRoutineCalendar();
-    selectRoutineDay(dateStr);
+    
+    // Garantir que temos a lista atual de cards
+    updateRoutineCards();
+    
+    // Encontrar o índice do card correspondente
+    const cardsArray = Array.from(routineCards);
+    const targetIndex = cardsArray.findIndex(card => card.getAttribute('data-date') === dateStr);
+    if (targetIndex === -1) {
+        console.warn('Dia selecionado no calendário não encontrado no slider:', dateStr);
+        return;
+    }
+    
+    // Atualizar índice atual e exibir com animação
+    currentRoutineIndex = targetIndex;
+    updateRoutineSliderDisplay();
+    
+    // Atualizar seleção visual
+    document.querySelectorAll('#routineSliderTrack .diary-day-card').forEach(card => card.classList.remove('selected'));
+    const selectedCard = document.querySelector(`#routineSliderTrack .diary-day-card[data-date="${dateStr}"]`);
+    if (selectedCard) selectedCard.classList.add('selected');
+    
+    // Atualizar painel de detalhes
+    updateRoutineDayDetails(dateStr);
 };
 
 // Sistema de navegação da rotina (COPIADO DO DIÁRIO)
