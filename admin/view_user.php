@@ -4622,21 +4622,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (period === 'today') {
                 // Filtrar apenas dados de hoje - usar a data do servidor
                 const today = '<?php echo $today; ?>'; // Data do servidor
-                console.log('DEBUG - Filtrando dados de hoje:', today);
                 displayData = hydrationData.filter(day => {
-                    console.log('DEBUG - Comparando:', day.date, 'com', today);
                     return day.date === today;
                 });
-                console.log('DEBUG - Dados filtrados para hoje:', displayData);
             } else if (period === 'yesterday') {
                 // Filtrar apenas dados de ontem - usar a data do servidor
                 const yesterday = '<?php echo $yesterday; ?>'; // Data do servidor
-                console.log('DEBUG - Filtrando dados de ontem:', yesterday);
                 displayData = hydrationData.filter(day => {
-                    console.log('DEBUG - Comparando:', day.date, 'com', yesterday);
                     return day.date === yesterday;
                 });
-                console.log('DEBUG - Dados filtrados para ontem:', displayData);
             } else {
                 displayData = hydrationData.slice(0, daysToShow);
             }
@@ -4644,7 +4638,6 @@ document.addEventListener('DOMContentLoaded', function() {
             improvedBars.innerHTML = displayData.map(day => {
                 // Para hidratação, limitar a 100% (como já está)
                 const limitedPercentage = Math.min(day.percentage, 100);
-                console.log('DEBUG - Processando dia:', day.date, 'porcentagem:', day.percentage, 'limitada:', limitedPercentage);
                 
                 // Calcular altura da barra: 0% = 0px, 100% = 160px (altura total), outros valores proporcionais
                 let barHeight;
@@ -4656,7 +4649,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Proporcional: 0px (mínimo) + (porcentagem * 160px)
                     barHeight = (limitedPercentage / 100) * 160;
                 }
-                console.log('DEBUG - Altura calculada:', barHeight, 'para porcentagem:', limitedPercentage);
                 return `
                     <div class="improved-bar-container">
                         <div class="improved-bar-wrapper">
@@ -4816,7 +4808,6 @@ document.addEventListener('DOMContentLoaded', function() {
             nutrientsBars.innerHTML = displayData.map(day => {
                 // Para nutrientes, permitir porcentagem > 100%
                 const percentage = day.avg_percentage;
-                console.log('DEBUG - Processando nutrientes dia:', day.date, 'porcentagem:', percentage);
                 
                 // Calcular altura da barra: 0% = 0px, 100% = 160px, >100% pode ir até 200px
                 let barHeight;
@@ -4827,7 +4818,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     barHeight = (percentage / 100) * 160; // Proporcional entre 0px e 160px
                 }
-                console.log('DEBUG - Altura calculada nutrientes:', barHeight, 'para porcentagem:', percentage);
                 return `
                     <div class="improved-bar-container">
                         <div class="improved-bar-wrapper">
@@ -9321,9 +9311,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Gerar slider de dias da rotina (igual ao da aba Diário)
     window.generateRoutineSlider = function() {
-        console.log('=== GENERATE_ROUTINE_SLIDER INICIADO ===');
         const sliderTrack = document.getElementById('routineSliderTrack');
-        console.log('Slider track encontrado:', sliderTrack);
         if (!sliderTrack) {
             console.error('Slider track não encontrado!');
             return;
@@ -9465,7 +9453,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         updateRoutineSliderDisplay();
         
-        console.log('=== GENERATE_ROUTINE_SLIDER FINALIZADO ===');
     };
     
     // Função para exibir detalhes do dia selecionado
@@ -9647,18 +9634,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Apenas inicializar navegação e display
                 updateRoutineCards();
                 
-                console.log('=== INIT ROUTINE CALENDAR ===');
-                console.log('Total de cards:', routineCards.length);
                 
                 // Buscar o card do dia de HOJE
                 const today = new Date();
                 const todayStr = today.toISOString().split('T')[0];
-                console.log('Data de HOJE (procurando):', todayStr);
                 
-                // Mostrar todas as datas dos cards para debug
-                for (let i = 0; i < routineCards.length; i++) {
-                    console.log(`Card ${i}:`, routineCards[i].getAttribute('data-date'));
-                }
                 
                 // Procurar o índice do card de hoje
                 let targetIndex = routineCards.length - 1; // Default: último card
@@ -9750,256 +9730,122 @@ document.addEventListener('DOMContentLoaded', function() {
         const routineTab = document.getElementById('tab-routine');
         if (routineTab && routineTab.style.display === 'none') return;
         
-        console.log('=== LOAD_MISSIONS_ADMIN_LIST INICIADO ===');
-        console.log('Patient ID:', patientId);
-        console.log('URL:', `api/routine_crud.php?action=list_missions&patient_id=${patientId}`);
+        const container = document.getElementById('missions-container');
+        if (!container) return;
+        
+        // Mostrar loading
+        container.innerHTML = `
+            <div class="loading-missions">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Carregando missões...</span>
+            </div>
+        `;
         
         fetch(`api/routine_crud.php?action=list_missions&patient_id=${patientId}`)
-            .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.text(); // Primeiro como texto para debug
-            })
-            .then(text => {
-                console.log('Response text:', text);
-                try {
-                    const result = JSON.parse(text);
-                    console.log('Parsed result:', result);
-                    if (result.success) {
-                        console.log('Dados das missões:', result.data);
-                        // Tornar disponível globalmente para cálculo de progresso
-                        window.routineItemsData = result.data;
-                        renderMissionsTable(result.data);
-                    } else {
-                        console.error('Erro ao carregar missões:', result.message);
-                    }
-                } catch (e) {
-                    console.error('Erro ao fazer parse do JSON:', e);
-                    console.error('Resposta recebida:', text);
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    window.routineItemsData = result.data;
+                    renderMissionsGrid(result.data);
+                } else {
+                    showEmptyMissions('Erro ao carregar missões');
                 }
             })
             .catch(error => {
-                console.error('Erro na requisição:', error);
-                console.error('Stack trace:', error.stack);
-            })
-            .finally(() => {
-                console.log('=== LOAD_MISSIONS_ADMIN_LIST FINALIZADO ===');
+                console.error('Erro ao carregar missões:', error);
+                showEmptyMissions('Erro ao carregar missões');
             });
     }
     
-    // Renderizar tabela de missões
-    function renderMissionsTable(missions) {
-        const tbody = document.querySelector('#missions-admin-table tbody');
-        const cardsContainer = document.getElementById('missions-cards');
-        if (!tbody && !cardsContainer) return;
-        
-        if (tbody) tbody.innerHTML = '';
-        if (cardsContainer) cardsContainer.innerHTML = '';
+    // Renderizar grid de missões
+    function renderMissionsGrid(missions) {
+        const container = document.getElementById('missions-container');
+        if (!container) return;
         
         if (missions.length === 0) {
-            if (tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--secondary-text-color); padding: 20px;">Nenhuma missão cadastrada</td></tr>';
-            if (cardsContainer) cardsContainer.innerHTML = '<p style="color: var(--secondary-text-color); text-align: center; padding: 12px;">Nenhuma missão cadastrada</p>';
+            showEmptyMissions();
             return;
         }
         
-        missions.forEach(mission => {
-            const typeLabel = mission.is_exercise ? 'Exercício' : 'Sim/Não';
-            const durationInfo = mission.exercise_type ? `${mission.exercise_type}` : '';
-
-            if (tbody) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <div class="mission-table-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M12 6v6l4 2"/>
-                            </svg>
-                        </div>
-                    </td>
-                    <td>
-                        <strong>${mission.title}</strong>
-                        ${mission.description ? `<br><small style=\"color: var(--secondary-text-color);\">${mission.description}</small>` : ''}
-                    </td>
-                    <td>
-                        <span class="mission-type-badge">${typeLabel}${durationInfo ? ` (${durationInfo})` : ''}</span>
-                    </td>
-                    <td>
-                        <div class="mission-table-actions">
-                            <button class="action-btn" onclick="editMission(${mission.id})" title="Editar">✏️</button>
-                            <button class="action-btn delete" onclick="deleteMission(${mission.id}, '${mission.title.replace(/'/g, "\\'")}')" title="Excluir">🗑️</button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            }
-
-            if (cardsContainer) {
-                const card = document.createElement('div');
-                const iconClass = mission.icon_class ? `fas ${mission.icon_class}` : 'fas fa-clipboard-check';
-                card.className = 'diary-meal-card';
-                card.innerHTML = `
-                    <div class="diary-meal-header">
-                        <div class="diary-meal-icon">
-                            <i class="${iconClass}"></i>
-                        </div>
-                        <div class="diary-meal-info">
-                            <h5>${mission.title}</h5>
-                            <span class="diary-meal-totals">
-                                ${typeLabel}${durationInfo ? ` • ${durationInfo}` : ''}
-                            </span>
-                        </div>
-                        <div style="margin-left:auto; display:flex; gap:8px;">
-                            <button class="btn btn-secondary" onclick="editMission(${mission.id})" type="button">Editar</button>
-                            <button class="btn btn-danger" onclick="deleteMission(${mission.id}, '${mission.title.replace(/'/g, "\\'")}')" type="button">Excluir</button>
-                        </div>
+        container.innerHTML = missions.map(mission => `
+            <div class="mission-item" data-id="${mission.id}">
+                <div class="mission-header">
+                    <div class="mission-icon">
+                        <i class="${mission.icon_class || 'fa-tasks'}"></i>
                     </div>
-                `;
-                cardsContainer.appendChild(card);
-            }
-        });
+                    <div class="mission-info">
+                        <h4>${mission.title}</h4>
+                        <div class="mission-type">${mission.is_exercise ? 'Exercício' : 'Sim/Não'}</div>
+                    </div>
+                </div>
+                <div class="mission-actions">
+                    <button class="btn-edit" onclick="editMission(${mission.id})">
+                        <i class="fas fa-edit"></i>
+                        Editar
+                    </button>
+                    <button class="btn-delete" onclick="deleteMission(${mission.id}, '${mission.title.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-trash"></i>
+                        Excluir
+                    </button>
+                </div>
+            </div>
+        `).join('');
     }
     
-    // Abrir modal para adicionar missão
-    if (addMissionBtn) {
-        addMissionBtn.addEventListener('click', function() {
-            // Limpar formulário
-            document.getElementById('mission-id').value = '';
-            document.getElementById('mission-name').value = '';
-            document.getElementById('mission-type').value = 'binary';
-            document.getElementById('mission-icon').value = 'clock';
-            
-            // Atualizar título do modal
-            document.querySelector('#mission-modal .modal-header h3').textContent = 'Adicionar Nova Missão';
-            
-            // Mostrar modal
-            missionModal.style.display = 'flex';
-            // Aguardar um pouco para o modal aparecer antes de inicializar o picker
-            setTimeout(() => {
-                initMissionIconPicker();
-            }, 100);
-        });
+    // Mostrar estado vazio
+    function showEmptyMissions(message = 'Nenhuma missão cadastrada') {
+        const container = document.getElementById('missions-container');
+        if (!container) return;
+        
+        container.innerHTML = `
+            <div class="empty-missions">
+                <i class="fas fa-tasks"></i>
+                <h4>${message}</h4>
+                <p>Clique em "Adicionar Missão" para criar a primeira missão personalizada</p>
+            </div>
+        `;
     }
     
-    // Funções movidas para escopo global
-    
-    // Cancelar edição
-    if (cancelMissionBtn) {
-        cancelMissionBtn.addEventListener('click', function() {
-            missionModal.style.display = 'none';
-        });
-    }
-    
-    // Salvar missão
-    if (saveMissionBtn) {
-        saveMissionBtn.addEventListener('click', function() {
-            const missionId = document.getElementById('mission-id').value;
-            const missionName = document.getElementById('mission-name').value.trim();
-            const missionType = document.getElementById('mission-type').value;
-            const missionIcon = document.getElementById('mission-icon').value;
-            
-            if (!missionName) {
-                alert('Por favor, insira o nome da missão.');
-                return;
-            }
-            
-            const data = {
-                title: missionName,
-                is_exercise: missionType === 'duration' ? 1 : 0,
-                icon_class: missionIcon || 'fa-check-circle'
-            };
-            
-            const isEdit = missionId !== '';
-            if (isEdit) {
-                data.id = parseInt(missionId);
-            }
-            
-            const action = isEdit ? 'update_mission' : 'create_mission';
-            
-            // Desabilitar botão enquanto processa
-            saveMissionBtn.disabled = true;
-            saveMissionBtn.textContent = 'Salvando...';
-            
-            fetch(`api/routine_crud.php?action=${action}&patient_id=${patientId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                saveMissionBtn.disabled = false;
-                saveMissionBtn.textContent = 'Salvar';
-                
-                if (result.success) {
-                    alert(isEdit ? 'Missão atualizada com sucesso!' : 'Missão criada com sucesso!');
-                    missionModal.style.display = 'none';
-                    loadMissionsAdminList();
-                } else {
-                    alert('Erro ao salvar missão: ' + result.message);
-                }
-            })
-            .catch(error => {
-                saveMissionBtn.disabled = false;
-                saveMissionBtn.textContent = 'Salvar';
-                console.error('Erro ao salvar missão:', error);
-                alert('Erro ao salvar missão');
-            });
-        });
-    }
-
-    // Inicializar grade de ícones do modal
-    function initMissionIconPicker(selected = '') {
-        const picker = document.getElementById('mission-icon-picker');
+    // Inicializar seletor de ícones
+    function initIconPicker() {
+        const picker = document.getElementById('iconPicker');
         if (!picker) return;
+        
         const icons = [
-            'fa-dumbbell','fa-running','fa-bicycle','fa-walking','fa-heart','fa-heartbeat','fa-fire',
-            'fa-apple-alt','fa-seedling','fa-leaf','fa-carrot','fa-utensils','fa-water','fa-tint',
-            'fa-bed','fa-moon','fa-sun','fa-clock','fa-check-circle','fa-clipboard-check','fa-weight',
-            'fa-brain','fa-spa','fa-yin-yang','fa-meditation','fa-bolt'
+            'fa-dumbbell', 'fa-running', 'fa-bicycle', 'fa-walking', 'fa-heart', 'fa-heartbeat', 'fa-fire',
+            'fa-apple-alt', 'fa-seedling', 'fa-leaf', 'fa-carrot', 'fa-utensils', 'fa-water', 'fa-tint',
+            'fa-bed', 'fa-moon', 'fa-sun', 'fa-clock', 'fa-check-circle', 'fa-clipboard-check', 'fa-weight',
+            'fa-brain', 'fa-spa', 'fa-yin-yang', 'fa-meditation', 'fa-bolt', 'fa-dumbbell', 'fa-swimming-pool',
+            'fa-basketball-ball', 'fa-volleyball-ball', 'fa-football-ball', 'fa-table-tennis', 'fa-golf-ball',
+            'fa-hiking', 'fa-mountain', 'fa-tree', 'fa-paw', 'fa-dog', 'fa-cat', 'fa-fish', 'fa-bug'
         ];
-        picker.innerHTML = '';
-        icons.forEach(ic => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.style.cssText = 'background: var(--glass-bg); border:1px solid var(--border-color); border-radius:8px; padding:8px; cursor:pointer;';
-            btn.innerHTML = `<i class="fas ${ic}" style="font-size:18px;"></i>`;
-            if (selected && selected === ic) btn.style.outline = '2px solid var(--accent-orange)';
-            btn.addEventListener('click', () => {
-                document.getElementById('mission-icon').value = ic;
-                // destacar seleção
-                Array.from(picker.children).forEach(c => c.style.outline = 'none');
-                btn.style.outline = '2px solid var(--accent-orange)';
+        
+        picker.innerHTML = icons.map(icon => `
+            <div class="icon-option" data-icon="${icon}">
+                <i class="fas ${icon}"></i>
+            </div>
+        `).join('');
+        
+        // Adicionar event listeners
+        picker.querySelectorAll('.icon-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remover seleção anterior
+                picker.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+                // Selecionar atual
+                this.classList.add('selected');
+                // Atualizar input hidden
+                document.getElementById('missionId').setAttribute('data-selected-icon', this.dataset.icon);
             });
-            picker.appendChild(btn);
         });
     }
-
-    // Função editMission será definida globalmente mais abaixo
-    
-    // Fechar modal ao clicar fora
-    window.addEventListener('click', function(event) {
-        if (event.target === missionModal) {
-            missionModal.style.display = 'none';
-        }
-    });
     
     // ============ GERENCIAMENTO DE EXERCÍCIOS ============
     
     // Carregar lista de exercícios
     function loadExercisesAdminList() {
-        console.log('=== LOAD_EXERCISES_ADMIN_LIST INICIADO ===');
-        console.log('Patient ID:', patientId);
-        console.log('URL:', `api/routine_crud.php?action=list_exercises&patient_id=${patientId}`);
         
         fetch(`api/routine_crud.php?action=list_exercises&patient_id=${patientId}`)
             .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -10026,7 +9872,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Stack trace:', error.stack);
             })
             .finally(() => {
-                console.log('=== LOAD_EXERCISES_ADMIN_LIST FINALIZADO ===');
             });
     }
     
@@ -10153,33 +9998,72 @@ const patientId = <?php echo $user_id; ?>;
 
 // Dados de rotina do PHP (escopo global)
 const routineLogData = <?php echo json_encode($routine_log_data); ?>;
-console.log('=== ROUTINE LOG DATA DEBUG ===');
-console.log('Total de registros de rotina:', routineLogData.length);
-console.log('Dados de rotina:', routineLogData);
 const exerciseData = <?php echo json_encode($routine_exercise_data); ?>;
 const sleepData = <?php echo json_encode($routine_sleep_data); ?>;
 const routineItemsData = <?php echo json_encode($routine_items_data); ?>;
 const onboardingActivities = <?php echo json_encode($onboarding_activities); ?>;
 
-// Editar missão (função global)
+// ============ FUNÇÕES GLOBAIS PARA MISSÕES ============
+
+// Abrir modal de missão
+window.openMissionModal = function() {
+    const modal = document.getElementById('missionModal');
+    if (!modal) return;
+    
+    // Limpar formulário
+    document.getElementById('missionId').value = '';
+    document.getElementById('missionName').value = '';
+    document.getElementById('missionType').value = 'binary';
+    document.getElementById('missionModalTitle').textContent = 'Adicionar Nova Missão';
+    document.getElementById('saveButtonText').textContent = 'Salvar Missão';
+    
+    // Mostrar modal
+    modal.style.display = 'flex';
+    
+    // Inicializar seletor de ícones
+    setTimeout(() => {
+        initIconPicker();
+    }, 100);
+};
+
+// Fechar modal de missão
+window.closeMissionModal = function() {
+    const modal = document.getElementById('missionModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// Editar missão
 window.editMission = function(id) {
     fetch(`api/routine_crud.php?action=get_mission&id=${id}&patient_id=${patientId}`)
         .then(response => response.json())
         .then(result => {
             if (result.success) {
                 const mission = result.data;
-                
-                // Preencher formulário
-                document.getElementById('mission-id').value = mission.id;
-                document.getElementById('mission-name').value = mission.title;
-                document.getElementById('mission-type').value = mission.is_exercise ? 'duration' : 'binary';
-                document.getElementById('mission-icon').value = mission.icon_class;
-                
-                // Atualizar título do modal
-                document.querySelector('#mission-modal .modal-header h3').textContent = 'Editar Missão';
+                document.getElementById('missionId').value = mission.id;
+                document.getElementById('missionName').value = mission.title;
+                document.getElementById('missionType').value = mission.is_exercise ? 'duration' : 'binary';
+                document.getElementById('missionModalTitle').textContent = 'Editar Missão';
+                document.getElementById('saveButtonText').textContent = 'Atualizar Missão';
                 
                 // Mostrar modal
-                document.getElementById('mission-modal').style.display = 'flex';
+                const modal = document.getElementById('missionModal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                    
+                    // Inicializar seletor de ícones com seleção
+                    setTimeout(() => {
+                        initIconPicker();
+                        if (mission.icon_class) {
+                            const selectedIcon = document.querySelector(`[data-icon="${mission.icon_class}"]`);
+                            if (selectedIcon) {
+                                selectedIcon.classList.add('selected');
+                                document.getElementById('missionId').setAttribute('data-selected-icon', mission.icon_class);
+                            }
+                        }
+                    }, 100);
+                }
             } else {
                 alert('Erro ao carregar missão: ' + result.message);
             }
@@ -10190,58 +10074,92 @@ window.editMission = function(id) {
         });
 };
 
-// Excluir missão (função global)
+// Excluir missão
 window.deleteMission = function(id, name) {
-    if (!confirm(`Tem certeza que deseja excluir a missão "${name}"?`)) {
-        return;
+    if (confirm(`Tem certeza que deseja excluir a missão "${name}"?`)) {
+        fetch(`api/routine_crud.php?action=delete_mission&id=${id}&patient_id=${patientId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Missão excluída com sucesso!');
+                loadMissionsAdminList();
+            } else {
+                alert('Erro ao excluir missão: ' + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao excluir missão:', error);
+            alert('Erro ao excluir missão');
+        });
     }
-    
-    fetch(`api/routine_crud.php?action=delete_mission&patient_id=${patientId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: id })
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.success) {
-            alert('Missão excluída com sucesso!');
-            // Recarregar a página para atualizar a lista
-            location.reload();
-        } else {
-            alert('Erro ao excluir missão: ' + result.message);
-        }
-    })
-    .catch(error => {
-        console.error('Erro ao excluir missão:', error);
-        alert('Erro ao excluir missão');
-    });
 };
 
-// Abrir modal de missão
-window.openMissionModal = function() {
-    // Limpar formulário
-    document.getElementById('mission-id').value = '';
-    document.getElementById('mission-name').value = '';
-    document.getElementById('mission-type').value = 'binary';
-    document.getElementById('mission-icon').value = 'fa-check-circle';
-    
-    // Atualizar título do modal
-    document.querySelector('#mission-modal .modal-header h3').textContent = 'Adicionar Nova Missão';
-    
-    // Mostrar modal
-    document.getElementById('mission-modal').style.display = 'flex';
-    // Aguardar um pouco para o modal aparecer antes de inicializar o picker
-    setTimeout(() => {
-        initMissionIconPicker();
-    }, 100);
-};
-
-// Fechar modal de missão
-window.closeMissionModal = function() {
-    document.getElementById('mission-modal').style.display = 'none';
-};
+// Event listener para o formulário de missão
+document.addEventListener('DOMContentLoaded', function() {
+    const missionForm = document.getElementById('missionForm');
+    if (missionForm) {
+        missionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const missionId = document.getElementById('missionId').value;
+            const missionName = document.getElementById('missionName').value.trim();
+            const missionType = document.getElementById('missionType').value;
+            const selectedIcon = document.getElementById('missionId').getAttribute('data-selected-icon') || 'fa-tasks';
+            
+            if (!missionName) {
+                alert('Por favor, insira o nome da missão.');
+                return;
+            }
+            
+            const data = {
+                title: missionName,
+                is_exercise: missionType === 'duration' ? 1 : 0,
+                icon_class: selectedIcon
+            };
+            
+            const isEdit = missionId !== '';
+            if (isEdit) {
+                data.id = parseInt(missionId);
+            }
+            
+            const action = isEdit ? 'update_mission' : 'create_mission';
+            const saveButton = document.querySelector('#missionModal .btn-save');
+            
+            // Desabilitar botão enquanto processa
+            saveButton.disabled = true;
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+            
+            fetch(`api/routine_crud.php?action=${action}&patient_id=${patientId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                saveButton.disabled = false;
+                saveButton.innerHTML = '<i class="fas fa-save"></i> <span id="saveButtonText">Salvar Missão</span>';
+                
+                if (result.success) {
+                    alert(isEdit ? 'Missão atualizada com sucesso!' : 'Missão criada com sucesso!');
+                    closeMissionModal();
+                    loadMissionsAdminList();
+                } else {
+                    alert('Erro ao salvar missão: ' + result.message);
+                }
+            })
+            .catch(error => {
+                saveButton.disabled = false;
+                saveButton.innerHTML = '<i class="fas fa-save"></i> <span id="saveButtonText">Salvar Missão</span>';
+                console.error('Erro ao salvar missão:', error);
+                alert('Erro ao salvar missão');
+            });
+        });
+    }
+});
 
 // Abrir modal de exercício
 window.openExerciseModal = function() {
@@ -10317,16 +10235,12 @@ window.deleteExercise = function(id, name) {
 
 // Abrir modal do calendário da rotina
 window.openRoutineCalendar = function() {
-    console.log('=== OPEN_ROUTINE_CALENDAR CHAMADO ===');
     currentRoutineCalendarDate = new Date();
-    console.log('Data atual do calendário:', currentRoutineCalendarDate);
     renderRoutineCalendar();
     document.body.style.overflow = 'hidden';
     const modal = document.getElementById('routineCalendarModal');
-    console.log('Modal encontrado:', modal);
     if (modal) {
         modal.classList.add('active');
-        console.log('Modal ativado com sucesso');
     } else {
         console.error('Modal routineCalendarModal não encontrado!');
     }
@@ -10519,9 +10433,6 @@ function updateRoutineCards() {
 }
 
 function updateRoutineSliderDisplay() {
-    console.log('=== UPDATE_ROUTINE_DISPLAY DEBUG ===');
-    console.log('currentRoutineIndex:', currentRoutineIndex);
-    console.log('routineCards.length:', routineCards.length);
     
     // Adicionar transição suave para o slider
     routineTrack.style.transition = 'transform 0.3s ease-in-out';
