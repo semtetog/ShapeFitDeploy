@@ -810,6 +810,153 @@ require_once __DIR__ . '/includes/header.php';
     margin-top: 25px;
 }
 
+/* Estilos para o slider de dias da rotina */
+.diary-slider-wrapper {
+    margin-top: 20px;
+    overflow-x: auto;
+    padding: 10px 0;
+}
+
+.diary-slider-track {
+    display: flex;
+    gap: 15px;
+    padding: 0 10px;
+    min-width: max-content;
+}
+
+.diary-day-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 200px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.diary-day-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-orange);
+}
+
+.diary-day-card.selected {
+    border-color: var(--accent-orange);
+    background: rgba(255, 111, 0, 0.05);
+}
+
+.diary-day-card.has-data {
+    border-left: 4px solid var(--accent-orange);
+}
+
+.diary-day-card.today {
+    border-color: var(--accent-orange);
+    background: rgba(255, 111, 0, 0.1);
+}
+
+.diary-day-card .diary-day-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.diary-day-card .diary-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent-orange);
+    font-weight: 600;
+}
+
+.diary-day-card .diary-summary-macros {
+    color: var(--secondary-text-color);
+    font-size: 0.9rem;
+}
+
+.diary-day-card .diary-day-meals {
+    margin-bottom: 15px;
+}
+
+.diary-day-card .diary-day-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.diary-day-card .diary-day-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 111, 0, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-orange);
+    font-size: 18px;
+}
+
+.diary-day-card .diary-day-info {
+    flex: 1;
+}
+
+.diary-day-card .diary-day-title {
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-bottom: 4px;
+}
+
+.diary-day-card .diary-day-subtitle {
+    color: var(--secondary-text-color);
+    font-size: 0.9rem;
+}
+
+.diary-day-card .diary-empty-state {
+    text-align: center;
+    color: var(--secondary-text-color);
+    padding: 20px 0;
+}
+
+.diary-day-card .diary-empty-state i {
+    font-size: 24px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.diary-day-card .diary-day-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.diary-day-card .diary-day-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.diary-day-card .diary-day-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+}
+
+.diary-day-card .diary-day-month {
+    color: var(--secondary-text-color);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.diary-day-card .diary-day-weekday {
+    color: var(--secondary-text-color);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
 .calendar-header h4 {
     color: var(--primary-text-color);
     font-size: 1.2rem;
