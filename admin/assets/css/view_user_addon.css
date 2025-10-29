@@ -4213,3 +4213,93 @@
     align-self: flex-start;
   }
 }
+
+/* Card de resumo de nutrientes - mesmo estilo do card de hidratação */
+.nutrients-summary-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.nutrients-summary-card .summary-main {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.nutrients-summary-card .summary-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #FF6B00, #FFA500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.nutrients-summary-card .summary-info h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.nutrients-summary-card .summary-meta {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.nutrients-summary-card .summary-status {
+  margin-left: auto;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.nutrients-summary-card .summary-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.nutrients-summary-card .summary-stat {
+  text-align: center;
+}
+
+.nutrients-summary-card .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.nutrients-summary-card .stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.nutrients-summary-card .summary-description {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.nutrients-summary-card .stat-description {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  margin-top: 0.125rem;
+  opacity: 0.8;
+}
