@@ -8906,7 +8906,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const monthName = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][date.getMonth()];
             
             // Calcular resumo do dia - APENAS missões concluídas
-            const dayMissions = routineLogData.filter(log => log.date === dateStr && log.is_completed === 1);
+    const dayMissions = routineLogData.filter(log => log.date === dateStr && Number(log.is_completed) === 1);
             const dayExercises = exerciseData.filter(ex => ex.updated_at && ex.updated_at.startsWith(dateStr));
             const daySleep = sleepData.filter(sleep => sleep.date === dateStr);
             
@@ -8916,21 +8916,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Missões concluídas - mostrar cada uma individualmente
                 if (dayMissions.length > 0) {
                     dayMissions.forEach(mission => {
+                        const missionItem = (typeof routineItemsData !== 'undefined') ? routineItemsData.find(item => item.id === mission.routine_item_id) : null;
+                        const iconClass = missionItem?.icon_class || 'fas fa-clipboard-check';
+                        const title = missionItem?.title || mission.title || `Missão #${mission.routine_item_id}`;
                         const duration = mission.exercise_duration_minutes || 0;
                         const hours = Math.floor(duration / 60);
                         const minutes = duration % 60;
-                        const timeStr = duration > 0 ? (hours > 0 ? `${hours}h${minutes > 0 ? minutes.toString().padStart(2, '0') : ''}` : `${minutes}min`) : '';
-                        
+                        const durationStr = duration > 0 ? (hours > 0 ? `${hours}h${minutes > 0 ? minutes.toString().padStart(2, '0') : ''}` : `${minutes}min`) : '';
+                        const completedAt = mission.completed_at || mission.updated_at || '';
+                        const timeStr = completedAt ? new Date(completedAt.replace(' ', 'T')).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+
                         contentHTML += `
                             <div class="diary-meal-card">
                                 <div class="diary-meal-header">
                                     <div class="diary-meal-icon">
-                                        <i class="${mission.icon_class}"></i>
+                                        <i class="${iconClass}"></i>
                                     </div>
                                     <div class="diary-meal-info">
-                                        <h5>${mission.title}</h5>
+                                        <h5>${title}</h5>
                                         <span class="diary-meal-totals">
-                                            <strong>${timeStr ? timeStr + ' de duração' : 'Concluída'}</strong>
+                                            ${timeStr ? `<strong>${timeStr}</strong> • ` : ''}${durationStr ? `${durationStr} de duração` : 'Concluída'}
                                         </span>
                                     </div>
                                 </div>
@@ -9950,6 +9955,35 @@ window.selectRoutineDayFromCalendar = function(dateStr) {
     updateRoutineDayDetails(dateStr);
 };
 
+// Diário: selecionar dia pelo calendário (delegation para garantir funcionamento)
+window.selectDiaryDayFromCalendar = function(dateStr) {
+    // Atualizar referência aos cards
+    updateDiaryCards();
+    // Encontrar índice
+    const cardsArray = Array.from(diaryCards);
+    const targetIndex = cardsArray.findIndex(card => card.getAttribute('data-date') === dateStr);
+    if (targetIndex === -1) {
+        console.warn('Dia selecionado no calendário (diário) não encontrado:', dateStr);
+        return;
+    }
+    currentDiaryIndex = targetIndex;
+    // Mover slider e atualizar cabeçalho
+    updateDiaryDisplay();
+    // Seleção visual
+    document.querySelectorAll('#diarySliderTrack .diary-day-card').forEach(card => card.classList.remove('selected'));
+    const selectedCard = document.querySelector(`#diarySliderTrack .diary-day-card[data-date="${dateStr}"]`);
+    if (selectedCard) selectedCard.classList.add('selected');
+};
+
+// Delegar clique no calendário do Diário caso o HTML não tenha onclicks
+document.addEventListener('click', function(e) {
+    const dayEl = e.target.closest('#diaryCalendarModal .calendar-day[data-date]');
+    if (dayEl && !dayEl.classList.contains('future-day')) {
+        const dateStr = dayEl.getAttribute('data-date');
+        selectDiaryDayFromCalendar(dateStr);
+    }
+});
+
 // Sistema de navegação da rotina (COPIADO DO DIÁRIO)
 let routineCards = document.querySelectorAll('#routineSliderTrack .diary-day-card');
 let currentRoutineIndex = routineCards.length - 1; // Iniciar no último (dia mais recente)
@@ -10057,7 +10091,7 @@ function updateRoutineSliderDisplay() {
 }
 
 function updateRoutineSummary(date) {
-    const dayMissions = routineLogData.filter(log => log.date === date && log.is_completed === 1);
+    const dayMissions = routineLogData.filter(log => log.date === date && Number(log.is_completed) === 1);
     const summaryMissions = document.getElementById('routineSummaryMissions');
     const summaryProgress = document.getElementById('routineSummaryProgress');
     
@@ -10177,26 +10211,32 @@ function updateMissionsList(dayMissions) {
     let missionsHTML = '';
     dayMissions.forEach(mission => {
         const missionItem = routineItemsData.find(item => item.id === mission.routine_item_id);
-        if (missionItem) {
-            const statusIcon = mission.is_completed ? 'check-circle' : 'x-circle';
-            const statusColor = mission.is_completed ? 'var(--accent-orange)' : 'var(--secondary-text-color)';
-            
-            missionsHTML += `
-                <div class="mission-item" style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border-color);">
-                    <div class="mission-icon" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255, 111, 0, 0.1); border-radius: 50%; margin-right: 12px;">
-                        <i class="${missionItem.icon_class}" style="color: var(--accent-orange); font-size: 18px;"></i>
+        if (!missionItem) return;
+        const iconClass = missionItem.icon_class || 'fas fa-clipboard-check';
+        const title = missionItem.title || `Missão #${mission.routine_item_id}`;
+        const completedAt = mission.completed_at || mission.updated_at || '';
+        const timeStr = completedAt ? new Date(completedAt.replace(' ', 'T')).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+        const duration = mission.exercise_duration_minutes || 0;
+        const hours = Math.floor(duration / 60);
+        const minutes = duration % 60;
+        const durationStr = duration > 0 ? (hours > 0 ? `${hours}h${minutes > 0 ? minutes.toString().padStart(2, '0') : ''}` : `${minutes}min`) : '';
+        const statusText = Number(mission.is_completed) === 1 ? 'Concluída' : 'Pendente';
+        
+        missionsHTML += `
+            <div class="diary-meal-card">
+                <div class="diary-meal-header">
+                    <div class="diary-meal-icon">
+                        <i class="${iconClass}"></i>
                     </div>
-                    <div class="mission-content" style="flex: 1;">
-                        <div class="mission-name" style="font-weight: 600; color: var(--primary-text-color);">${missionItem.title}</div>
-                        <div class="mission-status" style="color: var(--secondary-text-color); font-size: 0.9rem;">
-                            <i class="fa fa-${statusIcon}" style="color: ${statusColor}; margin-right: 6px;"></i>
-                            ${mission.is_completed ? 'Concluída' : 'Não concluída'}
-                            ${mission.exercise_duration_minutes ? ` - ${mission.exercise_duration_minutes}min` : ''}
-                        </div>
+                    <div class="diary-meal-info">
+                        <h5>${title}</h5>
+                        <span class="diary-meal-totals">
+                            ${timeStr ? `<strong>${timeStr}</strong> • ` : ''}${durationStr ? `${durationStr} • ` : ''}${statusText}
+                        </span>
                     </div>
                 </div>
-            `;
-        }
+            </div>
+        `;
     });
     
     missionsContainer.innerHTML = missionsHTML;
@@ -10274,7 +10314,7 @@ function updateRoutineSummary() {
     
     // Calcular missões concluídas na semana
     const weekMissions = routineLogData.filter(log => 
-        log.date >= weekAgo && log.date <= today && log.is_completed === 1
+        log.date >= weekAgo && log.date <= today && Number(log.is_completed) === 1
     );
     
     // Calcular tempo médio de sono na semana
