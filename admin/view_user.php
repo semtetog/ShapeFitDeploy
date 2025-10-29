@@ -806,10 +806,8 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Estilos para o calendário da rotina */
 .routine-calendar-section {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 25px;
-    border: 1px solid var(--border-color);
+    /* Removido card de fundo desnecessário */
+    margin-top: 25px;
 }
 
 .calendar-header h4 {
