@@ -9182,9 +9182,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Apenas inicializar navegação e display
                 updateRoutineCards();
                 
+                console.log('=== INIT ROUTINE CALENDAR ===');
+                console.log('Total de cards:', routineCards.length);
+                
                 // Buscar o card do dia de HOJE
                 const today = new Date();
                 const todayStr = today.toISOString().split('T')[0];
+                console.log('Data de HOJE (procurando):', todayStr);
+                
+                // Mostrar todas as datas dos cards para debug
+                for (let i = 0; i < routineCards.length; i++) {
+                    console.log(`Card ${i}:`, routineCards[i].getAttribute('data-date'));
+                }
                 
                 // Procurar o índice do card de hoje
                 let targetIndex = routineCards.length - 1; // Default: último card
@@ -9192,11 +9201,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 for (let i = 0; i < routineCards.length; i++) {
                     if (routineCards[i].getAttribute('data-date') === todayStr) {
                         targetIndex = i;
+                        console.log('ENCONTROU o card de hoje no índice:', targetIndex);
                         break;
                     }
                 }
                 
+                console.log('Target index (antes de atualizar):', targetIndex);
                 currentRoutineIndex = targetIndex;
+                console.log('currentRoutineIndex definido como:', currentRoutineIndex);
                 
                 // Aguardar carregamento dos dados antes de atualizar display
                 loadMissionsAdminList();
@@ -9204,6 +9216,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Aguardar um pouco mais para os dados carregarem
                 setTimeout(() => {
+                    console.log('Chamando updateRoutineDisplay() com currentRoutineIndex:', currentRoutineIndex);
                     updateRoutineDisplay();
                 }, 500);
             }, 100);
