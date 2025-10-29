@@ -687,6 +687,38 @@ while ($row = $routine_log_result->fetch_assoc()) {
 }
 $stmt_routine_log->close();
 
+// Buscar missões disponíveis para o usuário (sf_routine_items)
+$routine_items_data = [];
+$stmt_routine_items = $conn->prepare("
+    SELECT id, title, icon_class, description, is_exercise, exercise_type, default_for_all_users, user_id_creator
+    FROM sf_routine_items 
+    WHERE is_active = 1 AND (default_for_all_users = 1 OR user_id_creator = ?)
+    ORDER BY id
+");
+$stmt_routine_items->bind_param("i", $user_id);
+$stmt_routine_items->execute();
+$routine_items_result = $stmt_routine_items->get_result();
+while ($row = $routine_items_result->fetch_assoc()) {
+    $routine_items_data[] = $row;
+}
+$stmt_routine_items->close();
+
+// Buscar atividades do onboarding (sf_user_onboarding_completion)
+$onboarding_activities = [];
+$stmt_onboarding = $conn->prepare("
+    SELECT id, activity_name, completion_date 
+    FROM sf_user_onboarding_completion 
+    WHERE user_id = ? 
+    ORDER BY completion_date DESC
+");
+$stmt_onboarding->bind_param("i", $user_id);
+$stmt_onboarding->execute();
+$onboarding_result = $stmt_onboarding->get_result();
+while ($row = $onboarding_result->fetch_assoc()) {
+    $onboarding_activities[] = $row;
+}
+$stmt_onboarding->close();
+
 // --- PREPARAÇÃO DE DADOS PARA EXIBIÇÃO ---
 $page_slug = 'users';
 $page_title = 'Dossiê: ' . htmlspecialchars($user_data['name']);
@@ -5430,11 +5462,108 @@ document.addEventListener('DOMContentLoaded', function() {
                             </tr>
                         </thead>
                         <tbody id="missions-admin-table">
+                            <?php if (empty($routine_items_data)): ?>
                             <tr>
                                 <td colspan="4" style="text-align: center; padding: 40px; color: var(--secondary-text-color);">
                                     Nenhuma missão cadastrada. Clique em "Adicionar Missão" para começar.
                                 </td>
                             </tr>
+                            <?php else: ?>
+                                <?php foreach ($routine_items_data as $mission): ?>
+                                <tr>
+                                    <td style="padding: 12px;">
+                                        <div class="mission-table-icon" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255, 111, 0, 0.1); color: var(--accent-orange); border-radius: 50%;">
+                                            <i class="<?php echo htmlspecialchars($mission['icon_class']); ?>" style="font-size: 16px;"></i>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 12px;">
+                                        <strong><?php echo htmlspecialchars($mission['title']); ?></strong>
+                                        <?php if ($mission['description']): ?>
+                                            <br><small style="color: var(--secondary-text-color);"><?php echo htmlspecialchars($mission['description']); ?></small>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="padding: 12px;">
+                                        <span class="mission-type-badge" style="display: inline-block; padding: 4px 12px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.85rem; color: var(--secondary-text-color);">
+                                            <?php echo $mission['is_exercise'] ? 'Com Duração' : 'Sim/Não'; ?>
+                                        </span>
+                                    </td>
+                                    <td style="padding: 12px; text-align: center;">
+                                        <div class="mission-table-actions" style="display: flex; gap: 8px; justify-content: center;">
+                                            <button class="action-btn" onclick="editMission(<?php echo $mission['id']; ?>)" title="Editar" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
+                                                <i class="fa fa-edit" style="font-size: 14px;"></i>
+                                            </button>
+                                            <button class="action-btn delete" onclick="deleteMission(<?php echo $mission['id']; ?>, '<?php echo addslashes($mission['title']); ?>')" title="Excluir" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
+                                                <i class="fa fa-trash" style="font-size: 14px;"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. GERENCIADOR DE EXERCÍCIOS DO ONBOARDING -->
+        <div class="dashboard-card" style="margin-top: 30px;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                        <path d="M6.5 6.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0" stroke="#ff6f00" stroke-width="2"/>
+                        <path d="M17.5 17.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0" stroke="#ff6f00" stroke-width="2"/>
+                        <path d="M6.5 9v3l3.5 3l3.5 -3v-3" stroke="#ff6f00" stroke-width="2"/>
+                        <path d="M17.5 15v-3l-3.5 -3l-3.5 3v3" stroke="#ff6f00" stroke-width="2"/>
+                    </svg>
+                    Exercícios Cadastrados pelo Paciente
+                </h4>
+                <button class="btn btn-primary" onclick="openExerciseModal()" style="padding: 8px 16px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 6px;">
+                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Adicionar Exercício
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="routine-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--glass-bg);">
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Exercício</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">Data de Cadastro</th>
+                                <th style="padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color);">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exercises-admin-table">
+                            <?php if (empty($onboarding_activities)): ?>
+                            <tr>
+                                <td colspan="3" style="text-align: center; padding: 40px; color: var(--secondary-text-color);">
+                                    Nenhum exercício cadastrado. Clique em "Adicionar Exercício" para começar.
+                                </td>
+                            </tr>
+                            <?php else: ?>
+                                <?php foreach ($onboarding_activities as $exercise): ?>
+                                <tr>
+                                    <td style="padding: 12px;">
+                                        <strong><?php echo htmlspecialchars($exercise['activity_name']); ?></strong>
+                                    </td>
+                                    <td style="padding: 12px;">
+                                        <?php echo date('d/m/Y', strtotime($exercise['completion_date'])); ?>
+                                    </td>
+                                    <td style="padding: 12px; text-align: center;">
+                                        <div class="mission-table-actions" style="display: flex; gap: 8px; justify-content: center;">
+                                            <button class="action-btn" onclick="editExercise(<?php echo $exercise['id']; ?>)" title="Editar" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
+                                                <i class="fa fa-edit" style="font-size: 14px;"></i>
+                                            </button>
+                                            <button class="action-btn delete" onclick="deleteExercise(<?php echo $exercise['id']; ?>, '<?php echo addslashes($exercise['activity_name']); ?>')" title="Excluir" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
+                                                <i class="fa fa-trash" style="font-size: 14px;"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -5476,6 +5605,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
                     <button type="button" class="btn btn-secondary" onclick="closeMissionModal()" style="padding: 10px 20px;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar/Editar Exercício -->
+<div id="exercise-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background: var(--card-bg); border-radius: 12px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color);">
+        <div class="modal-header" style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="exercise-modal-title" style="margin: 0; color: var(--primary-text-color);">Adicionar Exercício</h3>
+            <button class="modal-close" onclick="closeExerciseModal()" style="background: none; border: none; font-size: 24px; color: var(--secondary-text-color); cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <form id="exercise-form">
+                <input type="hidden" id="exercise-id" name="exercise_id">
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="exercise-name" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Nome do Exercício</label>
+                    <input type="text" id="exercise-name" name="exercise_name" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="exercise-date" style="display: block; margin-bottom: 8px; color: var(--primary-text-color); font-weight: 600;">Data de Cadastro</label>
+                    <input type="date" id="exercise-date" name="exercise_date" required style="width: 100%; padding: 10px; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--primary-text-color);">
+                </div>
+                
+                <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeExerciseModal()" style="padding: 10px 20px;">Cancelar</button>
                     <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Salvar</button>
                 </div>
             </form>
@@ -8608,6 +8767,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const routineLogData = <?php echo json_encode($routine_log_data); ?>;
     const exerciseData = <?php echo json_encode($routine_exercise_data); ?>;
     const sleepData = <?php echo json_encode($routine_sleep_data); ?>;
+    const routineItemsData = <?php echo json_encode($routine_items_data); ?>;
+    const onboardingActivities = <?php echo json_encode($onboarding_activities); ?>;
+    const patientId = <?php echo $user_id; ?>;
     
     // Função para inicializar o calendário da rotina
     function initRoutineCalendar() {
@@ -8900,7 +9062,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Carregar lista de missões
     function loadMissionsAdminList() {
-        fetch('api/routine_missions_crud.php?action=list')
+        fetch(`api/routine_crud.php?action=list_missions&patient_id=${patientId}`)
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
@@ -8993,7 +9155,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Editar missão (função global)
     window.editMission = function(id) {
-        fetch(`api/routine_missions_crud.php?action=get&id=${id}`)
+        fetch(`api/routine_crud.php?action=get_mission&id=${id}&patient_id=${patientId}`)
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
@@ -9001,9 +9163,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Preencher formulário
                     document.getElementById('mission-id').value = mission.id;
-                    document.getElementById('mission-name').value = mission.name;
-                    document.getElementById('mission-type').value = mission.mission_type;
-                    document.getElementById('mission-icon').value = mission.icon_name;
+                    document.getElementById('mission-name').value = mission.title;
+                    document.getElementById('mission-type').value = mission.is_exercise ? 'duration' : 'binary';
+                    document.getElementById('mission-icon').value = mission.icon_class;
                     
                     // Atualizar título do modal
                     document.querySelector('#mission-modal .modal-header h3').textContent = 'Editar Missão';
@@ -9026,7 +9188,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        fetch('api/routine_missions_crud.php?action=delete', {
+        fetch('api/routine_crud.php?action=delete_mission', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -9069,9 +9231,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             const data = {
-                name: missionName,
-                mission_type: missionType,
-                icon_name: missionIcon
+                title: missionName,
+                is_exercise: missionType === 'duration' ? 1 : 0,
+                icon_class: missionIcon || 'fa-check-circle'
             };
             
             const isEdit = missionId !== '';
@@ -9079,13 +9241,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.id = parseInt(missionId);
             }
             
-            const action = isEdit ? 'update' : 'create';
+            const action = isEdit ? 'update_mission' : 'create_mission';
             
             // Desabilitar botão enquanto processa
             saveMissionBtn.disabled = true;
             saveMissionBtn.textContent = 'Salvando...';
             
-            fetch(`api/routine_missions_crud.php?action=${action}`, {
+            fetch(`api/routine_crud.php?action=${action}&patient_id=${patientId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -9121,12 +9283,201 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Carregar lista de missões quando a aba de rotina for aberta
+    // ============ GERENCIAMENTO DE EXERCÍCIOS ============
+    
+    // Carregar lista de exercícios
+    function loadExercisesAdminList() {
+        fetch(`api/routine_crud.php?action=list_exercises&patient_id=${patientId}`)
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    renderExercisesTable(result.data);
+                } else {
+                    console.error('Erro ao carregar exercícios:', result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
+    }
+    
+    // Renderizar tabela de exercícios
+    function renderExercisesTable(exercises) {
+        const tbody = document.querySelector('#exercises-admin-table tbody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        
+        if (exercises.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--secondary-text-color); padding: 20px;">Nenhum exercício cadastrado</td></tr>';
+            return;
+        }
+        
+        exercises.forEach(exercise => {
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td style="padding: 12px;">
+                    <strong>${exercise.activity_name}</strong>
+                </td>
+                <td style="padding: 12px;">
+                    ${new Date(exercise.completion_date).toLocaleDateString('pt-BR')}
+                </td>
+                <td style="padding: 12px; text-align: center;">
+                    <div class="mission-table-actions" style="display: flex; gap: 8px; justify-content: center;">
+                        <button class="action-btn" onclick="editExercise(${exercise.id})" title="Editar" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
+                            <i class="fa fa-edit" style="font-size: 14px;"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="deleteExercise(${exercise.id}, '${exercise.activity_name.replace(/'/g, "\\'")}')" title="Excluir" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s; color: var(--secondary-text-color);">
+                            <i class="fa fa-trash" style="font-size: 14px;"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+    
+    // Funções globais para exercícios
+    window.openExerciseModal = function() {
+        // Limpar formulário
+        document.getElementById('exercise-id').value = '';
+        document.getElementById('exercise-name').value = '';
+        document.getElementById('exercise-date').value = new Date().toISOString().split('T')[0];
+        
+        // Mostrar modal
+        document.getElementById('exercise-modal').style.display = 'flex';
+    };
+    
+    window.editExercise = function(id) {
+        fetch(`api/routine_crud.php?action=get_exercise&id=${id}&patient_id=${patientId}`)
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const exercise = result.data;
+                    
+                    // Preencher formulário
+                    document.getElementById('exercise-id').value = exercise.id;
+                    document.getElementById('exercise-name').value = exercise.activity_name;
+                    document.getElementById('exercise-date').value = exercise.completion_date;
+                    
+                    // Mostrar modal
+                    document.getElementById('exercise-modal').style.display = 'flex';
+                } else {
+                    alert('Erro ao carregar exercício: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar exercício:', error);
+                alert('Erro ao carregar exercício');
+            });
+    };
+    
+    window.deleteExercise = function(id, name) {
+        if (!confirm(`Tem certeza que deseja excluir o exercício "${name}"?`)) {
+            return;
+        }
+        
+        fetch('api/routine_crud.php?action=delete_exercise', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Exercício excluído com sucesso!');
+                loadExercisesAdminList();
+            } else {
+                alert('Erro ao excluir exercício: ' + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao excluir exercício:', error);
+            alert('Erro ao excluir exercício');
+        });
+    };
+    
+    // Fechar modal de exercícios
+    window.closeExerciseModal = function() {
+        document.getElementById('exercise-modal').style.display = 'none';
+    };
+    
+    // Salvar exercício
+    document.getElementById('exercise-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const exerciseId = document.getElementById('exercise-id').value;
+        const exerciseName = document.getElementById('exercise-name').value.trim();
+        const exerciseDate = document.getElementById('exercise-date').value;
+        
+        if (!exerciseName) {
+            alert('Por favor, insira o nome do exercício.');
+            return;
+        }
+        
+        const data = {
+            activity_name: exerciseName,
+            completion_date: exerciseDate
+        };
+        
+        const isEdit = exerciseId !== '';
+        if (isEdit) {
+            data.id = parseInt(exerciseId);
+        }
+        
+        const action = isEdit ? 'update_exercise' : 'create_exercise';
+        
+        // Desabilitar botão enquanto processa
+        const saveBtn = this.querySelector('button[type="submit"]');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Salvando...';
+        
+        fetch(`api/routine_crud.php?action=${action}&patient_id=${patientId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Salvar';
+            
+            if (result.success) {
+                alert(isEdit ? 'Exercício atualizado com sucesso!' : 'Exercício adicionado com sucesso!');
+                closeExerciseModal();
+                loadExercisesAdminList();
+            } else {
+                alert('Erro ao salvar exercício: ' + result.message);
+            }
+        })
+        .catch(error => {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Salvar';
+            console.error('Erro ao salvar exercício:', error);
+            alert('Erro ao salvar exercício');
+        });
+    });
+    
+    // Fechar modal ao clicar fora
+    window.addEventListener('click', function(event) {
+        if (event.target === document.getElementById('exercise-modal')) {
+            closeExerciseModal();
+        }
+    });
+    
+    // Carregar listas quando a aba de rotina for aberta
     const routineTabBtn = document.querySelector('[data-tab="routine"]');
     if (routineTabBtn) {
         routineTabBtn.addEventListener('click', function() {
             setTimeout(() => {
                 loadMissionsAdminList();
+                loadExercisesAdminList();
             }, 200);
         });
     }
