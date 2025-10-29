@@ -8858,18 +8858,18 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('updateRoutineDisplay chamada com período:', period);
     }
     
-    // Dados de rotina do PHP
-    const routineLogData = <?php echo json_encode($routine_log_data); ?>;
-    const exerciseData = <?php echo json_encode($routine_exercise_data); ?>;
-    const sleepData = <?php echo json_encode($routine_sleep_data); ?>;
-    const routineItemsData = <?php echo json_encode($routine_items_data); ?>;
-    const onboardingActivities = <?php echo json_encode($onboarding_activities); ?>;
-    const patientId = <?php echo $user_id; ?>;
+    // Dados movidos para escopo global
     
     // Função para inicializar o calendário da rotina
     function initRoutineCalendar() {
-        const calendarContainer = document.getElementById('routine-calendar');
-        if (!calendarContainer) return;
+        generateRoutineSlider();
+        updateRoutineSummary();
+    }
+    
+    // Gerar slider de dias da rotina (igual ao da aba Diário)
+    function generateRoutineSlider() {
+        const sliderTrack = document.getElementById('routineSliderTrack');
+        if (!sliderTrack) return;
         
         const today = new Date();
         const currentMonth = today.getMonth();
@@ -9462,6 +9462,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Definir patientId globalmente
 const patientId = <?php echo $user_id; ?>;
+
+// Dados de rotina do PHP (escopo global)
+const routineLogData = <?php echo json_encode($routine_log_data); ?>;
+const exerciseData = <?php echo json_encode($routine_exercise_data); ?>;
+const sleepData = <?php echo json_encode($routine_sleep_data); ?>;
+const routineItemsData = <?php echo json_encode($routine_items_data); ?>;
+const onboardingActivities = <?php echo json_encode($onboarding_activities); ?>;
 
 // Editar missão (função global)
 window.editMission = function(id) {
