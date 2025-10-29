@@ -9013,13 +9013,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        const today = new Date();
         const daysToShow = 7; // Mostrar 7 dias
         
         let sliderHTML = '';
         
         for (let i = daysToShow - 1; i >= 0; i--) {
-            const date = new Date(today);
+            const date = new Date(currentRoutineDate);
             date.setDate(date.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
             
@@ -9146,14 +9145,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Atualizar navegação
         updateRoutineNavigation();
         
-        // Selecionar o dia atual automaticamente
-        const todayString = today.toISOString().split('T')[0];
-        const todayCard = document.querySelector(`.diary-day-card[data-date="${todayString}"]`);
-        console.log('Card de hoje encontrado:', todayCard);
-        if (todayCard) {
-            todayCard.classList.add('selected');
-            selectedRoutineDay = todayString;
-            updateRoutineDayDetails(todayString);
+        // Selecionar o dia atual automaticamente (primeiro dia da semana)
+        const firstDayString = new Date(currentRoutineDate);
+        firstDayString.setDate(firstDayString.getDate() - 6);
+        const firstDayStr = firstDayString.toISOString().split('T')[0];
+        const firstDayCard = document.querySelector(`.diary-day-card[data-date="${firstDayStr}"]`);
+        console.log('Card do primeiro dia encontrado:', firstDayCard);
+        if (firstDayCard) {
+            firstDayCard.classList.add('selected');
+            selectedRoutineDay = firstDayStr;
+            updateRoutineDayDetails(firstDayStr);
         }
         console.log('=== GENERATE_ROUTINE_SLIDER FINALIZADO ===');
     }
@@ -9965,18 +9966,28 @@ window.selectRoutineDayFromCalendar = function(dateStr) {
 };
 
 // Navegar entre dias da rotina
+// Variável global para controlar a data atual do slider
+let currentRoutineDate = new Date();
+
 window.navigateRoutine = function(direction) {
-    // Implementar navegação se necessário
     console.log('Navegar rotina:', direction);
+    
+    // Atualizar a data atual
+    currentRoutineDate.setDate(currentRoutineDate.getDate() + (direction * 7));
+    
+    // Regenerar o slider com a nova data
+    generateRoutineSlider();
+    
+    // Atualizar a navegação
+    updateRoutineNavigation();
 };
 
 // Atualizar navegação da rotina
 function updateRoutineNavigation() {
-    const today = new Date();
-    const prevDate = new Date(today);
-    prevDate.setDate(prevDate.getDate() - 1);
-    const nextDate = new Date(today);
-    nextDate.setDate(nextDate.getDate() + 1);
+    const prevDate = new Date(currentRoutineDate);
+    prevDate.setDate(prevDate.getDate() - 7);
+    const nextDate = new Date(currentRoutineDate);
+    nextDate.setDate(nextDate.getDate() + 7);
     
     const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     
@@ -9986,9 +9997,9 @@ function updateRoutineNavigation() {
     const routinePrevDate = document.getElementById('routinePrevDate');
     const routineNextDate = document.getElementById('routineNextDate');
     
-    if (routineYear) routineYear.textContent = today.getFullYear();
-    if (routineDayMonth) routineDayMonth.textContent = `${today.getDate().toString().padStart(2, '0')} ${monthNames[today.getMonth()]}`;
-    if (routineWeekday) routineWeekday.textContent = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][today.getDay()];
+    if (routineYear) routineYear.textContent = currentRoutineDate.getFullYear();
+    if (routineDayMonth) routineDayMonth.textContent = `${currentRoutineDate.getDate().toString().padStart(2, '0')} ${monthNames[currentRoutineDate.getMonth()]}`;
+    if (routineWeekday) routineWeekday.textContent = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][currentRoutineDate.getDay()];
     if (routinePrevDate) routinePrevDate.textContent = `${prevDate.getDate()} ${monthNames[prevDate.getMonth()].toLowerCase()}`;
     if (routineNextDate) routineNextDate.textContent = `${nextDate.getDate()} ${monthNames[nextDate.getMonth()].toLowerCase()}`;
 }
