@@ -9210,6 +9210,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentRoutineIndex = targetIndex;
                 console.log('currentRoutineIndex definido como:', currentRoutineIndex);
                 
+                // Posicionar o slider IMEDIATAMENTE no dia de hoje (sem animação) para evitar flicker
+                if (routineTrack) {
+                    routineTrack.style.transition = 'none';
+                    const initialOffset = -currentRoutineIndex * 100;
+                    routineTrack.style.transform = `translateX(${initialOffset}%)`;
+                }
+                
                 // Aguardar carregamento dos dados antes de atualizar display
                 loadMissionsAdminList();
                 loadExercisesAdminList();
