@@ -16,7 +16,7 @@ error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
 error_log('REQUEST_URI: ' . $_SERVER['REQUEST_URI']);
 error_log('QUERY_STRING: ' . ($_SERVER['QUERY_STRING'] ?? 'N/A'));
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../../includes/config.php';
 
 // Headers para JSON
 header('Content-Type: application/json; charset=utf-8');
