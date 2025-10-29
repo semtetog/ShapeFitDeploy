@@ -235,6 +235,10 @@ class UnitsManager {
      * Busca unidades para um alimento específico
      */
     public function getUnitsForFood($food_id) {
+        // Debug logs
+        error_log("🔍 UNITS MANAGER - getUnitsForFood chamada com food_id: " . $food_id);
+        error_log("🔍 UNITS MANAGER - Tipo do food_id: " . gettype($food_id));
+        
         $sql = "
             SELECT 
                 smu.id,
@@ -247,15 +251,31 @@ class UnitsManager {
             WHERE sfic.food_item_id = ? AND smu.is_active = TRUE
             ORDER BY sfic.is_default DESC, smu.name
         ";
+        
+        error_log("🔍 UNITS MANAGER - SQL: " . $sql);
+        
         $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            error_log("❌ UNITS MANAGER - Erro ao preparar statement: " . $this->conn->error);
+            return [];
+        }
+        
         $stmt->bind_param("i", $food_id);
         $stmt->execute();
+        
+        if ($stmt->error) {
+            error_log("❌ UNITS MANAGER - Erro na execução: " . $stmt->error);
+        }
+        
         $result = $stmt->get_result();
         
         $units = [];
         while ($row = $result->fetch_assoc()) {
             $units[] = $row;
         }
+        
+        error_log("🔍 UNITS MANAGER - Unidades encontradas: " . count($units));
+        error_log("🔍 UNITS MANAGER - Dados: " . json_encode($units));
         
         return $units;
     }
