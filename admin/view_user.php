@@ -9662,10 +9662,19 @@ window.deleteExercise = function(id, name) {
 
 // Abrir modal do calendário da rotina
 window.openRoutineCalendar = function() {
+    console.log('=== OPEN_ROUTINE_CALENDAR CHAMADO ===');
     currentRoutineCalendarDate = new Date();
+    console.log('Data atual do calendário:', currentRoutineCalendarDate);
     renderRoutineCalendar();
     document.body.style.overflow = 'hidden';
-    document.getElementById('routineCalendarModal').classList.add('active');
+    const modal = document.getElementById('routineCalendarModal');
+    console.log('Modal encontrado:', modal);
+    if (modal) {
+        modal.classList.add('active');
+        console.log('Modal ativado com sucesso');
+    } else {
+        console.error('Modal routineCalendarModal não encontrado!');
+    }
 };
 
 // Fechar modal do calendário da rotina
