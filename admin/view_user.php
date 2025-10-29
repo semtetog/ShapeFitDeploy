@@ -3820,11 +3820,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // Listeners (proteção + seletor correto do seu HTML)
   const prevBtn = document.querySelector('.diary-nav-left');
   const nextBtn = document.querySelector('.diary-nav-right');
-  const calendarBtn = document.querySelector('.diary-calendar-icon-btn'); // <- seu HTML usa classe
+  
+  // Capturar botão do calendário (diário) com fallback
+  const calendarBtn =
+    document.getElementById('calendarButton') ||
+    document.querySelector('.diary-calendar-icon-btn') ||
+    document.querySelector('.calendar-btn');
 
   if (prevBtn) prevBtn.addEventListener('click', () => navigateDiary(-1));
   if (nextBtn) nextBtn.addEventListener('click', () => navigateDiary(1));
-  if (calendarBtn) calendarBtn.addEventListener('click', openDiaryCalendarSafely);
+  if (calendarBtn) {
+    calendarBtn.addEventListener('click', openDiaryCalendarSafely);
+  } else {
+    console.warn('Botão do calendário do diário não encontrado.');
+  }
 
   // Suporte a swipe/touch (agora dentro do DOMContentLoaded)
   diaryTrack.addEventListener('touchstart', (e) => {
