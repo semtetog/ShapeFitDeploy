@@ -1590,6 +1590,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Delegação de eventos resiliente p/ edição inline (garante funcionamento mesmo se outro script falhar)
 (function(){
     function startInlineEdit(element){
+        console.log('[inline-edit] click on', element?.dataset?.field, element?.dataset);
         if (element.querySelector('input')) return;
         const field = element.dataset.field;
         const userId = element.dataset.userId;
