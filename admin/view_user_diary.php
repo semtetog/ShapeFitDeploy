@@ -284,33 +284,19 @@
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const html = await res.text();
       if (!html.trim()) return;
-      const temp = document.createElement('div');
-      temp.innerHTML = html;
-      const newCard = temp.querySelector('.diary-day-card');
-      if (!newCard) return;
-      track.insertBefore(newCard, track.firstChild);
+      // Substituir completamente o conteúdo: mantém APENAS o dia solicitado
+      track.innerHTML = html;
       collect();
-      // 1) Travar posição atual sem animação (agora é index+1)
-      const keepIndex = index + 1;
-      track.style.transition = 'none';
-      track.style.transform = `translateX(${-keepIndex*100}%)`;
-      // Forçar reflow para aplicar imediatamente
-      void track.offsetHeight;
-      // 2) Animar para o dia anterior recém-carregado
-      index = keepIndex - 1;
-      track.style.transition = 'transform .3s ease-in-out';
-      setTransform();
-      enforceSingleVisible();
-      updateHeader();
+      index = 0; // único card
+      render();
     } catch(e){ console.error('loadPrevDay error', e); }
   }
 
   async function prevLazy(){
-    if (index>0){ index--; render(); return; }
-    // Estamos no primeiro card: carregar o dia anterior
-    const firstDateStr = cards[0]?.getAttribute('data-date');
-    if (!firstDateStr) return;
-    const d = new Date(firstDateStr + 'T00:00:00');
+    // calcular a partir do card atual (mesmo se só houver um)
+    const currentDateStr = cards[index]?.getAttribute('data-date');
+    if (!currentDateStr) return;
+    const d = new Date(currentDateStr + 'T00:00:00');
     d.setDate(d.getDate()-1);
     const prevDateStr = d.toISOString().split('T')[0];
     await loadPrevDay(prevDateStr);
