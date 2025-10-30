@@ -346,29 +346,75 @@ try {
             error_log('[update_mission] patient_id: ' . $patient_id);
             error_log('[update_mission] data recebida: ' . print_r($data, true));
             
-            // Escolher tabela baseado em is_personal
-            if ($is_personal) {
+            // Se é missão padrão (global), criar uma cópia personalizada ao invés de editar
+            if (!$is_personal) {
+                error_log('[update_mission] Convertendo missão GLOBAL para PERSONALIZADA');
+                
+                // Buscar dados da missão padrão
+                $stmt_get = $conn->prepare("SELECT * FROM sf_routine_items WHERE id = ?");
+                $stmt_get->bind_param('i', $id);
+                $stmt_get->execute();
+                $result = $stmt_get->get_result();
+                $original = $result->fetch_assoc();
+                $stmt_get->close();
+                
+                if ($original) {
+                    // Verificar se já existe cópia personalizada
+                    $stmt_check = $conn->prepare("SELECT id FROM sf_user_routine_items WHERE user_id = ? AND title = ?");
+                    $stmt_check->bind_param('is', $patient_id, $title);
+                    $stmt_check->execute();
+                    $result_check = $stmt_check->get_result();
+                    
+                    if ($result_check->num_rows > 0) {
+                        // Atualizar cópia existente
+                        $row = $result_check->fetch_assoc();
+                        $stmt_check->close();
+                        
+                        $stmt = $conn->prepare("UPDATE sf_user_routine_items 
+                                               SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
+                                               WHERE id = ? AND user_id = ?");
+                        $stmt->bind_param('sssiii', $title, $icon_class, $description, $is_exercise, $exercise_type, $row['id'], $patient_id);
+                        
+                        if ($stmt->execute() && $stmt->affected_rows > 0) {
+                            echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
+                        } else {
+                            throw new Exception('Missão não encontrada ou não pode ser editada');
+                        }
+                        $stmt->close();
+                    } else {
+                        // Criar nova cópia personalizada
+                        $stmt_check->close();
+                        
+                        $stmt = $conn->prepare("INSERT INTO sf_user_routine_items 
+                                               (user_id, title, icon_class, description, is_exercise, exercise_type) 
+                                               VALUES (?, ?, ?, ?, ?, ?)");
+                        $stmt->bind_param('isssis', $patient_id, $title, $icon_class, $description, $is_exercise, $exercise_type);
+                        
+                        if ($stmt->execute()) {
+                            echo json_encode(['success' => true, 'message' => 'Missão criada com sucesso']);
+                        } else {
+                            throw new Exception('Erro ao criar missão personalizada');
+                        }
+                        $stmt->close();
+                    }
+                } else {
+                    throw new Exception('Missão original não encontrada');
+                }
+            } else {
+                // Atualizar missão personalizada existente
                 error_log('[update_mission] Atualizando missão PERSONALIZADA');
-                // Atualizar missão personalizada
                 $stmt = $conn->prepare("UPDATE sf_user_routine_items 
                                        SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
                                        WHERE id = ? AND user_id = ?");
                 $stmt->bind_param('sssiii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id, $patient_id);
-            } else {
-                error_log('[update_mission] Atualizando missão GLOBAL');
-                // Atualizar missão global
-                $stmt = $conn->prepare("UPDATE sf_routine_items 
-                                       SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
-                                       WHERE id = ?");
-                $stmt->bind_param('ssssii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id);
+                
+                if ($stmt->execute() && $stmt->affected_rows > 0) {
+                    echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
+                } else {
+                    throw new Exception('Missão não encontrada ou não pode ser editada');
+                }
+                $stmt->close();
             }
-            
-            if ($stmt->execute() && $stmt->affected_rows > 0) {
-                echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
-            } else {
-                throw new Exception('Missão não encontrada ou não pode ser editada');
-            }
-            $stmt->close();
             break;
             
         case 'update_exercise':
