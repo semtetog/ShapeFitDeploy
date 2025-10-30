@@ -1530,7 +1530,10 @@ function renderMissionsGrid(missions) {
         return;
     }
     
-    container.innerHTML = missions.map(mission => `
+    container.innerHTML = missions.map(mission => {
+        const isExercise = mission.is_exercise == 1 || mission.is_exercise === '1' || mission.is_exercise === true;
+        console.log(`[MISSION ${mission.id}] is_exercise:`, mission.is_exercise, 'type:', typeof mission.is_exercise, 'isExercise:', isExercise);
+        return `
         <div class="mission-card" data-id="${mission.id}">
             <div class="mission-header">
                 <div class="mission-icon">
@@ -1548,10 +1551,11 @@ function renderMissionsGrid(missions) {
             <div class="mission-content">
                 <h4>${mission.title}</h4>
                 ${mission.description ? `<p class="mission-description">${mission.description}</p>` : ''}
-                <p class="mission-type">${mission.is_exercise ? 'Exercício' : 'Missão Simples'}</p>
+                <p class="mission-type">${isExercise ? 'Exercício' : 'Missão Simples'}</p>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // Função para mostrar estado vazio
