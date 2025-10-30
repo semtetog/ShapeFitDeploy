@@ -145,7 +145,9 @@ foreach ($all_dates as $date):
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <h5 style="margin: 0;"><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
                                 <?php if ($display_time): ?>
-                                    <span style="font-size: 0.875rem; color: var(--text-secondary);"><?php echo $display_time; ?></span>
+                                    <span style="font-size: 0.875rem; color: var(--accent-orange); font-weight: 500;">
+                                        <i class="fas fa-clock" style="margin-right: 4px;"></i><?php echo $display_time; ?>
+                                    </span>
                                 <?php endif; ?>
                             </div>
                             <span class="diary-meal-totals">
