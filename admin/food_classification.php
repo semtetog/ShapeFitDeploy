@@ -73,30 +73,70 @@ $block_page_count = max(1, $page_end - $page_start + 1);
 $effective_offset = ($page_start - 1) * $per_page;
 $effective_limit = $block_page_count * $per_page;
 
-// Buscar alimentos com suas classificações múltiplas
-$sql = "SELECT 
-            sfi.id, 
-            sfi.name_pt, 
-            sfi.food_type, 
-            sfi.energy_kcal_100g, 
-            sfi.protein_g_100g, 
-            sfi.carbohydrate_g_100g, 
-            sfi.fat_g_100g,
-            GROUP_CONCAT(sfc.category_type ORDER BY sfc.is_primary DESC, sfc.category_type ASC) as categories
-        FROM sf_food_items sfi
-        LEFT JOIN sf_food_categories sfc ON sfi.id = sfc.food_id
-        {$where_sql} 
-        GROUP BY sfi.id
-        ORDER BY sfi.name_pt 
-        LIMIT ? OFFSET ?"; // <-- ONLY THIS LIMIT/OFFSET IS AFFECTED BY INTERVALO
-$params[] = $effective_limit;
-$params[] = $effective_offset;
-$param_types .= 'ii';
+// Lógica dos blocos para alimentar o modal e o filtro:
+$blocos = [];
+$bloco_atual = isset($_GET['bloco']) ? (int)$_GET['bloco'] : null;
+$num_blocos = isset($_GET['num_blocos']) ? max(1,(int)$_GET['num_blocos']) : 5; // padrao 5 blocos
+$paginas_totais = ceil($total_items / $per_page);
+$blocos_tamanhos = array_fill(0, $num_blocos, floor($paginas_totais / $num_blocos));
+$resto = $paginas_totais % $num_blocos; for ($i = 0; $i < $resto; $i++) $blocos_tamanhos[$i]++;
 
+// Calcular faixas de cada bloco
+$page_idx = 1;
+for ($i = 0; $i < $num_blocos; $i++) {
+    $start = $page_idx;
+    $end = $start + $blocos_tamanhos[$i] - 1;
+    $blocos[$i+1] = [ 'pagina_inicio' => $start, 'pagina_fim' => $end ];
+    $page_idx = $end + 1;
+}
+
+// Determina o offset a partir do bloco escolhido
+if ($bloco_atual && isset($blocos[$bloco_atual])) {
+    $filtrar_pagina_ini = $blocos[$bloco_atual]['pagina_inicio'];
+    $filtrar_pagina_fim = $blocos[$bloco_atual]['pagina_fim'];
+    $offset = ($filtrar_pagina_ini - 1) * $per_page;
+    $limit = ($filtrar_pagina_fim - $filtrar_pagina_ini + 1) * $per_page;
+} else {
+    $offset = 0;
+    $limit = $per_page;
+}
+
+// Buscar alimentos APENAS do bloco ativo
+$sql = "SELECT 
+    sfi.id, sfi.name_pt, sfi.food_type, sfi.energy_kcal_100g, sfi.protein_g_100g, sfi.carbohydrate_g_100g, sfi.fat_g_100g,
+    GROUP_CONCAT(sfc.category_type ORDER BY sfc.is_primary DESC, sfc.category_type ASC) as categories
+    FROM sf_food_items sfi
+    LEFT JOIN sf_food_categories sfc ON sfi.id = sfc.food_id
+    $where_sql
+    GROUP BY sfi.id
+    ORDER BY sfi.name_pt
+    LIMIT ? OFFSET ?";
+$param_types .= 'ii';
+array_push($params, $limit, $offset);
 $stmt = $conn->prepare($sql);
 $stmt->bind_param($param_types, ...$params);
 $stmt->execute();
 $foods = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Calcular progresso de cada bloco:
+$progresso_blocos = [];
+foreach ($blocos as $nb => $faixa) {
+    $offset_b = ($faixa['pagina_inicio'] - 1) * $per_page;
+    $limit_b = ($faixa['pagina_fim'] - $faixa['pagina_inicio'] + 1) * $per_page;
+    $sql_b = "SELECT COUNT(*) AS total, SUM(IF(sfc.category_type IS NULL,0,1)) AS classificados
+        FROM (
+            SELECT sfi.id, GROUP_CONCAT(sfc.category_type) as cts
+            FROM sf_food_items sfi LEFT JOIN sf_food_categories sfc ON sfi.id = sfc.food_id
+            $where_sql
+            GROUP BY sfi.id
+            ORDER BY sfi.name_pt
+            LIMIT $limit_b OFFSET $offset_b
+        ) TB LEFT JOIN sf_food_categories sfc ON TB.id = sfc.food_id";
+    $result_b = $conn->query($sql_b);
+    $dados_b = $result_b->fetch_assoc();
+    $pct = ($dados_b['total'] > 0 ? round(($dados_b['classificados'] / $dados_b['total']) * 100) : 0);
+    $progresso_blocos[$nb] = ['total' => (int)$dados_b['total'], 'classificados' => (int)$dados_b['classificados'], 'pct' => $pct];
+}
 
 // Progresso do bloco atual (com base no resultado carregado)
 $total_items_in_block = count($foods);
@@ -978,47 +1018,6 @@ include 'includes/header.php';
         </div>
 
         <!-- Filtros -->
-        <div class="block-panel">
-            <div class="block-title">🧭 Bloco de Trabalho</div>
-            <form method="GET">
-                <div class="block-grid">
-                    <label class="block-help">Página inicial</label>
-                    <input class="block-input" type="number" min="1" max="<?php echo htmlspecialchars($total_pages) ?>" name="page_start" value="<?php echo htmlspecialchars($page_start) ?>">
-                    <label class="block-help">Página final</label>
-                    <input class="block-input" type="number" min="<?php echo htmlspecialchars($page_start) ?>" max="<?php echo htmlspecialchars($total_pages) ?>" name="page_end" value="<?php echo htmlspecialchars($page_end) ?>">
-                    <div class="block-actions">
-                        <button type="submit" class="btn-block primary">Aplicar</button>
-                        <a class="btn-block" href="food_classification.php">Limpar</a>
-                    </div>
-                    <div class="block-help">Dica: divida entre estagiárias por blocos. Ex.: Pessoa 1 (1–32), Pessoa 2 (33–64)...</div>
-                </div>
-                <?php
-                    $build = function($s,$c,$ps,$pe){
-                        $q = [];
-                        if($s!==''){ $q[]='search='.urlencode($s); }
-                        if($c!==''){ $q[]='category='.urlencode($c); }
-                        $q[]='page_start='.$ps; $q[]='page_end='.$pe; return implode('&',$q);
-                    };
-                    $prev_start = max(1, $page_start - $block_page_count);
-                    $prev_end = max($prev_start, min($total_pages, $prev_start + $block_page_count - 1));
-                    $next_start = min($total_pages, $page_start + $block_page_count);
-                    $next_end = min($total_pages, max($next_start, $next_start + $block_page_count - 1));
-                ?>
-                <div style="margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-                    <div class="progress-wrap">
-                        <div class="block-help">Progresso do bloco (<?php echo $classified_in_block; ?>/<?php echo $total_items_in_block; ?>)</div>
-                        <div class="progress-bar"><span style="width: <?php echo $block_progress_pct; ?>%"></span></div>
-                        <div class="block-help"><?php echo $block_progress_pct; ?>%</div>
-                    </div>
-                    <div class="block-actions">
-                        <a class="btn-block" href="food_classification.php?<?php echo $build($search,$category_filter,$prev_start,$prev_end); ?>" <?php echo $page_start<=1? 'style="pointer-events:none;opacity:.6"':'';?>>« Bloco anterior</a>
-                        <div class="block-help">Exibindo <b>páginas <?php echo $page_start; ?>–<?php echo $page_end; ?></b> de <b><?php echo $total_pages; ?></b></div>
-                        <a class="btn-block" href="food_classification.php?<?php echo $build($search,$category_filter,$next_start,$next_end); ?>" <?php echo $page_end>=$total_pages? 'style="pointer-events:none;opacity:.6"':'';?>>Próximo bloco »</a>
-                    </div>
-                </div>
-            </form>
-        </div>
-
         <div class="filters-section">
             <h3 class="filters-title">🔍 Buscar</h3>
             <form method="GET" class="filters-grid">
