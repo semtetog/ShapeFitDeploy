@@ -3216,8 +3216,6 @@ if (count($hydration_data) >= 7) {
 }
 ?>
 
-<?php include 'view_user_hydration.php'; ?>
-
 <script>
 
 function toggleNutrientsRecords() {
@@ -3233,8 +3231,6 @@ function toggleNutrientsRecords() {
     }
 }
 </script>
-
-<?php include 'view_user_nutrients.php'; ?>
 
 <!-- Dados para JavaScript -->
 <script>
@@ -3707,9 +3703,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php include 'view_user_goals.php'; ?>
     </div>
 </div>
-
-
-</script>
 
 <?php
 require_once __DIR__ . '/includes/footer.php';
