@@ -2,7 +2,6 @@
 <!-- Conteúdo completo da aba Diário: HTML, CSS e JS -->
 
 <div id="tab-diary" class="tab-content active">
-    <div class="view-user-tab">
         <div class="diary-slider-container">
         <div class="diary-header-redesign">
             <!-- Ano no topo -->
@@ -628,5 +627,4 @@ if (count($hydration_data) >= 7) {
     }
 }
 ?>
-    </div>
 </div>

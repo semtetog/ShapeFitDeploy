@@ -1,7 +1,6 @@
 <!-- view_user_routine.php -->
 <!-- Conteúdo completo da aba Rotina: HTML, CSS e JS -->
 <div id="tab-routine" class="tab-content">
-    <div class="view-user-tab">
         <div class="routine-container">
         
         <!-- 1. CARD DE RESUMO DA ROTINA -->
@@ -1357,5 +1356,4 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         </div>
-    </div>
 </div>

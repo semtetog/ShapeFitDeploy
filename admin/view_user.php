@@ -3696,19 +3696,17 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
-<?php include 'view_user_diary.php'; ?>
-
-<?php include 'view_user_nutrients.php'; ?>
-
-<?php include 'view_user_progress.php'; ?>
-
-<?php include 'view_user_hydration.php'; ?>
-
-<?php include 'view_user_routine.php'; ?>
-
-<?php include 'view_user_feedback.php'; ?>
-
-<?php include 'view_user_goals.php'; ?>
+<div class="content-wrapper">
+    <div class="view-user-tab">
+        <?php include 'view_user_diary.php'; ?>
+        <?php include 'view_user_nutrients.php'; ?>
+        <?php include 'view_user_progress.php'; ?>
+        <?php include 'view_user_hydration.php'; ?>
+        <?php include 'view_user_routine.php'; ?>
+        <?php include 'view_user_feedback.php'; ?>
+        <?php include 'view_user_goals.php'; ?>
+    </div>
+</div>
 
 
 </script>
