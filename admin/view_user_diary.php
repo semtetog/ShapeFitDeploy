@@ -557,6 +557,13 @@ tabLinks.forEach(link => {
         }
     });
 });
+
+// Expor funções ao escopo global para os handlers inline do HTML
+window.navigateDiary = navigateDiary;
+window.goToDiaryIndex = goToDiaryIndex;
+window.openDiaryCalendar = openDiaryCalendar;
+window.closeDiaryCalendar = closeDiaryCalendar;
+window.changeCalendarMonth = changeCalendarMonth;
 </script>
 
 <style>
