@@ -30,7 +30,67 @@ try {
             if (!$food_id) {
                 throw new Exception('ID do alimento não fornecido');
             }
-            $units = $units_manager->getUnitsForFood($food_id);
+            // Resolver IDs com prefixo (ex.: taco_66, off_7890123) para o ID interno
+            $resolved_food_id = null;
+            if (is_numeric($food_id)) {
+                $resolved_food_id = (int)$food_id;
+                // Se não houver conversões para este ID, tentar tratar como taco_id
+                $check_stmt = $conn->prepare("SELECT COUNT(*) FROM sf_food_item_conversions WHERE food_item_id = ?");
+                if ($check_stmt) {
+                    $check_stmt->bind_param("i", $resolved_food_id);
+                    $check_stmt->execute();
+                    $check_stmt->bind_result($cnt);
+                    if ($check_stmt->fetch() && (int)$cnt === 0) {
+                        $check_stmt->close();
+                        $stmt_find = $conn->prepare("SELECT id FROM sf_food_items WHERE taco_id = ? LIMIT 1");
+                        if ($stmt_find) {
+                            $identifier = (string)$food_id;
+                            $stmt_find->bind_param("s", $identifier);
+                            $stmt_find->execute();
+                            $stmt_find->bind_result($found_id);
+                            if ($stmt_find->fetch()) {
+                                $resolved_food_id = (int)$found_id;
+                            }
+                            $stmt_find->close();
+                        }
+                    } else {
+                        $check_stmt->close();
+                    }
+                }
+            } else {
+                $id_parts = explode('_', $food_id, 2);
+                if (count($id_parts) === 2) {
+                    $prefix = $id_parts[0];
+                    $identifier = $id_parts[1];
+                    if ($prefix === 'taco' && is_numeric($identifier)) {
+                        $stmt_find = $conn->prepare("SELECT id FROM sf_food_items WHERE taco_id = ? LIMIT 1");
+                        if ($stmt_find) {
+                            $stmt_find->bind_param("s", $identifier);
+                            $stmt_find->execute();
+                            $stmt_find->bind_result($found_id);
+                            if ($stmt_find->fetch()) {
+                                $resolved_food_id = (int)$found_id;
+                            }
+                            $stmt_find->close();
+                        }
+                    } elseif ($prefix === 'off' && is_numeric($identifier)) {
+                        $stmt_find = $conn->prepare("SELECT id FROM sf_food_items WHERE barcode = ? LIMIT 1");
+                        if ($stmt_find) {
+                            $stmt_find->bind_param("s", $identifier);
+                            $stmt_find->execute();
+                            $stmt_find->bind_result($found_id);
+                            if ($stmt_find->fetch()) {
+                                $resolved_food_id = (int)$found_id;
+                            }
+                            $stmt_find->close();
+                        }
+                    }
+                }
+            }
+            if (!$resolved_food_id) {
+                throw new Exception('Alimento não encontrado');
+            }
+            $units = $units_manager->getUnitsForFood($resolved_food_id);
             break;
             
         case 'suggested':
