@@ -37,10 +37,13 @@ try {
     
     if ($stmt_routine_log) {
         $stmt_routine_log->bind_param("is", $user_id, $requestedDate);
-        $stmt_routine_log->execute();
-        $result_routine_log = $stmt_routine_log->get_result();
-        while ($row = $result_routine_log->fetch_assoc()) {
-            $completed_missions[] = $row;
+        if ($stmt_routine_log->execute()) {
+            $result_routine_log = $stmt_routine_log->get_result();
+            while ($row = $result_routine_log->fetch_assoc()) {
+                $completed_missions[] = $row;
+            }
+        } else {
+            error_log('[load_routine_days] Erro ao executar query routine_log: ' . $stmt_routine_log->error);
         }
         $stmt_routine_log->close();
     }
@@ -61,10 +64,13 @@ try {
     
     if ($stmt_onboarding) {
         $stmt_onboarding->bind_param("is", $user_id, $requestedDate);
-        $stmt_onboarding->execute();
-        $result_onboarding = $stmt_onboarding->get_result();
-        while ($row = $result_onboarding->fetch_assoc()) {
-            $completed_missions[] = $row;
+        if ($stmt_onboarding->execute()) {
+            $result_onboarding = $stmt_onboarding->get_result();
+            while ($row = $result_onboarding->fetch_assoc()) {
+                $completed_missions[] = $row;
+            }
+        } else {
+            error_log('[load_routine_days] Erro ao executar query onboarding: ' . $stmt_onboarding->error);
         }
         $stmt_onboarding->close();
     }
@@ -123,7 +129,4 @@ try {
     </div>
 </div>
 
-<?php 
-$conn->close();
-?>
 
