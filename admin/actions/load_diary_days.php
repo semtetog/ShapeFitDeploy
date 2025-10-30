@@ -111,14 +111,6 @@ foreach ($all_dates as $date):
                 $total_carb = array_sum(array_column($items, 'carbs_consumed_g'));
                 $total_fat = array_sum(array_column($items, 'fat_consumed_g'));
                 
-                // Pegar o primeiro horário de registro para o card (já ordenado por logged_at ASC)
-                $first_item = reset($items);
-                $logged_at = $first_item['logged_at'] ?? null;
-                $display_time = '';
-                if ($logged_at) {
-                    $timestamp = strtotime($logged_at);
-                    $display_time = date('H:i', $timestamp);
-                }
             ?>
                 <div class="diary-meal-card">
                     <div class="diary-meal-header">
@@ -142,14 +134,7 @@ foreach ($all_dates as $date):
                             <i class="fas <?php echo $icon; ?>"></i>
                         </div>
                         <div class="diary-meal-info">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h5 style="margin: 0;"><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
-                                <?php if ($display_time): ?>
-                                    <span style="font-size: 0.875rem; color: var(--accent-orange); font-weight: 500;">
-                                        <i class="fas fa-clock" style="margin-right: 4px;"></i><?php echo $display_time; ?>
-                                    </span>
-                                <?php endif; ?>
-                            </div>
+                            <h5 style="margin: 0;"><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
                             <span class="diary-meal-totals">
                                 <strong><?php echo round($total_kcal); ?> kcal</strong> • 
                                 P:<?php echo round($total_prot); ?>g • 
@@ -159,9 +144,23 @@ foreach ($all_dates as $date):
                         </div>
                     </div>
                     <ul class="diary-food-list">
-                        <?php foreach ($items as $item): ?>
+                        <?php foreach ($items as $item): 
+                            $logged_at = $item['logged_at'] ?? null;
+                            $item_time = '';
+                            if ($logged_at) {
+                                $timestamp = strtotime($logged_at);
+                                $item_time = date('H:i', $timestamp);
+                            }
+                        ?>
                             <li>
-                                <span class="food-name"><?php echo htmlspecialchars($item['food_name']); ?></span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="food-name"><?php echo htmlspecialchars($item['food_name']); ?></span>
+                                    <?php if ($item_time): ?>
+                                        <span style="font-size: 0.8rem; color: var(--accent-orange); font-weight: 500; white-space: nowrap;">
+                                            <i class="fas fa-clock" style="margin-right: 2px;"></i><?php echo $item_time; ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
                                 <span class="food-quantity"><?php echo htmlspecialchars($item['quantity_display']); ?></span>
                             </li>
                         <?php endforeach; ?>
