@@ -1130,7 +1130,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <!-- CONTEÚDO DAS ABAS - SERÁ PREENCHIDO VIA INCLUDES -->
 <div id="tab-diary" class="tab-content active">
-    <!-- Conteúdo da aba Diário será inserido via include -->
+    <?php include __DIR__ . '/view_user_diary.php'; ?>
 </div>
 
 <div id="tab-hydration" class="tab-content">
