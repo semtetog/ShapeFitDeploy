@@ -90,6 +90,7 @@
             ?>
             <div class="diary-slider-track" id="diarySliderTrack" style="transform: translateX(-<?php echo $initial_offset; ?>%);">
                 <?php 
+                $current_active_date = $all_dates[$initial_index] ?? null;
                 foreach ($all_dates as $date): 
                     $meals = $meal_history[$date] ?? [];
                     $day_total_kcal = 0;
@@ -113,7 +114,7 @@
                     $month_name_abbr = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][date('n', $timestamp) - 1];
                     $year = date('Y', $timestamp);
                 ?>
-                <div class="diary-day-card" data-date="<?php echo $date; ?>">
+                <div class="diary-day-card<?php echo ($date === $current_active_date ? ' active' : ''); ?>" data-date="<?php echo $date; ?>">
                     <!-- Dados escondidos para o JavaScript buscar -->
                     <div class="diary-day-summary" style="display: none;">
                         <div class="diary-summary-item">
