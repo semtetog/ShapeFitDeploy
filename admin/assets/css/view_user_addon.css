@@ -992,11 +992,7 @@
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  margin-bottom: 0; /* espaçamento será controlado apenas pelo seletor adjacente */
-}
-
-.diary-meal-card:last-child {
-  margin-bottom: 0;
+  margin: 0; /* Espaçamento controlado pelo gap do container */
 }
 
 .diary-meal-card:hover {
@@ -4820,13 +4816,13 @@
   margin: 0 !important;
 }
 
-/* Container interno */
+/* Container interno - CORRIGIDO: gap com !important para forçar espaçamento */
 .diary-day-meals {
   height: auto !important;
   min-height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
-  gap: 0 !important;
+  gap: 24px !important;
 }
 
 /* Placeholder */
@@ -4876,11 +4872,5 @@
 
 /* Exibe apenas o card do dia atual - REMOVIDO pois conflita com nova estrutura */
 
-/* ====== FIX DEFINITIVO: espaçamento apenas entre cards adjacentes ====== */
-#tab-diary .diary-meal-card { margin: 0 !important; }
-#tab-diary .diary-meal-card + .diary-meal-card { 
-  margin-top: 40px !important; 
-  border-top: 20px solid transparent !important;
-  display: block !important;
-}
+/* Espaçamento agora é controlado pelo gap: 24px no .diary-day-meals */
 
