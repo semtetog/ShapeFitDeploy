@@ -1673,6 +1673,8 @@ window.editMission = function(missionId) {
                 
                 // Mapear tipo de missão do backend para o select
                 let missionType = 'yes_no';
+                
+                // Se é exercício, verificar o tipo
                 if (mission.is_exercise == 1) {
                     if (mission.exercise_type === 'sleep') {
                         missionType = 'sleep';
@@ -1681,7 +1683,14 @@ window.editMission = function(missionId) {
                     } else {
                         missionType = 'duration'; // fallback
                     }
+                } else {
+                    // Se não é exercício, verificar se é sono pelo título
+                    const titleLower = (mission.title || '').toLowerCase();
+                    if (titleLower.includes('sono')) {
+                        missionType = 'sleep';
+                    }
                 }
+                
                 document.getElementById('missionType').value = missionType;
                 
                 // Abrir modal (não resetar formulário pois já preenchemos os dados)
