@@ -70,14 +70,43 @@ const weekdayNames = ['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','S�
 let currentDiaryDate = new Date(); // Data atualmente exibida no diário
 const userId = <?php echo $user_id; ?>;
 
+// ============ ANIMAÇÃO SUAVE DE TRANSIÇÃO ============
+function fadeOutAndUpdate(wrapper, newContent, callback) {
+    // Verificar se já tem conteúdo (não é primeira carga)
+    const hasContent = wrapper.innerHTML.trim() && !wrapper.querySelector('.diary-loading-state');
+    
+    if (hasContent) {
+        // Fade out do conteúdo antigo
+        wrapper.style.transition = 'opacity 0.15s ease-out';
+        wrapper.style.opacity = '0';
+        
+        setTimeout(() => {
+            wrapper.innerHTML = newContent;
+            wrapper.style.opacity = '1';
+            wrapper.style.transition = 'opacity 0.3s ease-in';
+            
+            if (callback) callback();
+            
+            // Resetar transições após animação
+            setTimeout(() => {
+                wrapper.style.transition = '';
+                wrapper.style.opacity = '';
+            }, 300);
+        }, 150);
+    } else {
+        // Primeira carga ou substituindo loading - sem fade out
+        wrapper.innerHTML = newContent;
+        wrapper.style.opacity = '1';
+        if (callback) callback();
+    }
+}
+
 // ============ FUNÇÃO PRINCIPAL DE CARREGAMENTO ============
 async function loadDiaryForDate(targetDate) {
     const dateStr = targetDate.toISOString().split('T')[0];
     console.log('[diary] Carregando data:', dateStr);
     
-    // Mostrar loading
     const wrapper = document.getElementById('diaryContentWrapper');
-    wrapper.innerHTML = '<div class="diary-loading-state"><div class="loading-spinner"></div><p>Carregando diário...</p></div>';
     
     try {
         // Chamar API
@@ -103,20 +132,21 @@ async function loadDiaryForDate(targetDate) {
                 const carbs = parseInt(dayContent.dataset.carbs || '0', 10);
                 const fat = parseInt(dayContent.dataset.fat || '0', 10);
                 
-                // Atualizar conteúdo
-                wrapper.innerHTML = dayContent.querySelector('.diary-day-meals').innerHTML;
-                
-                // Atualizar resumo
-                updateDiarySummary(kcal, protein, carbs, fat);
+                // Atualizar conteúdo com animação suave
+                fadeOutAndUpdate(wrapper, dayContent.querySelector('.diary-day-meals').innerHTML, () => {
+                    updateDiarySummary(kcal, protein, carbs, fat);
+                });
             } else {
                 // Dia sem dados
-                wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>';
-                updateDiarySummary(0, 0, 0, 0);
+                fadeOutAndUpdate(wrapper, '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>', () => {
+                    updateDiarySummary(0, 0, 0, 0);
+                });
             }
         } else {
             // Resposta vazia = sem registros
-            wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>';
-            updateDiarySummary(0, 0, 0, 0);
+            fadeOutAndUpdate(wrapper, '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>', () => {
+                updateDiarySummary(0, 0, 0, 0);
+            });
         }
         
         // Atualizar cabeçalho
@@ -209,6 +239,12 @@ window.navigateDiaryDate = navigateDiaryDate;
 </script>
 
 <style>
+/* Wrapper de conteúdo do diário - transições suaves */
+.diary-content-wrapper {
+    min-height: 200px;
+    will-change: opacity;
+}
+
 /* Loading state */
 .diary-loading-state {
     display: flex;
