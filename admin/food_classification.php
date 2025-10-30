@@ -798,6 +798,40 @@ include 'includes/header.php';
     border-color: var(--accent-orange);
 }
 
+/* ====== CSS do sistema de blocos (modais) ====== */
+.modal-blocos-overlay { position: fixed; left:0; top:0; width:100vw; height:100vh; background: rgba(20,18,30,.92); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+.modal-blocos { max-width:940px; background:#1a1e27; color:#fff; border-radius:16px; box-shadow:0 24px 64px #0006; padding:22px 22px 18px 22px; margin:20px; width:98vw; border:1px solid #2b2f3b; }
+.modal-header-blocos{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.modal-header-blocos h2{margin:0;font-size:1.35rem}
+.modal-header-blocos p{margin:6px 0 0 0;color:#c9c9c9;font-size:.92rem}
+.btn-fechar-x{background:#2a2e3a;color:#fff;border:1px solid #3b3f4c;border-radius:8px;font-size:1.15rem;line-height:1;padding:6px 10px;cursor:pointer}
+.blocos-cards { display:grid; gap:13px; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); margin:13px 0 18px 0; }
+.bloco-card { background: #23283A; border-radius: 12px; padding:16px 14px; border: 1px solid #303040; text-align: center; box-shadow:0 5px 30px #0003; position:relative; }
+.bloco-card.mini{padding:12px 12px}
+.bloco-card.ativo-bloco { border-color: var(--accent-orange,#fa8608); background: #332f21;}
+.bloco-titulo { font-size: 1.1em; font-weight: bold; margin-bottom: 3px; }
+.bloco-sub{color:#d2d2d2;font-size:.9rem;margin-bottom:6px}
+.bloco-metricas{display:flex;align-items:center;justify-content:space-between;font-size:.86rem;color:#d7d7d7;margin:6px 4px}
+.bloco-progress-bar { background: #2a2d3c; height:7px; border-radius:7px; margin: 10px 0 4px 0; overflow:hidden; }
+.bloco-progress-bar span { display:block; height:100%; background: #45c651; border-radius:7px; min-width:5px; transition:width .3s; }
+.bloco-pct{font-weight:600;margin-top:2px}
+.bloco-form{display:flex;align-items:center;justify-content:center}
+.btn-bloco-card {padding:8px 18px;border-radius:8px;background:var(--accent-orange,#fa8608);color:#fff;font-weight:600;border:none;cursor:pointer;margin-top:6px;font-size:.98em;}
+.btn-modal-fechar{margin-top:10px;padding:6px 14px;background:#272727;color:#ffe0be;font-size:1em;border:1px solid #fff3;border-radius:6px;cursor:pointer;}
+.btn-secondary{padding:8px 14px;background:#2a2e3a;color:#e9e9e9;border:1px solid #3b3f4c;border-radius:8px;cursor:pointer}
+.btn-blocos-toolbar{position:fixed;right:22px;top:86px;display:flex;gap:10px;z-index:1500}
+.btn-blocos-flutuante{padding:11px 16px;background:var(--accent-orange,#fa8608);color:#fff;font-weight:600;font-size:.98em;border:none;border-radius:10px;box-shadow:0 5px 30px #0002;cursor:pointer}
+.btn-blocos-flutuante.muted{background:#2c2f3a;border:1px solid #3a3e4a}
+.config-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#202533;border:1px solid #2b2f3b;border-radius:10px;padding:10px 12px}
+.lbl-inline{font-size:.95rem;color:#dfdfdf}
+.num-blocos-wrap{display:flex;align-items:center;gap:8px}
+.num-blocos-wrap input{font-size:1.1rem;width:92px;text-align:center;border-radius:8px;border:1px solid #3b3f4c;background:#23283a;color:#fff;padding:6px}
+.btn-preset{background:#2a2e3a;color:#e9e9e9;border:1px solid #3b3f4c;border-radius:8px;padding:6px 10px;cursor:pointer}
+.stats-inline{color:#cfcfcf;font-size:.9rem}
+.modal-actions{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.btn-blocos-flutuante:focus,.btn-preset:focus,.btn-bloco-card:focus{outline:2px solid #ffa04a; outline-offset:2px}
+@media(max-width:600px){.modal-blocos{padding:14px 2vw 7px 2vw}.blocos-cards{grid-template-columns:1fr;}.btn-blocos-toolbar{right:10px;top:10vw}.btn-blocos-flutuante{padding:9px 14px}}
+
 /* Auto-save indicator */
 .auto-save-indicator {
     position: fixed;
@@ -1153,6 +1187,81 @@ include 'includes/header.php';
     </div>
 </div>
 
+<!-- Modais de Blocos - Seleção e Progresso -->
+<div id="modal-blocos" class="modal-blocos-overlay" style="display:none;">
+  <div class="modal-blocos">
+    <div class="modal-header-blocos">
+      <div>
+        <h2>Dividir em Blocos</h2>
+        <p>Defina o número de blocos para dividir as páginas igualmente. Cada pessoa escolhe um bloco e trabalha somente nele.</p>
+      </div>
+      <button class="btn-fechar-x" title="Fechar" onclick="document.getElementById('modal-blocos').style.display='none'">×</button>
+    </div>
+    <div class="config-row">
+      <label for="num_blocos" class="lbl-inline">Número de blocos</label>
+      <div class="num-blocos-wrap">
+        <button type="button" class="btn-preset" data-n="4">4</button>
+        <button type="button" class="btn-preset" data-n="5">5</button>
+        <button type="button" class="btn-preset" data-n="6">6</button>
+        <input id="num_blocos" type="number" min="1" max="20" value="<?= htmlspecialchars($num_blocos) ?>">
+      </div>
+      <div class="stats-inline">Total: <b><?= $total_items ?></b> alimentos • <b><?= $paginas_totais ?></b> páginas (<?= $per_page ?>/página)</div>
+    </div>
+    <div class="blocos-cards">
+      <?php foreach ($blocos as $b_n => $faixa): ?>
+      <div class="bloco-card<?= $bloco_atual==$b_n?' ativo-bloco':'' ?>">
+        <div class="bloco-titulo">Bloco <?= $b_n ?></div>
+        <div class="bloco-sub">Páginas <?= $faixa['pagina_inicio'] ?>–<?= $faixa['pagina_fim'] ?></div>
+        <div class="bloco-metricas"><span><?= $progresso_blocos[$b_n]['total'] ?> itens</span><span><?= $progresso_blocos[$b_n]['classificados'] ?> classificados</span></div>
+        <div class="bloco-progress-bar"><span style="width:<?= $progresso_blocos[$b_n]['pct'] ?>%"></span></div>
+        <div class="bloco-pct"><?= $progresso_blocos[$b_n]['pct'] ?>% concluído</div>
+        <form method="GET" class="bloco-form">
+          <input type="hidden" name="bloco" value="<?= $b_n ?>">
+          <input type="hidden" name="num_blocos" id="form_num_blocos_<?= $b_n ?>" value="<?= htmlspecialchars($num_blocos) ?>">
+          <?php if ($search): ?><input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>"><?php endif; ?>
+          <?php if ($category_filter): ?><input type="hidden" name="category" value="<?= htmlspecialchars($category_filter) ?>"><?php endif; ?>
+          <button class="btn-bloco-card">Trabalhar neste bloco</button>
+        </form>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <div class="modal-actions">
+      <button onclick="document.getElementById('modal-progress').style.display='flex'" class="btn-secondary">Ver progresso geral</button>
+      <button onclick="document.getElementById('modal-blocos').style.display='none'" class="btn-modal-fechar">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-progress" class="modal-blocos-overlay" style="display:none;">
+  <div class="modal-blocos">
+    <div class="modal-header-blocos">
+      <div>
+        <h2>Progresso dos Blocos</h2>
+        <p>Acompanhe o andamento geral da equipe.</p>
+      </div>
+      <button class="btn-fechar-x" title="Fechar" onclick="document.getElementById('modal-progress').style.display='none'">×</button>
+    </div>
+    <div class="blocos-cards">
+      <?php foreach ($blocos as $b_n => $faixa): ?>
+        <div class="bloco-card mini">
+          <div class="bloco-titulo">Bloco <?= $b_n ?></div>
+          <div class="bloco-sub">Páginas <?= $faixa['pagina_inicio'] ?>–<?= $faixa['pagina_fim'] ?></div>
+          <div class="bloco-progress-bar"><span style="width:<?= $progresso_blocos[$b_n]['pct'] ?>%"></span></div>
+          <div class="bloco-pct"><?= $progresso_blocos[$b_n]['pct'] ?>%</div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+    <div class="modal-actions">
+      <button onclick="document.getElementById('modal-progress').style.display='none'" class="btn-modal-fechar">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="btn-blocos-toolbar">
+  <button id="btn-abrir-blocos" class="btn-blocos-flutuante" onclick="document.getElementById('modal-blocos').style.display='flex'">Escolher bloco</button>
+  <button id="btn-abrir-progress" class="btn-blocos-flutuante muted" onclick="document.getElementById('modal-progress').style.display='flex'">Progresso</button>
+</div>
+
 <!-- Auto-save indicator -->
 <div class="auto-save-indicator" id="auto-save-indicator">
     💾 Salvo!
@@ -1166,6 +1275,39 @@ include 'includes/header.php';
         <div class="loading-subtext">Aguarde um momento</div>
     </div>
 </div>
+
+<!-- Script de inicialização dos modais de blocos -->
+<script>
+  (function(){
+    function openModal(id){ var el = document.getElementById(id); if(el) el.style.display='flex'; }
+    function showModalOnFirstLoad(){ if(window.location.search.indexOf('bloco=')===-1){ openModal('modal-blocos'); } }
+    document.addEventListener('DOMContentLoaded', function(){
+      // Exibir modal na primeira carga (se bloco não estiver definido)
+      setTimeout(showModalOnFirstLoad, 250);
+      // Presets de número de blocos
+      document.querySelectorAll('.btn-preset').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var n = parseInt(btn.getAttribute('data-n'))||5;
+          window.location.href = window.location.pathname + '?num_blocos=' + n;
+        });
+      });
+      // Alteração manual do número de blocos
+      var nb = document.getElementById('num_blocos');
+      if(nb){ nb.addEventListener('change', function(){
+        var n = Math.max(1, Math.min(20, parseInt(nb.value)||5));
+        window.location.href = window.location.pathname + '?num_blocos=' + n;
+      }); }
+      // Garantir que o valor de num_blocos siga para o GET ao escolher bloco
+      document.querySelectorAll('.btn-bloco-card').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var hidden = btn.parentElement.querySelector('input[type="hidden"][name="num_blocos"]');
+          var nb2 = document.getElementById('num_blocos');
+          if(hidden && nb2){ hidden.value = nb2.value; }
+        });
+      });
+    });
+  })();
+</script>
 
 <script>
 // Definir categorias globalmente
