@@ -798,6 +798,8 @@ require_once __DIR__ . '/includes/header.php';
 })();
 </script>
 <style>
+/* Deploy check badge */
+.deploy-check { font-size: 12px; color: var(--accent-orange); margin-left: 8px; opacity: 0.8; }
 /* Força topo reto nas barras de hidratação */
 .improved-bar {
     border-radius: 0 0 6px 6px !important;
@@ -823,6 +825,7 @@ require_once __DIR__ . '/includes/header.php';
         <?php echo $avatar_html; ?>
         <div class="user-contact-details">
             <h2><?php echo htmlspecialchars($user_data['name']); ?></h2>
+            <div><span class="deploy-check">[deploy-check]</span></div>
             <p><i class="fas fa-envelope icon-sm"></i> <?php echo htmlspecialchars($user_data['email']); ?></p>
             <p><i class="fas fa-phone-alt icon-sm"></i> <?php echo $full_phone; ?></p>
             <p><i class="fas fa-map-marker-alt icon-sm"></i> <?php echo $location; ?></p>
