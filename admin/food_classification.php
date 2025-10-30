@@ -73,6 +73,38 @@ $block_page_count = max(1, $page_end - $page_start + 1);
 $effective_offset = ($page_start - 1) * $per_page;
 $effective_limit = $block_page_count * $per_page;
 
+// Fixar blocos em 5
+$num_blocos = 5;
+$blocos = [];
+$bloco_atual = isset($_GET['bloco']) ? (int)$_GET['bloco'] : null;
+$per_page = 15;
+$paginas_totais = ceil($total_items / $per_page);
+$blocos_tamanhos = array_fill(0, $num_blocos, floor($paginas_totais / $num_blocos));
+$resto = $paginas_totais % $num_blocos; for ($i = 0; $i < $resto; $i++) $blocos_tamanhos[$i]++;
+$page_idx = 1;
+for ($i = 0; $i < $num_blocos; $i++) {
+    $start = $page_idx;
+    $end = $start + $blocos_tamanhos[$i] - 1;
+    $blocos[$i+1] = [ 'pagina_inicio' => $start, 'pagina_fim' => $end ];
+    $page_idx = $end + 1;
+}
+// Determina pagina atual (restrita ao bloco)
+$page = max(1, (int)($_GET['page'] ?? ($bloco_atual && isset($blocos[$bloco_atual]) ? $blocos[$bloco_atual]['pagina_inicio'] : 1)));
+if ($bloco_atual && isset($blocos[$bloco_atual])) {
+    $pagina_ini = $blocos[$bloco_atual]['pagina_inicio'];
+    $pagina_fim = $blocos[$bloco_atual]['pagina_fim'];
+    $page = max($pagina_ini, min($page, $pagina_fim));
+    $offset = ($page - 1) * $per_page;
+    $limit = $per_page;
+    // PAGINAÇÃO RESTRINGIDA (apenas do bloco):
+    $pagina_atual_do_bloco = $page - $pagina_ini + 1;
+    $total_paginas_bloco = $pagina_fim - $pagina_ini + 1;
+} else {
+    $pagina_ini = 1; $pagina_fim = $paginas_totais;
+    $offset = 0; $limit = $per_page;
+    $pagina_atual_do_bloco = $page; $total_paginas_bloco = $paginas_totais;
+}
+
 // Lógica dos blocos para alimentar o modal e o filtro:
 $blocos = [];
 $bloco_atual = isset($_GET['bloco']) ? (int)$_GET['bloco'] : null;
