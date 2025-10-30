@@ -182,8 +182,11 @@ function updateDiaryCards() {
     if (!diaryTrack) {
         diaryTrack = document.getElementById('diarySliderTrack');
     }
-    // Garantir visibilidade conforme CSS do addon (que usa .active)
-    diaryCards.forEach(card => card.classList.add('active'));
+    // Somente o card atual deve ficar visível (classe .active controla display)
+    diaryCards.forEach((card, idx) => {
+        if (idx === currentDiaryIndex) card.classList.add('active');
+        else card.classList.remove('active');
+    });
 }
 
 function updateDiaryDisplay() {
@@ -525,9 +528,9 @@ function initDiary() {
     // Recoletar referências sempre que iniciar
     diaryTrack = document.getElementById('diarySliderTrack');
     diaryCards = document.querySelectorAll('.diary-day-card');
-    diaryCards.forEach(card => card.classList.add('active'));
     if (diaryCards.length > 0) {
         currentDiaryIndex = diaryCards.length - 1;
+        updateDiaryCards();
         updateDiaryDisplay();
     }
 }
@@ -820,9 +823,5 @@ async function loadSpecificDate(dateStr) {
 }
 </script>
 
-<!-- estilos inline removidos para usar exatamente o CSS do arquivo view_user_addon.css do sistema -->
-<style>
-/* Garantir visibilidade dos cards do diário com CSS do addon */
-.diary-slider-track .diary-day-card { display: block; }
-</style>
+<!-- estilos seguem no view_user_addon.css -->
 <!-- fim do conteúdo da aba diário -->
