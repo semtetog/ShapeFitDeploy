@@ -238,11 +238,34 @@
       nextBtn.parentElement.style.visibility = 'hidden';
     }
 
-    // Atualizar resumo lendo data-attributes pré-computados no PHP
-    const kcal = parseInt(card.dataset.kcal || '0', 10);
-    const p = parseInt(card.dataset.protein || '0', 10);
-    const c = parseInt(card.dataset.carbs || '0', 10);
-    const g = parseInt(card.dataset.fat || '0', 10);
+    // Atualizar resumo lendo data-attributes pré-computados no PHP (com fallback)
+    let kcal = parseInt(card.dataset.kcal || '0', 10);
+    let p = parseInt(card.dataset.protein || '0', 10);
+    let c = parseInt(card.dataset.carbs || '0', 10);
+    let g = parseInt(card.dataset.fat || '0', 10);
+
+    if (!Number.isFinite(kcal) || !Number.isFinite(p) || !Number.isFinite(c) || !Number.isFinite(g)) {
+      kcal = 0; p = 0; c = 0; g = 0;
+    }
+
+    if (kcal === 0 && p === 0 && c === 0 && g === 0) {
+      try {
+        const meals = card.querySelectorAll('.diary-meal-card');
+        meals.forEach(m => {
+          const totals = m.querySelector('.diary-meal-totals')?.textContent || '';
+          const kcalMatch = totals.match(/(\d+)\s*kcal/i);
+          const pMatch = totals.match(/P\s*:?\s*(\d+)\s*g/i);
+          const cMatch = totals.match(/C\s*:?\s*(\d+)\s*g/i);
+          const gMatch = totals.match(/G\s*:?\s*(\d+)\s*g/i);
+          if (kcalMatch) kcal += parseInt(kcalMatch[1], 10) || 0;
+          if (pMatch) p += parseInt(pMatch[1], 10) || 0;
+          if (cMatch) c += parseInt(cMatch[1], 10) || 0;
+          if (gMatch) g += parseInt(gMatch[1], 10) || 0;
+        });
+      } catch (_) { /* noop */ }
+    }
+
+    console.log('[diary] render', { index, date: dateStr, kcal, p, c, g });
     document.getElementById('diarySummaryKcal').innerHTML = `<i class="fas fa-fire"></i><span>${kcal} kcal</span>`;
     document.getElementById('diarySummaryMacros').textContent = `P: ${p}g • C: ${c}g • G: ${g}g`;
   }
