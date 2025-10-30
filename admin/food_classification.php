@@ -93,11 +93,10 @@ $page = max(1, (int)($_GET['page'] ?? ($bloco_atual && isset($blocos[$bloco_atua
 if ($bloco_atual && isset($blocos[$bloco_atual])) {
     $pagina_ini = $blocos[$bloco_atual]['pagina_inicio'];
     $pagina_fim = $blocos[$bloco_atual]['pagina_fim'];
-    $page = max($pagina_ini, min($page, $pagina_fim));
-    $offset = ($page - 1) * $per_page;
-    $limit = $per_page;
-    // PAGINAÇÃO RESTRINGIDA (apenas do bloco):
-    $pagina_atual_do_bloco = $page - $pagina_ini + 1;
+    // Mostrar TODOS os itens do bloco de uma vez: offset no início do bloco e limit até o fim do bloco
+    $offset = ($pagina_ini - 1) * $per_page;
+    $limit = ($pagina_fim - $pagina_ini + 1) * $per_page;
+    $pagina_atual_do_bloco = 1;
     $total_paginas_bloco = $pagina_fim - $pagina_ini + 1;
 } else {
     $pagina_ini = 1; $pagina_fim = $paginas_totais;
@@ -1083,6 +1082,13 @@ include 'includes/header.php';
             </div>
         </div>
 
+        <!-- Indicador de bloco ativo -->
+        <?php if ($bloco_atual && isset($blocos[$bloco_atual])): ?>
+            <div style="margin-bottom:12px; padding:10px 12px; background:#1f2431; border:1px solid #2d3342; border-radius:8px; color:#e8e8e8;">
+                Trabalhando no <b>Bloco <?= (int)$bloco_atual ?></b>: páginas <b><?= $pagina_ini ?></b> – <b><?= $pagina_fim ?></b>
+            </div>
+        <?php endif; ?>
+
         <!-- Filtros -->
         <div class="filters-section">
             <h3 class="filters-title">🔍 Buscar</h3>
@@ -1096,8 +1102,7 @@ include 'includes/header.php';
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <input type="hidden" name="page_start" value="<?php echo htmlspecialchars($page_start) ?>">
-                <input type="hidden" name="page_end" value="<?php echo htmlspecialchars($page_end) ?>">
+                <?php if ($bloco_atual): ?><input type="hidden" name="bloco" value="<?= (int)$bloco_atual ?>"><?php endif; ?>
                 <button type="submit" class="filter-btn">Buscar</button>
                 <a href="food_classification.php" class="clear-btn">Limpar</a>
             </form>
@@ -1196,8 +1201,8 @@ include 'includes/header.php';
             <?php endforeach; ?>
         </div>
 
-        <!-- Paginação -->
-        <?php if ($total_pages > 1): ?>
+        <!-- Paginação (escondida quando há bloco selecionado) -->
+        <?php if (!$bloco_atual && $total_pages > 1): ?>
             <div class="pagination">
                 <?php if ($page > 1): ?>
                     <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>">« Anterior</a>
@@ -1230,13 +1235,7 @@ include 'includes/header.php';
       <button class="btn-fechar-x" title="Fechar" onclick="document.getElementById('modal-blocos').style.display='none'">×</button>
     </div>
     <div class="config-row">
-      <label for="num_blocos" class="lbl-inline">Número de blocos</label>
-      <div class="num-blocos-wrap">
-        <button type="button" class="btn-preset" data-n="4">4</button>
-        <button type="button" class="btn-preset" data-n="5">5</button>
-        <button type="button" class="btn-preset" data-n="6">6</button>
-        <input id="num_blocos" type="number" min="1" max="20" value="<?= htmlspecialchars($num_blocos) ?>">
-      </div>
+      <div class="lbl-inline" style="font-weight:600;">Este projeto usa 5 blocos fixos</div>
       <div class="stats-inline">Total: <b><?= $total_items ?></b> alimentos • <b><?= $paginas_totais ?></b> páginas (<?= $per_page ?>/página)</div>
     </div>
     <div class="blocos-cards">
@@ -1249,7 +1248,6 @@ include 'includes/header.php';
         <div class="bloco-pct"><?= $progresso_blocos[$b_n]['pct'] ?>% concluído</div>
         <form method="GET" class="bloco-form">
           <input type="hidden" name="bloco" value="<?= $b_n ?>">
-          <input type="hidden" name="num_blocos" id="form_num_blocos_<?= $b_n ?>" value="<?= htmlspecialchars($num_blocos) ?>">
           <?php if ($search): ?><input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>"><?php endif; ?>
           <?php if ($category_filter): ?><input type="hidden" name="category" value="<?= htmlspecialchars($category_filter) ?>"><?php endif; ?>
           <button class="btn-bloco-card">Trabalhar neste bloco</button>
@@ -1316,25 +1314,10 @@ include 'includes/header.php';
     document.addEventListener('DOMContentLoaded', function(){
       // Exibir modal na primeira carga (se bloco não estiver definido)
       setTimeout(showModalOnFirstLoad, 250);
-      // Presets de número de blocos
-      document.querySelectorAll('.btn-preset').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var n = parseInt(btn.getAttribute('data-n'))||5;
-          window.location.href = window.location.pathname + '?num_blocos=' + n;
-        });
-      });
-      // Alteração manual do número de blocos
-      var nb = document.getElementById('num_blocos');
-      if(nb){ nb.addEventListener('change', function(){
-        var n = Math.max(1, Math.min(20, parseInt(nb.value)||5));
-        window.location.href = window.location.pathname + '?num_blocos=' + n;
-      }); }
-      // Garantir que o valor de num_blocos siga para o GET ao escolher bloco
+      // Garantir navegação limpa ao escolher bloco
       document.querySelectorAll('.btn-bloco-card').forEach(function(btn){
         btn.addEventListener('click', function(){
-          var hidden = btn.parentElement.querySelector('input[type="hidden"][name="num_blocos"]');
-          var nb2 = document.getElementById('num_blocos');
-          if(hidden && nb2){ hidden.value = nb2.value; }
+          // nada extra, só evita submissões duplicadas
         });
       });
     });
