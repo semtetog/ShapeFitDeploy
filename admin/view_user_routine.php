@@ -310,16 +310,17 @@
     color: var(--text-primary);
 }
 
+.mission-description {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    opacity: 0.9;
+}
+
 .mission-type {
     margin: 0 0 0.25rem 0;
     font-size: 0.85rem;
     color: var(--text-secondary);
-}
-
-.mission-duration {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--accent-orange);
 }
 
 .empty-missions {
@@ -340,6 +341,47 @@
 .empty-missions p {
     font-size: 1rem;
     text-align: center;
+}
+
+/* Seletor de ícones */
+.icon-picker {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.icon-option {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.icon-option:hover {
+    background: rgba(255, 107, 0, 0.1);
+    border-color: rgba(255, 107, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.icon-option.selected {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+}
+
+.icon-option i {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.icon-option.selected i {
+    color: var(--accent-orange);
 }
 
 @media (max-width: 768px) {
@@ -1503,8 +1545,8 @@ function renderMissionsGrid(missions) {
             </div>
             <div class="mission-content">
                 <h4>${mission.title}</h4>
+                ${mission.description ? `<p class="mission-description">${mission.description}</p>` : ''}
                 <p class="mission-type">${mission.is_exercise ? 'Exercício' : 'Missão Simples'}</p>
-                ${mission.is_exercise ? `<p class="mission-duration">Duração: ${mission.duration_minutes || 0} min</p>` : ''}
             </div>
         </div>
     `).join('');
@@ -1595,9 +1637,12 @@ window.deleteMission = function(missionId, missionName) {
         fetch('api/routine_crud.php', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/json',
             },
-            body: `action=delete&id=${missionId}&patient_id=<?php echo $user_id; ?>`
+            body: JSON.stringify({
+                action: 'delete_mission',
+                id: missionId
+            })
         })
         .then(response => response.json())
         .then(data => {
@@ -1919,6 +1964,8 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
                 </div>
                 <div class="modal-body">
                     <form id="missionForm">
+                        <input type="hidden" id="missionId" name="mission_id" value="">
+                        <input type="hidden" id="selectedIcon" name="icon_class" value="">
                         <div class="form-group">
                             <label for="missionTitle">Título da Missão</label>
                             <input type="text" id="missionTitle" name="title" required>
