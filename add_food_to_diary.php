@@ -1319,21 +1319,35 @@ function confirmMeal() {
         'csrf_token': '<?php echo $_SESSION['csrf_token']; ?>',
         'custom_meal_name': customMealName,
         'meal_time': document.getElementById('meal_time').value,
-        'servings_consumed': quantity,
         'meal_type': document.getElementById('meal-type').value,
         'date_consumed': document.getElementById('meal-date').value,
-        'kcal_per_serving': selectedRecipe.kcal_per_serving,
-        'protein_per_serving': selectedRecipe.protein_g_per_serving,
-        'carbs_per_serving': selectedRecipe.carbs_g_per_serving,
-        'fat_per_serving': selectedRecipe.fat_g_per_serving
     };
     
     // Adicionar ID correto baseado no tipo
     if (selectedRecipe.is_food) {
         fields['food_name'] = selectedRecipe.name;
         fields['is_food'] = '1';
+        // Para alimentos, usamos os totais calculados e salvamos como 1 porção
+        const kcalTxt = document.getElementById('total-kcal').textContent || '0';
+        const proteinTxt = document.getElementById('total-protein').textContent || '0';
+        const carbsTxt = document.getElementById('total-carbs').textContent || '0';
+        const fatTxt = document.getElementById('total-fat').textContent || '0';
+        const totalKcal = parseFloat(kcalTxt);
+        const totalProtein = parseFloat(proteinTxt);
+        const totalCarbs = parseFloat(carbsTxt);
+        const totalFat = parseFloat(fatTxt);
+        fields['servings_consumed'] = '1';
+        fields['kcal_per_serving'] = isNaN(totalKcal) ? 0 : totalKcal;
+        fields['protein_per_serving'] = isNaN(totalProtein) ? 0 : totalProtein;
+        fields['carbs_per_serving'] = isNaN(totalCarbs) ? 0 : totalCarbs;
+        fields['fat_per_serving'] = isNaN(totalFat) ? 0 : totalFat;
     } else {
         fields['recipe_id'] = selectedRecipe.id;
+        fields['servings_consumed'] = quantity;
+        fields['kcal_per_serving'] = selectedRecipe.kcal_per_serving;
+        fields['protein_per_serving'] = selectedRecipe.protein_g_per_serving;
+        fields['carbs_per_serving'] = selectedRecipe.carbs_g_per_serving;
+        fields['fat_per_serving'] = selectedRecipe.fat_g_per_serving;
     }
     
     for (const [name, value] of Object.entries(fields)) {
