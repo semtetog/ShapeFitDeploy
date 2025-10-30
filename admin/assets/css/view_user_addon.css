@@ -951,7 +951,7 @@
 .diary-day-meals {
   display: flex;
   flex-direction: column;
-  gap: 2.25rem;
+  gap: 0;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -1002,7 +1002,11 @@
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  margin: 0;
+  margin-bottom: 1.5rem;
+}
+
+.diary-meal-card:last-child {
+  margin-bottom: 0;
 }
 
 .diary-meal-card:hover {
