@@ -286,11 +286,17 @@
       if (!newCard) return;
       track.insertBefore(newCard, track.firstChild);
       collect();
-      // Mantém o slide visualmente no mesmo dia após inserir antes
-      index++; // o card atual desloca para a direita
+      // 1) Travar posição atual sem animação (agora é index+1)
+      const keepIndex = index + 1;
+      track.style.transition = 'none';
+      track.style.transform = `translateX(${-keepIndex*100}%)`;
+      // Forçar reflow para aplicar imediatamente
+      void track.offsetHeight;
+      // 2) Animar para o dia anterior recém-carregado
+      index = keepIndex - 1;
+      track.style.transition = 'transform .3s ease-in-out';
       setTransform();
-      // Agora navega para o anterior (carregado)
-      index--; render();
+      updateHeader();
     } catch(e){ console.error('loadPrevDay error', e); }
   }
 
