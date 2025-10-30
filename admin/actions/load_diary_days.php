@@ -15,9 +15,17 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 $user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
-$endDate = $_GET['end_date'] ?? date('Y-m-d');
-$daysToShow = isset($_GET['days']) ? (int)$_GET['days'] : 1; // Padrão: 1 dia
-$startDate = date('Y-m-d', strtotime($endDate . " -" . ($daysToShow - 1) . " days"));
+// Aceita 'date' (um único dia) ou 'end_date'+'days'
+$requestedDate = $_GET['date'] ?? null;
+if ($requestedDate) {
+    $endDate = $requestedDate;
+    $daysToShow = 1;
+    $startDate = $requestedDate;
+} else {
+    $endDate = $_GET['end_date'] ?? date('Y-m-d');
+    $daysToShow = isset($_GET['days']) ? (int)$_GET['days'] : 1; // Padrão: 1 dia
+    $startDate = date('Y-m-d', strtotime($endDate . " -" . ($daysToShow - 1) . " days"));
+}
 
 // Usar a função correta do functions_admin.php
 $meal_history = getGroupedMealHistory($conn, $user_id, $startDate, $endDate);
@@ -53,7 +61,8 @@ foreach ($all_dates as $date):
     $day_of_week = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][date('w', $timestamp)];
 ?>
 
-<div class="diary-day-card" data-date="<?php echo $date; ?>">
+<div class="diary-content-day" data-date="<?php echo $date; ?>" data-kcal="<?php echo (int)round($day_total_kcal); ?>" data-protein="<?php echo (int)round($day_total_prot); ?>" data-carbs="<?php echo (int)round($day_total_carb); ?>" data-fat="<?php echo (int)round($day_total_fat); ?>">
+    <!-- Cabeçalho e resumos virão do container pai; abaixo apenas conteúdo do dia -->
     <div class="diary-day-summary" style="display: none;">
         <div class="diary-summary-item">
             <i class="fas fa-fire"></i>
