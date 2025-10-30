@@ -1204,4 +1204,76 @@ require_once __DIR__ . '/includes/header.php';
 }
 </style>
 
+<!-- Modais gerais necessários pela página (não específicos de abas) -->
+<div id="revertGoalsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--card-bg); color:var(--primary-text-color); border:1px solid var(--border-color); border-radius:12px; width:min(520px, 92vw); padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+        <h3 style="margin:0 0 12px 0; display:flex; align-items:center; gap:8px;"><i class="fas fa-undo" style="color:var(--accent-orange);"></i> Reverter metas para cálculo automático</h3>
+        <p style="margin:0 0 16px 0; color:var(--secondary-text-color);">Isto irá restaurar calorias e macronutrientes para os valores calculados automaticamente com base no perfil do paciente.</p>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button type="button" onclick="closeRevertModal()" style="padding:10px 14px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--primary-text-color); border-radius:8px; cursor:pointer;">Cancelar</button>
+            <button type="button" id="confirmRevertBtn" style="padding:10px 14px; border:0; background:var(--accent-orange); color:#fff; border-radius:8px; cursor:pointer;">Reverter agora</button>
+        </div>
+    </div>
+    <input type="hidden" id="revertUserId" value="">
+  </div>
+
+<div id="sleepDetailsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--card-bg); color:var(--primary-text-color); border:1px solid var(--border-color); border-radius:12px; width:min(520px, 92vw); padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+        <h3 style="margin:0 0 12px 0; display:flex; align-items:center; gap:8px;"><i class="fas fa-bed" style="color:var(--accent-orange);"></i> Detalhes do Sono</h3>
+        <div id="sleepDetailsContent" style="margin:0 0 16px 0; color:var(--secondary-text-color);">
+            <p>Informações detalhadas sobre o horário de dormir e acordar do paciente aparecerão aqui.</p>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button type="button" onclick="closeSleepDetailsModal()" style="padding:10px 14px; border:0; background:var(--accent-orange); color:#fff; border-radius:8px; cursor:pointer;">Fechar</button>
+        </div>
+    </div>
+  </div>
+
+<script>
+// Handlers gerais necessários pela página (fora das abas)
+function showRevertModal(userId) {
+    try {
+        const modal = document.getElementById('revertGoalsModal');
+        const userInput = document.getElementById('revertUserId');
+        const confirmBtn = document.getElementById('confirmRevertBtn');
+        if (!modal || !userInput || !confirmBtn) return;
+        userInput.value = String(userId || '');
+        confirmBtn.onclick = function () {
+            // Dispara um evento customizado para lógica externa (ex.: user_view_logic.js) capturar, se existir
+            const evt = new CustomEvent('revert-goals:confirm', { detail: { userId: userInput.value } });
+            window.dispatchEvent(evt);
+            closeRevertModal();
+        };
+        modal.style.display = 'flex';
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function closeRevertModal() {
+    const modal = document.getElementById('revertGoalsModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function openSleepDetailsModal() {
+    try {
+        const modal = document.getElementById('sleepDetailsModal');
+        const content = document.getElementById('sleepDetailsContent');
+        if (!modal) return;
+        // Se existir dados no HTML/PHP, poderíamos preencher aqui. Mantém genérico.
+        if (content && !content.dataset.filled) {
+            content.dataset.filled = '1';
+        }
+        modal.style.display = 'flex';
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function closeSleepDetailsModal() {
+    const modal = document.getElementById('sleepDetailsModal');
+    if (modal) modal.style.display = 'none';
+}
+</script>
+
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
