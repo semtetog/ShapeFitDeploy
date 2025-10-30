@@ -18,24 +18,58 @@ $user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 $requestedDate = $_GET['date'] ?? date('Y-m-d');
 
 try {
-    // Buscar dados do perfil do usuário
-    $stmt_profile = $conn->prepare("SELECT * FROM sf_user_profiles WHERE user_id = ?");
-    $stmt_profile->bind_param("i", $user_id);
-    $stmt_profile->execute();
-    $user_profile = $stmt_profile->get_result()->fetch_assoc();
-    $stmt_profile->close();
+    // Buscar missões fixas concluídas do dia
+    $completed_missions = [];
     
-    if (!$user_profile) {
-        $user_profile = [];
+    $stmt_routine_log = $conn->prepare("
+        SELECT 
+            ri.id,
+            ri.title,
+            ri.icon_class,
+            url.completion_time
+        FROM sf_user_routine_log url
+        JOIN sf_routine_items ri ON url.routine_item_id = ri.id
+        WHERE url.user_id = ? 
+            AND url.date = ? 
+            AND url.is_completed = 1
+        ORDER BY url.completion_time ASC
+    ");
+    $stmt_routine_log->bind_param("is", $user_id, $requestedDate);
+    $stmt_routine_log->execute();
+    $result_routine_log = $stmt_routine_log->get_result();
+    while ($row = $result_routine_log->fetch_assoc()) {
+        $completed_missions[] = $row;
     }
+    $stmt_routine_log->close();
     
-    // Buscar missões concluídas do dia
-    require_once __DIR__ . '/../../includes/functions.php';
-    $day_missions = getRoutineItemsForUser($conn, $user_id, $requestedDate, $user_profile);
-    $completed_missions = array_filter($day_missions, function($mission) {
-        return $mission['completion_status'] == 1;
+    // Buscar missões de onboarding concluídas (exercícios)
+    $stmt_onboarding = $conn->prepare("
+        SELECT 
+            uoc.activity_name as title,
+            'fa-dumbbell' as icon_class,
+            uoc.completion_time,
+            ued.duration_minutes
+        FROM sf_user_onboarding_completion uoc
+        LEFT JOIN sf_user_exercise_durations ued ON uoc.user_id = ued.user_id AND uoc.activity_name = ued.exercise_name
+        WHERE uoc.user_id = ? 
+            AND uoc.completion_date = ?
+        ORDER BY uoc.completion_time ASC
+    ");
+    $stmt_onboarding->bind_param("is", $user_id, $requestedDate);
+    $stmt_onboarding->execute();
+    $result_onboarding = $stmt_onboarding->get_result();
+    while ($row = $result_onboarding->fetch_assoc()) {
+        $completed_missions[] = $row;
+    }
+    $stmt_onboarding->close();
+    
+    // Ordenar por horário de conclusão
+    usort($completed_missions, function($a, $b) {
+        $time_a = strtotime($a['completion_time'] ?? '9999-12-31 23:59:59');
+        $time_b = strtotime($b['completion_time'] ?? '9999-12-31 23:59:59');
+        return $time_a <=> $time_b;
     });
-    $total_missions = count($day_missions);
+    
 } catch (Exception $e) {
     error_log('[load_routine_days] Erro: ' . $e->getMessage());
     http_response_code(500);
@@ -51,7 +85,13 @@ try {
                 <p>Nenhum registro neste dia</p>
             </div>
         <?php else: ?>
-            <?php foreach ($completed_missions as $mission): ?>
+            <?php foreach ($completed_missions as $mission): 
+                $completion_time = $mission['completion_time'] ?? null;
+                $time_display = '';
+                if ($completion_time) {
+                    $time_display = date('H:i', strtotime($completion_time));
+                }
+            ?>
                 <div class="diary-meal-card">
                     <div class="diary-meal-header">
                         <div class="diary-meal-icon">
@@ -60,7 +100,14 @@ try {
                         <div class="diary-meal-info">
                             <h5 style="margin: 0;"><?php echo htmlspecialchars($mission['title'] ?? 'Missão'); ?></h5>
                             <span class="diary-meal-totals">
-                                <strong><?php echo isset($mission['duration_minutes']) && $mission['duration_minutes'] ? $mission['duration_minutes'] . 'min' : 'Concluída'; ?></strong>
+                                <?php if ($time_display): ?>
+                                    <i class="fas fa-clock" style="margin-right: 4px;"></i><?php echo $time_display; ?>
+                                    <?php if (isset($mission['duration_minutes']) && $mission['duration_minutes']): ?>
+                                         • <?php echo $mission['duration_minutes']; ?>min
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <strong><?php echo isset($mission['duration_minutes']) && $mission['duration_minutes'] ? $mission['duration_minutes'] . 'min' : 'Concluída'; ?></strong>
+                                <?php endif; ?>
                             </span>
                         </div>
                     </div>
