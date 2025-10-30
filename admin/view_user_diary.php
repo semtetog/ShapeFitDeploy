@@ -234,13 +234,22 @@ function updateDiarySummary(kcal, protein, carbs, fat) {
 function navigateDiaryDate(direction) {
     const newDate = new Date(currentDiaryDate);
     newDate.setDate(newDate.getDate() + direction);
+    newDate.setHours(0, 0, 0, 0); // Normalizar para comparar
     
     // Verificar se não passou do dia atual
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    
+    console.log('[nav] currentDiaryDate:', currentDiaryDate.toISOString().split('T')[0]);
+    console.log('[nav] newDate:', newDate.toISOString().split('T')[0], 'direction:', direction);
+    console.log('[nav] today:', today.toISOString().split('T')[0]);
+    console.log('[nav] newDate <= today:', newDate <= today);
+    
     if (newDate <= today) {
         currentDiaryDate = newDate;
         loadDiaryForDate(currentDiaryDate, direction);
+    } else {
+        console.log('[nav] BLOQUEADO: Tentativa de navegar para data futura');
     }
 }
 
@@ -251,6 +260,7 @@ window.navigateDiaryDate = navigateDiaryDate;
 (function initDiary() {
     // Carregar dia atual ao abrir
     currentDiaryDate = new Date();
+    currentDiaryDate.setHours(0, 0, 0, 0); // Normalizar para comparar
     loadDiaryForDate(currentDiaryDate);
     
     // Suporte a teclado
