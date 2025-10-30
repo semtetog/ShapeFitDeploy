@@ -160,12 +160,15 @@
 // Sistema de navegação do diário
 let diaryCards = document.querySelectorAll('.diary-day-card');
 let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
-const diaryTrack = document.getElementById('diarySliderTrack');
+let diaryTrack = document.getElementById('diarySliderTrack');
 let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
 
 // Função para atualizar referência aos cards
 function updateDiaryCards() {
     diaryCards = document.querySelectorAll('.diary-day-card');
+    if (!diaryTrack) {
+        diaryTrack = document.getElementById('diarySliderTrack');
+    }
 }
 
 function updateDiaryDisplay() {
@@ -499,14 +502,24 @@ document.addEventListener('keydown', (e) => {
 
 // Inicializar quando a aba de diário estiver ativa
 function initDiary() {
+    // Recoletar referências sempre que iniciar
+    diaryTrack = document.getElementById('diarySliderTrack');
+    diaryCards = document.querySelectorAll('.diary-day-card');
     if (diaryCards.length > 0) {
+        currentDiaryIndex = diaryCards.length - 1;
         updateDiaryDisplay();
     }
 }
 
 // Inicializar se a aba já estiver ativa ou quando for aberta
-if (document.getElementById('tab-diary').classList.contains('active')) {
-    initDiary();
+const diaryTabEl = document.getElementById('tab-diary');
+if (diaryTabEl && diaryTabEl.classList.contains('active')) {
+    // Garantir que rode após o DOM estar pronto
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setTimeout(initDiary, 0));
+    } else {
+        setTimeout(initDiary, 0);
+    }
 }
 
 // Observar mudanças de aba
