@@ -1576,11 +1576,12 @@ function initIconPicker() {
     const icons = [
         'fa-dumbbell', 'fa-running', 'fa-bicycle', 'fa-swimmer',
         'fa-heart', 'fa-apple-alt', 'fa-carrot', 'fa-fish',
-        'fa-tint', 'fa-coffee', 'fa-glass-whiskey', 'fa-wine-bottle',
-        'fa-bed', 'fa-moon', 'fa-sun', 'fa-clock',
-        'fa-book', 'fa-pen', 'fa-pencil-alt', 'fa-graduation-cap',
-        'fa-meditation', 'fa-yoga', 'fa-spa', 'fa-leaf',
-        'fa-fire', 'fa-bolt', 'fa-star', 'fa-trophy'
+        'fa-tint', 'fa-coffee', 'fa-bed', 'fa-moon',
+        'fa-sun', 'fa-clock', 'fa-book', 'fa-pen',
+        'fa-pencil-alt', 'fa-graduation-cap', 'fa-spa', 'fa-leaf',
+        'fa-fire', 'fa-bolt', 'fa-star', 'fa-trophy',
+        'fa-water', 'fa-utensils', 'fa-walking', 'fa-calendar-check',
+        'fa-weight', 'fa-smile', 'fa-check-circle'
     ];
     
     iconPicker.innerHTML = icons.map(icon => `
@@ -1669,16 +1670,19 @@ window.editMission = function(missionId) {
                 document.getElementById('missionId').value = mission.id;
                 document.getElementById('missionTitle').value = mission.title || '';
                 document.getElementById('missionDescription').value = mission.description || '';
-                document.getElementById('missionType').value = mission.is_exercise || 0;
-                document.getElementById('exerciseType').value = mission.exercise_type || '';
                 
-                // Mostrar/ocultar grupo de tipo de exercício
-                const exerciseTypeGroup = document.getElementById('exerciseTypeGroup');
+                // Mapear tipo de missão do backend para o select
+                let missionType = 'yes_no';
                 if (mission.is_exercise == 1) {
-                    exerciseTypeGroup.style.display = 'block';
-                } else {
-                    exerciseTypeGroup.style.display = 'none';
+                    if (mission.exercise_type === 'sleep') {
+                        missionType = 'sleep';
+                    } else if (mission.exercise_type === 'duration') {
+                        missionType = 'duration';
+                    } else {
+                        missionType = 'duration'; // fallback
+                    }
                 }
+                document.getElementById('missionType').value = missionType;
                 
                 // Abrir modal (não resetar formulário pois já preenchemos os dados)
                 openMissionModal(missionId, true);
@@ -1734,19 +1738,6 @@ window.deleteMission = function(missionId, missionName) {
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('missionForm');
     if (form) {
-        // Listener para mostrar/ocultar tipo de exercício
-        const missionType = document.getElementById('missionType');
-        if (missionType) {
-            missionType.addEventListener('change', function() {
-                const exerciseTypeGroup = document.getElementById('exerciseTypeGroup');
-                if (this.value == 1) {
-                    exerciseTypeGroup.style.display = 'block';
-                } else {
-                    exerciseTypeGroup.style.display = 'none';
-                }
-            });
-        }
-        
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -1754,14 +1745,31 @@ document.addEventListener('DOMContentLoaded', function() {
             const missionId = formData.get('mission_id');
             const action = missionId ? 'update_mission' : 'create_mission';
             
+            // Mapear tipo de missão para campos do backend
+            const missionType = formData.get('mission_type');
+            let is_exercise = 0;
+            let exercise_type = '';
+            
+            if (missionType === 'duration') {
+                is_exercise = 1;
+                exercise_type = 'duration';
+            } else if (missionType === 'sleep') {
+                is_exercise = 1;
+                exercise_type = 'sleep';
+            } else {
+                // yes_no
+                is_exercise = 0;
+                exercise_type = '';
+            }
+            
             // Criar objeto com dados
             const data = {
                 action: action,
                 title: formData.get('title'),
                 description: formData.get('description'),
                 icon_class: formData.get('icon_class') || 'fa-check-circle',
-                is_exercise: parseInt(formData.get('is_exercise')) || 0,
-                exercise_type: formData.get('exercise_type') || ''
+                is_exercise: is_exercise,
+                exercise_type: exercise_type
             };
             
             if (missionId) {
@@ -2331,16 +2339,10 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
                         </div>
                         <div class="form-group">
                             <label for="missionType">Tipo de Missão</label>
-                            <select id="missionType" name="is_exercise" required>
-                                <option value="0">Missão Normal</option>
-                                <option value="1">Exercício</option>
-                            </select>
-                        </div>
-                        <div class="form-group" id="exerciseTypeGroup" style="display: none;">
-                            <label for="exerciseType">Tipo de Exercício</label>
-                            <select id="exerciseType" name="exercise_type">
-                                <option value="duration">Duração (minutos)</option>
-                                <option value="reps">Repetições</option>
+                            <select id="missionType" name="mission_type" required>
+                                <option value="yes_no">Sim/Não</option>
+                                <option value="duration">Duração (tempo em minutos)</option>
+                                <option value="sleep">Sono (horário)</option>
                             </select>
                         </div>
                         <div class="form-group">
