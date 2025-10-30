@@ -10021,63 +10021,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // Funções de exercícios movidas para escopo global
     
-    // Salvar exercício
-    document.getElementById('exercise-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const exerciseId = document.getElementById('exercise-id').value;
-        const exerciseName = document.getElementById('exercise-name').value.trim();
-        const exerciseDate = document.getElementById('exercise-date').value;
-        
-        if (!exerciseName) {
-            alert('Por favor, insira o nome do exercício.');
-            return;
-        }
-        
-        const data = {
-            activity_name: exerciseName,
-            completion_date: exerciseDate
-        };
-        
-        const isEdit = exerciseId !== '';
-        if (isEdit) {
-            data.id = parseInt(exerciseId);
-        }
-        
-        const action = isEdit ? 'update_exercise' : 'create_exercise';
-        
-        // Desabilitar botão enquanto processa
-        const saveBtn = this.querySelector('button[type="submit"]');
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Salvando...';
-        
-        fetch(`api/routine_crud.php?action=${action}&patient_id=${patientId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'Salvar';
+    // Salvar exercício (versão segura)
+    const exerciseForm = document.getElementById('exercise-form');
+    if (exerciseForm) {
+        exerciseForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            if (result.success) {
-                alert(isEdit ? 'Exercício atualizado com sucesso!' : 'Exercício adicionado com sucesso!');
-                closeExerciseModal();
-                loadExercisesAdminList();
-            } else {
-                alert('Erro ao salvar exercício: ' + result.message);
+            const exerciseId = document.getElementById('exercise-id').value;
+            const exerciseName = document.getElementById('exercise-name').value.trim();
+            const exerciseDate = document.getElementById('exercise-date').value;
+            
+            if (!exerciseName) {
+                alert('Por favor, insira o nome do exercício.');
+                return;
             }
-        })
-        .catch(error => {
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'Salvar';
-            console.error('Erro ao salvar exercício:', error);
-            alert('Erro ao salvar exercício');
+            
+            const data = {
+                activity_name: exerciseName,
+                completion_date: exerciseDate
+            };
+            
+            const isEdit = exerciseId !== '';
+            if (isEdit) {
+                data.id = parseInt(exerciseId);
+            }
+            
+            const action = isEdit ? 'update_exercise' : 'create_exercise';
+            
+            // Desabilitar botão enquanto processa
+            const saveBtn = this.querySelector('button[type="submit"]');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Salvando...';
+            
+            fetch(`api/routine_crud.php?action=${action}&patient_id=${patientId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Salvar';
+                
+                if (result.success) {
+                    alert(isEdit ? 'Exercício atualizado com sucesso!' : 'Exercício adicionado com sucesso!');
+                    closeExerciseModal();
+                    loadExercisesAdminList();
+                } else {
+                    alert('Erro ao salvar exercício: ' + result.message);
+                }
+            })
+            .catch(error => {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Salvar';
+                console.error('Erro ao salvar exercício:', error);
+                alert('Erro ao salvar exercício');
+            });
         });
-    });
+    }
     
     // Fechar modal ao clicar fora (versão segura)
     window.addEventListener('click', function(event) {
