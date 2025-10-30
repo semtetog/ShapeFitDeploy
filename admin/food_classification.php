@@ -1250,6 +1250,17 @@ function updateFoodVisual(foodId) {
     }
 }
 
+// Classificar diretamente (usado por ações em lote)
+function classifyFood(foodId, category) {
+    console.log('⚡ classifyFood (bulk):', foodId, category);
+    // Define somente esta categoria para o alimento no objeto em memória
+    classifications[foodId] = [category];
+    // Atualiza o visual imediatamente
+    updateFoodVisual(foodId);
+    // Salva instantaneamente
+    saveClassificationsInstant();
+}
+
 // Aplicar classificação em lote
 function applyBulkClassification() {
     const selectedCategory = document.getElementById('bulk-category').value;
