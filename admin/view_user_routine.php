@@ -71,7 +71,9 @@
                 <!-- Resumo de missões -->
                 <div class="diary-summary-row">
                     <div class="diary-macros" id="routineSummaryProgress" style="justify-content: center;">
-                        Progresso: 0%
+                        <span id="routineSummaryMissions">0/0 missões</span>
+                        <span style="margin: 0 8px;">•</span>
+                        <span>Progresso: 0%</span>
                     </div>
                 </div>
                 
@@ -293,7 +295,8 @@ function updateRoutineHeader(targetDate) {
 // ============ ATUALIZAR RESUMO (MISSÕES) ============
 function updateRoutineSummary(missions, total) {
     const progress = total > 0 ? Math.round((missions / total) * 100) : 0;
-    document.getElementById('routineSummaryProgress').textContent = `Progresso: ${progress}%`;
+    document.getElementById('routineSummaryMissions').textContent = `${missions}/${total} missões`;
+    document.getElementById('routineSummaryProgress').innerHTML = `<span id="routineSummaryMissions">${missions}/${total} missões</span><span style="margin: 0 8px;">•</span><span>Progresso: ${progress}%</span>`;
 }
 
 // ============ NAVEGAÇÃO ENTRE DIAS ============
