@@ -975,6 +975,29 @@ include 'includes/header.php';
         align-items: stretch;
     }
 }
+
+.block-btn-row {
+  display:flex;
+  gap:14px;
+  margin-bottom:12px;
+  align-items:center;
+}
+.block-btn {
+  background:#21232c;
+  border:1.2px solid #363945;
+  color:#ffa200;
+  border-radius:7px;
+  padding:7px 18px;
+  font-size:1em;
+  font-weight:600;
+  transition:.18s;
+  cursor:pointer;
+}
+.block-btn:hover {
+  background:#191b20;
+  color:#fff;
+  border-color:#ffa200;
+}
 </style>
 
 <div class="classification-container">
