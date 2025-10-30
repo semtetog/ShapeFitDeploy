@@ -57,7 +57,12 @@
         </div>
         
         <div class="diary-slider-wrapper" id="diarySliderWrapper">
-            <div class="diary-slider-track" id="diarySliderTrack">
+            <?php 
+                // total de dias para posicionar o slider inicialmente no último dia
+                $initial_index = max(count($all_dates) - 1, 0);
+                $initial_offset = $initial_index * 100; 
+            ?>
+            <div class="diary-slider-track" id="diarySliderTrack" style="transform: translateX(-<?php echo $initial_offset; ?>%);">
                 <?php 
                 // Gerar array com TODOS os dias, mesmo se não houver dados
                 $all_dates = [];
@@ -529,6 +534,7 @@ function initDiary() {
         updateDiaryCards();
         updateDiaryDisplay();
     }
+    if (diaryTrack) diaryTrack.style.visibility = 'visible';
 }
 
 // Inicializar se a aba já estiver ativa ou quando for aberta
@@ -555,7 +561,7 @@ tabLinks.forEach(link => {
 
 <style>
 /* Normaliza o slider para funcionar com transform (sem esconder cards) */
-#diarySliderTrack { display: flex; }
+#diarySliderTrack { display: flex; visibility: hidden; will-change: transform; }
 #diarySliderTrack .diary-day-card {
   display: block !important; /* não usar display:none */
   min-width: 100%;
