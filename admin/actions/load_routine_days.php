@@ -26,13 +26,13 @@ try {
             ri.id,
             ri.title,
             ri.icon_class,
-            url.completed_at as completion_time
+            url.updated_at as completion_time
         FROM sf_user_routine_log url
         JOIN sf_routine_items ri ON url.routine_item_id = ri.id
         WHERE url.user_id = ? 
             AND url.date = ? 
             AND url.is_completed = 1
-        ORDER BY url.completed_at ASC
+        ORDER BY url.updated_at ASC
     ");
     
     if ($stmt_routine_log) {
