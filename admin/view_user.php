@@ -1572,6 +1572,76 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
+<script>
+// Delegação de eventos resiliente p/ edição inline (garante funcionamento mesmo se outro script falhar)
+(function(){
+    function startInlineEdit(element){
+        if (element.querySelector('input')) return;
+        const field = element.dataset.field;
+        const userId = element.dataset.userId;
+        const currentValue = element.dataset.original;
+        const fullText = element.textContent;
+        const suffix = fullText.replace(currentValue, '').trim();
+        const cs = window.getComputedStyle(element);
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.value = currentValue;
+        input.style.cssText = `background: rgba(255,255,255,.08); border:2px solid var(--accent-orange); border-radius:8px; padding:.25rem .5rem; color:${cs.color}; font-size:${cs.fontSize}; font-weight:${cs.fontWeight}; text-align:${cs.textAlign}; width:100%; max-width:150px; outline:none; font-family:'Montserrat',sans-serif;`;
+        element.textContent = '';
+        element.appendChild(input);
+        input.focus();
+        input.select();
+
+        const cancelEdit = () => { element.textContent = currentValue + (suffix? ' ' + suffix : ''); };
+
+        const saveValue = async () => {
+            const newValue = input.value;
+            if (!newValue || newValue === currentValue) { cancelEdit(); return; }
+            try {
+                const caloriesEl = document.querySelector('[data-field="daily_calories"]');
+                const proteinEl = document.querySelector('[data-field="protein_g"]');
+                const carbsEl = document.querySelector('[data-field="carbs_g"]');
+                const fatEl = document.querySelector('[data-field="fat_g"]');
+                const formData = new FormData();
+                formData.append('user_id', userId);
+                formData.append('daily_calories', field === 'daily_calories' ? newValue : (caloriesEl?.dataset.original || ''));
+                formData.append('protein_g', field === 'protein_g' ? newValue : (proteinEl?.dataset.original || ''));
+                formData.append('carbs_g', field === 'carbs_g' ? newValue : (carbsEl?.dataset.original || ''));
+                formData.append('fat_g', field === 'fat_g' ? newValue : (fatEl?.dataset.original || ''));
+                formData.append('water_ml', <?php echo $water_goal_ml; ?>);
+                const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/update_user_goals.php', { method:'POST', headers:{ 'X-Requested-With':'XMLHttpRequest' }, body: formData });
+                const text = await response.text();
+                let result;
+                try { result = JSON.parse(text); } catch(e){ console.error('JSON parse error:', e, text); cancelEdit(); return; }
+                if (result.success){
+                    element.dataset.original = newValue;
+                    element.textContent = newValue + (suffix? ' ' + suffix : '');
+                    element.style.animation = 'pulse 0.5s ease';
+                    setTimeout(() => element.style.animation = '', 500);
+                } else { alert('Erro ao salvar: ' + result.message); cancelEdit(); }
+            } catch(err){ console.error('Erro:', err); alert('Erro ao salvar alterações'); cancelEdit(); }
+        };
+
+        input.addEventListener('blur', saveValue);
+        input.addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); saveValue(); } else if (e.key==='Escape'){ cancelEdit(); } });
+    }
+
+    document.addEventListener('click', function(e){
+        const el = e.target.closest('.editable-value');
+        if (el) { e.preventDefault(); startInlineEdit(el); }
+    });
+})();
+
+// Logs leves para diagnosticar modais no prod
+window.showRevertModal = (function(orig){
+    return function(userId){ console.log('[showRevertModal] click', { userId }); try{ return orig ? orig(userId) : (document.getElementById('revertGoalsModal')?.classList.add('active'), document.body.style.overflow='hidden'); }catch(e){ console.error(e); }};
+})(window.showRevertModal);
+
+window.openSleepDetailsModal = (function(orig){
+    return function(){ console.log('[openSleepDetailsModal] click'); try{ return orig ? orig() : (document.getElementById('sleepDetailsModal')?.classList.add('active'), document.body.style.overflow='hidden'); }catch(e){ console.error(e); }};
+})(window.openSleepDetailsModal);
+</script>
+
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
 
