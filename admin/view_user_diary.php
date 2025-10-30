@@ -182,19 +182,15 @@ function updateDiaryCards() {
     if (!diaryTrack) {
         diaryTrack = document.getElementById('diarySliderTrack');
     }
-    // Somente o card atual deve ficar visível (classe .active controla display)
-    diaryCards.forEach((card, idx) => {
-        if (idx === currentDiaryIndex) card.classList.add('active');
-        else card.classList.remove('active');
-    });
+    // Não esconda os itens; o track usa transform para navegação
 }
 
 function updateDiaryDisplay() {
     // Adicionar transição suave para o slider
-    diaryTrack.style.transition = 'transform 0.3s ease-in-out';
+    if (diaryTrack) diaryTrack.style.transition = 'transform 0.3s ease-in-out';
     
     const offset = -currentDiaryIndex * 100;
-    diaryTrack.style.transform = `translateX(${offset}%)`;
+    if (diaryTrack) diaryTrack.style.transform = `translateX(${offset}%)`;
     
     const currentCard = diaryCards[currentDiaryIndex];
     if (!currentCard) return;
@@ -556,6 +552,16 @@ tabLinks.forEach(link => {
     });
 });
 </script>
+
+<style>
+/* Normaliza o slider para funcionar com transform (sem esconder cards) */
+#diarySliderTrack { display: flex; }
+#diarySliderTrack .diary-day-card {
+  display: block !important; /* não usar display:none */
+  min-width: 100%;
+  flex: 0 0 100%;
+}
+</style>
 
 <!-- Modal de Calendário do Diário - REDESIGN COMPLETO -->
 <div id="diaryCalendarModal" class="custom-modal">
