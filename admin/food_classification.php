@@ -31,6 +31,15 @@ $page = (int)($_GET['page'] ?? 1);
 $per_page = 15;
 $offset = ($page - 1) * $per_page;
 
+// Adicionar filtros de intervalo de página no topo
+$page_start = isset($_GET['page_start']) ? max(1, (int)$_GET['page_start']) : 1;
+$page_end = isset($_GET['page_end']) ? max($page_start, (int)$_GET['page_end']) : $total_pages;
+
+// Restringir o offset e a quantidade conforme o intervalo
+if ($page_start > $page_end) $page_end = $page_start;
+$effective_offset = ($page_start - 1) * $per_page;
+$effective_limit = ($page_end - $page_start + 1) * $per_page;
+
 $where_conditions = [];
 $params = [];
 $param_types = '';
@@ -74,9 +83,9 @@ $sql = "SELECT
         {$where_sql} 
         GROUP BY sfi.id
         ORDER BY sfi.name_pt 
-        LIMIT ? OFFSET ?";
-$params[] = $per_page;
-$params[] = $offset;
+        LIMIT ? OFFSET ?"; // <-- ONLY THIS LIMIT/OFFSET IS AFFECTED BY INTERVALO
+$params[] = $effective_limit;
+$params[] = $effective_offset;
 $param_types .= 'ii';
 
 $stmt = $conn->prepare($sql);
@@ -912,6 +921,10 @@ include 'includes/header.php';
         <div class="filters-section">
             <h3 class="filters-title">🔍 Buscar</h3>
             <form method="GET" class="filters-grid">
+                <!-- Adicionar campos página inicial e final -->
+                <input type="number" min="1" max="<?php echo htmlspecialchars($total_pages) ?>" name="page_start" value="<?php echo htmlspecialchars($page_start) ?>" placeholder="Página inicial" style="width: 110px;">
+                <input type="number" min="<?php echo htmlspecialchars($page_start) ?>" max="<?php echo htmlspecialchars($total_pages) ?>" name="page_end" value="<?php echo htmlspecialchars($page_end) ?>" placeholder="Página final" style="width: 110px;">
+                <!-- Demais filtros abaixo -->
                 <input type="text" class="search-input" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Nome do alimento...">
                 <select class="category-select" name="category">
                     <option value="">Todas</option>
@@ -924,6 +937,7 @@ include 'includes/header.php';
                 <button type="submit" class="filter-btn">Buscar</button>
                 <a href="food_classification.php" class="clear-btn">Limpar</a>
             </form>
+            <div style='font-size:0.97rem;margin-bottom:6px;color:#737373'>Exibindo páginas <b><?php echo $page_start ?></b> até <b><?php echo $page_end ?></b> de <b><?php echo $total_pages ?></b>. Cada estagiária pega um bloco e ninguém se sobrepõe!</div>
         </div>
 
         <!-- Ações em Lote -->
