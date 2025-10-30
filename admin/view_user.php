@@ -812,6 +812,12 @@ require_once __DIR__ . '/includes/header.php';
 }
 </style>
 
+<!-- Forçar exibição de modais quando .active (garante visibilidade mesmo sem CSS externo) -->
+<style>
+.custom-modal { display: none; }
+.custom-modal.active { display: flex !important; }
+</style>
+
 <div class="view-user-header">
     <div class="user-main-info">
         <?php echo $avatar_html; ?>
@@ -1345,9 +1351,12 @@ require_once __DIR__ . '/includes/header.php';
 let currentUserIdToRevert = null;
 
 function showRevertModal(userId) {
+    console.log('[showRevertModal] userId=', userId);
     currentUserIdToRevert = userId;
     document.body.style.overflow = 'hidden';
-    document.getElementById('revertGoalsModal').classList.add('active');
+    var m = document.getElementById('revertGoalsModal');
+    if (m) { m.classList.add('active'); m.style.display = 'flex'; }
+    else { alert('Modal de confirmação não encontrado (#revertGoalsModal)'); }
 }
 
 function closeRevertModal() {
@@ -1385,8 +1394,11 @@ function closeAlertModal() {
 }
 
 function openSleepDetailsModal() {
+    console.log('[openSleepDetailsModal]');
     document.body.style.overflow = 'hidden';
-    document.getElementById('sleepDetailsModal').classList.add('active');
+    var m = document.getElementById('sleepDetailsModal');
+    if (m) { m.classList.add('active'); m.style.display = 'flex'; }
+    else { alert('Modal de sono não encontrado (#sleepDetailsModal)'); }
 }
 
 function closeSleepDetailsModal() {
