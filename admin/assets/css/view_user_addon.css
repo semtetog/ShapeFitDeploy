@@ -4816,7 +4816,8 @@
   min-height: 0 !important;
   flex: 0 1 auto !important;
   display: block !important;
-  padding-bottom: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* Container interno */
@@ -4873,14 +4874,4 @@
   padding: 20px 0 !important;
 }
 
-/* Exibe apenas o card do dia atual */
-.diary-day-card {
-  display: none !important;
-  width: 100% !important;
-}
-
-.diary-day-card.active {
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
+/* Exibe apenas o card do dia atual - REMOVIDO pois conflita com nova estrutura */
