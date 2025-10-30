@@ -32,7 +32,10 @@ error_log('Ação: ' . $action);
 error_log('Patient ID: ' . $patient_id);
 error_log('GET params: ' . print_r($_GET, true));
 
-if (!$patient_id) {
+// Ações que NÃO requerem patient_id
+$actions_no_patient = ['get_mission', 'list_missions', 'list'];
+
+if (!in_array($action, $actions_no_patient) && !$patient_id) {
     error_log('ERRO: ID do paciente é obrigatório');
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'ID do paciente é obrigatório']);
