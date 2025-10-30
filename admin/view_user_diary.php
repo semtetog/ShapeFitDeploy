@@ -803,4 +803,8 @@ async function loadSpecificDate(dateStr) {
 </script>
 
 <!-- estilos inline removidos para usar exatamente o CSS do arquivo view_user_addon.css do sistema -->
+<style>
+/* Garantir visibilidade dos cards do diário com CSS do addon */
+.diary-slider-track .diary-day-card { display: block; }
+</style>
 <!-- fim do conteúdo da aba diário -->
