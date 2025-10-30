@@ -1661,8 +1661,9 @@ window.closeMissionModal = function() {
 window.editMission = function(missionId, isPersonal = 0) {
     console.log('editMission chamado com ID:', missionId, 'isPersonal:', isPersonal);
     
-    // Salvar isPersonal no sessionStorage
+    // Salvar informações no sessionStorage
     sessionStorage.setItem('current_mission_is_personal', isPersonal);
+    sessionStorage.setItem('editing_mission_id', missionId);
     
     // Buscar dados da missão
     fetch(`api/routine_crud.php?action=get_mission&id=${missionId}&patient_id=${routineUserId}&is_personal=${isPersonal}`)
@@ -1760,12 +1761,19 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const formData = new FormData(form);
             const missionId = formData.get('mission_id');
-            const action = missionId ? 'update_mission' : 'create_mission';
             
             // Verificar se é missão personalizada ou padrão
-            const isPersonal = sessionStorage.getItem('current_mission_is_personal') == '1';
-            console.log('[SUBMIT] isPersonal from sessionStorage:', isPersonal);
+            const wasPersonal = sessionStorage.getItem('current_mission_is_personal') == '1';
+            const editingMissionId = sessionStorage.getItem('editing_mission_id');
+            
+            console.log('[SUBMIT] wasPersonal:', wasPersonal);
             console.log('[SUBMIT] missionId:', missionId);
+            console.log('[SUBMIT] editingMissionId:', editingMissionId);
+            
+            // Se estava editando uma missão padrão, sempre criar como personalizada
+            // Se já era personalizada, atualizar normalmente
+            const isPersonal = wasPersonal ? true : true; // Sempre criar como personalizada
+            const action = (wasPersonal && missionId) ? 'update_mission' : 'create_mission';
             
             // Mapear tipo de missão para campos do backend
             const missionType = formData.get('mission_type');
@@ -1793,10 +1801,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 is_exercise: is_exercise,
                 exercise_type: exercise_type,
                 patient_id: routineUserId,
-                is_personal: isPersonal ? 1 : 0
+                is_personal: 1 // Sempre personalizada
             };
             
-            if (missionId) {
+            // Só adicionar ID se estava editando missão personalizada existente
+            if (wasPersonal && missionId) {
                 data.id = parseInt(missionId);
             }
             
