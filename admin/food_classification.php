@@ -837,9 +837,9 @@ include 'includes/header.php';
 .modal-header-blocos p{margin:6px 0 0 0;color:#c9c9c9;font-size:.92rem}
 .btn-fechar-x{background:#2a2e3a;color:#fff;border:1px solid #3b3f4c;border-radius:8px;font-size:1.15rem;line-height:1;padding:6px 10px;cursor:pointer}
 .blocos-cards { display:grid; gap:13px; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); margin:13px 0 18px 0; }
-.bloco-card { background: #23283A; border-radius: 12px; padding:16px 14px; border: 1px solid #303040; text-align: center; box-shadow:0 5px 30px #0003; position:relative; }
+.bloco-card { background: #181A20; border-radius: 12px; padding:16px 14px; border: 1.5px solid #23242a; text-align: center; box-shadow:0 5px 30px #0003; position:relative; }
 .bloco-card.mini{padding:12px 12px}
-.bloco-card.ativo-bloco { border-color: var(--accent-orange,#fa8608); background: #332f21;}
+.bloco-card.ativo-bloco { border-color: #ffa04a; background: #1E1F25; }
 .bloco-titulo { font-size: 1.1em; font-weight: bold; margin-bottom: 3px; }
 .bloco-sub{color:#d2d2d2;font-size:.9rem;margin-bottom:6px}
 .bloco-metricas{display:flex;align-items:center;justify-content:space-between;font-size:.86rem;color:#d7d7d7;margin:6px 4px}
