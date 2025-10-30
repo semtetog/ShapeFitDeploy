@@ -60,7 +60,7 @@ try {
         LEFT JOIN sf_user_exercise_durations ued ON uoc.user_id = ued.user_id AND uoc.activity_name = ued.exercise_name
         LEFT JOIN sf_user_points_log pl ON pl.user_id = uoc.user_id 
             AND pl.action_key = 'ROUTINE_COMPLETE' 
-            AND pl.action_context_id = uoc.activity_name
+            AND pl.action_context_id COLLATE utf8mb4_unicode_ci = uoc.activity_name COLLATE utf8mb4_unicode_ci
             AND DATE(pl.timestamp) = uoc.completion_date
         WHERE uoc.user_id = ? 
             AND uoc.completion_date = ?
