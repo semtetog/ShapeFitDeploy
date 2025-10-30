@@ -37,26 +37,34 @@
             </div>
         </div>
 
-        <!-- 2. CALENDÁRIO EXATAMENTE IGUAL AO DIÁRIO (MAS COM MISSÕES) -->
+        <!-- 2. CALENDÁRIO COM LÓGICA AJAX (IGUAL AO DIÁRIO) -->
         <div class="diary-slider-container">
             <div class="diary-header-redesign">
                 <!-- Ano no topo -->
-                <div class="diary-year" id="routineYear">2025</div>
+                <div class="diary-year" id="routineYear"><?php echo date('Y'); ?></div>
                 
                 <!-- Navegação e data principal -->
                 <div class="diary-nav-row">
-                    <button class="diary-nav-side diary-nav-left" onclick="navigateRoutine(-1)" type="button">
+                    <button class="diary-nav-side diary-nav-left" onclick="navigateRoutineDate(-1)" type="button">
                         <i class="fas fa-chevron-left"></i>
-                        <span id="routinePrevDate">26 out</span>
+                        <?php 
+                        $weekdayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                        $monthsShort = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+                        $monthsLower = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+                        $yesterday = date('Y-m-d', strtotime('-1 day'));
+                        $yesterdayDay = (int)date('d', strtotime($yesterday));
+                        $yesterdayMonth = (int)date('m', strtotime($yesterday));
+                        ?>
+                        <span id="routinePrevDate"><?php echo $yesterdayDay . ' ' . $monthsLower[$yesterdayMonth - 1]; ?></span>
                     </button>
                     
                     <div class="diary-main-date">
-                        <div class="diary-day-month" id="routineDayMonth">27 OUT</div>
-                        <div class="diary-weekday" id="routineWeekday">SEGUNDA</div>
+                        <div class="diary-day-month" id="routineDayMonth"><?php echo (int)date('d') . ' ' . $monthsShort[(int)date('n') - 1]; ?></div>
+                        <div class="diary-weekday" id="routineWeekday"><?php echo $weekdayNames[date('w')]; ?></div>
                     </div>
                     
-                    <button class="diary-nav-side diary-nav-right" onclick="navigateRoutine(1)" type="button">
-                        <span id="routineNextDate">28 out</span>
+                    <button class="diary-nav-side diary-nav-right" onclick="navigateRoutineDate(1)" type="button" style="visibility: hidden;">
+                        <span id="routineNextDate">-</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
@@ -78,71 +86,13 @@
                 </button>
             </div>
             
+            <!-- Container do conteúdo (substituído via AJAX) -->
             <div class="diary-slider-wrapper" id="routineSliderWrapper">
-                <div class="diary-slider-track" id="routineSliderTrack">
-                    <?php 
-                    // Gerar array com TODOS os dias, mesmo se não houver dados
-                    $all_dates = [];
-                    for ($i = 0; $i < $daysToShow; $i++) {
-                        $current_date = date('Y-m-d', strtotime($endDate . " -$i days"));
-                        $all_dates[] = $current_date;
-                    }
-                    
-                    // Inverter ordem: mais antigo à esquerda, mais recente à direita
-                    $all_dates = array_reverse($all_dates);
-                    
-                    foreach ($all_dates as $date): 
-                        // Buscar missões do dia usando a mesma lógica do routine.php
-                        $day_missions = getRoutineItemsForUser($conn, $user_id, $date, $user_profile);
-                        $completed_missions = array_filter($day_missions, function($mission) {
-                            return $mission['completion_status'] == 1;
-                        });
-                        
-                        // Formatar data por extenso
-                        $timestamp = strtotime($date);
-                        $day_of_week = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][date('w', $timestamp)];
-                        $day_number = date('d', $timestamp);
-                        $month_name_abbr = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][date('n', $timestamp) - 1];
-                        $year = date('Y', $timestamp);
-                    ?>
-                    <div class="diary-day-card" data-date="<?php echo $date; ?>">
-                        <!-- Dados escondidos para o JavaScript buscar -->
-                        <div class="diary-day-summary" style="display: none;">
-                            <div class="diary-summary-item">
-                                <i class="fas fa-check-circle"></i>
-                                <span><?php echo count($completed_missions); ?> missões</span>
-                            </div>
-                            <div class="diary-summary-macros">
-                                <?php echo count($completed_missions); ?> concluídas
-                            </div>
-                        </div>
-                        
-                        <div class="diary-day-meals">
-                            <?php if (empty($completed_missions)): ?>
-                                <div class="diary-empty-state">
-                                    <i class="fas fa-calendar-day"></i>
-                                    <p>Nenhum registro neste dia</p>
-                                </div>
-                            <?php else: ?>
-                                <?php foreach ($completed_missions as $mission): ?>
-                                    <div class="diary-meal-card">
-                                        <div class="diary-meal-header">
-                                            <div class="diary-meal-icon">
-                                                <i class="fas <?php echo htmlspecialchars($mission['icon_class']); ?>"></i>
-                                            </div>
-                                            <div class="diary-meal-info">
-                                                <h5><?php echo htmlspecialchars($mission['title']); ?></h5>
-                                                <span class="diary-meal-totals">
-                                                    <strong><?php echo isset($mission['duration_minutes']) && $mission['duration_minutes'] ? $mission['duration_minutes'] . 'min' : 'Concluída'; ?></strong>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </div>
+                <div class="diary-content-wrapper" id="routineContentWrapper">
+                    <div class="diary-loading-state" id="routineLoadingState">
+                        <div class="loading-spinner"></div>
+                        <p>Carregando rotina...</p>
                     </div>
-                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -180,6 +130,208 @@
 
 
 <script>
+// ============ CONFIGURAÇÃO E INICIALIZAÇÃO DA ROTINA ============
+const routineMonthNamesShort = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+const routineMonthNamesLower = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const routineWeekdayNames = ['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','SÁBADO'];
+
+let currentRoutineDate = new Date(); // Data atualmente exibida na rotina
+const routineUserId = <?php echo $user_id; ?>;
+
+// ============ FUNÇÃO PRINCIPAL DE CARREGAMENTO ============
+async function loadRoutineForDate(targetDate, direction = 0) {
+    const dateStr = targetDate.toISOString().split('T')[0];
+    console.log('[routine] Carregando data:', dateStr, 'direction:', direction);
+    
+    const wrapper = document.getElementById('routineContentWrapper');
+    
+    // Verificar se tem conteúdo para animar
+    const hasContent = wrapper.innerHTML.trim() && !wrapper.querySelector('.diary-loading-state');
+    
+    // Se tiver conteúdo E direção, animar SAÍDA imediatamente
+    if (hasContent && direction !== 0) {
+        const translateX = direction > 0 ? '-100%' : '100%';
+        wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
+        wrapper.style.transform = `translateX(${translateX})`;
+        wrapper.style.opacity = '0';
+    }
+    
+    try {
+        // Chamar API
+        const url = `actions/load_routine_days.php?user_id=${routineUserId}&date=${dateStr}`;
+        const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const html = await response.text();
+        
+        if (html.trim()) {
+            // Parse HTML e extrair dados
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            const dayContent = tempDiv.querySelector('.routine-content-day');
+            
+            if (dayContent) {
+                // Extrair data-attributes do resumo
+                const missions = parseInt(dayContent.dataset.missions || '0', 10);
+                
+                // Atualizar cabeçalho DEPOIS do AJAX
+                updateRoutineHeader(targetDate);
+                
+                // Se já animamos a saída, agora só inserir conteúdo e animar entrada
+                if (hasContent && direction !== 0) {
+                    // Inserir novo conteúdo
+                    const missionsContainer = dayContent.querySelector('.routine-day-missions');
+                    if (missionsContainer) {
+                        wrapper.innerHTML = missionsContainer.outerHTML;
+                    }
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = `translateX(${direction > 0 ? '100%' : '-100%'})`;
+                    wrapper.style.opacity = '1';
+                    
+                    // Forçar reflow
+                    void wrapper.offsetHeight;
+                    
+                    // Animar entrada
+                    wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                    wrapper.style.transform = 'translateX(0)';
+                    
+                    updateRoutineSummary(missions);
+                    
+                    // Resetar estilos
+                    setTimeout(() => {
+                        wrapper.style.transition = '';
+                        wrapper.style.transform = '';
+                        wrapper.style.opacity = '';
+                    }, 200);
+                } else {
+                    // Primeira carga ou sem direção
+                    const missionsContainer = dayContent.querySelector('.routine-day-missions');
+                    if (missionsContainer) {
+                        wrapper.innerHTML = missionsContainer.outerHTML;
+                    }
+                    wrapper.style.opacity = '1';
+                    updateRoutineSummary(missions);
+                }
+            } else {
+                // Dia sem dados
+                updateRoutineHeader(targetDate);
+                if (hasContent && direction !== 0) {
+                    wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-calendar-day"></i><p>Nenhum registro neste dia</p></div>';
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = `translateX(${direction > 0 ? '100%' : '-100%'})`;
+                    wrapper.style.opacity = '1';
+                    void wrapper.offsetHeight;
+                    wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                    wrapper.style.transform = 'translateX(0)';
+                    setTimeout(() => { wrapper.style.transition = ''; wrapper.style.transform = ''; wrapper.style.opacity = ''; }, 200);
+                    updateRoutineSummary(0);
+                } else {
+                    wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-calendar-day"></i><p>Nenhum registro neste dia</p></div>';
+                    wrapper.style.opacity = '1';
+                    updateRoutineSummary(0);
+                }
+            }
+        } else {
+            // Resposta vazia = sem registros
+            updateRoutineHeader(targetDate);
+            if (hasContent && direction !== 0) {
+                wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-calendar-day"></i><p>Nenhum registro neste dia</p></div>';
+                wrapper.style.transition = 'none';
+                wrapper.style.transform = `translateX(${direction > 0 ? '100%' : '-100%'})`;
+                wrapper.style.opacity = '1';
+                void wrapper.offsetHeight;
+                wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                wrapper.style.transform = 'translateX(0)';
+                setTimeout(() => { wrapper.style.transition = ''; wrapper.style.transform = ''; wrapper.style.opacity = ''; }, 200);
+                updateRoutineSummary(0);
+            } else {
+                wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-calendar-day"></i><p>Nenhum registro neste dia</p></div>';
+                wrapper.style.opacity = '1';
+                updateRoutineSummary(0);
+            }
+        }
+        
+    } catch (error) {
+        console.error('[routine] Erro ao carregar:', error);
+        wrapper.innerHTML = '<div class="diary-error-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar rotina. Tente novamente.</p></div>';
+    }
+}
+
+// ============ ATUALIZAR CABEÇALHO (DATA) ============
+function updateRoutineHeader(targetDate) {
+    const year = targetDate.getFullYear();
+    const day = targetDate.getDate();
+    const monthIdx = targetDate.getMonth();
+    const weekdayIdx = targetDate.getDay();
+    
+    // Atualizar elementos
+    document.getElementById('routineYear').textContent = year;
+    document.getElementById('routineDayMonth').textContent = `${day} ${routineMonthNamesShort[monthIdx]}`;
+    document.getElementById('routineWeekday').textContent = routineWeekdayNames[weekdayIdx];
+    
+    // Atualizar botões de navegação
+    const prevDate = new Date(targetDate);
+    prevDate.setDate(prevDate.getDate() - 1);
+    prevDate.setHours(0, 0, 0, 0);
+    document.getElementById('routinePrevDate').textContent = `${prevDate.getDate()} ${routineMonthNamesLower[prevDate.getMonth()]}`;
+    
+    const nextDate = new Date(targetDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    nextDate.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const nextBtn = document.querySelector('#routineSliderWrapper').parentElement.querySelector('.diary-nav-right');
+    if (nextDate <= today) {
+        document.getElementById('routineNextDate').textContent = `${nextDate.getDate()} ${routineMonthNamesLower[nextDate.getMonth()]}`;
+        nextBtn.style.visibility = 'visible';
+    } else {
+        nextBtn.style.visibility = 'hidden';
+    }
+}
+
+// ============ ATUALIZAR RESUMO (MISSÕES) ============
+function updateRoutineSummary(missions) {
+    document.getElementById('routineSummaryMissions').innerHTML = `<i class="fas fa-check-circle"></i><span>${missions} missões</span>`;
+    document.getElementById('routineSummaryProgress').textContent = `Progresso: ${missions > 0 ? '100' : '0'}%`;
+}
+
+// ============ NAVEGAÇÃO ENTRE DIAS ============
+function navigateRoutineDate(direction) {
+    const newDate = new Date(currentRoutineDate);
+    newDate.setDate(newDate.getDate() + direction);
+    newDate.setHours(0, 0, 0, 0);
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (newDate <= today) {
+        currentRoutineDate = newDate;
+        loadRoutineForDate(currentRoutineDate, direction);
+    }
+}
+
+// Expor para handlers inline
+window.navigateRoutineDate = navigateRoutineDate;
+
+// ============ INICIALIZAÇÃO ============
+(function initRoutine() {
+    currentRoutineDate = new Date();
+    currentRoutineDate.setHours(0, 0, 0, 0);
+    loadRoutineForDate(currentRoutineDate);
+    
+    // Suporte a teclado
+    document.addEventListener('keydown', function(e) {
+        if (document.getElementById('tab-routine').classList.contains('active')) {
+            if (e.key === 'ArrowLeft') navigateRoutineDate(-1);
+            if (e.key === 'ArrowRight') navigateRoutineDate(1);
+        }
+    });
+})();
+
 // --- FUNCIONALIDADES DA ABA ROTINA ---
 let stepsChart = null;
 let exerciseChart = null;
@@ -1259,7 +1411,195 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carregar missões quando a aba for ativada
     loadMissionsAdminList();
 });
+
+// ============ CALENDÁRIO DA ROTINA ============
+let currentRoutineCalendarDate = new Date();
+let routineDaysWithData = new Set();
+
+// Buscar dados de dias com registros via PHP
+<?php
+// Buscar todos os dias que têm missões concluídas
+$stmt_all_dates = $conn->prepare("
+    SELECT DISTINCT DATE(date) as date 
+    FROM sf_user_routine_log 
+    WHERE user_id = ? AND is_completed = 1
+    ORDER BY date DESC
+");
+$stmt_all_dates->bind_param("i", $user_id);
+$stmt_all_dates->execute();
+$all_dates_result = $stmt_all_dates->get_result();
+$all_routine_dates_with_data = [];
+while ($row = $all_dates_result->fetch_assoc()) {
+    $all_routine_dates_with_data[] = $row['date'];
+}
+$stmt_all_dates->close();
+echo "const allRoutineDatesWithData = " . json_encode($all_routine_dates_with_data) . ";\n";
+?>
+allRoutineDatesWithData.forEach(date => routineDaysWithData.add(date));
+
+function openRoutineCalendar() {
+    currentRoutineCalendarDate = new Date();
+    renderRoutineCalendar();
+    document.body.style.overflow = 'hidden';
+    document.getElementById('routineCalendarModal').classList.add('active');
+}
+
+function closeRoutineCalendar() {
+    document.getElementById('routineCalendarModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function changeRoutineCalendarMonth(direction) {
+    const newDate = new Date(currentRoutineCalendarDate);
+    newDate.setMonth(newDate.getMonth() + direction);
+    
+    const now = new Date();
+    if (newDate.getFullYear() > now.getFullYear() || 
+        (newDate.getFullYear() === now.getFullYear() && newDate.getMonth() > now.getMonth())) {
+        return;
+    }
+    
+    currentRoutineCalendarDate = newDate;
+    renderRoutineCalendar();
+}
+
+function renderRoutineCalendar() {
+    const year = currentRoutineCalendarDate.getFullYear();
+    const month = currentRoutineCalendarDate.getMonth();
+    
+    document.getElementById('routineCalendarYear').textContent = year;
+    document.getElementById('routineCalendarMonth').textContent = routineMonthNamesShort[month];
+    
+    const nextBtn = document.getElementById('routineNextMonthBtn');
+    const now = new Date();
+    if (year === now.getFullYear() && month === now.getMonth()) {
+        nextBtn.style.opacity = '0.5';
+        nextBtn.disabled = true;
+    } else {
+        nextBtn.style.opacity = '1';
+        nextBtn.disabled = false;
+    }
+    
+    const grid = document.getElementById('routineCalendarDaysGrid');
+    grid.innerHTML = '';
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const prevMonth = new Date(year, month, 0);
+    const daysInPrevMonth = prevMonth.getDate();
+    const startDay = firstDay.getDay();
+    
+    for (let i = startDay - 1; i >= 0; i--) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day other-month';
+        dayEl.textContent = daysInPrevMonth - i;
+        grid.appendChild(dayEl);
+    }
+    
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayEl = document.createElement('div');
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        dayEl.className = 'calendar-day';
+        dayEl.textContent = day;
+        dayEl.setAttribute('data-date', dateStr);
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetDate = new Date(dateStr + 'T00:00:00');
+        
+        // Bloquear dias futuros
+        if (targetDate > today) {
+            dayEl.classList.add('calendar-day-disabled');
+            dayEl.style.opacity = '0.3';
+            dayEl.style.pointerEvents = 'none';
+            dayEl.style.cursor = 'not-allowed';
+        } else {
+            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                dayEl.classList.add('today');
+            }
+            
+            if (routineDaysWithData.has(dateStr)) {
+                dayEl.classList.add('has-data');
+            }
+            
+            dayEl.addEventListener('click', () => goToRoutineDate(dateStr));
+        }
+        
+        grid.appendChild(dayEl);
+    }
+    
+    const totalCells = grid.children.length;
+    const remainingCells = 42 - totalCells;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (remainingCells > 0) {
+        for (let day = 1; day <= remainingCells; day++) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day other-month';
+            dayEl.textContent = day;
+            
+            // Verificar se é do próximo mês e se é futuro
+            if (year === today.getFullYear() && month === today.getMonth()) {
+                dayEl.style.opacity = '0.3';
+                dayEl.style.pointerEvents = 'none';
+                dayEl.style.cursor = 'not-allowed';
+            }
+            
+            grid.appendChild(dayEl);
+        }
+    }
+}
+
+function goToRoutineDate(dateStr) {
+    closeRoutineCalendar();
+    
+    const targetDate = new Date(dateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (targetDate > today) {
+        console.log('[calendar] BLOQUEADO: Tentativa de navegar para data futura');
+        return;
+    }
+    
+    const direction = targetDate > currentRoutineDate ? 1 : -1;
+    currentRoutineDate = targetDate;
+    loadRoutineForDate(currentRoutineDate, direction);
+}
+
+// Expor funções
+window.openRoutineCalendar = openRoutineCalendar;
+window.closeRoutineCalendar = closeRoutineCalendar;
+window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 </script>
+
+<style>
+/* === Rotina: espaçamento entre cards === */
+#tab-routine #routineContentWrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  align-items: stretch;
+  padding-top: 8px !important;
+}
+
+#tab-routine .routine-day-missions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+#tab-routine .diary-meal-card + .diary-meal-card {
+  margin-top: 12px !important;
+}
+
+#tab-routine .diary-meal-card {
+  margin-bottom: 0 !important;
+  display: block !important;
+}
+</style>
 
         <!-- Modal do Calendário da Rotina (idêntico ao da aba Diário) -->
         <div id="routineCalendarModal" class="custom-modal">
@@ -1268,28 +1608,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button class="calendar-btn-close" onclick="closeRoutineCalendar()" type="button">
                     <i class="fas fa-times"></i>
                 </button>
+                
                 <div class="calendar-header-title">
-                    <h4>Selecionar Data</h4>
+                    <div class="calendar-year" id="routineCalendarYear">2025</div>
                 </div>
-                <div class="calendar-nav">
-                    <button class="calendar-nav-btn" onclick="changeRoutineCalendarMonth(-1)" type="button">
+                
+                <div class="calendar-nav-buttons">
+                    <button class="calendar-btn-nav" onclick="changeRoutineCalendarMonth(-1)" type="button">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <span class="calendar-month-year" id="routineCalendarMonthYear">Janeiro 2025</span>
-                    <button class="calendar-nav-btn" onclick="changeRoutineCalendarMonth(1)" type="button">
+                    <div class="calendar-month" id="routineCalendarMonth">OUT</div>
+                    <button class="calendar-btn-nav" id="routineNextMonthBtn" onclick="changeRoutineCalendarMonth(1)" type="button">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
-                <div class="calendar-grid" id="routineCalendarGrid">
-                    <!-- Dias da semana -->
-                    <div class="calendar-day-header">Dom</div>
-                    <div class="calendar-day-header">Seg</div>
-                    <div class="calendar-day-header">Ter</div>
-                    <div class="calendar-day-header">Qua</div>
-                    <div class="calendar-day-header">Qui</div>
-                    <div class="calendar-day-header">Sex</div>
-                    <div class="calendar-day-header">Sáb</div>
-                    <!-- Dias do mês serão inseridos aqui via JavaScript -->
+                
+                <div class="calendar-weekdays-row">
+                    <span>DOM</span>
+                    <span>SEG</span>
+                    <span>TER</span>
+                    <span>QUA</span>
+                    <span>QUI</span>
+                    <span>SEX</span>
+                    <span>SÁB</span>
+                </div>
+                
+                <div class="calendar-days-grid" id="routineCalendarDaysGrid"></div>
+                
+                <div class="calendar-separator">
+                    <div class="separator-line"></div>
+                    <div class="separator-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="separator-line"></div>
+                </div>
+                
+                <div class="calendar-footer-legend">
+                    <div class="legend-row">
+                        <span class="legend-marker today-marker"></span>
+                        <span class="legend-text">Hoje</span>
+                    </div>
+                    <div class="legend-row">
+                        <span class="legend-marker has-data-marker"></span>
+                        <span class="legend-text">Com missões</span>
+                    </div>
+                    <div class="legend-row">
+                        <span class="legend-marker no-data-marker"></span>
+                        <span class="legend-text">Sem registros</span>
+                    </div>
                 </div>
             </div>
         </div>

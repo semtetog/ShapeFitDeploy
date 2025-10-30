@@ -1213,7 +1213,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <div id="tab-routine" class="tab-content">
-    <!-- Conteúdo da aba Rotina será inserido via include -->
+    <?php include __DIR__ . '/view_user_routine.php'; ?>
 </div>
 
 <div id="tab-feedback_analysis" class="tab-content">
