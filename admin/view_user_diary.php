@@ -540,7 +540,15 @@ window.changeCalendarMonth = changeCalendarMonth;
 <style>
 /* === Diário: respiro garantido entre cards - À PROVA DE BALA === */
 
-/* Container com gap principal */
+/* SOLUÇÃO FINAL: aplicar gap direto no wrapper principal */
+#tab-diary #diaryContentWrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+  align-items: stretch;
+}
+
+/* Se o .diary-day-meals existir, também aplicar gap nele */
 #tab-diary .diary-day-meals {
   display: flex !important;
   flex-direction: column !important;
