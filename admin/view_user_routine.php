@@ -1551,7 +1551,6 @@ function renderMissionsGrid(missions) {
             <div class="mission-content">
                 <h4>${mission.title}</h4>
                 ${mission.description ? `<p class="mission-description">${mission.description}</p>` : ''}
-                <p class="mission-type">${isExercise ? 'Exercício' : 'Missão Simples'}</p>
             </div>
         </div>
         `;
