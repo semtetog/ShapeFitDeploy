@@ -1305,8 +1305,8 @@ function confirmMeal() {
         return;
     }
     
-    // Só exigir unidade para alimentos
-    if (selectedRecipe.is_food && (!unitId || unitSelect.style.display === 'block')) {
+    // Só exigir unidade quando for alimento E o seletor estiver visível, e nenhuma unidade selecionada
+    if (selectedRecipe.is_food && unitSelect.style.display === 'block' && (!unitId || unitId === '')) {
         alert('Por favor, selecione uma unidade de medida.');
         return;
     }
