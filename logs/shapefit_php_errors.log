@@ -18447,3 +18447,11 @@ Stack trace:
 #1 C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\check_routine_table.php(3): require_once('C:\\Users\\Brenno...')
 #2 {main}
   thrown in C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\includes\db.php on line 7
+[31-Oct-2025 00:42:33 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\includes\config.php on line 105
+[31-Oct-2025 00:42:33 Europe/Berlin] PHP Warning:  Undefined array key "HTTP_HOST" in C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\includes\config.php on line 106
+[30-Oct-2025 20:42:33 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'u785537399_shapefit'@'localhost' (using password: YES) in C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\includes\db.php:7
+Stack trace:
+#0 C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\includes\db.php(7): mysqli->__construct('127.0.0.1:3306', 'u785537399_shap...', Object(SensitiveParameterValue), 'u785537399_shap...')
+#1 C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\migrate_old_users_to_personal_missions.php(11): require_once('C:\\Users\\Brenno...')
+#2 {main}
+  thrown in C:\Users\Brenno\Desktop\APPSHAPEFITCURSOR\includes\db.php on line 7

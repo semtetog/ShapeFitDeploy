@@ -7,8 +7,21 @@
  * padrão para cada um deles.
  */
 
-require_once __DIR__ . '/includes/config.php';
-require_once __DIR__ . '/includes/db.php';
+// Configuração mínima para CLI
+define('APP_ROOT_PATH', __DIR__);
+
+// Configuração direta do banco de dados
+$db_host = '127.0.0.1:3306';
+$db_user = 'u785537399_shapefit';
+$db_pass = 'Gameroficial2*';
+$db_name = 'u785537399_shapefit';
+
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+
+if ($conn->connect_error) {
+    die("Erro de conexão: " . $conn->connect_error . "\n");
+}
+$conn->set_charset("utf8mb4");
 
 echo "=== Migração de Missões para Usuários Antigos ===\n\n";
 
