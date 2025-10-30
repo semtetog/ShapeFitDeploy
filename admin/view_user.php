@@ -3135,9 +3135,6 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<?php include 'view_user_diary.php'; ?>
-
-
 <?php
 // Calcular insights automáticos
 $days_with_goal = $water_stats_7['excellent_days'] + $water_stats_7['good_days'];
