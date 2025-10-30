@@ -544,7 +544,7 @@ window.changeCalendarMonth = changeCalendarMonth;
 #tab-diary #diaryContentWrapper {
   display: flex !important;
   flex-direction: column !important;
-  gap: 24px !important;
+  gap: 12px !important;
   align-items: stretch;
 }
 
@@ -552,12 +552,12 @@ window.changeCalendarMonth = changeCalendarMonth;
 #tab-diary .diary-day-meals {
   display: flex !important;
   flex-direction: column !important;
-  gap: 24px !important;
+  gap: 12px !important;
 }
 
 /* Backup: seletor adjacente (caso gap seja sobrescrito) */
 #tab-diary .diary-meal-card + .diary-meal-card {
-  margin-top: 24px !important;
+  margin-top: 12px !important;
 }
 
 /* Zera qualquer reset anterior que cole os cards */
