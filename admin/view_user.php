@@ -1450,6 +1450,7 @@ window.closeSleepDetailsModal = closeSleepDetailsModal;
 
 // Fallback de tabs: garante troca de abas mesmo se o JS externo falhar
 document.addEventListener('DOMContentLoaded', function(){
+    console.log('[view_user] inline scripts ready');
     const tabLinks = document.querySelectorAll('.tab-link');
     const tabContents = document.querySelectorAll('.tab-content');
     // Garantir click do botão de reverter metas mesmo sem inline handler (CSP, etc.)
@@ -1462,6 +1463,16 @@ document.addEventListener('DOMContentLoaded', function(){
             window.showRevertModal(<?php echo (int)$user_id; ?>);
         });
     }
+    // Delegação defensiva: se clicarem no ícone interno ou se existir overlay de layout
+    document.addEventListener('click', function(e){
+        const btn = e.target.closest('.btn-revert-goals');
+        if (btn && typeof window.showRevertModal === 'function') {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('[view_user] delegated click on .btn-revert-goals');
+            window.showRevertModal(<?php echo (int)$user_id; ?>);
+        }
+    }, true);
     tabLinks.forEach(link => {
         link.addEventListener('click', function(){
             const tabId = this.getAttribute('data-tab');
