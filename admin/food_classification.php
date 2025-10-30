@@ -830,8 +830,8 @@ include 'includes/header.php';
 }
 
 /* ====== CSS do sistema de blocos (modais) ====== */
-.modal-blocos-overlay { position: fixed; left:0; top:0; width:100vw; height:100vh; background: rgba(20,18,30,.92); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-.modal-blocos { max-width:940px; background:#1a1e27; color:#fff; border-radius:16px; box-shadow:0 24px 64px #0006; padding:22px 22px 18px 22px; margin:20px; width:98vw; border:1px solid #2b2f3b; }
+.modal-blocos-overlay { position: fixed; left:0; top:0; width:100vw; height:100vh; background: rgba(12,12,14,0.97)!important; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+.modal-blocos { max-width:940px; background:#181A20!important; color:#fff; border-radius:16px; box-shadow:0 24px 64px #0006; padding:22px 22px 18px 22px; margin:20px; width:98vw; border:1px solid #2b2f3b; }
 .modal-header-blocos{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
 .modal-header-blocos h2{margin:0;font-size:1.35rem}
 .modal-header-blocos p{margin:6px 0 0 0;color:#c9c9c9;font-size:.92rem}
@@ -1287,9 +1287,9 @@ include 'includes/header.php';
   </div>
 </div>
 
-<div class="btn-blocos-toolbar">
-  <button id="btn-abrir-blocos" class="btn-blocos-flutuante" onclick="document.getElementById('modal-blocos').style.display='flex'">Escolher bloco</button>
-  <button id="btn-abrir-progress" class="btn-blocos-flutuante muted" onclick="document.getElementById('modal-progress').style.display='flex'">Progresso</button>
+<div class="block-menu-actions" style="display:flex;gap:12px;align-items:center;margin:16px 0;">
+  <button onclick="document.getElementById('modal-blocos').style.display='flex'" style="background:#181A20;border:1.3px solid #24252b;color:#ffe0be;padding:9px 18px;border-radius:8px;font-weight:500;cursor:pointer;font-size:1em;transition:background .2s;">Escolher bloco</button>
+  <button onclick="document.getElementById('modal-progress').style.display='flex'" style="background:#181A20;border:1.3px solid #24252b;color:#ffe0be;padding:9px 18px;border-radius:8px;font-weight:500;cursor:pointer;font-size:1em;transition:background .2s;">Progresso dos blocos</button>
 </div>
 
 <!-- Auto-save indicator -->
