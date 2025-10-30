@@ -169,6 +169,8 @@ function updateDiaryCards() {
     if (!diaryTrack) {
         diaryTrack = document.getElementById('diarySliderTrack');
     }
+    // Garantir visibilidade conforme CSS do addon (que usa .active)
+    diaryCards.forEach(card => card.classList.add('active'));
 }
 
 function updateDiaryDisplay() {
@@ -505,6 +507,7 @@ function initDiary() {
     // Recoletar referências sempre que iniciar
     diaryTrack = document.getElementById('diarySliderTrack');
     diaryCards = document.querySelectorAll('.diary-day-card');
+    diaryCards.forEach(card => card.classList.add('active'));
     if (diaryCards.length > 0) {
         currentDiaryIndex = diaryCards.length - 1;
         updateDiaryDisplay();
