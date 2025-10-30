@@ -504,15 +504,26 @@ function renderCalendar() {
         dayEl.setAttribute('data-date', dateStr);
         
         const today = new Date();
-        if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
-            dayEl.classList.add('today');
-        }
+        today.setHours(0, 0, 0, 0);
+        const targetDate = new Date(dateStr + 'T00:00:00');
         
-        if (daysWithData.has(dateStr)) {
-            dayEl.classList.add('has-data');
+        // Bloquear dias futuros
+        if (targetDate > today) {
+            dayEl.classList.add('calendar-day-disabled');
+            dayEl.style.opacity = '0.3';
+            dayEl.style.pointerEvents = 'none';
+            dayEl.style.cursor = 'not-allowed';
+        } else {
+            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                dayEl.classList.add('today');
+            }
+            
+            if (daysWithData.has(dateStr)) {
+                dayEl.classList.add('has-data');
+            }
+            
+            dayEl.addEventListener('click', () => goToDiaryDate(dateStr));
         }
-        
-        dayEl.addEventListener('click', () => goToDiaryDate(dateStr));
         
         grid.appendChild(dayEl);
     }
@@ -536,6 +547,15 @@ function goToDiaryDate(dateStr) {
     
     // Navegar para a data
     const targetDate = new Date(dateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Verificar se não passou do dia atual
+    if (targetDate > today) {
+        console.log('[calendar] BLOQUEADO: Tentativa de navegar para data futura');
+        return;
+    }
+    
     const direction = targetDate > currentDiaryDate ? 1 : -1; // Se for futuro = +1, passado = -1
     currentDiaryDate = targetDate;
     loadDiaryForDate(currentDiaryDate, direction);
