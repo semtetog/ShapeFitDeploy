@@ -105,10 +105,6 @@
                         <p>Gerencie as missões de rotina personalizadas para este paciente</p>
                     </div>
                 </div>
-                <button class="btn-add-mission" onclick="openMissionModal()">
-                    <i class="fas fa-plus"></i>
-                    <span>Adicionar Missão</span>
-                </button>
             </div>
             
             <div class="missions-grid" id="missions-container">
@@ -117,6 +113,13 @@
                     <i class="fas fa-spinner fa-spin"></i>
                     <span>Carregando missões...</span>
                 </div>
+            </div>
+            
+            <!-- Botão circular de adicionar -->
+            <div class="add-mission-wrapper">
+                <button class="btn-add-mission-circular" onclick="openMissionModal()" title="Adicionar Missão">
+                    <i class="fas fa-plus"></i>
+                </button>
             </div>
         </div>
 
@@ -136,7 +139,7 @@
 
 .routine-missions-card .card-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
@@ -178,31 +181,6 @@
     margin: 0;
     font-size: 0.9rem;
     color: var(--text-secondary);
-}
-
-.routine-missions-card .btn-add-mission {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    background: var(--accent-orange);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.routine-missions-card .btn-add-mission:hover {
-    background: #FF8C00;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
-}
-
-.routine-missions-card .btn-add-mission i {
-    font-size: 1rem;
 }
 
 .routine-missions-card .missions-grid {
@@ -341,6 +319,44 @@
 .empty-missions p {
     font-size: 1rem;
     text-align: center;
+}
+
+/* Botão circular de adicionar missão */
+.add-mission-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.btn-add-mission-circular {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--accent-orange);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+}
+
+.btn-add-mission-circular:hover {
+    background: #FF8C00;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(255, 107, 0, 0.4);
+}
+
+.btn-add-mission-circular:active {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+}
+
+.btn-add-mission-circular i {
+    font-size: 1.5rem;
 }
 
 /* Seletor de ícones */
