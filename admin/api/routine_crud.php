@@ -24,6 +24,16 @@ header('Content-Type: application/json; charset=utf-8');
 // TEMPORARIAMENTE REMOVER VERIFICAÇÃO DE AUTENTICAÇÃO PARA FAZER FUNCIONAR
 error_log('PULANDO VERIFICAÇÃO DE AUTENTICAÇÃO - MODO DEBUG');
 
+// Verificar se há erro fatal
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== NULL && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        error_log('FATAL ERROR: ' . $error['message'] . ' in ' . $error['file'] . ' on line ' . $error['line']);
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Erro fatal no servidor: ' . $error['message']]);
+    }
+});
+
 // Obter ação e patient_id (de GET ou POST JSON)
 $action = $_GET['action'] ?? '';
 $post_data = null;
