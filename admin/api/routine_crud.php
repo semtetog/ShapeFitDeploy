@@ -54,11 +54,19 @@ if (empty($action)) {
     exit;
 }
 
-// Ações que NÃO requerem patient_id (ações de gerenciamento de missões globais)
-$actions_no_patient = ['get_mission', 'list_missions', 'list', 'create_mission', 'update_mission', 'delete_mission'];
+// Obter patient_id de POST também se necessário
+if (!empty($post_data['patient_id'])) {
+    $patient_id = intval($post_data['patient_id']);
+}
 
-if (!in_array($action, $actions_no_patient) && !$patient_id) {
-    error_log('ERRO: ID do paciente é obrigatório');
+// Ações que NÃO requerem patient_id
+$actions_no_patient = ['get_mission'];
+
+// Ações de missões que requerem patient_id
+$patient_missions_actions = ['list_missions', 'list', 'create_mission', 'update_mission', 'delete_mission'];
+
+if (in_array($action, $patient_missions_actions) && !$patient_id) {
+    error_log('ERRO: ID do paciente é obrigatório para ação: ' . $action);
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'ID do paciente é obrigatório']);
     exit;
@@ -91,25 +99,37 @@ try {
     switch ($action) {
         case 'list_missions':
         case 'list':
-            error_log('Executando list_missions...');
-            // Buscar todas as missões ativas (para o admin criar/editar)
-            $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
-                           default_for_all_users
-                    FROM sf_routine_items 
-                    WHERE is_active = 1
-                    ORDER BY id DESC";
+            error_log('Executando list_missions para patient_id: ' . $patient_id);
             
-            error_log('SQL: ' . $sql);
-            
-            $result = $conn->query($sql);
-            
+            // Buscar missões padrão (globais)
             $missions = [];
+            $sql_default = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
+                                   default_for_all_users
+                            FROM sf_routine_items 
+                            WHERE is_active = 1 AND default_for_all_users = 1
+                            ORDER BY id DESC";
+            $result = $conn->query($sql_default);
             while ($row = $result->fetch_assoc()) {
+                $row['is_personal'] = 0;
                 $missions[] = $row;
             }
             
-            error_log('Missões encontradas: ' . count($missions));
-            error_log('Dados das missões: ' . print_r($missions, true));
+            // Buscar missões personalizadas do usuário
+            $sql_personal = "SELECT id, title, icon_class, description, is_exercise, exercise_type 
+                             FROM sf_user_routine_items 
+                             WHERE user_id = ?
+                             ORDER BY id DESC";
+            $stmt = $conn->prepare($sql_personal);
+            $stmt->bind_param('i', $patient_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $row['is_personal'] = 1;
+                $missions[] = $row;
+            }
+            $stmt->close();
+            
+            error_log('Total de missões encontradas: ' . count($missions));
             
             echo json_encode(['success' => true, 'data' => $missions]);
             break;
@@ -149,17 +169,25 @@ try {
         case 'get_mission':
             error_log('Executando get_mission...');
             $id = intval($_GET['id'] ?? 0);
+            $is_personal = intval($_GET['is_personal'] ?? 0);
             if (!$id) {
                 throw new Exception('ID da missão é obrigatório');
             }
             
-            $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
-                           default_for_all_users
-                    FROM sf_routine_items 
-                    WHERE id = ? AND is_active = 1";
+            // Escolher tabela baseado em is_personal
+            if ($is_personal) {
+                $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type
+                        FROM sf_user_routine_items 
+                        WHERE id = ?";
+            } else {
+                $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
+                               default_for_all_users
+                        FROM sf_routine_items 
+                        WHERE id = ? AND is_active = 1";
+            }
             
             error_log('SQL: ' . $sql);
-            error_log('ID da missão: ' . $id);
+            error_log('ID da missão: ' . $id . ', is_personal: ' . $is_personal);
             
             $stmt = $conn->prepare($sql);
             if (!$stmt) {
@@ -239,12 +267,23 @@ try {
             $icon_class = $conn->real_escape_string($data['icon_class'] ?? 'fa-check-circle');
             $is_exercise = isset($data['is_exercise']) ? intval($data['is_exercise']) : 0;
             $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
+            $is_personal = isset($data['is_personal']) ? intval($data['is_personal']) : 0;
             
-            $stmt = $conn->prepare("INSERT INTO sf_routine_items 
-                                   (title, icon_class, description, is_exercise, exercise_type, 
-                                    default_for_all_users, is_active) 
-                                   VALUES (?, ?, ?, ?, ?, 0, 1)");
-            $stmt->bind_param('sssisi', $title, $icon_class, $description, $is_exercise, $exercise_type);
+            // Escolher tabela baseado em is_personal
+            if ($is_personal) {
+                // Criar missão personalizada
+                $stmt = $conn->prepare("INSERT INTO sf_user_routine_items 
+                                       (user_id, title, icon_class, description, is_exercise, exercise_type) 
+                                       VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param('ississ', $patient_id, $title, $icon_class, $description, $is_exercise, $exercise_type);
+            } else {
+                // Criar missão global
+                $stmt = $conn->prepare("INSERT INTO sf_routine_items 
+                                       (title, icon_class, description, is_exercise, exercise_type, 
+                                        default_for_all_users, is_active) 
+                                       VALUES (?, ?, ?, ?, ?, 0, 1)");
+                $stmt->bind_param('sssisi', $title, $icon_class, $description, $is_exercise, $exercise_type);
+            }
             
             if ($stmt->execute()) {
                 echo json_encode(['success' => true, 'message' => 'Missão criada com sucesso']);
@@ -300,11 +339,22 @@ try {
             $icon_class = $conn->real_escape_string($data['icon_class'] ?? 'fa-check-circle');
             $is_exercise = isset($data['is_exercise']) ? intval($data['is_exercise']) : 0;
             $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
+            $is_personal = isset($data['is_personal']) ? intval($data['is_personal']) : 0;
             
-            $stmt = $conn->prepare("UPDATE sf_routine_items 
-                                   SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
-                                   WHERE id = ?");
-            $stmt->bind_param('ssssii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id);
+            // Escolher tabela baseado em is_personal
+            if ($is_personal) {
+                // Atualizar missão personalizada
+                $stmt = $conn->prepare("UPDATE sf_user_routine_items 
+                                       SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
+                                       WHERE id = ? AND user_id = ?");
+                $stmt->bind_param('sssiii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id, $patient_id);
+            } else {
+                // Atualizar missão global
+                $stmt = $conn->prepare("UPDATE sf_routine_items 
+                                       SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
+                                       WHERE id = ?");
+                $stmt->bind_param('ssssii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id);
+            }
             
             if ($stmt->execute() && $stmt->affected_rows > 0) {
                 echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
@@ -358,16 +408,30 @@ try {
             }
             
             $id = intval($data['id']);
+            $is_personal = isset($data['is_personal']) ? intval($data['is_personal']) : 0;
             
-            // Excluir logs primeiro
-            $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ?");
-            $stmt1->bind_param('i', $id);
-            $stmt1->execute();
-            $stmt1->close();
-            
-            // Marcar missão como inativa ao invés de excluir
-            $stmt2 = $conn->prepare("UPDATE sf_routine_items SET is_active = 0 WHERE id = ?");
-            $stmt2->bind_param('i', $id);
+            // Escolher tabela baseado em is_personal
+            if ($is_personal) {
+                // Excluir logs primeiro (missão personalizada)
+                $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ? AND user_id = ?");
+                $stmt1->bind_param('ii', $id, $patient_id);
+                $stmt1->execute();
+                $stmt1->close();
+                
+                // Deletar missão personalizada
+                $stmt2 = $conn->prepare("DELETE FROM sf_user_routine_items WHERE id = ? AND user_id = ?");
+                $stmt2->bind_param('ii', $id, $patient_id);
+            } else {
+                // Excluir logs primeiro (missão global)
+                $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ?");
+                $stmt1->bind_param('i', $id);
+                $stmt1->execute();
+                $stmt1->close();
+                
+                // Marcar missão global como inativa ao invés de excluir
+                $stmt2 = $conn->prepare("UPDATE sf_routine_items SET is_active = 0 WHERE id = ?");
+                $stmt2->bind_param('i', $id);
+            }
             
             if ($stmt2->execute() && $stmt2->affected_rows > 0) {
                 echo json_encode(['success' => true, 'message' => 'Missão excluída com sucesso']);

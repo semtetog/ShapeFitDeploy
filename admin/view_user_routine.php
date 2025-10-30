@@ -1504,7 +1504,7 @@ function updateRoutineCategoryChart() {
 
 // Função para carregar lista de missões
 function loadMissionsAdminList() {
-    fetch('api/routine_crud.php?action=list_missions')
+    fetch(`api/routine_crud.php?action=list_missions&patient_id=${routineUserId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -1532,18 +1532,19 @@ function renderMissionsGrid(missions) {
     
     container.innerHTML = missions.map(mission => {
         const isExercise = mission.is_exercise == 1 || mission.is_exercise === '1' || mission.is_exercise === true;
-        console.log(`[MISSION ${mission.id}] is_exercise:`, mission.is_exercise, 'type:', typeof mission.is_exercise, 'isExercise:', isExercise);
+        const isPersonal = mission.is_personal == 1 || mission.is_personal === '1' || mission.is_personal === true;
+        console.log(`[MISSION ${mission.id}] is_exercise:`, mission.is_exercise, 'is_personal:', isPersonal);
         return `
-        <div class="mission-card" data-id="${mission.id}">
+        <div class="mission-card" data-id="${mission.id}" data-is-personal="${isPersonal ? 1 : 0}">
             <div class="mission-header">
                 <div class="mission-icon">
                     <i class="fas ${mission.icon_class}"></i>
                 </div>
                 <div class="mission-actions">
-                    <button class="btn-edit" onclick="editMission(${mission.id})" title="Editar">
+                    <button class="btn-edit" onclick="editMission(${mission.id}, ${isPersonal ? 1 : 0})" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-delete" onclick="deleteMission(${mission.id}, '${mission.title}')" title="Excluir">
+                    <button class="btn-delete" onclick="deleteMission(${mission.id}, '${mission.title}', ${isPersonal ? 1 : 0})" title="Excluir">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -1627,6 +1628,8 @@ window.openMissionModal = function(missionId = null, skipReset = false) {
             if (missionIdField) missionIdField.value = '';
             if (selectedIconField) selectedIconField.value = '';
         }
+        // Para nova missão, sempre personalizada (isPersonal = 1)
+        sessionStorage.setItem('current_mission_is_personal', '1');
     }
     
     if (missionId) {
@@ -1655,11 +1658,14 @@ window.closeMissionModal = function() {
     }
 };
 
-window.editMission = function(missionId) {
-    console.log('editMission chamado com ID:', missionId);
+window.editMission = function(missionId, isPersonal = 0) {
+    console.log('editMission chamado com ID:', missionId, 'isPersonal:', isPersonal);
+    
+    // Salvar isPersonal no sessionStorage
+    sessionStorage.setItem('current_mission_is_personal', isPersonal);
     
     // Buscar dados da missão
-    fetch(`api/routine_crud.php?action=get_mission&id=${missionId}`)
+    fetch(`api/routine_crud.php?action=get_mission&id=${missionId}&patient_id=${routineUserId}&is_personal=${isPersonal}`)
         .then(response => response.json())
         .then(data => {
             if (data.success && data.data) {
@@ -1716,7 +1722,7 @@ window.editMission = function(missionId) {
         });
 };
 
-window.deleteMission = function(missionId, missionName) {
+window.deleteMission = function(missionId, missionName, isPersonal = 0) {
     if (confirm(`Tem certeza que deseja excluir a missão "${missionName}"?`)) {
         fetch('api/routine_crud.php', {
             method: 'POST',
@@ -1725,7 +1731,9 @@ window.deleteMission = function(missionId, missionName) {
             },
             body: JSON.stringify({
                 action: 'delete_mission',
-                id: missionId
+                id: missionId,
+                patient_id: routineUserId,
+                is_personal: isPersonal
             })
         })
         .then(response => response.json())
@@ -1754,6 +1762,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const missionId = formData.get('mission_id');
             const action = missionId ? 'update_mission' : 'create_mission';
             
+            // Verificar se é missão personalizada ou padrão
+            const isPersonal = sessionStorage.getItem('current_mission_is_personal') == '1';
+            
             // Mapear tipo de missão para campos do backend
             const missionType = formData.get('mission_type');
             let is_exercise = 0;
@@ -1778,7 +1789,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 description: formData.get('description'),
                 icon_class: formData.get('icon_class') || 'fa-check-circle',
                 is_exercise: is_exercise,
-                exercise_type: exercise_type
+                exercise_type: exercise_type,
+                patient_id: routineUserId,
+                is_personal: isPersonal ? 1 : 0
             };
             
             if (missionId) {
