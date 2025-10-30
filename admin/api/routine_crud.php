@@ -32,8 +32,8 @@ error_log('Ação: ' . $action);
 error_log('Patient ID: ' . $patient_id);
 error_log('GET params: ' . print_r($_GET, true));
 
-// Ações que NÃO requerem patient_id
-$actions_no_patient = ['get_mission', 'list_missions', 'list'];
+// Ações que NÃO requerem patient_id (ações de gerenciamento de missões globais)
+$actions_no_patient = ['get_mission', 'list_missions', 'list', 'create_mission', 'update_mission', 'delete_mission'];
 
 if (!in_array($action, $actions_no_patient) && !$patient_id) {
     error_log('ERRO: ID do paciente é obrigatório');
