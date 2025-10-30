@@ -117,8 +117,11 @@ async function loadDiaryForDate(targetDate, direction = 0) {
                 
                 // Se já animamos a saída, agora só inserir conteúdo e animar entrada
                 if (hasContent && direction !== 0) {
-                    // Inserir novo conteúdo fora da tela
-                    wrapper.innerHTML = dayContent.querySelector('.diary-day-meals').innerHTML;
+                    // Inserir novo conteúdo fora da tela - COM O CONTAINER INTEIRO
+                    const mealsContainer = dayContent.querySelector('.diary-day-meals');
+                    if (mealsContainer) {
+                        wrapper.innerHTML = mealsContainer.outerHTML;
+                    }
                     wrapper.style.transition = 'none';
                     wrapper.style.transform = `translateX(${direction > 0 ? '100%' : '-100%'})`;
                     wrapper.style.opacity = '1';
@@ -139,8 +142,11 @@ async function loadDiaryForDate(targetDate, direction = 0) {
                         wrapper.style.opacity = '';
                     }, 200);
                 } else {
-                    // Primeira carga ou sem direção - sem animação
-                    wrapper.innerHTML = dayContent.querySelector('.diary-day-meals').innerHTML;
+                    // Primeira carga ou sem direção - sem animação - COM O CONTAINER INTEIRO
+                    const mealsContainer = dayContent.querySelector('.diary-day-meals');
+                    if (mealsContainer) {
+                        wrapper.innerHTML = mealsContainer.outerHTML;
+                    }
                     wrapper.style.opacity = '1';
                     updateDiarySummary(kcal, protein, carbs, fat);
                 }
@@ -534,22 +540,22 @@ window.changeCalendarMonth = changeCalendarMonth;
 <style>
 /* === Diário: respiro garantido entre cards - À PROVA DE BALA === */
 
-/* 1) Espaço com seletor adjacente (não depende de gap) */
+/* Container com gap principal */
+#tab-diary .diary-day-meals {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+}
+
+/* Backup: seletor adjacente (caso gap seja sobrescrito) */
 #tab-diary .diary-meal-card + .diary-meal-card {
   margin-top: 24px !important;
 }
 
-/* 2) Zera qualquer reset anterior que cole os cards */
+/* Zera qualquer reset anterior que cole os cards */
 #tab-diary .diary-meal-card {
-  margin-bottom: 0 !important;   /* evita espaço duplo embaixo */
-  display: block !important;     /* garante que o seletor adjacente funcione */
-}
-
-/* 3) Se estiver usando o wrapper flex, mantém o gap também (não conflita) */
-#tab-diary .diary-content-wrapper {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 24px !important;
+  margin-bottom: 0 !important;
+  display: block !important;
 }
 </style>
 
