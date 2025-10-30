@@ -208,6 +208,10 @@
     track.style.transform = `translateX(${-index*100}%)`;
   }
 
+  function enforceSingleVisible(){
+    cards.forEach((c, i)=>{ c.style.display = (i===index) ? 'block' : 'none'; });
+  }
+
   function updateHeader(){
     const card = cards[index]; if (!card) return;
     const dateStr = card.getAttribute('data-date');
@@ -262,7 +266,7 @@
     document.getElementById('diarySummaryMacros').textContent = `P: ${p}g • C: ${c}g • G: ${g}g`;
   }
 
-  function render(){ setTransform(); updateHeader(); }
+  function render(){ setTransform(); enforceSingleVisible(); updateHeader(); }
 
   function prev(){ if (index>0){ index--; render(); } }
   function next(){ if (index<cards.length-1){
@@ -296,6 +300,7 @@
       index = keepIndex - 1;
       track.style.transition = 'transform .3s ease-in-out';
       setTransform();
+      enforceSingleVisible();
       updateHeader();
     } catch(e){ console.error('loadPrevDay error', e); }
   }
