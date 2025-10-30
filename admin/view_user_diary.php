@@ -274,6 +274,9 @@ window.navigateDiaryDate = navigateDiaryDate;
     min-height: 200px;
     will-change: transform;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 /* Loading state */

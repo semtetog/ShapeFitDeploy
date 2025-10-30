@@ -4816,13 +4816,13 @@
   margin: 0 !important;
 }
 
-/* Container interno - CORRIGIDO: gap com !important para forçar espaçamento */
+/* Container interno - gap removido, espaçamento agora no wrapper */
 .diary-day-meals {
   height: auto !important;
   min-height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
-  gap: 24px !important;
+  gap: 0 !important;
 }
 
 /* Placeholder */
