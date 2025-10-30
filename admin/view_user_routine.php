@@ -1602,27 +1602,43 @@ function initIconPicker() {
 
 // Funções globais para o modal
 window.openMissionModal = function(missionId = null, skipReset = false) {
+    console.log('[openMissionModal] Chamado com missionId:', missionId, 'skipReset:', skipReset);
+    
     const modal = document.getElementById('missionModal');
+    console.log('[openMissionModal] Modal encontrado:', modal);
+    
+    if (!modal) {
+        console.error('[openMissionModal] Modal não encontrado!');
+        return;
+    }
+    
     const form = document.getElementById('missionForm');
     const title = document.getElementById('missionModalTitle');
     const saveButton = document.getElementById('saveButtonText');
     
+    console.log('[openMissionModal] Form encontrado:', form, 'Title:', title, 'SaveButton:', saveButton);
+    
     // Resetar formulário apenas se não for edição
     if (!skipReset) {
-        form.reset();
-        document.getElementById('missionId').value = '';
-        document.getElementById('selectedIcon').value = '';
+        if (form) {
+            form.reset();
+            const missionIdField = document.getElementById('missionId');
+            const selectedIconField = document.getElementById('selectedIcon');
+            if (missionIdField) missionIdField.value = '';
+            if (selectedIconField) selectedIconField.value = '';
+        }
     }
     
     if (missionId) {
-        title.textContent = 'Editar Missão';
-        saveButton.textContent = 'Atualizar Missão';
+        if (title) title.textContent = 'Editar Missão';
+        if (saveButton) saveButton.textContent = 'Atualizar Missão';
     } else {
-        title.textContent = 'Adicionar Nova Missão';
-        saveButton.textContent = 'Salvar Missão';
+        if (title) title.textContent = 'Adicionar Nova Missão';
+        if (saveButton) saveButton.textContent = 'Salvar Missão';
     }
     
     modal.style.display = 'flex';
+    console.log('[openMissionModal] Modal display setado para flex');
     
     // Inicializar seletor de ícones após o modal estar visível
     setTimeout(() => {
