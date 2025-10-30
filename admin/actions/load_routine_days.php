@@ -119,12 +119,20 @@ try {
                             <h5 style="margin: 0;"><?php echo htmlspecialchars($mission['title'] ?? 'Missão'); ?></h5>
                             <span class="diary-meal-totals">
                                 <?php if ($time_display): ?>
-                                    <i class="fas fa-clock" style="margin-right: 4px;"></i><?php echo $time_display; ?>
+                                    <span style="font-size: 0.85rem; color: var(--accent-orange); font-weight: 500; white-space: nowrap;">
+                                        <i class="fas fa-clock" style="margin-right: 4px;"></i><?php echo $time_display; ?>
+                                    </span>
                                     <?php if (isset($mission['duration_minutes']) && $mission['duration_minutes']): ?>
-                                         • <?php echo $mission['duration_minutes']; ?>min
+                                        <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; margin-left: 8px;">
+                                            Duração: <?php echo $mission['duration_minutes']; ?>min
+                                        </span>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <strong><?php echo isset($mission['duration_minutes']) && $mission['duration_minutes'] ? $mission['duration_minutes'] . 'min' : 'Concluída'; ?></strong>
+                                    <?php if (isset($mission['duration_minutes']) && $mission['duration_minutes']): ?>
+                                        <strong>Duração: <?php echo $mission['duration_minutes']; ?>min</strong>
+                                    <?php else: ?>
+                                        <strong>Concluída</strong>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </span>
                         </div>
