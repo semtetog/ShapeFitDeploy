@@ -25,7 +25,7 @@ $user_profile = $stmt_profile->get_result()->fetch_assoc();
 $stmt_profile->close();
 
 // Buscar missões concluídas do dia
-require_once __DIR__ . '/../../../includes/functions.php';
+require_once __DIR__ . '/../../public_html/includes/functions.php';
 $day_missions = getRoutineItemsForUser($conn, $user_id, $requestedDate, $user_profile);
 $completed_missions = array_filter($day_missions, function($mission) {
     return $mission['completion_status'] == 1;
