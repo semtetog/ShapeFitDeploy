@@ -10079,9 +10079,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Fechar modal ao clicar fora
+    // Fechar modal ao clicar fora (versão segura)
     window.addEventListener('click', function(event) {
-        if (event.target === document.getElementById('exercise-modal')) {
+        const modal = document.getElementById('exercise-modal');
+        if (modal && event.target === modal) {
             closeExerciseModal();
         }
     });
