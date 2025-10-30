@@ -174,6 +174,7 @@ let diaryCards = document.querySelectorAll('.diary-day-card');
 let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
 let diaryTrack = document.getElementById('diarySliderTrack');
 let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
+let suppressFirstRender = true; // evita redundância: não reescrever cabeçalho na 1ª renderização
 
 // Função para atualizar referência aos cards
 function updateDiaryCards() {
@@ -206,16 +207,18 @@ function updateDiaryDisplay() {
     // Debug
     console.log('Diary index:', currentDiaryIndex, 'Date:', date, 'Month:', dateObj.getMonth());
     
-    // Atualizar ano
-    document.getElementById('diaryYear').textContent = dateObj.getFullYear();
-    
-    // Atualizar dia e mês principal
-    const day = dateObj.getDate();
-    const month = monthNamesShort[dateObj.getMonth()];
-    document.getElementById('diaryDayMonth').textContent = `${day} ${month}`;
-    
-    // Atualizar dia da semana
-    document.getElementById('diaryWeekday').textContent = weekdayNames[dateObj.getDay()];
+    if (!suppressFirstRender) {
+        // Atualizar ano
+        document.getElementById('diaryYear').textContent = dateObj.getFullYear();
+        
+        // Atualizar dia e mês principal
+        const day = dateObj.getDate();
+        const month = monthNamesShort[dateObj.getMonth()];
+        document.getElementById('diaryDayMonth').textContent = `${day} ${month}`;
+        
+        // Atualizar dia da semana
+        document.getElementById('diaryWeekday').textContent = weekdayNames[dateObj.getDay()];
+    }
     
     // Atualizar datas de navegação (anterior e próximo)
     const prevIndex = currentDiaryIndex - 1;
@@ -223,7 +226,7 @@ function updateDiaryDisplay() {
     
     // Atualizar data anterior (sempre mostrar o dia anterior real)
     const prevBtn = document.getElementById('diaryPrevDate');
-    if (prevBtn) {
+    if (prevBtn && !suppressFirstRender) {
         // Calcular sempre o dia anterior baseado na data atual
         const currentDate = new Date(date + 'T00:00:00');
         const prevDate = new Date(currentDate);
@@ -235,7 +238,7 @@ function updateDiaryDisplay() {
     
     // Atualizar data próxima (se existir e não for futuro)
     const nextBtn = document.getElementById('diaryNextDate');
-    if (nextBtn) {
+    if (nextBtn && !suppressFirstRender) {
         if (nextIndex < diaryCards.length && diaryCards[nextIndex]) {
             const nextDate = new Date(diaryCards[nextIndex].getAttribute('data-date') + 'T00:00:00');
             const today = new Date();
@@ -254,7 +257,7 @@ function updateDiaryDisplay() {
     
     // Buscar e atualizar resumo de calorias e macros do card atual
     const summaryDiv = currentCard.querySelector('.diary-day-summary');
-    if (summaryDiv) {
+    if (summaryDiv && !suppressFirstRender) {
         const kcalText = summaryDiv.querySelector('.diary-summary-item span');
         const macrosText = summaryDiv.querySelector('.diary-summary-macros');
         
@@ -266,12 +269,15 @@ function updateDiaryDisplay() {
         if (macrosText) {
             document.getElementById('diarySummaryMacros').textContent = macrosText.textContent;
         }
-    } else {
+    } else if (!suppressFirstRender) {
         // Sem dados
         document.getElementById('diarySummaryKcal').innerHTML = 
             `<i class="fas fa-fire"></i><span>0 kcal</span>`;
         document.getElementById('diarySummaryMacros').textContent = 'P: 0g • C: 0g • G: 0g';
     }
+    
+    // Após a primeira renderização, futuras chamadas podem atualizar cabeçalho normalmente
+    suppressFirstRender = false;
     
     // Atualizar estado dos botões de navegação
     updateNavigationButtons();
