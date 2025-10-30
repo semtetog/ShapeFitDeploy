@@ -70,54 +70,6 @@ const weekdayNames = ['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','S�
 let currentDiaryDate = new Date(); // Data atualmente exibida no diário
 const userId = <?php echo $user_id; ?>;
 
-// ============ ANIMAÇÃO DE SLIDE/SWIPE ============
-let currentSlideDirection = 0; // -1 = esquerda, 1 = direita
-
-function slideAndUpdate(wrapper, newContent, direction, callback) {
-    // Verificar se já tem conteúdo (não é primeira carga)
-    const hasContent = wrapper.innerHTML.trim() && !wrapper.querySelector('.diary-loading-state');
-    
-    if (hasContent) {
-        // Definir direção da animação
-        currentSlideDirection = direction;
-        const translateX = direction > 0 ? '-100%' : '100%';
-        
-        // Slide out do conteúdo antigo
-        wrapper.style.transition = 'transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1)';
-        wrapper.style.transform = `translateX(${translateX})`;
-        wrapper.style.opacity = '0';
-        
-        setTimeout(() => {
-            // Atualizar conteúdo e posicionar fora da tela na direção oposta
-            wrapper.innerHTML = newContent;
-            wrapper.style.transition = 'none';
-            wrapper.style.transform = `translateX(${direction > 0 ? '100%' : '-100%'})`;
-            wrapper.style.opacity = '1';
-            
-            // Forçar reflow
-            void wrapper.offsetHeight;
-            
-            // Slide in do novo conteúdo
-            wrapper.style.transition = 'transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1)';
-            wrapper.style.transform = 'translateX(0)';
-            
-            if (callback) callback();
-            
-            // Resetar estilos após animação
-            setTimeout(() => {
-                wrapper.style.transition = '';
-                wrapper.style.transform = '';
-                wrapper.style.opacity = '';
-            }, 250);
-        }, 250);
-    } else {
-        // Primeira carga ou substituindo loading - sem animação
-        wrapper.innerHTML = newContent;
-        wrapper.style.opacity = '1';
-        if (callback) callback();
-    }
-}
-
 // ============ FUNÇÃO PRINCIPAL DE CARREGAMENTO ============
 async function loadDiaryForDate(targetDate, direction = 0) {
     const dateStr = targetDate.toISOString().split('T')[0];
@@ -125,7 +77,21 @@ async function loadDiaryForDate(targetDate, direction = 0) {
     
     const wrapper = document.getElementById('diaryContentWrapper');
     
+    // Verificar se tem conteúdo para animar
+    const hasContent = wrapper.innerHTML.trim() && !wrapper.querySelector('.diary-loading-state');
+    
+    // Se tiver conteúdo E direção, animar SAÍDA imediatamente
+    if (hasContent && direction !== 0) {
+        const translateX = direction > 0 ? '-100%' : '100%';
+        wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
+        wrapper.style.transform = `translateX(${translateX})`;
+        wrapper.style.opacity = '0';
+    }
+    
     try {
+        // Atualizar cabeçalho IMEDIATAMENTE (antes do AJAX)
+        updateDiaryHeader(targetDate);
+        
         // Chamar API
         const url = `actions/load_diary_days.php?user_id=${userId}&date=${dateStr}`;
         const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
@@ -149,25 +115,71 @@ async function loadDiaryForDate(targetDate, direction = 0) {
                 const carbs = parseInt(dayContent.dataset.carbs || '0', 10);
                 const fat = parseInt(dayContent.dataset.fat || '0', 10);
                 
-                // Atualizar conteúdo com animação de slide
-                slideAndUpdate(wrapper, dayContent.querySelector('.diary-day-meals').innerHTML, direction, () => {
+                // Se já animamos a saída, agora só inserir conteúdo e animar entrada
+                if (hasContent && direction !== 0) {
+                    // Inserir novo conteúdo fora da tela
+                    wrapper.innerHTML = dayContent.querySelector('.diary-day-meals').innerHTML;
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = `translateX(${direction > 0 ? '100%' : '-100%'})`;
+                    wrapper.style.opacity = '1';
+                    
+                    // Forçar reflow
+                    void wrapper.offsetHeight;
+                    
+                    // Animar entrada
+                    wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                    wrapper.style.transform = 'translateX(0)';
+                    
                     updateDiarySummary(kcal, protein, carbs, fat);
-                });
+                    
+                    // Resetar estilos
+                    setTimeout(() => {
+                        wrapper.style.transition = '';
+                        wrapper.style.transform = '';
+                        wrapper.style.opacity = '';
+                    }, 200);
+                } else {
+                    // Primeira carga ou sem direção - sem animação
+                    wrapper.innerHTML = dayContent.querySelector('.diary-day-meals').innerHTML;
+                    wrapper.style.opacity = '1';
+                    updateDiarySummary(kcal, protein, carbs, fat);
+                }
             } else {
                 // Dia sem dados
-                slideAndUpdate(wrapper, '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>', direction, () => {
+                if (hasContent && direction !== 0) {
+                    wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>';
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = `translateX(${direction > 0 ? '100%' : '-100%'})`;
+                    wrapper.style.opacity = '1';
+                    void wrapper.offsetHeight;
+                    wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                    wrapper.style.transform = 'translateX(0)';
+                    setTimeout(() => { wrapper.style.transition = ''; wrapper.style.transform = ''; wrapper.style.opacity = ''; }, 200);
                     updateDiarySummary(0, 0, 0, 0);
-                });
+                } else {
+                    wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>';
+                    wrapper.style.opacity = '1';
+                    updateDiarySummary(0, 0, 0, 0);
+                }
             }
         } else {
             // Resposta vazia = sem registros
-            slideAndUpdate(wrapper, '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>', direction, () => {
+            if (hasContent && direction !== 0) {
+                wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>';
+                wrapper.style.transition = 'none';
+                wrapper.style.transform = `translateX(${direction > 0 ? '100%' : '-100%'})`;
+                wrapper.style.opacity = '1';
+                void wrapper.offsetHeight;
+                wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                wrapper.style.transform = 'translateX(0)';
+                setTimeout(() => { wrapper.style.transition = ''; wrapper.style.transform = ''; wrapper.style.opacity = ''; }, 200);
                 updateDiarySummary(0, 0, 0, 0);
-            });
+            } else {
+                wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-utensils"></i><p>Nenhum registro neste dia</p></div>';
+                wrapper.style.opacity = '1';
+                updateDiarySummary(0, 0, 0, 0);
+            }
         }
-        
-        // Atualizar cabeçalho
-        updateDiaryHeader(targetDate);
         
     } catch (error) {
         console.error('[diary] Erro ao carregar:', error);
