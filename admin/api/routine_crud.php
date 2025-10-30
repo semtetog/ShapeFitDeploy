@@ -318,7 +318,7 @@ try {
             $stmt = $conn->prepare("UPDATE sf_user_routine_items 
                                    SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
                                    WHERE id = ? AND user_id = ?");
-            $stmt->bind_param('sssiii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id, $patient_id);
+            $stmt->bind_param('sssisi', $title, $icon_class, $description, $is_exercise, $exercise_type, $id, $patient_id);
             
             if ($stmt->execute() && $stmt->affected_rows > 0) {
                 echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
