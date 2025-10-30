@@ -44,6 +44,28 @@ function getRoutineItemsForUser($conn, $user_id, $date, $user_profile) {
         }
         $stmt_fixed->close();
     }
+    
+    // --- PARTE 1.5: BUSCAR MISSÕES PERSONALIZADAS DO USUÁRIO ---
+    $sql_personal = "
+        SELECT 
+            uri.id, uri.title, uri.icon_class,
+            CASE WHEN url.id IS NOT NULL AND url.is_completed = 1 THEN 1 ELSE 0 END AS completion_status
+        FROM sf_user_routine_items uri
+        LEFT JOIN sf_user_routine_log url 
+            ON uri.id = url.routine_item_id AND url.user_id = ? AND url.date = ?
+        WHERE uri.user_id = ?
+    ";
+    
+    $stmt_personal = $conn->prepare($sql_personal);
+    if ($stmt_personal) {
+        $stmt_personal->bind_param("isi", $user_id, $date, $user_id);
+        $stmt_personal->execute();
+        $result = $stmt_personal->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $all_missions[] = $row;
+        }
+        $stmt_personal->close();
+    }
 
     // --- PARTE 2: GERAR MISSÕES DINÂMICAS DE ATIVIDADE FÍSICA ---
     if (isset($user_profile['exercise_type']) && is_string($user_profile['exercise_type']) && !empty(trim($user_profile['exercise_type']))) {
