@@ -1809,15 +1809,29 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 console.log('[FETCH] Response status:', response.status);
+                console.log('[FETCH] Response ok:', response.ok);
                 const contentType = response.headers.get('content-type');
                 console.log('[FETCH] Content-Type:', contentType);
-                if (!contentType || !contentType.includes('application/json')) {
-                    return response.text().then(text => {
-                        console.log('[FETCH] Non-JSON response:', text);
-                        throw new Error('Resposta do servidor não é JSON: ' + text);
-                    });
-                }
-                return response.json();
+                
+                return response.text().then(text => {
+                    console.log('[FETCH] Raw response:', text);
+                    console.log('[FETCH] Response length:', text.length);
+                    
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Resposta do servidor não é JSON: ' + text.substring(0, 200));
+                    }
+                    
+                    if (!text || text.trim() === '') {
+                        throw new Error('Resposta vazia do servidor');
+                    }
+                    
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('[FETCH] JSON parse error:', e);
+                        throw new Error('Resposta inválida do servidor: ' + text.substring(0, 200));
+                    }
+                });
             })
             .then(data => {
                 console.log('[FETCH] Success data:', data);
