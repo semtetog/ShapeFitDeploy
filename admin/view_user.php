@@ -10504,6 +10504,14 @@ window.selectDiaryDayFromCalendar = function(dateStr) {
     setActiveDiaryCard(currentDiaryIndex);
     updateDiaryDisplay();
 
+    // Mover o slider visualmente para o card selecionado
+    const offset = -currentDiaryIndex * 100;
+    const track = document.getElementById('diarySliderTrack');
+    if (track) {
+        track.style.transition = 'transform 0.3s ease-in-out';
+        track.style.transform = `translateX(${offset}%)`;
+    }
+
     // Fechar modal do calendário se existir
     if (typeof closeDiaryCalendar === 'function') {
         try { closeDiaryCalendar(); } catch (e) {}
