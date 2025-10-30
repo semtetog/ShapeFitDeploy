@@ -992,7 +992,7 @@
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0; /* espaçamento será controlado apenas pelo seletor adjacente */
 }
 
 .diary-meal-card:last-child {
@@ -4875,3 +4875,8 @@
 }
 
 /* Exibe apenas o card do dia atual - REMOVIDO pois conflita com nova estrutura */
+
+/* ====== FIX DEFINITIVO: espaçamento apenas entre cards adjacentes ====== */
+#tab-diary .diary-meal-card { margin: 0 !important; }
+#tab-diary .diary-meal-card + .diary-meal-card { margin-top: 16px !important; }
+
