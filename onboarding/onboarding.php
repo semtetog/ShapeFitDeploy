@@ -210,6 +210,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
             }
         }
 
+        // ===========================
+        // COPIAR MISSÕES PADRÃO PARA O USUÁRIO
+        // ===========================
+        $stmt_copy_missions = $conn->prepare("
+            INSERT INTO sf_user_routine_items (user_id, title, icon_class, description, is_exercise, exercise_type)
+            SELECT ?, title, icon_class, description, is_exercise, exercise_type
+            FROM sf_routine_items
+            WHERE is_active = 1 AND default_for_all_users = 1
+        ");
+        $stmt_copy_missions->bind_param("i", $user_id);
+        $stmt_copy_missions->execute();
+        $stmt_copy_missions->close();
+
         $conn->commit();
         $_SESSION['onboarding_complete'] = true;
         $_SESSION['user_name'] = $name;

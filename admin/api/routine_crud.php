@@ -102,20 +102,8 @@ try {
         case 'list':
             error_log('Executando list_missions para patient_id: ' . $patient_id);
             
-            // Buscar missões padrão (globais)
+            // Buscar apenas missões personalizadas do usuário
             $missions = [];
-            $sql_default = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
-                                   default_for_all_users
-                            FROM sf_routine_items 
-                            WHERE is_active = 1 AND default_for_all_users = 1
-                            ORDER BY id DESC";
-            $result = $conn->query($sql_default);
-            while ($row = $result->fetch_assoc()) {
-                $row['is_personal'] = 0;
-                $missions[] = $row;
-            }
-            
-            // Buscar missões personalizadas do usuário
             $sql_personal = "SELECT id, title, icon_class, description, is_exercise, exercise_type 
                              FROM sf_user_routine_items 
                              WHERE user_id = ?
@@ -170,25 +158,17 @@ try {
         case 'get_mission':
             error_log('Executando get_mission...');
             $id = intval($_GET['id'] ?? 0);
-            $is_personal = intval($_GET['is_personal'] ?? 0);
             if (!$id) {
                 throw new Exception('ID da missão é obrigatório');
             }
             
-            // Escolher tabela baseado em is_personal
-            if ($is_personal) {
-                $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type
-                        FROM sf_user_routine_items 
-                        WHERE id = ?";
-            } else {
-                $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
-                               default_for_all_users
-                        FROM sf_routine_items 
-                        WHERE id = ? AND is_active = 1";
-            }
+            // Todas as missões agora são personalizadas
+            $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type
+                    FROM sf_user_routine_items 
+                    WHERE id = ?";
             
             error_log('SQL: ' . $sql);
-            error_log('ID da missão: ' . $id . ', is_personal: ' . $is_personal);
+            error_log('ID da missão: ' . $id);
             
             $stmt = $conn->prepare($sql);
             if (!$stmt) {
@@ -268,23 +248,12 @@ try {
             $icon_class = $conn->real_escape_string($data['icon_class'] ?? 'fa-check-circle');
             $is_exercise = isset($data['is_exercise']) ? intval($data['is_exercise']) : 0;
             $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
-            $is_personal = isset($data['is_personal']) ? intval($data['is_personal']) : 0;
             
-            // Escolher tabela baseado em is_personal
-            if ($is_personal) {
-                // Criar missão personalizada
-                $stmt = $conn->prepare("INSERT INTO sf_user_routine_items 
-                                       (user_id, title, icon_class, description, is_exercise, exercise_type) 
-                                       VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param('ississ', $patient_id, $title, $icon_class, $description, $is_exercise, $exercise_type);
-            } else {
-                // Criar missão global
-                $stmt = $conn->prepare("INSERT INTO sf_routine_items 
-                                       (title, icon_class, description, is_exercise, exercise_type, 
-                                        default_for_all_users, is_active) 
-                                       VALUES (?, ?, ?, ?, ?, 0, 1)");
-                $stmt->bind_param('sssisi', $title, $icon_class, $description, $is_exercise, $exercise_type);
-            }
+            // Todas as missões agora são personalizadas
+            $stmt = $conn->prepare("INSERT INTO sf_user_routine_items 
+                                   (user_id, title, icon_class, description, is_exercise, exercise_type) 
+                                   VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param('ississ', $patient_id, $title, $icon_class, $description, $is_exercise, $exercise_type);
             
             if ($stmt->execute()) {
                 echo json_encode(['success' => true, 'message' => 'Missão criada com sucesso']);
@@ -342,79 +311,21 @@ try {
             $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
             $is_personal = isset($data['is_personal']) ? intval($data['is_personal']) : 0;
             
-            error_log('[update_mission] is_personal: ' . $is_personal);
             error_log('[update_mission] patient_id: ' . $patient_id);
             error_log('[update_mission] data recebida: ' . print_r($data, true));
             
-            // Se é missão padrão (global), criar uma cópia personalizada ao invés de editar
-            if (!$is_personal) {
-                error_log('[update_mission] Convertendo missão GLOBAL para PERSONALIZADA');
-                
-                // Buscar dados da missão padrão
-                $stmt_get = $conn->prepare("SELECT * FROM sf_routine_items WHERE id = ?");
-                $stmt_get->bind_param('i', $id);
-                $stmt_get->execute();
-                $result = $stmt_get->get_result();
-                $original = $result->fetch_assoc();
-                $stmt_get->close();
-                
-                if ($original) {
-                    // Verificar se já existe cópia personalizada
-                    $stmt_check = $conn->prepare("SELECT id FROM sf_user_routine_items WHERE user_id = ? AND title = ?");
-                    $stmt_check->bind_param('is', $patient_id, $title);
-                    $stmt_check->execute();
-                    $result_check = $stmt_check->get_result();
-                    
-                    if ($result_check->num_rows > 0) {
-                        // Atualizar cópia existente
-                        $row = $result_check->fetch_assoc();
-                        $stmt_check->close();
-                        
-                        $stmt = $conn->prepare("UPDATE sf_user_routine_items 
-                                               SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
-                                               WHERE id = ? AND user_id = ?");
-                        $stmt->bind_param('sssiii', $title, $icon_class, $description, $is_exercise, $exercise_type, $row['id'], $patient_id);
-                        
-                        if ($stmt->execute() && $stmt->affected_rows > 0) {
-                            echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
-                        } else {
-                            throw new Exception('Missão não encontrada ou não pode ser editada');
-                        }
-                        $stmt->close();
-                    } else {
-                        // Criar nova cópia personalizada
-                        $stmt_check->close();
-                        
-                        $stmt = $conn->prepare("INSERT INTO sf_user_routine_items 
-                                               (user_id, title, icon_class, description, is_exercise, exercise_type) 
-                                               VALUES (?, ?, ?, ?, ?, ?)");
-                        $stmt->bind_param('isssis', $patient_id, $title, $icon_class, $description, $is_exercise, $exercise_type);
-                        
-                        if ($stmt->execute()) {
-                            echo json_encode(['success' => true, 'message' => 'Missão criada com sucesso']);
-                        } else {
-                            throw new Exception('Erro ao criar missão personalizada');
-                        }
-                        $stmt->close();
-                    }
-                } else {
-                    throw new Exception('Missão original não encontrada');
-                }
+            // Todas as missões agora são personalizadas
+            $stmt = $conn->prepare("UPDATE sf_user_routine_items 
+                                   SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
+                                   WHERE id = ? AND user_id = ?");
+            $stmt->bind_param('sssiii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id, $patient_id);
+            
+            if ($stmt->execute() && $stmt->affected_rows > 0) {
+                echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
             } else {
-                // Atualizar missão personalizada existente
-                error_log('[update_mission] Atualizando missão PERSONALIZADA');
-                $stmt = $conn->prepare("UPDATE sf_user_routine_items 
-                                       SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
-                                       WHERE id = ? AND user_id = ?");
-                $stmt->bind_param('sssiii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id, $patient_id);
-                
-                if ($stmt->execute() && $stmt->affected_rows > 0) {
-                    echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
-                } else {
-                    throw new Exception('Missão não encontrada ou não pode ser editada');
-                }
-                $stmt->close();
+                throw new Exception('Missão não encontrada ou não pode ser editada');
             }
+            $stmt->close();
             break;
             
         case 'update_exercise':
@@ -461,30 +372,16 @@ try {
             }
             
             $id = intval($data['id']);
-            $is_personal = isset($data['is_personal']) ? intval($data['is_personal']) : 0;
             
-            // Escolher tabela baseado em is_personal
-            if ($is_personal) {
-                // Excluir logs primeiro (missão personalizada)
-                $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ? AND user_id = ?");
-                $stmt1->bind_param('ii', $id, $patient_id);
-                $stmt1->execute();
-                $stmt1->close();
-                
-                // Deletar missão personalizada
-                $stmt2 = $conn->prepare("DELETE FROM sf_user_routine_items WHERE id = ? AND user_id = ?");
-                $stmt2->bind_param('ii', $id, $patient_id);
-            } else {
-                // Excluir logs primeiro (missão global)
-                $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ?");
-                $stmt1->bind_param('i', $id);
-                $stmt1->execute();
-                $stmt1->close();
-                
-                // Marcar missão global como inativa ao invés de excluir
-                $stmt2 = $conn->prepare("UPDATE sf_routine_items SET is_active = 0 WHERE id = ?");
-                $stmt2->bind_param('i', $id);
-            }
+            // Excluir logs primeiro
+            $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ? AND user_id = ?");
+            $stmt1->bind_param('ii', $id, $patient_id);
+            $stmt1->execute();
+            $stmt1->close();
+            
+            // Deletar missão personalizada
+            $stmt2 = $conn->prepare("DELETE FROM sf_user_routine_items WHERE id = ? AND user_id = ?");
+            $stmt2->bind_param('ii', $id, $patient_id);
             
             if ($stmt2->execute() && $stmt2->affected_rows > 0) {
                 echo json_encode(['success' => true, 'message' => 'Missão excluída com sucesso']);

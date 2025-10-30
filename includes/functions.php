@@ -23,29 +23,7 @@ function hasCompletedOnboardingActivity($conn, $user_id, $activity_name, $date) 
 function getRoutineItemsForUser($conn, $user_id, $date, $user_profile) {
     $all_missions = [];
 
-    // --- PARTE 1: BUSCAR MISSÕES FIXAS (PADRÃO PARA TODOS) ---
-    $sql_fixed = "
-        SELECT 
-            ri.id, ri.title, ri.icon_class,
-            CASE WHEN url.id IS NOT NULL AND url.is_completed = 1 THEN 1 ELSE 0 END AS completion_status
-        FROM sf_routine_items ri
-        LEFT JOIN sf_user_routine_log url 
-            ON ri.id = url.routine_item_id AND url.user_id = ? AND url.date = ?
-        WHERE ri.is_active = 1 AND ri.default_for_all_users = 1
-    ";
-    
-    $stmt_fixed = $conn->prepare($sql_fixed);
-    if ($stmt_fixed) {
-        $stmt_fixed->bind_param("is", $user_id, $date);
-        $stmt_fixed->execute();
-        $result = $stmt_fixed->get_result();
-        while ($row = $result->fetch_assoc()) {
-            $all_missions[] = $row;
-        }
-        $stmt_fixed->close();
-    }
-    
-    // --- PARTE 1.5: BUSCAR MISSÕES PERSONALIZADAS DO USUÁRIO ---
+    // --- PARTE 1: BUSCAR MISSÕES PERSONALIZADAS DO USUÁRIO ---
     $sql_personal = "
         SELECT 
             uri.id, uri.title, uri.icon_class,
