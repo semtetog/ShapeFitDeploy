@@ -269,16 +269,6 @@ window.navigateDiaryDate = navigateDiaryDate;
 </script>
 
 <style>
-/* Wrapper de conteúdo do diário - transições suaves */
-.diary-content-wrapper {
-    min-height: 200px;
-    will-change: transform;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
 /* Loading state */
 .diary-loading-state {
     display: flex;
@@ -540,5 +530,27 @@ window.openDiaryCalendar = openDiaryCalendar;
 window.closeDiaryCalendar = closeDiaryCalendar;
 window.changeCalendarMonth = changeCalendarMonth;
 </script>
+
+<style>
+/* === Diário: respiro garantido entre cards - À PROVA DE BALA === */
+
+/* 1) Espaço com seletor adjacente (não depende de gap) */
+#tab-diary .diary-meal-card + .diary-meal-card {
+  margin-top: 24px !important;
+}
+
+/* 2) Zera qualquer reset anterior que cole os cards */
+#tab-diary .diary-meal-card {
+  margin-bottom: 0 !important;   /* evita espaço duplo embaixo */
+  display: block !important;     /* garante que o seletor adjacente funcione */
+}
+
+/* 3) Se estiver usando o wrapper flex, mantém o gap também (não conflita) */
+#tab-diary .diary-content-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+}
+</style>
 
 <!-- fim do conteúdo da aba diário -->
