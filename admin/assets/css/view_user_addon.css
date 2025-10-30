@@ -102,6 +102,20 @@
 .view-user-tab {
   padding: 0 32px; /* mesmo espaçamento lateral das abas que estão corretas */
   box-sizing: border-box;
+  width: 100%;
+}
+
+/* Remove padding duplicado de containers internos */
+.tab-content > .view-user-tab > div[class*="-container"],
+.tab-content > .view-user-tab > div[class*="-grid"] {
+  padding: 0 !important;
+  margin: 0 auto;
+}
+
+/* Neutraliza conflitos de width e margin */
+.progress-grid, .routine-container, .diary-slider-container, .hydration-container, .nutrients-container {
+  width: auto;
+  margin: 0;
 }
 
 /* ========== DASHBOARD CARD ========== */
