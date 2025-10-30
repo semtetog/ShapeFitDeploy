@@ -70,11 +70,7 @@
                 
                 <!-- Resumo de missões -->
                 <div class="diary-summary-row">
-                    <div class="diary-kcal" id="routineSummaryMissions">
-                        <i class="fas fa-check-circle"></i>
-                        <span>0 missões</span>
-                    </div>
-                    <div class="diary-macros" id="routineSummaryProgress">
+                    <div class="diary-macros" id="routineSummaryProgress" style="justify-content: center;">
                         Progresso: 0%
                     </div>
                 </div>
@@ -295,7 +291,6 @@ function updateRoutineHeader(targetDate) {
 
 // ============ ATUALIZAR RESUMO (MISSÕES) ============
 function updateRoutineSummary(missions) {
-    document.getElementById('routineSummaryMissions').innerHTML = `<i class="fas fa-check-circle"></i><span>${missions} missões</span>`;
     document.getElementById('routineSummaryProgress').textContent = `Progresso: ${missions > 0 ? '100' : '0'}%`;
 }
 
