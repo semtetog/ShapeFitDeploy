@@ -164,10 +164,13 @@ let isLoadingMoreDays = false; // se você usa lazy load
 // ======== DIÁRIO: MOSTRAR APENAS O CARD ATIVO ========
 function setActiveDiaryCard(index) {
   diaryCards.forEach((card, i) => {
-    card.classList.toggle('active', i === index);
-    // opcional: evita layout shift quando escondido
-    if (i !== index) card.style.display = 'none';
-    else card.style.display = 'block';
+    if (i === index) {
+      card.classList.add('active');
+      card.style.display = 'block';
+    } else {
+      card.classList.remove('active');
+      card.style.display = 'none';
+    }
   });
 }
 
@@ -477,6 +480,11 @@ function initDiaryListeners() {
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayIdx = diaryCards.findIndex(c => c.getAttribute('data-date') === todayStr);
   currentDiaryIndex = (todayIdx !== -1) ? todayIdx : (diaryCards.length - 1);
+
+  // Garantir que apenas o card ativo seja visível
+  diaryCards.forEach((card, index) => {
+    card.classList.toggle('active', index === currentDiaryIndex);
+  });
 
   setActiveDiaryCard(currentDiaryIndex);
   updateDiaryDisplay();

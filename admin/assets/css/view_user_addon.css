@@ -840,16 +840,14 @@
 }
 
 .diary-day-card {
-  min-width: 100%;
-  max-width: 100%;
+  display: none;
   width: 100%;
   flex-shrink: 0;
-  padding: 0;
-  box-sizing: border-box;
-  overflow: hidden;
-  contain: layout style;
-  min-height: auto;
-  height: auto;
+  min-width: 100%;
+  max-width: 100%;
+}
+
+.diary-day-card.active {
   display: block;
 }
 
