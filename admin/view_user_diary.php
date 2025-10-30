@@ -75,18 +75,10 @@
         
         <div class="diary-slider-wrapper" id="diarySliderWrapper">
             <?php 
-                // Garantir que $all_dates exista antes de usar
-                $all_dates = [];
-                for ($i = 0; $i < $daysToShow; $i++) {
-                    $current_date = date('Y-m-d', strtotime($endDate . " -$i days"));
-                    $all_dates[] = $current_date;
-                }
-                // Inverter ordem: mais antigo à esquerda, mais recente à direita
-                $all_dates = array_reverse($all_dates);
-
-                // total de dias para posicionar o slider inicialmente no último dia
-                $initial_index = max(count($all_dates) - 1, 0);
-                $initial_offset = $initial_index * 100; 
+                // Carregar inicialmente APENAS o dia atual (lazy load para os anteriores)
+                $all_dates = [$endDate];
+                $initial_index = 0;
+                $initial_offset = 0; 
             ?>
             <div class="diary-slider-track" id="diarySliderTrack" style="transform: translateX(-<?php echo $initial_offset; ?>%);">
                 <?php 
@@ -280,15 +272,48 @@
     }
   }
 
+  async function loadPrevDay(prevDateStr){
+    try{
+      const userId = <?php echo $user_id; ?>;
+      const url = `actions/load_diary_days.php?user_id=${userId}&end_date=${prevDateStr}&days=1`;
+      const res = await fetch(url, { headers: { 'X-Requested-With':'XMLHttpRequest' }});
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const html = await res.text();
+      if (!html.trim()) return;
+      const temp = document.createElement('div');
+      temp.innerHTML = html;
+      const newCard = temp.querySelector('.diary-day-card');
+      if (!newCard) return;
+      track.insertBefore(newCard, track.firstChild);
+      collect();
+      // Mantém o slide visualmente no mesmo dia após inserir antes
+      index++; // o card atual desloca para a direita
+      setTransform();
+      // Agora navega para o anterior (carregado)
+      index--; render();
+    } catch(e){ console.error('loadPrevDay error', e); }
+  }
+
+  async function prevLazy(){
+    if (index>0){ index--; render(); return; }
+    // Estamos no primeiro card: carregar o dia anterior
+    const firstDateStr = cards[0]?.getAttribute('data-date');
+    if (!firstDateStr) return;
+    const d = new Date(firstDateStr + 'T00:00:00');
+    d.setDate(d.getDate()-1);
+    const prevDateStr = d.toISOString().split('T')[0];
+    await loadPrevDay(prevDateStr);
+  }
+
   function init(){
     collect(); if (!cards.length) return;
     index = getLatestNonFutureIndex();
     render(); if (track) track.style.visibility = 'visible';
-    document.querySelector('.diary-nav-left')?.addEventListener('click', prev);
+    document.querySelector('.diary-nav-left')?.addEventListener('click', prevLazy);
     document.querySelector('.diary-nav-right')?.addEventListener('click', next);
-    document.addEventListener('keydown', (e)=>{ if (e.key==='ArrowLeft') prev(); if (e.key==='ArrowRight') next(); });
+    document.addEventListener('keydown', (e)=>{ if (e.key==='ArrowLeft') prevLazy(); if (e.key==='ArrowRight') next(); });
     let sx=0; track.addEventListener('touchstart',e=>{ sx=e.changedTouches[0].screenX; });
-    track.addEventListener('touchend',e=>{ const dx=sx-e.changedTouches[0].screenX; if (Math.abs(dx)>50){ if (dx>0) prev(); else next(); } });
+    track.addEventListener('touchend',e=>{ const dx=sx-e.changedTouches[0].screenX; if (Math.abs(dx)>50){ if (dx>0) prevLazy(); else next(); } });
   }
 
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
