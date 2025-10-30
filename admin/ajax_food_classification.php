@@ -47,6 +47,7 @@ function saveClassifications() {
     
     $classifications = json_decode($_POST['classifications'] ?? '{}', true);
     $all_food_ids = json_decode($_POST['all_food_ids'] ?? '[]', true);
+    $declassify_unselected = isset($_POST['declassify_unselected']) && $_POST['declassify_unselected'] === '1';
     
     // Debug logs
     error_log("Classificações recebidas: " . json_encode($classifications));
@@ -54,18 +55,19 @@ function saveClassifications() {
     error_log("Classificações vazias: " . (empty($classifications) ? 'SIM' : 'NÃO'));
     error_log("IDs vazios: " . (empty($all_food_ids) ? 'SIM' : 'NÃO'));
     
-    // Processar TODOS os alimentos da página
-    // 1. Primeiro, desclassificar todos os alimentos que não estão no objeto classifications
-    $classified_food_ids = array_keys($classifications);
-    $unclassified_food_ids = array_diff($all_food_ids, $classified_food_ids);
-    
+    // Opcional: desclassificar explicitamente itens não selecionados APENAS quando indicado
+    // Por padrão, NÃO desclassificamos nada automaticamente para evitar apagar unidades de outros itens
     $declassification_result = null;
-    if (!empty($unclassified_food_ids)) {
-        error_log("Processando desclassificação de " . count($unclassified_food_ids) . " alimentos: " . implode(', ', $unclassified_food_ids));
-        $declassification_result = processDeclassification($unclassified_food_ids, false); // Não ecoar
+    if ($declassify_unselected && !empty($all_food_ids)) {
+        $classified_food_ids = array_keys($classifications);
+        $unclassified_food_ids = array_diff($all_food_ids, $classified_food_ids);
+        if (!empty($unclassified_food_ids)) {
+            error_log("Processando desclassificação (explícita) de " . count($unclassified_food_ids) . " alimentos: " . implode(', ', $unclassified_food_ids));
+            $declassification_result = processDeclassification($unclassified_food_ids, false); // Não ecoar
+        }
     }
     
-    // 2. Se não há classificações, retornar resultado da desclassificação
+    // 2. Se não há classificações, apenas reportar sucesso (não desclassificar por padrão)
     if (empty($classifications)) {
         if ($declassification_result) {
             echo json_encode($declassification_result);
