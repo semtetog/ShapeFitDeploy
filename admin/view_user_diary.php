@@ -231,8 +231,9 @@ window.navigateDiaryDate = navigateDiaryDate;
     wrapper.addEventListener('touchend', e => {
         const dx = sx - e.changedTouches[0].screenX;
         if (Math.abs(dx) > 50) {
-            if (dx > 0) navigateDiaryDate(1);
-            else navigateDiaryDate(-1);
+            // Swipe para direita = dia anterior (-1), Swipe para esquerda = dia seguinte (+1)
+            if (dx > 0) navigateDiaryDate(-1);
+            else navigateDiaryDate(1);
         }
     });
 })();
