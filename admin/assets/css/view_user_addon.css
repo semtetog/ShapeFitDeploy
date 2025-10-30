@@ -99,8 +99,15 @@
 }
 
 /* ========== PADRÃO DE PADDING PARA TODAS AS ABAS DO PACIENTE ========== */
-.view-user-tab {
-  padding: 0 32px; /* mesmo espaçamento lateral das abas que estão corretas */
+.tab-content {
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.tab-content > .view-user-tab {
+  padding-left: 32px;
+  padding-right: 32px;
   box-sizing: border-box;
   width: 100%;
 }
@@ -116,6 +123,12 @@
 .progress-grid, .routine-container, .diary-slider-container, .hydration-container, .nutrients-container {
   width: auto;
   margin: 0;
+}
+
+/* Força padding lateral correto para containers específicos */
+.routine-container {
+  margin-left: 0 !important;
+  width: auto !important;
 }
 
 /* ========== DASHBOARD CARD ========== */
