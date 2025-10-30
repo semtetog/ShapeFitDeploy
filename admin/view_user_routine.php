@@ -1638,7 +1638,8 @@ window.openMissionModal = function(missionId = null, skipReset = false) {
     }
     
     modal.style.display = 'flex';
-    console.log('[openMissionModal] Modal display setado para flex');
+    modal.classList.add('active');
+    console.log('[openMissionModal] Modal display setado para flex e classe active adicionada');
     
     // Inicializar seletor de ícones após o modal estar visível
     setTimeout(() => {
@@ -1647,7 +1648,11 @@ window.openMissionModal = function(missionId = null, skipReset = false) {
 };
 
 window.closeMissionModal = function() {
-    document.getElementById('missionModal').style.display = 'none';
+    const modal = document.getElementById('missionModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+    }
 };
 
 window.editMission = function(missionId) {
@@ -1977,6 +1982,48 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 #tab-routine .diary-meal-card {
   margin-bottom: 0 !important;
   display: block !important;
+}
+
+/* === Modal Customizado === */
+.custom-modal {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.custom-modal.active,
+.custom-modal[style*="flex"] {
+  display: flex !important;
+}
+
+.custom-modal-overlay {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: transparent !important;
+  cursor: pointer !important;
+}
+
+.diary-calendar-wrapper {
+  position: relative !important;
+  background: #1E1E1E !important;
+  border-radius: 20px !important;
+  padding: 2rem !important;
+  max-width: 600px !important;
+  width: 90% !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  z-index: 10000 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
 }
 </style>
 
