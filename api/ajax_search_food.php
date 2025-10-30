@@ -32,7 +32,7 @@ try {
     $local_term = '%' . $term . '%';
     $start_term = $term . '%';
 
-    $sql_local = "SELECT taco_id, name_pt, brand, energy_kcal_100g, protein_g_100g, carbohydrate_g_100g, fat_g_100g FROM sf_food_items WHERE name_pt LIKE ? ORDER BY CASE WHEN name_pt LIKE ? THEN 1 ELSE 2 END, LENGTH(name_pt), name_pt LIMIT 15";
+    $sql_local = "SELECT id, taco_id, name_pt, brand, energy_kcal_100g, protein_g_100g, carbohydrate_g_100g, fat_g_100g FROM sf_food_items WHERE name_pt LIKE ? ORDER BY CASE WHEN name_pt LIKE ? THEN 1 ELSE 2 END, LENGTH(name_pt), name_pt LIMIT 15";
     
     $stmt_local = $conn->prepare($sql_local);
     
@@ -48,8 +48,11 @@ try {
                 $display_name = $row['name_pt'] . ' - ' . $row['brand'];
             }
             
+            // Determinar ID de retorno: usar taco_{taco_id} quando existir, senão usar o ID interno
+            $returned_id = !empty($row['taco_id']) ? ('taco_' . $row['taco_id']) : (string)$row['id'];
+
             $results[] = [
-                'id' => 'taco_' . $row['taco_id'],
+                'id' => $returned_id,
                 'name' => $display_name,
                 'brand' => $row['brand'] ?: 'TACO',
                 'image_url' => null,
