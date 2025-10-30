@@ -1807,8 +1807,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('[FETCH] Response status:', response.status);
+                const contentType = response.headers.get('content-type');
+                console.log('[FETCH] Content-Type:', contentType);
+                if (!contentType || !contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        console.log('[FETCH] Non-JSON response:', text);
+                        throw new Error('Resposta do servidor não é JSON: ' + text);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('[FETCH] Success data:', data);
                 if (data.success) {
                     closeMissionModal();
                     loadMissionsAdminList();
@@ -1817,8 +1829,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao salvar missão');
+                console.error('[FETCH] Erro:', error);
+                alert('Erro ao salvar missão: ' + error.message);
             });
         });
     }
