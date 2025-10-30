@@ -64,29 +64,30 @@ $today = date('Y-m-d');
 $yesterday = date('Y-m-d', strtotime('-1 day'));
 
 // Buscar dados de hidratação dos últimos 30 dias
-$stmt_hydration = $conn->prepare("
-    SELECT DATE(created_at) as date, SUM(water_ml) as water_ml 
-    FROM sf_user_water_intake 
-    WHERE user_id = ? AND DATE(created_at) >= ? 
-    GROUP BY DATE(created_at) 
-    ORDER BY date DESC
-");
-$stmt_hydration->bind_param("is", $user_id, $startDate);
-$stmt_hydration->execute();
-$hydration_result = $stmt_hydration->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmt_hydration->close();
+$stmt_water = $conn->prepare("SELECT date, water_consumed_cups FROM sf_user_daily_tracking WHERE user_id = ? AND water_consumed_cups > 0 ORDER BY date DESC LIMIT 120");
+$stmt_water->bind_param("i", $user_id);
+$stmt_water->execute();
+$water_history = $stmt_water->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt_water->close();
+
+// Meta de água - priorizar customizada se existir
+if (!empty($user_data['custom_water_goal_ml'])) {
+    $water_goal_ml = (int)$user_data['custom_water_goal_ml'];
+    $water_goal_cups = ceil($water_goal_ml / 250); // 250ml por copo
+} else {
+    $water_goal_data = getWaterIntakeSuggestion($user_data['weight_kg'] ?? 0);
+    $water_goal_ml = $water_goal_data['total_ml'];
+    $water_goal_cups = $water_goal_data['cups'];
+}
 
 // Processar dados de hidratação
 $hydration_data = [];
-foreach ($hydration_result as $record) {
+foreach ($water_history as $record) {
     $hydration_data[] = [
         'date' => $record['date'],
-        'water_ml' => intval($record['water_ml'])
+        'water_ml' => intval($record['water_consumed_cups']) * 250 // Converter copos para ml
     ];
 }
-
-// Meta de água (padrão 2000ml se não definida)
-$water_goal_ml = 2000;
 
 // Calcular estatísticas de hidratação
 $water_stats_today = ['water_ml' => 0, 'goal_ml' => $water_goal_ml, 'percentage' => 0];
@@ -209,62 +210,44 @@ $routine_data = [
     'sleep' => []
 ];
 
-// Buscar dados de passos
-$stmt_steps = $conn->prepare("
-    SELECT date_recorded, steps_daily 
-    FROM sf_user_steps 
-    WHERE user_id = ? AND date_recorded >= ? 
-    ORDER BY date_recorded DESC
+// Buscar dados de passos, exercícios e sono da tabela sf_user_daily_tracking
+$stmt_routine = $conn->prepare("
+    SELECT date, steps_daily, workout_hours, cardio_hours, sleep_hours 
+    FROM sf_user_daily_tracking 
+    WHERE user_id = ? AND date >= ? 
+    ORDER BY date DESC
 ");
-$stmt_steps->bind_param("is", $user_id, $startDate);
-$stmt_steps->execute();
-$steps_result = $stmt_steps->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmt_steps->close();
+$stmt_routine->bind_param("is", $user_id, $startDate);
+$stmt_routine->execute();
+$routine_result = $stmt_routine->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt_routine->close();
 
-foreach ($steps_result as $record) {
-    $routine_data['steps'][] = [
-        'date' => $record['date_recorded'],
-        'steps_daily' => intval($record['steps_daily'])
-    ];
-}
-
-// Buscar dados de exercícios
-$stmt_exercise = $conn->prepare("
-    SELECT updated_at, duration_minutes, exercise_type 
-    FROM sf_user_exercises 
-    WHERE user_id = ? AND DATE(updated_at) >= ? 
-    ORDER BY updated_at DESC
-");
-$stmt_exercise->bind_param("is", $user_id, $startDate);
-$stmt_exercise->execute();
-$exercise_result = $stmt_exercise->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmt_exercise->close();
-
-foreach ($exercise_result as $record) {
-    $routine_data['exercise'][] = [
-        'updated_at' => $record['updated_at'],
-        'duration_minutes' => intval($record['duration_minutes']),
-        'exercise_type' => $record['exercise_type']
-    ];
-}
-
-// Buscar dados de sono
-$stmt_sleep = $conn->prepare("
-    SELECT date_recorded, sleep_hours 
-    FROM sf_user_sleep 
-    WHERE user_id = ? AND date_recorded >= ? 
-    ORDER BY date_recorded DESC
-");
-$stmt_sleep->bind_param("is", $user_id, $startDate);
-$stmt_sleep->execute();
-$sleep_result = $stmt_sleep->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmt_sleep->close();
-
-foreach ($sleep_result as $record) {
-    $routine_data['sleep'][] = [
-        'date' => $record['date_recorded'],
-        'sleep_hours' => floatval($record['sleep_hours'])
-    ];
+foreach ($routine_result as $record) {
+    // Passos
+    if ($record['steps_daily'] > 0) {
+        $routine_data['steps'][] = [
+            'date' => $record['date'],
+            'steps_daily' => intval($record['steps_daily'])
+        ];
+    }
+    
+    // Exercícios (workout + cardio)
+    $total_exercise_hours = floatval($record['workout_hours']) + floatval($record['cardio_hours']);
+    if ($total_exercise_hours > 0) {
+        $routine_data['exercise'][] = [
+            'updated_at' => $record['date'] . ' 12:00:00',
+            'duration_minutes' => intval($total_exercise_hours * 60),
+            'exercise_type' => 'mixed'
+        ];
+    }
+    
+    // Sono
+    if ($record['sleep_hours'] > 0) {
+        $routine_data['sleep'][] = [
+            'date' => $record['date'],
+            'sleep_hours' => floatval($record['sleep_hours'])
+        ];
+    }
 }
 
 // --- DADOS PARA PROGRESSO ---
