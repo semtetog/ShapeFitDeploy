@@ -2,7 +2,8 @@
 <!-- Conteúdo completo da aba Nutrientes: HTML, CSS e JS -->
 
 <div id="tab-nutrients" class="tab-content">
-    <div class="nutrients-container">
+    <div class="view-user-tab">
+        <div class="nutrients-container">
         
         <!-- 1. RESUMO GERAL -->
         <!-- 1. CARD RESUMO COMPACTO -->
@@ -403,3 +404,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+    </div>
+</div>

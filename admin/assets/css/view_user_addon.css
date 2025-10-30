@@ -98,6 +98,12 @@
   gap: 1.5rem;
 }
 
+/* ========== PADRÃO DE PADDING PARA TODAS AS ABAS DO PACIENTE ========== */
+.view-user-tab {
+  padding: 0 32px; /* mesmo espaçamento lateral das abas que estão corretas */
+  box-sizing: border-box;
+}
+
 /* ========== DASHBOARD CARD ========== */
 .dashboard-card {
   background: rgba(255, 255, 255, 0.05);

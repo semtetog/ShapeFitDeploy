@@ -1,7 +1,8 @@
 <!-- view_user_progress.php -->
 <!-- Conteúdo completo da aba Progresso: HTML, CSS e JS -->
 <div id="tab-progress" class="tab-content">
-    <div class="progress-grid">
+    <div class="view-user-tab">
+        <div class="progress-grid">
         <div class="dashboard-card weight-history-card">
             <h4>Histórico de Peso</h4>
             <?php if (empty($weight_chart_data['data'])): ?>
@@ -92,6 +93,7 @@
                 </div>
             <?php endif; ?>
         </div>
+    </div>
     </div>
 </div>
 

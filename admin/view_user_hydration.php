@@ -1,7 +1,8 @@
 <!-- view_user_hydration.php -->
 <!-- Conteúdo completo da aba Hidratação: HTML, CSS e JS -->
 <div id="tab-hydration" class="tab-content">
-    <div class="hydration-container">
+    <div class="view-user-tab">
+        <div class="hydration-container">
         
         <!-- 1. CARD RESUMO COMPACTO -->
         <div class="hydration-summary-card">
@@ -210,3 +211,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+    </div>
+</div>
