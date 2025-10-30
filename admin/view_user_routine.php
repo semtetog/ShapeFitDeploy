@@ -2020,14 +2020,14 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
   cursor: pointer !important;
 }
 
-.diary-calendar-wrapper {
+#missionModal .diary-calendar-wrapper {
   position: relative !important;
   background: #1E1E1E !important;
-  border-radius: 20px !important;
-  padding: 2rem !important;
-  max-width: 600px !important;
+  border-radius: 16px !important;
+  padding: 1.5rem !important;
+  max-width: 700px !important;
   width: 90% !important;
-  max-height: 90vh !important;
+  max-height: 95vh !important;
   overflow-y: auto !important;
   z-index: 10000 !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
@@ -2035,21 +2035,21 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 
 /* === Modal Header === */
 #missionModal .modal-header {
-  margin-bottom: 2rem !important;
-  padding-bottom: 1.5rem !important;
+  margin-bottom: 1.25rem !important;
+  padding-bottom: 1rem !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 #missionModal .modal-title {
   display: flex !important;
   align-items: center !important;
-  gap: 1rem !important;
+  gap: 0.75rem !important;
 }
 
 #missionModal .title-icon {
-  width: 48px !important;
-  height: 48px !important;
-  border-radius: 12px !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 10px !important;
   background: rgba(255, 107, 0, 0.1) !important;
   border: 1px solid rgba(255, 107, 0, 0.2) !important;
   display: flex !important;
@@ -2059,30 +2059,30 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 }
 
 #missionModal .title-icon i {
-  font-size: 1.5rem !important;
+  font-size: 1.25rem !important;
   color: var(--accent-orange) !important;
 }
 
 #missionModal .title-content h3 {
-  margin: 0 0 0.25rem 0 !important;
-  font-size: 1.5rem !important;
+  margin: 0 0 0.15rem 0 !important;
+  font-size: 1.25rem !important;
   font-weight: 700 !important;
   color: var(--text-primary) !important;
 }
 
 #missionModal .title-content p {
   margin: 0 !important;
-  font-size: 0.95rem !important;
+  font-size: 0.85rem !important;
   color: var(--text-secondary) !important;
 }
 
 /* === Calendar Close Button === */
 .calendar-btn-close {
   position: absolute !important;
-  top: 1rem !important;
-  right: 1rem !important;
-  width: 36px !important;
-  height: 36px !important;
+  top: 0.75rem !important;
+  right: 0.75rem !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 50% !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -2109,27 +2109,27 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 
 /* === Form Groups === */
 #missionModal .form-group {
-  margin-bottom: 1.5rem !important;
+  margin-bottom: 1rem !important;
 }
 
 #missionModal .form-group label {
   display: block !important;
-  font-size: 0.95rem !important;
+  font-size: 0.875rem !important;
   font-weight: 600 !important;
   color: var(--text-primary) !important;
-  margin-bottom: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
 }
 
 /* === Form Inputs === */
 #missionModal input[type="text"],
 #missionModal select {
   width: 100% !important;
-  padding: 0.875rem 1rem !important;
+  padding: 0.625rem 0.875rem !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   color: var(--text-primary) !important;
-  font-size: 0.95rem !important;
+  font-size: 0.875rem !important;
   font-family: 'Poppins', sans-serif !important;
   transition: all 0.3s ease !important;
   box-sizing: border-box !important;
@@ -2151,15 +2151,15 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 /* === Icon Picker === */
 #missionModal .icon-picker {
   display: grid !important;
-  grid-template-columns: repeat(6, 1fr) !important;
-  gap: 0.75rem !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 0.5rem !important;
   margin-top: 0 !important;
 }
 
 #missionModal .icon-option {
-  width: 48px !important;
-  height: 48px !important;
-  border-radius: 10px !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 8px !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 2px solid rgba(255, 255, 255, 0.1) !important;
   display: flex !important;
@@ -2181,7 +2181,7 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 }
 
 #missionModal .icon-option i {
-  font-size: 1.25rem !important;
+  font-size: 1rem !important;
   color: var(--text-primary) !important;
   transition: color 0.3s ease !important;
 }
@@ -2193,18 +2193,18 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 /* === Form Actions === */
 #missionModal .form-actions {
   display: flex !important;
-  gap: 1rem !important;
-  margin-top: 2rem !important;
-  padding-top: 1.5rem !important;
+  gap: 0.75rem !important;
+  margin-top: 1.25rem !important;
+  padding-top: 1rem !important;
   border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 #missionModal .btn-cancel,
 #missionModal .btn-save {
   flex: 1 !important;
-  padding: 0.875rem 1.5rem !important;
-  border-radius: 12px !important;
-  font-size: 0.95rem !important;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: 10px !important;
+  font-size: 0.875rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   display: flex !important;
@@ -2242,7 +2242,7 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 
 #missionModal .btn-save i,
 #missionModal .btn-cancel i {
-  font-size: 1rem !important;
+  font-size: 0.9rem !important;
 }
 </style>
 
