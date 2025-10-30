@@ -1628,8 +1628,52 @@ window.closeMissionModal = function() {
 };
 
 window.editMission = function(missionId) {
-    // Aqui você carregaria os dados da missão e abriria o modal
-    openMissionModal(missionId);
+    console.log('editMission chamado com ID:', missionId);
+    
+    // Buscar dados da missão
+    fetch(`api/routine_crud.php?action=get_mission&id=${missionId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const mission = data.data;
+                console.log('Dados da missão carregados:', mission);
+                
+                // Preencher formulário
+                document.getElementById('missionId').value = mission.id;
+                document.getElementById('missionTitle').value = mission.title || '';
+                document.getElementById('missionDescription').value = mission.description || '';
+                document.getElementById('missionType').value = mission.is_exercise || 0;
+                document.getElementById('exerciseType').value = mission.exercise_type || '';
+                
+                // Mostrar/ocultar grupo de tipo de exercício
+                const exerciseTypeGroup = document.getElementById('exerciseTypeGroup');
+                if (mission.is_exercise == 1) {
+                    exerciseTypeGroup.style.display = 'block';
+                } else {
+                    exerciseTypeGroup.style.display = 'none';
+                }
+                
+                // Abrir modal
+                openMissionModal(missionId);
+                
+                // Selecionar ícone após modal abrir
+                setTimeout(() => {
+                    if (mission.icon_class) {
+                        const iconOption = document.querySelector(`.icon-option[data-icon="${mission.icon_class}"]`);
+                        if (iconOption) {
+                            iconOption.click();
+                        }
+                    }
+                }, 150);
+            } else {
+                console.error('Erro ao carregar missão:', data.message);
+                alert('Erro ao carregar dados da missão');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao buscar missão:', error);
+            alert('Erro ao carregar dados da missão');
+        });
 };
 
 window.deleteMission = function(missionId, missionName) {
@@ -1663,16 +1707,46 @@ window.deleteMission = function(missionId, missionName) {
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('missionForm');
     if (form) {
+        // Listener para mostrar/ocultar tipo de exercício
+        const missionType = document.getElementById('missionType');
+        if (missionType) {
+            missionType.addEventListener('change', function() {
+                const exerciseTypeGroup = document.getElementById('exerciseTypeGroup');
+                if (this.value == 1) {
+                    exerciseTypeGroup.style.display = 'block';
+                } else {
+                    exerciseTypeGroup.style.display = 'none';
+                }
+            });
+        }
+        
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(form);
-            formData.append('action', formData.get('mission_id') ? 'update' : 'create');
-            formData.append('patient_id', '<?php echo $user_id; ?>');
+            const missionId = formData.get('mission_id');
+            const action = missionId ? 'update_mission' : 'create_mission';
+            
+            // Criar objeto com dados
+            const data = {
+                action: action,
+                title: formData.get('title'),
+                description: formData.get('description'),
+                icon_class: formData.get('icon_class') || 'fa-check-circle',
+                is_exercise: parseInt(formData.get('is_exercise')) || 0,
+                exercise_type: formData.get('exercise_type') || ''
+            };
+            
+            if (missionId) {
+                data.id = parseInt(missionId);
+            }
             
             fetch('api/routine_crud.php', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(data => {
