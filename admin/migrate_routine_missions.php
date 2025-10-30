@@ -10,6 +10,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     
     try {
+        // Primeiro, remover a FK antiga se ela existir
+        $fk_check = $conn->query("
+            SELECT CONSTRAINT_NAME 
+            FROM information_schema.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'sf_user_routine_log' 
+            AND CONSTRAINT_NAME = 'fk_sf_user_routine_log_sf_routine_items'
+        ");
+        
+        if ($fk_check && $fk_check->num_rows > 0) {
+            $conn->query("ALTER TABLE sf_user_routine_log DROP FOREIGN KEY fk_sf_user_routine_log_sf_routine_items");
+        }
+        
         // Buscar todos os usuários que completaram o onboarding
         $sql = "SELECT id FROM sf_users WHERE onboarding_complete = 1";
         $result = $conn->query($sql);
