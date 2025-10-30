@@ -132,7 +132,7 @@ try {
             }
             
             $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
-                           default_for_all_users, user_id_creator
+                           default_for_all_users
                     FROM sf_routine_items 
                     WHERE id = ? AND is_active = 1";
             

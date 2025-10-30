@@ -1597,21 +1597,22 @@ function initIconPicker() {
 }
 
 // Funções globais para o modal
-window.openMissionModal = function(missionId = null) {
+window.openMissionModal = function(missionId = null, skipReset = false) {
     const modal = document.getElementById('missionModal');
     const form = document.getElementById('missionForm');
     const title = document.getElementById('missionModalTitle');
     const saveButton = document.getElementById('saveButtonText');
     
-    // Resetar formulário
-    form.reset();
-    document.getElementById('missionId').value = '';
-    document.getElementById('selectedIcon').value = '';
+    // Resetar formulário apenas se não for edição
+    if (!skipReset) {
+        form.reset();
+        document.getElementById('missionId').value = '';
+        document.getElementById('selectedIcon').value = '';
+    }
     
     if (missionId) {
         title.textContent = 'Editar Missão';
         saveButton.textContent = 'Atualizar Missão';
-        // Aqui você carregaria os dados da missão
     } else {
         title.textContent = 'Adicionar Nova Missão';
         saveButton.textContent = 'Salvar Missão';
@@ -1655,8 +1656,8 @@ window.editMission = function(missionId) {
                     exerciseTypeGroup.style.display = 'none';
                 }
                 
-                // Abrir modal
-                openMissionModal(missionId);
+                // Abrir modal (não resetar formulário pois já preenchemos os dados)
+                openMissionModal(missionId, true);
                 
                 // Selecionar ícone após modal abrir
                 setTimeout(() => {
