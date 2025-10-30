@@ -26,13 +26,17 @@ try {
             ri.id,
             ri.title,
             ri.icon_class,
-            url.updated_at as completion_time
+            pl.timestamp as completion_time
         FROM sf_user_routine_log url
         JOIN sf_routine_items ri ON url.routine_item_id = ri.id
+        LEFT JOIN sf_user_points_log pl ON pl.user_id = url.user_id 
+            AND pl.action_key = 'ROUTINE_COMPLETE' 
+            AND CAST(pl.action_context_id AS UNSIGNED) = url.routine_item_id
+            AND DATE(pl.timestamp) = url.date
         WHERE url.user_id = ? 
             AND url.date = ? 
             AND url.is_completed = 1
-        ORDER BY url.updated_at ASC
+        ORDER BY pl.timestamp ASC
     ");
     
     if ($stmt_routine_log) {
