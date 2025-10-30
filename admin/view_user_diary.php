@@ -593,6 +593,7 @@ if (Array.isArray(window.navigateDiaryQueue)) {
   min-width: 100%;
   flex: 0 0 100%;
 }
+#diarySliderTrack { flex-wrap: nowrap; }
 </style>
 
 <!-- Modal de Calendário do Diário - REDESIGN COMPLETO -->
