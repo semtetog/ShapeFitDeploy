@@ -1829,7 +1829,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('[FETCH] Erro:', error);
+                console.error('[FETCH] Erro completo:', error);
+                console.error('[FETCH] Stack:', error.stack);
                 alert('Erro ao salvar missão: ' + error.message);
             });
         });

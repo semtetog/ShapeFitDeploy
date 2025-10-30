@@ -253,7 +253,7 @@ try {
             $stmt = $conn->prepare("INSERT INTO sf_user_routine_items 
                                    (user_id, title, icon_class, description, is_exercise, exercise_type) 
                                    VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param('ississ', $patient_id, $title, $icon_class, $description, $is_exercise, $exercise_type);
+            $stmt->bind_param('isssis', $patient_id, $title, $icon_class, $description, $is_exercise, $exercise_type);
             
             if ($stmt->execute()) {
                 echo json_encode(['success' => true, 'message' => 'Missão criada com sucesso']);
