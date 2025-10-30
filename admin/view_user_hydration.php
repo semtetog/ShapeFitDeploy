@@ -122,8 +122,8 @@
 </div>
 
 <script>
-// Dados de hidratação do PHP (escopo global)
-const hydrationData = <?php echo json_encode($hydration_data); ?>;
+// Dados de hidratação do PHP (escopo global) - declarados no arquivo principal
+// const hydrationData = <?php echo json_encode($hydration_data); ?>;
 const waterStats = {
     '7': <?php echo json_encode($water_stats_7); ?>,
     '15': <?php echo json_encode($water_stats_15); ?>,

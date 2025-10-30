@@ -1073,7 +1073,7 @@ function updateRoutineCategoryChart() {
 
 // Função para carregar lista de missões
 function loadMissionsAdminList() {
-    fetch('routine_crud.php?action=list&patient_id=<?php echo $user_id; ?>')
+    fetch('api/routine_crud.php?action=list&patient_id=<?php echo $user_id; ?>')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -1203,7 +1203,7 @@ window.editMission = function(missionId) {
 
 window.deleteMission = function(missionId, missionName) {
     if (confirm(`Tem certeza que deseja excluir a missão "${missionName}"?`)) {
-        fetch('routine_crud.php', {
+        fetch('api/routine_crud.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -1236,7 +1236,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('action', formData.get('mission_id') ? 'update' : 'create');
             formData.append('patient_id', '<?php echo $user_id; ?>');
             
-            fetch('routine_crud.php', {
+            fetch('api/routine_crud.php', {
                 method: 'POST',
                 body: formData
             })

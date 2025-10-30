@@ -281,7 +281,8 @@
 
 <!-- Dados para JavaScript -->
 <script>
-const nutrientsData = <?php echo json_encode($last_7_days_data); ?>;
+// Dados de nutrientes do PHP (escopo global) - declarados no arquivo principal
+// const nutrientsData = <?php echo json_encode($last_7_days_data); ?>;
 const nutrientsStats = {
     'today': <?php echo json_encode($nutrients_stats_today); ?>,
     'yesterday': <?php echo json_encode($nutrients_stats_yesterday); ?>,
