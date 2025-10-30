@@ -49,17 +49,22 @@ try {
     }
     
     // Buscar missões de onboarding concluídas (exercícios)
+    // Nota: sf_user_onboarding_completion não tem timestamp de conclusão, então usamos o timestamp do points_log
     $stmt_onboarding = $conn->prepare("
         SELECT 
             uoc.activity_name as title,
             'fa-dumbbell' as icon_class,
-            uoc.completion_time,
+            COALESCE(pl.timestamp, ued.updated_at) as completion_time,
             ued.duration_minutes
         FROM sf_user_onboarding_completion uoc
         LEFT JOIN sf_user_exercise_durations ued ON uoc.user_id = ued.user_id AND uoc.activity_name = ued.exercise_name
+        LEFT JOIN sf_user_points_log pl ON pl.user_id = uoc.user_id 
+            AND pl.action_key = 'ROUTINE_COMPLETE' 
+            AND pl.action_context_id = uoc.activity_name
+            AND DATE(pl.timestamp) = uoc.completion_date
         WHERE uoc.user_id = ? 
             AND uoc.completion_date = ?
-        ORDER BY uoc.completion_time ASC
+        ORDER BY completion_time ASC
     ");
     
     if ($stmt_onboarding) {
