@@ -1637,7 +1637,7 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Estilos para a aba de Rotina - COPIA EXATA DAS OUTRAS ABAS COM CLASSES ESPECÍFICAS */
 .routine-container {
-    padding: 20px;
+    padding: 0;
 }
 
 /* ========== CARD DE GERENCIAMENTO DE MISSÕES ========== */

@@ -464,7 +464,7 @@ body {
 .food-item-list li:last-child { border-bottom: none; }
 .food-item-list .food-name { color: var(--primary-text-color); }
 .food-item-list .food-quantity { color: var(--secondary-text-color); }
-.progress-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; padding: 20px; }
+.progress-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
 .weight-history-card h4, .photos-history-card h4 { margin-top: 0; margin-bottom: 20px; font-size: 16px; font-weight: 600; }
 .weight-history-card canvas { max-height: 300px; }
 .photo-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
@@ -972,7 +972,6 @@ textarea.form-control {
     display: flex;
     flex-direction: column;
     gap: 25px;
-    padding: 20px;
 }
 
 /* Cabeçalho da hidratação */
@@ -3481,7 +3480,6 @@ textarea.form-control {
 /* Estilos para aba de nutrientes */
 .nutrients-container {
     margin-bottom: 20px;
-    padding: 20px;
 }
 
 .nutrients-header {
@@ -5393,7 +5391,6 @@ input[type="radio"]:checked::after {
     display: flex;
     flex-direction: column;
     gap: 25px;
-    padding: 20px;
 }
 
 /* Cabeçalho da hidratação */
@@ -7902,7 +7899,6 @@ input[type="radio"]:checked::after {
 /* Estilos para aba de nutrientes */
 .nutrients-container {
     margin-bottom: 20px;
-    padding: 20px;
 }
 
 .nutrients-header {
