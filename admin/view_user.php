@@ -737,6 +737,66 @@ if (empty($avatar_html)) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/view_user_addon.css?v=<?php echo time(); ?>">
+<script>
+// Fallbacks imediatos: garantem que os handlers inline existam
+(function(){
+    if (typeof window.showRevertModal !== 'function') {
+        window.showRevertModal = function(userId){
+            try {
+                window.currentUserIdToRevert = userId;
+                document.body.style.overflow = 'hidden';
+                var m = document.getElementById('revertGoalsModal');
+                if (m) m.classList.add('active');
+            } catch(e) { console.error(e); }
+        };
+    }
+    if (typeof window.closeRevertModal !== 'function') {
+        window.closeRevertModal = function(){
+            try {
+                var m = document.getElementById('revertGoalsModal');
+                if (m) m.classList.remove('active');
+                document.body.style.overflow = '';
+                window.currentUserIdToRevert = null;
+            } catch(e) { console.error(e); }
+        };
+    }
+    if (typeof window.openSleepDetailsModal !== 'function') {
+        window.openSleepDetailsModal = function(){
+            try {
+                document.body.style.overflow = 'hidden';
+                var m = document.getElementById('sleepDetailsModal');
+                if (m) m.classList.add('active');
+            } catch(e) { console.error(e); }
+        };
+    }
+    if (typeof window.closeSleepDetailsModal !== 'function') {
+        window.closeSleepDetailsModal = function(){
+            try {
+                var m = document.getElementById('sleepDetailsModal');
+                if (m) m.classList.remove('active');
+                document.body.style.overflow = '';
+            } catch(e) { console.error(e); }
+        };
+    }
+    // Fallback simples de abas
+    document.addEventListener('DOMContentLoaded', function(){
+        var tabLinks = document.querySelectorAll('.tab-link');
+        var tabContents = document.querySelectorAll('.tab-content');
+        if (tabLinks.length) {
+            tabLinks.forEach(function(link){
+                link.addEventListener('click', function(){
+                    var tabId = this.getAttribute('data-tab');
+                    tabLinks.forEach(function(l){ l.classList.remove('active'); });
+                    tabContents.forEach(function(c){ c.classList.remove('active'); });
+                    this.classList.add('active');
+                    var target = document.getElementById('tab-' + tabId);
+                    if (target) target.classList.add('active');
+                });
+            });
+        }
+    });
+})();
+</script>
 <style>
 /* Força topo reto nas barras de hidratação */
 .improved-bar {
