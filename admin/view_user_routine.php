@@ -1523,6 +1523,8 @@ function loadMissionsAdminList() {
 function renderMissionsGrid(missions) {
     const container = document.getElementById('missions-container');
     
+    console.log('[MISSIONS] Renderizando missões:', missions);
+    
     if (missions.length === 0) {
         showEmptyMissions('Nenhuma missão encontrada');
         return;
