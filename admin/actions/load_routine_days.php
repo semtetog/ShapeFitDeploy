@@ -1,6 +1,11 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
 
+// Habilitar exibição de erros temporariamente para debug
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../includes/functions_admin.php';
 $conn = require __DIR__ . '/../../includes/db.php';
