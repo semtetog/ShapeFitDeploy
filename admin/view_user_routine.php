@@ -2025,6 +2025,218 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
   z-index: 10000 !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
 }
+
+/* === Modal Header === */
+#missionModal .modal-header {
+  margin-bottom: 2rem !important;
+  padding-bottom: 1.5rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+#missionModal .modal-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+#missionModal .title-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 107, 0, 0.1) !important;
+  border: 1px solid rgba(255, 107, 0, 0.2) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+#missionModal .title-icon i {
+  font-size: 1.5rem !important;
+  color: var(--accent-orange) !important;
+}
+
+#missionModal .title-content h3 {
+  margin: 0 0 0.25rem 0 !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+}
+
+#missionModal .title-content p {
+  margin: 0 !important;
+  font-size: 0.95rem !important;
+  color: var(--text-secondary) !important;
+}
+
+/* === Calendar Close Button === */
+.calendar-btn-close {
+  position: absolute !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-secondary) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+  z-index: 10 !important;
+}
+
+.calendar-btn-close:hover {
+  background: rgba(244, 67, 54, 0.2) !important;
+  border-color: rgba(244, 67, 54, 0.4) !important;
+  color: #F44336 !important;
+  transform: scale(1.1) !important;
+}
+
+/* === Modal Body === */
+#missionModal .modal-body {
+  padding: 0 !important;
+}
+
+/* === Form Groups === */
+#missionModal .form-group {
+  margin-bottom: 1.5rem !important;
+}
+
+#missionModal .form-group label {
+  display: block !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* === Form Inputs === */
+#missionModal input[type="text"],
+#missionModal select {
+  width: 100% !important;
+  padding: 0.875rem 1rem !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px !important;
+  color: var(--text-primary) !important;
+  font-size: 0.95rem !important;
+  font-family: 'Poppins', sans-serif !important;
+  transition: all 0.3s ease !important;
+  box-sizing: border-box !important;
+}
+
+#missionModal input[type="text"]:focus,
+#missionModal select:focus {
+  outline: none !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--accent-orange) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
+}
+
+#missionModal input[type="text"]::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 0.7 !important;
+}
+
+/* === Icon Picker === */
+#missionModal .icon-picker {
+  display: grid !important;
+  grid-template-columns: repeat(6, 1fr) !important;
+  gap: 0.75rem !important;
+  margin-top: 0 !important;
+}
+
+#missionModal .icon-option {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+#missionModal .icon-option:hover {
+  background: rgba(255, 107, 0, 0.1) !important;
+  border-color: rgba(255, 107, 0, 0.3) !important;
+  transform: scale(1.05) !important;
+}
+
+#missionModal .icon-option.selected {
+  background: rgba(255, 107, 0, 0.2) !important;
+  border-color: var(--accent-orange) !important;
+}
+
+#missionModal .icon-option i {
+  font-size: 1.25rem !important;
+  color: var(--text-primary) !important;
+  transition: color 0.3s ease !important;
+}
+
+#missionModal .icon-option.selected i {
+  color: var(--accent-orange) !important;
+}
+
+/* === Form Actions === */
+#missionModal .form-actions {
+  display: flex !important;
+  gap: 1rem !important;
+  margin-top: 2rem !important;
+  padding-top: 1.5rem !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+#missionModal .btn-cancel,
+#missionModal .btn-save {
+  flex: 1 !important;
+  padding: 0.875rem 1.5rem !important;
+  border-radius: 12px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+#missionModal .btn-cancel {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-secondary) !important;
+}
+
+#missionModal .btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: var(--text-primary) !important;
+  transform: translateY(-2px) !important;
+}
+
+#missionModal .btn-save {
+  background: var(--accent-orange) !important;
+  color: white !important;
+}
+
+#missionModal .btn-save:hover {
+  background: #FF8C00 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4) !important;
+}
+
+#missionModal .btn-save i,
+#missionModal .btn-cancel i {
+  font-size: 1rem !important;
+}
 </style>
 
         <!-- Modal do Calendário da Rotina (idêntico ao da aba Diário) -->
