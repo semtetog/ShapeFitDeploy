@@ -26,21 +26,24 @@ try {
             ri.id,
             ri.title,
             ri.icon_class,
-            url.completion_time
+            url.updated_at as completion_time
         FROM sf_user_routine_log url
         JOIN sf_routine_items ri ON url.routine_item_id = ri.id
         WHERE url.user_id = ? 
             AND url.date = ? 
             AND url.is_completed = 1
-        ORDER BY url.completion_time ASC
+        ORDER BY url.updated_at ASC
     ");
-    $stmt_routine_log->bind_param("is", $user_id, $requestedDate);
-    $stmt_routine_log->execute();
-    $result_routine_log = $stmt_routine_log->get_result();
-    while ($row = $result_routine_log->fetch_assoc()) {
-        $completed_missions[] = $row;
+    
+    if ($stmt_routine_log) {
+        $stmt_routine_log->bind_param("is", $user_id, $requestedDate);
+        $stmt_routine_log->execute();
+        $result_routine_log = $stmt_routine_log->get_result();
+        while ($row = $result_routine_log->fetch_assoc()) {
+            $completed_missions[] = $row;
+        }
+        $stmt_routine_log->close();
     }
-    $stmt_routine_log->close();
     
     // Buscar missões de onboarding concluídas (exercícios)
     $stmt_onboarding = $conn->prepare("
@@ -55,13 +58,16 @@ try {
             AND uoc.completion_date = ?
         ORDER BY uoc.completion_time ASC
     ");
-    $stmt_onboarding->bind_param("is", $user_id, $requestedDate);
-    $stmt_onboarding->execute();
-    $result_onboarding = $stmt_onboarding->get_result();
-    while ($row = $result_onboarding->fetch_assoc()) {
-        $completed_missions[] = $row;
+    
+    if ($stmt_onboarding) {
+        $stmt_onboarding->bind_param("is", $user_id, $requestedDate);
+        $stmt_onboarding->execute();
+        $result_onboarding = $stmt_onboarding->get_result();
+        while ($row = $result_onboarding->fetch_assoc()) {
+            $completed_missions[] = $row;
+        }
+        $stmt_onboarding->close();
     }
-    $stmt_onboarding->close();
     
     // Ordenar por horário de conclusão
     usort($completed_missions, function($a, $b) {
