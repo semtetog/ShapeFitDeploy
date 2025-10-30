@@ -830,37 +830,37 @@ include 'includes/header.php';
 }
 
 /* ====== CSS do sistema de blocos (modais) ====== */
-.modal-blocos-overlay { position: fixed; left:0; top:0; width:100vw; height:100vh; background: rgba(12,12,14,0.97)!important; z-index: 2000; display: flex; align-items: center; justify-content: center; }
-.modal-blocos { max-width:940px; background:#181A20!important; color:#fff; border-radius:16px; box-shadow:0 24px 64px #0006; padding:22px 22px 18px 22px; margin:20px; width:98vw; border:1px solid #2b2f3b; }
+.modal-blocos-overlay { position: fixed; left:0; top:0; width:100vw; height:100vh; background: rgba(0,0,0,0.6)!important; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+.modal-blocos { max-width:940px; background: var(--surface-color)!important; color: var(--primary-text-color); border-radius:16px; box-shadow:0 24px 64px #0006; padding:22px 22px 18px 22px; margin:20px; width:98vw; border:1px solid var(--border-color); }
 .modal-header-blocos{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
 .modal-header-blocos h2{margin:0;font-size:1.35rem}
-.modal-header-blocos p{margin:6px 0 0 0;color:#c9c9c9;font-size:.92rem}
-.btn-fechar-x{background:#2a2e3a;color:#fff;border:1px solid #3b3f4c;border-radius:8px;font-size:1.15rem;line-height:1;padding:6px 10px;cursor:pointer}
+.modal-header-blocos p{margin:6px 0 0 0;color:var(--secondary-text-color);font-size:.92rem}
+.btn-fechar-x{background:var(--bg-color);color:var(--primary-text-color);border:1px solid var(--border-color);border-radius:8px;font-size:1.15rem;line-height:1;padding:6px 10px;cursor:pointer}
 .blocos-cards { display:grid; gap:13px; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); margin:13px 0 18px 0; }
-.bloco-card { background: #181A20; border-radius: 12px; padding:16px 14px; border: 1.5px solid #23242a; text-align: center; box-shadow:0 5px 30px #0003; position:relative; }
+.bloco-card { background: var(--bg-color); border-radius: 12px; padding:16px 14px; border: 1px solid var(--border-color); text-align: center; box-shadow:0 5px 30px #0003; position:relative; }
 .bloco-card.mini{padding:12px 12px}
-.bloco-card.ativo-bloco { border-color: #ffa04a; background: #1E1F25; }
+.bloco-card.ativo-bloco { border-color: var(--accent-orange); background: var(--surface-color); }
 .bloco-titulo { font-size: 1.1em; font-weight: bold; margin-bottom: 3px; }
-.bloco-sub{color:#d2d2d2;font-size:.9rem;margin-bottom:6px}
-.bloco-metricas{display:flex;align-items:center;justify-content:space-between;font-size:.86rem;color:#d7d7d7;margin:6px 4px}
-.bloco-progress-bar { background: #2a2d3c; height:7px; border-radius:7px; margin: 10px 0 4px 0; overflow:hidden; }
+.bloco-sub{color:var(--secondary-text-color);font-size:.9rem;margin-bottom:6px}
+.bloco-metricas{display:flex;align-items:center;justify-content:space-between;font-size:.86rem;color:var(--secondary-text-color);margin:6px 4px}
+.bloco-progress-bar { background: var(--border-color); height:7px; border-radius:7px; margin: 10px 0 4px 0; overflow:hidden; }
 .bloco-progress-bar span { display:block; height:100%; background: #45c651; border-radius:7px; min-width:5px; transition:width .3s; }
 .bloco-pct{font-weight:600;margin-top:2px}
 .bloco-form{display:flex;align-items:center;justify-content:center}
-.btn-bloco-card {padding:8px 18px;border-radius:8px;background:var(--accent-orange,#fa8608);color:#fff;font-weight:600;border:none;cursor:pointer;margin-top:6px;font-size:.98em;}
-.btn-modal-fechar{margin-top:10px;padding:6px 14px;background:#272727;color:#ffe0be;font-size:1em;border:1px solid #fff3;border-radius:6px;cursor:pointer;}
-.btn-secondary{padding:8px 14px;background:#2a2e3a;color:#e9e9e9;border:1px solid #3b3f4c;border-radius:8px;cursor:pointer}
+.btn-bloco-card {padding:8px 18px;border-radius:8px;background:var(--accent-orange);color:#fff;font-weight:600;border:1px solid var(--accent-orange);cursor:pointer;margin-top:6px;font-size:.98em;}
+.btn-modal-fechar{margin-top:10px;padding:6px 14px;background:var(--surface-color);color:var(--secondary-text-color);font-size:1em;border:1px solid var(--border-color);border-radius:6px;cursor:pointer;}
+.btn-secondary{padding:8px 14px;background:var(--surface-color);color:var(--primary-text-color);border:1px solid var(--border-color);border-radius:8px;cursor:pointer}
 .btn-blocos-toolbar{position:fixed;right:22px;top:86px;display:flex;gap:10px;z-index:1500}
-.btn-blocos-flutuante{padding:11px 16px;background:var(--accent-orange,#fa8608);color:#fff;font-weight:600;font-size:.98em;border:none;border-radius:10px;box-shadow:0 5px 30px #0002;cursor:pointer}
-.btn-blocos-flutuante.muted{background:#2c2f3a;border:1px solid #3a3e4a}
-.config-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#202533;border:1px solid #2b2f3b;border-radius:10px;padding:10px 12px}
-.lbl-inline{font-size:.95rem;color:#dfdfdf}
+.btn-blocos-flutuante{padding:11px 16px;background:var(--accent-orange);color:#fff;font-weight:600;font-size:.98em;border:1px solid var(--accent-orange);border-radius:10px;box-shadow:0 5px 30px #0002;cursor:pointer}
+.btn-blocos-flutuante.muted{background:var(--surface-color);border:1px solid var(--border-color);color:var(--primary-text-color)}
+.config-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg-color);border:1px solid var(--border-color);border-radius:10px;padding:10px 12px}
+.lbl-inline{font-size:.95rem;color:var(--primary-text-color)}
 .num-blocos-wrap{display:flex;align-items:center;gap:8px}
-.num-blocos-wrap input{font-size:1.1rem;width:92px;text-align:center;border-radius:8px;border:1px solid #3b3f4c;background:#23283a;color:#fff;padding:6px}
-.btn-preset{background:#2a2e3a;color:#e9e9e9;border:1px solid #3b3f4c;border-radius:8px;padding:6px 10px;cursor:pointer}
-.stats-inline{color:#cfcfcf;font-size:.9rem}
+.num-blocos-wrap input{font-size:1.1rem;width:92px;text-align:center;border-radius:8px;border:1px solid var(--border-color);background:var(--surface-color);color:var(--primary-text-color);padding:6px}
+.btn-preset{background:var(--surface-color);color:var(--primary-text-color);border:1px solid var(--border-color);border-radius:8px;padding:6px 10px;cursor:pointer}
+.stats-inline{color:var(--secondary-text-color);font-size:.9rem}
 .modal-actions{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
-.btn-blocos-flutuante:focus,.btn-preset:focus,.btn-bloco-card:focus{outline:2px solid #ffa04a; outline-offset:2px}
+.btn-blocos-flutuante:focus,.btn-preset:focus,.btn-bloco-card:focus{outline:2px solid var(--accent-orange); outline-offset:2px}
 @media(max-width:600px){.modal-blocos{padding:14px 2vw 7px 2vw}.blocos-cards{grid-template-columns:1fr;}.btn-blocos-toolbar{right:10px;top:10vw}.btn-blocos-flutuante{padding:9px 14px}}
 
 /* Auto-save indicator */
@@ -983,9 +983,9 @@ include 'includes/header.php';
   align-items:center;
 }
 .block-btn {
-  background:#21232c;
-  border:1.2px solid #363945;
-  color:#ffa200;
+  background: var(--surface-color);
+  border:1px solid var(--border-color);
+  color: var(--primary-text-color);
   border-radius:7px;
   padding:7px 18px;
   font-size:1em;
@@ -993,10 +993,14 @@ include 'includes/header.php';
   transition:.18s;
   cursor:pointer;
 }
-.block-btn:hover {
-  background:#191b20;
+.block-btn.primary {
+  background: var(--accent-orange);
+  border-color: var(--accent-orange);
   color:#fff;
-  border-color:#ffa200;
+}
+.block-btn:hover {
+  background: var(--bg-color);
+  border-color: var(--accent-orange);
 }
 </style>
 
@@ -1115,6 +1119,10 @@ include 'includes/header.php';
         <!-- Filtros -->
         <div class="filters-section">
             <h3 class="filters-title">🔍 Buscar</h3>
+            <div class="block-btn-row" style="justify-content:flex-end;">
+                <button type="button" class="block-btn primary" onclick="document.getElementById('modal-blocos').style.display='flex'">Escolher bloco</button>
+                <button type="button" class="block-btn" onclick="document.getElementById('modal-progress').style.display='flex'">Progresso dos blocos</button>
+            </div>
             <form method="GET" class="filters-grid">
                 <input type="text" class="search-input" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Nome do alimento...">
                 <select class="category-select" name="category">
@@ -1310,10 +1318,7 @@ include 'includes/header.php';
   </div>
 </div>
 
-<div class="block-menu-actions" style="display:flex;gap:12px;align-items:center;margin:16px 0;">
-  <button onclick="document.getElementById('modal-blocos').style.display='flex'" style="background:#181A20;border:1.3px solid #24252b;color:#ffe0be;padding:9px 18px;border-radius:8px;font-weight:500;cursor:pointer;font-size:1em;transition:background .2s;">Escolher bloco</button>
-  <button onclick="document.getElementById('modal-progress').style.display='flex'" style="background:#181A20;border:1.3px solid #24252b;color:#ffe0be;padding:9px 18px;border-radius:8px;font-weight:500;cursor:pointer;font-size:1em;transition:background .2s;">Progresso dos blocos</button>
-</div>
+
 
 <!-- Auto-save indicator -->
 <div class="auto-save-indicator" id="auto-save-indicator">
