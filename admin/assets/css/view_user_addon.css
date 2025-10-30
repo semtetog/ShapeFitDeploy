@@ -99,36 +99,36 @@
 }
 
 /* ========== PADRÃO DE PADDING PARA TODAS AS ABAS DO PACIENTE ========== */
-.tab-content {
-  width: 100%;
-  overflow-x: hidden;
-  box-sizing: border-box;
-}
-
+/* Corrige padding lateral apenas no lado esquerdo */
 .tab-content > .view-user-tab {
-  padding-left: 32px;
-  padding-right: 32px;
+  padding: 0 32px;
   box-sizing: border-box;
   width: 100%;
 }
 
-/* Remove padding duplicado de containers internos */
-.tab-content > .view-user-tab > div[class*="-container"],
-.tab-content > .view-user-tab > div[class*="-grid"] {
-  padding: 0 !important;
-  margin: 0 auto;
-}
-
-/* Neutraliza conflitos de width e margin */
-.progress-grid, .routine-container, .diary-slider-container, .hydration-container, .nutrients-container {
-  width: auto;
-  margin: 0;
-}
-
-/* Força padding lateral correto para containers específicos */
-.routine-container {
+/* Neutraliza margens ou larguras que quebram o alinhamento */
+.diary-slider-container,
+.progress-grid,
+.hydration-container,
+.routine-container,
+.feedback-container,
+.goals-container {
   margin-left: 0 !important;
-  width: auto !important;
+  padding-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  transform: none !important;
+}
+
+/* Força o layout a respeitar o padding da view-user-tab */
+.view-user-tab * {
+  position: relative;
+  left: 0 !important;
+}
+
+/* Evita que grids/flexes expandam além da aba */
+.tab-content {
+  overflow-x: clip;
 }
 
 /* ========== DASHBOARD CARD ========== */
