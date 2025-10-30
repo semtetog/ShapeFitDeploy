@@ -885,11 +885,6 @@
 }
 
 
-.diary-meal-card {
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
 .diary-food-list {
   margin-bottom: 0;
   padding-bottom: 0;
@@ -904,11 +899,6 @@
 .diary-day-card {
   align-items: flex-start;
   justify-content: flex-start;
-}
-
-/* Remover espaço extra apenas do último elemento */
-.diary-day-card .diary-meal-card:last-child {
-  margin-bottom: 0;
 }
 
 .diary-day-card .diary-food-list:last-child {
@@ -4835,6 +4825,7 @@
   min-height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
+  gap: 0 !important;
 }
 
 /* Placeholder */
@@ -4870,6 +4861,7 @@
   min-height: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
+  gap: 0 !important;
 }
 
 .diary-empty-state {
