@@ -274,7 +274,6 @@ window.navigateDiaryDate = navigateDiaryDate;
     min-height: 200px;
     will-change: transform;
     overflow: hidden;
-    padding: 1rem 0;
 }
 
 /* Loading state */
