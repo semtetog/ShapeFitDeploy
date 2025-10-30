@@ -172,6 +172,7 @@ async function loadRoutineForDate(targetDate, direction = 0) {
             if (dayContent) {
                 // Extrair data-attributes do resumo
                 const missions = parseInt(dayContent.dataset.missions || '0', 10);
+                const total = parseInt(dayContent.dataset.total || '0', 10);
                 
                 // Atualizar cabeçalho DEPOIS do AJAX
                 updateRoutineHeader(targetDate);
@@ -194,7 +195,7 @@ async function loadRoutineForDate(targetDate, direction = 0) {
                     wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
                     wrapper.style.transform = 'translateX(0)';
                     
-                    updateRoutineSummary(missions);
+                    updateRoutineSummary(missions, total);
                     
                     // Resetar estilos
                     setTimeout(() => {
@@ -209,7 +210,7 @@ async function loadRoutineForDate(targetDate, direction = 0) {
                         wrapper.innerHTML = missionsContainer.outerHTML;
                     }
                     wrapper.style.opacity = '1';
-                    updateRoutineSummary(missions);
+                    updateRoutineSummary(missions, total);
                 }
             } else {
                 // Dia sem dados
@@ -223,11 +224,11 @@ async function loadRoutineForDate(targetDate, direction = 0) {
                     wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
                     wrapper.style.transform = 'translateX(0)';
                     setTimeout(() => { wrapper.style.transition = ''; wrapper.style.transform = ''; wrapper.style.opacity = ''; }, 200);
-                    updateRoutineSummary(0);
+                    updateRoutineSummary(0, 0);
                 } else {
                     wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-calendar-day"></i><p>Nenhum registro neste dia</p></div>';
                     wrapper.style.opacity = '1';
-                    updateRoutineSummary(0);
+                    updateRoutineSummary(0, 0);
                 }
             }
         } else {
@@ -242,11 +243,11 @@ async function loadRoutineForDate(targetDate, direction = 0) {
                 wrapper.style.transition = 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)';
                 wrapper.style.transform = 'translateX(0)';
                 setTimeout(() => { wrapper.style.transition = ''; wrapper.style.transform = ''; wrapper.style.opacity = ''; }, 200);
-                updateRoutineSummary(0);
+                updateRoutineSummary(0, 0);
             } else {
                 wrapper.innerHTML = '<div class="diary-empty-state"><i class="fas fa-calendar-day"></i><p>Nenhum registro neste dia</p></div>';
                 wrapper.style.opacity = '1';
-                updateRoutineSummary(0);
+                updateRoutineSummary(0, 0);
             }
         }
         
@@ -290,8 +291,9 @@ function updateRoutineHeader(targetDate) {
 }
 
 // ============ ATUALIZAR RESUMO (MISSÕES) ============
-function updateRoutineSummary(missions) {
-    document.getElementById('routineSummaryProgress').textContent = `Progresso: ${missions > 0 ? '100' : '0'}%`;
+function updateRoutineSummary(missions, total) {
+    const progress = total > 0 ? Math.round((missions / total) * 100) : 0;
+    document.getElementById('routineSummaryProgress').textContent = `Progresso: ${progress}%`;
 }
 
 // ============ NAVEGAÇÃO ENTRE DIAS ============

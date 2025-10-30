@@ -3,6 +3,7 @@ header('Content-Type: text/html; charset=utf-8');
 
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../includes/functions_admin.php';
+require_once __DIR__ . '/../../includes/functions.php';
 $conn = require __DIR__ . '/../../includes/db.php';
 
 // Verificar se admin está logado (simplificado para AJAX)
@@ -18,6 +19,16 @@ $user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 $requestedDate = $_GET['date'] ?? date('Y-m-d');
 
 try {
+    // Buscar total de missões do dia para calcular progresso
+    $stmt_profile = $conn->prepare("SELECT * FROM sf_user_profiles WHERE user_id = ?");
+    $stmt_profile->bind_param("i", $user_id);
+    $stmt_profile->execute();
+    $user_profile = $stmt_profile->get_result()->fetch_assoc();
+    $stmt_profile->close();
+    
+    $all_missions = getRoutineItemsForUser($conn, $user_id, $requestedDate, $user_profile);
+    $total_missions = count($all_missions);
+    
     // Buscar missões fixas concluídas do dia
     $completed_missions = [];
     
@@ -99,7 +110,7 @@ try {
 }
 ?>
 
-<div class="routine-content-day" data-date="<?php echo $requestedDate; ?>" data-missions="<?php echo count($completed_missions); ?>">
+<div class="routine-content-day" data-date="<?php echo $requestedDate; ?>" data-missions="<?php echo count($completed_missions); ?>" data-total="<?php echo $total_missions; ?>">
     <div class="routine-day-missions">
         <?php if (empty($completed_missions)): ?>
             <div class="diary-empty-state">
