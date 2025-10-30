@@ -24,13 +24,35 @@ header('Content-Type: application/json; charset=utf-8');
 // TEMPORARIAMENTE REMOVER VERIFICAÇÃO DE AUTENTICAÇÃO PARA FAZER FUNCIONAR
 error_log('PULANDO VERIFICAÇÃO DE AUTENTICAÇÃO - MODO DEBUG');
 
-// Obter ação e patient_id
+// Obter ação e patient_id (de GET ou POST JSON)
 $action = $_GET['action'] ?? '';
+$post_data = null;
+
+// Se não tem no GET, tentar pegar do POST JSON
+if (empty($action) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $raw_input = file_get_contents('php://input');
+    $post_data = json_decode($raw_input, true);
+    $action = $post_data['action'] ?? '';
+}
+
 $patient_id = intval($_GET['patient_id'] ?? 0);
 
 error_log('Ação: ' . $action);
 error_log('Patient ID: ' . $patient_id);
 error_log('GET params: ' . print_r($_GET, true));
+error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
+
+// Validar que a ação foi fornecida
+if (empty($action)) {
+    error_log('ERRO: Ação não fornecida');
+    error_log('GET params: ' . print_r($_GET, true));
+    if ($post_data !== null) {
+        error_log('POST data: ' . print_r($post_data, true));
+    }
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Ação não fornecida']);
+    exit;
+}
 
 // Ações que NÃO requerem patient_id (ações de gerenciamento de missões globais)
 $actions_no_patient = ['get_mission', 'list_missions', 'list', 'create_mission', 'update_mission', 'delete_mission'];
@@ -201,7 +223,13 @@ try {
                 throw new Exception('Método não permitido');
             }
             
-            $data = json_decode(file_get_contents('php://input'), true);
+            // Usar $post_data se já foi lido, senão ler novamente
+            if ($post_data === null) {
+                $data = json_decode(file_get_contents('php://input'), true);
+            } else {
+                $data = $post_data;
+            }
+            
             if (!$data || empty($data['title'])) {
                 throw new Exception('Título da missão é obrigatório');
             }
@@ -255,7 +283,13 @@ try {
                 throw new Exception('Método não permitido');
             }
             
-            $data = json_decode(file_get_contents('php://input'), true);
+            // Usar $post_data se já foi lido, senão ler novamente
+            if ($post_data === null) {
+                $data = json_decode(file_get_contents('php://input'), true);
+            } else {
+                $data = $post_data;
+            }
+            
             if (!$data || empty($data['id']) || empty($data['title'])) {
                 throw new Exception('ID e título da missão são obrigatórios');
             }
@@ -312,7 +346,13 @@ try {
                 throw new Exception('Método não permitido');
             }
             
-            $data = json_decode(file_get_contents('php://input'), true);
+            // Usar $post_data se já foi lido, senão ler novamente
+            if ($post_data === null) {
+                $data = json_decode(file_get_contents('php://input'), true);
+            } else {
+                $data = $post_data;
+            }
+            
             if (!$data || empty($data['id'])) {
                 throw new Exception('ID da missão é obrigatório');
             }
