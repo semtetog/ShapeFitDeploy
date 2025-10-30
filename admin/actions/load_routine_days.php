@@ -17,20 +17,30 @@ if (!isset($_SESSION['admin_id'])) {
 $user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 $requestedDate = $_GET['date'] ?? date('Y-m-d');
 
-// Buscar dados do perfil do usuário
-$stmt_profile = $conn->prepare("SELECT * FROM sf_user_profiles WHERE user_id = ?");
-$stmt_profile->bind_param("i", $user_id);
-$stmt_profile->execute();
-$user_profile = $stmt_profile->get_result()->fetch_assoc();
-$stmt_profile->close();
-
-// Buscar missões concluídas do dia
-require_once __DIR__ . '/../../public_html/includes/functions.php';
-$day_missions = getRoutineItemsForUser($conn, $user_id, $requestedDate, $user_profile);
-$completed_missions = array_filter($day_missions, function($mission) {
-    return $mission['completion_status'] == 1;
-});
-$total_missions = count($day_missions);
+try {
+    // Buscar dados do perfil do usuário
+    $stmt_profile = $conn->prepare("SELECT * FROM sf_user_profiles WHERE user_id = ?");
+    $stmt_profile->bind_param("i", $user_id);
+    $stmt_profile->execute();
+    $user_profile = $stmt_profile->get_result()->fetch_assoc();
+    $stmt_profile->close();
+    
+    if (!$user_profile) {
+        $user_profile = [];
+    }
+    
+    // Buscar missões concluídas do dia
+    require_once __DIR__ . '/../../includes/functions.php';
+    $day_missions = getRoutineItemsForUser($conn, $user_id, $requestedDate, $user_profile);
+    $completed_missions = array_filter($day_missions, function($mission) {
+        return $mission['completion_status'] == 1;
+    });
+    $total_missions = count($day_missions);
+} catch (Exception $e) {
+    error_log('[load_routine_days] Erro: ' . $e->getMessage());
+    http_response_code(500);
+    die('Erro ao carregar rotina: ' . $e->getMessage());
+}
 ?>
 
 <div class="routine-content-day" data-date="<?php echo $requestedDate; ?>" data-missions="<?php echo count($completed_missions); ?>">
