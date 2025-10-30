@@ -148,66 +148,6 @@
             </div>
         </div>
 
-        <!-- Modal do Calendário da Rotina (idêntico ao da aba Diário) -->
-        <div id="routineCalendarModal" class="custom-modal">
-            <div class="custom-modal-overlay" onclick="closeRoutineCalendar()"></div>
-            <div class="diary-calendar-wrapper">
-                <button class="calendar-btn-close" onclick="closeRoutineCalendar()" type="button">
-                    <i class="fas fa-times"></i>
-                </button>
-                
-                <div class="calendar-header-title">
-                    <div class="calendar-year">2025</div>
-                </div>
-
-                <div class="calendar-nav-buttons">
-                    <button class="calendar-btn-nav" onclick="changeRoutineCalendarMonth(-1)" type="button">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <div class="calendar-month">OUT</div>
-                    <button class="calendar-btn-nav" id="routineNextMonthBtn" onclick="changeRoutineCalendarMonth(1)" type="button">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-                
-                <div class="calendar-weekdays-row">
-                    <span>DOM</span>
-                    <span>SEG</span>
-                    <span>TER</span>
-                    <span>QUA</span>
-                    <span>QUI</span>
-                    <span>SEX</span>
-                    <span>SÁB</span>
-                </div>
-
-                <div class="calendar-days-grid" id="routineCalendarDaysGrid"></div>
-                
-                <div class="calendar-separator">
-                    <div class="separator-line"></div>
-                    <div class="separator-dots">
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                    </div>
-                    <div class="separator-line"></div>
-                </div>
-                
-                <div class="calendar-footer-legend">
-                    <div class="legend-row">
-                        <span class="legend-marker today-marker"></span>
-                        <span class="legend-text">Hoje</span>
-                    </div>
-                    <div class="legend-row">
-                        <span class="legend-marker has-data-marker"></span>
-                        <span class="legend-text">Com registros</span>
-                    </div>
-                    <div class="legend-row">
-                        <span class="legend-marker no-data-marker"></span>
-                        <span class="legend-text">Sem registros</span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- 2. CARD DE GERENCIAMENTO DE MISSÕES -->
         <div class="routine-missions-card">
@@ -239,64 +179,6 @@
     </div>
 </div>
 
-<!-- Modal de Gerenciamento de Missões -->
-<div id="missionModal" class="custom-modal" style="display: none;">
-    <div class="custom-modal-overlay" onclick="closeMissionModal()"></div>
-    <div class="diary-calendar-wrapper">
-        <button class="calendar-btn-close" onclick="closeMissionModal()" type="button">
-            <i class="fas fa-times"></i>
-        </button>
-        
-        <div class="modal-header">
-            <div class="modal-title">
-                <div class="title-icon">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <div class="title-content">
-                    <h3 id="missionModalTitle">Adicionar Nova Missão</h3>
-                    <p>Configure uma missão personalizada para este paciente</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="modal-body">
-            <form id="missionForm">
-                <input type="hidden" id="missionId" name="mission_id">
-                
-                <div class="form-group">
-                    <label for="missionName">Nome da Missão</label>
-                    <input type="text" id="missionName" name="mission_name" placeholder="Ex: Beber 2L de água por dia" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="missionType">Tipo de Missão</label>
-                    <select id="missionType" name="mission_type" required>
-                        <option value="binary">Sim/Não (Binária)</option>
-                        <option value="duration">Com Duração (Exercício)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Escolha um Ícone</label>
-                    <div class="icon-picker" id="iconPicker">
-                        <!-- Ícones serão carregados via JavaScript -->
-                    </div>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="closeMissionModal()">
-                        <i class="fas fa-times"></i>
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i>
-                        <span id="saveButtonText">Salvar Missão</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script>
 // --- FUNCIONALIDADES DA ABA ROTINA ---
@@ -1379,5 +1261,101 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMissionsAdminList();
 });
 </script>
+
+        <!-- Modal do Calendário da Rotina (idêntico ao da aba Diário) -->
+        <div id="routineCalendarModal" class="custom-modal">
+            <div class="custom-modal-overlay" onclick="closeRoutineCalendar()"></div>
+            <div class="diary-calendar-wrapper">
+                <button class="calendar-btn-close" onclick="closeRoutineCalendar()" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="calendar-header-title">
+                    <h4>Selecionar Data</h4>
+                </div>
+                <div class="calendar-nav">
+                    <button class="calendar-nav-btn" onclick="changeRoutineCalendarMonth(-1)" type="button">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="calendar-month-year" id="routineCalendarMonthYear">Janeiro 2025</span>
+                    <button class="calendar-nav-btn" onclick="changeRoutineCalendarMonth(1)" type="button">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="calendar-grid" id="routineCalendarGrid">
+                    <!-- Dias da semana -->
+                    <div class="calendar-day-header">Dom</div>
+                    <div class="calendar-day-header">Seg</div>
+                    <div class="calendar-day-header">Ter</div>
+                    <div class="calendar-day-header">Qua</div>
+                    <div class="calendar-day-header">Qui</div>
+                    <div class="calendar-day-header">Sex</div>
+                    <div class="calendar-day-header">Sáb</div>
+                    <!-- Dias do mês serão inseridos aqui via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Gerenciamento de Missões -->
+        <div id="missionModal" class="custom-modal" style="display: none;">
+            <div class="custom-modal-overlay" onclick="closeMissionModal()"></div>
+            <div class="diary-calendar-wrapper">
+                <button class="calendar-btn-close" onclick="closeMissionModal()" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <div class="title-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="title-content">
+                            <h3 id="missionModalTitle">Adicionar Nova Missão</h3>
+                            <p>Configure uma missão personalizada para este paciente</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <form id="missionForm">
+                        <div class="form-group">
+                            <label for="missionTitle">Título da Missão</label>
+                            <input type="text" id="missionTitle" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="missionDescription">Descrição</label>
+                            <input type="text" id="missionDescription" name="description">
+                        </div>
+                        <div class="form-group">
+                            <label for="missionType">Tipo de Missão</label>
+                            <select id="missionType" name="is_exercise" required>
+                                <option value="0">Missão Normal</option>
+                                <option value="1">Exercício</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="exerciseTypeGroup" style="display: none;">
+                            <label for="exerciseType">Tipo de Exercício</label>
+                            <select id="exerciseType" name="exercise_type">
+                                <option value="duration">Duração (minutos)</option>
+                                <option value="reps">Repetições</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ícone da Missão</label>
+                            <div class="icon-picker" id="iconPicker">
+                                <!-- Ícones serão inseridos via JavaScript -->
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-cancel" onclick="closeMissionModal()">
+                                <i class="fas fa-times"></i>
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i>
+                                <span id="saveButtonText">Salvar Missão</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
