@@ -530,12 +530,23 @@ function renderCalendar() {
     
     const totalCells = grid.children.length;
     const remainingCells = 42 - totalCells;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
     if (remainingCells > 0) {
         for (let day = 1; day <= remainingCells; day++) {
             const dayEl = document.createElement('div');
             dayEl.className = 'calendar-day other-month';
             dayEl.textContent = day;
+            
+            // Verificar se é do próximo mês e se é futuro
+            if (year === today.getFullYear() && month === today.getMonth()) {
+                // Estamos no mês atual, então os dias do próximo mês são futuros
+                dayEl.style.opacity = '0.3';
+                dayEl.style.pointerEvents = 'none';
+                dayEl.style.cursor = 'not-allowed';
+            }
+            
             grid.appendChild(dayEl);
         }
     }
