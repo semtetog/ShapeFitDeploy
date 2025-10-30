@@ -546,8 +546,6 @@ window.changeCalendarMonth = changeCalendarMonth;
   flex-direction: column !important;
   gap: 24px !important;
   align-items: stretch;
-  background: red !important;
-  padding: 50px !important;
 }
 
 /* Se o .diary-day-meals existir, também aplicar gap nele */
