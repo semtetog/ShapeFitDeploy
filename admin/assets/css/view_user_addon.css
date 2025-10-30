@@ -4878,5 +4878,9 @@
 
 /* ====== FIX DEFINITIVO: espaçamento apenas entre cards adjacentes ====== */
 #tab-diary .diary-meal-card { margin: 0 !important; }
-#tab-diary .diary-meal-card + .diary-meal-card { margin-top: 16px !important; }
+#tab-diary .diary-meal-card + .diary-meal-card { 
+  margin-top: 40px !important; 
+  border-top: 20px solid transparent !important;
+  display: block !important;
+}
 
