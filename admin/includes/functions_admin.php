@@ -8,6 +8,7 @@ function getGroupedMealHistory(mysqli $conn, int $user_id, string $startDate, st
             log.id,
             log.date_consumed,
             log.meal_type,
+            log.logged_at,
             COALESCE(log.custom_meal_name, recipe.name, 'Alimento Registrado') as food_name,
             CASE 
                 WHEN log.servings_consumed = 1 THEN '1 porção'

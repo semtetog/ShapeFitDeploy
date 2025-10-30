@@ -98,11 +98,27 @@ foreach ($all_dates as $date):
                 'post-workout' => 'Pós-Treino'
             ];
             
+            // Ordenar cards por horário de registro (mais cedo primeiro)
+            uasort($meals, function($a, $b) {
+                $time_a = strtotime(reset($a)['logged_at'] ?? '9999-12-31 23:59:59');
+                $time_b = strtotime(reset($b)['logged_at'] ?? '9999-12-31 23:59:59');
+                return $time_a <=> $time_b;
+            });
+            
             foreach ($meals as $meal_type_slug => $items): 
                 $total_kcal = array_sum(array_column($items, 'kcal_consumed'));
                 $total_prot = array_sum(array_column($items, 'protein_consumed_g'));
                 $total_carb = array_sum(array_column($items, 'carbs_consumed_g'));
                 $total_fat = array_sum(array_column($items, 'fat_consumed_g'));
+                
+                // Pegar o primeiro horário de registro para o card (já ordenado por logged_at ASC)
+                $first_item = reset($items);
+                $logged_at = $first_item['logged_at'] ?? null;
+                $display_time = '';
+                if ($logged_at) {
+                    $timestamp = strtotime($logged_at);
+                    $display_time = date('H:i', $timestamp);
+                }
             ?>
                 <div class="diary-meal-card">
                     <div class="diary-meal-header">
@@ -126,7 +142,12 @@ foreach ($all_dates as $date):
                             <i class="fas <?php echo $icon; ?>"></i>
                         </div>
                         <div class="diary-meal-info">
-                            <h5><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h5 style="margin: 0;"><?php echo $meal_type_names[$meal_type_slug] ?? ucfirst($meal_type_slug); ?></h5>
+                                <?php if ($display_time): ?>
+                                    <span style="font-size: 0.875rem; color: var(--text-secondary);"><?php echo $display_time; ?></span>
+                                <?php endif; ?>
+                            </div>
                             <span class="diary-meal-totals">
                                 <strong><?php echo round($total_kcal); ?> kcal</strong> • 
                                 P:<?php echo round($total_prot); ?>g • 
