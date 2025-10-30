@@ -123,6 +123,134 @@
     </div>
 </div>
 
+<style>
+/* === CARD DE GERENCIAMENTO DE MISSÕES === */
+.routine-missions-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.routine-missions-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.routine-missions-card .card-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.routine-missions-card .title-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.routine-missions-card .title-icon i {
+    font-size: 1.5rem;
+    color: var(--accent-orange);
+}
+
+.routine-missions-card .title-content h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.routine-missions-card .title-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.routine-missions-card .btn-add-mission {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--accent-orange);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.routine-missions-card .btn-add-mission:hover {
+    background: #FF8C00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+}
+
+.routine-missions-card .btn-add-mission i {
+    font-size: 1rem;
+}
+
+.routine-missions-card .missions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.routine-missions-card .loading-missions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+    gap: 1rem;
+}
+
+.routine-missions-card .loading-missions i {
+    font-size: 2rem;
+    color: var(--accent-orange);
+}
+
+.routine-missions-card .loading-missions span {
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .routine-missions-card {
+        padding: 1.5rem;
+    }
+    
+    .routine-missions-card .card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .routine-missions-card .btn-add-mission {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .routine-missions-card .missions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 
 <script>
 // ============ CONFIGURAÇÃO E INICIALIZAÇÃO DA ROTINA ============
