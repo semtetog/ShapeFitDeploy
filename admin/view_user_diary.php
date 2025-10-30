@@ -75,26 +75,21 @@
         
         <div class="diary-slider-wrapper" id="diarySliderWrapper">
             <?php 
+                // Garantir que $all_dates exista antes de usar
+                $all_dates = [];
+                for ($i = 0; $i < $daysToShow; $i++) {
+                    $current_date = date('Y-m-d', strtotime($endDate . " -$i days"));
+                    $all_dates[] = $current_date;
+                }
+                // Inverter ordem: mais antigo à esquerda, mais recente à direita
+                $all_dates = array_reverse($all_dates);
+
                 // total de dias para posicionar o slider inicialmente no último dia
                 $initial_index = max(count($all_dates) - 1, 0);
                 $initial_offset = $initial_index * 100; 
             ?>
             <div class="diary-slider-track" id="diarySliderTrack" style="transform: translateX(-<?php echo $initial_offset; ?>%);">
                 <?php 
-                // Gerar array com TODOS os dias, mesmo se não houver dados
-                $all_dates = [];
-                for ($i = 0; $i < $daysToShow; $i++) {
-                    $current_date = date('Y-m-d', strtotime($endDate . " -$i days"));
-                    $all_dates[] = $current_date;
-                }
-                
-                // Debug: verificar intervalo gerado
-                // Primeira data (mais antiga) será $all_dates[0] após reverse
-                // Última data (mais recente) será $all_dates[count-1] após reverse
-                
-                // Inverter ordem: mais antigo à esquerda, mais recente à direita
-                $all_dates = array_reverse($all_dates);
-                
                 foreach ($all_dates as $date): 
                     $meals = $meal_history[$date] ?? [];
                     $day_total_kcal = 0;
