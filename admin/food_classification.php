@@ -33,7 +33,7 @@ $offset = ($page - 1) * $per_page;
 
 // Adicionar filtros de intervalo de página no topo
 $page_start = isset($_GET['page_start']) ? max(1, (int)$_GET['page_start']) : 1;
-$page_end = isset($_GET['page_end']) ? max($page_start, (int)$_GET['page_end']) : $total_pages;
+$page_end = isset($_GET['page_end']) ? max($page_start, (int)$_GET['page_end']) : null; // será definido após $total_pages
 
 // Restringir o offset e a quantidade conforme o intervalo
 if ($page_start > $page_end) $page_end = $page_start;
@@ -67,6 +67,11 @@ if (!empty($params)) {
 $count_stmt->execute();
 $total_items = $count_stmt->get_result()->fetch_assoc()['total'];
 $total_pages = ceil($total_items / $per_page);
+if ($page_end === null) { $page_end = $total_pages; }
+if ($page_start > $page_end) { $page_end = $page_start; }
+$block_page_count = max(1, $page_end - $page_start + 1);
+$effective_offset = ($page_start - 1) * $per_page;
+$effective_limit = $block_page_count * $per_page;
 
 // Buscar alimentos com suas classificações múltiplas
 $sql = "SELECT 
@@ -92,6 +97,14 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param($param_types, ...$params);
 $stmt->execute();
 $foods = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Progresso do bloco atual (com base no resultado carregado)
+$total_items_in_block = count($foods);
+$classified_in_block = 0;
+foreach ($foods as $f_it) {
+    if (!empty($f_it['categories'])) { $classified_in_block++; }
+}
+$block_progress_pct = $total_items_in_block > 0 ? round(($classified_in_block / $total_items_in_block) * 100) : 0;
 
 // Buscar estatísticas
 $stats_sql = "SELECT food_type, COUNT(*) as count FROM sf_food_items GROUP BY food_type";
@@ -309,6 +322,53 @@ include 'includes/header.php';
     padding: 15px;
     margin-bottom: 20px;
 }
+
+/* Painel estilizado do bloco de páginas */
+.block-panel {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+.block-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin: 0 0 10px 0;
+}
+.block-grid {
+    display: grid;
+    grid-template-columns: repeat(4, max-content) 1fr;
+    gap: 10px 12px;
+    align-items: center;
+}
+.block-input {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: var(--primary-text-color);
+    width: 120px;
+}
+.block-help {
+    font-size: 0.8rem;
+    color: var(--secondary-text-color);
+}
+.block-actions { display:flex; gap:8px; align-items:center; }
+.btn-block {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    color: var(--primary-text-color);
+    cursor: pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+}
+.btn-block.primary { background: var(--accent-orange); color: white; border-color: var(--accent-orange); }
+.btn-block:disabled { opacity: .6; cursor: not-allowed; }
+.progress-wrap { display:flex; align-items:center; gap:10px; }
+.progress-bar { height: 8px; width: 220px; border-radius: 999px; background: rgba(255,255,255,.08); border:1px solid var(--border-color); overflow:hidden; }
+.progress-bar > span { display:block; height:100%; background:#10B981; width:0%; transition:width .3s; }
 
 .filters-title {
     font-size: 0.9rem;
@@ -918,13 +978,50 @@ include 'includes/header.php';
         </div>
 
         <!-- Filtros -->
+        <div class="block-panel">
+            <div class="block-title">🧭 Bloco de Trabalho</div>
+            <form method="GET">
+                <div class="block-grid">
+                    <label class="block-help">Página inicial</label>
+                    <input class="block-input" type="number" min="1" max="<?php echo htmlspecialchars($total_pages) ?>" name="page_start" value="<?php echo htmlspecialchars($page_start) ?>">
+                    <label class="block-help">Página final</label>
+                    <input class="block-input" type="number" min="<?php echo htmlspecialchars($page_start) ?>" max="<?php echo htmlspecialchars($total_pages) ?>" name="page_end" value="<?php echo htmlspecialchars($page_end) ?>">
+                    <div class="block-actions">
+                        <button type="submit" class="btn-block primary">Aplicar</button>
+                        <a class="btn-block" href="food_classification.php">Limpar</a>
+                    </div>
+                    <div class="block-help">Dica: divida entre estagiárias por blocos. Ex.: Pessoa 1 (1–32), Pessoa 2 (33–64)...</div>
+                </div>
+                <?php
+                    $build = function($s,$c,$ps,$pe){
+                        $q = [];
+                        if($s!==''){ $q[]='search='.urlencode($s); }
+                        if($c!==''){ $q[]='category='.urlencode($c); }
+                        $q[]='page_start='.$ps; $q[]='page_end='.$pe; return implode('&',$q);
+                    };
+                    $prev_start = max(1, $page_start - $block_page_count);
+                    $prev_end = max($prev_start, min($total_pages, $prev_start + $block_page_count - 1));
+                    $next_start = min($total_pages, $page_start + $block_page_count);
+                    $next_end = min($total_pages, max($next_start, $next_start + $block_page_count - 1));
+                ?>
+                <div style="margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                    <div class="progress-wrap">
+                        <div class="block-help">Progresso do bloco (<?php echo $classified_in_block; ?>/<?php echo $total_items_in_block; ?>)</div>
+                        <div class="progress-bar"><span style="width: <?php echo $block_progress_pct; ?>%"></span></div>
+                        <div class="block-help"><?php echo $block_progress_pct; ?>%</div>
+                    </div>
+                    <div class="block-actions">
+                        <a class="btn-block" href="food_classification.php?<?php echo $build($search,$category_filter,$prev_start,$prev_end); ?>" <?php echo $page_start<=1? 'style="pointer-events:none;opacity:.6"':'';?>>« Bloco anterior</a>
+                        <div class="block-help">Exibindo <b>páginas <?php echo $page_start; ?>–<?php echo $page_end; ?></b> de <b><?php echo $total_pages; ?></b></div>
+                        <a class="btn-block" href="food_classification.php?<?php echo $build($search,$category_filter,$next_start,$next_end); ?>" <?php echo $page_end>=$total_pages? 'style="pointer-events:none;opacity:.6"':'';?>>Próximo bloco »</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         <div class="filters-section">
             <h3 class="filters-title">🔍 Buscar</h3>
             <form method="GET" class="filters-grid">
-                <!-- Adicionar campos página inicial e final -->
-                <input type="number" min="1" max="<?php echo htmlspecialchars($total_pages) ?>" name="page_start" value="<?php echo htmlspecialchars($page_start) ?>" placeholder="Página inicial" style="width: 110px;">
-                <input type="number" min="<?php echo htmlspecialchars($page_start) ?>" max="<?php echo htmlspecialchars($total_pages) ?>" name="page_end" value="<?php echo htmlspecialchars($page_end) ?>" placeholder="Página final" style="width: 110px;">
-                <!-- Demais filtros abaixo -->
                 <input type="text" class="search-input" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Nome do alimento...">
                 <select class="category-select" name="category">
                     <option value="">Todas</option>
@@ -934,10 +1031,11 @@ include 'includes/header.php';
                         </option>
                     <?php endforeach; ?>
                 </select>
+                <input type="hidden" name="page_start" value="<?php echo htmlspecialchars($page_start) ?>">
+                <input type="hidden" name="page_end" value="<?php echo htmlspecialchars($page_end) ?>">
                 <button type="submit" class="filter-btn">Buscar</button>
                 <a href="food_classification.php" class="clear-btn">Limpar</a>
             </form>
-            <div style='font-size:0.97rem;margin-bottom:6px;color:#737373'>Exibindo páginas <b><?php echo $page_start ?></b> até <b><?php echo $page_end ?></b> de <b><?php echo $total_pages ?></b>. Cada estagiária pega um bloco e ninguém se sobrepõe!</div>
         </div>
 
         <!-- Ações em Lote -->
