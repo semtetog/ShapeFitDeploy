@@ -837,6 +837,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="card-header-with-action">
         <h3>Meta Calórica e Macros</h3>
             <button class="btn-icon-only btn-revert-goals" 
+                    type="button"
                     onclick="showRevertModal(<?php echo $user_id; ?>)" 
                     title="Reverter para cálculo automático">
                 <i class="fas fa-undo"></i>
@@ -1451,6 +1452,16 @@ window.closeSleepDetailsModal = closeSleepDetailsModal;
 document.addEventListener('DOMContentLoaded', function(){
     const tabLinks = document.querySelectorAll('.tab-link');
     const tabContents = document.querySelectorAll('.tab-content');
+    // Garantir click do botão de reverter metas mesmo sem inline handler (CSP, etc.)
+    const revertBtn = document.querySelector('.btn-revert-goals');
+    if (revertBtn && typeof window.showRevertModal === 'function') {
+        revertBtn.addEventListener('click', function(e){
+            // Evita qualquer submit acidental caso esteja dentro de um <form>
+            e.preventDefault();
+            e.stopPropagation();
+            window.showRevertModal(<?php echo (int)$user_id; ?>);
+        });
+    }
     tabLinks.forEach(link => {
         link.addEventListener('click', function(){
             const tabId = this.getAttribute('data-tab');
