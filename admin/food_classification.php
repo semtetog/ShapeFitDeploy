@@ -1359,6 +1359,8 @@ window.categories = <?= json_encode($categories) ?>;
 let classifications = {}; // {foodId: [category1, category2, ...]}
 let sessionCount = 0;
 let classificationsLoaded = false; // Flag para evitar recarregar
+// Controle fino: itens com alterações pendentes de salvamento
+let pendingChanges = {}; // {foodId: true|false}
 
 // Inicializar classificações vazias
 document.addEventListener('DOMContentLoaded', function() {
@@ -1407,12 +1409,14 @@ function loadExistingClassifications() {
             // Só adicionar se encontrou categorias válidas
             if (categoryKeys.length > 0) {
                 classifications[foodId] = categoryKeys;
+                pendingChanges[foodId] = false; // veio do BD, nada pendente
                 console.log(`✅ Carregado ${foodId}:`, categoryKeys);
                 updateFoodVisual(foodId);
             }
         } else {
             // Se está "Não classificado", garantir que não está no objeto classifications
             delete classifications[foodId];
+            delete pendingChanges[foodId];
             console.log(`❌ Não classificado ${foodId}`);
         }
     });
@@ -1528,11 +1532,17 @@ function updateFoodVisual(foodId) {
         // Desabilitar botão de unidades até salvar
         const unitsBtn = foodCard.querySelector('.units-btn');
         if (unitsBtn) {
-            unitsBtn.classList.add('disabled');
-            unitsBtn.disabled = true;
-            const hint = unitsBtn.querySelector('.units-hint');
-            if (hint) {
-                hint.textContent = 'Aguarde salvamento...';
+            const isPending = !!pendingChanges[foodId];
+            if (isPending) {
+                unitsBtn.classList.add('disabled');
+                unitsBtn.disabled = true;
+                const hint = unitsBtn.querySelector('.units-hint');
+                if (hint) { hint.textContent = 'Aguarde salvamento...'; }
+            } else {
+                unitsBtn.classList.remove('disabled');
+                unitsBtn.disabled = false;
+                const hint = unitsBtn.querySelector('.units-hint');
+                if (hint) { hint.textContent = 'Editar unidades'; }
             }
         }
         
@@ -1551,6 +1561,7 @@ function classifyFood(foodId, category) {
     console.log('⚡ classifyFood (bulk):', foodId, category);
     // Define somente esta categoria para o alimento no objeto em memória
     classifications[foodId] = [category];
+    pendingChanges[foodId] = true;
     // Atualiza o visual imediatamente
     updateFoodVisual(foodId);
     // Salva instantaneamente
@@ -1699,6 +1710,9 @@ function saveClassificationsInstant() {
                 }
             });
             
+            // Marcar como sem pendências
+            Object.keys(classifications).forEach(fid => { pendingChanges[fid] = false; });
+
             // NÃO limpar classificações - manter para permitir múltiplas seleções
             console.log('📊 Classificações mantidas para múltiplas seleções:', classifications);
             
