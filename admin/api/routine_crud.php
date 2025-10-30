@@ -38,7 +38,7 @@ if (empty($action) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 $patient_id = intval($_GET['patient_id'] ?? 0);
 
 error_log('Ação: ' . $action);
-error_log('Patient ID: ' . $patient_id);
+error_log('Patient ID inicial (GET): ' . $patient_id);
 error_log('GET params: ' . print_r($_GET, true));
 error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
 
@@ -57,6 +57,7 @@ if (empty($action)) {
 // Obter patient_id de POST também se necessário
 if (!empty($post_data['patient_id'])) {
     $patient_id = intval($post_data['patient_id']);
+    error_log('Patient ID atualizado (POST): ' . $patient_id);
 }
 
 // Ações que NÃO requerem patient_id
@@ -341,14 +342,20 @@ try {
             $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
             $is_personal = isset($data['is_personal']) ? intval($data['is_personal']) : 0;
             
+            error_log('[update_mission] is_personal: ' . $is_personal);
+            error_log('[update_mission] patient_id: ' . $patient_id);
+            error_log('[update_mission] data recebida: ' . print_r($data, true));
+            
             // Escolher tabela baseado em is_personal
             if ($is_personal) {
+                error_log('[update_mission] Atualizando missão PERSONALIZADA');
                 // Atualizar missão personalizada
                 $stmt = $conn->prepare("UPDATE sf_user_routine_items 
                                        SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
                                        WHERE id = ? AND user_id = ?");
                 $stmt->bind_param('sssiii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id, $patient_id);
             } else {
+                error_log('[update_mission] Atualizando missão GLOBAL');
                 // Atualizar missão global
                 $stmt = $conn->prepare("UPDATE sf_routine_items 
                                        SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?

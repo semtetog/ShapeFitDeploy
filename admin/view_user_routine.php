@@ -1764,6 +1764,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Verificar se é missão personalizada ou padrão
             const isPersonal = sessionStorage.getItem('current_mission_is_personal') == '1';
+            console.log('[SUBMIT] isPersonal from sessionStorage:', isPersonal);
+            console.log('[SUBMIT] missionId:', missionId);
             
             // Mapear tipo de missão para campos do backend
             const missionType = formData.get('mission_type');
