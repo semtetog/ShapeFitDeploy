@@ -77,12 +77,14 @@ if (!empty($meal_time)) {
         // É um alimento - usar custom_meal_name
         $sql_log = "INSERT INTO sf_user_meal_log (user_id, custom_meal_name, meal_type, date_consumed, servings_consumed, kcal_consumed, protein_consumed_g, carbs_consumed_g, fat_consumed_g, logged_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt_log = $conn->prepare($sql_log);
-        $stmt_log->bind_param("isssdddds", $user_id, $custom_meal_name, $meal_type, $date_consumed, $servings_consumed, $total_kcal, $total_protein, $total_carbs, $total_fat, $logged_time);
+        // i (user_id), s (custom_meal_name), s (meal_type), s (date_consumed), d (servings), d (kcal), d (protein), d (carbs), d (fat), s (logged_time)
+        $stmt_log->bind_param("isssddddds", $user_id, $custom_meal_name, $meal_type, $date_consumed, $servings_consumed, $total_kcal, $total_protein, $total_carbs, $total_fat, $logged_time);
     } else {
         // É uma receita - usar recipe_id
         $sql_log = "INSERT INTO sf_user_meal_log (user_id, recipe_id, meal_type, date_consumed, servings_consumed, kcal_consumed, protein_consumed_g, carbs_consumed_g, fat_consumed_g, logged_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt_log = $conn->prepare($sql_log);
-        $stmt_log->bind_param("iisssdddds", $user_id, $recipe_id, $meal_type, $date_consumed, $servings_consumed, $total_kcal, $total_protein, $total_carbs, $total_fat, $logged_time);
+        // i (user_id), i (recipe_id), s (meal_type), s (date_consumed), d (servings), d (kcal), d (protein), d (carbs), d (fat), s (logged_time)
+        $stmt_log->bind_param("iissddddds", $user_id, $recipe_id, $meal_type, $date_consumed, $servings_consumed, $total_kcal, $total_protein, $total_carbs, $total_fat, $logged_time);
     }
     
     $stmt_log->execute();
@@ -111,10 +113,6 @@ if (!empty($meal_time)) {
     error_log("Erro ao registrar refeição para user_id {$user_id}: " . $e->getMessage());
     $_SESSION['alert_message'] = ['type' => 'danger', 'message' => 'Ocorreu um erro de banco de dados ao registrar a refeição.'];
 }
-
-header("Location: " . BASE_APP_URL . "/diary.php?date=" . $date_consumed);
-exit();
-?>
 
 header("Location: " . BASE_APP_URL . "/diary.php?date=" . $date_consumed);
 exit();
