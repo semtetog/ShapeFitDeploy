@@ -83,14 +83,19 @@ foreach ($all_dates as $date):
             </div>
         <?php else: ?>
             <?php 
-            // Mapear nomes dos tipos de refeição
+            // Mapear nomes dos tipos de refeição (com TODOS os tipos possíveis)
             $meal_type_names = [
                 'breakfast' => 'Café da Manhã',
                 'morning_snack' => 'Lanche da Manhã',
                 'lunch' => 'Almoço',
                 'afternoon_snack' => 'Lanche da Tarde',
                 'dinner' => 'Jantar',
-                'evening_snack' => 'Ceia'
+                'evening_snack' => 'Ceia',
+                'supper' => 'Ceia',
+                'pre_workout' => 'Pré-Treino',
+                'pre-workout' => 'Pré-Treino',
+                'post_workout' => 'Pós-Treino',
+                'post-workout' => 'Pós-Treino'
             ];
             
             foreach ($meals as $meal_type_slug => $items): 
@@ -109,7 +114,12 @@ foreach ($all_dates as $date):
                                 'lunch' => 'fa-drumstick-bite',
                                 'afternoon_snack' => 'fa-cookie-bite',
                                 'dinner' => 'fa-pizza-slice',
-                                'evening_snack' => 'fa-ice-cream'
+                                'evening_snack' => 'fa-ice-cream',
+                                'supper' => 'fa-ice-cream',
+                                'pre_workout' => 'fa-dumbbell',
+                                'pre-workout' => 'fa-dumbbell',
+                                'post_workout' => 'fa-trophy',
+                                'post-workout' => 'fa-trophy'
                             ];
                             $icon = $meal_icons[$meal_type_slug] ?? 'fa-utensils';
                             ?>
