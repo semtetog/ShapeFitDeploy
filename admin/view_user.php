@@ -1365,6 +1365,32 @@ async function confirmRevertGoals() {
 </script>
 
 <script>
+// Expor funções usadas por handlers inline
+window.showRevertModal = showRevertModal;
+window.closeRevertModal = closeRevertModal;
+window.showAlertModal = showAlertModal;
+window.closeAlertModal = closeAlertModal;
+window.openSleepDetailsModal = openSleepDetailsModal;
+window.closeSleepDetailsModal = closeSleepDetailsModal;
+
+// Fallback de tabs: garante troca de abas mesmo se o JS externo falhar
+document.addEventListener('DOMContentLoaded', function(){
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(){
+            const tabId = this.getAttribute('data-tab');
+            tabLinks.forEach(l => l.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.add('active');
+        });
+    });
+});
+</script>
+
+<script>
 // Sistema de edição inline para metas (idêntico ao referência)
 document.addEventListener('DOMContentLoaded', function() {
     const editableValues = document.querySelectorAll('.editable-value');
