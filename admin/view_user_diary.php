@@ -187,402 +187,88 @@
         </div>
 
 <script>
-// Sistema de navegação do diário
-let diaryCards = document.querySelectorAll('.diary-day-card');
-let currentDiaryIndex = diaryCards.length - 1; // Iniciar no último (dia mais recente)
-let diaryTrack = document.getElementById('diarySliderTrack');
-let isLoadingMoreDays = false; // Flag para evitar múltiplas chamadas
-let suppressFirstRender = true; // evita redundância: não reescrever cabeçalho na 1ª renderização
+// Diário v2: lógica simples, sem AJAX, 1 slide por vez
+(function(){
+  const monthNamesShort = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+  const monthNamesLower = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const weekdayNames = ['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','SÁBADO'];
 
-// Função para atualizar referência aos cards
-function updateDiaryCards() {
-    diaryCards = document.querySelectorAll('.diary-day-card');
-    if (!diaryTrack) {
-        diaryTrack = document.getElementById('diarySliderTrack');
-    }
-    // Não esconda os itens; o track usa transform para navegação
-}
+  let track, cards, index = 0;
 
-function updateDiaryDisplay() {
-    // Adicionar transição suave para o slider
-    if (diaryTrack) diaryTrack.style.transition = 'transform 0.3s ease-in-out';
-    
-    const offset = -currentDiaryIndex * 100;
-    if (diaryTrack) diaryTrack.style.transform = `translateX(${offset}%)`;
-    
-    const currentCard = diaryCards[currentDiaryIndex];
-    if (!currentCard) return;
-    
-    const date = currentCard.getAttribute('data-date');
-    const dateObj = new Date(date + 'T00:00:00');
-    
-    // Nomes dos meses e dias da semana
-    const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
-    const monthNamesLower = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-    const weekdayNames = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
-    
-    // Debug
-    console.log('Diary index:', currentDiaryIndex, 'Date:', date, 'Month:', dateObj.getMonth());
-    
-    if (!suppressFirstRender) {
-        // Atualizar ano
-        document.getElementById('diaryYear').textContent = dateObj.getFullYear();
-        
-        // Atualizar dia e mês principal
-        const day = dateObj.getDate();
-        const month = monthNamesShort[dateObj.getMonth()];
-        document.getElementById('diaryDayMonth').textContent = `${day} ${month}`;
-        
-        // Atualizar dia da semana
-        document.getElementById('diaryWeekday').textContent = weekdayNames[dateObj.getDay()];
+  function collect(){
+    track = document.getElementById('diarySliderTrack');
+    cards = Array.from(document.querySelectorAll('.diary-day-card'));
+  }
+
+  function getLatestNonFutureIndex(){
+    const today = new Date(); today.setHours(0,0,0,0);
+    let latest = 0;
+    for (let i=0;i<cards.length;i++){
+      const d = new Date(cards[i].getAttribute('data-date') + 'T00:00:00');
+      if (d <= today) latest = i;
     }
-    
-    // Atualizar datas de navegação (anterior e próximo)
-    const prevIndex = currentDiaryIndex - 1;
-    const nextIndex = currentDiaryIndex + 1;
-    
-    // Atualizar data anterior (sempre mostrar o dia anterior real)
+    return latest;
+  }
+
+  function setTransform(){
+    if (!track) return;
+    track.style.transition = 'transform .3s ease-in-out';
+    track.style.transform = `translateX(${-index*100}%)`;
+  }
+
+  function updateHeader(){
+    const card = cards[index]; if (!card) return;
+    const dateStr = card.getAttribute('data-date');
+    const d = new Date(dateStr + 'T00:00:00');
+    document.getElementById('diaryYear').textContent = d.getFullYear();
+    document.getElementById('diaryDayMonth').textContent = `${d.getDate()} ${monthNamesShort[d.getMonth()]}`;
+    document.getElementById('diaryWeekday').textContent = weekdayNames[d.getDay()];
+
     const prevBtn = document.getElementById('diaryPrevDate');
-    if (prevBtn && !suppressFirstRender) {
-        // Calcular sempre o dia anterior baseado na data atual
-        const currentDate = new Date(date + 'T00:00:00');
-        const prevDate = new Date(currentDate);
-        prevDate.setDate(prevDate.getDate() - 1);
-        
-        prevBtn.textContent = `${prevDate.getDate()} ${monthNamesLower[prevDate.getMonth()]}`;
-        prevBtn.parentElement.style.visibility = 'visible';
-    }
-    
-    // Atualizar data próxima (se existir e não for futuro)
     const nextBtn = document.getElementById('diaryNextDate');
-    if (nextBtn && !suppressFirstRender) {
-        if (nextIndex < diaryCards.length && diaryCards[nextIndex]) {
-            const nextDate = new Date(diaryCards[nextIndex].getAttribute('data-date') + 'T00:00:00');
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            if (nextDate <= today) {
-                nextBtn.textContent = `${nextDate.getDate()} ${monthNamesLower[nextDate.getMonth()]}`;
-                nextBtn.parentElement.style.visibility = 'visible';
-            } else {
-                nextBtn.parentElement.style.visibility = 'hidden';
-            }
-        } else {
-            nextBtn.parentElement.style.visibility = 'hidden';
-        }
-    }
-    
-    // Buscar e atualizar resumo de calorias e macros do card atual
-    const summaryDiv = currentCard.querySelector('.diary-day-summary');
-    if (summaryDiv && !suppressFirstRender) {
-        const kcalText = summaryDiv.querySelector('.diary-summary-item span');
-        const macrosText = summaryDiv.querySelector('.diary-summary-macros');
-        
-        if (kcalText) {
-            document.getElementById('diarySummaryKcal').innerHTML = 
-                `<i class="fas fa-fire"></i><span>${kcalText.textContent}</span>`;
-        }
-        
-        if (macrosText) {
-            document.getElementById('diarySummaryMacros').textContent = macrosText.textContent;
-        }
-    } else if (!suppressFirstRender) {
-        // Sem dados
-        document.getElementById('diarySummaryKcal').innerHTML = 
-            `<i class="fas fa-fire"></i><span>0 kcal</span>`;
-        document.getElementById('diarySummaryMacros').textContent = 'P: 0g • C: 0g • G: 0g';
-    }
-    
-    // Após a primeira renderização, futuras chamadas podem atualizar cabeçalho normalmente
-    suppressFirstRender = false;
-    
-    // Atualizar estado dos botões de navegação
-    updateNavigationButtons();
-}
+    const prev = new Date(d); prev.setDate(prev.getDate()-1);
+    prevBtn.textContent = `${prev.getDate()} ${monthNamesLower[prev.getMonth()]}`;
 
-function updateNavigationButtons() {
-    const currentCard = diaryCards[currentDiaryIndex];
-    if (!currentCard) return;
-    
-    const currentDate = currentCard.getAttribute('data-date');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const currentDateObj = new Date(currentDate + 'T00:00:00');
-    
-    console.log('Current date:', currentDate, 'Today:', today.toISOString().split('T')[0]);
-    
-    // Botão de avançar (direita) - desabilitar se estiver no dia atual ou futuro
-    const nextBtn = document.querySelector('.diary-nav-right');
-    if (nextBtn) {
-        // Verificar se existe um próximo card e se ele não é futuro
-        const nextIndex = currentDiaryIndex + 1;
-        if (nextIndex < diaryCards.length) {
-            const nextCard = diaryCards[nextIndex];
-            const nextDate = nextCard.getAttribute('data-date');
-            const nextDateObj = new Date(nextDate + 'T00:00:00');
-            
-            if (nextDateObj > today) {
-                nextBtn.classList.add('disabled');
-                nextBtn.disabled = true;
-            } else {
-                nextBtn.classList.remove('disabled');
-                nextBtn.disabled = false;
-            }
-        } else {
-            // Não há próximo card
-            nextBtn.classList.add('disabled');
-            nextBtn.disabled = true;
-        }
-    }
-}
-
-function navigateDiary(direction) {
-    let newIndex = currentDiaryIndex + direction;
-    
-    // Se tentar ir para frente
-    if (direction > 0) {
-        // Verificar se o próximo dia seria futuro
-        if (newIndex >= diaryCards.length) {
-            // Já está no último, não faz nada
-            return;
-        }
-        
-        const nextCard = diaryCards[newIndex];
-        if (nextCard) {
-            const nextDate = nextCard.getAttribute('data-date');
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const nextDateObj = new Date(nextDate + 'T00:00:00');
-            
-            // Se o próximo dia for futuro, não permite
-            if (nextDateObj > today) {
-                return; // Bloqueia navegação
-            }
-        }
-    }
-    
-    // Se tentar ir para trás
-    if (direction < 0) {
-        // Se já está carregando, ignora
-        if (isLoadingMoreDays) {
-            console.log('Já está carregando mais dias...');
-            return;
-        }
-        
-        // Calcular a data do dia anterior
-        const currentCard = diaryCards[currentDiaryIndex];
-        if (currentCard) {
-            const currentDate = currentCard.getAttribute('data-date');
-            const dateObj = new Date(currentDate + 'T00:00:00');
-            dateObj.setDate(dateObj.getDate() - 1);
-            const prevDate = dateObj.toISOString().split('T')[0];
-            
-            // Verificar se já existe um card para essa data
-            const existingCardIndex = Array.from(diaryCards).findIndex(card => 
-                card.getAttribute('data-date') === prevDate
-            );
-            
-            if (existingCardIndex !== -1) {
-                // Se existe, navegar diretamente
-                currentDiaryIndex = existingCardIndex;
-                updateDiaryDisplay();
-                return;
-            } else {
-                // Se não existe, carregar via AJAX
-                console.log('Carregando 1 dia anterior via AJAX. Data atual:', currentDate, 'Nova end_date:', prevDate);
-                loadMoreDiaryDays(prevDate, 1);
-                return;
-            }
-        }
-    }
-    
-    // Se tentar ir para frente e já está no último card (mais recente)
-    if (direction > 0 && newIndex >= diaryCards.length) {
-        console.log('Já está no dia mais recente');
-        return;
-    }
-    
-    currentDiaryIndex = newIndex;
-    updateDiaryDisplay();
-}
-
-       async function loadMoreDiaryDays(endDate, daysToLoad = 1) {
-           if (isLoadingMoreDays) {
-               console.log('Já está carregando, ignorando chamada duplicada...');
-               return;
-           }
-           
-           isLoadingMoreDays = true;
-           
-           try {
-               // Buscar apenas 1 dia via AJAX (sem loading visual)
-               const userId = <?php echo $user_id; ?>;
-               const url = `actions/load_diary_days.php?user_id=${userId}&end_date=${endDate}&days=${daysToLoad}`;
-               
-               console.log('Fazendo requisição AJAX para:', url);
-               
-               const response = await fetch(url);
-               console.log('Resposta recebida, status:', response.status);
-               
-               if (response.ok) {
-                   const html = await response.text();
-                   console.log('HTML recebido, tamanho:', html.length);
-                   
-                   if (html.trim().length === 0) {
-                       throw new Error('Resposta vazia do servidor');
-                   }
-                   
-                   // Adicionar novo card ANTES dos existentes
-                   const diaryTrack = document.getElementById('diarySliderTrack');
-                   
-                   // Criar container temporário
-                   const tempDiv = document.createElement('div');
-                   tempDiv.innerHTML = html;
-                   const newCards = tempDiv.querySelectorAll('.diary-day-card');
-                   
-                   console.log('Novos cards encontrados:', newCards.length);
-                   
-                   if (newCards.length > 0) {
-                       // Adicionar novo card no início (mais antigo primeiro)
-                       const fragment = document.createDocumentFragment();
-                       while (tempDiv.firstChild) {
-                           fragment.appendChild(tempDiv.firstChild);
-                       }
-                       diaryTrack.insertBefore(fragment, diaryTrack.firstChild);
-                       
-                       // Atualizar referência aos cards
-                       updateDiaryCards();
-                       
-                       // Navegar automaticamente para o dia carregado (primeiro card = mais antigo)
-                       currentDiaryIndex = 0;
-                       
-                       console.log(`Adicionado 1 novo card. Total: ${diaryCards.length}`);
-                       console.log('Primeira data após adição:', diaryCards[0]?.getAttribute('data-date'));
-                       console.log('Última data após adição:', diaryCards[diaryCards.length - 1]?.getAttribute('data-date'));
-                       console.log('Navegando para o dia carregado, índice:', currentDiaryIndex);
-                       
-                       // Manter URL inalterada - não atualizar endDate na URL
-                       // const urlParams = new URLSearchParams(window.location.search);
-                       // urlParams.set('end_date', endDate);
-                       // window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
-                       
-                       // Simular swipe: primeiro ir para posição anterior, depois para a correta
-                       const previousIndex = currentDiaryIndex + 1;
-                       const previousOffset = -previousIndex * 100;
-                       
-                       // Posicionar no card anterior (como se estivesse vindo da direita)
-                       diaryTrack.style.transition = 'none';
-                       diaryTrack.style.transform = `translateX(${previousOffset}%)`;
-                       
-                       // Forçar reflow
-                       diaryTrack.offsetHeight;
-                       
-                       // Agora animar para a posição correta
-                       diaryTrack.style.transition = 'transform 0.3s ease-in-out';
-                       diaryTrack.style.transform = `translateX(${-currentDiaryIndex * 100}%)`;
-                       
-                       // Atualizar display
-                       updateDiaryDisplay();
-                   } else {
-                       console.log('Nenhum novo card encontrado na resposta');
-                   }
-               } else {
-                   throw new Error(`HTTP error! status: ${response.status}`);
-               }
-           } catch (error) {
-               console.error('Erro ao carregar mais dias:', error);
-               alert('Erro ao carregar mais dias: ' + error.message);
-           } finally {
-               isLoadingMoreDays = false;
-           }
-       }
-
-
-function goToDiaryIndex(index) {
-    currentDiaryIndex = index;
-    updateDiaryDisplay();
-}
-
-// Suporte a swipe/touch
-let touchStartX = 0;
-let touchEndX = 0;
-
-diaryTrack.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-});
-
-diaryTrack.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-});
-
-function handleSwipe() {
-    const swipeThreshold = 50;
-    const diff = touchStartX - touchEndX;
-    
-    if (Math.abs(diff) > swipeThreshold) {
-        if (diff > 0) {
-            // Swipe left - dia anterior
-            navigateDiary(-1);
-        } else {
-            // Swipe right - próximo dia
-            navigateDiary(1);
-        }
-    }
-}
-
-// Suporte a teclado
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') navigateDiary(-1);
-    if (e.key === 'ArrowRight') navigateDiary(1);
-});
-
-// Inicializar quando a aba de diário estiver ativa
-function initDiary() {
-    // Recoletar referências sempre que iniciar
-    diaryTrack = document.getElementById('diarySliderTrack');
-    diaryCards = document.querySelectorAll('.diary-day-card');
-    if (diaryCards.length > 0) {
-        currentDiaryIndex = diaryCards.length - 1;
-        updateDiaryCards();
-        updateDiaryDisplay();
-    }
-    if (diaryTrack) diaryTrack.style.visibility = 'visible';
-}
-
-// Inicializar se a aba já estiver ativa ou quando for aberta
-const diaryTabEl = document.getElementById('tab-diary');
-if (diaryTabEl && diaryTabEl.classList.contains('active')) {
-    // Garantir que rode após o DOM estar pronto
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => setTimeout(initDiary, 0));
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (index < cards.length-1){
+      const nextDate = new Date(cards[index+1].getAttribute('data-date') + 'T00:00:00');
+      nextBtn.textContent = `${nextDate.getDate()} ${monthNamesLower[nextDate.getMonth()]}`;
+      nextBtn.parentElement.style.visibility = nextDate <= today ? 'visible' : 'hidden';
     } else {
-        setTimeout(initDiary, 0);
+      nextBtn.parentElement.style.visibility = 'hidden';
     }
-}
 
-// Observar mudanças de aba
-const tabLinks = document.querySelectorAll('.tab-link');
-tabLinks.forEach(link => {
-    link.addEventListener('click', function() {
-        if (this.getAttribute('data-tab') === 'diary') {
-            setTimeout(initDiary, 100);
-        }
-    });
-});
+    const summaryDiv = card.querySelector('.diary-day-summary');
+    const kcalText = summaryDiv?.querySelector('.diary-summary-item span')?.textContent || '0 kcal';
+    const macrosText = summaryDiv?.querySelector('.diary-summary-macros')?.textContent || 'P: 0g • C: 0g • G: 0g';
+    document.getElementById('diarySummaryKcal').innerHTML = `<i class="fas fa-fire"></i><span>${kcalText}</span>`;
+    document.getElementById('diarySummaryMacros').textContent = macrosText;
+  }
 
-// Expor funções ao escopo global para os handlers inline do HTML
-window.navigateDiary = navigateDiary;
-window.goToDiaryIndex = goToDiaryIndex;
-window.openDiaryCalendar = openDiaryCalendar;
-window.closeDiaryCalendar = closeDiaryCalendar;
-window.changeCalendarMonth = changeCalendarMonth;
-window.__navigateDiaryReal = navigateDiary;
-// se existir chamadas enfileiradas do stub inicial, executa agora
-if (Array.isArray(window.navigateDiaryQueue)) {
-    window.navigateDiaryQueue.forEach((d)=>{ try { navigateDiary(d); } catch(e){} });
-    window.navigateDiaryQueue = [];
-}
+  function render(){ setTransform(); updateHeader(); }
+
+  function prev(){ if (index>0){ index--; render(); } }
+  function next(){ if (index<cards.length-1){
+      const nextDate = new Date(cards[index+1].getAttribute('data-date') + 'T00:00:00');
+      const today = new Date(); today.setHours(0,0,0,0);
+      if (nextDate <= today){ index++; render(); }
+    }
+  }
+
+  function init(){
+    collect(); if (!cards.length) return;
+    index = getLatestNonFutureIndex();
+    render(); if (track) track.style.visibility = 'visible';
+    document.querySelector('.diary-nav-left')?.addEventListener('click', prev);
+    document.querySelector('.diary-nav-right')?.addEventListener('click', next);
+    document.addEventListener('keydown', (e)=>{ if (e.key==='ArrowLeft') prev(); if (e.key==='ArrowRight') next(); });
+    let sx=0; track.addEventListener('touchstart',e=>{ sx=e.changedTouches[0].screenX; });
+    track.addEventListener('touchend',e=>{ const dx=sx-e.changedTouches[0].screenX; if (Math.abs(dx)>50){ if (dx>0) prev(); else next(); } });
+  }
+
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.navigateDiary = (d)=>{ if (d<0) prev(); else if (d>0) next(); };
+})();
 </script>
 
 <style>
