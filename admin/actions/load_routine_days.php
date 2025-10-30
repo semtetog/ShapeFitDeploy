@@ -1,11 +1,6 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
 
-// Habilitar exibição de erros temporariamente para debug
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../includes/functions_admin.php';
 $conn = require __DIR__ . '/../../includes/db.php';
@@ -31,13 +26,13 @@ try {
             ri.id,
             ri.title,
             ri.icon_class,
-            url.updated_at as completion_time
+            url.completed_at as completion_time
         FROM sf_user_routine_log url
         JOIN sf_routine_items ri ON url.routine_item_id = ri.id
         WHERE url.user_id = ? 
             AND url.date = ? 
             AND url.is_completed = 1
-        ORDER BY url.updated_at ASC
+        ORDER BY url.completed_at ASC
     ");
     
     if ($stmt_routine_log) {

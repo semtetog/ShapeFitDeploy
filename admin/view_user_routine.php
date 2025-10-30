@@ -160,11 +160,12 @@ async function loadRoutineForDate(targetDate, direction = 0) {
         const url = `actions/load_routine_days.php?user_id=${routineUserId}&date=${dateStr}`;
         const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
         
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-        
         const html = await response.text();
+        
+        if (!response.ok) {
+            console.error('[routine] Erro na resposta:', html);
+            throw new Error(`HTTP ${response.status}: ${html.substring(0, 200)}`);
+        }
         
         if (html.trim()) {
             // Parse HTML e extrair dados
