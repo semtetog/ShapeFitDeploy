@@ -230,6 +230,118 @@
     font-size: 0.95rem;
 }
 
+/* Cards de missões individuais */
+.mission-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.mission-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 107, 0, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.mission-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.mission-icon i {
+    font-size: 1.5rem;
+    color: var(--accent-orange);
+}
+
+.mission-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-edit, .btn-delete {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+    background: rgba(33, 150, 243, 0.2);
+    border-color: rgba(33, 150, 243, 0.4);
+    color: #2196F3;
+    transform: scale(1.05);
+}
+
+.btn-delete:hover {
+    background: rgba(244, 67, 54, 0.2);
+    border-color: rgba(244, 67, 54, 0.4);
+    color: #F44336;
+    transform: scale(1.05);
+}
+
+.mission-content h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.mission-type {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.mission-duration {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--accent-orange);
+}
+
+.empty-missions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    color: var(--text-secondary);
+    gap: 1rem;
+}
+
+.empty-missions i {
+    font-size: 3rem;
+    color: rgba(255, 107, 0, 0.3);
+}
+
+.empty-missions p {
+    font-size: 1rem;
+    text-align: center;
+}
+
 @media (max-width: 768px) {
     .routine-missions-card {
         padding: 1.5rem;
@@ -1350,11 +1462,11 @@ function updateRoutineCategoryChart() {
 
 // Função para carregar lista de missões
 function loadMissionsAdminList() {
-    fetch('api/routine_crud.php?action=list&patient_id=<?php echo $user_id; ?>')
+    fetch('api/routine_crud.php?action=list_missions&patient_id=<?php echo $user_id; ?>')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                renderMissionsGrid(data.missions);
+                renderMissionsGrid(data.data);
             } else {
                 showEmptyMissions('Erro ao carregar missões: ' + data.message);
             }

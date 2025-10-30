@@ -65,25 +65,18 @@ try {
     error_log('Processando ação: ' . $action);
     switch ($action) {
         case 'list_missions':
+        case 'list':
             error_log('Executando list_missions...');
+            // Buscar todas as missões ativas (para o admin criar/editar)
             $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type, 
-                           default_for_all_users, user_id_creator
+                           default_for_all_users
                     FROM sf_routine_items 
-                    WHERE is_active = 1 AND (default_for_all_users = 1 OR user_id_creator = ?)
-                    ORDER BY id";
+                    WHERE is_active = 1
+                    ORDER BY id DESC";
             
             error_log('SQL: ' . $sql);
-            error_log('Patient ID para bind: ' . $patient_id);
             
-            $stmt = $conn->prepare($sql);
-            if (!$stmt) {
-                error_log('ERRO ao preparar statement: ' . $conn->error);
-                throw new Exception('Erro ao preparar statement: ' . $conn->error);
-            }
-            
-            $stmt->bind_param('i', $patient_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $result = $conn->query($sql);
             
             $missions = [];
             while ($row = $result->fetch_assoc()) {
@@ -93,7 +86,6 @@ try {
             error_log('Missões encontradas: ' . count($missions));
             error_log('Dados das missões: ' . print_r($missions, true));
             
-            $stmt->close();
             echo json_encode(['success' => true, 'data' => $missions]);
             break;
             
@@ -219,9 +211,9 @@ try {
             
             $stmt = $conn->prepare("INSERT INTO sf_routine_items 
                                    (title, icon_class, description, is_exercise, exercise_type, 
-                                    default_for_all_users, user_id_creator, is_active) 
-                                   VALUES (?, ?, ?, ?, ?, 0, ?, 1)");
-            $stmt->bind_param('sssisi', $title, $icon_class, $description, $is_exercise, $exercise_type, $patient_id);
+                                    default_for_all_users, is_active) 
+                                   VALUES (?, ?, ?, ?, ?, 0, 1)");
+            $stmt->bind_param('sssisi', $title, $icon_class, $description, $is_exercise, $exercise_type);
             
             if ($stmt->execute()) {
                 echo json_encode(['success' => true, 'message' => 'Missão criada com sucesso']);
@@ -274,8 +266,8 @@ try {
             
             $stmt = $conn->prepare("UPDATE sf_routine_items 
                                    SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
-                                   WHERE id = ? AND user_id_creator = ?");
-            $stmt->bind_param('sssisi', $title, $icon_class, $description, $is_exercise, $exercise_type, $id, $patient_id);
+                                   WHERE id = ?");
+            $stmt->bind_param('ssssii', $title, $icon_class, $description, $is_exercise, $exercise_type, $id);
             
             if ($stmt->execute() && $stmt->affected_rows > 0) {
                 echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
@@ -325,14 +317,14 @@ try {
             $id = intval($data['id']);
             
             // Excluir logs primeiro
-            $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ? AND user_id = ?");
-            $stmt1->bind_param('ii', $id, $patient_id);
+            $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ?");
+            $stmt1->bind_param('i', $id);
             $stmt1->execute();
             $stmt1->close();
             
-            // Excluir missão
-            $stmt2 = $conn->prepare("DELETE FROM sf_routine_items WHERE id = ? AND user_id_creator = ?");
-            $stmt2->bind_param('ii', $id, $patient_id);
+            // Marcar missão como inativa ao invés de excluir
+            $stmt2 = $conn->prepare("UPDATE sf_routine_items SET is_active = 0 WHERE id = ?");
+            $stmt2->bind_param('i', $id);
             
             if ($stmt2->execute() && $stmt2->affected_rows > 0) {
                 echo json_encode(['success' => true, 'message' => 'Missão excluída com sucesso']);
