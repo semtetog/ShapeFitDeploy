@@ -6,6 +6,12 @@
 <div id="tab-diary" class="tab-content active">
     <div class="diary-slider-container">
         <div class="diary-header-redesign">
+            <script>
+            // Evita ReferenceError caso o usuário clique antes do JS principal carregar
+            if (typeof window.navigateDiary !== 'function') {
+                window.navigateDiary = function() { console.warn('Diário ainda carregando...'); };
+            }
+            </script>
             <!-- Ano no topo -->
             <?php
                 $initialTs = strtotime($endDate);
@@ -564,6 +570,11 @@ window.goToDiaryIndex = goToDiaryIndex;
 window.openDiaryCalendar = openDiaryCalendar;
 window.closeDiaryCalendar = closeDiaryCalendar;
 window.changeCalendarMonth = changeCalendarMonth;
+// se existir chamadas enfileiradas do stub inicial, executa agora
+if (Array.isArray(window.navigateDiaryQueue)) {
+    window.navigateDiaryQueue.forEach((d)=>{ try { navigateDiary(d); } catch(e){} });
+    window.navigateDiaryQueue = [];
+}
 </script>
 
 <style>
