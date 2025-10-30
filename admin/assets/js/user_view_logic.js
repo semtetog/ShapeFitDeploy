@@ -1,9 +1,41 @@
 // ==============================================================
 //  TESTE DE CARREGAMENTO: Verifique a aba "Console" (F12)
 // ==============================================================
-console.log("--- user_view_logic.js v5 (DIAGNÓSTICO) CARREGADO ---");
+console.log("[user_view_logic] loaded v5");
+
+// Log erros globais para confirmar execução do script
+window.addEventListener('error', function(e){
+  console.log('[user_view_logic] window error captured:', e?.message || e);
+});
+
+// Garantir handlers mesmo se inline for bloqueado (CSP)
+document.addEventListener('DOMContentLoaded', function(){
+  console.log('[user_view_logic] DOMContentLoaded');
+  // Delegação para botão de reverter metas
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.btn-revert-goals');
+    if (btn){
+      console.log('[user_view_logic] delegated click .btn-revert-goals');
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof window.showRevertModal === 'function') {
+        try { window.showRevertModal(parseInt(btn.getAttribute('onclick')?.match(/\d+/)?.[0] || btn.dataset.userId || '0', 10)); }
+        catch(err){ console.log('[user_view_logic] showRevertModal call error', err); }
+      } else {
+        console.log('[user_view_logic] showRevertModal not found; toggling modal fallback');
+        const m = document.getElementById('revertGoalsModal');
+        if (m){ m.classList.add('active'); document.body.style.overflow = 'hidden'; }
+      }
+    }
+  }, true);
+});
+
+window.addEventListener('load', function(){
+  console.log('[user_view_logic] window load');
+});
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('[user_view_logic] weight chart init');
     
     // --- LÓGICA DAS ABAS ---
     const tabLinks = document.querySelectorAll('.tab-link');
