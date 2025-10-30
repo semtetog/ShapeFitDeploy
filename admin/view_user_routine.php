@@ -1504,7 +1504,7 @@ function updateRoutineCategoryChart() {
 
 // Função para carregar lista de missões
 function loadMissionsAdminList() {
-    fetch('api/routine_crud.php?action=list_missions&patient_id=<?php echo $user_id; ?>')
+    fetch('api/routine_crud.php?action=list_missions')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
