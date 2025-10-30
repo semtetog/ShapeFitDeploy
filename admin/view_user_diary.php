@@ -7,22 +7,34 @@
     <div class="diary-slider-container">
         <div class="diary-header-redesign">
             <!-- Ano no topo -->
-            <div class="diary-year" id="diaryYear">2025</div>
+            <?php
+                $initialTs = strtotime($endDate);
+                $initialYear = date('Y', $initialTs);
+                $initialDay = (int)date('d', $initialTs);
+                $monthIdx = (int)date('n', $initialTs) - 1;
+                $monthsShort = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+                $monthsShortLower = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+                $weekdays = ['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','SÁBADO'];
+                $weekdayUp = $weekdays[(int)date('w', $initialTs)];
+                $prevTs = strtotime('-1 day', $initialTs);
+                $nextTs = strtotime('+1 day', $initialTs);
+            ?>
+            <div class="diary-year" id="diaryYear"><?php echo $initialYear; ?></div>
             
             <!-- Navegação e data principal -->
             <div class="diary-nav-row">
                 <button class="diary-nav-side diary-nav-left" onclick="navigateDiary(-1)" type="button">
                     <i class="fas fa-chevron-left"></i>
-                    <span id="diaryPrevDate">26 out</span>
+                    <span id="diaryPrevDate"><?php echo (int)date('d', $prevTs) . ' ' . $monthsShortLower[(int)date('n', $prevTs)-1]; ?></span>
                 </button>
                 
                 <div class="diary-main-date">
-                    <div class="diary-day-month" id="diaryDayMonth">27 OUT</div>
-                    <div class="diary-weekday" id="diaryWeekday">SEGUNDA</div>
+                    <div class="diary-day-month" id="diaryDayMonth"><?php echo $initialDay . ' ' . $monthsShort[$monthIdx]; ?></div>
+                    <div class="diary-weekday" id="diaryWeekday"><?php echo $weekdayUp; ?></div>
         </div>
                 
                 <button class="diary-nav-side diary-nav-right" onclick="navigateDiary(1)" type="button">
-                    <span id="diaryNextDate">28 out</span>
+                    <span id="diaryNextDate"><?php echo (int)date('d', $nextTs) . ' ' . $monthsShortLower[(int)date('n', $nextTs)-1]; ?></span>
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
