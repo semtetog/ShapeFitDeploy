@@ -114,7 +114,7 @@
                     $month_name_abbr = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][date('n', $timestamp) - 1];
                     $year = date('Y', $timestamp);
                 ?>
-                <div class="diary-day-card<?php echo ($date === $current_active_date ? ' active' : ''); ?>" data-date="<?php echo $date; ?>">
+                <div class="diary-day-card<?php echo ($date === $current_active_date ? ' active' : ''); ?>" data-date="<?php echo $date; ?>" data-kcal="<?php echo (int)round($day_total_kcal); ?>" data-protein="<?php echo (int)round($day_total_prot); ?>" data-carbs="<?php echo (int)round($day_total_carb); ?>" data-fat="<?php echo (int)round($day_total_fat); ?>">
                     <!-- Dados escondidos para o JavaScript buscar -->
                     <div class="diary-day-summary" style="display: none;">
                         <div class="diary-summary-item">
@@ -238,11 +238,13 @@
       nextBtn.parentElement.style.visibility = 'hidden';
     }
 
-    const summaryDiv = card.querySelector('.diary-day-summary');
-    const kcalText = summaryDiv?.querySelector('.diary-summary-item span')?.textContent || '0 kcal';
-    const macrosText = summaryDiv?.querySelector('.diary-summary-macros')?.textContent || 'P: 0g • C: 0g • G: 0g';
-    document.getElementById('diarySummaryKcal').innerHTML = `<i class="fas fa-fire"></i><span>${kcalText}</span>`;
-    document.getElementById('diarySummaryMacros').textContent = macrosText;
+    // Atualizar resumo lendo data-attributes pré-computados no PHP
+    const kcal = parseInt(card.dataset.kcal || '0', 10);
+    const p = parseInt(card.dataset.protein || '0', 10);
+    const c = parseInt(card.dataset.carbs || '0', 10);
+    const g = parseInt(card.dataset.fat || '0', 10);
+    document.getElementById('diarySummaryKcal').innerHTML = `<i class="fas fa-fire"></i><span>${kcal} kcal</span>`;
+    document.getElementById('diarySummaryMacros').textContent = `P: ${p}g • C: ${c}g • G: ${g}g`;
   }
 
   function render(){ setTransform(); updateHeader(); }
