@@ -379,7 +379,24 @@ function applyUnitsToClassifiedFoods($classifications) {
             
             error_log("Processando food_id {$food_id} com categorias: " . implode(', ', $categories));
             
-            // Limpar unidades existentes para este alimento
+            // CRÍTICO: Verificar se o alimento já tem unidades customizadas (editadas pelo admin)
+            $check_sql = "SELECT COUNT(*) as count FROM sf_food_item_conversions WHERE food_item_id = ?";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->bind_param("i", $food_id);
+            $check_stmt->execute();
+            $result = $check_stmt->get_result();
+            $row = $result->fetch_assoc();
+            $existing_units_count = (int)$row['count'];
+            
+            // Se já tem unidades configuradas, NÃO sobrescrever (preservar edições do admin)
+            if ($existing_units_count > 0) {
+                error_log("⚠️ Food_id {$food_id} já tem {$existing_units_count} unidades customizadas - pulando aplicação automática");
+                continue;
+            }
+            
+            error_log("✅ Food_id {$food_id} não tem unidades - aplicando unidades padrão da categoria");
+            
+            // Limpar unidades existentes para este alimento (caso existam)
             $delete_sql = "DELETE FROM sf_food_item_conversions WHERE food_item_id = ?";
             $delete_stmt = $conn->prepare($delete_sql);
             $delete_stmt->bind_param("i", $food_id);
