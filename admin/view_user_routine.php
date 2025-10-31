@@ -2270,43 +2270,52 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 /* === Icon Picker === */
 #missionModal .icon-picker {
   display: grid !important;
-  grid-template-columns: repeat(8, 1fr) !important;
-  gap: 0.75rem !important;
+  grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)) !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  justify-items: center !important;
+  align-items: center !important;
+  padding: 8px 0 !important;
   margin-top: 0 !important;
 }
 
 #missionModal .icon-option {
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 10px !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  background: var(--card-bg, rgba(255, 255, 255, 0.05)) !important;
   cursor: pointer !important;
-  transition: all 0.3s ease !important;
+  transition: all 0.2s ease !important;
 }
 
 #missionModal .icon-option:hover {
-  background: rgba(255, 107, 0, 0.1) !important;
-  border-color: rgba(255, 107, 0, 0.3) !important;
-  transform: scale(1.05) !important;
+  transform: translateY(-1px) !important;
+  border-color: var(--accent-orange, #FF6B00) !important;
 }
 
+#missionModal .icon-option.active,
+#missionModal .icon-option[aria-checked="true"],
 #missionModal .icon-option.selected {
-  background: rgba(255, 107, 0, 0.2) !important;
-  border-color: var(--accent-orange) !important;
+  outline: 2px solid var(--accent-orange, #FF6B00) !important;
+  outline-offset: -2px !important;
+  background: rgba(255, 111, 0, 0.08) !important;
+  border-color: var(--accent-orange, #FF6B00) !important;
 }
 
 #missionModal .icon-option i {
   font-size: 1.1rem !important;
-  color: var(--text-primary) !important;
-  transition: color 0.3s ease !important;
+  color: var(--text-primary, #ffffff) !important;
+  transition: color 0.2s ease !important;
 }
 
+#missionModal .icon-option.active i,
+#missionModal .icon-option[aria-checked="true"] i,
 #missionModal .icon-option.selected i {
-  color: var(--accent-orange) !important;
+  color: var(--accent-orange, #FF6B00) !important;
 }
 
 /* === Form Actions === */
