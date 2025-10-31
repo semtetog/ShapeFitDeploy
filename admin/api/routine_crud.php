@@ -110,8 +110,6 @@ try {
     switch ($action) {
         case 'list_missions':
         case 'list':
-            error_log('Executando list_missions para patient_id: ' . $patient_id);
-            
             // Buscar apenas missões personalizadas do usuário, excluindo missão de sono (não é editável)
             $missions = [];
             $sql_personal = "SELECT id, title, icon_class, description, is_exercise, exercise_type 
@@ -119,8 +117,6 @@ try {
                              WHERE user_id = ?
                              AND NOT (IFNULL(exercise_type, '') = 'sleep' OR LOWER(title) LIKE '%sono%')
                              ORDER BY id DESC";
-            error_log('SQL: ' . $sql_personal);
-            error_log('Patient ID: ' . $patient_id);
             $stmt = $conn->prepare($sql_personal);
             $stmt->bind_param('i', $patient_id);
             $stmt->execute();
@@ -130,11 +126,6 @@ try {
                 $missions[] = $row;
             }
             $stmt->close();
-            
-            error_log('Total de missões encontradas: ' . count($missions));
-            foreach ($missions as $m) {
-                error_log('Missão: ' . $m['title'] . ' | Icon: ' . $m['icon_class'] . ' | Exercise: ' . $m['is_exercise']);
-            }
             
             echo json_encode(['success' => true, 'data' => $missions]);
             break;

@@ -1504,12 +1504,10 @@ function updateRoutineCategoryChart() {
 
 // Função para carregar lista de missões
 function loadMissionsAdminList() {
-    console.log('[loadMissionsAdminList] Carregando missões para usuário:', routineUserId);
     fetch(`api/routine_crud.php?action=list_missions&patient_id=${routineUserId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                console.log('[loadMissionsAdminList] Dados recebidos do backend:', data);
                 renderMissionsGrid(data.data);
             } else {
                 showEmptyMissions('Erro ao carregar missões: ' + data.message);
@@ -1524,8 +1522,6 @@ function loadMissionsAdminList() {
 // Função para renderizar grid de missões
 function renderMissionsGrid(missions) {
     const container = document.getElementById('missions-container');
-    
-    console.log('[MISSIONS] Renderizando missões:', missions);
     
     // Filtrar missão de sono (não é editável pelo admin)
     const editableMissions = missions.filter(mission => {
@@ -1542,7 +1538,6 @@ function renderMissionsGrid(missions) {
     const missionsHtml = editableMissions.map(mission => {
         const isExercise = mission.is_exercise == 1 || mission.is_exercise === '1' || mission.is_exercise === true;
         const isPersonal = mission.is_personal == 1 || mission.is_personal === '1' || mission.is_personal === true;
-        console.log(`[MISSION ${mission.id}] is_exercise:`, mission.is_exercise, 'is_personal:', isPersonal);
         return `
         <div class="mission-card" data-id="${mission.id}" data-is-personal="${isPersonal ? 1 : 0}">
             <div class="mission-header">
