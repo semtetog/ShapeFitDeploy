@@ -91,9 +91,6 @@ try {
         // Restrições e preferências
         'sf_user_selected_restrictions',
         
-        // Mensagens e feedback
-        'sf_user_messages',
-        
         // Grupos e desafios
         'sf_user_challenge_members',
         'sf_user_group_members',
@@ -113,25 +110,128 @@ try {
     $deleted_counts = [];
     
     foreach ($tables_to_delete as $table) {
-        // Verificar se a tabela existe e tem user_id
-        $check_sql = "SHOW COLUMNS FROM `{$table}` LIKE 'user_id'";
-        $check_result = $conn->query($check_sql);
-        
-        if ($check_result && $check_result->num_rows > 0) {
-            // Deletar da tabela
+        // ENVOLVE TUDO EM TRY-CATCH para capturar QUALQUER erro
+        try {
+            // Suprime erros do MySQL e verifica manualmente
+            $old_error_reporting = error_reporting(0);
+            $mysqli_report_old = mysqli_report(MYSQLI_REPORT_OFF);
+            
+            // Verifica se a tabela existe usando INFORMATION_SCHEMA
+            $table_exists = false;
+            $check_sql = "SELECT COUNT(*) as cnt FROM information_schema.tables 
+                          WHERE table_schema = DATABASE() AND table_name = ?";
+            $check_stmt = $conn->prepare($check_sql);
+            
+            if ($check_stmt) {
+                $check_stmt->bind_param("s", $table);
+                $check_stmt->execute();
+                $result = $check_stmt->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    $table_exists = ($row['cnt'] > 0);
+                }
+                $check_stmt->close();
+            }
+            
+            // Restaura error reporting
+            error_reporting($old_error_reporting);
+            mysqli_report($mysqli_report_old);
+            
+            // Se a tabela não existe, pula SEM erro
+            if (!$table_exists) {
+                continue;
+            }
+            
+            // Suprime erros novamente para SHOW COLUMNS
+            $old_error_reporting = error_reporting(0);
+            $mysqli_report_old = mysqli_report(MYSQLI_REPORT_OFF);
+            
+            // Verifica se tem coluna user_id (suprimindo erros)
+            $check_column = @$conn->query("SHOW COLUMNS FROM `{$table}` LIKE 'user_id'");
+            
+            // Verifica se houve erro
+            if ($conn->errno == 1146 || strpos($conn->error, "doesn't exist") !== false) {
+                // Tabela não existe, pula
+                error_reporting($old_error_reporting);
+                mysqli_report($mysqli_report_old);
+                continue;
+            }
+            
+            if (!$check_column || $check_column->num_rows == 0) {
+                if ($check_column) {
+                    $check_column->close();
+                }
+                error_reporting($old_error_reporting);
+                mysqli_report($mysqli_report_old);
+                continue; // Não tem coluna user_id, pula
+            }
+            
+            if ($check_column) {
+                $check_column->close();
+            }
+            
+            // Restaura error reporting
+            error_reporting($old_error_reporting);
+            mysqli_report($mysqli_report_old);
+            
+            // Agora pode tentar deletar (com erro suprimido)
+            $old_error_reporting = error_reporting(0);
+            $mysqli_report_old = mysqli_report(MYSQLI_REPORT_OFF);
+            
             $delete_sql = "DELETE FROM `{$table}` WHERE user_id = ?";
-            $stmt = $conn->prepare($delete_sql);
+            $stmt = @$conn->prepare($delete_sql);
+            
+            // Verifica se houve erro ao preparar
+            if ($conn->errno == 1146 || strpos($conn->error, "doesn't exist") !== false) {
+                error_reporting($old_error_reporting);
+                mysqli_report($mysqli_report_old);
+                continue;
+            }
             
             if ($stmt) {
                 $stmt->bind_param("i", $user_id);
-                $stmt->execute();
-                $affected = $stmt->affected_rows;
-                $stmt->close();
+                $result = @$stmt->execute();
                 
-                if ($affected > 0) {
-                    $deleted_counts[$table] = $affected;
+                // Verifica se houve erro após executar
+                if ($conn->errno) {
+                    if ($conn->errno == 1146 || strpos($conn->error, "doesn't exist") !== false) {
+                        $stmt->close();
+                        error_reporting($old_error_reporting);
+                        mysqli_report($mysqli_report_old);
+                        continue;
+                    }
+                } else {
+                    // Sucesso - conta registros deletados
+                    $affected = $stmt->affected_rows;
+                    if ($affected > 0) {
+                        $deleted_counts[$table] = $affected;
+                    }
                 }
+                
+                $stmt->close();
             }
+            
+            // Restaura error reporting
+            error_reporting($old_error_reporting);
+            mysqli_report($mysqli_report_old);
+            
+        } catch (Exception $table_error) {
+            // Captura QUALQUER exceção
+            $error_message = $table_error->getMessage();
+            
+            // Restaura error reporting mesmo em caso de erro
+            error_reporting($old_error_reporting ?? E_ALL);
+            mysqli_report($mysqli_report_old ?? MYSQLI_REPORT_ERROR);
+            
+            // Se erro é sobre tabela não existir, ignora silenciosamente
+            if (strpos($error_message, "doesn't exist") !== false || 
+                strpos($error_message, "Unknown table") !== false ||
+                strpos($error_message, "Table") !== false && strpos($error_message, "doesn't exist") !== false) {
+                continue; // Ignora silenciosamente
+            }
+            
+            // Outros erros: loga mas continua
+            error_log("Erro ao processar tabela {$table}: " . $error_message);
+            continue;
         }
     }
     
