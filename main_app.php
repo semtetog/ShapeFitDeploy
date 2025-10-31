@@ -1000,39 +1000,6 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         
         <div class="card-suggestions"><div class="card-header"><h3>Sugestões para <?php echo htmlspecialchars($meal_suggestion_data['display_name']); ?></span></h3><a href="<?php echo BASE_APP_URL; ?>/explore_recipes.php?categories=<?php echo urlencode($meal_suggestion_data['category_id'] ?? ''); ?>" class="view-all-link">Ver mais</a></div><div class="carousel-wrapper"><div class="suggestions-carousel"><?php if (!empty($meal_suggestion_data['recipes'])): foreach($meal_suggestion_data['recipes'] as $recipe): ?><div class="suggestion-item glass-card"> <a href="<?php echo BASE_APP_URL; ?>/view_recipe.php?id=<?php echo $recipe['id']; ?>" class="suggestion-link"><div class="suggestion-image-container"><img src="<?php echo BASE_ASSET_URL . '/assets/images/recipes/' . htmlspecialchars($recipe['image_filename'] ? $recipe['image_filename'] : 'placeholder_food.jpg'); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>"></div><div class="recipe-info"><h4><?php echo htmlspecialchars($recipe['name']); ?></h4><span><i class="fas fa-fire-alt"></i> <?php echo round($recipe['kcal_per_serving']); ?> kcal</span></div></a></div><?php endforeach; else: ?><div class="no-suggestions-card glass-card"><p>Nenhuma sugestão para esta refeição no momento.</p></div><?php endif; ?></div></div></div>
         
-        <!-- Novos Cards no Final -->
-        <div class="glass-card card-action-item">
-            <div class="action-icon"><i class="fas fa-calendar-week"></i></div>
-            <div class="action-content">
-                <h3>Check-in Semanal</h3>
-                <p>Acompanhe seu progresso semanal com gráficos e comparações</p>
-            </div>
-            <a href="<?php echo BASE_APP_URL; ?>/weekly_checkin.php" class="action-button">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-        
-        <div class="glass-card card-action-item">
-            <div class="action-icon"><i class="fas fa-trophy"></i></div>
-            <div class="action-content">
-                <h3>Salas de Desafio</h3>
-                <p>Participe de desafios em grupo e ganhe recompensas</p>
-            </div>
-            <a href="<?php echo BASE_APP_URL; ?>/challenge_rooms_new.php" class="action-button">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-        
-        <div class="glass-card card-action-item">
-            <div class="action-icon premium"><i class="fas fa-crown"></i></div>
-            <div class="action-content">
-                <h3>Área de Membros</h3>
-                <p>Conteúdo exclusivo premium e materiais especiais</p>
-            </div>
-            <a href="<?php echo BASE_APP_URL; ?>/members_area.php" class="action-button">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
     </section>
 </div>
 
