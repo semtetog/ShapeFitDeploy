@@ -92,6 +92,29 @@ $main_css_version = file_exists($main_css_file_path) ? filemtime($main_css_file_
         })();
     </script>
     
+    <!-- Script para detectar Android e adicionar classe específica -->
+    <script>
+        // Detecta Android e adiciona classe específica após o DOM estar carregado
+        (function detectAndroid() {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                    const isAndroid = /android/i.test(userAgent);
+                    if (isAndroid) {
+                        document.body.classList.add('android-mobile');
+                    }
+                });
+            } else {
+                // DOM já está carregado
+                const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                const isAndroid = /android/i.test(userAgent);
+                if (isAndroid) {
+                    document.body.classList.add('android-mobile');
+                }
+            }
+        })();
+    </script>
+    
     <!-- Service Worker Registration -->
     <script>
     if ('serviceWorker' in navigator) {
