@@ -202,8 +202,10 @@ try {
                 } else {
                     // Sucesso - conta registros deletados
                     $affected = $stmt->affected_rows;
-                    if ($affected > 0) {
+                    if ($affected >= 0) { // >= 0 porque pode deletar 0 registros mas ainda é sucesso
                         $deleted_counts[$table] = $affected;
+                        // Log para debug
+                        error_log("Tabela {$table}: {$affected} registros deletados para user_id {$user_id}");
                     }
                 }
                 
@@ -235,6 +237,39 @@ try {
         }
     }
     
+    // GARANTIR que a tabela sf_users foi deletada (mais importante!)
+    // Verificar se sf_users ainda existe antes de commitar
+    $verify_user_delete = $conn->prepare("SELECT COUNT(*) as cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'sf_users'");
+    $verify_user_delete->execute();
+    $verify_result = $verify_user_delete->get_result();
+    $tables_exist = $verify_result->fetch_assoc();
+    $verify_user_delete->close();
+    
+    // Verificar se o usuário ainda existe em sf_users
+    $check_user_still_exists = $conn->prepare("SELECT id FROM sf_users WHERE id = ?");
+    $check_user_still_exists->bind_param("i", $user_id);
+    $check_user_still_exists->execute();
+    $user_still_exists_result = $check_user_still_exists->get_result();
+    $user_still_exists = $user_still_exists_result->num_rows > 0;
+    $check_user_still_exists->close();
+    
+    if ($user_still_exists) {
+        // Se o usuário ainda existe, força a exclusão
+        error_log("AVISO: Usuário ainda existe após tentativa de exclusão. Forçando exclusão direta...");
+        $force_delete = $conn->prepare("DELETE FROM sf_users WHERE id = ?");
+        $force_delete->bind_param("i", $user_id);
+        $force_delete->execute();
+        $force_affected = $force_delete->affected_rows;
+        $force_delete->close();
+        
+        if ($force_affected > 0) {
+            error_log("Usuário deletado com sucesso após força bruta: ID {$user_id}");
+        } else {
+            error_log("ERRO: Não foi possível deletar usuário ID {$user_id} mesmo após força bruta!");
+            throw new Exception("Não foi possível deletar o usuário da tabela sf_users");
+        }
+    }
+    
     // Confirmar transação
     $conn->commit();
     
@@ -263,13 +298,34 @@ try {
         }
     }
     
+    // Verificar novamente se o usuário foi realmente deletado
+    $final_check = $conn->prepare("SELECT id FROM sf_users WHERE id = ?");
+    $final_check->bind_param("i", $user_id);
+    $final_check->execute();
+    $final_result = $final_check->get_result();
+    $still_exists = $final_result->num_rows > 0;
+    $final_check->close();
+    
+    if ($still_exists) {
+        // Última tentativa - força direta sem transação
+        error_log("ERRO CRÍTICO: Usuário ainda existe após commit! Tentando exclusão direta...");
+        $direct_delete = $conn->query("DELETE FROM sf_users WHERE id = {$user_id}");
+        if ($direct_delete && $conn->affected_rows > 0) {
+            error_log("Usuário deletado com sucesso na última tentativa: ID {$user_id}");
+        } else {
+            throw new Exception("FALHA CRÍTICA: Não foi possível deletar o usuário ID {$user_id}");
+        }
+    }
+    
     // Log da exclusão
     error_log("Usuário deletado permanentemente: ID {$user_id} - {$user_name}");
+    error_log("Tabelas processadas: " . json_encode($deleted_counts));
     
     echo json_encode([
         'success' => true,
         'message' => "Usuário '{$user_name}' excluído permanentemente com sucesso!",
-        'deleted_counts' => $deleted_counts
+        'deleted_counts' => $deleted_counts,
+        'user_id' => $user_id
     ]);
     
 } catch (Exception $e) {
