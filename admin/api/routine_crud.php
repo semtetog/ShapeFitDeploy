@@ -117,7 +117,7 @@ try {
             $sql_personal = "SELECT id, title, icon_class, description, is_exercise, exercise_type 
                              FROM sf_user_routine_items 
                              WHERE user_id = ?
-                             AND NOT (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
+                             AND NOT (IFNULL(exercise_type, '') = 'sleep' OR LOWER(title) LIKE '%sono%')
                              ORDER BY id DESC";
             error_log('SQL: ' . $sql_personal);
             error_log('Patient ID: ' . $patient_id);
