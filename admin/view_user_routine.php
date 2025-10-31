@@ -1538,12 +1538,15 @@ function renderMissionsGrid(missions) {
     const missionsHtml = editableMissions.map(mission => {
         const isExercise = mission.is_exercise == 1 || mission.is_exercise === '1' || mission.is_exercise === true;
         const isPersonal = mission.is_personal == 1 || mission.is_personal === '1' || mission.is_personal === true;
+        const isDynamic = String(mission.id).startsWith('onboarding_');
+        
         return `
         <div class="mission-card" data-id="${mission.id}" data-is-personal="${isPersonal ? 1 : 0}">
             <div class="mission-header">
                 <div class="mission-icon">
                     <i class="fas ${mission.icon_class}"></i>
                 </div>
+                ${!isDynamic ? `
                 <div class="mission-actions">
                     <button class="btn-edit" onclick="editMission(${mission.id}, ${isPersonal ? 1 : 0})" title="Editar">
                         <i class="fas fa-edit"></i>
@@ -1552,10 +1555,12 @@ function renderMissionsGrid(missions) {
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
+                ` : ''}
             </div>
             <div class="mission-content">
                 <h4>${mission.title}</h4>
                 ${mission.description ? `<p class="mission-description">${mission.description}</p>` : ''}
+                ${isDynamic ? '<p class="mission-description" style="color: var(--text-secondary, #888); font-size: 0.85rem;">Definido no perfil do usuário</p>' : ''}
             </div>
         </div>
         `;

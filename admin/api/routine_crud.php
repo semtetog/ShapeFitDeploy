@@ -109,7 +109,7 @@ try {
     switch ($action) {
         case 'list_missions':
         case 'list':
-            // Buscar apenas missões personalizadas do usuário, excluindo missão de sono (não é editável)
+            // Buscar missões personalizadas do usuário, excluindo missão de sono (não é editável)
             $missions = [];
             $sql_personal = "SELECT id, title, icon_class, description, is_exercise, exercise_type 
                              FROM sf_user_routine_items 
@@ -125,6 +125,36 @@ try {
                 $missions[] = $row;
             }
             $stmt->close();
+            
+            // Buscar exercícios dinâmicos do usuário (do onboarding/edit_profile)
+            $sql_profile = "SELECT exercise_type FROM sf_user_profiles WHERE user_id = ?";
+            $stmt_profile = $conn->prepare($sql_profile);
+            if ($stmt_profile) {
+                $stmt_profile->bind_param('i', $patient_id);
+                $stmt_profile->execute();
+                $result_profile = $stmt_profile->get_result();
+                $profile_data = $result_profile->fetch_assoc();
+                $stmt_profile->close();
+                
+                // Se o usuário tem exercícios definidos, adicionar como missões dinâmicas
+                if ($profile_data && !empty(trim($profile_data['exercise_type'] ?? ''))) {
+                    $activities_string = trim($profile_data['exercise_type']);
+                    $user_activities = preg_split('/,\s*/', $activities_string, -1, PREG_SPLIT_NO_EMPTY);
+                    
+                    foreach ($user_activities as $activity) {
+                        $clean_activity = trim($activity);
+                        $missions[] = [
+                            'id' => 'onboarding_' . $clean_activity,
+                            'title' => $clean_activity,
+                            'icon_class' => 'fa-dumbbell',
+                            'description' => null,
+                            'is_exercise' => 1,
+                            'exercise_type' => 'duration',
+                            'is_personal' => 0  // Não é personalizada (não pode ser editada)
+                        ];
+                    }
+                }
+            }
             
             echo json_encode(['success' => true, 'data' => $missions]);
             break;
