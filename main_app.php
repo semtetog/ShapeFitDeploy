@@ -921,15 +921,35 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                     </div>
                     <div class="mission-actions">
                         <button class="mission-action-btn skip-btn" aria-label="Pular Missão"><i class="fas fa-times"></i></button>
-                        <?php if (strpos($mission['id'], 'onboarding_') === 0): ?>
-                            <!-- Exercício onboarding - precisa de duração -->
+                        <?php 
+                        // Verificar se é missão de duração (exercício)
+                        $is_duration = false;
+                        $is_sleep = false;
+                        
+                        if (strpos($mission['id'], 'onboarding_') === 0) {
+                            // Exercício onboarding - sempre é duração
+                            $is_duration = true;
+                        } elseif (isset($mission['is_exercise']) && $mission['is_exercise'] == 1) {
+                            // Verificar se é sono ou duração baseado no exercise_type
+                            if (isset($mission['exercise_type']) && $mission['exercise_type'] === 'sleep') {
+                                $is_sleep = true;
+                            } elseif (isset($mission['exercise_type']) && $mission['exercise_type'] === 'duration') {
+                                $is_duration = true;
+                            }
+                        } elseif (strpos($mission['title'], 'sono') !== false || strpos($mission['title'], 'Sono') !== false) {
+                            // Fallback para verificação por título
+                            $is_sleep = true;
+                        }
+                        
+                        if ($is_duration): ?>
+                            <!-- Exercício com duração -->
                             <button class="mission-action-btn duration-btn" aria-label="Definir Duração" data-mission-id="<?php echo $mission['id']; ?>">
                                 <i class="fas fa-clock"></i>
                             </button>
                             <button class="mission-action-btn complete-btn disabled" aria-label="Completar Missão">
                                 <i class="fas fa-check"></i>
                             </button>
-                        <?php elseif (strpos($mission['title'], 'sono') !== false || strpos($mission['title'], 'Sono') !== false): ?>
+                        <?php elseif ($is_sleep): ?>
                             <!-- Item de sono - precisa de horários -->
                             <button class="mission-action-btn sleep-btn" aria-label="Registrar Sono" data-mission-id="<?php echo $mission['id']; ?>">
                                 <i class="fas fa-clock"></i>
