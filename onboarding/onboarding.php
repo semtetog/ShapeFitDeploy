@@ -295,26 +295,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
             }
         }
         
-        // Copiar outras missões padrão da tabela (se houver)
-        $stmt_copy_other_missions = $conn->prepare("
-            INSERT IGNORE INTO sf_user_routine_items (user_id, title, icon_class, description, is_exercise, exercise_type)
-            SELECT 
-                ?,
-                title,
-                icon_class,
-                description,
-                is_exercise,
-                CASE 
-                    WHEN LOWER(title) LIKE '%sono%' THEN 'sleep'
-                    WHEN exercise_type = 'sleep' THEN 'sleep'
-                    ELSE exercise_type
-                END as exercise_type
-            FROM sf_routine_items
-            WHERE is_active = 1 AND default_for_all_users = 1
-        ");
-        $stmt_copy_other_missions->bind_param("i", $user_id);
-        $stmt_copy_other_missions->execute();
-        $stmt_copy_other_missions->close();
 
         $conn->commit();
         $_SESSION['onboarding_complete'] = true;
