@@ -1679,7 +1679,7 @@ window.editMission = function(missionId, isPersonal = 0) {
                 document.getElementById('missionTitle').value = mission.title || '';
                 document.getElementById('missionDescription').value = mission.description || '';
                 
-                // Mapear tipo de missão do backend para o select
+                // Mapear tipo de missão do backend para o radio button
                 let missionType = 'yes_no';
                 
                 // Se é exercício, verificar o tipo
@@ -1699,7 +1699,11 @@ window.editMission = function(missionId, isPersonal = 0) {
                     }
                 }
                 
-                document.getElementById('missionType').value = missionType;
+                // Marcar o radio button correto
+                const radioButton = document.querySelector(`input[name="mission_type"][value="${missionType}"]`);
+                if (radioButton) {
+                    radioButton.checked = true;
+                }
                 
                 // Abrir modal (não resetar formulário pois já preenchemos os dados)
                 openMissionModal(missionId, true);
@@ -2201,18 +2205,80 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
   opacity: 0.7 !important;
 }
 
+/* === Mission Type Selector === */
+#missionModal .mission-type-selector {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 0.75rem !important;
+  margin-top: 0 !important;
+}
+
+#missionModal .mission-type-option {
+  position: relative !important;
+  cursor: pointer !important;
+}
+
+#missionModal .mission-type-option input[type="radio"] {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#missionModal .mission-type-option .option-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  padding: 1rem !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+  text-align: center !important;
+}
+
+#missionModal .mission-type-option .option-content i {
+  font-size: 1.5rem !important;
+  color: var(--text-secondary) !important;
+  transition: color 0.3s ease !important;
+}
+
+#missionModal .mission-type-option .option-content span {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary) !important;
+  transition: color 0.3s ease !important;
+}
+
+#missionModal .mission-type-option:hover .option-content {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 107, 0, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+#missionModal .mission-type-option input[type="radio"]:checked + .option-content {
+  background: rgba(255, 107, 0, 0.15) !important;
+  border-color: var(--accent-orange) !important;
+}
+
+#missionModal .mission-type-option input[type="radio"]:checked + .option-content i,
+#missionModal .mission-type-option input[type="radio"]:checked + .option-content span {
+  color: var(--accent-orange) !important;
+}
+
 /* === Icon Picker === */
 #missionModal .icon-picker {
   display: grid !important;
-  grid-template-columns: repeat(7, 1fr) !important;
-  gap: 0.5rem !important;
+  grid-template-columns: repeat(8, 1fr) !important;
+  gap: 0.75rem !important;
   margin-top: 0 !important;
 }
 
 #missionModal .icon-option {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 8px !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 2px solid rgba(255, 255, 255, 0.1) !important;
   display: flex !important;
@@ -2234,7 +2300,7 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 }
 
 #missionModal .icon-option i {
-  font-size: 1rem !important;
+  font-size: 1.1rem !important;
   color: var(--text-primary) !important;
   transition: color 0.3s ease !important;
 }
@@ -2246,18 +2312,17 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 /* === Form Actions === */
 #missionModal .form-actions {
   display: flex !important;
+  justify-content: flex-end !important;
   gap: 0.75rem !important;
-  margin-top: 1.25rem !important;
-  padding-top: 1rem !important;
+  margin-top: 1.5rem !important;
+  padding-top: 1.25rem !important;
   border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-#missionModal .btn-cancel,
 #missionModal .btn-save {
-  flex: 1 !important;
-  padding: 0.75rem 1.25rem !important;
-  border-radius: 10px !important;
-  font-size: 0.875rem !important;
+  padding: 0.875rem 1.5rem !important;
+  border-radius: 12px !important;
+  font-size: 0.95rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   display: flex !important;
@@ -2267,22 +2332,6 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
   transition: all 0.3s ease !important;
   border: none !important;
   font-family: 'Poppins', sans-serif !important;
-}
-
-#missionModal .btn-cancel {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-secondary) !important;
-}
-
-#missionModal .btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: var(--text-primary) !important;
-  transform: translateY(-2px) !important;
-}
-
-#missionModal .btn-save {
   background: var(--accent-orange) !important;
   color: white !important;
 }
@@ -2293,9 +2342,8 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
   box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4) !important;
 }
 
-#missionModal .btn-save i,
-#missionModal .btn-cancel i {
-  font-size: 0.9rem !important;
+#missionModal .btn-save i {
+  font-size: 1rem !important;
 }
 </style>
 
@@ -2391,12 +2439,30 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
                             <input type="text" id="missionDescription" name="description">
                         </div>
                         <div class="form-group">
-                            <label for="missionType">Tipo de Missão</label>
-                            <select id="missionType" name="mission_type" required>
-                                <option value="yes_no">Sim/Não</option>
-                                <option value="duration">Duração (tempo em minutos)</option>
-                                <option value="sleep">Sono (horário)</option>
-                            </select>
+                            <label>Tipo de Missão</label>
+                            <div class="mission-type-selector">
+                                <label class="mission-type-option">
+                                    <input type="radio" name="mission_type" value="yes_no" checked>
+                                    <div class="option-content">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Sim/Não</span>
+                                    </div>
+                                </label>
+                                <label class="mission-type-option">
+                                    <input type="radio" name="mission_type" value="duration">
+                                    <div class="option-content">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Duração</span>
+                                    </div>
+                                </label>
+                                <label class="mission-type-option">
+                                    <input type="radio" name="mission_type" value="sleep">
+                                    <div class="option-content">
+                                        <i class="fas fa-bed"></i>
+                                        <span>Sono</span>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Ícone da Missão</label>
@@ -2405,10 +2471,6 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
                             </div>
                         </div>
                         <div class="form-actions">
-                            <button type="button" class="btn-cancel" onclick="closeMissionModal()">
-                                <i class="fas fa-times"></i>
-                                Cancelar
-                            </button>
                             <button type="submit" class="btn-save">
                                 <i class="fas fa-save"></i>
                                 <span id="saveButtonText">Salvar Missão</span>
