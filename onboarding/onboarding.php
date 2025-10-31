@@ -213,15 +213,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
         // ===========================
         // COPIAR MISSÕES PADRÃO PARA O USUÁRIO
         // ===========================
+        // Copiar missões padrão, garantindo que missões de sono tenham exercise_type = 'sleep'
         $stmt_copy_missions = $conn->prepare("
             INSERT INTO sf_user_routine_items (user_id, title, icon_class, description, is_exercise, exercise_type)
-            SELECT ?, title, icon_class, description, is_exercise, exercise_type
+            SELECT 
+                ?,
+                title,
+                icon_class,
+                description,
+                is_exercise,
+                CASE 
+                    WHEN LOWER(title) LIKE '%sono%' THEN 'sleep'
+                    WHEN exercise_type = 'sleep' THEN 'sleep'
+                    ELSE exercise_type
+                END as exercise_type
             FROM sf_routine_items
             WHERE is_active = 1 AND default_for_all_users = 1
         ");
         $stmt_copy_missions->bind_param("i", $user_id);
         $stmt_copy_missions->execute();
         $stmt_copy_missions->close();
+        
+        // Garantir que missões de sono tenham is_exercise = 1 quando exercise_type = 'sleep'
+        $stmt_fix_sleep = $conn->prepare("
+            UPDATE sf_user_routine_items
+            SET is_exercise = 1
+            WHERE user_id = ? 
+            AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
+        ");
+        $stmt_fix_sleep->bind_param("i", $user_id);
+        $stmt_fix_sleep->execute();
+        $stmt_fix_sleep->close();
 
         $conn->commit();
         $_SESSION['onboarding_complete'] = true;

@@ -56,10 +56,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 continue;
             }
             
-            // Copiar missões padrão para o usuário
+            // Copiar missões padrão para o usuário, garantindo que missões de sono tenham exercise_type = 'sleep'
             $copy_sql = "
                 INSERT INTO sf_user_routine_items (user_id, title, icon_class, description, is_exercise, exercise_type)
-                SELECT ?, title, icon_class, description, is_exercise, exercise_type
+                SELECT 
+                    ?,
+                    title,
+                    icon_class,
+                    description,
+                    is_exercise,
+                    CASE 
+                        WHEN LOWER(title) LIKE '%sono%' THEN 'sleep'
+                        WHEN exercise_type = 'sleep' THEN 'sleep'
+                        ELSE exercise_type
+                    END as exercise_type
                 FROM sf_routine_items
                 WHERE is_active = 1 AND default_for_all_users = 1
             ";
@@ -76,6 +86,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($copy_stmt->execute()) {
                 $affected = $copy_stmt->affected_rows;
                 $migrated_count++;
+                
+                // Garantir que missões de sono tenham is_exercise = 1 quando exercise_type = 'sleep'
+                $fix_sleep_sql = "
+                    UPDATE sf_user_routine_items
+                    SET is_exercise = 1
+                    WHERE user_id = ? 
+                    AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
+                ";
+                $fix_sleep_stmt = $conn->prepare($fix_sleep_sql);
+                if ($fix_sleep_stmt) {
+                    $fix_sleep_stmt->bind_param("i", $user_id);
+                    $fix_sleep_stmt->execute();
+                    $fix_sleep_stmt->close();
+                }
             } else {
                 $error_count++;
                 $errors[] = "Usuário #{$user_id}: Erro ao executar - {$copy_stmt->error}";
