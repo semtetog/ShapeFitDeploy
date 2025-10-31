@@ -713,6 +713,8 @@
   font-weight: 500;
   font-family: 'Montserrat', sans-serif;
   padding: 0.5rem;
+  width: 120px;
+  flex-shrink: 0;
 }
 
 .diary-nav-side:hover:not(.disabled) {
