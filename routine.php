@@ -643,6 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button class="action-btn sleep-btn" aria-label="Registrar Sono" data-routine-id="${missionId}"><i class="fas fa-clock"></i></button>
                         <button class="action-btn complete-btn disabled" aria-label="Concluir"><i class="fas fa-check"></i></button>
                     `;
+                    clonedItem.querySelector('.routine-duration-display').style.display = 'none';
                 } else {
                      actionsContainer.innerHTML = `
                         <button class="action-btn skip-btn" aria-label="Ignorar"><i class="fas fa-times"></i></button>
