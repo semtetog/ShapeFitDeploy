@@ -71,9 +71,28 @@ $page_title = "Login";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <!-- PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ShapeFIT">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="ShapeFIT">
     <meta name="theme-color" content="#101010">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="<?php echo BASE_APP_URL; ?>/manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
 
     <title><?php echo htmlspecialchars($page_title); ?> - ShapeFIT</title>
     

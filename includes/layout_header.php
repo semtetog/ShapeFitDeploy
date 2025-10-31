@@ -43,19 +43,20 @@ $main_css_version = file_exists($main_css_file_path) ? filemtime($main_css_file_
     <link rel="manifest" href="./manifest.json">
     
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="./assets/images/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="./assets/images/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="./assets/images/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="./assets/images/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="./assets/images/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="./assets/images/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="./assets/images/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="./assets/images/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="57x57" href="./assets/images/icon-192x192.png">
+    <link rel="apple-touch-icon" href="./assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="./assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="./assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="./assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="./assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="./assets/images/SHAPE-FIT-LOGO.png">
     
     <!-- CSS inline removido para evitar conflito; regras vivem em assets/css/base/_global.css -->
     
-    <meta name="apple-mobile-web-app-title" content="ShapeFit">
+    <meta name="apple-mobile-web-app-title" content="ShapeFIT">
     
     <!-- Script Critical - Define altura real do viewport -->
     <script>

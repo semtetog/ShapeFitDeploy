@@ -5,24 +5,18 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "transparent",
-  "theme_color": "transparent",
+  "background_color": "#101010",
+  "theme_color": "#101010",
   "orientation": "portrait-primary",
   "categories": ["health", "fitness", "lifestyle"],
   "lang": "pt-BR",
   "dir": "ltr",
   "icons": [
     {
-      "src": "/assets/images/icon-192x192.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/assets/images/icon-512x512.png",
+      "src": "/assets/images/SHAPE-FIT-LOGO.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "screenshots": [
