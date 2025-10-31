@@ -74,7 +74,7 @@ if (!empty($post_data['patient_id'])) {
 $actions_no_patient = ['get_mission'];
 
 // Ações de missões que requerem patient_id
-$patient_missions_actions = ['list_missions', 'list', 'create_mission', 'update_mission', 'delete_mission'];
+$patient_missions_actions = ['list_missions', 'list', 'create_mission', 'update_mission', 'delete_mission', 'check_sleep_mission'];
 
 if (in_array($action, $patient_missions_actions) && !$patient_id) {
     error_log('ERRO: ID do paciente é obrigatório para ação: ' . $action);
@@ -163,6 +163,38 @@ try {
             
             $stmt->close();
             echo json_encode(['success' => true, 'data' => $exercises]);
+            break;
+            
+        case 'check_sleep_mission':
+            error_log('Executando check_sleep_mission para patient_id: ' . $patient_id);
+            
+            // Verificar se já existe uma missão de sono para este usuário
+            // Uma missão é considerada "sono" se exercise_type = 'sleep' OU se o título contém "sono"
+            $sql = "SELECT id, title, exercise_type 
+                    FROM sf_user_routine_items 
+                    WHERE user_id = ? 
+                    AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
+                    LIMIT 1";
+            
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param('i', $patient_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $has_sleep = $result->num_rows > 0;
+            
+            if ($has_sleep) {
+                $sleep_mission = $result->fetch_assoc();
+                error_log('Missão de sono encontrada: ID ' . $sleep_mission['id']);
+            } else {
+                error_log('Nenhuma missão de sono encontrada');
+            }
+            
+            $stmt->close();
+            echo json_encode([
+                'success' => true, 
+                'has_sleep_mission' => $has_sleep,
+                'sleep_mission_id' => $has_sleep ? intval($sleep_mission['id']) : null
+            ]);
             break;
             
         case 'get_mission':
@@ -259,6 +291,26 @@ try {
             $is_exercise = isset($data['is_exercise']) ? intval($data['is_exercise']) : 0;
             $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
             
+            // Verificar se está tentando criar uma missão de sono
+            $is_sleep = ($exercise_type === 'sleep' || stripos($title, 'sono') !== false);
+            
+            if ($is_sleep) {
+                // Verificar se já existe uma missão de sono para este usuário
+                $check_sleep = $conn->prepare("SELECT id FROM sf_user_routine_items 
+                                              WHERE user_id = ? 
+                                              AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
+                                              LIMIT 1");
+                $check_sleep->bind_param('i', $patient_id);
+                $check_sleep->execute();
+                $sleep_result = $check_sleep->get_result();
+                
+                if ($sleep_result->num_rows > 0) {
+                    $check_sleep->close();
+                    throw new Exception('Já existe uma missão de sono para este usuário. Apenas uma missão de sono é permitida por usuário.');
+                }
+                $check_sleep->close();
+            }
+            
             // Todas as missões agora são personalizadas
             $stmt = $conn->prepare("INSERT INTO sf_user_routine_items 
                                    (user_id, title, icon_class, description, is_exercise, exercise_type) 
@@ -323,6 +375,27 @@ try {
             
             error_log('[update_mission] patient_id: ' . $patient_id);
             error_log('[update_mission] data recebida: ' . print_r($data, true));
+            
+            // Verificar se está tentando alterar para uma missão de sono
+            $is_sleep = ($exercise_type === 'sleep' || stripos($title, 'sono') !== false);
+            
+            if ($is_sleep) {
+                // Verificar se já existe uma missão de sono para este usuário (excluindo a atual)
+                $check_sleep = $conn->prepare("SELECT id FROM sf_user_routine_items 
+                                              WHERE user_id = ? 
+                                              AND id != ?
+                                              AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
+                                              LIMIT 1");
+                $check_sleep->bind_param('ii', $patient_id, $id);
+                $check_sleep->execute();
+                $sleep_result = $check_sleep->get_result();
+                
+                if ($sleep_result->num_rows > 0) {
+                    $check_sleep->close();
+                    throw new Exception('Já existe uma missão de sono para este usuário. Apenas uma missão de sono é permitida por usuário.');
+                }
+                $check_sleep->close();
+            }
             
             // Todas as missões agora são personalizadas
             $stmt = $conn->prepare("UPDATE sf_user_routine_items 
