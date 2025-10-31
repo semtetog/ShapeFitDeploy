@@ -695,13 +695,18 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: rgba(255, 102, 0, 0.1);
-  border: 1px solid rgba(255, 102, 0, 0.2);
+  background: linear-gradient(135deg, rgba(255, 107, 0, 0.15), rgba(255, 107, 0, 0.05));
+  border: 1px solid rgba(255, 107, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   color: var(--accent-orange);
+  font-size: 1.25rem;
+}
+
+.diary-header-icon i {
+  font-size: 1.25rem;
 }
 
 .diary-header-title h3 {
