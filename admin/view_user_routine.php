@@ -1603,7 +1603,7 @@ function initIconPicker() {
     });
 }
 
-// Função para verificar e desabilitar opção Sono se necessário
+// Função para verificar e ocultar opção Sono se necessário
 function checkAndDisableSleepOption(missionId = null) {
     const sleepOptionCard = document.getElementById('sleepOptionCard');
     const sleepOptionRadio = document.getElementById('sleepOptionRadio');
@@ -1617,15 +1617,15 @@ function checkAndDisableSleepOption(missionId = null) {
             if (data.success && data.has_sleep_mission) {
                 const sleepMissionId = data.sleep_mission_id;
                 
-                // Se está editando a missão de sono existente, permitir editar
+                // Se está editando a missão de sono existente, mostrar opção Sono
                 if (missionId && parseInt(missionId) === parseInt(sleepMissionId)) {
-                    sleepOptionCard.classList.remove('disabled');
+                    sleepOptionCard.classList.remove('hidden');
                     sleepOptionRadio.disabled = false;
                     return;
                 }
                 
-                // Se está criando nova missão ou editando outra missão, desabilitar opção Sono
-                sleepOptionCard.classList.add('disabled');
+                // Se está criando nova missão ou editando outra missão, ocultar opção Sono
+                sleepOptionCard.classList.add('hidden');
                 sleepOptionRadio.disabled = true;
                 
                 // Se o sono estava selecionado, mudar para Sim/Não
@@ -1636,15 +1636,15 @@ function checkAndDisableSleepOption(missionId = null) {
                     }
                 }
             } else {
-                // Não existe missão de sono, habilitar opção
-                sleepOptionCard.classList.remove('disabled');
+                // Não existe missão de sono, mostrar opção
+                sleepOptionCard.classList.remove('hidden');
                 sleepOptionRadio.disabled = false;
             }
         })
         .catch(error => {
             console.error('Erro ao verificar missão de sono:', error);
-            // Em caso de erro, manter habilitado (comportamento padrão)
-            sleepOptionCard.classList.remove('disabled');
+            // Em caso de erro, mostrar opção (comportamento padrão)
+            sleepOptionCard.classList.remove('hidden');
             sleepOptionRadio.disabled = false;
         });
 }
@@ -2321,21 +2321,9 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
   color: var(--accent-orange) !important;
 }
 
-/* Estado desabilitado para opção Sono */
-#missionModal .mission-type-option.disabled {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
-  pointer-events: none !important;
-}
-
-#missionModal .mission-type-option.disabled .option-content {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-#missionModal .mission-type-option.disabled input[type="radio"] {
-  cursor: not-allowed !important;
-  pointer-events: none !important;
+/* Estado oculto para opção Sono */
+#missionModal .mission-type-option.hidden {
+  display: none !important;
 }
 
 /* === Icon Picker === */
