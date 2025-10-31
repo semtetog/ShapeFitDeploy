@@ -119,6 +119,8 @@ try {
                              WHERE user_id = ?
                              AND NOT (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
                              ORDER BY id DESC";
+            error_log('SQL: ' . $sql_personal);
+            error_log('Patient ID: ' . $patient_id);
             $stmt = $conn->prepare($sql_personal);
             $stmt->bind_param('i', $patient_id);
             $stmt->execute();
