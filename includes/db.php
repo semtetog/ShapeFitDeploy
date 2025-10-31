@@ -25,5 +25,8 @@ if ($conn->connect_error) {
 }
 $conn->set_charset("utf8mb4");
 
+// Configurar timezone do MySQL para São Paulo
+$conn->query("SET time_zone = '-03:00'");
+
 return $conn;
 ?>
