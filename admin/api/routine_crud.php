@@ -106,7 +106,6 @@ try {
 
 // Processar ação
 try {
-    error_log('Processando ação: ' . $action);
     switch ($action) {
         case 'list_missions':
         case 'list':
