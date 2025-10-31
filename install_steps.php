@@ -218,6 +218,13 @@
             opacity: 0.5;
         }
         
+        .phone-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
         .step-text {
             text-align: center;
         }
@@ -306,7 +313,8 @@
                 <div class="step-content">
                     <div class="phone-image-container">
                         <div class="phone-screen">
-                            <div class="phone-image-placeholder">
+                            <img src="/assets/images/install/step1.jpg" alt="Passo 1" class="phone-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="phone-image-placeholder" style="display: none;">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>Foto do iPhone - Passo 1</span>
                             </div>
@@ -325,7 +333,8 @@
                 <div class="step-content">
                     <div class="phone-image-container">
                         <div class="phone-screen">
-                            <div class="phone-image-placeholder">
+                            <img src="/assets/images/install/step2.jpg" alt="Passo 2" class="phone-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="phone-image-placeholder" style="display: none;">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>Foto do iPhone - Passo 2</span>
                             </div>
@@ -344,7 +353,8 @@
                 <div class="step-content">
                     <div class="phone-image-container">
                         <div class="phone-screen">
-                            <div class="phone-image-placeholder">
+                            <img src="/assets/images/install/step3.jpg" alt="Passo 3" class="phone-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="phone-image-placeholder" style="display: none;">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>Foto do iPhone - Passo 3</span>
                             </div>
@@ -363,7 +373,8 @@
                 <div class="step-content">
                     <div class="phone-image-container">
                         <div class="phone-screen">
-                            <div class="phone-image-placeholder">
+                            <img src="/assets/images/install/step4.jpg" alt="Passo 4" class="phone-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="phone-image-placeholder" style="display: none;">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>Foto do iPhone - Passo 4</span>
                             </div>
@@ -382,7 +393,8 @@
                 <div class="step-content">
                     <div class="phone-image-container">
                         <div class="phone-screen">
-                            <div class="phone-image-placeholder">
+                            <img src="/assets/images/install/step5.jpg" alt="Passo 5" class="phone-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="phone-image-placeholder" style="display: none;">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>Foto do iPhone - Passo 5</span>
                             </div>
