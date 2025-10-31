@@ -111,6 +111,35 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
+        .step-final .step-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 138, 92, 0.05));
+            border: 2px solid rgba(255, 107, 53, 0.2);
+        }
+        
+        .step-final-content .step-text {
+            text-align: center;
+            width: 100%;
+        }
+        
+        .final-message {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: rgba(255, 107, 53, 0.05);
+            border: 2px dashed rgba(255, 107, 53, 0.3);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-top: 1rem;
+        }
+        
+        .final-message::before {
+            display: none;
+        }
+        
         .step-content:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 48px rgba(255, 107, 53, 0.2);
@@ -366,21 +395,15 @@
                 </div>
             </div>
 
-            <!-- Passo 6 -->
-            <div class="step-item">
+            <!-- Passo 6 - Bloco Final -->
+            <div class="step-item step-final">
                 <div class="step-number">6</div>
-                <div class="step-content">
-                    <div class="phone-image-container">
-                        <div class="phone-screen">
-                            <div class="phone-image-placeholder">
-                                <i class="fas fa-mobile-alt"></i>
-                                <span>Foto do iPhone - Passo 6</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="step-content step-final-content">
                     <div class="step-text">
-                        <h3 class="step-title">Passo 6</h3>
-                        <div class="step-description" contenteditable="true"></div>
+                        <h3 class="step-title">Pronto!</h3>
+                        <div class="step-description final-message" contenteditable="true">
+                            Agora é só acessar o aplicativo na sua tela inicial e começar a usar o ShapeFIT!
+                        </div>
                     </div>
                 </div>
             </div>
