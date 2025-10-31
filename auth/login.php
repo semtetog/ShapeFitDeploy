@@ -83,16 +83,16 @@ $page_title = "Login";
     <link rel="manifest" href="<?php echo BASE_APP_URL; ?>/manifest.json">
     
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
-    <link rel="apple-touch-icon" sizes="57x57" href="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="<?php echo BASE_ASSET_URL; ?>/assets/images/app-icon.png">
 
     <title><?php echo htmlspecialchars($page_title); ?> - ShapeFIT</title>
     
