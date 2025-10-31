@@ -58,17 +58,33 @@ try {
     
     $current_date = date('Y-m-d');
     
-    // Inserir/atualizar no log de rotina
-    $stmt = $conn->prepare("
-        INSERT INTO sf_user_routine_log (user_id, routine_item_id, date, is_completed, activity_key, completed_at) 
-        VALUES (?, ?, ?, 1, 'sleep_tracking', NOW())
-        ON DUPLICATE KEY UPDATE 
-        is_completed = 1, 
-        completed_at = NOW()
-    ");
+    // Verificar se a missão já foi concluída hoje
+    $stmt_check = $conn->prepare("SELECT id FROM sf_user_routine_log WHERE user_id = ? AND routine_item_id = ? AND date = ?");
+    $stmt_check->bind_param("iis", $user_id, $routine_id, $current_date);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
     
-    $stmt->bind_param("iis", $user_id, $routine_id, $current_date);
-    $stmt->execute();
+    // Se já existe, atualizar; se não, inserir
+    if ($result_check->num_rows > 0) {
+        $stmt_update = $conn->prepare("
+            UPDATE sf_user_routine_log 
+            SET is_completed = 1, activity_key = 'sleep_tracking', completed_at = NOW() 
+            WHERE user_id = ? AND routine_item_id = ? AND date = ?
+        ");
+        $stmt_update->bind_param("iis", $user_id, $routine_id, $current_date);
+        $stmt_update->execute();
+        $stmt_update->close();
+    } else {
+        // Inserir no log de rotina
+        $stmt = $conn->prepare("
+            INSERT INTO sf_user_routine_log (user_id, routine_item_id, date, is_completed, activity_key, completed_at) 
+            VALUES (?, ?, ?, 1, 'sleep_tracking', NOW())
+        ");
+        $stmt->bind_param("iis", $user_id, $routine_id, $current_date);
+        $stmt->execute();
+        $stmt->close();
+    }
+    $stmt_check->close();
     
     // Atualizar também na tabela de tracking diário (apenas sleep_hours existe)
     $stmt_tracking = $conn->prepare("
@@ -80,13 +96,51 @@ try {
     
     $stmt_tracking->bind_param("isd", $user_id, $current_date, $sleep_hours);
     $stmt_tracking->execute();
+    $stmt_tracking->close();
+    
+    // Registrar pontos (se não existir log para esta ação hoje)
+    require_once APP_ROOT_PATH . '/includes/functions.php';
+    $action_key = 'ROUTINE_COMPLETE';
+    $points_to_award = 5;
+    
+    $stmt_check_log = $conn->prepare("SELECT id FROM sf_user_points_log WHERE user_id = ? AND action_key = ? AND action_context_id = ? AND date_awarded = ?");
+    $stmt_check_log->bind_param("isss", $user_id, $action_key, $routine_id, $current_date);
+    $stmt_check_log->execute();
+    $log_exists = $stmt_check_log->get_result()->num_rows > 0;
+    $stmt_check_log->close();
+    
+    $points_awarded = 0;
+    if (!$log_exists) {
+        // Registrar a ação no log de pontos
+        $stmt_log = $conn->prepare("INSERT INTO sf_user_points_log (user_id, points_awarded, action_key, action_context_id, date_awarded, timestamp) VALUES (?, ?, ?, ?, ?, NOW())");
+        $stmt_log->bind_param("iisss", $user_id, $points_to_award, $action_key, $routine_id, $current_date);
+        $stmt_log->execute();
+        $stmt_log->close();
+        
+        // Adicionar pontos ao usuário
+        addPointsToUser($conn, $user_id, $points_to_award, "Completou rotina ID: {$routine_id}");
+        $points_awarded = $points_to_award;
+        
+        // NOVA LÓGICA PARA PONTOS DE DESAFIO
+        updateChallengePoints($conn, $user_id, 'mission_complete');
+    }
+    
+    // Buscar o novo total de pontos para retornar ao frontend
+    $stmt_get_points = $conn->prepare("SELECT points FROM sf_users WHERE id = ?");
+    $stmt_get_points->bind_param("i", $user_id);
+    $stmt_get_points->execute();
+    $result_points = $stmt_get_points->get_result()->fetch_assoc();
+    $new_total_points = $result_points['points'];
+    $stmt_get_points->close();
     
     echo json_encode([
         'success' => true, 
         'message' => 'Sono registrado com sucesso!',
         'sleep_hours' => round($sleep_hours, 2),
         'sleep_time' => $sleep_time,
-        'wake_time' => $wake_time
+        'wake_time' => $wake_time,
+        'points_awarded' => $points_awarded,
+        'new_total_points' => $new_total_points
     ]);
     
 } catch (Exception $e) {
