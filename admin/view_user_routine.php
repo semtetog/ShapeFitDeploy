@@ -114,13 +114,6 @@
                     <span>Carregando missões...</span>
                 </div>
             </div>
-            
-            <!-- Botão circular de adicionar -->
-            <div class="add-mission-wrapper">
-                <button class="btn-add-mission-circular" onclick="openMissionModal()" title="Adicionar Missão">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </div>
         </div>
 
     </div>
@@ -321,41 +314,46 @@
     text-align: center;
 }
 
-/* Botão circular de adicionar missão */
-.add-mission-wrapper {
+/* Card de botão adicionar */
+.mission-add-button {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
+    align-items: center;
     justify-content: center;
-    margin-top: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.btn-add-mission-circular {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: var(--accent-orange);
-    color: white;
-    border: none;
+.mission-add-button:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 107, 0, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-add-mission-grid {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
 }
 
-.btn-add-mission-circular:hover {
-    background: #FF8C00;
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 6px 16px rgba(255, 107, 0, 0.4);
+.btn-add-mission-grid:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
 }
 
-.btn-add-mission-circular:active {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
-}
-
-.btn-add-mission-circular i {
+.btn-add-mission-grid i {
     font-size: 1.5rem;
 }
 
@@ -1546,7 +1544,7 @@ function renderMissionsGrid(missions) {
         return;
     }
     
-    container.innerHTML = missions.map(mission => {
+    const missionsHtml = missions.map(mission => {
         const isExercise = mission.is_exercise == 1 || mission.is_exercise === '1' || mission.is_exercise === true;
         const isPersonal = mission.is_personal == 1 || mission.is_personal === '1' || mission.is_personal === true;
         console.log(`[MISSION ${mission.id}] is_exercise:`, mission.is_exercise, 'is_personal:', isPersonal);
@@ -1572,6 +1570,15 @@ function renderMissionsGrid(missions) {
         </div>
         `;
     }).join('');
+    
+    // Adicionar botão circular de adicionar no final
+    container.innerHTML = missionsHtml + `
+        <div class="mission-card mission-add-button">
+            <button class="btn-add-mission-grid" onclick="openMissionModal()" title="Adicionar Missão">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    `;
 }
 
 // Função para mostrar estado vazio
