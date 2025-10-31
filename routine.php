@@ -289,7 +289,11 @@ body { background-color: var(--bg-color); color: var(--text-primary); }
                         </div>
                         <?php if (!empty($item['duration_minutes'])): ?>
                             <small class="routine-duration-display" style="display: flex;">
-                                <i class="fas fa-stopwatch" style="font-size: 0.8em;"></i> <?php echo htmlspecialchars($item['duration_minutes']); ?> min
+                                <?php if (isset($item['exercise_type']) && $item['exercise_type'] === 'sleep'): ?>
+                                    <i class="fas fa-moon" style="font-size: 0.8em;"></i> <?php echo round($item['duration_minutes'], 1); ?>h de sono
+                                <?php else: ?>
+                                    <i class="fas fa-stopwatch" style="font-size: 0.8em;"></i> <?php echo htmlspecialchars($item['duration_minutes']); ?> min
+                                <?php endif; ?>
                             </small>
                         <?php endif; ?>
                     </li>

@@ -27,16 +27,18 @@ function getRoutineItemsForUser($conn, $user_id, $date, $user_profile) {
     $sql_personal = "
         SELECT 
             uri.id, uri.title, uri.icon_class, uri.is_exercise, uri.exercise_type,
-            CASE WHEN url.id IS NOT NULL AND url.is_completed = 1 THEN 1 ELSE 0 END AS completion_status
+            CASE WHEN url.id IS NOT NULL AND url.is_completed = 1 THEN 1 ELSE 0 END AS completion_status,
+            CASE WHEN uri.exercise_type = 'sleep' THEN udt.sleep_hours ELSE NULL END as duration_minutes
         FROM sf_user_routine_items uri
         LEFT JOIN sf_user_routine_log url 
             ON uri.id = url.routine_item_id AND url.user_id = ? AND url.date = ?
+        LEFT JOIN sf_user_daily_tracking udt ON udt.user_id = ? AND udt.date = ?
         WHERE uri.user_id = ?
     ";
     
     $stmt_personal = $conn->prepare($sql_personal);
     if ($stmt_personal) {
-        $stmt_personal->bind_param("isi", $user_id, $date, $user_id);
+        $stmt_personal->bind_param("isisi", $user_id, $date, $user_id, $date, $user_id);
         $stmt_personal->execute();
         $result = $stmt_personal->get_result();
         while ($row = $result->fetch_assoc()) {
