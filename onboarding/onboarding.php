@@ -214,6 +214,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
         // CRIAR MISSÕES PADRÃO PARA O USUÁRIO
         // ===========================
         // Criar as 3 missões principais padrão diretamente (sempre garantidas)
+        // A missão de sono será criada automaticamente depois
         $default_missions = [
             [
                 'title' => 'Lembrou de registrar todas as suas refeições?',
@@ -235,13 +236,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
                 'description' => null,
                 'is_exercise' => 0,
                 'exercise_type' => ''
-            ],
-            [
-                'title' => 'Como foi seu sono esta noite?',
-                'icon_class' => 'fa-bed',
-                'description' => 'Registre quantas horas você dormiu: hora que deitou e hora que acordou',
-                'is_exercise' => 1,
-                'exercise_type' => 'sleep'
             ]
         ];
         
@@ -295,6 +289,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
             }
         }
         
+        // Garantir que sempre existe uma missão de sono para o usuário
+        $check_sleep_stmt = $conn->prepare("
+            SELECT id FROM sf_user_routine_items 
+            WHERE user_id = ? 
+            AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
+            LIMIT 1
+        ");
+        $check_sleep_stmt->bind_param("i", $user_id);
+        $check_sleep_stmt->execute();
+        $sleep_result = $check_sleep_stmt->get_result();
+        $check_sleep_stmt->close();
+        
+        // Se não existe missão de sono, criar automaticamente
+        if ($sleep_result->num_rows === 0) {
+            $create_sleep_stmt = $conn->prepare("
+                INSERT INTO sf_user_routine_items 
+                (user_id, title, icon_class, description, is_exercise, exercise_type)
+                VALUES (?, 'Como foi seu sono esta noite?', 'fa-bed', 'Registre quantas horas você dormiu: hora que deitou e hora que acordou', 1, 'sleep')
+            ");
+            $create_sleep_stmt->bind_param("i", $user_id);
+            $create_sleep_stmt->execute();
+            $create_sleep_stmt->close();
+        }
 
         $conn->commit();
         $_SESSION['onboarding_complete'] = true;
