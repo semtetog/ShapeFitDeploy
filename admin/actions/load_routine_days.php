@@ -134,8 +134,7 @@ try {
                 $completion_time = $mission['completion_time'] ?? null;
                 $time_display = '';
                 if ($completion_time) {
-                    // Subtrair 3 horas para corrigir offset de timezone
-                    $time_display = date('H:i', strtotime($completion_time . ' -3 hours'));
+                    $time_display = date('H:i', strtotime($completion_time));
                 }
             ?>
                 <div class="diary-meal-card">

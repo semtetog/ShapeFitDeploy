@@ -270,7 +270,7 @@ body { background-color: var(--bg-color); color: var(--text-primary); }
                                 </div>
                                 <div class="feed-info">
                                     <p class="feed-reason"><?php echo $details['text']; ?></p>
-                                    <span class="feed-time"><?php echo date('H:i', strtotime($log_item['timestamp'] . ' -3 hours')); ?></span>
+                                    <span class="feed-time"><?php echo date('H:i', strtotime($log_item['timestamp'])); ?></span>
                                 </div>
                                <span class="feed-points">+<?php echo number_format($log_item['points_awarded'], 0); ?></span>
                             </div>
