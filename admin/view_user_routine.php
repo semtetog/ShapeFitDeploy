@@ -314,28 +314,11 @@
     text-align: center;
 }
 
-/* Card de botão adicionar */
-.mission-add-button {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.mission-add-button:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 107, 0, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
+/* Botão circular de adicionar missão (igual ao botão de calendário) */
 .btn-add-mission-grid {
-    width: 100%;
-    height: 100%;
-    border-radius: 16px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
     background: rgba(255, 107, 0, 0.08);
     border: 1px solid rgba(255, 107, 0, 0.2);
     color: var(--accent-orange);
@@ -343,8 +326,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
     transition: all 0.3s ease;
+    flex-shrink: 0;
+    align-self: center;
+    justify-self: center;
 }
 
 .btn-add-mission-grid:hover {
@@ -354,7 +339,7 @@
 }
 
 .btn-add-mission-grid i {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
 }
 
 /* Seletor de ícones */
@@ -1573,11 +1558,9 @@ function renderMissionsGrid(missions) {
     
     // Adicionar botão circular de adicionar no final
     container.innerHTML = missionsHtml + `
-        <div class="mission-card mission-add-button">
-            <button class="btn-add-mission-grid" onclick="openMissionModal()" title="Adicionar Missão">
-                <i class="fas fa-plus"></i>
-            </button>
-        </div>
+        <button class="btn-add-mission-grid" onclick="openMissionModal()" title="Adicionar Missão">
+            <i class="fas fa-plus"></i>
+        </button>
     `;
 }
 
@@ -1589,6 +1572,9 @@ function showEmptyMissions(message) {
             <i class="fas fa-tasks"></i>
             <p>${message}</p>
         </div>
+        <button class="btn-add-mission-grid" onclick="openMissionModal()" title="Adicionar Missão">
+            <i class="fas fa-plus"></i>
+        </button>
     `;
 }
 
