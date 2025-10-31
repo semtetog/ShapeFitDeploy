@@ -85,21 +85,21 @@
         
         .step-number {
             position: absolute;
-            top: -15px;
-            left: 20px;
+            top: -8px;
+            left: 8px;
             z-index: 10;
             background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-dark));
             color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 0.85rem;
             font-weight: 700;
-            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .step-content {
@@ -107,118 +107,69 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 3rem 2rem 2rem 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1rem 0.5rem 0.5rem 0.5rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         
         .step-content:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 48px rgba(255, 107, 53, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(255, 107, 53, 0.2);
             border-color: rgba(255, 107, 53, 0.3);
         }
         
-        .phone-image-container {
+        .step-image-wrapper {
             width: 100%;
-            max-width: 320px;
-            height: 640px;
-            margin: 0 auto 2rem;
-            background: linear-gradient(135deg, var(--bg-gray), var(--bg-gray-light));
-            border: 8px solid var(--bg-dark);
-            border-radius: 40px;
-            position: relative;
+            height: 120px;
+            margin: 0 auto 0.5rem;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-        
-        .phone-image-container::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 6px;
             background: var(--bg-dark);
-            border-radius: 3px;
-            z-index: 10;
-        }
-        
-        .phone-image-container::after {
-            content: '';
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 140px;
-            height: 4px;
-            background: var(--bg-dark);
-            border-radius: 2px;
-            z-index: 10;
-        }
-        
-        .phone-screen {
-            width: 100%;
-            height: 100%;
-            background: var(--bg-black);
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px 80px;
         }
         
-        .phone-image-placeholder {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 138, 92, 0.1));
+        .step-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
             border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            text-align: center;
-            border: 2px dashed rgba(255, 107, 53, 0.3);
-        }
-        
-        .phone-image-placeholder i {
-            font-size: 3rem;
-            color: var(--accent-orange);
-            opacity: 0.5;
-        }
-        
-        .phone-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 12px;
+            display: block;
         }
         
         .step-text {
             text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         
         .step-title {
-            font-size: 1.3rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
             color: var(--accent-orange);
+            margin-bottom: 0.5rem;
         }
         
         .step-description {
-            font-size: 1rem;
+            font-size: 0.6rem;
             color: var(--text-secondary);
-            line-height: 1.8;
-            min-height: 60px;
+            line-height: 1.3;
+            min-height: 30px;
+            max-height: 50px;
             background: rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
-            padding: 1rem;
+            border-radius: 6px;
+            padding: 0.4rem;
             border: 1px dashed rgba(255, 107, 53, 0.2);
+            flex: 1;
+            overflow-y: auto;
         }
         
         .step-description::before {
