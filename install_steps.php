@@ -238,7 +238,7 @@
             }
             
             .step-image-wrapper {
-                height: 160px;
+                height: 100px;
             }
         }
         
@@ -249,7 +249,7 @@
             }
             
             .step-image-wrapper {
-                height: 200px;
+                height: 120px;
             }
         }
         
@@ -277,11 +277,11 @@
             }
             
             .step-image-wrapper {
-                height: 180px;
+                height: 150px;
             }
             
             .step-content {
-                padding: 1rem 0.5rem 0.5rem 0.5rem;
+                padding: 0.75rem 0.4rem 0.4rem 0.4rem;
             }
         }
     </style>
