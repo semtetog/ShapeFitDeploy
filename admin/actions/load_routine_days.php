@@ -54,7 +54,6 @@ try {
             AND udt.date = url.date 
             AND uri.exercise_type = 'sleep'
         LEFT JOIN sf_user_exercise_durations ued ON ued.user_id = url.user_id 
-            AND ued.date = url.date 
             AND uri.exercise_type = 'duration'
             AND ued.exercise_name COLLATE utf8mb4_unicode_ci = uri.title COLLATE utf8mb4_unicode_ci
         WHERE url.user_id = ? 
