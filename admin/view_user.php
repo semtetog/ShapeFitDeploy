@@ -798,6 +798,78 @@ require_once __DIR__ . '/includes/header.php';
 })();
 </script>
 <style>
+/* Ajustar header para incluir botão de exclusão */
+.view-user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.user-main-info {
+    flex: 1;
+}
+
+/* Botão de exclusão de usuário */
+.user-header-actions {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.btn-delete-user {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.btn-delete-user:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.btn-delete-user:active {
+    transform: translateY(0);
+}
+
+.btn-delete-user i {
+    font-size: 0.9rem;
+}
+
+/* Botão de perigo no modal */
+.btn-modal-danger {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-modal-danger:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
 /* Deploy check badge */
 /* .deploy-check removido */
 /* Força topo reto nas barras de hidratação */
@@ -829,6 +901,12 @@ require_once __DIR__ . '/includes/header.php';
             <p><i class="fas fa-phone-alt icon-sm"></i> <?php echo $full_phone; ?></p>
             <p><i class="fas fa-map-marker-alt icon-sm"></i> <?php echo $location; ?></p>
         </div>
+    </div>
+    <div class="user-header-actions">
+        <button type="button" class="btn-delete-user" onclick="showDeleteUserModal(<?php echo $user_id; ?>, '<?php echo htmlspecialchars($user_data['name'], ENT_QUOTES); ?>')" title="Excluir usuário permanentemente">
+            <i class="fas fa-trash-alt"></i>
+            <span>Excluir Usuário</span>
+        </button>
     </div>
 </div>
 
@@ -1349,6 +1427,40 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- Modal de Exclusão de Usuário -->
+<div id="deleteUserModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeDeleteUserModal()"></div>
+    <div class="custom-modal-content">
+        <div class="custom-modal-header" style="color: var(--danger-red);">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Excluir Usuário Permanentemente</h3>
+        </div>
+        <div class="custom-modal-body">
+            <p><strong>ATENÇÃO: Esta ação não pode ser desfeita!</strong></p>
+            <p>Tem certeza que deseja excluir permanentemente o usuário <strong id="delete-user-name"></strong>?</p>
+            <p class="modal-warning">Todos os dados relacionados serão excluídos permanentemente, incluindo:</p>
+            <ul style="text-align: left; margin: 15px 0; padding-left: 30px;">
+                <li>Dados pessoais e perfil</li>
+                <li>Histórico de refeições e diário alimentar</li>
+                <li>Histórico de peso e medidas</li>
+                <li>Fotos e imagens</li>
+                <li>Metas e objetivos</li>
+                <li>Rotinas e exercícios</li>
+                <li>Todos os dados relacionados</li>
+            </ul>
+            <p style="color: var(--danger-red); font-weight: 600;">Esta ação é IRREVERSÍVEL!</p>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-cancel" onclick="closeDeleteUserModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="btn-modal-danger" onclick="confirmDeleteUser()">
+                <i class="fas fa-trash-alt"></i> Excluir Permanentemente
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 // Sistema de modais customizados para reverter metas (idêntico ao referência)
 let currentUserIdToRevert = null;
@@ -1393,6 +1505,10 @@ function closeAlertModal() {
     document.body.style.overflow = '';
     if (modal.dataset.reloadOnClose === 'true') {
         location.reload();
+    }
+    if (modal.dataset.redirectOnClose === 'true') {
+        const redirectUrl = modal.dataset.redirectUrl || '<?php echo BASE_ADMIN_URL; ?>/users.php';
+        window.location.href = redirectUrl;
     }
 }
 
@@ -1677,6 +1793,92 @@ window.showRevertModal = (function(orig){
 window.openSleepDetailsModal = (function(orig){
     return function(){ console.log('[openSleepDetailsModal] click'); try{ return orig ? orig() : (document.getElementById('sleepDetailsModal')?.classList.add('active'), document.body.style.overflow='hidden'); }catch(e){ console.error(e); }};
 })(window.openSleepDetailsModal);
+
+// Sistema de exclusão de usuário
+let currentUserIdToDelete = null;
+let currentUserNameToDelete = null;
+
+function showDeleteUserModal(userId, userName) {
+    console.log('[showDeleteUserModal] userId=', userId, 'userName=', userName);
+    currentUserIdToDelete = userId;
+    currentUserNameToDelete = userName;
+    document.getElementById('delete-user-name').textContent = userName;
+    document.body.style.overflow = 'hidden';
+    const modal = document.getElementById('deleteUserModal');
+    if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+    }
+}
+
+function closeDeleteUserModal() {
+    const modal = document.getElementById('deleteUserModal');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+    }
+    document.body.style.overflow = '';
+    currentUserIdToDelete = null;
+    currentUserNameToDelete = null;
+}
+
+async function confirmDeleteUser() {
+    if (!currentUserIdToDelete) {
+        alert('Erro: ID do usuário não encontrado. Recarregue a página e tente novamente.');
+        return;
+    }
+    
+    const userIdToDelete = currentUserIdToDelete;
+    const userNameToDelete = currentUserNameToDelete;
+    
+    closeDeleteUserModal();
+    
+    // Confirmar novamente com prompt nativo para segurança extra
+    const confirmMessage = `Tem CERTEZA ABSOLUTA que deseja excluir PERMANENTEMENTE o usuário "${userNameToDelete}"?\n\nEsta ação NÃO PODE SER DESFEITA!`;
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('user_id', String(userIdToDelete));
+        
+        const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/delete_user.php', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        });
+        
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('Erro ao fazer parse do JSON:', e, text);
+            showAlertModal('Erro', 'Resposta inválida do servidor: ' + text.substring(0, 100), false);
+            return;
+        }
+        
+        if (data.success) {
+            const alertModal = document.getElementById('alertModal');
+            if (alertModal) {
+                alertModal.dataset.redirectOnClose = 'true';
+                alertModal.dataset.redirectUrl = '<?php echo BASE_ADMIN_URL; ?>/users.php';
+            }
+            showAlertModal('Usuário Excluído', data.message, true);
+        } else {
+            showAlertModal('Erro', data.message, false);
+        }
+    } catch (error) {
+        console.error('Erro ao excluir usuário:', error);
+        showAlertModal('Erro', 'Erro ao excluir usuário. Verifique o console para mais detalhes.', false);
+    }
+}
+
+// Expor funções globalmente
+window.showDeleteUserModal = showDeleteUserModal;
+window.closeDeleteUserModal = closeDeleteUserModal;
+window.confirmDeleteUser = confirmDeleteUser;
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
