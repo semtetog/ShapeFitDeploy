@@ -1,44 +1,24 @@
 <!-- view_user_routine.php -->
 <!-- Conteúdo completo da aba Rotina: HTML, CSS e JS -->
-<div class="routine-container">
+    <div class="routine-container">
         
-        <!-- 1. CARD DE RESUMO DA ROTINA -->
-        <div class="nutrients-summary-card">
-            <div class="summary-main">
-                <div class="summary-icon routine-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div class="summary-info">
-                    <h3>Resumo da Rotina Semanal</h3>
-                    <div class="summary-meta">Acompanhamento de missões, treinos e sono dos últimos 7 dias</div>
-                    <div class="summary-description">Dados baseados nos registros diários do paciente no aplicativo</div>
-                </div>
-            </div>
-            <div class="summary-stats">
-                <div class="summary-stat">
-                    <div class="stat-value" id="routine-missions-completed">0/0</div>
-                    <div class="stat-label">Missões Concluídas</div>
-                    <div class="stat-description">Última semana</div>
-                </div>
-                <div class="summary-stat">
-                    <div class="stat-value" id="routine-sleep-avg"><?php echo number_format($avg_sleep_7 ?? 0, 1); ?>h</div>
-                    <div class="stat-label">Sono Médio</div>
-                    <div class="stat-description">Últimos 7 dias</div>
-                </div>
-                <div class="summary-stat">
-                    <div class="stat-value" id="routine-workouts-days"><?php echo count(array_slice($routine_exercise_data, 0, 7)); ?></div>
-                    <div class="stat-label">Dias com Treino</div>
-                    <div class="stat-description">Última semana</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. CALENDÁRIO COM LÓGICA AJAX (IGUAL AO DIÁRIO) -->
+        <!-- CALENDÁRIO COM LÓGICA AJAX (IGUAL AO DIÁRIO) -->
         <div class="diary-slider-container">
             <div class="diary-header-redesign">
+                <!-- Header com título e descrição -->
+                <div class="diary-header-title-section">
+                    <div class="diary-header-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="diary-header-title">
+                        <h3>Resumo da Rotina Semanal</h3>
+                        <p>Acompanhamento de missões, treinos e sono dos últimos 7 dias</p>
+                    </div>
+                </div>
+                
                 <!-- Ano no topo -->
                 <div class="diary-year" id="routineYear"><?php echo date('Y'); ?></div>
                 
