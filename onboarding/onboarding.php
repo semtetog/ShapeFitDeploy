@@ -244,6 +244,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
         $stmt_fix_sleep->bind_param("i", $user_id);
         $stmt_fix_sleep->execute();
         $stmt_fix_sleep->close();
+        
+        // Garantir que sempre existe uma missão de sono para o usuário
+        $stmt_check_sleep = $conn->prepare("
+            SELECT id FROM sf_user_routine_items 
+            WHERE user_id = ? 
+            AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
+            LIMIT 1
+        ");
+        $stmt_check_sleep->bind_param("i", $user_id);
+        $stmt_check_sleep->execute();
+        $sleep_result = $stmt_check_sleep->get_result();
+        $stmt_check_sleep->close();
+        
+        // Se não existe missão de sono, criar automaticamente
+        if ($sleep_result->num_rows === 0) {
+            $stmt_create_sleep = $conn->prepare("
+                INSERT INTO sf_user_routine_items 
+                (user_id, title, icon_class, description, is_exercise, exercise_type)
+                VALUES (?, 'Como foi seu sono esta noite?', 'fa-bed', 'Registre quantas horas você dormiu: hora que deitou e hora que acordou', 1, 'sleep')
+            ");
+            $stmt_create_sleep->bind_param("i", $user_id);
+            $stmt_create_sleep->execute();
+            $stmt_create_sleep->close();
+        }
 
         $conn->commit();
         $_SESSION['onboarding_complete'] = true;

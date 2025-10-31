@@ -112,11 +112,12 @@ try {
         case 'list':
             error_log('Executando list_missions para patient_id: ' . $patient_id);
             
-            // Buscar apenas missões personalizadas do usuário
+            // Buscar apenas missões personalizadas do usuário, excluindo missão de sono (não é editável)
             $missions = [];
             $sql_personal = "SELECT id, title, icon_class, description, is_exercise, exercise_type 
                              FROM sf_user_routine_items 
                              WHERE user_id = ?
+                             AND NOT (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
                              ORDER BY id DESC";
             $stmt = $conn->prepare($sql_personal);
             $stmt->bind_param('i', $patient_id);
@@ -291,24 +292,11 @@ try {
             $is_exercise = isset($data['is_exercise']) ? intval($data['is_exercise']) : 0;
             $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
             
-            // Verificar se está tentando criar uma missão de sono
+            // Verificar se está tentando criar uma missão de sono (bloquear criação)
             $is_sleep = ($exercise_type === 'sleep' || stripos($title, 'sono') !== false);
             
             if ($is_sleep) {
-                // Verificar se já existe uma missão de sono para este usuário
-                $check_sleep = $conn->prepare("SELECT id FROM sf_user_routine_items 
-                                              WHERE user_id = ? 
-                                              AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
-                                              LIMIT 1");
-                $check_sleep->bind_param('i', $patient_id);
-                $check_sleep->execute();
-                $sleep_result = $check_sleep->get_result();
-                
-                if ($sleep_result->num_rows > 0) {
-                    $check_sleep->close();
-                    throw new Exception('Já existe uma missão de sono para este usuário. Apenas uma missão de sono é permitida por usuário.');
-                }
-                $check_sleep->close();
+                throw new Exception('Não é possível criar missões de sono. A missão de sono é gerenciada automaticamente pelo sistema.');
             }
             
             // Todas as missões agora são personalizadas
@@ -366,6 +354,25 @@ try {
             }
             
             $id = intval($data['id']);
+            
+            // Verificar se é uma missão de sono (não pode ser editada)
+            $check_sleep = $conn->prepare("SELECT id, title, exercise_type FROM sf_user_routine_items WHERE id = ? AND user_id = ?");
+            $check_sleep->bind_param('ii', $id, $patient_id);
+            $check_sleep->execute();
+            $sleep_check_result = $check_sleep->get_result();
+            $check_sleep->close();
+            
+            if ($sleep_check_result->num_rows > 0) {
+                $current_mission = $sleep_check_result->fetch_assoc();
+                $title_lower = strtolower($current_mission['title'] ?? '');
+                $exercise_type = $current_mission['exercise_type'] ?? '';
+                
+                // Se é uma missão de sono, bloquear edição
+                if (stripos($title_lower, 'sono') !== false || $exercise_type === 'sleep') {
+                    throw new Exception('A missão de sono não pode ser editada. Ela é gerenciada automaticamente pelo sistema.');
+                }
+            }
+            
             $title = $conn->real_escape_string(trim($data['title']));
             $description = isset($data['description']) ? $conn->real_escape_string(trim($data['description'])) : '';
             $icon_class = $conn->real_escape_string($data['icon_class'] ?? 'fa-check-circle');
@@ -380,21 +387,7 @@ try {
             $is_sleep = ($exercise_type === 'sleep' || stripos($title, 'sono') !== false);
             
             if ($is_sleep) {
-                // Verificar se já existe uma missão de sono para este usuário (excluindo a atual)
-                $check_sleep = $conn->prepare("SELECT id FROM sf_user_routine_items 
-                                              WHERE user_id = ? 
-                                              AND id != ?
-                                              AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
-                                              LIMIT 1");
-                $check_sleep->bind_param('ii', $patient_id, $id);
-                $check_sleep->execute();
-                $sleep_result = $check_sleep->get_result();
-                
-                if ($sleep_result->num_rows > 0) {
-                    $check_sleep->close();
-                    throw new Exception('Já existe uma missão de sono para este usuário. Apenas uma missão de sono é permitida por usuário.');
-                }
-                $check_sleep->close();
+                throw new Exception('Não é possível criar ou editar missões de sono. A missão de sono é gerenciada automaticamente pelo sistema.');
             }
             
             // Todas as missões agora são personalizadas
@@ -455,6 +448,24 @@ try {
             }
             
             $id = intval($data['id']);
+            
+            // Verificar se é uma missão de sono (não pode ser excluída)
+            $check_sleep = $conn->prepare("SELECT id, title, exercise_type FROM sf_user_routine_items WHERE id = ? AND user_id = ?");
+            $check_sleep->bind_param('ii', $id, $patient_id);
+            $check_sleep->execute();
+            $sleep_check_result = $check_sleep->get_result();
+            $check_sleep->close();
+            
+            if ($sleep_check_result->num_rows > 0) {
+                $current_mission = $sleep_check_result->fetch_assoc();
+                $title_lower = strtolower($current_mission['title'] ?? '');
+                $exercise_type = $current_mission['exercise_type'] ?? '';
+                
+                // Se é uma missão de sono, bloquear exclusão
+                if (stripos($title_lower, 'sono') !== false || $exercise_type === 'sleep') {
+                    throw new Exception('A missão de sono não pode ser excluída. Ela é gerenciada automaticamente pelo sistema.');
+                }
+            }
             
             // Excluir logs primeiro
             $stmt1 = $conn->prepare("DELETE FROM sf_user_routine_log WHERE routine_item_id = ? AND user_id = ?");

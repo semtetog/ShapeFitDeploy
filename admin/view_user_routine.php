@@ -1525,12 +1525,19 @@ function renderMissionsGrid(missions) {
     
     console.log('[MISSIONS] Renderizando missões:', missions);
     
-    if (missions.length === 0) {
-        showEmptyMissions('Nenhuma missão encontrada');
+    // Filtrar missão de sono (não é editável pelo admin)
+    const editableMissions = missions.filter(mission => {
+        const titleLower = (mission.title || '').toLowerCase();
+        const exerciseType = mission.exercise_type || '';
+        return !(titleLower.includes('sono') || exerciseType === 'sleep');
+    });
+    
+    if (editableMissions.length === 0) {
+        showEmptyMissions('Nenhuma missão editável encontrada');
         return;
     }
     
-    const missionsHtml = missions.map(mission => {
+    const missionsHtml = editableMissions.map(mission => {
         const isExercise = mission.is_exercise == 1 || mission.is_exercise === '1' || mission.is_exercise === true;
         const isPersonal = mission.is_personal == 1 || mission.is_personal === '1' || mission.is_personal === true;
         console.log(`[MISSION ${mission.id}] is_exercise:`, mission.is_exercise, 'is_personal:', isPersonal);
@@ -1603,52 +1610,6 @@ function initIconPicker() {
     });
 }
 
-// Função para verificar e ocultar opção Sono se necessário
-function checkAndDisableSleepOption(missionId = null) {
-    const sleepOptionCard = document.getElementById('sleepOptionCard');
-    const sleepOptionRadio = document.getElementById('sleepOptionRadio');
-    
-    if (!sleepOptionCard || !sleepOptionRadio) return;
-    
-    // Verificar se já existe uma missão de sono
-    fetch(`api/routine_crud.php?action=check_sleep_mission&patient_id=${routineUserId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.has_sleep_mission) {
-                const sleepMissionId = data.sleep_mission_id;
-                
-                // Se está editando a missão de sono existente, mostrar opção Sono
-                if (missionId && parseInt(missionId) === parseInt(sleepMissionId)) {
-                    sleepOptionCard.classList.remove('hidden');
-                    sleepOptionRadio.disabled = false;
-                    return;
-                }
-                
-                // Se está criando nova missão ou editando outra missão, ocultar opção Sono
-                sleepOptionCard.classList.add('hidden');
-                sleepOptionRadio.disabled = true;
-                
-                // Se o sono estava selecionado, mudar para Sim/Não
-                if (sleepOptionRadio.checked) {
-                    const yesNoRadio = document.querySelector('input[name="mission_type"][value="yes_no"]');
-                    if (yesNoRadio) {
-                        yesNoRadio.checked = true;
-                    }
-                }
-            } else {
-                // Não existe missão de sono, mostrar opção
-                sleepOptionCard.classList.remove('hidden');
-                sleepOptionRadio.disabled = false;
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao verificar missão de sono:', error);
-            // Em caso de erro, mostrar opção (comportamento padrão)
-            sleepOptionCard.classList.remove('hidden');
-            sleepOptionRadio.disabled = false;
-        });
-}
-
 // Funções globais para o modal
 window.openMissionModal = function(missionId = null, skipReset = false) {
     console.log('[openMissionModal] Chamado com missionId:', missionId, 'skipReset:', skipReset);
@@ -1692,9 +1653,6 @@ window.openMissionModal = function(missionId = null, skipReset = false) {
     modal.classList.add('active');
     console.log('[openMissionModal] Modal display setado para flex e classe active adicionada');
     
-    // Verificar e desabilitar opção Sono se necessário
-    checkAndDisableSleepOption(missionId);
-    
     // Inicializar seletor de ícones após o modal estar visível
     setTimeout(() => {
         initIconPicker();
@@ -1723,6 +1681,14 @@ window.editMission = function(missionId, isPersonal = 0) {
                 const mission = data.data;
                 console.log('Dados da missão carregados:', mission);
                 
+                // Verificar se é uma missão de sono (não pode ser editada)
+                const titleLower = (mission.title || '').toLowerCase();
+                const exerciseType = mission.exercise_type || '';
+                if (titleLower.includes('sono') || exerciseType === 'sleep') {
+                    alert('A missão de sono não pode ser editada. Ela é gerenciada automaticamente pelo sistema.');
+                    return;
+                }
+                
                 // Preencher formulário
                 document.getElementById('missionId').value = mission.id;
                 document.getElementById('missionTitle').value = mission.title || '';
@@ -1733,18 +1699,10 @@ window.editMission = function(missionId, isPersonal = 0) {
                 
                 // Se é exercício, verificar o tipo
                 if (mission.is_exercise == 1) {
-                    if (mission.exercise_type === 'sleep') {
-                        missionType = 'sleep';
-                    } else if (mission.exercise_type === 'duration') {
+                    if (mission.exercise_type === 'duration') {
                         missionType = 'duration';
                     } else {
                         missionType = 'duration'; // fallback
-                    }
-                } else {
-                    // Se não é exercício, verificar se é sono pelo título
-                    const titleLower = (mission.title || '').toLowerCase();
-                    if (titleLower.includes('sono')) {
-                        missionType = 'sleep';
                     }
                 }
                 
@@ -1756,11 +1714,6 @@ window.editMission = function(missionId, isPersonal = 0) {
                 
                 // Abrir modal (não resetar formulário pois já preenchemos os dados)
                 openMissionModal(missionId, true);
-                
-                // Verificar e desabilitar opção Sono após abrir modal
-                setTimeout(() => {
-                    checkAndDisableSleepOption(missionId);
-                }, 200);
                 
                 // Selecionar ícone após modal abrir
                 setTimeout(() => {
@@ -2262,7 +2215,7 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 /* === Mission Type Selector === */
 #missionModal .mission-type-selector {
   display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-columns: repeat(2, 1fr) !important;
   gap: 0.75rem !important;
   margin-top: 0 !important;
 }
@@ -2319,11 +2272,6 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 #missionModal .mission-type-option input[type="radio"]:checked + .option-content i,
 #missionModal .mission-type-option input[type="radio"]:checked + .option-content span {
   color: var(--accent-orange) !important;
-}
-
-/* Estado oculto para opção Sono */
-#missionModal .mission-type-option.hidden {
-  display: none !important;
 }
 
 /* === Icon Picker === */
@@ -2521,13 +2469,6 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
                                     <div class="option-content">
                                         <i class="fas fa-clock"></i>
                                         <span>Duração</span>
-                                    </div>
-                                </label>
-                                <label class="mission-type-option" id="sleepOptionCard">
-                                    <input type="radio" name="mission_type" value="sleep" id="sleepOptionRadio">
-                                    <div class="option-content">
-                                        <i class="fas fa-bed"></i>
-                                        <span>Sono</span>
                                     </div>
                                 </label>
                             </div>

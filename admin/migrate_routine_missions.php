@@ -100,6 +100,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $fix_sleep_stmt->execute();
                     $fix_sleep_stmt->close();
                 }
+                
+                // Garantir que sempre existe uma missão de sono para o usuário
+                $check_sleep_sql = "
+                    SELECT id FROM sf_user_routine_items 
+                    WHERE user_id = ? 
+                    AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
+                    LIMIT 1
+                ";
+                $check_sleep_stmt = $conn->prepare($check_sleep_sql);
+                if ($check_sleep_stmt) {
+                    $check_sleep_stmt->bind_param("i", $user_id);
+                    $check_sleep_stmt->execute();
+                    $sleep_result = $check_sleep_stmt->get_result();
+                    $check_sleep_stmt->close();
+                    
+                    // Se não existe missão de sono, criar automaticamente
+                    if ($sleep_result->num_rows === 0) {
+                        $create_sleep_sql = "
+                            INSERT INTO sf_user_routine_items 
+                            (user_id, title, icon_class, description, is_exercise, exercise_type)
+                            VALUES (?, 'Como foi seu sono esta noite?', 'fa-bed', 'Registre quantas horas você dormiu: hora que deitou e hora que acordou', 1, 'sleep')
+                        ";
+                        $create_sleep_stmt = $conn->prepare($create_sleep_sql);
+                        if ($create_sleep_stmt) {
+                            $create_sleep_stmt->bind_param("i", $user_id);
+                            $create_sleep_stmt->execute();
+                            $create_sleep_stmt->close();
+                        }
+                    }
+                }
             } else {
                 $error_count++;
                 $errors[] = "Usuário #{$user_id}: Erro ao executar - {$copy_stmt->error}";
