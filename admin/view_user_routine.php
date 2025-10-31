@@ -7,7 +7,7 @@
             <div class="diary-header-redesign">
                 <!-- Header com título e descrição -->
                 <div class="diary-header-title-section">
-                    <div class="diary-header-icon">
+                    <div class="diary-header-icon routine-header-icon">
                         <i class="fas fa-tasks"></i>
                     </div>
                     <div class="diary-header-title">

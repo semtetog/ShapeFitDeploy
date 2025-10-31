@@ -8,15 +8,15 @@
         <!-- Cabeçalho com navegação e resumo -->
         <div class="diary-header-redesign">
             <!-- Header com título e descrição -->
-            <div class="diary-header-title-section">
-                <div class="diary-header-icon">
-                    <i class="fas fa-utensils"></i>
+                <div class="diary-header-title-section">
+                    <div class="diary-header-icon diary-header-icon-diario">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="diary-header-title">
+                        <h3>Diário Alimentar</h3>
+                        <p>Acompanhamento de refeições e consumo de macros</p>
+                    </div>
                 </div>
-                <div class="diary-header-title">
-                    <h3>Diário Alimentar</h3>
-                    <p>Acompanhamento de refeições e consumo de macros</p>
-                </div>
-            </div>
             
             <!-- Ano no topo -->
             <div class="diary-year" id="diaryYear"><?php echo date('Y'); ?></div>
