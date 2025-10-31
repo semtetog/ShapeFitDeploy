@@ -224,15 +224,35 @@ body { background-color: var(--bg-color); color: var(--text-primary); }
                             <p><?php echo htmlspecialchars($item['title']); ?></p>
                             <div class="routine-actions">
                                 <button class="action-btn skip-btn" aria-label="Ignorar"><i class="fas fa-times"></i></button>
-                                <?php if (strpos($item['id'], 'onboarding_') === 0): ?>
-                                    <!-- Exercício onboarding - precisa de duração -->
+                                <?php 
+                                // Verificar se é missão de duração (exercício)
+                                $is_duration = false;
+                                $is_sleep = false;
+                                
+                                if (strpos($item['id'], 'onboarding_') === 0) {
+                                    // Exercício onboarding - sempre é duração
+                                    $is_duration = true;
+                                } elseif (isset($item['is_exercise']) && $item['is_exercise'] == 1) {
+                                    // Verificar se é sono ou duração baseado no exercise_type
+                                    if (isset($item['exercise_type']) && $item['exercise_type'] === 'sleep') {
+                                        $is_sleep = true;
+                                    } elseif (isset($item['exercise_type']) && $item['exercise_type'] === 'duration') {
+                                        $is_duration = true;
+                                    }
+                                } elseif (strpos($item['title'], 'sono') !== false || strpos($item['title'], 'Sono') !== false) {
+                                    // Fallback para verificação por título
+                                    $is_sleep = true;
+                                }
+                                
+                                if ($is_duration): ?>
+                                    <!-- Exercício com duração -->
                                     <button class="action-btn duration-btn" aria-label="Definir Duração" data-routine-id="<?php echo $item['id']; ?>">
                                         <i class="fas fa-clock"></i>
                                     </button>
                                     <button class="action-btn complete-btn disabled" aria-label="Concluir">
                                         <i class="fas fa-check"></i>
                                     </button>
-                                <?php elseif (strpos($item['title'], 'sono') !== false || strpos($item['title'], 'Sono') !== false): ?>
+                                <?php elseif ($is_sleep): ?>
                                     <!-- Item de sono - precisa de horários -->
                                     <button class="action-btn sleep-btn" aria-label="Registrar Sono" data-routine-id="<?php echo $item['id']; ?>">
                                         <i class="fas fa-clock"></i>

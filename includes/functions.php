@@ -26,7 +26,7 @@ function getRoutineItemsForUser($conn, $user_id, $date, $user_profile) {
     // --- PARTE 1: BUSCAR MISSÕES PERSONALIZADAS DO USUÁRIO ---
     $sql_personal = "
         SELECT 
-            uri.id, uri.title, uri.icon_class,
+            uri.id, uri.title, uri.icon_class, uri.is_exercise, uri.exercise_type,
             CASE WHEN url.id IS NOT NULL AND url.is_completed = 1 THEN 1 ELSE 0 END AS completion_status
         FROM sf_user_routine_items uri
         LEFT JOIN sf_user_routine_log url 
