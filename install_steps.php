@@ -125,51 +125,21 @@
         
         .step-image-wrapper {
             width: 100%;
-            height: 200px;
+            height: auto;
+            min-height: 300px;
             margin: 0 auto 0.75rem;
-            background: linear-gradient(135deg, var(--bg-gray), var(--bg-gray-light));
-            border: 5px solid var(--bg-dark);
-            border-radius: 30px;
+            background: transparent;
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px 8px 40px 8px;
-        }
-        
-        .step-image-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: var(--bg-dark);
-            border-radius: 2px;
-            z-index: 10;
-        }
-        
-        .step-image-wrapper::after {
-            content: '';
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 3px;
-            background: var(--bg-dark);
-            border-radius: 2px;
-            z-index: 10;
         }
         
         .step-image {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 20px;
+            height: auto;
+            max-height: 400px;
+            object-fit: contain;
             display: block;
         }
         
@@ -212,11 +182,11 @@
         @media (max-width: 1400px) {
             .steps-grid {
                 grid-template-columns: repeat(5, 1fr);
-                gap: 0.5rem;
+                gap: 1rem;
             }
             
-            .step-image-wrapper {
-                height: 180px;
+            .step-image {
+                max-height: 350px;
             }
         }
         
@@ -226,8 +196,8 @@
                 gap: 1rem;
             }
             
-            .step-image-wrapper {
-                height: 200px;
+            .step-image {
+                max-height: 300px;
             }
         }
         
@@ -254,8 +224,8 @@
                 gap: 1rem;
             }
             
-            .step-image-wrapper {
-                height: 220px;
+            .step-image {
+                max-height: 350px;
             }
             
             .step-content {
