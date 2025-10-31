@@ -130,6 +130,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                 }
+                
+                // Garantir que as 3 missões principais padrão existam (refeições, intestino, salada)
+                $default_missions = [
+                    [
+                        'title' => 'Lembrou de registrar todas as suas refeições?',
+                        'icon_class' => 'fa-utensils',
+                        'description' => null,
+                        'is_exercise' => 0,
+                        'exercise_type' => ''
+                    ],
+                    [
+                        'title' => 'Seu intestino funcionou hoje?',
+                        'icon_class' => 'fa-check-circle',
+                        'description' => null,
+                        'is_exercise' => 0,
+                        'exercise_type' => ''
+                    ],
+                    [
+                        'title' => 'Comeu salada hoje?',
+                        'icon_class' => 'fa-leaf',
+                        'description' => null,
+                        'is_exercise' => 0,
+                        'exercise_type' => ''
+                    ]
+                ];
+                
+                foreach ($default_missions as $default_mission) {
+                    // Verificar se já existe uma missão similar (por palavra-chave)
+                    $keyword = '';
+                    if (stripos($default_mission['title'], 'refeições') !== false) {
+                        $keyword = 'refeições';
+                    } elseif (stripos($default_mission['title'], 'intestino') !== false) {
+                        $keyword = 'intestino';
+                    } elseif (stripos($default_mission['title'], 'salada') !== false) {
+                        $keyword = 'salada';
+                    } elseif (stripos($default_mission['title'], 'sono') !== false) {
+                        $keyword = 'sono';
+                    }
+                    
+                    $exists = false;
+                    if ($keyword) {
+                        $check_mission_sql = "
+                            SELECT id FROM sf_user_routine_items 
+                            WHERE user_id = ? 
+                            AND LOWER(title) LIKE ?
+                            LIMIT 1
+                        ";
+                        $check_mission_stmt = $conn->prepare($check_mission_sql);
+                        if ($check_mission_stmt) {
+                            $title_like = '%' . $keyword . '%';
+                            $check_mission_stmt->bind_param("is", $user_id, $title_like);
+                            $check_mission_stmt->execute();
+                            $mission_result = $check_mission_stmt->get_result();
+                            $exists = $mission_result->num_rows > 0;
+                            $check_mission_stmt->close();
+                        }
+                    }
+                    
+                    // Se não existe, criar
+                    if (!$exists) {
+                        $create_mission_sql = "
+                            INSERT INTO sf_user_routine_items 
+                            (user_id, title, icon_class, description, is_exercise, exercise_type)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                        ";
+                        $create_mission_stmt = $conn->prepare($create_mission_sql);
+                        if ($create_mission_stmt) {
+                            $description = $default_mission['description'] ?? null;
+                            $create_mission_stmt->bind_param("isssis", 
+                                $user_id,
+                                $default_mission['title'],
+                                $default_mission['icon_class'],
+                                $description,
+                                $default_mission['is_exercise'],
+                                $default_mission['exercise_type']
+                            );
+                            $create_mission_stmt->execute();
+                            $create_mission_stmt->close();
+                        }
+                    }
+                }
             } else {
                 $error_count++;
                 $errors[] = "Usuário #{$user_id}: Erro ao executar - {$copy_stmt->error}";

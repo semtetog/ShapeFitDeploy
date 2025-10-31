@@ -211,11 +211,93 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
         }
 
         // ===========================
-        // COPIAR MISSÕES PADRÃO PARA O USUÁRIO
+        // CRIAR MISSÕES PADRÃO PARA O USUÁRIO
         // ===========================
-        // Copiar missões padrão, garantindo que missões de sono tenham exercise_type = 'sleep'
-        $stmt_copy_missions = $conn->prepare("
-            INSERT INTO sf_user_routine_items (user_id, title, icon_class, description, is_exercise, exercise_type)
+        // Criar as 3 missões principais padrão diretamente (sempre garantidas)
+        $default_missions = [
+            [
+                'title' => 'Lembrou de registrar todas as suas refeições?',
+                'icon_class' => 'fa-utensils',
+                'description' => null,
+                'is_exercise' => 0,
+                'exercise_type' => ''
+            ],
+            [
+                'title' => 'Seu intestino funcionou hoje?',
+                'icon_class' => 'fa-check-circle',
+                'description' => null,
+                'is_exercise' => 0,
+                'exercise_type' => ''
+            ],
+            [
+                'title' => 'Comeu salada hoje?',
+                'icon_class' => 'fa-leaf',
+                'description' => null,
+                'is_exercise' => 0,
+                'exercise_type' => ''
+            ],
+            [
+                'title' => 'Como foi seu sono esta noite?',
+                'icon_class' => 'fa-bed',
+                'description' => 'Registre quantas horas você dormiu: hora que deitou e hora que acordou',
+                'is_exercise' => 1,
+                'exercise_type' => 'sleep'
+            ]
+        ];
+        
+        foreach ($default_missions as $default_mission) {
+            // Verificar se já existe uma missão similar (por palavra-chave)
+            $keyword = '';
+            if (stripos($default_mission['title'], 'refeições') !== false) {
+                $keyword = 'refeições';
+            } elseif (stripos($default_mission['title'], 'intestino') !== false) {
+                $keyword = 'intestino';
+            } elseif (stripos($default_mission['title'], 'salada') !== false) {
+                $keyword = 'salada';
+            } elseif (stripos($default_mission['title'], 'sono') !== false) {
+                $keyword = 'sono';
+            }
+            
+            $exists = false;
+            if ($keyword) {
+                $check_stmt = $conn->prepare("
+                    SELECT id FROM sf_user_routine_items 
+                    WHERE user_id = ? 
+                    AND LOWER(title) LIKE ?
+                    LIMIT 1
+                ");
+                $title_like = '%' . $keyword . '%';
+                $check_stmt->bind_param("is", $user_id, $title_like);
+                $check_stmt->execute();
+                $check_result = $check_stmt->get_result();
+                $exists = $check_result->num_rows > 0;
+                $check_stmt->close();
+            }
+            
+            // Se não existe, criar
+            if (!$exists) {
+                $create_stmt = $conn->prepare("
+                    INSERT INTO sf_user_routine_items 
+                    (user_id, title, icon_class, description, is_exercise, exercise_type)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ");
+                $description = $default_mission['description'] ?? null;
+                $create_stmt->bind_param("isssis", 
+                    $user_id,
+                    $default_mission['title'],
+                    $default_mission['icon_class'],
+                    $description,
+                    $default_mission['is_exercise'],
+                    $default_mission['exercise_type']
+                );
+                $create_stmt->execute();
+                $create_stmt->close();
+            }
+        }
+        
+        // Copiar outras missões padrão da tabela (se houver)
+        $stmt_copy_other_missions = $conn->prepare("
+            INSERT IGNORE INTO sf_user_routine_items (user_id, title, icon_class, description, is_exercise, exercise_type)
             SELECT 
                 ?,
                 title,
@@ -230,44 +312,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
             FROM sf_routine_items
             WHERE is_active = 1 AND default_for_all_users = 1
         ");
-        $stmt_copy_missions->bind_param("i", $user_id);
-        $stmt_copy_missions->execute();
-        $stmt_copy_missions->close();
-        
-        // Garantir que missões de sono tenham is_exercise = 1 quando exercise_type = 'sleep'
-        $stmt_fix_sleep = $conn->prepare("
-            UPDATE sf_user_routine_items
-            SET is_exercise = 1
-            WHERE user_id = ? 
-            AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
-        ");
-        $stmt_fix_sleep->bind_param("i", $user_id);
-        $stmt_fix_sleep->execute();
-        $stmt_fix_sleep->close();
-        
-        // Garantir que sempre existe uma missão de sono para o usuário
-        $stmt_check_sleep = $conn->prepare("
-            SELECT id FROM sf_user_routine_items 
-            WHERE user_id = ? 
-            AND (exercise_type = 'sleep' OR LOWER(title) LIKE '%sono%')
-            LIMIT 1
-        ");
-        $stmt_check_sleep->bind_param("i", $user_id);
-        $stmt_check_sleep->execute();
-        $sleep_result = $stmt_check_sleep->get_result();
-        $stmt_check_sleep->close();
-        
-        // Se não existe missão de sono, criar automaticamente
-        if ($sleep_result->num_rows === 0) {
-            $stmt_create_sleep = $conn->prepare("
-                INSERT INTO sf_user_routine_items 
-                (user_id, title, icon_class, description, is_exercise, exercise_type)
-                VALUES (?, 'Como foi seu sono esta noite?', 'fa-bed', 'Registre quantas horas você dormiu: hora que deitou e hora que acordou', 1, 'sleep')
-            ");
-            $stmt_create_sleep->bind_param("i", $user_id);
-            $stmt_create_sleep->execute();
-            $stmt_create_sleep->close();
-        }
+        $stmt_copy_other_missions->bind_param("i", $user_id);
+        $stmt_copy_other_missions->execute();
+        $stmt_copy_other_missions->close();
 
         $conn->commit();
         $_SESSION['onboarding_complete'] = true;

@@ -130,6 +130,9 @@ try {
             $stmt->close();
             
             error_log('Total de missões encontradas: ' . count($missions));
+            foreach ($missions as $m) {
+                error_log('Missão: ' . $m['title'] . ' | Icon: ' . $m['icon_class'] . ' | Exercise: ' . $m['is_exercise']);
+            }
             
             echo json_encode(['success' => true, 'data' => $missions]);
             break;
