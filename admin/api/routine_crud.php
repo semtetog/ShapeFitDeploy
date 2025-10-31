@@ -224,23 +224,55 @@ try {
             break;
             
         case 'get_mission':
-            error_log('Executando get_mission...');
-            $id = intval($_GET['id'] ?? 0);
-            if (!$id) {
+            $id_raw = $_GET['id'] ?? $post_data['id'] ?? '';
+            if (!$id_raw) {
                 throw new Exception('ID da missão é obrigatório');
             }
             
-            // Todas as missões agora são personalizadas
+            // Se é uma missão dinâmica (onboarding_), buscar do perfil do usuário
+            if (strpos($id_raw, 'onboarding_') === 0) {
+                $activity_name = str_replace('onboarding_', '', $id_raw);
+                
+                // Buscar o perfil do usuário
+                $sql_profile = "SELECT exercise_type FROM sf_user_profiles WHERE user_id = ?";
+                $stmt_profile = $conn->prepare($sql_profile);
+                if ($stmt_profile) {
+                    $stmt_profile->bind_param('i', $patient_id);
+                    $stmt_profile->execute();
+                    $result_profile = $stmt_profile->get_result();
+                    $profile_data = $result_profile->fetch_assoc();
+                    $stmt_profile->close();
+                    
+                    // Verificar se a atividade existe no perfil
+                    if ($profile_data && !empty(trim($profile_data['exercise_type'] ?? ''))) {
+                        $activities_string = trim($profile_data['exercise_type']);
+                        $user_activities = preg_split('/,\s*/', $activities_string, -1, PREG_SPLIT_NO_EMPTY);
+                        
+                        if (in_array($activity_name, $user_activities)) {
+                            $mission_data = [
+                                'id' => $id_raw,
+                                'title' => $activity_name,
+                                'icon_class' => 'fa-dumbbell',
+                                'description' => null,
+                                'is_exercise' => 1,
+                                'exercise_type' => 'duration'
+                            ];
+                            echo json_encode(['success' => true, 'data' => $mission_data]);
+                            break;
+                        }
+                    }
+                }
+                throw new Exception('Missão dinâmica não encontrada');
+            }
+            
+            // Buscar missão personalizada
+            $id = intval($id_raw);
             $sql = "SELECT id, title, icon_class, description, is_exercise, exercise_type
                     FROM sf_user_routine_items 
                     WHERE id = ?";
             
-            error_log('SQL: ' . $sql);
-            error_log('ID da missão: ' . $id);
-            
             $stmt = $conn->prepare($sql);
             if (!$stmt) {
-                error_log('ERRO ao preparar statement: ' . $conn->error);
                 throw new Exception('Erro ao preparar statement: ' . $conn->error);
             }
             
@@ -249,11 +281,9 @@ try {
             $result = $stmt->get_result();
             
             if ($row = $result->fetch_assoc()) {
-                error_log('Missão encontrada: ' . print_r($row, true));
                 $stmt->close();
                 echo json_encode(['success' => true, 'data' => $row]);
             } else {
-                error_log('Missão não encontrada');
                 $stmt->close();
                 throw new Exception('Missão não encontrada');
             }
@@ -378,7 +408,50 @@ try {
                 throw new Exception('ID e título da missão são obrigatórios');
             }
             
-            $id = intval($data['id']);
+            $id_raw = $data['id'];
+            
+            // Se é uma missão dinâmica (onboarding_), atualizar no perfil
+            if (strpos($id_raw, 'onboarding_') === 0) {
+                $old_activity = str_replace('onboarding_', '', $id_raw);
+                $new_activity = trim($data['title']);
+                
+                // Buscar o perfil do usuário
+                $sql_profile = "SELECT exercise_type FROM sf_user_profiles WHERE user_id = ?";
+                $stmt_profile = $conn->prepare($sql_profile);
+                if ($stmt_profile) {
+                    $stmt_profile->bind_param('i', $patient_id);
+                    $stmt_profile->execute();
+                    $result_profile = $stmt_profile->get_result();
+                    $profile_data = $result_profile->fetch_assoc();
+                    $stmt_profile->close();
+                    
+                    if ($profile_data && !empty(trim($profile_data['exercise_type'] ?? ''))) {
+                        $activities_string = trim($profile_data['exercise_type']);
+                        $user_activities = preg_split('/,\s*/', $activities_string, -1, PREG_SPLIT_NO_EMPTY);
+                        
+                        // Substituir o nome antigo pelo novo
+                        if (in_array($old_activity, $user_activities)) {
+                            $key = array_search($old_activity, $user_activities);
+                            $user_activities[$key] = $new_activity;
+                            $new_activities_string = implode(', ', $user_activities);
+                            
+                            // Atualizar no banco
+                            $update_sql = "UPDATE sf_user_profiles SET exercise_type = ? WHERE user_id = ?";
+                            $update_stmt = $conn->prepare($update_sql);
+                            if ($update_stmt) {
+                                $update_stmt->bind_param('si', $new_activities_string, $patient_id);
+                                $update_stmt->execute();
+                                $update_stmt->close();
+                                echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
+                                break;
+                            }
+                        }
+                    }
+                }
+                throw new Exception('Missão dinâmica não encontrada');
+            }
+            
+            $id = intval($id_raw);
             
             // Verificar se é uma missão de sono (não pode ser editada)
             $check_sleep = $conn->prepare("SELECT id, title, exercise_type FROM sf_user_routine_items WHERE id = ? AND user_id = ?");
@@ -403,10 +476,6 @@ try {
             $icon_class = $conn->real_escape_string($data['icon_class'] ?? 'fa-check-circle');
             $is_exercise = isset($data['is_exercise']) ? intval($data['is_exercise']) : 0;
             $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
-            $is_personal = isset($data['is_personal']) ? intval($data['is_personal']) : 0;
-            
-            error_log('[update_mission] patient_id: ' . $patient_id);
-            error_log('[update_mission] data recebida: ' . print_r($data, true));
             
             // Verificar se está tentando alterar para uma missão de sono
             $is_sleep = ($exercise_type === 'sleep' || stripos($title, 'sono') !== false);

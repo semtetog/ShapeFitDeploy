@@ -1546,16 +1546,16 @@ function renderMissionsGrid(missions) {
                 <div class="mission-icon">
                     <i class="fas ${mission.icon_class}"></i>
                 </div>
-                ${!isDynamic ? `
                 <div class="mission-actions">
-                    <button class="btn-edit" onclick="editMission(${mission.id}, ${isPersonal ? 1 : 0})" title="Editar">
+                    <button class="btn-edit" onclick="editMission('${mission.id}', ${isDynamic ? 0 : (isPersonal ? 1 : 0)})" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
+                    ${!isDynamic ? `
                     <button class="btn-delete" onclick="deleteMission(${mission.id}, '${mission.title}', ${isPersonal ? 1 : 0})" title="Excluir">
                         <i class="fas fa-trash"></i>
                     </button>
+                    ` : ''}
                 </div>
-                ` : ''}
             </div>
             <div class="mission-content">
                 <h4>${mission.title}</h4>
@@ -1676,7 +1676,7 @@ window.editMission = function(missionId, isPersonal = 0) {
     sessionStorage.setItem('current_mission_is_personal', isPersonal);
     
     // Buscar dados da missão
-    fetch(`api/routine_crud.php?action=get_mission&id=${missionId}&patient_id=${routineUserId}&is_personal=${isPersonal}`)
+    fetch(`api/routine_crud.php?action=get_mission&id=${encodeURIComponent(missionId)}&patient_id=${routineUserId}&is_personal=${isPersonal}`)
         .then(response => response.json())
         .then(data => {
             if (data.success && data.data) {
@@ -1812,7 +1812,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             
             if (missionId) {
-                data.id = parseInt(missionId);
+                // Preservar IDs string (como onboarding_NomeExercicio)
+                data.id = isNaN(missionId) ? missionId : parseInt(missionId);
             }
             
             fetch('api/routine_crud.php', {
