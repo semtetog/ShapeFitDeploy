@@ -531,8 +531,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const sleepData = JSON.parse(sessionStorage.getItem('sleep_data'));
         button.classList.add('disabled');
 
+        const missionId = listItem.dataset.routineId;
         const params = {
-            routine_id: '8', // ID do item de sono
+            routine_id: missionId,
             sleep_time: sleepData.sleep_time,
             wake_time: sleepData.wake_time,
             csrf_token: csrfToken

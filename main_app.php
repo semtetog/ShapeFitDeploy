@@ -1265,7 +1265,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                 completeButton.classList.add('processing');
 
                 const formData = new URLSearchParams();
-                formData.append('routine_id', '8'); // ID do item de sono
+                formData.append('routine_id', missionId);
                 formData.append('sleep_time', sleepData.sleep_time);
                 formData.append('wake_time', sleepData.wake_time);
                 formData.append('csrf_token', csrfToken);
