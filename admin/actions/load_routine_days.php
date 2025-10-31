@@ -37,13 +37,17 @@ try {
             uri.id,
             uri.title,
             uri.icon_class,
-            pl.timestamp as completion_time
+            pl.timestamp as completion_time,
+            udt.sleep_hours as duration_minutes,
+            uri.exercise_type
         FROM sf_user_routine_log url
         JOIN sf_user_routine_items uri ON url.routine_item_id = uri.id
         LEFT JOIN sf_user_points_log pl ON pl.user_id = url.user_id 
             AND pl.action_key = 'ROUTINE_COMPLETE' 
             AND CAST(pl.action_context_id AS UNSIGNED) = url.routine_item_id
             AND DATE(pl.timestamp) = url.date
+        LEFT JOIN sf_user_daily_tracking udt ON udt.user_id = url.user_id 
+            AND udt.date = url.date
         WHERE url.user_id = ? 
             AND url.date = ? 
             AND url.is_completed = 1
@@ -140,7 +144,11 @@ try {
                                     </span>
                                     <?php if (isset($mission['duration_minutes']) && $mission['duration_minutes']): ?>
                                         <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; margin-left: 8px;">
-                                            Duração: <?php echo $mission['duration_minutes']; ?>min
+                                            <?php if (isset($mission['exercise_type']) && $mission['exercise_type'] === 'sleep'): ?>
+                                                Duração: <?php echo round($mission['duration_minutes'], 1); ?>h de sono
+                                            <?php else: ?>
+                                                Duração: <?php echo $mission['duration_minutes']; ?>min
+                                            <?php endif; ?>
                                         </span>
                                     <?php endif; ?>
                                 <?php endif; ?>
