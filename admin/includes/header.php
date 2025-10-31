@@ -74,6 +74,9 @@ if (!defined('BASE_ADMIN_URL')) {
         <li class="<?php echo ($page_slug ?? '') === 'user_groups' ? 'active' : ''; ?>">
             <a href="<?php echo BASE_ADMIN_URL; ?>/user_groups.php"><i class="fas fa-layer-group"></i> Grupos de Usuários</a>
         </li>
+        <li class="<?php echo ($page_slug ?? '') === 'app_installation' ? 'active' : ''; ?>">
+            <a href="<?php echo BASE_ADMIN_URL; ?>/app_installation.php"><i class="fas fa-mobile-alt"></i> Instalação do App</a>
+        </li>
                       <li class="<?php if ($page_slug === 'ranks') echo 'active'; ?>">
             <a href="ranks.php"><i class="fas fa-trophy"></i> Ranking</a>
         </li>
