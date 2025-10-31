@@ -34,12 +34,12 @@ try {
     
     $stmt_routine_log = $conn->prepare("
         SELECT 
-            ri.id,
-            ri.title,
-            ri.icon_class,
+            uri.id,
+            uri.title,
+            uri.icon_class,
             pl.timestamp as completion_time
         FROM sf_user_routine_log url
-        JOIN sf_routine_items ri ON url.routine_item_id = ri.id
+        JOIN sf_user_routine_items uri ON url.routine_item_id = uri.id
         LEFT JOIN sf_user_points_log pl ON pl.user_id = url.user_id 
             AND pl.action_key = 'ROUTINE_COMPLETE' 
             AND CAST(pl.action_context_id AS UNSIGNED) = url.routine_item_id
