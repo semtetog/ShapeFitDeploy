@@ -319,8 +319,8 @@
 
 /* Botão circular de adicionar missão (igual ao botão de calendário) */
 .btn-add-mission-circular {
-    width: 80px;
-    height: 80px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     background: rgba(255, 107, 0, 0.08);
     border: 1px solid rgba(255, 107, 0, 0.2);
@@ -340,7 +340,7 @@
 }
 
 .btn-add-mission-circular i {
-    font-size: 2rem;
+    font-size: 1.5rem;
 }
 
 /* Seletor de ícones */
