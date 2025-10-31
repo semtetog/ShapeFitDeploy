@@ -38,8 +38,12 @@ try {
             uri.title,
             uri.icon_class,
             pl.timestamp as completion_time,
-            udt.sleep_hours as duration_minutes,
-            uri.exercise_type
+            uri.exercise_type,
+            CASE 
+                WHEN uri.exercise_type = 'sleep' THEN udt.sleep_hours
+                WHEN uri.exercise_type = 'duration' THEN ued.duration_minutes
+                ELSE NULL
+            END as duration_minutes
         FROM sf_user_routine_log url
         JOIN sf_user_routine_items uri ON url.routine_item_id = uri.id
         LEFT JOIN sf_user_points_log pl ON pl.user_id = url.user_id 
@@ -47,7 +51,12 @@ try {
             AND CAST(pl.action_context_id AS UNSIGNED) = url.routine_item_id
             AND DATE(pl.timestamp) = url.date
         LEFT JOIN sf_user_daily_tracking udt ON udt.user_id = url.user_id 
-            AND udt.date = url.date
+            AND udt.date = url.date 
+            AND uri.exercise_type = 'sleep'
+        LEFT JOIN sf_user_exercise_durations ued ON ued.user_id = url.user_id 
+            AND ued.date = url.date 
+            AND uri.exercise_type = 'duration'
+            AND ued.exercise_name COLLATE utf8mb4_unicode_ci = uri.title COLLATE utf8mb4_unicode_ci
         WHERE url.user_id = ? 
             AND url.date = ? 
             AND url.is_completed = 1
