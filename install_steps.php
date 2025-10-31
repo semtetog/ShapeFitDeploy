@@ -39,7 +39,7 @@
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.4;
-            padding: 0.5rem;
+            padding: 1rem;
             overflow-x: hidden;
         }
         
@@ -51,14 +51,14 @@
         
         .header {
             text-align: center;
-            margin-bottom: 1rem;
-            padding-top: 0.5rem;
+            margin-bottom: 2rem;
+            padding-top: 1rem;
         }
         
         .header h1 {
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: 800;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
             background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -66,7 +66,7 @@
         }
         
         .header p {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto;
@@ -75,8 +75,9 @@
         .steps-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 0.75rem;
+            gap: 1.5rem;
             margin-bottom: 0;
+            max-width: 100%;
         }
         
         .step-item {
@@ -85,21 +86,21 @@
         
         .step-number {
             position: absolute;
-            top: -8px;
-            left: 8px;
+            top: -15px;
+            left: 15px;
             z-index: 10;
             background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-dark));
             color: white;
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.5rem;
+            font-weight: 800;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.2);
         }
         
         .step-content {
@@ -107,9 +108,9 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 1rem 0.5rem 0.5rem 0.5rem;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 1.5rem 1rem 1rem 1rem;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             height: 100%;
             display: flex;
@@ -124,23 +125,51 @@
         
         .step-image-wrapper {
             width: 100%;
-            height: 120px;
-            margin: 0 auto 0.5rem;
-            border-radius: 12px;
+            height: 200px;
+            margin: 0 auto 0.75rem;
+            background: linear-gradient(135deg, var(--bg-gray), var(--bg-gray-light));
+            border: 5px solid var(--bg-dark);
+            border-radius: 30px;
+            position: relative;
             overflow: hidden;
-            background: var(--bg-dark);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px 8px 40px 8px;
+        }
+        
+        .step-image-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--bg-dark);
+            border-radius: 2px;
+            z-index: 10;
+        }
+        
+        .step-image-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--bg-dark);
+            border-radius: 2px;
+            z-index: 10;
         }
         
         .step-image {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            border-radius: 12px;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
             display: block;
         }
         
@@ -152,24 +181,22 @@
         }
         
         .step-title {
-            font-size: 0.75rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--accent-orange);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
         
         .step-description {
-            font-size: 0.6rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
-            line-height: 1.3;
-            min-height: 30px;
-            max-height: 50px;
+            line-height: 1.5;
+            min-height: 40px;
             background: rgba(255, 255, 255, 0.02);
-            border-radius: 6px;
-            padding: 0.4rem;
+            border-radius: 8px;
+            padding: 0.75rem;
             border: 1px dashed rgba(255, 107, 53, 0.2);
             flex: 1;
-            overflow-y: auto;
         }
         
         .step-description::before {
@@ -189,50 +216,50 @@
             }
             
             .step-image-wrapper {
-                height: 100px;
+                height: 180px;
             }
         }
         
         @media (max-width: 1200px) {
             .steps-grid {
                 grid-template-columns: repeat(5, 1fr);
-                gap: 0.75rem;
+                gap: 1rem;
             }
             
             .step-image-wrapper {
-                height: 120px;
+                height: 200px;
             }
         }
         
         @media (max-width: 768px) {
             body {
-                padding: 0.25rem;
+                padding: 0.5rem;
             }
             
             .header {
-                margin-bottom: 0.5rem;
-                padding-top: 0.25rem;
+                margin-bottom: 1.5rem;
+                padding-top: 0.5rem;
             }
             
             .header h1 {
-                font-size: 1.2rem;
+                font-size: 1.5rem;
             }
             
             .header p {
-                font-size: 0.7rem;
+                font-size: 0.85rem;
             }
             
             .steps-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 0.5rem;
+                gap: 1rem;
             }
             
             .step-image-wrapper {
-                height: 150px;
+                height: 220px;
             }
             
             .step-content {
-                padding: 0.75rem 0.4rem 0.4rem 0.4rem;
+                padding: 1.25rem 0.75rem 0.75rem 0.75rem;
             }
         }
     </style>
