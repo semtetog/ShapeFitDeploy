@@ -105,6 +105,9 @@
                         <p>Gerencie as missões de rotina personalizadas para este paciente</p>
                     </div>
                 </div>
+                <button class="btn-add-mission-circular" onclick="openMissionModal()" title="Adicionar Missão">
+                    <i class="fas fa-plus"></i>
+                </button>
             </div>
             
             <div class="missions-grid" id="missions-container">
@@ -132,7 +135,7 @@
 
 .routine-missions-card .card-header {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
@@ -315,9 +318,9 @@
 }
 
 /* Botão circular de adicionar missão (igual ao botão de calendário) */
-.btn-add-mission-grid {
-    width: 56px;
-    height: 56px;
+.btn-add-mission-circular {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: rgba(255, 107, 0, 0.08);
     border: 1px solid rgba(255, 107, 0, 0.2);
@@ -328,18 +331,16 @@
     justify-content: center;
     transition: all 0.3s ease;
     flex-shrink: 0;
-    align-self: center;
-    justify-self: center;
 }
 
-.btn-add-mission-grid:hover {
+.btn-add-mission-circular:hover {
     background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
     transform: scale(1.05);
 }
 
-.btn-add-mission-grid i {
-    font-size: 1.25rem;
+.btn-add-mission-circular i {
+    font-size: 1rem;
 }
 
 /* Seletor de ícones */
@@ -1556,12 +1557,7 @@ function renderMissionsGrid(missions) {
         `;
     }).join('');
     
-    // Adicionar botão circular de adicionar no final
-    container.innerHTML = missionsHtml + `
-        <button class="btn-add-mission-grid" onclick="openMissionModal()" title="Adicionar Missão">
-            <i class="fas fa-plus"></i>
-        </button>
-    `;
+    container.innerHTML = missionsHtml;
 }
 
 // Função para mostrar estado vazio
@@ -1572,9 +1568,6 @@ function showEmptyMissions(message) {
             <i class="fas fa-tasks"></i>
             <p>${message}</p>
         </div>
-        <button class="btn-add-mission-grid" onclick="openMissionModal()" title="Adicionar Missão">
-            <i class="fas fa-plus"></i>
-        </button>
     `;
 }
 
