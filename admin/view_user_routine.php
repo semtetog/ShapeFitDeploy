@@ -1504,10 +1504,12 @@ function updateRoutineCategoryChart() {
 
 // Função para carregar lista de missões
 function loadMissionsAdminList() {
+    console.log('[loadMissionsAdminList] Carregando missões para usuário:', routineUserId);
     fetch(`api/routine_crud.php?action=list_missions&patient_id=${routineUserId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                console.log('[loadMissionsAdminList] Dados recebidos do backend:', data);
                 renderMissionsGrid(data.data);
             } else {
                 showEmptyMissions('Erro ao carregar missões: ' + data.message);
