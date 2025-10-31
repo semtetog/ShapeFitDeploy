@@ -38,25 +38,27 @@
             background: linear-gradient(135deg, var(--bg-black) 0%, var(--bg-dark) 50%, var(--bg-gray) 100%);
             color: var(--text-primary);
             min-height: 100vh;
-            line-height: 1.6;
-            padding: 2rem 1rem;
+            line-height: 1.4;
+            padding: 0.5rem;
+            overflow-x: hidden;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 100%;
             margin: 0 auto;
+            padding: 0;
         }
         
         .header {
             text-align: center;
-            margin-bottom: 4rem;
-            padding-top: 2rem;
+            margin-bottom: 1rem;
+            padding-top: 0.5rem;
         }
         
         .header h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-size: 1.5rem;
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 0.25rem;
             background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -64,7 +66,7 @@
         }
         
         .header p {
-            font-size: 1.2rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto;
@@ -72,9 +74,9 @@
         
         .steps-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 3rem;
-            margin-bottom: 4rem;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 0;
         }
         
         .step-item {
@@ -115,25 +117,29 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 300px;
             background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 138, 92, 0.05));
-            border: 2px solid rgba(255, 107, 53, 0.2);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            padding: 0.75rem;
         }
         
         .step-final-content .step-text {
             text-align: center;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         
         .final-message {
-            font-size: 1.2rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: var(--text-primary);
             background: rgba(255, 107, 53, 0.05);
-            border: 2px dashed rgba(255, 107, 53, 0.3);
-            padding: 2rem;
-            border-radius: 16px;
-            margin-top: 1rem;
+            border: 1px dashed rgba(255, 107, 53, 0.3);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            line-height: 1.3;
         }
         
         .final-message::before {
@@ -258,43 +264,57 @@
             display: none;
         }
         
+        @media (max-width: 1400px) {
+            .steps-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .phone-image-container {
+                height: 160px;
+            }
+        }
+        
         @media (max-width: 1200px) {
             .steps-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 2rem;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .phone-image-container {
+                height: 200px;
             }
         }
         
         @media (max-width: 768px) {
             body {
-                padding: 1rem;
+                padding: 0.25rem;
             }
             
             .header {
-                margin-bottom: 3rem;
-                padding-top: 1rem;
+                margin-bottom: 0.5rem;
+                padding-top: 0.25rem;
             }
             
             .header h1 {
-                font-size: 2rem;
+                font-size: 1.2rem;
             }
             
             .header p {
-                font-size: 1rem;
+                font-size: 0.7rem;
             }
             
             .steps-grid {
-                grid-template-columns: 1fr;
-                gap: 2.5rem;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
             }
             
             .phone-image-container {
-                max-width: 280px;
-                height: 560px;
+                height: 180px;
             }
             
             .step-content {
-                padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+                padding: 1rem 0.5rem 0.5rem 0.5rem;
             }
         }
     </style>
