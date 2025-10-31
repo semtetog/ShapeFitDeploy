@@ -74,7 +74,7 @@
         
         .steps-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 0.75rem;
             margin-bottom: 0;
         }
@@ -111,39 +111,6 @@
             padding: 3rem 2rem 2rem 2rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .step-final .step-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 138, 92, 0.05));
-            border: 1px solid rgba(255, 107, 53, 0.2);
-            padding: 0.75rem;
-        }
-        
-        .step-final-content .step-text {
-            text-align: center;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .final-message {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            background: rgba(255, 107, 53, 0.05);
-            border: 1px dashed rgba(255, 107, 53, 0.3);
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            line-height: 1.3;
-        }
-        
-        .final-message::before {
-            display: none;
         }
         
         .step-content:hover {
@@ -266,7 +233,7 @@
         
         @media (max-width: 1400px) {
             .steps-grid {
-                grid-template-columns: repeat(6, 1fr);
+                grid-template-columns: repeat(5, 1fr);
                 gap: 0.5rem;
             }
             
@@ -277,7 +244,7 @@
         
         @media (max-width: 1200px) {
             .steps-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(5, 1fr);
                 gap: 0.75rem;
             }
             
@@ -397,18 +364,6 @@
                 </div>
             </div>
 
-            <!-- Passo 6 - Bloco Final -->
-            <div class="step-item step-final">
-                <div class="step-number">6</div>
-                <div class="step-content step-final-content">
-                    <div class="step-text">
-                        <h3 class="step-title">Pronto!</h3>
-                        <div class="step-description final-message" contenteditable="true">
-                            Agora é só acessar o aplicativo na sua tela inicial e começar a usar o ShapeFIT!
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
