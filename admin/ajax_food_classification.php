@@ -132,30 +132,23 @@ function saveClassifications() {
             // Usar primeira categoria como primária
             $primary_category = $valid_categories_list[0];
             
-            // Atualizar categoria primária na tabela principal
-            $sql = "UPDATE sf_food_items SET food_type = ? WHERE id = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si", $primary_category, $food_id);
-            
-            if (!$stmt->execute()) {
-                $errors[] = "Erro ao atualizar categoria primária para alimento ID {$food_id}";
-                continue;
-            }
-            
             // Limpar categorias existentes
             $delete_sql = "DELETE FROM sf_food_categories WHERE food_id = ?";
             $delete_stmt = $conn->prepare($delete_sql);
             $delete_stmt->bind_param("i", $food_id);
             $delete_stmt->execute();
             
-            // Inserir todas as categorias
+            // Inserir todas as categorias válidas
             foreach ($valid_categories_list as $index => $category) {
-                $is_primary = ($index === 0) ? 1 : 0;
+                $is_primary = ($index === 0) ? 1 : 0; // A primeira da lista ainda pode ser considerada primária
                 $insert_sql = "INSERT INTO sf_food_categories (food_id, category_type, is_primary) VALUES (?, ?, ?)";
                 $insert_stmt = $conn->prepare($insert_sql);
                 $insert_stmt->bind_param("isi", $food_id, $category, $is_primary);
                 $insert_stmt->execute();
             }
+            
+            // REMOVIDO: A atualização da coluna food_type que estava causando o problema.
+            // A lógica agora depende apenas da tabela sf_food_categories.
             
             $saved++;
         }
