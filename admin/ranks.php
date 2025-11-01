@@ -95,7 +95,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <?php if (empty($rankings)): ?>
-        <div class="content-card rank-card">
+        <div class="rank-card empty-state-card">
             <p class="empty-state">Nenhum usuário encontrado<?php echo !empty($search_term) ? ' com o termo "' . htmlspecialchars($search_term) . '"' : ''; ?>.</p>
         </div>
     <?php else: ?>
