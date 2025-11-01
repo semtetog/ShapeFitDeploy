@@ -30,6 +30,12 @@ if (!defined('BASE_ADMIN_URL')) {
     <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/admin_novo_style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/view_user_addon.css?v=<?php echo time(); ?>">
     
+    <?php if (!empty($extra_css) && is_array($extra_css)): ?>
+        <?php foreach ($extra_css as $css_file): ?>
+            <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/<?php echo htmlspecialchars($css_file); ?>?v=<?php echo time(); ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>

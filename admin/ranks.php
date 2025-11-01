@@ -10,7 +10,7 @@ requireAdminLogin();
 
 $page_slug = 'ranks';
 $page_title = 'Ranking de Usuários';
-$extra_css = ['ranking_page.css'];
+$extra_css = ['ranks.css'];
 
 // --- LÓGICA DE BUSCA ---
 $search_term = trim($_GET['search'] ?? '');

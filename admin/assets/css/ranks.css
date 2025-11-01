@@ -1,0 +1,304 @@
+/* admin/assets/css/ranks.css */
+
+/* -------------------------
+   Container e Toolbar
+------------------------- */
+.ranking-page-container {
+    padding: 1.5rem 2rem;
+    background-color: var(--background-primary);
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.toolbar h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--primary-text-color);
+}
+
+/* Formulário de Busca */
+.search-form {
+    display: flex;
+    align-items: center;
+    background-color: var(--background-secondary);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+}
+
+.search-form input[type="text"] {
+    border: none;
+    background: transparent;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    color: var(--primary-text-color);
+    border-radius: 8px 0 0 8px;
+    outline: none;
+    min-width: 250px;
+}
+
+.search-form button {
+    background: var(--accent-orange);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.search-form button:hover {
+    background: #ff6f00; /* Laranja mais escuro */
+}
+
+/* -------------------------
+   Pódio
+------------------------- */
+.podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    padding: 2rem 1rem;
+    background: var(--background-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.podium-place {
+    text-align: center;
+    width: 150px;
+    transition: transform 0.2s ease;
+}
+
+.podium-place:hover {
+    transform: translateY(-10px);
+}
+
+.podium-link {
+    text-decoration: none;
+    color: var(--primary-text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.podium-picture-wrapper {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.podium-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid transparent;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.podium-place.first .podium-picture {
+    width: 120px;
+    height: 120px;
+    border-color: #FFD700; /* Ouro */
+}
+
+.podium-place.second .podium-picture {
+    border-color: #C0C0C0; /* Prata */
+}
+
+.podium-place.third .podium-picture {
+    border-color: #CD7F32; /* Bronze */
+}
+
+.podium-rank-badge {
+    position: absolute;
+    bottom: -5px;
+    right: 0;
+    background-color: var(--background-primary);
+    color: var(--primary-text-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid var(--border-color);
+}
+
+.podium-place.first .podium-rank-badge {
+    background-color: #FFD700;
+    color: #4a3400;
+    font-size: 1.2rem;
+}
+
+.podium-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+}
+
+.podium-level, .podium-points {
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+}
+
+.podium-points {
+    font-weight: 500;
+}
+
+
+/* -------------------------
+   Lista de Ranking
+------------------------- */
+.ranking-list-section {
+    background-color: var(--background-secondary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.ranking-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ranking-item {
+    margin-bottom: 0.5rem;
+}
+
+.ranking-item:last-child {
+    margin-bottom: 0;
+}
+
+.ranking-item-link {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--primary-text-color);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.ranking-item-link:hover {
+    background-color: var(--background-hover);
+    border-color: var(--border-color-hover);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.item-rank {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--secondary-text-color);
+    width: 50px;
+    text-align: center;
+}
+
+.item-picture {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 1rem;
+}
+
+.item-info-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.item-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.item-level {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+}
+
+.item-points {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+}
+
+/* -------------------------
+   Paginação
+------------------------- */
+.pagination-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: var(--background-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+}
+
+.pagination-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pagination-link, .pagination-link-dots {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--primary-text-color);
+    background-color: var(--background-tertiary);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+.pagination-link:hover {
+    background-color: var(--accent-orange);
+    color: white;
+    border-color: var(--accent-orange);
+}
+
+.pagination-link.active {
+    background-color: var(--accent-orange);
+    color: white;
+    font-weight: 700;
+    cursor: default;
+    border-color: var(--accent-orange);
+}
+
+.pagination-link-dots {
+    background-color: transparent;
+    border-color: transparent;
+    padding: 0.5rem 0.2rem;
+}
+
+/* Estado Vazio */
+.content-card {
+    background-color: var(--background-secondary);
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.empty-state {
+    font-size: 1.1rem;
+    color: var(--secondary-text-color);
+}
