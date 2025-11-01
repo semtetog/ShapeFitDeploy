@@ -95,41 +95,51 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <?php if (empty($rankings)): ?>
-        <div class="content-card">
+        <div class="content-card rank-card">
             <p class="empty-state">Nenhum usuário encontrado<?php echo !empty($search_term) ? ' com o termo "' . htmlspecialchars($search_term) . '"' : ''; ?>.</p>
         </div>
     <?php else: ?>
         
         <?php if ($current_page === 1 && empty($search_term) && count($rankings) >= 3): // Mostra pódio apenas na pág 1 e sem busca ?>
-        <div class="podium">
+        <div class="podium rank-card">
             <div class="podium-place second">
                 <a href="view_user.php?id=<?php echo $rankings[1]['id']; ?>" class="podium-link">
-                    <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[1], 'podium-avatar'); ?><div class="podium-rank-badge">2</div></div>
-                    <span class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[1]['name'])[0]); ?></span>
-                    <span class="podium-level">Nível <?php echo $rankings[1]['level']; ?></span>
-                    <span class="podium-points"><?php echo number_format($rankings[1]['points'], 0, ',', '.'); ?> pts</span>
+                    <div class="podium-details">
+                        <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[1], 'podium-avatar'); ?><div class="podium-rank-badge">2</div></div>
+                        <div class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[1]['name'])[0]); ?></div>
+                        <div class="podium-level">Nível <?php echo $rankings[1]['level']; ?></div>
+                        <div class="podium-points"><?php echo number_format($rankings[1]['points'], 0, ',', '.'); ?> pts</div>
+                    </div>
+                    <div class="podium-base">2</div>
                 </a>
             </div>
             <div class="podium-place first">
                 <a href="view_user.php?id=<?php echo $rankings[0]['id']; ?>" class="podium-link">
-                    <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[0], 'podium-avatar first-place'); ?><div class="podium-rank-badge"><i class="fas fa-crown"></i></div></div>
-                    <span class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[0]['name'])[0]); ?></span>
-                    <span class="podium-level">Nível <?php echo $rankings[0]['level']; ?></span>
-                    <span class="podium-points"><?php echo number_format($rankings[0]['points'], 0, ',', '.'); ?> pts</span>
+                     <div class="podium-details">
+                        <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[0], 'podium-avatar first-place'); ?><div class="podium-rank-badge"><i class="fas fa-crown"></i></div></div>
+                        <div class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[0]['name'])[0]); ?></div>
+                        <div class="podium-level">Nível <?php echo $rankings[0]['level']; ?></div>
+                        <div class="podium-points"><?php echo number_format($rankings[0]['points'], 0, ',', '.'); ?> pts</div>
+                    </div>
+                    <div class="podium-base">1</div>
                 </a>
             </div>
             <div class="podium-place third">
                 <a href="view_user.php?id=<?php echo $rankings[2]['id']; ?>" class="podium-link">
-                    <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[2], 'podium-avatar'); ?><div class="podium-rank-badge">3</div></div>
-                    <span class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[2]['name'])[0]); ?></span>
-                    <span class="podium-level">Nível <?php echo $rankings[2]['level']; ?></span>
-                    <span class="podium-points"><?php echo number_format($rankings[2]['points'], 0, ',', '.'); ?> pts</span>
+                    <div class="podium-details">
+                        <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[2], 'podium-avatar'); ?><div class="podium-rank-badge">3</div></div>
+                        <div class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[2]['name'])[0]); ?></div>
+                        <div class="podium-level">Nível <?php echo $rankings[2]['level']; ?></div>
+                        <div class="podium-points"><?php echo number_format($rankings[2]['points'], 0, ',', '.'); ?> pts</div>
+                    </div>
+                    <div class="podium-base">3</div>
                 </a>
             </div>
         </div>
         <?php endif; ?>
 
-        <div class="ranking-list-section">
+        <div class="ranking-list-section rank-card">
+            <div class="ranking-list-header">Classificação Geral</div>
             <ul class="ranking-list">
                 <?php 
                 $start_index = ($current_page === 1 && empty($search_term) && count($rankings) >= 3) ? 3 : 0;
@@ -151,7 +161,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         
         <?php if ($total_pages > 1): ?>
-        <div class="pagination-footer">
+        <div class="pagination-footer rank-card">
             <div class="pagination-info">
                 Página <?php echo $current_page; ?> de <?php echo $total_pages; ?> (<?php echo $total_users; ?> resultados)
             </div>

@@ -1,11 +1,30 @@
 /* admin/assets/css/ranks.css */
 
 /* -------------------------
-   Container e Toolbar
+   Estilos Gerais e Unificação de Cards
 ------------------------- */
+
 .ranking-page-container {
     padding: 1.5rem 2rem;
     background-color: var(--background-primary);
+}
+
+/* Classe unificada para todos os cards na página de ranking */
+.rank-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px; /* Igual ao .dashboard-card */
+    padding: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); /* Sombra do .dashboard-card */
+    margin-bottom: 2rem; /* Espaçamento padrão entre cards */
+}
+
+.rank-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent-orange);
 }
 
 .toolbar {
@@ -57,81 +76,79 @@
 }
 
 /* -------------------------
-   Pódio
+   Pódio Refinado
 ------------------------- */
 .podium {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    gap: 1rem;
-    margin-bottom: 3rem;
-    padding: 2rem 1rem;
-    background: var(--background-secondary);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
+    gap: 1.5rem; /* Aumentar o espaçamento */
+    padding: 2rem;
+    text-align: center;
 }
 
 .podium-place {
-    text-align: center;
-    width: 150px;
-    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 180px; /* Largura base */
+    transition: transform 0.3s ease;
 }
 
 .podium-place:hover {
-    transform: translateY(-10px);
+    transform: translateY(-5px); /* Efeito mais sutil */
 }
 
 .podium-link {
     text-decoration: none;
     color: var(--primary-text-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: contents; /* Para o <a> não quebrar o flexbox do pai */
+}
+
+.podium-details {
+    order: 1; /* Detalhes vêm depois da base */
+    margin-bottom: 0.5rem;
 }
 
 .podium-picture-wrapper {
     position: relative;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
-.podium-picture {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 4px solid transparent;
-    object-fit: cover;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+.podium-base {
+    order: 2; /* Base vem por último */
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+    background: rgba(255, 255, 255, 0.07);
+    border-bottom: 4px solid;
+    padding-top: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-text-color);
+    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-.podium-place.first .podium-picture {
-    width: 120px;
-    height: 120px;
-    border-color: #FFD700; /* Ouro */
-}
+.podium-place.first .podium-base { height: 120px; border-color: #FFD700; }
+.podium-place.second .podium-base { height: 80px; border-color: #C0C0C0; }
+.podium-place.third .podium-base { height: 50px; border-color: #CD7F32; }
 
-.podium-place.second .podium-picture {
-    border-color: #C0C0C0; /* Prata */
-}
-
-.podium-place.third .podium-picture {
-    border-color: #CD7F32; /* Bronze */
-}
 
 .podium-rank-badge {
     position: absolute;
-    bottom: -5px;
-    right: 0;
-    background-color: var(--background-primary);
+    bottom: -10px;
+    right: -5px;
+    background-color: var(--background-secondary); /* Fundo do card */
     color: var(--primary-text-color);
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 1rem;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--glass-border);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .podium-place.first .podium-rank-badge {
@@ -141,18 +158,21 @@
 }
 
 .podium-name {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 1.1rem;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.25rem;
 }
 
-.podium-level, .podium-points {
+.podium-level {
     font-size: 0.9rem;
     color: var(--secondary-text-color);
+    margin-bottom: 0.5rem;
 }
 
 .podium-points {
-    font-weight: 500;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-orange);
 }
 
 /* Estilos para Avatares (Imagem e Iniciais) */
@@ -189,15 +209,20 @@
    Lista de Ranking
 ------------------------- */
 .ranking-list-section {
-    background-color: var(--background-secondary);
-    border-radius: 12px;
-    padding: 1.5rem;
-    border: 1px solid var(--border-color);
+    padding: 0; /* Padding será controlado pelo .rank-card */
+}
+
+.ranking-list-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--glass-border);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-text-color);
 }
 
 .ranking-list {
     list-style: none;
-    padding: 0;
+    padding: 0 2rem 1rem 2rem; /* Espaçamento interno */
     margin: 0;
 }
 
@@ -213,17 +238,21 @@
     display: flex;
     align-items: center;
     padding: 0.8rem 1rem;
-    border-radius: 8px;
+    border-radius: 12px;
+    border-bottom: 1px solid var(--glass-border);
     text-decoration: none;
     color: var(--primary-text-color);
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     border: 1px solid transparent;
 }
+.ranking-item:last-child .ranking-item-link {
+    border-bottom: none;
+}
 
 .ranking-item-link:hover {
-    background-color: var(--background-hover);
-    border-color: var(--border-color-hover);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: transparent; /* A borda inferior já existe */
+    box-shadow: none; /* Remover sombra individual do item */
 }
 
 .list-avatar {
@@ -271,11 +300,11 @@
    Paginação
 ------------------------- */
 .pagination-footer {
+    padding: 1.5rem 2rem; /* Padding igual ao card */
+    margin-top: 0; /* Margin bottom do card acima já faz o espaçamento */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 2rem;
-    padding: 1rem;
     background-color: var(--background-secondary);
     border-radius: 12px;
     border: 1px solid var(--border-color);
