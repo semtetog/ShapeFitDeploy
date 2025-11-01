@@ -71,44 +71,47 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 
 <div class="recipes-page-container">
-    <div class="toolbar">
-        <h2>Receitas</h2>
-        <form method="GET" action="recipes.php" class="search-form-flex">
-            <input type="text" name="search" placeholder="Buscar por nome da receita..." value="<?php echo htmlspecialchars($search_term); ?>">
-            <div class="custom-select-wrapper">
-                <input type="hidden" name="category_id" id="category_id_input" value="<?php echo $category_id ?: ''; ?>">
-                <div class="custom-select" id="category_select">
-                    <div class="custom-select-trigger">
-                        <span class="custom-select-value">
-                            <?php 
-                            if ($category_id) {
-                                foreach ($categories as $cat) {
-                                    if ($cat['id'] == $category_id) {
-                                        echo htmlspecialchars($cat['name']);
-                                        break;
+    <h2>Gerenciar Receitas</h2>
+    
+    <div class="recipes-header-card">
+        <form method="GET" action="recipes.php" class="recipes-filter-form">
+            <div class="filter-row">
+                <input type="text" name="search" placeholder="Buscar por nome da receita..." value="<?php echo htmlspecialchars($search_term); ?>" class="recipe-search-input">
+                <div class="custom-select-wrapper">
+                    <input type="hidden" name="category_id" id="category_id_input" value="<?php echo $category_id ?: ''; ?>">
+                    <div class="custom-select" id="category_select">
+                        <div class="custom-select-trigger">
+                            <span class="custom-select-value">
+                                <?php 
+                                if ($category_id) {
+                                    foreach ($categories as $cat) {
+                                        if ($cat['id'] == $category_id) {
+                                            echo htmlspecialchars($cat['name']);
+                                            break;
+                                        }
                                     }
+                                } else {
+                                    echo 'Todas as Categorias';
                                 }
-                            } else {
-                                echo 'Todas as Categorias';
-                            }
-                            ?>
-                        </span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="custom-select-options">
-                        <div class="custom-select-option" data-value="">Todas as Categorias</div>
-                        <?php foreach ($categories as $category): ?>
-                            <div class="custom-select-option <?php echo ($category_id == $category['id']) ? 'selected' : ''; ?>" data-value="<?php echo $category['id']; ?>">
-                                <?php echo htmlspecialchars($category['name']); ?>
-                            </div>
-                        <?php endforeach; ?>
+                                ?>
+                            </span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-select-option" data-value="">Todas as Categorias</div>
+                            <?php foreach ($categories as $category): ?>
+                                <div class="custom-select-option <?php echo ($category_id == $category['id']) ? 'selected' : ''; ?>" data-value="<?php echo $category['id']; ?>">
+                                    <?php echo htmlspecialchars($category['name']); ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 </div>
+                <button type="submit" class="recipe-filter-btn"><i class="fas fa-search"></i> Filtrar</button>
+                <a href="recipes.php" class="recipe-clear-btn"><i class="fas fa-times"></i> Limpar</a>
             </div>
-            <button type="submit"><i class="fas fa-search"></i> Filtrar</button>
-            <a href="recipes.php" class="btn-secondary">Limpar</a>
         </form>
-        <a href="edit_recipe.php" class="btn-primary"><i class="fas fa-plus"></i> Nova Receita</a>
+        <a href="edit_recipe.php" class="recipe-add-btn"><i class="fas fa-plus"></i> Nova Receita</a>
     </div>
 
 <div class="content-card">
