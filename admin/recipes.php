@@ -104,6 +104,7 @@ require_once __DIR__ . '/includes/header.php';
                         <?php endforeach; ?>
                     </div>
                 </div>
+                <div class="custom-select-overlay" id="custom_select_overlay"></div>
             </div>
             <button type="submit"><i class="fas fa-search"></i> Filtrar</button>
             <a href="recipes.php" class="btn-secondary">Limpar</a>
@@ -160,6 +161,7 @@ require_once __DIR__ . '/includes/header.php';
     const trigger = customSelect.querySelector('.custom-select-trigger');
     const options = customSelect.querySelectorAll('.custom-select-option');
     const valueDisplay = customSelect.querySelector('.custom-select-value');
+    const overlay = document.getElementById('custom_select_overlay');
     
     // Toggle dropdown
     trigger.addEventListener('click', function(e) {
@@ -190,9 +192,16 @@ require_once __DIR__ . '/includes/header.php';
         });
     });
     
+    // Close dropdown when clicking overlay
+    if (overlay) {
+        overlay.addEventListener('click', function() {
+            customSelect.classList.remove('active');
+        });
+    }
+    
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
-        if (!customSelect.contains(e.target)) {
+        if (!customSelect.contains(e.target) && !overlay.contains(e.target)) {
             customSelect.classList.remove('active');
         }
     });
