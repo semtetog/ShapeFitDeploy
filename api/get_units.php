@@ -88,9 +88,18 @@ try {
                 }
             }
             if (!$resolved_food_id) {
-                throw new Exception('Alimento não encontrado');
+                // Se mesmo após todas as tentativas não resolver, retorna um erro claro.
+                throw new Exception('Alimento não encontrado ou ID inválido: ' . $food_id);
             }
+            
             $units = $units_manager->getUnitsForFood($resolved_food_id);
+
+            // FALLBACK: Se nenhuma unidade específica for encontrada, busca as unidades padrão.
+            if (empty($units)) {
+                error_log("Nenhuma unidade específica para food_id {$resolved_food_id}. Buscando unidades padrão.");
+                $units = $units_manager->getDefaultUnits();
+            }
+
             break;
             
         case 'suggested':

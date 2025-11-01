@@ -281,6 +281,50 @@ class UnitsManager {
     }
     
     /**
+     * Busca as unidades padrão (g, ml, un) como fallback.
+     */
+    public function getDefaultUnits() {
+        error_log("🔍 UNITS MANAGER - Buscando unidades padrão (fallback)");
+        
+        $default_abbreviations = ['g', 'ml', 'un'];
+        $placeholders = implode(',', array_fill(0, count($default_abbreviations), '?'));
+        
+        $sql = "
+            SELECT 
+                id,
+                name,
+                abbreviation,
+                1.0 AS conversion_factor, /* Fator de conversão padrão */
+                CASE 
+                    WHEN abbreviation = 'g' THEN 1
+                    ELSE 0
+                END AS is_default
+            FROM sf_measurement_units 
+            WHERE abbreviation IN ($placeholders) AND is_active = TRUE
+            ORDER BY FIELD(abbreviation, 'g', 'un', 'ml')
+        ";
+        
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            error_log("❌ UNITS MANAGER - Erro ao preparar statement para unidades padrão: " . $this->conn->error);
+            return [];
+        }
+        
+        $stmt->bind_param(str_repeat('s', count($default_abbreviations)), ...$default_abbreviations);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $units = [];
+        while ($row = $result->fetch_assoc()) {
+            $units[] = $row;
+        }
+        
+        error_log("🔍 UNITS MANAGER - Unidades padrão encontradas: " . json_encode($units));
+        
+        return $units;
+    }
+    
+    /**
      * Valida se uma conversão de unidade é realista
      */
     public function validateUnitConversion($unit_name, $conversion_factor) {

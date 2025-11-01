@@ -1165,16 +1165,19 @@ function loadUnitsForFood(foodId, isRecipe) {
     fetch(url)
     .then(response => {
         console.log('📡 Resposta da API recebida:', response.status);
+        if (!response.ok) {
+            throw new Error(`Erro na rede: ${response.statusText}`);
+        }
         return response.json();
     })
     .then(data => {
         console.log('📊 Dados da API:', data);
         
-        if (data.success && data.data.length > 0) {
-            console.log('✅ Unidades específicas encontradas:', data.data.length);
-            unitSelect.innerHTML = '';
+        // VERIFICAÇÃO DE SEGURANÇA: Garante que 'data' e 'data.data' existam e que a lista não esteja vazia
+        if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
+            console.log('✅ Unidades encontradas:', data.data.length);
+            unitSelect.innerHTML = ''; // Limpar "Carregando..."
             data.data.forEach(unit => {
-                console.log('➕ Adicionando unidade:', unit);
                 const option = document.createElement('option');
                 option.value = unit.id;
                 option.textContent = `${unit.name} (${unit.abbreviation})`;
@@ -1184,22 +1187,24 @@ function loadUnitsForFood(foodId, isRecipe) {
                 unitSelect.appendChild(option);
             });
             
-            // Atualizar macros após carregar unidades
+            // Exibir o seletor e atualizar os macros
+            unitSelect.style.display = 'block';
+            document.getElementById('quantity').classList.remove('quantity-input-full-width');
             updateMacros();
         } else {
-            console.log('⚠️ Nenhuma unidade específica encontrada - ALIMENTO NÃO CLASSIFICADO');
-            // Mostrar mensagem de não classificado em vez de carregar todas as unidades
+            // Se a API falhar ou retornar dados vazios, mostra a mensagem de erro.
+            console.log('⚠️ Nenhuma unidade encontrada ou erro na API. Mostrando mensagem de fallback.');
             showNoUnitsMessage();
         }
     })
     .catch(error => {
-        console.error('❌ Erro ao carregar unidades:', error);
-        showNoUnitsMessage();
+        console.error('❌ Erro crítico ao carregar unidades:', error);
+        showNoUnitsMessage(); // Mostra a mensagem de erro em caso de falha na requisição
     });
 }
 
 function showNoUnitsMessage() {
-    console.log('🚫 SHOW NO UNITS MESSAGE - ALIMENTO NÃO CLASSIFICADO');
+    console.log('🚫 Exibindo mensagem de alimento não classificado.');
     
     const unitSelect = document.getElementById('unit-select');
     const quantityLabel = document.getElementById('quantity-label');
