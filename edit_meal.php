@@ -467,11 +467,12 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 
 <script>
 // Dados nutricionais por porção (para recálculo)
+const servings = <?php echo (float)$meal['servings_consumed'] > 0 ? (float)$meal['servings_consumed'] : 1; ?>;
 const nutritionPerServing = {
-    kcal: <?php echo $meal['kcal_per_serving'] ?: ($meal['kcal_consumed'] / $meal['servings_consumed']); ?>,
-    protein: <?php echo $meal['protein_g_per_serving'] ?: ($meal['protein_consumed_g'] / $meal['servings_consumed']); ?>,
-    carbs: <?php echo $meal['carbs_g_per_serving'] ?: ($meal['carbs_consumed_g'] / $meal['servings_consumed']); ?>,
-    fat: <?php echo $meal['fat_g_per_serving'] ?: ($meal['fat_consumed_g'] / $meal['servings_consumed']); ?>
+    kcal: <?php echo (float)($meal['kcal_per_serving'] ?: ($meal['kcal_consumed'] / ($servings ?: 1))); ?>,
+    protein: <?php echo (float)($meal['protein_g_per_serving'] ?: ($meal['protein_consumed_g'] / ($servings ?: 1))); ?>,
+    carbs: <?php echo (float)($meal['carbs_g_per_serving'] ?: ($meal['carbs_consumed_g'] / ($servings ?: 1))); ?>,
+    fat: <?php echo (float)($meal['fat_g_per_serving'] ?: ($meal['fat_consumed_g'] / ($servings ?: 1))); ?>
 };
 
 // Função para atualizar valores nutricionais

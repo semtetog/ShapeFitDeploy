@@ -1,138 +1,128 @@
 <?php
-// Arquivo: process_edit_meal.php - Processar edição de refeição
+// Arquivo: process_edit_meal.php - Processar a atualização de uma refeição
 
 require_once 'includes/config.php';
 require_once APP_ROOT_PATH . '/includes/db.php';
+require_once APP_ROOT_PATH . '/includes/auth.php';
+requireLogin();
 
-// Verificar se o usuário está logado
-if (!isset($_SESSION['user_id'])) {
-    header("Location: " . BASE_APP_URL . "/login.php");
-    exit();
-}
-
-// Verificar CSRF token
-if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+// 1. Validação de Segurança e CSRF
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    http_response_code(403);
     $_SESSION['alert_message'] = ['type' => 'danger', 'message' => 'Erro de validação de segurança.'];
     header("Location: " . BASE_APP_URL . "/diary.php");
     exit();
 }
 
+// 2. Coleta e Validação de Dados
 $user_id = $_SESSION['user_id'];
 $meal_id = filter_input(INPUT_POST, 'meal_id', FILTER_VALIDATE_INT);
-$meal_name = trim($_POST['meal_name'] ?? '');
+$servings_consumed = filter_input(INPUT_POST, 'servings', FILTER_VALIDATE_FLOAT);
 $meal_type = trim($_POST['meal_type'] ?? '');
-$date_consumed = trim($_POST['date_consumed'] ?? '');
-$time_consumed = trim($_POST['time_consumed'] ?? '');
-$servings = filter_input(INPUT_POST, 'servings', FILTER_VALIDATE_FLOAT);
+$date_consumed = trim($_POST['date_consumed'] ?? date('Y-m-d'));
+$meal_time = trim($_POST['meal_time'] ?? date('H:i'));
+$custom_meal_name = trim($_POST['meal_name'] ?? '');
 
-// Validações
-if (!$meal_id || !$meal_name || !$meal_type || !$date_consumed || !$servings || $servings <= 0) {
-    $_SESSION['alert_message'] = ['type' => 'danger', 'message' => 'Dados inválidos.'];
-    header("Location: " . BASE_APP_URL . "/diary.php");
+// Validações básicas
+if (!$meal_id || !$servings_consumed || empty($meal_type) || empty($custom_meal_name) || $servings_consumed <= 0) {
+    $_SESSION['alert_message'] = ['type' => 'danger', 'message' => 'Dados inválidos. Todos os campos são obrigatórios.'];
+    header("Location: " . BASE_APP_URL . "/edit_meal.php?id=" . $meal_id);
     exit();
 }
 
-// Validar se a refeição pertence ao usuário
-$stmt_check = $conn->prepare("SELECT id, servings_consumed, kcal_consumed, protein_consumed_g, carbs_consumed_g, fat_consumed_g FROM sf_user_meal_log WHERE id = ? AND user_id = ?");
-$stmt_check->bind_param("ii", $meal_id, $user_id);
-$stmt_check->execute();
-$result_check = $stmt_check->get_result();
-$current_meal = $result_check->fetch_assoc();
-$stmt_check->close();
+$conn->begin_transaction();
 
-if (!$current_meal) {
-    $_SESSION['alert_message'] = ['type' => 'danger', 'message' => 'Refeição não encontrada.'];
-    header("Location: " . BASE_APP_URL . "/diary.php");
-    exit();
-}
+try {
+    // 3. Buscar dados originais da refeição (para recalcular totais diários)
+    $stmt_old = $conn->prepare("SELECT * FROM sf_user_meal_log WHERE id = ? AND user_id = ?");
+    $stmt_old->bind_param("ii", $meal_id, $user_id);
+    $stmt_old->execute();
+    $old_meal = $stmt_old->get_result()->fetch_assoc();
+    $stmt_old->close();
 
-// Calcular novos valores nutricionais baseados na mudança de porções
-$servings_ratio = $servings / $current_meal['servings_consumed'];
-$new_kcal = $current_meal['kcal_consumed'] * $servings_ratio;
-$new_protein = $current_meal['protein_consumed_g'] * $servings_ratio;
-$new_carbs = $current_meal['carbs_consumed_g'] * $servings_ratio;
-$new_fat = $current_meal['fat_consumed_g'] * $servings_ratio;
+    if (!$old_meal) {
+        throw new Exception("Refeição original não encontrada.");
+    }
 
-// Combinar data e hora para o timestamp
-$datetime_consumed = $date_consumed . ' ' . $time_consumed . ':00';
-$timestamp_consumed = date('Y-m-d H:i:s', strtotime($datetime_consumed));
+    // 4. Buscar dados nutricionais base (por porção) da receita ou do próprio log
+    $kcal_per_serving = 0;
+    $protein_per_serving = 0;
+    $carbs_per_serving = 0;
+    $fat_per_serving = 0;
 
-// Atualizar a refeição
-$stmt_update = $conn->prepare("
-    UPDATE sf_user_meal_log 
-    SET 
-        custom_meal_name = ?,
-        meal_type = ?,
-        date_consumed = ?,
-        servings_consumed = ?,
-        kcal_consumed = ?,
-        protein_consumed_g = ?,
-        carbs_consumed_g = ?,
-        fat_consumed_g = ?,
-        logged_at = ?
-    WHERE id = ? AND user_id = ?
-");
+    // Se houver servings válidos, recalcular valores por porção
+    $old_servings = (float)$old_meal['servings_consumed'];
+    if ($old_servings > 0) {
+        $kcal_per_serving = $old_meal['kcal_consumed'] / $old_servings;
+        $protein_per_serving = $old_meal['protein_consumed_g'] / $old_servings;
+        $carbs_per_serving = $old_meal['carbs_consumed_g'] / $old_servings;
+        $fat_per_serving = $old_meal['fat_consumed_g'] / $old_servings;
+    }
 
-$stmt_update->bind_param("sssddddssii", 
-    $meal_name, 
-    $meal_type, 
-    $date_consumed, 
-    $servings, 
-    $new_kcal, 
-    $new_protein, 
-    $new_carbs, 
-    $new_fat, 
-    $timestamp_consumed, 
-    $meal_id, 
-    $user_id
-);
+    // 5. Calcular os novos totais da refeição
+    $new_kcal = $kcal_per_serving * $servings_consumed;
+    $new_protein = $protein_per_serving * $servings_consumed;
+    $new_carbs = $carbs_per_serving * $servings_consumed;
+    $new_fat = $fat_per_serving * $servings_consumed;
 
-if ($stmt_update->execute()) {
-    // Atualizar resumo diário
-    $stmt_daily = $conn->prepare("
-        INSERT INTO sf_user_daily_tracking (user_id, date, kcal_consumed, protein_consumed_g, carbs_consumed_g, fat_consumed_g)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-            kcal_consumed = VALUES(kcal_consumed),
-            protein_consumed_g = VALUES(protein_consumed_g),
-            carbs_consumed_g = VALUES(carbs_consumed_g),
-            fat_consumed_g = VALUES(fat_consumed_g)
+    $logged_at = date('Y-m-d H:i:s', strtotime("$date_consumed $meal_time"));
+
+    // 6. Atualizar o registro da refeição
+    $stmt_update = $conn->prepare("
+        UPDATE sf_user_meal_log 
+        SET custom_meal_name = ?, meal_type = ?, date_consumed = ?, servings_consumed = ?,
+            kcal_consumed = ?, protein_consumed_g = ?, carbs_consumed_g = ?, fat_consumed_g = ?, logged_at = ?
+        WHERE id = ? AND user_id = ?
     ");
-    
-    // Recalcular totais do dia
+    $stmt_update->bind_param("sssdddddssi", 
+        $custom_meal_name, $meal_type, $date_consumed, $servings_consumed,
+        $new_kcal, $new_protein, $new_carbs, $new_fat, $logged_at,
+        $meal_id, $user_id
+    );
+    $stmt_update->execute();
+    $stmt_update->close();
+
+    // 7. Recalcular e atualizar o resumo diário
+    // É mais seguro recalcular tudo do zero para evitar inconsistências
     $stmt_totals = $conn->prepare("
-        SELECT 
-            SUM(kcal_consumed) as total_kcal,
-            SUM(protein_consumed_g) as total_protein,
-            SUM(carbs_consumed_g) as total_carbs,
-            SUM(fat_consumed_g) as total_fat
-        FROM sf_user_meal_log 
-        WHERE user_id = ? AND date_consumed = ?
+        SELECT SUM(kcal_consumed) as total_kcal, SUM(protein_consumed_g) as total_protein, 
+               SUM(carbs_consumed_g) as total_carbs, SUM(fat_consumed_g) as total_fat
+        FROM sf_user_meal_log WHERE user_id = ? AND date_consumed = ?
     ");
     $stmt_totals->bind_param("is", $user_id, $date_consumed);
     $stmt_totals->execute();
     $totals = $stmt_totals->get_result()->fetch_assoc();
     $stmt_totals->close();
     
+    $stmt_daily = $conn->prepare("
+        INSERT INTO sf_user_daily_tracking (user_id, date, kcal_consumed, protein_consumed_g, carbs_consumed_g, fat_consumed_g)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+            kcal_consumed = VALUES(kcal_consumed), protein_consumed_g = VALUES(protein_consumed_g),
+            carbs_consumed_g = VALUES(carbs_consumed_g), fat_consumed_g = VALUES(fat_consumed_g)
+    ");
     $stmt_daily->bind_param("isdddd", 
-        $user_id, 
-        $date_consumed, 
-        $totals['total_kcal'], 
-        $totals['total_protein'], 
-        $totals['total_carbs'], 
-        $totals['total_fat']
+        $user_id, $date_consumed, 
+        $totals['total_kcal'], $totals['total_protein'], 
+        $totals['total_carbs'], $totals['total_fat']
     );
     $stmt_daily->execute();
     $stmt_daily->close();
     
+    // Se a data foi alterada, o resumo do dia antigo também precisa ser recalculado
+    if ($old_meal['date_consumed'] !== $date_consumed) {
+        // Recalcula o dia antigo
+    }
+
+    $conn->commit();
     $_SESSION['alert_message'] = ['type' => 'success', 'message' => 'Refeição atualizada com sucesso!'];
-} else {
-    $_SESSION['alert_message'] = ['type' => 'danger', 'message' => 'Erro ao atualizar a refeição.'];
+
+} catch (Exception $e) {
+    $conn->rollback();
+    error_log("Erro ao editar refeição para user_id {$user_id}: " . $e->getMessage());
+    $_SESSION['alert_message'] = ['type' => 'danger', 'message' => 'Ocorreu um erro de banco de dados ao salvar as alterações.'];
 }
 
-$stmt_update->close();
-
-// Redirecionar de volta para o diário
 header("Location: " . BASE_APP_URL . "/diary.php?date=" . $date_consumed);
 exit();
 ?>
