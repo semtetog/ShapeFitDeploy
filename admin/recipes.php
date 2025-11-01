@@ -75,14 +75,36 @@ require_once __DIR__ . '/includes/header.php';
         <h2>Receitas</h2>
         <form method="GET" action="recipes.php" class="search-form-flex">
             <input type="text" name="search" placeholder="Buscar por nome da receita..." value="<?php echo htmlspecialchars($search_term); ?>">
-            <select name="category_id" class="form-control">
-                <option value="">Todas as Categorias</option>
-                <?php foreach ($categories as $category): ?>
-                    <option value="<?php echo $category['id']; ?>" <?php echo ($category_id == $category['id']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($category['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <div class="custom-select-wrapper">
+                <input type="hidden" name="category_id" id="category_id_input" value="<?php echo $category_id ?: ''; ?>">
+                <div class="custom-select" id="category_select">
+                    <div class="custom-select-trigger">
+                        <span class="custom-select-value">
+                            <?php 
+                            if ($category_id) {
+                                foreach ($categories as $cat) {
+                                    if ($cat['id'] == $category_id) {
+                                        echo htmlspecialchars($cat['name']);
+                                        break;
+                                    }
+                                }
+                            } else {
+                                echo 'Todas as Categorias';
+                            }
+                            ?>
+                        </span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-select-option" data-value="">Todas as Categorias</div>
+                        <?php foreach ($categories as $category): ?>
+                            <div class="custom-select-option <?php echo ($category_id == $category['id']) ? 'selected' : ''; ?>" data-value="<?php echo $category['id']; ?>">
+                                <?php echo htmlspecialchars($category['name']); ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
             <button type="submit"><i class="fas fa-search"></i> Filtrar</button>
             <a href="recipes.php" class="btn-secondary">Limpar</a>
         </form>
@@ -129,6 +151,60 @@ require_once __DIR__ . '/includes/header.php';
     </table>
 </div>
 </div>
+
+<script>
+// Custom Select Dropdown Functionality
+(function() {
+    const customSelect = document.getElementById('category_select');
+    const hiddenInput = document.getElementById('category_id_input');
+    const trigger = customSelect.querySelector('.custom-select-trigger');
+    const options = customSelect.querySelectorAll('.custom-select-option');
+    const valueDisplay = customSelect.querySelector('.custom-select-value');
+    
+    // Toggle dropdown
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        customSelect.classList.toggle('active');
+    });
+    
+    // Select option
+    options.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Remove selected class from all options
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            this.classList.add('selected');
+            
+            // Update hidden input value
+            const value = this.getAttribute('data-value');
+            hiddenInput.value = value;
+            
+            // Update displayed value
+            valueDisplay.textContent = this.textContent;
+            
+            // Close dropdown
+            customSelect.classList.remove('active');
+        });
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!customSelect.contains(e.target)) {
+            customSelect.classList.remove('active');
+        }
+    });
+    
+    // Close dropdown on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && customSelect.classList.contains('active')) {
+            customSelect.classList.remove('active');
+        }
+    });
+})();
+</script>
 
 <?php
 require_once __DIR__ . '/includes/footer.php';

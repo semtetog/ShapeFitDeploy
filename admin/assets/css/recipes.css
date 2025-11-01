@@ -95,74 +95,139 @@
     opacity: 0.7;
 }
 
-/* Custom Select Styling */
-.search-form-flex select.form-control {
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23FF6B00' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    padding-right: 3rem;
+/* ========================================
+   CUSTOM SELECT DROPDOWN
+   ======================================== */
+.custom-select-wrapper {
+    position: relative;
+    min-width: 200px;
+    max-width: 300px;
+    flex: 1;
 }
 
-.search-form-flex select.form-control::-ms-expand {
-    display: none;
+.custom-select {
+    position: relative;
+    width: 100%;
 }
 
-/* Style dropdown options (when opened) */
-.search-form-flex select.form-control option {
-    background: #1a1a1a;
-    color: var(--text-primary);
-    padding: 0.75rem 1rem;
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.25rem;
     font-size: 0.95rem;
-    font-family: 'Montserrat', sans-serif;
-    border: none;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    user-select: none;
 }
 
-.search-form-flex select.form-control option:hover,
-.search-form-flex select.form-control option:focus,
-.search-form-flex select.form-control option:checked {
-    background: rgba(255, 107, 0, 0.2);
+.custom-select-trigger:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.custom-select.active .custom-select-trigger {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.custom-select-trigger i {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+    margin-left: 0.75rem;
+}
+
+.custom-select.active .custom-select-trigger i {
+    transform: rotate(180deg);
     color: var(--accent-orange);
 }
 
-.search-form-flex select.form-control option:checked {
-    background: rgba(255, 107, 0, 0.3);
+.custom-select-value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-select-options {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: rgba(26, 26, 26, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.custom-select.active .custom-select-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.custom-select-option {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-select-option:first-child {
+    border-radius: 12px 12px 0 0;
+}
+
+.custom-select-option:last-child {
+    border-bottom: none;
+    border-radius: 0 0 12px 12px;
+}
+
+.custom-select-option:hover {
+    background: rgba(255, 107, 0, 0.15);
+    color: var(--accent-orange);
+}
+
+.custom-select-option.selected {
+    background: rgba(255, 107, 0, 0.2);
     color: var(--accent-orange);
     font-weight: 600;
 }
 
-/* For WebKit browsers (Chrome, Safari, Edge) */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-    .search-form-flex select.form-control {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-    
-    .search-form-flex select.form-control option {
-        background-color: #1a1a1a;
-        color: var(--text-primary);
-    }
-    
-    .search-form-flex select.form-control option:checked {
-        background-color: rgba(255, 107, 0, 0.3);
-        color: var(--accent-orange);
-    }
+.custom-select-options::-webkit-scrollbar {
+    width: 8px;
 }
 
-/* For Firefox */
-@-moz-document url-prefix() {
-    .search-form-flex select.form-control option {
-        background-color: #1a1a1a;
-        color: var(--text-primary);
-    }
-    
-    .search-form-flex select.form-control option:checked {
-        background-color: rgba(255, 107, 0, 0.3);
-        color: var(--accent-orange);
-    }
+.custom-select-options::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 0, 0.3);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 0, 0.5);
 }
 
 /* Form Buttons */
