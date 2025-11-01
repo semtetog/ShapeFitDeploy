@@ -299,10 +299,17 @@ function initLottieCarousel() {
 
 // Aguarda o window.load para garantir que todos os scripts carregaram
 window.addEventListener('load', () => {
-  console.log('[Banner Carousel] Window load event - iniciando...');
-  if (typeof lottie !== 'undefined') {
-    initLottieCarousel();
+  console.log('[Banner Carousel] Window load event - verificando se o carrossel existe...');
+  
+  // CORREÇÃO: Só tenta iniciar o carrossel se o elemento existir na página
+  const carousel = document.querySelector('.main-carousel');
+  if (carousel) {
+    if (typeof lottie !== 'undefined') {
+      initLottieCarousel();
+    } else {
+      console.error('[Banner Carousel] Lottie.js não foi encontrado.');
+    }
   } else {
-    console.error('[Banner Carousel] Lottie.js não foi encontrado.');
+    console.log('[Banner Carousel] Container .main-carousel não encontrado nesta página. Script inativo.');
   }
 });

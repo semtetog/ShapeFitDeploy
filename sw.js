@@ -1,12 +1,12 @@
 // Service Worker para PWA ShapeFIT
-const CACHE_NAME = 'shapefit-v5';
+const CACHE_NAME = 'shapefit-v6'; // Versão do cache atualizada para forçar a atualização
 const urlsToCache = [
   '/',
   '/assets/css/style.css',
   '/assets/js/script.js',
   '/assets/js/banner-carousel.js',
-  '/assets/images/icon-192x192.png',
-  '/assets/images/icon-512x512.png'
+  '/assets/images/icon-192x192.png', // Caminho corrigido
+  '/assets/images/icon-512x512.png'  // Caminho corrigido
 ];
 
 // Install event - cache resources
