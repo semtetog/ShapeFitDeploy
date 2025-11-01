@@ -104,35 +104,35 @@ require_once __DIR__ . '/includes/header.php';
         <div class="podium rank-card">
             <div class="podium-place second">
                 <a href="view_user.php?id=<?php echo $rankings[1]['id']; ?>" class="podium-link">
-                    <div class="podium-details">
-                        <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[1], 'podium-avatar'); ?><div class="podium-rank-badge">2</div></div>
-                        <div class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[1]['name'])[0]); ?></div>
-                        <div class="podium-level">Nível <?php echo $rankings[1]['level']; ?></div>
-                        <div class="podium-points"><?php echo number_format($rankings[1]['points'], 0, ',', '.'); ?> pts</div>
+                    <div class="podium-picture-wrapper">
+                        <?php echo getAdminUserAvatar($rankings[1], 'podium-avatar'); ?>
+                        <div class="podium-rank-badge">2</div>
                     </div>
-                    <div class="podium-base">2</div>
+                    <div class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[1]['name'])[0]); ?></div>
+                    <div class="podium-level">Nível <?php echo $rankings[1]['level']; ?></div>
+                    <div class="podium-points"><?php echo number_format($rankings[1]['points'], 0, ',', '.'); ?> pts</div>
                 </a>
             </div>
             <div class="podium-place first">
                 <a href="view_user.php?id=<?php echo $rankings[0]['id']; ?>" class="podium-link">
-                     <div class="podium-details">
-                        <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[0], 'podium-avatar first-place'); ?><div class="podium-rank-badge"><i class="fas fa-crown"></i></div></div>
-                        <div class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[0]['name'])[0]); ?></div>
-                        <div class="podium-level">Nível <?php echo $rankings[0]['level']; ?></div>
-                        <div class="podium-points"><?php echo number_format($rankings[0]['points'], 0, ',', '.'); ?> pts</div>
+                    <div class="podium-picture-wrapper">
+                        <?php echo getAdminUserAvatar($rankings[0], 'podium-avatar first-place'); ?>
+                        <div class="podium-rank-badge"><i class="fas fa-crown"></i></div>
                     </div>
-                    <div class="podium-base">1</div>
+                    <div class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[0]['name'])[0]); ?></div>
+                    <div class="podium-level">Nível <?php echo $rankings[0]['level']; ?></div>
+                    <div class="podium-points"><?php echo number_format($rankings[0]['points'], 0, ',', '.'); ?> pts</div>
                 </a>
             </div>
             <div class="podium-place third">
                 <a href="view_user.php?id=<?php echo $rankings[2]['id']; ?>" class="podium-link">
-                    <div class="podium-details">
-                        <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[2], 'podium-avatar'); ?><div class="podium-rank-badge">3</div></div>
-                        <div class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[2]['name'])[0]); ?></div>
-                        <div class="podium-level">Nível <?php echo $rankings[2]['level']; ?></div>
-                        <div class="podium-points"><?php echo number_format($rankings[2]['points'], 0, ',', '.'); ?> pts</div>
+                    <div class="podium-picture-wrapper">
+                        <?php echo getAdminUserAvatar($rankings[2], 'podium-avatar'); ?>
+                        <div class="podium-rank-badge">3</div>
                     </div>
-                    <div class="podium-base">3</div>
+                    <div class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[2]['name'])[0]); ?></div>
+                    <div class="podium-level">Nível <?php echo $rankings[2]['level']; ?></div>
+                    <div class="podium-points"><?php echo number_format($rankings[2]['points'], 0, ',', '.'); ?> pts</div>
                 </a>
             </div>
         </div>

@@ -82,79 +82,67 @@
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    gap: 1.5rem; /* Aumentar o espaçamento */
-    padding: 2rem;
+    gap: 1.5rem;
+    padding: 2.5rem 2rem; /* Mais padding vertical */
     text-align: center;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 0;
+    border-radius: 20px 20px 0 0; /* Apenas topo arredondado */
 }
 
 .podium-place {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 180px; /* Largura base */
+    width: 180px;
     transition: transform 0.3s ease;
 }
 
 .podium-place:hover {
-    transform: translateY(-5px); /* Efeito mais sutil */
+    transform: translateY(-5px);
 }
 
 .podium-link {
     text-decoration: none;
     color: var(--primary-text-color);
-    display: contents; /* Para o <a> não quebrar o flexbox do pai */
-}
-
-.podium-details {
-    order: 1; /* Detalhes vêm depois da base */
-    margin-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem; /* Espaçamento entre os elementos */
 }
 
 .podium-picture-wrapper {
     position: relative;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
-
-.podium-base {
-    order: 2; /* Base vem por último */
-    width: 100%;
-    border-radius: 12px 12px 0 0;
-    background: rgba(255, 255, 255, 0.07);
-    border-bottom: 4px solid;
-    padding-top: 1.5rem;
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--primary-text-color);
-    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-
-.podium-place.first .podium-base { height: 120px; border-color: #FFD700; }
-.podium-place.second .podium-base { height: 80px; border-color: #C0C0C0; }
-.podium-place.third .podium-base { height: 50px; border-color: #CD7F32; }
-
 
 .podium-rank-badge {
     position: absolute;
-    bottom: -10px;
-    right: -5px;
-    background-color: var(--background-secondary); /* Fundo do card */
-    color: var(--primary-text-color);
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
+    bottom: -8px; /* Ligeiramente para baixo */
+    left: 50%;
+    transform: translateX(-50%); /* Centralizado */
+    background: rgba(0, 0, 0, 0.5); /* Fundo semitransparente */
+    backdrop-filter: blur(5px); /* Efeito de vidro */
+    color: #FFFFFF;
+    border-radius: 8px; /* Retângulo arredondado */
+    width: auto;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 1rem;
-    border: 2px solid var(--glass-border);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .podium-place.first .podium-rank-badge {
-    background-color: #FFD700;
+    background: #FFD700;
     color: #4a3400;
     font-size: 1.2rem;
+    border: 1px solid rgba(255, 215, 0, 0.5);
 }
 
 .podium-name {
@@ -209,7 +197,9 @@
    Lista de Ranking
 ------------------------- */
 .ranking-list-section {
-    padding: 0; /* Padding será controlado pelo .rank-card */
+    padding: 0;
+    border-radius: 0 0 20px 20px; /* Apenas base arredondada */
+    margin-bottom: 2rem; /* Mover o margin-bottom para cá */
 }
 
 .ranking-list-header {
@@ -235,24 +225,27 @@
 }
 
 .ranking-item-link {
-    display: flex;
-    align-items: center;
-    padding: 0.8rem 1rem;
     border-radius: 12px;
     border-bottom: 1px solid var(--glass-border);
-    text-decoration: none;
-    color: var(--primary-text-color);
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid transparent;
+    padding: 1rem;
+    transition: background-color 0.2s ease; /* Transição apenas no fundo */
 }
+
+.ranking-item-link .item-name {
+    transition: color 0.2s ease; /* Transição na cor do nome */
+}
+
 .ranking-item:last-child .ranking-item-link {
     border-bottom: none;
 }
 
 .ranking-item-link:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    border-color: transparent; /* A borda inferior já existe */
-    box-shadow: none; /* Remover sombra individual do item */
+    background-color: rgba(255, 255, 255, 0.04); /* Fundo muito sutil */
+    box-shadow: none;
+}
+
+.ranking-item-link:hover .item-name {
+    color: var(--accent-orange); /* Apenas o nome muda de cor */
 }
 
 .list-avatar {
