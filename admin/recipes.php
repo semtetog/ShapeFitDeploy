@@ -9,6 +9,7 @@ requireAdminLogin();
 
 $page_slug = 'recipes';
 $page_title = 'Gerenciar Receitas';
+$extra_css = ['recipes.css'];
 
 // --- Lógica de busca e filtro ---
 $search_term = trim($_GET['search'] ?? '');
@@ -69,25 +70,24 @@ $stmt->close();
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- O HTML continua o mesmo da resposta anterior -->
-
-<h2>Receitas</h2>
-<div class="toolbar">
-    <form method="GET" action="recipes.php" class="search-form-flex">
-        <input type="text" name="search" placeholder="Buscar por nome da receita..." value="<?php echo htmlspecialchars($search_term); ?>">
-        <select name="category_id" class="form-control">
-            <option value="">Todas as Categorias</option>
-            <?php foreach ($categories as $category): ?>
-                <option value="<?php echo $category['id']; ?>" <?php echo ($category_id == $category['id']) ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($category['name']); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-        <button type="submit" class="btn"><i class="fas fa-search"></i> Filtrar</button>
-        <a href="recipes.php" class="btn btn-secondary">Limpar</a>
-    </form>
-    <a href="edit_recipe.php" class="btn btn-primary"><i class="fas fa-plus"></i> Nova Receita</a>
-</div>
+<div class="recipes-page-container">
+    <div class="toolbar">
+        <h2>Receitas</h2>
+        <form method="GET" action="recipes.php" class="search-form-flex">
+            <input type="text" name="search" placeholder="Buscar por nome da receita..." value="<?php echo htmlspecialchars($search_term); ?>">
+            <select name="category_id" class="form-control">
+                <option value="">Todas as Categorias</option>
+                <?php foreach ($categories as $category): ?>
+                    <option value="<?php echo $category['id']; ?>" <?php echo ($category_id == $category['id']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($category['name']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit"><i class="fas fa-search"></i> Filtrar</button>
+            <a href="recipes.php" class="btn-secondary">Limpar</a>
+        </form>
+        <a href="edit_recipe.php" class="btn-primary"><i class="fas fa-plus"></i> Nova Receita</a>
+    </div>
 
 <div class="content-card">
     <table class="data-table">
@@ -128,6 +128,7 @@ require_once __DIR__ . '/includes/header.php';
             <?php endif; ?>
         </tbody>
     </table>
+</div>
 </div>
 
 <?php
