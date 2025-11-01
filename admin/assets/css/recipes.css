@@ -22,20 +22,36 @@
     justify-content: space-between;
     gap: 1.5rem;
     margin-bottom: 2rem;
-    padding: 1.5rem;
+    padding: 2rem;
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.toolbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-orange), #FFA500);
+    border-radius: 20px 20px 0 0;
 }
 
 .toolbar h2 {
     margin: 0;
-    font-size: 1.75rem;
+    font-size: 1.875rem;
     font-weight: 700;
     color: var(--text-primary);
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    letter-spacing: -0.02em;
 }
 
 /* ========================================
@@ -83,6 +99,8 @@
 .search-form-flex select.form-control {
     cursor: pointer;
     appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23FF6B00' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
@@ -91,6 +109,60 @@
 
 .search-form-flex select.form-control::-ms-expand {
     display: none;
+}
+
+/* Style dropdown options (when opened) */
+.search-form-flex select.form-control option {
+    background: #1a1a1a;
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-family: 'Montserrat', sans-serif;
+    border: none;
+    cursor: pointer;
+}
+
+.search-form-flex select.form-control option:hover,
+.search-form-flex select.form-control option:focus,
+.search-form-flex select.form-control option:checked {
+    background: rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+}
+
+.search-form-flex select.form-control option:checked {
+    background: rgba(255, 107, 0, 0.3);
+    color: var(--accent-orange);
+    font-weight: 600;
+}
+
+/* For WebKit browsers (Chrome, Safari, Edge) */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .search-form-flex select.form-control {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .search-form-flex select.form-control option {
+        background-color: #1a1a1a;
+        color: var(--text-primary);
+    }
+    
+    .search-form-flex select.form-control option:checked {
+        background-color: rgba(255, 107, 0, 0.3);
+        color: var(--accent-orange);
+    }
+}
+
+/* For Firefox */
+@-moz-document url-prefix() {
+    .search-form-flex select.form-control option {
+        background-color: #1a1a1a;
+        color: var(--text-primary);
+    }
+    
+    .search-form-flex select.form-control option:checked {
+        background-color: rgba(255, 107, 0, 0.3);
+        color: var(--accent-orange);
+    }
 }
 
 /* Form Buttons */
