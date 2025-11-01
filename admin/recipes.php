@@ -119,7 +119,6 @@ require_once __DIR__ . '/includes/header.php';
                             </span>
                         </td>
                         <td>
-                            <a href="<?php echo BASE_APP_URL . '/view_recipe.php?id=' . $recipe['id']; ?>" target="_blank" class="btn-action view" title="Ver no App"><i class="fas fa-eye"></i></a>
                             <a href="edit_recipe.php?id=<?php echo $recipe['id']; ?>" class="btn-action edit" title="Editar"><i class="fas fa-pencil-alt"></i></a>
                             <a href="delete_recipe.php?id=<?php echo $recipe['id']; ?>" class="btn-action delete" title="Apagar" onclick="return confirm('Tem certeza que deseja apagar esta receita? Esta ação não pode ser desfeita.');"><i class="fas fa-trash-alt"></i></a>
                         </td>
