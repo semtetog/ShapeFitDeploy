@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/includes/auth_admin.php';
 $conn = require __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/includes/functions_admin.php'; // Adicionado
 
 requireAdminLogin();
 
@@ -54,13 +55,7 @@ function getUserLevel($points, $levels) {
     return $current_level;
 }
 
-function getAdminUserProfileImageUrl($player_data) {
-    if (!empty($player_data['profile_image_filename']) && file_exists(APP_ROOT_PATH . '/assets/images/users/' . $player_data['profile_image_filename'])) {
-        return BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($player_data['profile_image_filename']);
-    }
-    $gender = strtolower($player_data['gender'] ?? 'male');
-    return ($gender === 'female') ? 'https://i.ibb.co/XkpfDjbj/FEMININO.webp' : 'https://i.ibb.co/gLcMfWyn/MASCULINO.webp';
-}
+// A função getAdminUserProfileImageUrl foi removida e substituída por getAdminUserAvatar de functions_admin.php
 
 // --- LÓGICA DE RANKING (com busca e paginação) ---
 $rankings = [];
@@ -109,7 +104,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="podium">
             <div class="podium-place second">
                 <a href="view_user.php?id=<?php echo $rankings[1]['id']; ?>" class="podium-link">
-                    <div class="podium-picture-wrapper"><img src="<?php echo getAdminUserProfileImageUrl($rankings[1]); ?>" alt="2º lugar" class="podium-picture"><div class="podium-rank-badge">2</div></div>
+                    <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[1], 'podium-avatar'); ?><div class="podium-rank-badge">2</div></div>
                     <span class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[1]['name'])[0]); ?></span>
                     <span class="podium-level">Nível <?php echo $rankings[1]['level']; ?></span>
                     <span class="podium-points"><?php echo number_format($rankings[1]['points'], 0, ',', '.'); ?> pts</span>
@@ -117,7 +112,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <div class="podium-place first">
                 <a href="view_user.php?id=<?php echo $rankings[0]['id']; ?>" class="podium-link">
-                    <div class="podium-picture-wrapper"><img src="<?php echo getAdminUserProfileImageUrl($rankings[0]); ?>" alt="1º lugar" class="podium-picture"><div class="podium-rank-badge"><i class="fas fa-crown"></i></div></div>
+                    <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[0], 'podium-avatar first-place'); ?><div class="podium-rank-badge"><i class="fas fa-crown"></i></div></div>
                     <span class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[0]['name'])[0]); ?></span>
                     <span class="podium-level">Nível <?php echo $rankings[0]['level']; ?></span>
                     <span class="podium-points"><?php echo number_format($rankings[0]['points'], 0, ',', '.'); ?> pts</span>
@@ -125,7 +120,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <div class="podium-place third">
                 <a href="view_user.php?id=<?php echo $rankings[2]['id']; ?>" class="podium-link">
-                    <div class="podium-picture-wrapper"><img src="<?php echo getAdminUserProfileImageUrl($rankings[2]); ?>" alt="3º lugar" class="podium-picture"><div class="podium-rank-badge">3</div></div>
+                    <div class="podium-picture-wrapper"><?php echo getAdminUserAvatar($rankings[2], 'podium-avatar'); ?><div class="podium-rank-badge">3</div></div>
                     <span class="podium-name"><?php echo htmlspecialchars(explode(' ', $rankings[2]['name'])[0]); ?></span>
                     <span class="podium-level">Nível <?php echo $rankings[2]['level']; ?></span>
                     <span class="podium-points"><?php echo number_format($rankings[2]['points'], 0, ',', '.'); ?> pts</span>
@@ -143,7 +138,7 @@ require_once __DIR__ . '/includes/header.php';
                     <li class="ranking-item">
                         <a href="view_user.php?id=<?php echo $player['id']; ?>" class="ranking-item-link">
                             <span class="item-rank"><?php echo $player['user_rank']; ?>º</span>
-                            <img src="<?php echo getAdminUserProfileImageUrl($player); ?>" alt="Foto de <?php echo htmlspecialchars($player['name']); ?>" class="item-picture">
+                            <?php echo getAdminUserAvatar($player, 'list-avatar'); ?>
                             <div class="item-info-container">
                                 <span class="item-name"><?php echo htmlspecialchars($player['name']); ?></span>
                                 <span class="item-level">Nível <?php echo $player['level']; ?></span>
