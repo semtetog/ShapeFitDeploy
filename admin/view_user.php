@@ -1964,162 +1964,176 @@ window.closeHelpModal = closeHelpModal;
 <!-- Modal de Calendário para Gráficos (Nutrientes e Hidratação) -->
 <div id="chartCalendarModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeChartCalendar()"></div>
-    <div class="custom-modal-content custom-modal-small">
-        <div class="custom-modal-header">
-            <i class="fas fa-calendar-alt"></i>
-            <h3 id="chartCalendarTitle">Selecionar Período</h3>
+    <div class="diary-calendar-wrapper">
+        <button class="calendar-btn-close" onclick="closeChartCalendar()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="calendar-header-title">
+            <div class="calendar-year" id="chartCalendarYear"></div>
         </div>
-        <div class="custom-modal-body">
-            <div id="chartCalendarBody">
-                <div class="chart-calendar-options">
-                    <button class="calendar-option-btn" onclick="selectChartPeriod('last7')">
-                        <i class="fas fa-clock"></i>
-                        <span>Últimos 7 dias</span>
-                        <small>Período padrão em tempo real</small>
-                    </button>
-                    
-                    <div class="calendar-option-divider">ou</div>
-                    
-                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.875rem; font-weight: 600;">Selecionar Mês</label>
-                    <input type="month" id="chartMonthInput" class="chart-month-input" onchange="selectChartMonth(this.value)">
-                    
-                    <div class="calendar-option-divider">ou</div>
-                    
-                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.875rem; font-weight: 600;">Selecionar Semana</label>
-                    <input type="week" id="chartWeekInput" class="chart-week-input" onchange="selectChartWeek(this.value)">
-                </div>
+        
+        <!-- Botão de Últimos 7 dias -->
+        <div style="margin-bottom: 1.5rem;">
+            <button class="calendar-quick-btn" onclick="selectChartPeriod('last7')">
+                <i class="fas fa-clock"></i>
+                <span>Últimos 7 dias</span>
+            </button>
+        </div>
+        
+        <div class="calendar-nav-buttons">
+            <button class="calendar-btn-nav" onclick="changeChartCalendarMonth(-1)" type="button">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="calendar-month" id="chartCalendarMonth"></div>
+            <button class="calendar-btn-nav" id="chartNextMonthBtn" onclick="changeChartCalendarMonth(1)" type="button">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="calendar-weekdays-row">
+            <span>DOM</span>
+            <span>SEG</span>
+            <span>TER</span>
+            <span>QUA</span>
+            <span>QUI</span>
+            <span>SEX</span>
+            <span>SÁB</span>
+        </div>
+        
+        <div class="calendar-days-grid" id="chartCalendarDaysGrid"></div>
+        
+        <div class="calendar-separator">
+            <div class="separator-line"></div>
+            <div class="separator-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div class="separator-line"></div>
+        </div>
+        
+        <!-- Informação de seleção de período -->
+        <div id="chartPeriodSelection" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 107, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 107, 0, 0.3); display: none;">
+            <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
+                <i class="fas fa-info-circle"></i> Selecione um período
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.8rem;">
+                Clique em uma data para início, depois em outra para fim
             </div>
         </div>
-        <div class="custom-modal-footer">
-            <button class="btn-modal-primary" onclick="closeChartCalendar()">
-                Fechar
-            </button>
+        
+        <div class="calendar-footer-legend">
+            <div class="legend-row">
+                <span class="legend-marker today-marker"></span>
+                <span class="legend-text">Hoje</span>
+            </div>
+            <div class="legend-row">
+                <span class="legend-marker has-data-marker"></span>
+                <span class="legend-text">Com registros</span>
+            </div>
+            <div class="legend-row">
+                <span class="legend-marker no-data-marker"></span>
+                <span class="legend-text">Sem registros</span>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-.chart-calendar-options {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.calendar-option-btn {
+/* Botão rápido de últimos 7 dias */
+.calendar-quick-btn {
     width: 100%;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.5rem;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
     border-radius: 12px;
-    color: var(--text-primary);
+    color: var(--accent-orange);
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    font-family: 'Montserrat', sans-serif;
+    justify-content: center;
+    gap: 0.75rem;
 }
 
-.calendar-option-btn:hover {
-    background: rgba(255, 107, 0, 0.1);
+.calendar-quick-btn:hover {
+    background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
     transform: translateY(-2px);
 }
 
-.calendar-option-btn i {
-    font-size: 1.5rem;
-    color: var(--accent-orange);
+.calendar-quick-btn i {
+    font-size: 1.1rem;
 }
 
-.calendar-option-btn span {
-    font-size: 1rem;
-    font-weight: 600;
+/* Estilos para dias selecionados */
+.calendar-day.selected-start {
+    background: var(--accent-orange) !important;
+    color: white !important;
+    border-color: var(--accent-orange) !important;
+    font-weight: 700 !important;
 }
 
-.calendar-option-btn small {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-}
-
-.calendar-option-divider {
-    text-align: center;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    position: relative;
-    margin: 0.5rem 0;
-}
-
-.calendar-option-divider::before,
-.calendar-option-divider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 45%;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.calendar-option-divider::before {
-    left: 0;
-}
-
-.calendar-option-divider::after {
-    right: 0;
-}
-
-.chart-month-input,
-.chart-week-input {
-    width: 100%;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-size: 1rem;
-    font-family: 'Montserrat', sans-serif;
-    transition: all 0.3s ease;
-}
-
-.chart-month-input:focus,
-.chart-week-input:focus {
-    outline: none;
-    border-color: var(--accent-orange);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.loading-spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid rgba(255, 152, 0, 0.1);
-    border-top-color: var(--accent-orange);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
+.calendar-day.selected-range {
+    background: rgba(255, 107, 0, 0.2) !important;
+    border-color: rgba(255, 107, 0, 0.5) !important;
+    color: var(--accent-orange) !important;
+    font-weight: 600 !important;
 }
 </style>
 
 <script>
 let currentChartType = null; // 'nutrients' ou 'hydration'
+let currentChartCalendarDate = new Date();
+let chartDateStart = null;
+let chartDateEnd = null;
+let daysWithChartData = new Set();
+
+// Nomes dos meses abreviados (português)
+const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
 
 // Abrir modal de calendário para gráficos
-function openChartCalendar(type) {
+async function openChartCalendar(type) {
     currentChartType = type;
-    const modal = document.getElementById('chartCalendarModal');
-    const title = document.getElementById('chartCalendarTitle');
+    currentChartCalendarDate = new Date();
+    chartDateStart = null;
+    chartDateEnd = null;
     
+    // Buscar dias com dados do tipo específico
+    await loadChartCalendarData(type);
+    
+    // Renderizar calendário
+    renderChartCalendar();
+    
+    const modal = document.getElementById('chartCalendarModal');
     if (modal) {
-        title.textContent = type === 'nutrients' ? 'Selecionar Período - Nutrientes' : 'Selecionar Período - Hidratação';
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
         
-        // Resetar inputs
-        document.getElementById('chartMonthInput').value = '';
-        document.getElementById('chartWeekInput').value = '';
+        // Mostrar instrução
+        document.getElementById('chartPeriodSelection').style.display = 'block';
+    }
+}
+
+// Carregar dados de datas do calendário
+async function loadChartCalendarData(type) {
+    const userId = <?php echo $user_id; ?>;
+    daysWithChartData.clear();
+    
+    try {
+        // Buscar todos os dias que têm dados para o tipo específico
+        const response = await fetch(`ajax_get_chart_data.php?user_id=${userId}&type=${type}&start_date=2020-01-01&end_date=${new Date().toISOString().split('T')[0]}&list_dates_only=1`);
+        const result = await response.json();
+        
+        if (result.success && result.dates) {
+            result.dates.forEach(date => daysWithChartData.add(date));
+        }
+    } catch (error) {
+        console.error('Erro ao carregar datas do calendário:', error);
     }
 }
 
@@ -2129,43 +2143,212 @@ function closeChartCalendar() {
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = '';
+        chartDateStart = null;
+        chartDateEnd = null;
+        document.getElementById('chartPeriodSelection').style.display = 'none';
     }
+}
+
+// Mudar mês do calendário
+function changeChartCalendarMonth(direction) {
+    const newDate = new Date(currentChartCalendarDate);
+    newDate.setMonth(newDate.getMonth() + direction);
+    
+    const now = new Date();
+    if (newDate.getFullYear() > now.getFullYear() || 
+        (newDate.getFullYear() === now.getFullYear() && newDate.getMonth() > now.getMonth())) {
+        return;
+    }
+    
+    currentChartCalendarDate = newDate;
+    renderChartCalendar();
+}
+
+// Renderizar calendário
+function renderChartCalendar() {
+    const year = currentChartCalendarDate.getFullYear();
+    const month = currentChartCalendarDate.getMonth();
+    
+    document.getElementById('chartCalendarYear').textContent = year;
+    document.getElementById('chartCalendarMonth').textContent = monthNamesShort[month];
+    
+    const nextBtn = document.getElementById('chartNextMonthBtn');
+    const now = new Date();
+    if (year === now.getFullYear() && month === now.getMonth()) {
+        nextBtn.classList.add('disabled');
+    } else {
+        nextBtn.classList.remove('disabled');
+    }
+    
+    const grid = document.getElementById('chartCalendarDaysGrid');
+    grid.innerHTML = '';
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const prevMonth = new Date(year, month, 0);
+    const daysInPrevMonth = prevMonth.getDate();
+    const startDay = firstDay.getDay();
+    
+    // Dias do mês anterior
+    for (let i = startDay - 1; i >= 0; i--) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day other-month';
+        dayEl.textContent = daysInPrevMonth - i;
+        grid.appendChild(dayEl);
+    }
+    
+    // Dias do mês atual
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayEl = document.createElement('div');
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        dayEl.className = 'calendar-day';
+        dayEl.textContent = day;
+        dayEl.setAttribute('data-date', dateStr);
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetDate = new Date(dateStr + 'T00:00:00');
+        
+        // Bloquear dias futuros
+        if (targetDate > today) {
+            dayEl.classList.add('future-day');
+        } else {
+            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                dayEl.classList.add('today');
+            }
+            
+            if (daysWithChartData.has(dateStr)) {
+                dayEl.classList.add('has-data');
+            }
+            
+            // Marcar se está no período selecionado
+            if (chartDateStart && chartDateEnd) {
+                const selStart = new Date(chartDateStart + 'T00:00:00');
+                const selEnd = new Date(chartDateEnd + 'T00:00:00');
+                if (targetDate >= selStart && targetDate <= selEnd) {
+                    dayEl.classList.add('selected-range');
+                }
+            } else if (chartDateStart && dateStr === chartDateStart) {
+                dayEl.classList.add('selected-start');
+            }
+            
+            dayEl.addEventListener('click', () => selectChartDate(dateStr));
+        }
+        
+        grid.appendChild(dayEl);
+    }
+    
+    // Dias do próximo mês
+    const totalCells = grid.children.length;
+    const remainingCells = 42 - totalCells;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (remainingCells > 0) {
+        for (let day = 1; day <= remainingCells; day++) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day other-month';
+            dayEl.textContent = day;
+            
+            if (year === today.getFullYear() && month === today.getMonth()) {
+                dayEl.style.opacity = '0.3';
+                dayEl.style.pointerEvents = 'none';
+                dayEl.style.cursor = 'not-allowed';
+            }
+            
+            grid.appendChild(dayEl);
+        }
+    }
+}
+
+// Selecionar data no calendário
+function selectChartDate(dateStr) {
+    const targetDate = new Date(dateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (targetDate > today) return;
+    
+    if (!chartDateStart || (chartDateStart && chartDateEnd)) {
+        // Nova seleção - definir início
+        chartDateStart = dateStr;
+        chartDateEnd = null;
+        document.getElementById('chartPeriodSelection').innerHTML = `
+            <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
+                <i class="fas fa-calendar-check"></i> Data inicial selecionada
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.8rem;">
+                ${new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')} - Selecione a data final
+            </div>
+        `;
+    } else {
+        // Selecionar fim
+        const startDate = new Date(chartDateStart + 'T00:00:00');
+        const endDate = new Date(dateStr + 'T00:00:00');
+        
+        if (endDate < startDate) {
+            // Se a data final for menor que a inicial, inverter
+            chartDateEnd = chartDateStart;
+            chartDateStart = dateStr;
+        } else {
+            chartDateEnd = dateStr;
+        }
+        
+        // Aplicar seleção
+        applyChartPeriodSelection();
+    }
+    
+    renderChartCalendar();
 }
 
 // Selecionar últimos 7 dias
 function selectChartPeriod(period) {
     if (period === 'last7') {
-        if (currentChartType === 'nutrients') {
-            if (typeof loadLast7DaysNutrients === 'function') {
-                loadLast7DaysNutrients();
-            }
-        } else if (currentChartType === 'hydration') {
-            if (typeof loadLast7DaysHydration === 'function') {
-                loadLast7DaysHydration();
-            }
-        }
-        closeChartCalendar();
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 6);
+        
+        const startStr = startDate.toISOString().split('T')[0];
+        const endStr = endDate.toISOString().split('T')[0];
+        
+        chartDateStart = startStr;
+        chartDateEnd = endStr;
+        applyChartPeriodSelection();
     }
 }
 
-// Selecionar mês
-function selectChartMonth(monthValue) {
-    if (!monthValue || !currentChartType) return;
+// Aplicar seleção de período
+function applyChartPeriodSelection() {
+    if (!chartDateStart || !chartDateEnd || !currentChartType) return;
     
-    const [year, month] = monthValue.split('-');
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0); // Último dia do mês
-    
+    // Garantir que não ultrapasse hoje
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(chartDateEnd + 'T00:00:00');
     if (endDate > today) {
-        endDate.setTime(today.getTime());
+        chartDateEnd = today.toISOString().split('T')[0];
     }
     
-    const startStr = startDate.toISOString().split('T')[0];
-    const endStr = endDate.toISOString().split('T')[0];
+    const startStr = chartDateStart;
+    const endStr = chartDateEnd;
     
-    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    const periodLabel = `${monthNames[parseInt(month) - 1]} ${year}`;
+    // Criar label do período
+    const start = new Date(startStr + 'T00:00:00');
+    const end = new Date(endStr + 'T00:00:00');
+    
+    let periodLabel = '';
+    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    
+    if (diffDays === 1) {
+        periodLabel = start.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+    } else if (diffDays <= 7) {
+        periodLabel = `${diffDays} dias`;
+    } else if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+        periodLabel = `${start.toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'})} - ${end.toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'})}`;
+    } else {
+        periodLabel = `${start.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})} - ${end.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}`;
+    }
     
     if (currentChartType === 'nutrients') {
         if (typeof loadNutrientsData === 'function') {
@@ -2180,60 +2363,6 @@ function selectChartMonth(monthValue) {
     closeChartCalendar();
 }
 
-// Selecionar semana
-function selectChartWeek(weekValue) {
-    if (!weekValue || !currentChartType) return;
-    
-    // Formato: YYYY-Www onde Www é a semana ISO
-    // Calcular início da semana (segunda-feira) da semana ISO
-    const [year, week] = weekValue.split('-W');
-    
-    // Primeiro de janeiro do ano
-    const jan1 = new Date(year, 0, 1);
-    const jan4 = new Date(year, 0, 4);
-    
-    // Dia da semana do jan4 (0=domingo, 1=segunda, etc)
-    const jan4Day = jan4.getDay();
-    // Converter: domingo (0) -> 7
-    const dayOfWeek = jan4Day === 0 ? 7 : jan4Day;
-    
-    // Primeira segunda-feira do ano
-    const firstMonday = new Date(jan4);
-    firstMonday.setDate(jan4.getDate() - (dayOfWeek - 1));
-    
-    // Semana solicitada: adicionar semanas
-    const weekStart = new Date(firstMonday);
-    weekStart.setDate(firstMonday.getDate() + (parseInt(week) - 1) * 7);
-    
-    // Fim da semana (domingo)
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-    if (weekEnd > today) {
-        weekEnd.setTime(today.getTime());
-        weekEnd.setHours(0, 0, 0, 0);
-    }
-    
-    const startStr = weekStart.toISOString().split('T')[0];
-    const endStr = weekEnd.toISOString().split('T')[0];
-    
-    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    const periodLabel = `Semana ${weekStart.getDate()}/${monthNames[weekStart.getMonth()]} - ${weekEnd.getDate()}/${monthNames[weekEnd.getMonth()]}`;
-    
-    if (currentChartType === 'nutrients') {
-        if (typeof loadNutrientsData === 'function') {
-            loadNutrientsData(startStr, endStr, periodLabel);
-        }
-    } else if (currentChartType === 'hydration') {
-        if (typeof loadHydrationData === 'function') {
-            loadHydrationData(startStr, endStr, periodLabel);
-        }
-    }
-    
-    closeChartCalendar();
-}
 
 // Fechar modal clicando fora
 document.addEventListener('click', function(event) {

@@ -14,10 +14,17 @@ $user_id = filter_input(INPUT_GET, 'user_id', FILTER_VALIDATE_INT);
 $type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING); // 'hydration' ou 'nutrients'
 $start_date = filter_input(INPUT_GET, 'start_date', FILTER_SANITIZE_STRING);
 $end_date = filter_input(INPUT_GET, 'end_date', FILTER_SANITIZE_STRING);
+$list_dates_only = filter_input(INPUT_GET, 'list_dates_only', FILTER_VALIDATE_INT); // 1 para apenas listar datas
 
-if (!$user_id || !$type || !$start_date || !$end_date) {
+if (!$user_id || !$type) {
     echo json_encode(['success' => false, 'message' => 'Parâmetros inválidos']);
     exit;
+}
+
+// Se for apenas listar datas, não precisa de start_date e end_date obrigatórios
+if ($list_dates_only) {
+    $start_date = $start_date ?: '2020-01-01';
+    $end_date = $end_date ?: date('Y-m-d');
 }
 
 try {
@@ -97,6 +104,21 @@ try {
         }
         
         $stmt->close();
+        
+        // Se for apenas listar datas, retornar apenas as datas que têm dados
+        if ($list_dates_only) {
+            $dates = [];
+            foreach ($datas as $date => $data) {
+                if ($data['ml'] > 0 || $data['cups'] > 0) {
+                    $dates[] = $date;
+                }
+            }
+            echo json_encode([
+                'success' => true,
+                'dates' => $dates
+            ]);
+            exit;
+        }
         
         // Converter para array ordenado (mais antigo primeiro para exibição)
         ksort($datas);
@@ -201,6 +223,21 @@ try {
         }
         
         $stmt->close();
+        
+        // Se for apenas listar datas, retornar apenas as datas que têm dados
+        if ($list_dates_only) {
+            $dates = [];
+            foreach ($datas as $date => $data) {
+                if ($data['kcal_consumed'] > 0) {
+                    $dates[] = $date;
+                }
+            }
+            echo json_encode([
+                'success' => true,
+                'dates' => $dates
+            ]);
+            exit;
+        }
         
         // Converter para array ordenado (mais antigo primeiro para exibição)
         ksort($datas);
