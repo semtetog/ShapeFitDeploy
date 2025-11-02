@@ -691,9 +691,10 @@ function loadFoodUnits() {
     .then(response => response.json())
     .then(data => {
         if (data.success && data.data.length > 0) {
-            // Se há unidades personalizadas, usa elas
+            // Se há unidades personalizadas, carrega elas
             currentUnits = data.data;
-            renderUnitsList();
+            // MAS também mescla com as padrão das categorias para exibir todas juntas
+            mergeWithDefaultUnits();
         } else {
             // Se não há unidades personalizadas, carrega as padrão das categorias
             loadDefaultUnitsForCategories();
@@ -703,6 +704,52 @@ function loadFoodUnits() {
         console.error('Erro:', error);
         // Em caso de erro, também carrega as padrão das categorias
         loadDefaultUnitsForCategories();
+    });
+}
+
+// Mescla as unidades personalizadas com as padrão das categorias
+function mergeWithDefaultUnits() {
+    if (!currentCategories || currentCategories.length === 0) {
+        // Se não há categorias, mantém apenas as personalizadas
+        renderUnitsList();
+        return;
+    }
+    
+    // Carregar unidades padrão de todas as categorias
+    const promises = currentCategories.map(category => 
+        fetch(`ajax_get_default_units.php?category=${encodeURIComponent(category)}`)
+            .then(response => response.json())
+            .then(data => data.success ? data.data : [])
+            .catch(error => {
+                console.error(`Erro ao carregar unidades para categoria ${category}:`, error);
+                return [];
+            })
+    );
+    
+    Promise.all(promises)
+    .then(allUnitsArrays => {
+        // Criar um Map com as unidades personalizadas já carregadas (prioridade)
+        const unitsMap = new Map();
+        currentUnits.forEach(unit => {
+            unitsMap.set(unit.abbreviation, unit);
+        });
+        
+        // Adicionar unidades padrão que não são duplicatas
+        allUnitsArrays.forEach(unitsArray => {
+            unitsArray.forEach(unit => {
+                if (!unitsMap.has(unit.abbreviation)) {
+                    unitsMap.set(unit.abbreviation, unit);
+                }
+            });
+        });
+        
+        currentUnits = Array.from(unitsMap.values());
+        renderUnitsList();
+    })
+    .catch(error => {
+        console.error('Erro ao processar unidades:', error);
+        // Em caso de erro, mantém as unidades personalizadas
+        renderUnitsList();
     });
 }
 
