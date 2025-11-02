@@ -1468,7 +1468,35 @@ function saveClassification(foodId) {
         console.error('Save Error:', error);
     });
 }
-// ... (outras funções como showLoading, hideLoading, etc.) ...
+// Função para obter as categorias de um alimento
+function getFoodCategories(foodId) {
+    return classifications[foodId] || [];
+}
+
+// Funções de loading e indicadores
+function showLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.classList.add('show');
+    }
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+    }
+}
+
+function showAutoSaveIndicator() {
+    const indicator = document.getElementById('auto-save-indicator');
+    if (indicator) {
+        indicator.classList.add('show');
+        setTimeout(() => {
+            indicator.classList.remove('show');
+        }, 2000);
+    }
+}
 </script>
 
 <?php require_once __DIR__ . '/includes/units_editor.php'; ?>
