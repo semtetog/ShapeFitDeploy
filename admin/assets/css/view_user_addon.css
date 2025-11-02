@@ -3979,6 +3979,44 @@
   max-width: 80px;
 }
 
+/* Quando é apenas um dia, usar melhor o espaço disponível */
+.improved-bars.single-day-chart {
+  grid-template-columns: 1fr !important;
+  max-width: 300px;
+  margin: 0 auto;
+  justify-items: center;
+}
+
+.improved-bars.single-day-chart .improved-bar-container {
+  max-width: 200px;
+  width: 100%;
+}
+
+.improved-bars.single-day-chart .improved-bar-wrapper {
+  width: 100%;
+  max-width: 200px;
+}
+
+.improved-bars.single-day-chart .improved-bar {
+  width: 100%;
+  min-width: 120px;
+}
+
+.improved-bars.single-day-chart .improved-bar-info {
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+.improved-bars.single-day-chart .improved-bar-info .improved-date {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.improved-bars.single-day-chart .improved-bar-info .improved-ml {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 /* Responsividade */
 @media (max-width: 1200px) {
   .improved-bars[data-period="30"] {

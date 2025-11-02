@@ -359,6 +359,13 @@ function renderNutrientsChart(data) {
     const period = data.length;
     chartContainer.setAttribute('data-period', period > 7 ? (period > 15 ? '30' : '15') : '7');
     
+    // Se for apenas um dia, adicionar classe especial para melhor uso do espaço
+    if (period === 1) {
+        chartContainer.classList.add('single-day-chart');
+    } else {
+        chartContainer.classList.remove('single-day-chart');
+    }
+    
     const dailyGoal = <?php echo $total_daily_calories_goal; ?>;
     
     let chartHTML = '';

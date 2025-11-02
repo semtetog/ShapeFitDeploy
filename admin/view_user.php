@@ -2027,7 +2027,8 @@ window.closeHelpModal = closeHelpModal;
                 <i class="fas fa-info-circle"></i> Selecione um período
             </div>
             <div style="color: var(--text-secondary); font-size: 0.8rem;">
-                Clique em uma data para início, depois em outra para fim
+                Clique em uma data para início, depois em outra para fim<br>
+                <small style="opacity: 0.8; margin-top: 0.25rem; display: block;">💡 Dica: Dê duplo clique em um dia para ver apenas esse dia específico</small>
             </div>
         </div>
         
@@ -2242,6 +2243,7 @@ function renderChartCalendar() {
             }
             
             dayEl.addEventListener('click', () => selectChartDate(dateStr));
+            dayEl.addEventListener('dblclick', () => selectSingleDay(dateStr));
         }
         
         grid.appendChild(dayEl);
@@ -2270,7 +2272,7 @@ function renderChartCalendar() {
     }
 }
 
-// Selecionar data no calendário
+// Selecionar data no calendário (clique simples - seleção de período)
 function selectChartDate(dateStr) {
     const targetDate = new Date(dateStr + 'T00:00:00');
     const today = new Date();
@@ -2287,7 +2289,7 @@ function selectChartDate(dateStr) {
                 <i class="fas fa-calendar-check"></i> Data inicial selecionada
             </div>
             <div style="color: var(--text-secondary); font-size: 0.8rem;">
-                ${new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')} - Selecione a data final
+                ${new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')} - Selecione a data final ou dê duplo clique para ver apenas este dia
             </div>
         `;
     } else {
@@ -2306,6 +2308,24 @@ function selectChartDate(dateStr) {
         // Aplicar seleção
         applyChartPeriodSelection();
     }
+    
+    renderChartCalendar();
+}
+
+// Selecionar um único dia (duplo clique)
+function selectSingleDay(dateStr) {
+    const targetDate = new Date(dateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (targetDate > today) return;
+    
+    // Selecionar o mesmo dia para início e fim
+    chartDateStart = dateStr;
+    chartDateEnd = dateStr;
+    
+    // Aplicar seleção imediatamente
+    applyChartPeriodSelection();
     
     renderChartCalendar();
 }
@@ -2349,7 +2369,8 @@ function applyChartPeriodSelection() {
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
     
     if (diffDays === 1) {
-        periodLabel = start.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+        // Quando é apenas um dia, mostrar "Dia: DD/MM"
+        periodLabel = `Dia: ${start.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}`;
     } else if (diffDays <= 7) {
         periodLabel = `${diffDays} dias`;
     } else if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {

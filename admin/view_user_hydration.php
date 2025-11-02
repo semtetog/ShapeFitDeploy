@@ -229,6 +229,13 @@ function renderHydrationChart(data) {
     const period = data.length;
     chartContainer.setAttribute('data-period', period > 7 ? (period > 15 ? '30' : '15') : '7');
     
+    // Se for apenas um dia, adicionar classe especial para melhor uso do espaço
+    if (period === 1) {
+        chartContainer.classList.add('single-day-chart');
+    } else {
+        chartContainer.classList.remove('single-day-chart');
+    }
+    
     let chartHTML = '';
     data.forEach(day => {
         const limitedPercentage = Math.min(day.percentage || 0, 100);
