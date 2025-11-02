@@ -2026,9 +2026,11 @@ window.closeHelpModal = closeHelpModal;
             <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
                 <i class="fas fa-info-circle"></i> Selecione um período
             </div>
-            <div style="color: var(--text-secondary); font-size: 0.8rem;">
-                Clique em uma data para início, depois em outra para fim<br>
-                <small style="opacity: 0.8; margin-top: 0.25rem; display: block;">💡 Dica: Dê duplo clique em um dia para ver apenas esse dia específico</small>
+            <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
+                <div style="margin-bottom: 0.5rem;">Clique em uma data para início, depois em outra para fim</div>
+                <div style="font-weight: 500; color: var(--text-primary); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    Dica: Dê duplo clique em um dia para ver apenas esse dia específico
+                </div>
             </div>
         </div>
         
@@ -2079,12 +2081,23 @@ window.closeHelpModal = closeHelpModal;
     font-size: 1.1rem;
 }
 
-/* Estilos para dias selecionados */
+/* Estilos para dias selecionados - diferente do hoje */
 .calendar-day.selected-start {
+    background: rgba(255, 107, 0, 0.3) !important;
+    color: var(--accent-orange) !important;
+    border-color: var(--accent-orange) !important;
+    border-width: 2px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2) !important;
+}
+
+.calendar-day.selected-start.today {
+    /* Quando é hoje E está selecionado, manter estilo de hoje mas com borda destacada */
     background: var(--accent-orange) !important;
     color: white !important;
     border-color: var(--accent-orange) !important;
-    font-weight: 700 !important;
+    border-width: 2px !important;
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.4) !important;
 }
 
 .calendar-day.selected-range {
@@ -2288,8 +2301,11 @@ function selectChartDate(dateStr) {
             <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
                 <i class="fas fa-calendar-check"></i> Data inicial selecionada
             </div>
-            <div style="color: var(--text-secondary); font-size: 0.8rem;">
-                ${new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')} - Selecione a data final ou dê duplo clique para ver apenas este dia
+            <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
+                <div style="margin-bottom: 0.5rem;">${new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')} - Selecione a data final</div>
+                <div style="font-weight: 500; color: var(--text-primary); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    Dica: Dê duplo clique para ver apenas este dia
+                </div>
             </div>
         `;
     } else {
