@@ -1961,6 +1961,289 @@ window.closeHelpModal = closeHelpModal;
     </div>
 </div>
 
+<!-- Modal de Calendário para Gráficos (Nutrientes e Hidratação) -->
+<div id="chartCalendarModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeChartCalendar()"></div>
+    <div class="custom-modal-content custom-modal-small">
+        <div class="custom-modal-header">
+            <i class="fas fa-calendar-alt"></i>
+            <h3 id="chartCalendarTitle">Selecionar Período</h3>
+        </div>
+        <div class="custom-modal-body">
+            <div id="chartCalendarBody">
+                <div class="chart-calendar-options">
+                    <button class="calendar-option-btn" onclick="selectChartPeriod('last7')">
+                        <i class="fas fa-clock"></i>
+                        <span>Últimos 7 dias</span>
+                        <small>Período padrão em tempo real</small>
+                    </button>
+                    
+                    <div class="calendar-option-divider">ou</div>
+                    
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.875rem; font-weight: 600;">Selecionar Mês</label>
+                    <input type="month" id="chartMonthInput" class="chart-month-input" onchange="selectChartMonth(this.value)">
+                    
+                    <div class="calendar-option-divider">ou</div>
+                    
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.875rem; font-weight: 600;">Selecionar Semana</label>
+                    <input type="week" id="chartWeekInput" class="chart-week-input" onchange="selectChartWeek(this.value)">
+                </div>
+            </div>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-primary" onclick="closeChartCalendar()">
+                Fechar
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.chart-calendar-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.calendar-option-btn {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.calendar-option-btn:hover {
+    background: rgba(255, 107, 0, 0.1);
+    border-color: var(--accent-orange);
+    transform: translateY(-2px);
+}
+
+.calendar-option-btn i {
+    font-size: 1.5rem;
+    color: var(--accent-orange);
+}
+
+.calendar-option-btn span {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.calendar-option-btn small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.calendar-option-divider {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    position: relative;
+    margin: 0.5rem 0;
+}
+
+.calendar-option-divider::before,
+.calendar-option-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.calendar-option-divider::before {
+    left: 0;
+}
+
+.calendar-option-divider::after {
+    right: 0;
+}
+
+.chart-month-input,
+.chart-week-input {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.chart-month-input:focus,
+.chart-week-input:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 152, 0, 0.1);
+    border-top-color: var(--accent-orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+let currentChartType = null; // 'nutrients' ou 'hydration'
+
+// Abrir modal de calendário para gráficos
+function openChartCalendar(type) {
+    currentChartType = type;
+    const modal = document.getElementById('chartCalendarModal');
+    const title = document.getElementById('chartCalendarTitle');
+    
+    if (modal) {
+        title.textContent = type === 'nutrients' ? 'Selecionar Período - Nutrientes' : 'Selecionar Período - Hidratação';
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Resetar inputs
+        document.getElementById('chartMonthInput').value = '';
+        document.getElementById('chartWeekInput').value = '';
+    }
+}
+
+// Fechar modal de calendário
+function closeChartCalendar() {
+    const modal = document.getElementById('chartCalendarModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// Selecionar últimos 7 dias
+function selectChartPeriod(period) {
+    if (period === 'last7') {
+        if (currentChartType === 'nutrients') {
+            if (typeof loadLast7DaysNutrients === 'function') {
+                loadLast7DaysNutrients();
+            }
+        } else if (currentChartType === 'hydration') {
+            if (typeof loadLast7DaysHydration === 'function') {
+                loadLast7DaysHydration();
+            }
+        }
+        closeChartCalendar();
+    }
+}
+
+// Selecionar mês
+function selectChartMonth(monthValue) {
+    if (!monthValue || !currentChartType) return;
+    
+    const [year, month] = monthValue.split('-');
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0); // Último dia do mês
+    
+    const today = new Date();
+    if (endDate > today) {
+        endDate.setTime(today.getTime());
+    }
+    
+    const startStr = startDate.toISOString().split('T')[0];
+    const endStr = endDate.toISOString().split('T')[0];
+    
+    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const periodLabel = `${monthNames[parseInt(month) - 1]} ${year}`;
+    
+    if (currentChartType === 'nutrients') {
+        if (typeof loadNutrientsData === 'function') {
+            loadNutrientsData(startStr, endStr, periodLabel);
+        }
+    } else if (currentChartType === 'hydration') {
+        if (typeof loadHydrationData === 'function') {
+            loadHydrationData(startStr, endStr, periodLabel);
+        }
+    }
+    
+    closeChartCalendar();
+}
+
+// Selecionar semana
+function selectChartWeek(weekValue) {
+    if (!weekValue || !currentChartType) return;
+    
+    // Formato: YYYY-Www onde Www é a semana ISO
+    // Calcular início da semana (segunda-feira) da semana ISO
+    const [year, week] = weekValue.split('-W');
+    
+    // Primeiro de janeiro do ano
+    const jan1 = new Date(year, 0, 1);
+    const jan4 = new Date(year, 0, 4);
+    
+    // Dia da semana do jan4 (0=domingo, 1=segunda, etc)
+    const jan4Day = jan4.getDay();
+    // Converter: domingo (0) -> 7
+    const dayOfWeek = jan4Day === 0 ? 7 : jan4Day;
+    
+    // Primeira segunda-feira do ano
+    const firstMonday = new Date(jan4);
+    firstMonday.setDate(jan4.getDate() - (dayOfWeek - 1));
+    
+    // Semana solicitada: adicionar semanas
+    const weekStart = new Date(firstMonday);
+    weekStart.setDate(firstMonday.getDate() + (parseInt(week) - 1) * 7);
+    
+    // Fim da semana (domingo)
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (weekEnd > today) {
+        weekEnd.setTime(today.getTime());
+        weekEnd.setHours(0, 0, 0, 0);
+    }
+    
+    const startStr = weekStart.toISOString().split('T')[0];
+    const endStr = weekEnd.toISOString().split('T')[0];
+    
+    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const periodLabel = `Semana ${weekStart.getDate()}/${monthNames[weekStart.getMonth()]} - ${weekEnd.getDate()}/${monthNames[weekEnd.getMonth()]}`;
+    
+    if (currentChartType === 'nutrients') {
+        if (typeof loadNutrientsData === 'function') {
+            loadNutrientsData(startStr, endStr, periodLabel);
+        }
+    } else if (currentChartType === 'hydration') {
+        if (typeof loadHydrationData === 'function') {
+            loadHydrationData(startStr, endStr, periodLabel);
+        }
+    }
+    
+    closeChartCalendar();
+}
+
+// Fechar modal clicando fora
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('chartCalendarModal');
+    if (modal && event.target === modal) {
+        closeChartCalendar();
+    }
+});
+</script>
+
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
 

@@ -74,9 +74,9 @@ if ($avg_percentage_7 >= 90) {
                 <div class="chart-header">
                     <h4><i class="fas fa-chart-bar"></i> Progresso de Hidratação</h4>
                     <div class="period-buttons">
-                        <button class="period-btn active" onclick="changeHydrationPeriod(7)" data-period="7">7 dias</button>
-                        <button class="period-btn" onclick="changeHydrationPeriod(15)" data-period="15">15 dias</button>
-                        <button class="period-btn" onclick="changeHydrationPeriod(30)" data-period="30">30 dias</button>
+                        <button class="period-btn active" onclick="showHydrationCalendar()" id="hydration-period-btn" title="Selecionar período">
+                            <i class="fas fa-calendar-alt"></i> Últimos 7 dias
+                        </button>
                 </div>
             </div>
                 <div class="improved-chart" id="hydration-chart">
@@ -149,45 +149,65 @@ if ($avg_percentage_7 >= 90) {
 
 <!-- Dados para JavaScript da aba Hidratação -->
 <script>
-// Função para mudar período do gráfico de hidratação
-function changeHydrationPeriod(days) {
-    // Atualizar botões ativos
-    document.querySelectorAll('#tab-hydration .period-buttons .period-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
+const userIdHydration = <?php echo $user_id; ?>;
+let currentHydrationPeriod = 'last7'; // 'last7', 'month', 'week'
+let currentHydrationStartDate = null;
+let currentHydrationEndDate = null;
+
+// Carregar últimos 7 dias por padrão
+async function loadLast7DaysHydration() {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 6); // Últimos 7 dias (incluindo hoje)
     
-    // Atualizar layout das barras
-    const barsContainer = document.getElementById('hydration-bars');
-    if (barsContainer) {
-        barsContainer.setAttribute('data-period', days);
-        loadHydrationData(days);
-    }
+    const startStr = startDate.toISOString().split('T')[0];
+    const endStr = endDate.toISOString().split('T')[0];
+    
+    await loadHydrationData(startStr, endStr, 'Últimos 7 dias');
 }
 
-// Função para carregar dados de hidratação
-function loadHydrationData(days) {
+// Carregar dados de hidratação por período
+async function loadHydrationData(startDate, endDate, periodLabel) {
     const chartContainer = document.getElementById('hydration-bars');
     if (!chartContainer) return;
     
-    // Usar apenas os dados de 7 dias disponíveis e simular outros períodos
-    const baseData = <?php echo json_encode($hydration_data); ?>;
+    // Mostrar loading
+    chartContainer.innerHTML = `
+        <div class="empty-chart">
+            <div class="loading-spinner"></div>
+            <p>Carregando dados...</p>
+        </div>
+    `;
     
-    // Simular dados para períodos maiores repetindo os dados existentes
-    let data = [...baseData];
-    
-    if (days > baseData.length) {
-        // Se pediu mais dias que temos, repetir os dados existentes
-        const repeatTimes = Math.ceil(days / baseData.length);
-        for (let i = 1; i < repeatTimes; i++) {
-            data = [...data, ...baseData];
+    try {
+        const response = await fetch(`ajax_get_chart_data.php?user_id=${userIdHydration}&type=hydration&start_date=${startDate}&end_date=${endDate}`);
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            renderHydrationChart(result.data);
+            updateHydrationPeriodButton(periodLabel);
+            
+            // Salvar período atual
+            currentHydrationPeriod = periodLabel;
+            currentHydrationStartDate = startDate;
+            currentHydrationEndDate = endDate;
+        } else {
+            chartContainer.innerHTML = `
+                <div class="empty-chart">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Erro ao carregar dados</p>
+                </div>
+            `;
         }
+    } catch (error) {
+        console.error('Erro ao carregar dados de hidratação:', error);
+        chartContainer.innerHTML = `
+            <div class="empty-chart">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Erro ao carregar dados</p>
+            </div>
+        `;
     }
-    
-    // Pegar apenas a quantidade solicitada
-    data = data.slice(0, days);
-    
-    renderHydrationChart(data);
 }
 
 // Função para renderizar gráfico de hidratação
@@ -207,11 +227,11 @@ function renderHydrationChart(data) {
     
     // Aplicar o atributo data-period baseado na quantidade de dados
     const period = data.length;
-    chartContainer.setAttribute('data-period', period);
+    chartContainer.setAttribute('data-period', period > 7 ? (period > 15 ? '30' : '15') : '7');
     
     let chartHTML = '';
     data.forEach(day => {
-        const limitedPercentage = Math.min(day.percentage, 100);
+        const limitedPercentage = Math.min(day.percentage || 0, 100);
         let barHeight = 0;
         if (limitedPercentage === 0) {
             barHeight = 0;
@@ -221,22 +241,37 @@ function renderHydrationChart(data) {
             barHeight = (limitedPercentage / 100) * 160;
         }
         
+        const status = day.status || 'empty';
+        
         chartHTML += `
             <div class="improved-bar-container">
                 <div class="improved-bar-wrapper">
-                    <div class="improved-bar ${day.status}" style="height: ${barHeight}px"></div>
+                    <div class="improved-bar ${status}" style="height: ${barHeight}px"></div>
                     <div class="bar-percentage-text">${limitedPercentage}%</div>
                     <div class="improved-goal-line"></div>
                 </div>
                 <div class="improved-bar-info">
-                    <span class="improved-date">${new Date(day.date).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</span>
-                    <span class="improved-ml">${day.ml}ml</span>
+                    <span class="improved-date">${new Date(day.date + 'T00:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</span>
+                    <span class="improved-ml">${day.ml || 0}ml</span>
                 </div>
             </div>
         `;
     });
     
     chartContainer.innerHTML = chartHTML;
+}
+
+// Atualizar texto do botão de período
+function updateHydrationPeriodButton(label) {
+    const btn = document.getElementById('hydration-period-btn');
+    if (btn) {
+        btn.innerHTML = `<i class="fas fa-calendar-alt"></i> ${label}`;
+    }
+}
+
+// Mostrar modal de calendário para hidratação
+function showHydrationCalendar() {
+    openChartCalendar('hydration');
 }
 
 // Inicializar gráfico quando a aba for ativada
@@ -246,27 +281,18 @@ document.addEventListener('DOMContentLoaded', function() {
         hydrationBars.setAttribute('data-period', '7');
     }
     
-    // Resetar botões quando a aba for clicada
+    // Resetar e carregar últimos 7 dias quando a aba for clicada
     const tabLink = document.querySelector('[data-tab="hydration"]');
     if (tabLink) {
         tabLink.addEventListener('click', function() {
             setTimeout(() => {
-                const hydrationButtons = document.querySelectorAll('#tab-hydration .period-btn');
-                hydrationButtons.forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.getAttribute('data-period') === '7') {
-                        btn.classList.add('active');
-                    }
-                });
-                
-                const hydrationBars = document.getElementById('hydration-bars');
-                if (hydrationBars) {
-                    hydrationBars.setAttribute('data-period', '7');
-                    loadHydrationData(7);
-                }
+                loadLast7DaysHydration();
             }, 100);
         });
     }
+    
+    // Carregar últimos 7 dias ao inicializar
+    loadLast7DaysHydration();
 });
 </script>
 
