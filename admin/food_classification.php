@@ -1360,6 +1360,33 @@ include 'includes/header.php';
 <script>
 // Definir categorias globalmente para acesso no JS
 window.categories = <?= json_encode($categories) ?>;
+
+// Definir unidades padrão por categoria
+window.categoryUnits = {
+    'líquido': ['ml', 'l', 'cs', 'cc', 'xc'],
+    'semi_liquido': ['g', 'ml', 'cs', 'cc', 'xc'],
+    'granular': ['g', 'kg', 'cs', 'cc'],
+    'unidade_inteira': ['un', 'g', 'kg'],
+    'fatias_pedacos': ['fat', 'g', 'kg'],
+    'corte_porcao': ['g', 'kg', 'un'],
+    'colher_cremoso': ['cs', 'cc', 'g'],
+    'condimentos': ['cc', 'cs', 'g'],
+    'oleos_gorduras': ['cs', 'cc', 'ml', 'l'],
+    'preparacoes_compostas': ['g', 'kg', 'un']
+};
+
+window.unitNames = {
+    'ml': 'Mililitro',
+    'l': 'Litro', 
+    'cs': 'Colher de Sopa',
+    'cc': 'Colher de Chá',
+    'xc': 'Xícara',
+    'g': 'Grama',
+    'kg': 'Quilograma',
+    'un': 'Unidade',
+    'fat': 'Fatia'
+};
+
 let classifications = {}; // Estrutura para { foodId: [category1, category2] }
 let sessionClassifiedCount = 0;
 

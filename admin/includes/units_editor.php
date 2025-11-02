@@ -653,6 +653,7 @@ require_once __DIR__ . '/../../includes/units_manager.php';
 let currentFoodId = null;
 let currentUnits = [];
 let editingUnitIndex = -1;
+let currentCategories = []; // Armazena as categorias do alimento atual
 
 function openUnitsEditor(foodId, foodName, categories) {
     // Verificar se o alimento está classificado
@@ -662,6 +663,7 @@ function openUnitsEditor(foodId, foodName, categories) {
     }
     
     currentFoodId = foodId;
+    currentCategories = categories; // Armazena as categorias
     document.getElementById('units-food-name').textContent = foodName;
     document.getElementById('units-food-categories').textContent = 'Categorias: ' + categories.join(', ');
     
@@ -679,6 +681,7 @@ function closeUnitsEditor() {
     document.getElementById('units-editor-modal').classList.remove('visible');
     currentFoodId = null;
     currentUnits = [];
+    currentCategories = [];
 }
 
 function loadFoodUnits() {
@@ -687,20 +690,44 @@ function loadFoodUnits() {
     fetch(`ajax_get_food_units.php?food_id=${currentFoodId}`)
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
+        if (data.success && data.data.length > 0) {
+            // Se há unidades personalizadas, usa elas
             currentUnits = data.data;
             renderUnitsList();
         } else {
-            console.error('Erro ao carregar unidades:', data.error);
-            currentUnits = [];
-            renderUnitsList();
+            // Se não há unidades personalizadas, carrega as padrão das categorias
+            loadDefaultUnitsForCategories();
         }
     })
     .catch(error => {
         console.error('Erro:', error);
+        // Em caso de erro, também carrega as padrão das categorias
+        loadDefaultUnitsForCategories();
+    });
+}
+
+function loadDefaultUnitsForCategories() {
+    // Carrega as unidades padrão baseadas nas categorias do alimento
+    if (!currentCategories || currentCategories.length === 0) {
         currentUnits = [];
         renderUnitsList();
-    });
+        return;
+    }
+    
+    // Pega as unidades padrão da primeira categoria
+    const firstCategory = currentCategories[0];
+    const defaultUnitsAbbr = window.categoryUnits[firstCategory] || ['g', 'ml', 'un'];
+    
+    // Transforma as abreviações em objetos de unidade com estrutura adequada
+    currentUnits = defaultUnitsAbbr.map((abbr, index) => ({
+        id: null, // Não tem ID porque são padrão
+        name: window.unitNames[abbr] || abbr,
+        abbreviation: abbr,
+        conversion_factor: 1.0, // Conversão padrão será 1.0
+        is_default: index === 0 ? 1 : 0 // Primeira é padrão
+    }));
+    
+    renderUnitsList();
 }
 
 function renderUnitsList() {
