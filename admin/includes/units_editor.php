@@ -654,6 +654,7 @@ let currentFoodId = null;
 let currentUnits = [];
 let editingUnitIndex = -1;
 let currentCategories = []; // Armazena as categorias do alimento atual
+let autoAddedUnits = new Set(); // Guarda as abreviações de unidades adicionadas automaticamente (não salvas)
 
 function openUnitsEditor(foodId, foodName, categories) {
     // Verificar se o alimento está classificado
@@ -682,6 +683,7 @@ function closeUnitsEditor() {
     currentFoodId = null;
     currentUnits = [];
     currentCategories = [];
+    autoAddedUnits.clear();
 }
 
 function loadFoodUnits() {
@@ -693,7 +695,8 @@ function loadFoodUnits() {
         if (data.success && data.data.length > 0) {
             // Se há unidades personalizadas, usa elas
             currentUnits = data.data;
-            renderUnitsList();
+            // MAS também mescla com as padrão das categorias para exibir todas
+            mergeWithDefaultUnits();
         } else {
             // Se não há unidades personalizadas, carrega as padrão das categorias
             loadDefaultUnitsForCategories();
@@ -703,6 +706,53 @@ function loadFoodUnits() {
         console.error('Erro:', error);
         // Em caso de erro, também carrega as padrão das categorias
         loadDefaultUnitsForCategories();
+    });
+}
+
+// Mescla as unidades personalizadas com as padrão das categorias
+function mergeWithDefaultUnits() {
+    if (!currentCategories || currentCategories.length === 0) {
+        // Se não há categorias, mantém apenas as personalizadas
+        renderUnitsList();
+        return;
+    }
+    
+    // Carregar unidades padrão de todas as categorias
+    const promises = currentCategories.map(category => 
+        fetch(`ajax_get_default_units.php?category=${encodeURIComponent(category)}`)
+            .then(response => response.json())
+            .then(data => data.success ? data.data : [])
+            .catch(error => {
+                console.error(`Erro ao carregar unidades para categoria ${category}:`, error);
+                return [];
+            })
+    );
+    
+    Promise.all(promises)
+    .then(allUnitsArrays => {
+        // Criar um Map com as unidades personalizadas já carregadas (prioridade)
+        const unitsMap = new Map();
+        currentUnits.forEach(unit => {
+            unitsMap.set(unit.abbreviation, unit);
+        });
+        
+        // Adicionar unidades padrão que não são duplicatas
+        allUnitsArrays.forEach(unitsArray => {
+            unitsArray.forEach(unit => {
+                if (!unitsMap.has(unit.abbreviation)) {
+                    unitsMap.set(unit.abbreviation, unit);
+                    autoAddedUnits.add(unit.abbreviation); // Marca como auto-adicionada
+                }
+            });
+        });
+        
+        currentUnits = Array.from(unitsMap.values());
+        renderUnitsList();
+    })
+    .catch(error => {
+        console.error('Erro ao processar unidades:', error);
+        // Em caso de erro, mantém as unidades personalizadas
+        renderUnitsList();
     });
 }
 
@@ -860,7 +910,13 @@ function saveUnit() {
     
     if (editingUnitIndex >= 0) {
         // Editando unidade existente
+        const oldAbbreviation = currentUnits[editingUnitIndex].abbreviation;
         currentUnits[editingUnitIndex] = { ...currentUnits[editingUnitIndex], ...unitData };
+        
+        // Se editou uma auto-adicionada, ela agora é personalizada
+        if (autoAddedUnits.has(oldAbbreviation)) {
+            autoAddedUnits.delete(oldAbbreviation);
+        }
     } else {
         // Adicionando nova unidade
         currentUnits.push(unitData);
@@ -901,10 +957,17 @@ function saveUnits() {
         return;
     }
     
+    // Filtrar apenas as unidades personalizadas (remover as auto-adicionadas que não foram editadas)
+    const unitsToSave = currentUnits.filter(unit => !autoAddedUnits.has(unit.abbreviation));
+    
+    if (unitsToSave.length === 0) {
+        alert('⚠️ Todas as unidades que você tentou salvar são automáticas. Adicione ou edite pelo menos uma unidade personalizada!');
+        return;
+    }
     
     const formData = new FormData();
     formData.append('food_id', currentFoodId);
-    formData.append('units', JSON.stringify(currentUnits));
+    formData.append('units', JSON.stringify(unitsToSave));
     
     // Mostrar loading
     const saveBtn = document.querySelector('.btn-save');
