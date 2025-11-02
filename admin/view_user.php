@@ -2101,8 +2101,8 @@ let chartDateStart = null;
 let chartDateEnd = null;
 let daysWithChartData = new Set();
 
-// Usar monthNamesShort global (já declarado no início)
-var monthNamesShort = window.monthNamesShort;
+// Usar monthNamesShort global diretamente - referenciar window.monthNamesShort quando necessário
+// Não criar variável local para evitar redeclaração
 
 // Abrir modal de calendário para gráficos
 async function openChartCalendar(type) {
@@ -2178,7 +2178,7 @@ function renderChartCalendar() {
     const month = currentChartCalendarDate.getMonth();
     
     document.getElementById('chartCalendarYear').textContent = year;
-    document.getElementById('chartCalendarMonth').textContent = monthNamesShort[month];
+    document.getElementById('chartCalendarMonth').textContent = window.monthNamesShort[month];
     
     const nextBtn = document.getElementById('chartNextMonthBtn');
     const now = new Date();

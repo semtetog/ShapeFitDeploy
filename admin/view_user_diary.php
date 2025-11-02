@@ -426,8 +426,8 @@ window.navigateDiaryDate = navigateDiaryDate;
 let currentCalendarDate = new Date();
 let daysWithData = new Set();
 
-// Usar monthNamesShort global (já declarado no início)
-var monthNamesShort = window.monthNamesShort || ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+// Usar monthNamesShort global diretamente - referenciar window.monthNamesShort quando necessário
+// Não criar variável local para evitar redeclaração
 
 // Buscar dados de dias com registros via PHP
 <?php
@@ -481,7 +481,7 @@ function renderCalendar() {
     const month = currentCalendarDate.getMonth();
     
     document.querySelector('.calendar-year').textContent = year;
-    document.querySelector('.calendar-month').textContent = monthNamesShort[month];
+    document.querySelector('.calendar-month').textContent = (window.monthNamesShort || ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'])[month];
     
     const nextBtn = document.getElementById('nextMonthBtn');
     const now = new Date();

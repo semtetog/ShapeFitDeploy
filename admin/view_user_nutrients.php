@@ -276,8 +276,10 @@ if ($nutrients_stats_15['avg_kcal'] > 0 && $nutrients_stats_7['avg_kcal'] > 0) {
 
 <!-- Dados para JavaScript da aba Nutrientes -->
 <script>
-// Usar userId global (já declarado no início) ou declarar localmente
-var userId = window.userId || <?php echo $user_id; ?>;
+// Usar userId global diretamente - referenciar window.userId quando necessário
+// Não criar variável local para evitar redeclaração
+// Usar window.userId diretamente ou criar uma constante local diferente
+const nutrientsUserId = window.userId || <?php echo $user_id; ?>;
 let currentNutrientsPeriod = 'last7'; // 'last7', 'month', 'week'
 let currentNutrientsStartDate = null;
 let currentNutrientsEndDate = null;
@@ -308,7 +310,7 @@ async function loadNutrientsData(startDate, endDate, periodLabel) {
     `;
     
     try {
-        const response = await fetch(`ajax_get_chart_data.php?user_id=${userId}&type=nutrients&start_date=${startDate}&end_date=${endDate}`);
+        const response = await fetch(`ajax_get_chart_data.php?user_id=${nutrientsUserId}&type=nutrients&start_date=${startDate}&end_date=${endDate}`);
         const result = await response.json();
         
         if (result.success && result.data) {
