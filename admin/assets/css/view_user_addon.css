@@ -3887,39 +3887,38 @@
   font-size: 1rem;
 }
 
-/* Botões de período - estilo harmonioso */
+/* Botões de período - estilo harmonioso (igual ao referencia.php) */
 .period-buttons {
   display: flex;
-  gap: 0.25rem;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 0.25rem;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 6px;
+  background: var(--glass-bg);
+  padding: 4px;
+  border-radius: 25px;
+  border: 1px solid var(--border-color);
 }
 
 .period-btn {
-  padding: 0.4rem 0.8rem;
-  background: transparent;
+  padding: 10px 20px;
   border: none;
+  background: transparent;
   color: var(--text-secondary);
-  font-size: 0.8rem;
-  font-weight: 500;
-  border-radius: 6px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
+  transition: all 0.3s ease;
   position: relative;
 }
 
 .period-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
 }
 
 .period-btn.active {
   background: var(--accent-orange);
   color: white;
-  box-shadow: 0 2px 8px rgba(255, 140, 66, 0.2);
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
 }
 
 /* Layout em fileiras para as barras */
