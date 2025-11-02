@@ -714,32 +714,38 @@ function loadDefaultUnitsForCategories() {
         return;
     }
     
-    // Pega as unidades padrão da primeira categoria
-    const firstCategory = currentCategories[0];
+    // Para cada categoria, buscar suas unidades padrão
+    const promises = currentCategories.map(category => 
+        fetch(`ajax_get_default_units.php?category=${encodeURIComponent(category)}`)
+            .then(response => response.json())
+            .then(data => data.success ? data.data : [])
+            .catch(error => {
+                console.error(`Erro ao carregar unidades para categoria ${category}:`, error);
+                return [];
+            })
+    );
     
-    // Buscar as unidades padrão do banco de dados
-    fetch(`ajax_get_default_units.php?category=${encodeURIComponent(firstCategory)}`)
-    .then(response => response.json())
-    .then(data => {
-        if (data.success && data.data.length > 0) {
-            currentUnits = data.data;
-            renderUnitsList();
-        } else {
-            // Fallback: usar mapeamento local se o backend falhar
-            const defaultUnitsAbbr = window.categoryUnits[firstCategory] || ['g', 'ml', 'un'];
-            currentUnits = defaultUnitsAbbr.map((abbr, index) => ({
-                id: null,
-                name: window.unitNames[abbr] || abbr,
-                abbreviation: abbr,
-                conversion_factor: 1.0,
-                is_default: index === 0 ? 1 : 0
-            }));
-            renderUnitsList();
-        }
+    // Esperar todas as promises e combinar os resultados
+    Promise.all(promises)
+    .then(allUnitsArrays => {
+        // Combinar todas as unidades, removendo duplicatas por abbreviation
+        const unitsMap = new Map();
+        
+        allUnitsArrays.forEach(unitsArray => {
+            unitsArray.forEach(unit => {
+                if (!unitsMap.has(unit.abbreviation)) {
+                    unitsMap.set(unit.abbreviation, unit);
+                }
+            });
+        });
+        
+        currentUnits = Array.from(unitsMap.values());
+        renderUnitsList();
     })
     .catch(error => {
-        console.error('Erro ao carregar unidades padrão:', error);
-        // Fallback
+        console.error('Erro ao processar unidades:', error);
+        // Fallback: usar apenas a primeira categoria
+        const firstCategory = currentCategories[0];
         const defaultUnitsAbbr = window.categoryUnits[firstCategory] || ['g', 'ml', 'un'];
         currentUnits = defaultUnitsAbbr.map((abbr, index) => ({
             id: null,
