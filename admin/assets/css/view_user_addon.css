@@ -2955,12 +2955,22 @@
 
 .custom-modal-body p {
   margin: 0 0 1rem 0;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .custom-modal-body p:last-child {
   margin-bottom: 0;
+}
+
+.custom-modal-body p strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.custom-modal-body p em {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
 }
 
 .modal-warning {
