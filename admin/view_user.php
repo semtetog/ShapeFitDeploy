@@ -1914,20 +1914,26 @@ function openHelpModal(type) {
         `;
     }
     
-    modal.style.display = 'block';
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 // Função para fechar modal de ajuda
 function closeHelpModal() {
     const modal = document.getElementById('helpModal');
-    modal.style.display = 'none';
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
 }
 
 // Fechar modal clicando fora dele
 document.addEventListener('click', function(event) {
     const modal = document.getElementById('helpModal');
     if (modal && event.target === modal) {
-        modal.style.display = 'none';
+        closeHelpModal();
     }
 });
 
@@ -1937,7 +1943,7 @@ window.closeHelpModal = closeHelpModal;
 </script>
 
 <!-- Modal de Ajuda (usado pelas abas de Hidratação e Nutrientes) -->
-<div id="helpModal" class="custom-modal" style="display: none;">
+<div id="helpModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeHelpModal()"></div>
     <div class="custom-modal-content custom-modal-small">
         <div class="custom-modal-header">
