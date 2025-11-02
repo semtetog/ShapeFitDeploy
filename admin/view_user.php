@@ -2093,8 +2093,10 @@ let chartDateStart = null;
 let chartDateEnd = null;
 let daysWithChartData = new Set();
 
-// Nomes dos meses abreviados (português)
-const monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+// Nomes dos meses abreviados (português) - verificar se já foi declarado
+if (typeof monthNamesShort === 'undefined') {
+    var monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+}
 
 // Abrir modal de calendário para gráficos
 async function openChartCalendar(type) {
@@ -2121,12 +2123,12 @@ async function openChartCalendar(type) {
 
 // Carregar dados de datas do calendário
 async function loadChartCalendarData(type) {
-    const userId = <?php echo $user_id; ?>;
+    const userIdChart = <?php echo $user_id; ?>;
     daysWithChartData.clear();
     
     try {
         // Buscar todos os dias que têm dados para o tipo específico
-        const response = await fetch(`ajax_get_chart_data.php?user_id=${userId}&type=${type}&start_date=2020-01-01&end_date=${new Date().toISOString().split('T')[0]}&list_dates_only=1`);
+        const response = await fetch(`ajax_get_chart_data.php?user_id=${userIdChart}&type=${type}&start_date=2020-01-01&end_date=${new Date().toISOString().split('T')[0]}&list_dates_only=1`);
         const result = await response.json();
         
         if (result.success && result.dates) {
@@ -2371,6 +2373,11 @@ document.addEventListener('click', function(event) {
         closeChartCalendar();
     }
 });
+
+// Expor função globalmente para ser acessível por outros scripts
+window.openChartCalendar = openChartCalendar;
+window.closeChartCalendar = closeChartCalendar;
+window.changeChartCalendarMonth = changeChartCalendarMonth;
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

@@ -426,6 +426,11 @@ window.navigateDiaryDate = navigateDiaryDate;
 let currentCalendarDate = new Date();
 let daysWithData = new Set();
 
+// Nomes dos meses abreviados (português) - verificar se já foi declarado
+if (typeof monthNamesShort === 'undefined') {
+    var monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+}
+
 // Buscar dados de dias com registros via PHP
 <?php
 // Buscar todos os dias que têm registros de refeições

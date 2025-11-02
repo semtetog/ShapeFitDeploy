@@ -276,7 +276,10 @@ if ($nutrients_stats_15['avg_kcal'] > 0 && $nutrients_stats_7['avg_kcal'] > 0) {
 
 <!-- Dados para JavaScript da aba Nutrientes -->
 <script>
-const userId = <?php echo $user_id; ?>;
+// Verificar se userId já foi declarado (pode ser usado em outros arquivos incluídos)
+if (typeof userId === 'undefined') {
+    var userId = <?php echo $user_id; ?>;
+}
 let currentNutrientsPeriod = 'last7'; // 'last7', 'month', 'week'
 let currentNutrientsStartDate = null;
 let currentNutrientsEndDate = null;
