@@ -2001,10 +2001,11 @@
 /* Gráfico melhorado */
 .hydration-chart-improved,
 .nutrients-chart-improved {
-  background-color: var(--surface-color);
-  padding: 25px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .legend-dot.excellent {
@@ -3876,6 +3877,7 @@
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
   color: var(--text-primary);
   display: flex;
   align-items: center;
@@ -4013,14 +4015,6 @@
   }
 }
 
-/* Gráfico de nutrientes */
-.nutrients-chart-improved {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
 
 /* Médias por período */
 .nutrients-periods-compact {
