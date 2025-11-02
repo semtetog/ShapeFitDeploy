@@ -276,10 +276,8 @@ if ($nutrients_stats_15['avg_kcal'] > 0 && $nutrients_stats_7['avg_kcal'] > 0) {
 
 <!-- Dados para JavaScript da aba Nutrientes -->
 <script>
-// Verificar se userId já foi declarado (pode ser usado em outros arquivos incluídos)
-if (typeof userId === 'undefined') {
-    var userId = <?php echo $user_id; ?>;
-}
+// Usar userId global (já declarado no início) ou declarar localmente
+var userId = window.userId || <?php echo $user_id; ?>;
 let currentNutrientsPeriod = 'last7'; // 'last7', 'month', 'week'
 let currentNutrientsStartDate = null;
 let currentNutrientsEndDate = null;
@@ -413,8 +411,15 @@ function updateNutrientsPeriodButton(label) {
 
 // Mostrar modal de calendário para nutrientes
 function showNutrientsCalendar() {
-    openChartCalendar('nutrients');
+    if (typeof window.openChartCalendar === 'function') {
+        window.openChartCalendar('nutrients');
+    } else if (typeof openChartCalendar === 'function') {
+        openChartCalendar('nutrients');
+    } else {
+        console.error('openChartCalendar não está definida');
+    }
 }
+window.showNutrientsCalendar = showNutrientsCalendar;
 
 // Inicializar gráfico quando a aba for ativada
 document.addEventListener('DOMContentLoaded', function() {

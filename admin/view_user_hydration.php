@@ -271,8 +271,15 @@ function updateHydrationPeriodButton(label) {
 
 // Mostrar modal de calendário para hidratação
 function showHydrationCalendar() {
-    openChartCalendar('hydration');
+    if (typeof window.openChartCalendar === 'function') {
+        window.openChartCalendar('hydration');
+    } else if (typeof openChartCalendar === 'function') {
+        openChartCalendar('hydration');
+    } else {
+        console.error('openChartCalendar não está definida');
+    }
 }
+window.showHydrationCalendar = showHydrationCalendar;
 
 // Inicializar gráfico quando a aba for ativada
 document.addEventListener('DOMContentLoaded', function() {

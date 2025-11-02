@@ -738,6 +738,14 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 <link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/view_user_addon.css?v=<?php echo time(); ?>">
 <script>
+// Declarações globais (evitar duplicação)
+if (typeof window.monthNamesShort === 'undefined') {
+    window.monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+}
+if (typeof window.userId === 'undefined') {
+    window.userId = <?php echo $user_id; ?>;
+}
+
 // Fallbacks imediatos: garantem que os handlers inline existam
 (function(){
     if (typeof window.showRevertModal !== 'function') {
@@ -2093,10 +2101,8 @@ let chartDateStart = null;
 let chartDateEnd = null;
 let daysWithChartData = new Set();
 
-// Nomes dos meses abreviados (português) - verificar se já foi declarado
-if (typeof monthNamesShort === 'undefined') {
-    var monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
-}
+// Usar monthNamesShort global (já declarado no início)
+var monthNamesShort = window.monthNamesShort;
 
 // Abrir modal de calendário para gráficos
 async function openChartCalendar(type) {
