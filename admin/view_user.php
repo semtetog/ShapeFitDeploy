@@ -1278,13 +1278,9 @@ require_once __DIR__ . '/includes/header.php';
 <!-- CONTEÚDO DAS ABAS - SERÁ PREENCHIDO VIA INCLUDES -->
 <?php include __DIR__ . '/view_user_diary.php'; ?>
 
-<div id="tab-hydration" class="tab-content">
-    <!-- Conteúdo da aba Hidratação será inserido via include -->
-</div>
+<?php include __DIR__ . '/view_user_hydration.php'; ?>
 
-<div id="tab-nutrients" class="tab-content">
-    <!-- Conteúdo da aba Nutrientes será inserido via include -->
-</div>
+<?php include __DIR__ . '/view_user_nutrients.php'; ?>
 
 <div id="tab-progress" class="tab-content">
     <!-- Conteúdo da aba Progresso será inserido via include -->
@@ -1879,7 +1875,85 @@ async function confirmDeleteUser() {
 window.showDeleteUserModal = showDeleteUserModal;
 window.closeDeleteUserModal = closeDeleteUserModal;
 window.confirmDeleteUser = confirmDeleteUser;
+
+// Função para abrir modal de ajuda (usado pelas abas de Hidratação e Nutrientes)
+function openHelpModal(type) {
+    const modal = document.getElementById('helpModal');
+    const title = document.getElementById('helpModalTitle');
+    const body = document.getElementById('helpModalBody');
+    
+    if (type === 'hydration-adherence') {
+        title.textContent = 'Aderência Geral - Hidratação';
+        body.innerHTML = `
+            <p>Percentual médio de cumprimento da meta de hidratação nos últimos 7 dias.</p>
+            
+            <p><strong>Cálculo:</strong><br>
+            Soma dos percentuais de cada dia ÷ 7 dias<br>
+            <em>(dias sem registro = 0%)</em></p>
+            
+            <p><strong>Exemplo:</strong><br>
+            Se atingiu 100%, 0%, 80%, 0%, 90%, 0%, 70% da meta:<br>
+            <strong>Aderência = (100+0+80+0+90+0+70) ÷ 7 = 48.6%</strong></p>
+            
+            <p>Avalia a <strong>consistência</strong> do paciente.</p>
+        `;
+    } else if (type === 'nutrients-adherence') {
+        title.textContent = 'Aderência Geral - Nutrientes';
+        body.innerHTML = `
+            <p>Percentual médio de cumprimento da meta calórica nos últimos 7 dias.</p>
+            
+            <p><strong>Cálculo:</strong><br>
+            Soma dos percentuais de cada dia ÷ 7 dias<br>
+            <em>(dias sem registro = 0%)</em></p>
+            
+            <p><strong>Exemplo:</strong><br>
+            Se atingiu 95%, 0%, 110%, 0%, 85%, 0%, 100% da meta:<br>
+            <strong>Aderência = (95+0+110+0+85+0+100) ÷ 7 = 55.7%</strong></p>
+            
+            <p>Avalia a <strong>consistência</strong> do paciente.</p>
+        `;
+    }
+    
+    modal.style.display = 'block';
+}
+
+// Função para fechar modal de ajuda
+function closeHelpModal() {
+    const modal = document.getElementById('helpModal');
+    modal.style.display = 'none';
+}
+
+// Fechar modal clicando fora dele
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('helpModal');
+    if (modal && event.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+
+// Expor funções globalmente
+window.openHelpModal = openHelpModal;
+window.closeHelpModal = closeHelpModal;
 </script>
+
+<!-- Modal de Ajuda (usado pelas abas de Hidratação e Nutrientes) -->
+<div id="helpModal" class="custom-modal" style="display: none;">
+    <div class="custom-modal-overlay" onclick="closeHelpModal()"></div>
+    <div class="custom-modal-content custom-modal-small">
+        <div class="custom-modal-header">
+            <i class="fas fa-question-circle"></i>
+            <h3 id="helpModalTitle">Ajuda</h3>
+        </div>
+        <div class="custom-modal-body">
+            <div id="helpModalBody"></div>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-primary" onclick="closeHelpModal()">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
