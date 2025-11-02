@@ -716,18 +716,40 @@ function loadDefaultUnitsForCategories() {
     
     // Pega as unidades padrão da primeira categoria
     const firstCategory = currentCategories[0];
-    const defaultUnitsAbbr = window.categoryUnits[firstCategory] || ['g', 'ml', 'un'];
     
-    // Transforma as abreviações em objetos de unidade com estrutura adequada
-    currentUnits = defaultUnitsAbbr.map((abbr, index) => ({
-        id: null, // Não tem ID porque são padrão
-        name: window.unitNames[abbr] || abbr,
-        abbreviation: abbr,
-        conversion_factor: 1.0, // Conversão padrão será 1.0
-        is_default: index === 0 ? 1 : 0 // Primeira é padrão
-    }));
-    
-    renderUnitsList();
+    // Buscar as unidades padrão do banco de dados
+    fetch(`ajax_get_default_units.php?category=${encodeURIComponent(firstCategory)}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.data.length > 0) {
+            currentUnits = data.data;
+            renderUnitsList();
+        } else {
+            // Fallback: usar mapeamento local se o backend falhar
+            const defaultUnitsAbbr = window.categoryUnits[firstCategory] || ['g', 'ml', 'un'];
+            currentUnits = defaultUnitsAbbr.map((abbr, index) => ({
+                id: null,
+                name: window.unitNames[abbr] || abbr,
+                abbreviation: abbr,
+                conversion_factor: 1.0,
+                is_default: index === 0 ? 1 : 0
+            }));
+            renderUnitsList();
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao carregar unidades padrão:', error);
+        // Fallback
+        const defaultUnitsAbbr = window.categoryUnits[firstCategory] || ['g', 'ml', 'un'];
+        currentUnits = defaultUnitsAbbr.map((abbr, index) => ({
+            id: null,
+            name: window.unitNames[abbr] || abbr,
+            abbreviation: abbr,
+            conversion_factor: 1.0,
+            is_default: index === 0 ? 1 : 0
+        }));
+        renderUnitsList();
+    });
 }
 
 function renderUnitsList() {
