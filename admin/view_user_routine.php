@@ -2120,31 +2120,7 @@ window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
   color: var(--text-secondary) !important;
 }
 
-/* === Calendar Close Button === */
-.calendar-btn-close {
-  position: absolute !important;
-  top: 0.75rem !important;
-  right: 0.75rem !important;
-  width: 32px !important;
-  height: 32px !important;
-  border-radius: 50% !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-secondary) !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.3s ease !important;
-  z-index: 10 !important;
-}
-
-.calendar-btn-close:hover {
-  background: rgba(244, 67, 54, 0.2) !important;
-  border-color: rgba(244, 67, 54, 0.4) !important;
-  color: #F44336 !important;
-  transform: scale(1.1) !important;
-}
+/* === Calendar Close Button - REMOVIDO: usa o estilo do CSS principal (sleep-modal-close) === */
 
 /* === Modal Body === */
 #missionModal .modal-body {
