@@ -3071,7 +3071,7 @@
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8);
 }
 
-/* Botão X */
+/* Botão X - IGUAL AO sleep-modal-close */
 .calendar-btn-close {
   position: absolute;
   top: 1rem;
