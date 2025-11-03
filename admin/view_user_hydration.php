@@ -71,10 +71,10 @@ if ($avg_percentage_7 >= 90) {
         <!-- 3. GRÁFICO COM BOTÕES DE PERÍODO -->
         <div class="chart-section">
             <div class="hydration-chart-improved">
-                <div class="chart-header">
+                <div class="chart-header" style="position: relative;">
                     <h4><i class="fas fa-chart-bar"></i> Progresso de Hidratação</h4>
-                    <button class="diary-calendar-icon-btn" onclick="showHydrationCalendar()" id="hydration-period-btn" title="Selecionar período" style="position: absolute; top: 1.5rem; right: 1.5rem;">
-                        <i class="fas fa-calendar-alt"></i>
+                    <button class="diary-calendar-icon-btn" onclick="showHydrationCalendar()" id="hydration-period-btn" title="Selecionar período" style="position: absolute; top: 0; right: 0; width: auto; height: auto; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; font-family: 'Montserrat', sans-serif;">
+                        <i class="fas fa-calendar-alt"></i> <span id="hydration-period-text">Últimos 7 dias</span>
                     </button>
             </div>
                 <div class="improved-chart" id="hydration-chart">
