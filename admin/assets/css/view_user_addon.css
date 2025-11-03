@@ -3401,19 +3401,19 @@
   width: 48px !important;
   height: 48px !important;
   border-radius: 12px !important;
-  background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(156, 39, 176, 0.05)) !important;
-  border: 1px solid rgba(156, 39, 176, 0.2) !important;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.05)) !important;
+  border: 1px solid rgba(244, 67, 54, 0.2) !important;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.25rem !important;
-  color: #9C27B0 !important;
+  color: #F44336 !important;
   flex-shrink: 0;
 }
 
 .nutrients-summary-card .summary-icon i {
   font-size: 1.25rem !important;
-  color: #9C27B0 !important;
+  color: #F44336 !important;
 }
 
 .nutrients-summary-card .summary-info h3 {
