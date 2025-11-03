@@ -2211,7 +2211,7 @@ window.closeHelpModal = closeHelpModal;
     position: absolute;
     top: 1.5rem;
     right: 3.5rem;
-    color: var(--text-secondary);
+    color: var(--accent-orange);
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -2221,6 +2221,7 @@ window.closeHelpModal = closeHelpModal;
 .calendar-help-icon:hover {
     color: var(--accent-orange);
     transform: scale(1.1);
+    opacity: 0.8;
 }
 
 /* Responsivo */
