@@ -2118,23 +2118,11 @@ window.closeHelpModal = closeHelpModal;
 /* Popup de ajuda do calendário - EXTERNO (lateral ao calendário) */
 .calendar-help-popup-external {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 10%;
+    right: 2rem;
     z-index: 10002;
     pointer-events: all;
     width: 280px;
-    margin-left: 320px; /* Espaço para ficar ao lado direito do calendário */
-}
-
-/* Quando o calendário está visível, ajustar posição */
-#chartCalendarModal.active .calendar-help-popup-external {
-    position: fixed;
-    /* Calcular posição baseada no centro da tela + largura do calendário */
-    left: calc(50% + 320px);
-    top: 50%;
-    transform: translateY(-50%);
-    margin-left: 0;
 }
 
 .calendar-help-popup-content {
@@ -2205,18 +2193,7 @@ window.closeHelpModal = closeHelpModal;
     color: var(--accent-orange);
 }
 
-/* Seta apontando para o calendário (da esquerda para a direita) */
-.calendar-help-popup-content::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 1.5rem;
-    width: 0;
-    height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-right: 8px solid rgba(255, 107, 0, 0.3);
-}
+/* Seta removida - popup fica externo sem seta */
 
 /* Ícone de ajuda do calendário - simples como nos cards */
 .calendar-help-icon {
