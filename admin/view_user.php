@@ -2117,12 +2117,24 @@ window.closeHelpModal = closeHelpModal;
 
 /* Popup de ajuda do calendário - EXTERNO (lateral ao calendário) */
 .calendar-help-popup-external {
-    position: absolute;
-    top: 0;
-    left: calc(100% + 1.5rem);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 10002;
     pointer-events: all;
     width: 280px;
+    margin-left: 320px; /* Espaço para ficar ao lado direito do calendário */
+}
+
+/* Quando o calendário está visível, ajustar posição */
+#chartCalendarModal.active .calendar-help-popup-external {
+    position: fixed;
+    /* Calcular posição baseada no centro da tela + largura do calendário */
+    left: calc(50% + 320px);
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
 }
 
 .calendar-help-popup-content {
@@ -2227,9 +2239,22 @@ window.closeHelpModal = closeHelpModal;
 /* Responsivo */
 @media (max-width: 768px) {
     .calendar-help-popup-external {
-        top: 1rem;
-        right: 1rem;
+        position: fixed !important;
+        top: 2rem !important;
+        right: 1rem !important;
+        left: auto !important;
+        transform: none !important;
+        margin-left: 0 !important;
         max-width: calc(100vw - 2rem);
+        width: calc(100vw - 2rem) !important;
+    }
+    
+    #chartCalendarModal.active .calendar-help-popup-external {
+        position: fixed !important;
+        top: 2rem !important;
+        right: 1rem !important;
+        left: auto !important;
+        transform: none !important;
     }
     
     .calendar-help-popup-content {
@@ -2240,15 +2265,6 @@ window.closeHelpModal = closeHelpModal;
         top: 1rem;
         right: 3rem;
         font-size: 0.9rem;
-    }
-    
-    .calendar-help-popup-external {
-        position: fixed;
-        top: 2rem;
-        right: 1rem;
-        left: auto;
-        width: calc(100vw - 2rem);
-        max-width: 280px;
     }
 }
 </style>
