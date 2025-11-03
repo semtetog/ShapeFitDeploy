@@ -109,11 +109,9 @@ if ($nutrients_stats_15['avg_kcal'] > 0 && $nutrients_stats_7['avg_kcal'] > 0) {
             <div class="nutrients-chart-improved">
                 <div class="chart-header">
                     <h4><i class="fas fa-chart-bar"></i> Progresso Nutricional</h4>
-                    <div class="period-buttons">
-                        <button class="period-btn active" onclick="showNutrientsCalendar()" id="nutrients-period-btn" title="Selecionar período">
-                            <i class="fas fa-calendar-alt"></i> Últimos 7 dias
-                        </button>
-                </div>
+                    <button class="diary-calendar-icon-btn" onclick="showNutrientsCalendar()" id="nutrients-period-btn" title="Selecionar período" style="position: absolute; top: 1.5rem; right: 1.5rem;">
+                        <i class="fas fa-calendar-alt"></i>
+                    </button>
             </div>
                 <div class="improved-chart" id="nutrients-chart">
                 <?php if (empty($last_7_days_data)): ?>
