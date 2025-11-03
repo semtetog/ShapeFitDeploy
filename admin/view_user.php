@@ -2118,7 +2118,7 @@ window.closeHelpModal = closeHelpModal;
 /* Popup de ajuda do calendário - EXTERNO (lateral ao calendário) */
 .calendar-help-popup-external {
     position: fixed;
-    top: 15%;
+    top: 10%;
     left: calc(50% + 275px + 1.5rem); /* Centro da tela + metade da largura do calendário (550px/2) + margem */
     z-index: 10002;
     pointer-events: all;
