@@ -1977,6 +1977,10 @@ window.closeHelpModal = closeHelpModal;
             <i class="fas fa-times"></i>
         </button>
         
+        <button class="calendar-btn-help" onclick="openChartCalendarHelp()" type="button" title="Ajuda - Como usar o calendário">
+            <i class="fas fa-question-circle"></i>
+        </button>
+        
         <div class="calendar-header-title">
             <div class="calendar-year" id="chartCalendarYear"></div>
         </div>
@@ -2203,6 +2207,36 @@ window.closeHelpModal = closeHelpModal;
     border-left: 8px solid rgba(255, 107, 0, 0.3);
 }
 
+/* Botão de ajuda do calendário */
+.calendar-btn-help {
+    position: absolute;
+    top: 1.5rem;
+    right: 3.5rem;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 50%;
+    color: var(--accent-orange);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.calendar-btn-help:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+    transform: scale(1.1);
+}
+
+.calendar-btn-help:active {
+    transform: scale(0.95);
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
     .calendar-help-popup-external {
@@ -2213,6 +2247,14 @@ window.closeHelpModal = closeHelpModal;
     
     .calendar-help-popup-content {
         max-width: 240px;
+    }
+    
+    .calendar-btn-help {
+        top: 1rem;
+        right: 3rem;
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
     }
 }
 </style>
