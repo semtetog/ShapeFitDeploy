@@ -1977,9 +1977,7 @@ window.closeHelpModal = closeHelpModal;
             <i class="fas fa-times"></i>
         </button>
         
-        <button class="calendar-btn-help" onclick="openChartCalendarHelp()" type="button" title="Ajuda - Como usar o calendário">
-            <i class="fas fa-question-circle"></i>
-        </button>
+        <i class="fas fa-question-circle calendar-help-icon" onclick="openChartCalendarHelp()" title="Ajuda - Como usar o calendário"></i>
         
         <div class="calendar-header-title">
             <div class="calendar-year" id="chartCalendarYear"></div>
@@ -2207,34 +2205,21 @@ window.closeHelpModal = closeHelpModal;
     border-left: 8px solid rgba(255, 107, 0, 0.3);
 }
 
-/* Botão de ajuda do calendário */
-.calendar-btn-help {
+/* Ícone de ajuda do calendário - simples como nos cards */
+.calendar-help-icon {
     position: absolute;
     top: 1.5rem;
     right: 3.5rem;
-    width: 36px;
-    height: 36px;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 50%;
-    color: var(--accent-orange);
+    color: var(--text-secondary);
     font-size: 1rem;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: all 0.2s ease;
     z-index: 10;
 }
 
-.calendar-btn-help:hover {
-    background: rgba(255, 107, 0, 0.2);
-    border-color: var(--accent-orange);
+.calendar-help-icon:hover {
+    color: var(--accent-orange);
     transform: scale(1.1);
-}
-
-.calendar-btn-help:active {
-    transform: scale(0.95);
 }
 
 /* Responsivo */
@@ -2249,12 +2234,19 @@ window.closeHelpModal = closeHelpModal;
         max-width: 240px;
     }
     
-    .calendar-btn-help {
+    .calendar-help-icon {
         top: 1rem;
         right: 3rem;
-        width: 32px;
-        height: 32px;
         font-size: 0.9rem;
+    }
+    
+    .calendar-help-popup-external {
+        position: fixed;
+        top: 2rem;
+        right: 1rem;
+        left: auto;
+        width: calc(100vw - 2rem);
+        max-width: 280px;
     }
 }
 </style>
