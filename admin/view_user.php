@@ -2451,17 +2451,6 @@ function selectChartDate(dateStr) {
         // Nova seleção - definir início
         chartDateStart = dateStr;
         chartDateEnd = null;
-        document.getElementById('chartPeriodSelection').innerHTML = `
-            <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
-                <i class="fas fa-calendar-check"></i> Data inicial selecionada
-            </div>
-            <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
-                <div style="margin-bottom: 0.5rem;">${new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')} - Selecione a data final</div>
-                <div style="font-weight: 500; color: var(--text-primary); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                    Dica: Dê duplo clique para ver apenas este dia
-                </div>
-            </div>
-        `;
     } else {
         // Selecionar fim
         const startDate = new Date(chartDateStart + 'T00:00:00');
