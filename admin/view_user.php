@@ -2036,6 +2036,25 @@ window.closeHelpModal = closeHelpModal;
             </div>
         </div>
     </div>
+    
+    <!-- Popup de instruções externo (canto superior direito) -->
+    <div id="chartCalendarHelpPopup" class="calendar-help-popup-external" style="display: none;">
+        <div class="calendar-help-popup-content">
+            <button class="calendar-help-popup-close" onclick="closeChartCalendarHelp()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="calendar-help-popup-header">
+                <i class="fas fa-info-circle"></i>
+                <span>Selecione um período</span>
+            </div>
+            <div class="calendar-help-popup-body">
+                <p>Clique em uma data para início, depois em outra para fim</p>
+                <p class="calendar-help-popup-tip">
+                    <strong>Dica:</strong> Dê duplo clique em um dia para ver apenas esse dia específico
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
