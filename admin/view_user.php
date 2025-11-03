@@ -2021,19 +2021,6 @@ window.closeHelpModal = closeHelpModal;
             <div class="separator-line"></div>
         </div>
         
-        <!-- Informação de seleção de período -->
-        <div id="chartPeriodSelection" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 107, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 107, 0, 0.3); display: none;">
-            <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
-                <i class="fas fa-info-circle"></i> Selecione um período
-            </div>
-            <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
-                <div style="margin-bottom: 0.5rem;">Clique em uma data para início, depois em outra para fim</div>
-                <div style="font-weight: 500; color: var(--text-primary); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                    Dica: Dê duplo clique em um dia para ver apenas esse dia específico
-                </div>
-            </div>
-        </div>
-        
         <div class="calendar-footer-legend">
             <div class="legend-row">
                 <span class="legend-marker today-marker"></span>
@@ -2106,6 +2093,109 @@ window.closeHelpModal = closeHelpModal;
     color: var(--accent-orange) !important;
     font-weight: 600 !important;
 }
+
+/* Popup de ajuda do calendário - EXTERNO (canto superior direito) */
+.calendar-help-popup-external {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    z-index: 10001;
+    pointer-events: all;
+}
+
+.calendar-help-popup-content {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 280px;
+    position: relative;
+}
+
+.calendar-help-popup-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.calendar-help-popup-close:hover {
+    color: var(--text-primary);
+}
+
+.calendar-help-popup-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent-orange);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.calendar-help-popup-header i {
+    font-size: 1rem;
+}
+
+.calendar-help-popup-body {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.calendar-help-popup-body p {
+    margin: 0 0 0.5rem 0;
+}
+
+.calendar-help-popup-tip {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    font-weight: 500 !important;
+    color: var(--text-primary) !important;
+}
+
+.calendar-help-popup-tip strong {
+    color: var(--accent-orange);
+}
+
+/* Seta apontando para o calendário */
+.calendar-help-popup-content::before {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 1.5rem;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid rgba(255, 107, 0, 0.3);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .calendar-help-popup-external {
+        top: 1rem;
+        right: 1rem;
+        max-width: calc(100vw - 2rem);
+    }
+    
+    .calendar-help-popup-content {
+        max-width: 240px;
+    }
+}
 </style>
 
 <script>
@@ -2136,8 +2226,14 @@ async function openChartCalendar(type) {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
         
-        // Mostrar instrução
-        document.getElementById('chartPeriodSelection').style.display = 'block';
+        // Mostrar popup de instruções (apenas na primeira vez)
+        const helpPopup = document.getElementById('chartCalendarHelpPopup');
+        if (helpPopup) {
+            const hasSeenHelp = localStorage.getItem('chartCalendarHelpSeen');
+            if (!hasSeenHelp) {
+                helpPopup.style.display = 'block';
+            }
+        }
     }
 }
 
@@ -2167,7 +2263,10 @@ function closeChartCalendar() {
         document.body.style.overflow = '';
         chartDateStart = null;
         chartDateEnd = null;
-        document.getElementById('chartPeriodSelection').style.display = 'none';
+        const helpPopup = document.getElementById('chartCalendarHelpPopup');
+        if (helpPopup) {
+            helpPopup.style.display = 'none';
+        }
     }
 }
 
@@ -2421,6 +2520,17 @@ document.addEventListener('click', function(event) {
 window.openChartCalendar = openChartCalendar;
 window.closeChartCalendar = closeChartCalendar;
 window.changeChartCalendarMonth = changeChartCalendarMonth;
+
+// Fechar popup de ajuda
+function closeChartCalendarHelp() {
+    const helpPopup = document.getElementById('chartCalendarHelpPopup');
+    if (helpPopup) {
+        helpPopup.style.display = 'none';
+        localStorage.setItem('chartCalendarHelpSeen', 'true');
+    }
+}
+
+window.closeChartCalendarHelp = closeChartCalendarHelp;
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
