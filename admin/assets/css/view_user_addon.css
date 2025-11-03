@@ -2383,12 +2383,17 @@
 
 /* Ícone de hidratação - mesmo estilo do diary-header-icon */
 .hydration-summary-card .summary-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
   background: linear-gradient(135deg, rgba(54, 162, 235, 0.2), rgba(54, 162, 235, 0.05)) !important;
   border: 1px solid rgba(54, 162, 235, 0.2) !important;
   color: #36A2EB !important;
+  font-size: 1.25rem !important;
 }
 
 .hydration-summary-card .summary-icon i {
+  font-size: 1.25rem !important;
   color: #36A2EB !important;
 }
 
