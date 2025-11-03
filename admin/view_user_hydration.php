@@ -73,8 +73,8 @@ if ($avg_percentage_7 >= 90) {
             <div class="hydration-chart-improved">
                 <div class="chart-header" style="position: relative;">
                     <h4><i class="fas fa-chart-bar"></i> Progresso de Hidratação</h4>
-                    <button class="diary-calendar-icon-btn" onclick="showHydrationCalendar()" id="hydration-period-btn" title="Selecionar período" style="position: absolute; top: 50%; right: 0; transform: translateY(-50%); margin-bottom: 1rem; width: auto; height: auto; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; font-family: 'Montserrat', sans-serif;">
-                        <i class="fas fa-calendar-alt" style="margin-right: 12px;"></i> <span id="hydration-period-text">Últimos 7 dias</span>
+                    <button class="diary-calendar-icon-btn" onclick="showHydrationCalendar()" id="hydration-period-btn" title="Selecionar período" style="position: absolute; bottom: 1.5rem; right: 0; width: auto; height: auto; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; font-family: 'Montserrat', sans-serif; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-calendar-alt"></i> <span id="hydration-period-text">Últimos 7 dias</span>
                     </button>
             </div>
                 <div class="improved-chart" id="hydration-chart">
