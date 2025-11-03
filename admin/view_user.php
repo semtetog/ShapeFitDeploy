@@ -2240,7 +2240,7 @@ window.closeHelpModal = closeHelpModal;
     
     .calendar-help-icon {
         top: 1rem;
-        right: 3rem;
+        right: 4rem;
         font-size: 0.9rem;
     }
 }
