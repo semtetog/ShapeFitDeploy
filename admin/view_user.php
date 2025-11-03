@@ -2120,7 +2120,7 @@ window.closeHelpModal = closeHelpModal;
     position: fixed;
     top: 50%;
     transform: translateY(-50%);
-    left: calc(50% + 280px); /* Centro da tela + metade da largura do calendário (~550px/2) + margem */
+    left: calc(50% + 275px + 1.5rem); /* Centro da tela + metade da largura do calendário (550px/2) + margem */
     z-index: 10002;
     pointer-events: all;
     width: 280px;
