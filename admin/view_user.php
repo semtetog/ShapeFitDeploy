@@ -1972,7 +1972,7 @@ window.closeHelpModal = closeHelpModal;
 <!-- Modal de Calendário para Gráficos (Nutrientes e Hidratação) -->
 <div id="chartCalendarModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeChartCalendar()"></div>
-    <div class="diary-calendar-wrapper">
+    <div class="diary-calendar-wrapper" style="position: relative;">
         <button class="calendar-btn-close" onclick="closeChartCalendar()" type="button">
             <i class="fas fa-times"></i>
         </button>
@@ -2115,13 +2115,14 @@ window.closeHelpModal = closeHelpModal;
     font-weight: 600 !important;
 }
 
-/* Popup de ajuda do calendário - EXTERNO (canto superior direito) */
+/* Popup de ajuda do calendário - EXTERNO (lateral ao calendário) */
 .calendar-help-popup-external {
-    position: fixed;
-    top: 2rem;
-    right: 2rem;
+    position: absolute;
+    top: 0;
+    left: calc(100% + 1.5rem);
     z-index: 10002;
     pointer-events: all;
+    width: 280px;
 }
 
 .calendar-help-popup-content {
