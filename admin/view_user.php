@@ -2193,17 +2193,17 @@ window.closeHelpModal = closeHelpModal;
     color: var(--accent-orange);
 }
 
-/* Seta apontando para o calendário */
+/* Seta apontando para o calendário (da esquerda para a direita) */
 .calendar-help-popup-content::before {
     content: '';
     position: absolute;
-    right: -8px;
+    left: -8px;
     top: 1.5rem;
     width: 0;
     height: 0;
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
-    border-left: 8px solid rgba(255, 107, 0, 0.3);
+    border-right: 8px solid rgba(255, 107, 0, 0.3);
 }
 
 /* Ícone de ajuda do calendário - simples como nos cards */
