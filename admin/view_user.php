@@ -2591,6 +2591,15 @@ function closeChartCalendarHelp() {
     }
 }
 
+// Abrir popup de ajuda
+function openChartCalendarHelp() {
+    const helpPopup = document.getElementById('chartCalendarHelpPopup');
+    if (helpPopup) {
+        helpPopup.style.display = 'block';
+    }
+}
+
+window.openChartCalendarHelp = openChartCalendarHelp;
 window.closeChartCalendarHelp = closeChartCalendarHelp;
 </script>
 
