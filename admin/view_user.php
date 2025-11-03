@@ -2199,7 +2199,7 @@ window.closeHelpModal = closeHelpModal;
 .calendar-help-icon {
     position: absolute;
     top: 1.5rem;
-    right: 3.5rem;
+    right: 4.5rem;
     color: var(--accent-orange);
     font-size: 1rem;
     cursor: pointer;
