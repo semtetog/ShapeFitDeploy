@@ -357,7 +357,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dateSpan = item.querySelector('.photo-date');
                 const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
                 const date = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
-                const measurements = dateSpan?.querySelector('.photo-measurements')?.textContent || '';
+                const measurementsEl = dateSpan?.querySelector('.photo-measurements');
+                const measurements = measurementsEl ? measurementsEl.textContent.trim() : '';
+                
+                console.log('[view_user_progress] collectAllPhotos - photo-item:', {
+                    src: img?.src,
+                    type: type,
+                    date: date,
+                    measurements: measurements,
+                    measurementsEl: measurementsEl
+                });
+                
                 if (img && img.src) {
                     allPhotos.push({
                         src: img.src,
@@ -374,7 +384,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const img = item.querySelector('img');
                 const type = item.querySelector('.gallery-photo-type')?.textContent || '';
                 const date = item.querySelector('.gallery-photo-date')?.textContent || '';
-                const measurements = item.querySelector('.gallery-photo-measurements')?.textContent || '';
+                const measurementsEl = item.querySelector('.gallery-photo-measurements');
+                const measurements = measurementsEl ? measurementsEl.textContent.trim() : '';
+                
+                console.log('[view_user_progress] collectAllPhotos - gallery-photo-item:', {
+                    src: img?.src,
+                    type: type,
+                    date: date,
+                    measurements: measurements,
+                    measurementsEl: measurementsEl
+                });
+                
                 if (img && img.src) {
                     // Evitar duplicatas
                     const exists = allPhotos.some(photo => photo.src === img.src);
@@ -390,6 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             console.log('[view_user_progress] Fotos coletadas:', allPhotos.length);
+            console.log('[view_user_progress] Fotos com medidas:', allPhotos.filter(p => p.measurements).length);
         }
         
         // Abrir modal de foto individual
@@ -406,14 +427,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const modalDate = document.getElementById('photoModalDate');
             const modalMeasurements = document.getElementById('photoModalMeasurements');
             
+            console.log('[view_user_progress] openPhotoModal - measurements recebido:', measurements);
+            console.log('[view_user_progress] openPhotoModal - allPhotos[currentPhotoIndex]:', allPhotos[currentPhotoIndex]);
+            
             if (modal && modalImage && modalLabel && modalDate) {
                 modalImage.src = imageSrc;
                 modalLabel.textContent = label;
                 modalDate.textContent = date;
-            if (modalMeasurements) {
-                modalMeasurements.textContent = measurements || '';
-                modalMeasurements.style.display = measurements && measurements.trim() !== '' ? 'block' : 'none';
-            }
+                
+                // Usar medidas do parâmetro ou das fotos coletadas
+                const finalMeasurements = measurements || (allPhotos[currentPhotoIndex]?.measurements || '');
+                console.log('[view_user_progress] openPhotoModal - finalMeasurements:', finalMeasurements);
+                
+                if (modalMeasurements) {
+                    modalMeasurements.textContent = finalMeasurements || '';
+                    modalMeasurements.style.display = finalMeasurements && finalMeasurements.trim() !== '' ? 'block' : 'none';
+                    console.log('[view_user_progress] openPhotoModal - modalMeasurements.display:', modalMeasurements.style.display);
+                }
+                
+                // Atualizar também no array de fotos se ainda não tiver
+                if (allPhotos[currentPhotoIndex] && !allPhotos[currentPhotoIndex].measurements && measurements) {
+                    allPhotos[currentPhotoIndex].measurements = measurements;
+                }
+                
                 updatePhotoModalContent();
                 modal.style.display = 'flex';
                 modal.style.alignItems = 'center';
@@ -463,8 +499,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (modalLabel) modalLabel.textContent = photo.label;
             if (modalDate) modalDate.textContent = photo.date;
             if (modalMeasurements) {
-                modalMeasurements.textContent = photo.measurements || '';
-                modalMeasurements.style.display = photo.measurements && photo.measurements.trim() !== '' ? 'block' : 'none';
+                const measurementsText = photo.measurements || '';
+                const shouldShow = measurementsText && measurementsText.trim() !== '';
+                modalMeasurements.textContent = measurementsText;
+                modalMeasurements.style.display = shouldShow ? 'block' : 'none';
+                console.log('[view_user_progress] updatePhotoModalContent - modalMeasurements:', {
+                    text: measurementsText,
+                    display: modalMeasurements.style.display,
+                    shouldShow: shouldShow,
+                    photoMeasurements: photo.measurements
+                });
             }
             if (photoCounter) photoCounter.textContent = `${currentPhotoIndex + 1} de ${allPhotos.length}`;
             
