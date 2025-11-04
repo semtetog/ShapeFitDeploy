@@ -2410,9 +2410,9 @@
 
 /* Cores específicas para cada aba - usar mesmo estilo dos headers */
 .hydration-summary-card .summary-icon {
-  background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(33, 150, 243, 0.05));
-  border: 1px solid rgba(33, 150, 243, 0.2);
-  color: #2196F3;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(33, 150, 243, 0.05)) !important;
+  border: 1px solid rgba(33, 150, 243, 0.2) !important;
+  color: #2196F3 !important;
 }
 
 .nutrients-summary-card .summary-icon {
@@ -3715,18 +3715,7 @@
   margin-bottom: 1.5rem;
 }
 
-.hydration-summary-card .summary-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 15px;
-  background: linear-gradient(135deg, #36A2EB, #4ECDC4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: white;
-  flex-shrink: 0;
-}
+/* Estilo removido - agora usa o estilo padrão do summary-icon com cores específicas (linha 2412) */
 
 .hydration-summary-card .summary-info h3 {
   font-size: 1.5rem;
