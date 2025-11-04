@@ -355,18 +355,24 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
         
+        // Função auxiliar para extrair nome do arquivo do src (compartilhada)
+        function getFileName(src) {
+            if (!src) return '';
+            try {
+                const url = new URL(src);
+                const pathParts = url.pathname.split('/');
+                return pathParts[pathParts.length - 1];
+            } catch (e) {
+                // Fallback para src relativo ou absoluto sem protocolo
+                const parts = src.split('/');
+                return parts[parts.length - 1].split('?')[0];
+            }
+        }
+        
         // Coletar todas as fotos da galeria e do card inicial
         function collectAllPhotos() {
             allPhotos = [];
             const photosMap = new Map(); // Usar Map para evitar duplicatas por nome do arquivo
-            
-            // Função auxiliar para extrair nome do arquivo do src
-            function getFileName(src) {
-                if (!src) return '';
-                const url = new URL(src);
-                const pathParts = url.pathname.split('/');
-                return pathParts[pathParts.length - 1];
-            }
             
             // Coletar fotos da galeria modal PRIMEIRO (elas têm informações mais completas)
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
@@ -418,24 +424,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Converter Map para array
             allPhotos = Array.from(photosMap.values());
+            console.log('[view_user_progress] collectAllPhotos - Total de fotos coletadas:', allPhotos.length);
+            console.log('[view_user_progress] collectAllPhotos - Nomes dos arquivos:', allPhotos.map(p => getFileName(p.src)));
         }
         
         // Abrir modal de foto individual
         window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
-            // Função auxiliar para extrair nome do arquivo do src
-            function getFileName(src) {
-                if (!src) return '';
-                try {
-                    const url = new URL(src);
-                    const pathParts = url.pathname.split('/');
-                    return pathParts[pathParts.length - 1];
-                } catch (e) {
-                    // Fallback para src relativo
-                    const parts = src.split('/');
-                    return parts[parts.length - 1];
-                }
-            }
-            
             // Coletar fotos apenas se ainda não foram coletadas
             if (allPhotos.length === 0) {
                 collectAllPhotos();
@@ -459,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     measurements: measurements || ''
                 });
                 currentPhotoIndex = allPhotos.length - 1;
+                console.log('[view_user_progress] openPhotoModal - Foto adicionada ao array. Total agora:', allPhotos.length);
             } else {
                 // Se encontrou, atualizar com as informações mais completas do onclick
                 allPhotos[currentPhotoIndex].label = label;
@@ -467,6 +462,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     allPhotos[currentPhotoIndex].measurements = measurements;
                 }
             }
+            
+            console.log('[view_user_progress] openPhotoModal - currentPhotoIndex:', currentPhotoIndex, 'total:', allPhotos.length);
             
             const modal = document.getElementById('photoModal');
             const modalImage = document.getElementById('photoModalImage');
