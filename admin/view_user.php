@@ -746,6 +746,30 @@ if (typeof window.userId === 'undefined') {
     window.userId = <?php echo $user_id; ?>;
 }
 
+// Função global para trocar abas - DEFINIDA ANTES DAS ABAS
+function switchTab(tabId) {
+    console.log('[switchTab] Chamado com:', tabId);
+    
+    // Remover active de todas as abas e conteúdos
+    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    // Adicionar active na aba clicada
+    const clickedTab = document.querySelector(`[data-tab="${tabId}"]`);
+    if (clickedTab) {
+        clickedTab.classList.add('active');
+    }
+    
+    // Adicionar active no conteúdo correspondente
+    const target = document.getElementById(`tab-${tabId}`);
+    if (target) {
+        target.classList.add('active');
+        console.log(`[switchTab] SUCESSO: Aba ${tabId} ativada`);
+    } else {
+        console.error(`[switchTab] ERRO: Elemento tab-${tabId} não encontrado`);
+    }
+}
+
 // Fallbacks imediatos: garantem que os handlers inline existam
 (function(){
     if (typeof window.showRevertModal !== 'function') {
@@ -1233,7 +1257,7 @@ if (typeof window.userId === 'undefined') {
 
 <div class="tabs-wrapper">
     <div class="tabs-row">
-        <div class="tab-link active" data-tab="diary" onclick="console.log('CLIQUE DIRETO NA ABA DIARY'); switchTab('diary');">
+        <div class="tab-link active" data-tab="diary" onclick="switchTab('diary'); return false;">
             <i class="fas fa-book"></i>
             <span>Diário</span>
         </div>
@@ -1548,30 +1572,6 @@ window.showAlertModal = showAlertModal;
 window.closeAlertModal = closeAlertModal;
 window.openSleepDetailsModal = openSleepDetailsModal;
 window.closeSleepDetailsModal = closeSleepDetailsModal;
-
-// Função global para trocar abas - FUNCIONA SEMPRE
-function switchTab(tabId) {
-    console.log('[switchTab] Chamado com:', tabId);
-    
-    // Remover active de todas as abas e conteúdos
-    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    
-    // Adicionar active na aba clicada
-    const clickedTab = document.querySelector(`[data-tab="${tabId}"]`);
-    if (clickedTab) {
-        clickedTab.classList.add('active');
-    }
-    
-    // Adicionar active no conteúdo correspondente
-    const target = document.getElementById(`tab-${tabId}`);
-    if (target) {
-        target.classList.add('active');
-        console.log(`[switchTab] SUCESSO: Aba ${tabId} ativada`);
-    } else {
-        console.error(`[switchTab] ERRO: Elemento tab-${tabId} não encontrado`);
-    }
-}
 
 // Sistema de abas - usando onclick inline como fallback
 (function(){
