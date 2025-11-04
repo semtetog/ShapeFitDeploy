@@ -3909,7 +3909,7 @@
   border: 1px solid var(--border-color);
 }
 
-/* Estilo específico para period-btn com maior especificidade */
+/* Estilo específico para period-btn - igual ao diary-calendar-icon-btn */
 .period-buttons .period-btn,
 button.period-btn {
   padding: 10px 20px !important;
@@ -3938,7 +3938,7 @@ button.period-btn {
 button.period-btn i {
   font-size: 1rem !important;
   flex-shrink: 0 !important;
-  color: inherit !important;
+  color: var(--accent-orange) !important;
 }
 
 .period-buttons .period-btn:hover,
@@ -3949,17 +3949,30 @@ button.period-btn:hover {
   color: var(--accent-orange) !important;
 }
 
+.period-buttons .period-btn:hover i,
+button.period-btn:hover i {
+  color: var(--accent-orange) !important;
+}
+
+/* Estado active mantém o mesmo estilo (não fica laranja sólido) */
 .period-buttons .period-btn.active,
 button.period-btn.active {
-  background: var(--accent-orange) !important;
-  color: white !important;
-  border-color: var(--accent-orange) !important;
-  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3) !important;
+  background: rgba(255, 107, 0, 0.08) !important;
+  color: var(--accent-orange) !important;
+  border-color: rgba(255, 107, 0, 0.2) !important;
+  box-shadow: none !important;
 }
 
 .period-buttons .period-btn.active i,
 button.period-btn.active i {
-  color: white !important;
+  color: var(--accent-orange) !important;
+}
+
+.period-buttons .period-btn.active:hover,
+button.period-btn.active:hover {
+  background: rgba(255, 107, 0, 0.15) !important;
+  border-color: var(--accent-orange) !important;
+  color: var(--accent-orange) !important;
 }
 
 /* Layout em fileiras para as barras */
