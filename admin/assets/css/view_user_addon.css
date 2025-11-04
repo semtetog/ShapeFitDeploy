@@ -3473,12 +3473,7 @@
   font-weight: 500;
 }
 
-.nutrients-summary-card .summary-description {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
-  font-style: italic;
-}
+/* Estilo removido - agora usa o estilo padrão do summary-description (igual ao diário e rotina) */
 
 .nutrients-summary-card .stat-description {
   font-size: 0.65rem;
@@ -4428,12 +4423,7 @@ button.period-btn.active:hover {
   font-weight: 500;
 }
 
-.nutrients-summary-card .summary-description {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
-  font-style: italic;
-}
+/* Estilo removido - agora usa o estilo padrão do summary-description (igual ao diário e rotina) */
 
 .nutrients-summary-card .stat-description {
   font-size: 0.65rem;
