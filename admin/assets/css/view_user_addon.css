@@ -2428,12 +2428,22 @@
 .summary-info h3 {
   margin: 0 0 0.25rem 0;
   font-size: 1.25rem;
+  font-weight: 700;
   color: var(--text-primary);
+  font-family: 'Montserrat', sans-serif;
 }
 
 .summary-meta {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
+  margin: 0 0 0.25rem 0;
+}
+
+.summary-description {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
 }
 
 .summary-status {
@@ -3717,17 +3727,7 @@
 
 /* Estilo removido - agora usa o estilo padrão do summary-icon com cores específicas (linha 2412) */
 
-.hydration-summary-card .summary-info h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-}
-
-.hydration-summary-card .summary-meta {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
+/* Estilo removido - agora usa o estilo padrão do summary-info (igual ao diário e rotina) */
 
 .hydration-summary-card .summary-status {
   margin-left: auto;
@@ -3763,12 +3763,7 @@
   font-weight: 500;
 }
 
-.hydration-summary-card .summary-description {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
-  font-style: italic;
-}
+/* Estilo removido - agora usa o estilo padrão do summary-description (igual ao diário e rotina) */
 
 .hydration-summary-card .stat-description {
   font-size: 0.65rem;
