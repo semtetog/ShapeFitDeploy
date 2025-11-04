@@ -3903,10 +3903,10 @@
 .period-buttons {
   display: flex;
   gap: 6px;
-  background: var(--glass-bg);
-  padding: 4px;
-  border-radius: 25px;
-  border: 1px solid var(--border-color);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  border: none;
 }
 
 /* Estilo específico para period-btn - igual ao diary-calendar-icon-btn */
