@@ -70,7 +70,7 @@ if ($nutrients_stats_15['avg_kcal'] > 0 && $nutrients_stats_7['avg_kcal'] > 0) {
         <div class="nutrients-summary-card">
             <div class="summary-main">
                 <div class="summary-icon">
-                    <i class="fas fa-utensils"></i>
+                    <i class="fas fa-apple-alt"></i>
             </div>
                 <div class="summary-info">
                     <h3>Consumo Nutricional</h3>

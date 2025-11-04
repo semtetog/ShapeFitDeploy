@@ -2416,9 +2416,9 @@
 }
 
 .nutrients-summary-card .summary-icon {
-  background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(255, 152, 0, 0.05));
-  border: 1px solid rgba(255, 152, 0, 0.2);
-  color: #FF9800;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.05));
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  color: #F44336;
 }
 
 .summary-info {
