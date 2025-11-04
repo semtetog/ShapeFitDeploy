@@ -5,6 +5,70 @@
 ?>
 
 <div id="tab-progress" class="tab-content">
+    <!-- HEADER NO ESTILO DAS OUTRAS ABAS -->
+    <div class="progress-summary-card">
+        <div class="summary-main">
+            <div class="summary-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="summary-info">
+                <h3>Progresso Geral</h3>
+                <div class="summary-meta">Acompanhamento de peso e evolução visual</div>
+                <div class="summary-description">Visualize o histórico de peso e fotos de progresso do paciente</div>
+            </div>
+            <?php 
+            // Calcular peso atual e inicial
+            $current_weight = 0;
+            $initial_weight = 0;
+            if (!empty($weight_chart_data['data'])) {
+                $current_weight = end($weight_chart_data['data']);
+                $initial_weight = reset($weight_chart_data['data']);
+            } elseif (!empty($user_data['weight_kg'])) {
+                $current_weight = (float)$user_data['weight_kg'];
+                $initial_weight = (float)$user_data['weight_kg'];
+            }
+            
+            if ($current_weight > 0 || $initial_weight > 0): 
+                $weight_diff = $current_weight - $initial_weight;
+                $diff_text = '';
+                $diff_class = '';
+                if ($initial_weight > 0 && $current_weight > 0) {
+                    if ($weight_diff > 0) {
+                        $diff_text = '+' . number_format($weight_diff, 1) . 'kg';
+                        $diff_class = 'status-poor'; // Ganho de peso
+                    } elseif ($weight_diff < 0) {
+                        $diff_text = number_format($weight_diff, 1) . 'kg';
+                        $diff_class = 'status-excellent'; // Perda de peso
+                    } else {
+                        $diff_text = '0.0kg';
+                        $diff_class = 'status-fair'; // Sem alteração
+                    }
+                } else {
+                    $diff_text = 'N/A';
+                    $diff_class = 'status-fair';
+                }
+            ?>
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <div class="stat-value"><?php echo $current_weight > 0 ? number_format($current_weight, 1) : 'N/A'; ?>kg</div>
+                        <div class="stat-label">Peso Atual</div>
+                        <div class="stat-description">Último registro</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="stat-value"><?php echo $initial_weight > 0 ? number_format($initial_weight, 1) : 'N/A'; ?>kg</div>
+                        <div class="stat-label">Peso Inicial</div>
+                        <div class="stat-description">No cadastro</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="stat-value <?php echo $diff_class; ?>"><?php echo $diff_text; ?></div>
+                        <div class="stat-label">Variação</div>
+                        <div class="stat-description">Comparado ao início</div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <div class="progress-grid">
         <div class="dashboard-card weight-history-card">
             <h4>Histórico de Peso</h4>
@@ -36,44 +100,6 @@
                         if ($displayed_count >= 3) break;
                         foreach(['photo_front' => 'Frente', 'photo_side' => 'Lado', 'photo_back' => 'Costas'] as $photo_type => $label): 
                             if ($displayed_count >= 3) break;
-                            if(!empty($photo_set[$photo_type])): 
-                                $displayed_count++;
-                    ?>
-                                <?php 
-                                $timestamp = !empty($photo_set['created_at']) ? strtotime($photo_set['created_at']) : strtotime($photo_set['date_recorded']);
-                                $display_date = $timestamp ? date('d/m/Y H:i', $timestamp) : date('d/m/Y H:i');
-                                ?>
-                                <div class="photo-item" onclick="openPhotoModal('<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>', '<?php echo $label; ?>', '<?php echo $display_date; ?>')">
-                                    <img src="<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>" loading="lazy" alt="Foto de progresso - <?php echo $label; ?>" onerror="this.style.display='none'">
-                                    <div class="photo-date">
-                                        <span><?php echo $label; ?></span>
-                                        <span><?php echo $display_date; ?></span>
-                                    </div>
-                                </div>
-                            <?php 
-                            endif; 
-                        endforeach; 
-                    endforeach; 
-                    ?>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-<!-- Card de Medidas dentro da aba Progresso -->
-    <div class="dashboard-card">
-        <h3><i class="fas fa-camera"></i> Histórico de Medidas Corporais</h3>
-        <div class="measurements-content">
-            <?php if (empty($photo_history)): ?>
-                <p class="empty-state">Nenhuma foto de progresso encontrada.</p>
-            <?php else: ?>
-                <div class="photo-gallery">
-                    <?php 
-                    $displayed_count = 0;
-                    foreach($photo_history as $photo_set): 
-                        if ($displayed_count >= 6) break;
-                        foreach(['photo_front' => 'Frente', 'photo_side' => 'Lado', 'photo_back' => 'Costas'] as $photo_type => $label): 
-                            if ($displayed_count >= 6) break;
                             if(!empty($photo_set[$photo_type])): 
                                 $displayed_count++;
                     ?>
@@ -673,8 +699,118 @@
     font-size: 0.875rem;
 }
 
+/* === HEADER SUMMARY (ESTILO DAS OUTRAS ABAS) === */
+.progress-summary-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.progress-summary-card .summary-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.progress-summary-card .summary-icon {
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.2), rgba(255, 107, 0, 0.05)) !important;
+    border: 1px solid rgba(255, 107, 0, 0.2) !important;
+    color: #FF6B00 !important;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.progress-summary-card .summary-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+}
+
+.progress-summary-card .summary-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.progress-summary-card .summary-meta {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.progress-summary-card .summary-description {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.progress-summary-card .summary-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-summary-card .summary-stat {
+    text-align: center;
+}
+
+.progress-summary-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.progress-summary-card .stat-value.status-excellent {
+    color: #4CAF50;
+}
+
+.progress-summary-card .stat-value.status-poor {
+    color: #F44336;
+}
+
+.progress-summary-card .stat-value.status-fair {
+    color: var(--text-secondary);
+}
+
+.progress-summary-card .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.progress-summary-card .stat-description {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    margin-top: 0.125rem;
+    opacity: 0.8;
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
+    .progress-summary-card .summary-stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
     .progress-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
