@@ -7,6 +7,29 @@ require_once 'includes/functions.php';
 
 $user_id = $_SESSION['user_id'];
 
+// --- LÓGICA DO CONTADOR DE PESO (MESMA DO MAIN_APP) ---
+$can_edit_weight = true;
+$days_until_next_weight_update = 0;
+try {
+    $stmt_last_weight = $conn->prepare("SELECT MAX(date_recorded) AS last_date FROM sf_user_weight_history WHERE user_id = ?");
+    if ($stmt_last_weight) {
+        $stmt_last_weight->bind_param("i", $user_id);
+        $stmt_last_weight->execute();
+        $result = $stmt_last_weight->get_result()->fetch_assoc();
+        $stmt_last_weight->close();
+        if ($result && !empty($result['last_date'])) {
+            $last_log_date = new DateTime($result['last_date']);
+            $unlock_date = (clone $last_log_date)->modify('+7 days');
+            $today = new DateTime('today');
+            if ($today < $unlock_date) {
+                $can_edit_weight = false;
+                $days_until_next_weight_update = (int)$today->diff($unlock_date)->days;
+                if ($days_until_next_weight_update == 0) $days_until_next_weight_update = 1;
+            }
+        }
+    }
+} catch (Exception $e) { error_log("Erro ao processar data de peso: " . $e->getMessage()); }
+
 // Buscar dados completos do perfil (onboarding) - mesma query do admin
 $profile_data = [];
 $stmt = $conn->prepare("
@@ -918,8 +941,16 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                         </div>
                         <div class="form-group">
                             <label for="weight_kg" class="form-label">Peso Atual (kg)</label>
-                            <input type="number" id="weight_kg" name="weight_kg" class="form-input" 
-                                   value="<?php echo $profile_data['weight_kg'] ?? ''; ?>" min="30" max="300" step="0.1">
+                            <?php if ($can_edit_weight): ?>
+                                <input type="number" id="weight_kg" name="weight_kg" class="form-input" 
+                                       value="<?php echo $profile_data['weight_kg'] ?? ''; ?>" min="30" max="300" step="0.1">
+                            <?php else: ?>
+                                <input type="number" id="weight_kg" name="weight_kg" class="form-input form-input-readonly" 
+                                       value="<?php echo $profile_data['weight_kg'] ?? ''; ?>" min="30" max="300" step="0.1" readonly>
+                                <div style="margin-top: 8px; font-size: 0.85rem; color: var(--accent-orange);">
+                                    <i class="fas fa-clock"></i> Você só pode ajustar o peso a cada 7 dias. Próximo ajuste em <strong><?php echo $days_until_next_weight_update; ?></strong> <?php echo $days_until_next_weight_update == 1 ? 'dia' : 'dias'; ?>.
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="form-group">
