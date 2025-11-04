@@ -134,11 +134,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
         
         // Coletar medidas corporais (opcionais)
-        $neck = !empty($_POST['neck']) ? floatval($_POST['neck']) : null;
-        $chest = !empty($_POST['chest']) ? floatval($_POST['chest']) : null;
-        $waist = !empty($_POST['waist']) ? floatval($_POST['waist']) : null;
-        $abdomen = !empty($_POST['abdomen']) ? floatval($_POST['abdomen']) : null;
-        $hips = !empty($_POST['hips']) ? floatval($_POST['hips']) : null;
+        $neck = !empty($_POST['neck']) && $_POST['neck'] !== '' ? floatval($_POST['neck']) : null;
+        $chest = !empty($_POST['chest']) && $_POST['chest'] !== '' ? floatval($_POST['chest']) : null;
+        $waist = !empty($_POST['waist']) && $_POST['waist'] !== '' ? floatval($_POST['waist']) : null;
+        $abdomen = !empty($_POST['abdomen']) && $_POST['abdomen'] !== '' ? floatval($_POST['abdomen']) : null;
+        $hips = !empty($_POST['hips']) && $_POST['hips'] !== '' ? floatval($_POST['hips']) : null;
+        
+        // Debug: log das medidas recebidas
+        error_log("Measurements Debug - neck: " . var_export($neck, true) . ", chest: " . var_export($chest, true) . ", waist: " . var_export($waist, true) . ", abdomen: " . var_export($abdomen, true) . ", hips: " . var_export($hips, true));
         
         // Sempre criar um novo registro para cada sessão de fotos
         $current_time = date('Y-m-d H:i:s');
@@ -147,6 +150,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmt->execute();
         $measurement_id = $conn->insert_id;
         $stmt->close();
+        
+        // Debug: log do ID inserido
+        error_log("Measurements Debug - measurement_id inserido: " . $measurement_id);
         
         // Processar upload das fotos
         $upload_dir = APP_ROOT_PATH . '/uploads/measurements/';

@@ -125,11 +125,17 @@
                                     'hips' => 'Quadril'
                                 ];
                                 foreach ($measurement_labels_map as $measure_key => $measure_label_name) {
-                                    if (!empty($photo_set[$measure_key]) && $photo_set[$measure_key] > 0) {
-                                        $measurements[] = $measure_label_name . ': ' . number_format($photo_set[$measure_key], 1) . 'cm';
+                                    // Verificar se a medida existe e é maior que 0
+                                    if (isset($photo_set[$measure_key]) && $photo_set[$measure_key] !== null && $photo_set[$measure_key] !== '' && floatval($photo_set[$measure_key]) > 0) {
+                                        $measurements[] = $measure_label_name . ': ' . number_format(floatval($photo_set[$measure_key]), 1) . 'cm';
                                     }
                                 }
                                 $measurements_text = !empty($measurements) ? implode(' | ', $measurements) : '';
+                                
+                                // Debug: log das medidas coletadas (remover depois)
+                                if (!empty($measurements_text)) {
+                                    error_log("View Progress Debug - measurements_text para foto {$photo_type}: " . $measurements_text);
+                                }
                                 ?>
                                 <div class="photo-item" onclick="openPhotoModal('<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>', '<?php echo $label; ?>', '<?php echo $display_date; ?>', '<?php echo htmlspecialchars($measurements_text, ENT_QUOTES); ?>')">
                                     <img src="<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>" loading="lazy" alt="Foto de progresso - <?php echo $label; ?>" onerror="this.style.display='none'">
@@ -184,11 +190,17 @@
                         'hips' => 'Quadril'
                     ];
                     foreach ($measurement_labels_map as $measure_key => $measure_label_name) {
-                        if (!empty($photo_set[$measure_key]) && $photo_set[$measure_key] > 0) {
-                            $measurements[] = $measure_label_name . ': ' . number_format($photo_set[$measure_key], 1) . 'cm';
+                        // Verificar se a medida existe e é maior que 0
+                        if (isset($photo_set[$measure_key]) && $photo_set[$measure_key] !== null && $photo_set[$measure_key] !== '' && floatval($photo_set[$measure_key]) > 0) {
+                            $measurements[] = $measure_label_name . ': ' . number_format(floatval($photo_set[$measure_key]), 1) . 'cm';
                         }
                     }
                     $measurements_text = !empty($measurements) ? implode(' | ', $measurements) : '';
+                    
+                    // Debug: log das medidas coletadas para galeria (remover depois)
+                    if (!empty($measurements_text)) {
+                        error_log("View Progress Debug - measurements_text para galeria: " . $measurements_text);
+                    }
                     
                     if (!isset($grouped_photos[$date_key])) {
                         $grouped_photos[$date_key] = [];
