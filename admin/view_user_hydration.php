@@ -269,8 +269,11 @@ function renderHydrationChart(data) {
 // Atualizar texto do botão de período
 function updateHydrationPeriodButton(label) {
     const btn = document.getElementById('hydration-period-btn');
-    if (btn) {
-        btn.innerHTML = `<i class="fas fa-calendar-alt"></i> ${label}`;
+    const textSpan = document.getElementById('hydration-period-text');
+    if (btn && textSpan) {
+        textSpan.textContent = label;
+    } else if (btn) {
+        btn.innerHTML = `<i class="fas fa-calendar-alt"></i> <span id="hydration-period-text">${label}</span>`;
     }
 }
 

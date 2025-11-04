@@ -70,7 +70,7 @@ if ($nutrients_stats_15['avg_kcal'] > 0 && $nutrients_stats_7['avg_kcal'] > 0) {
         <div class="nutrients-summary-card">
             <div class="summary-main">
                 <div class="summary-icon">
-                    <i class="fas fa-apple-alt"></i>
+                    <i class="fas fa-utensils"></i>
             </div>
                 <div class="summary-info">
                     <h3>Consumo Nutricional</h3>
@@ -411,8 +411,11 @@ function renderNutrientsChart(data) {
 // Atualizar texto do botão de período
 function updateNutrientsPeriodButton(label) {
     const btn = document.getElementById('nutrients-period-btn');
-    if (btn) {
-        btn.innerHTML = `<i class="fas fa-calendar-alt"></i> ${label}`;
+    const textSpan = document.getElementById('nutrients-period-text');
+    if (btn && textSpan) {
+        textSpan.textContent = label;
+    } else if (btn) {
+        btn.innerHTML = `<i class="fas fa-calendar-alt"></i> <span id="nutrients-period-text">${label}</span>`;
     }
 }
 
