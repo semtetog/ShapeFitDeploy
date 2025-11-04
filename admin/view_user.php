@@ -790,28 +790,44 @@ function switchTab(tabId) {
     }
 }
 
-// Função global para calendário de gráficos - DEFINIDA ANTES DOS INCLUDES
-// Esta é uma função stub que será substituída pela implementação completa depois
+// Variáveis globais para calendário de gráficos - DEFINIDAS ANTES DOS INCLUDES
+window._chartCalendarData = window._chartCalendarData || {
+    currentChartType: null,
+    currentChartCalendarDate: new Date(),
+    chartDateStart: null,
+    chartDateEnd: null,
+    daysWithChartData: new Set()
+};
+
+// Função global para calendário de gráficos - STUB inicial que será implementada depois
 window.openChartCalendar = window.openChartCalendar || (async function openChartCalendar(type) {
-    console.log('[openChartCalendar] Chamada com:', type, '- aguardando implementação...');
+    console.log('[openChartCalendar] Chamada com:', type, '- verificando implementação...');
     
-    // Aguardar até que a implementação esteja disponível
-    let attempts = 0;
-    const maxAttempts = 20; // 20 tentativas = 2 segundos
-    
-    function tryExecute() {
-        attempts++;
-        if (typeof window._openChartCalendarImpl === 'function') {
-            console.log('[openChartCalendar] Implementação encontrada, executando...');
-            return window._openChartCalendarImpl(type);
-        } else if (attempts < maxAttempts) {
-            setTimeout(tryExecute, 100);
-        } else {
-            console.error('[openChartCalendar] ERRO: Implementação não encontrada após', maxAttempts, 'tentativas');
-        }
+    // Se a implementação completa já foi carregada, usar ela
+    if (window._openChartCalendarImpl && typeof window._openChartCalendarImpl === 'function') {
+        return window._openChartCalendarImpl(type);
     }
     
-    setTimeout(tryExecute, 50);
+    // Caso contrário, aguardar um pouco e tentar novamente
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const maxAttempts = 30; // 30 tentativas = 3 segundos
+        
+        function tryExecute() {
+            attempts++;
+            if (window._openChartCalendarImpl && typeof window._openChartCalendarImpl === 'function') {
+                console.log('[openChartCalendar] Implementação encontrada, executando...');
+                resolve(window._openChartCalendarImpl(type));
+            } else if (attempts < maxAttempts) {
+                setTimeout(tryExecute, 100);
+            } else {
+                console.error('[openChartCalendar] ERRO: Implementação não encontrada após', maxAttempts, 'tentativas');
+                reject(new Error('Implementação não encontrada'));
+            }
+        }
+        
+        setTimeout(tryExecute, 50);
+    });
 });
 
 // Fallbacks imediatos: garantem que os handlers inline existam
@@ -2236,9 +2252,13 @@ window._openChartCalendarImpl = async function openChartCalendar(type) {
     }
 };
 
-// Atualizar a função global para usar a implementação completa
-window.openChartCalendar = window._openChartCalendarImpl;
-console.log('[openChartCalendar] Implementação completa carregada');
+// SUBSTITUIR a função global pela implementação completa
+if (window._openChartCalendarImpl) {
+    window.openChartCalendar = window._openChartCalendarImpl;
+    console.log('[openChartCalendar] Implementação completa carregada e ativada');
+} else {
+    console.error('[openChartCalendar] ERRO: _openChartCalendarImpl não foi definido!');
+}
 
 // Carregar dados de datas do calendário
 async function loadChartCalendarData(type) {
