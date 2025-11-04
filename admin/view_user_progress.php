@@ -142,9 +142,6 @@
                                     <div class="photo-date">
                                         <span><?php echo $label; ?></span>
                                         <span><?php echo $display_date; ?></span>
-                                        <?php if (!empty($measurements_text)): ?>
-                                            <span class="photo-measurements"><?php echo $measurements_text; ?></span>
-                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php 
