@@ -760,13 +760,24 @@ function switchTab(tabId) {
         clickedTab.classList.add('active');
     }
     
-    // Adicionar active no conteúdo correspondente
-    const target = document.getElementById(`tab-${tabId}`);
-    if (target) {
-        target.classList.add('active');
-        console.log(`[switchTab] SUCESSO: Aba ${tabId} ativada`);
-    } else {
-        console.error(`[switchTab] ERRO: Elemento tab-${tabId} não encontrado`);
+    // Adicionar active no conteúdo correspondente - tentar múltiplas vezes se necessário
+    function activateTab() {
+        const target = document.getElementById(`tab-${tabId}`);
+        if (target) {
+            target.classList.add('active');
+            console.log(`[switchTab] SUCESSO: Aba ${tabId} ativada`);
+            return true;
+        } else {
+            console.warn(`[switchTab] Elemento tab-${tabId} não encontrado ainda, tentando novamente...`);
+            return false;
+        }
+    }
+    
+    // Tentar imediatamente
+    if (!activateTab()) {
+        // Se não encontrou, tentar após um pequeno delay (includes PHP podem ainda estar carregando)
+        setTimeout(activateTab, 50);
+        setTimeout(activateTab, 200);
     }
 }
 
@@ -2164,7 +2175,8 @@ let daysWithChartData = new Set();
 // Não criar variável local para evitar redeclaração
 
 // Abrir modal de calendário para gráficos
-async function openChartCalendar(type) {
+// Expor função globalmente antes de ser usada
+window.openChartCalendar = window.openChartCalendar || async function openChartCalendar(type) {
     currentChartType = type;
     currentChartCalendarDate = new Date();
     chartDateStart = null;
@@ -2461,7 +2473,7 @@ document.addEventListener('click', function(event) {
 });
 
 // Expor função globalmente para ser acessível por outros scripts
-window.openChartCalendar = openChartCalendar;
+// Já exposta acima
 window.closeChartCalendar = closeChartCalendar;
 window.changeChartCalendarMonth = changeChartCalendarMonth;
 
