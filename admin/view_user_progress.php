@@ -283,6 +283,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('galleryModal');
             if (modal) {
                 modal.style.display = 'flex';
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
                 lockBodyScroll();
             }
         };
@@ -357,6 +359,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalDate.textContent = date;
                 updatePhotoModalContent();
                 modal.style.display = 'flex';
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
                 lockBodyScroll();
             }
         };
@@ -654,6 +658,12 @@ document.addEventListener('DOMContentLoaded', function() {
     display: none;
     align-items: center;
     justify-content: center;
+    overflow-y: auto;
+    padding: 5vh 0;
+}
+
+.gallery-modal[style*="display: flex"] {
+    display: flex !important;
 }
 
 .gallery-modal-content {
@@ -666,6 +676,7 @@ document.addEventListener('DOMContentLoaded', function() {
     display: flex;
     flex-direction: column;
     position: relative;
+    margin: auto;
 }
 
 .gallery-modal-header {
@@ -839,6 +850,12 @@ document.addEventListener('DOMContentLoaded', function() {
     display: none;
     align-items: center;
     justify-content: center;
+    overflow-y: auto;
+    padding: 5vh 0;
+}
+
+.photo-modal[style*="display: flex"] {
+    display: flex !important;
 }
 
 .photo-modal-content {
@@ -851,6 +868,7 @@ document.addEventListener('DOMContentLoaded', function() {
     display: flex;
     flex-direction: column;
     position: relative;
+    margin: auto;
 }
 
 .photo-modal-header {
