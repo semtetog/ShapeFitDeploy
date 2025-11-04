@@ -146,7 +146,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         // Sempre criar um novo registro para cada sessão de fotos
         $current_time = date('Y-m-d H:i:s');
         $stmt = $conn->prepare("INSERT INTO sf_user_measurements (user_id, date_recorded, weight_kg, neck, chest, waist, abdomen, hips, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("isddddddds", $user_id, $date_recorded, $weight_kg, $neck, $chest, $waist, $abdomen, $hips, $current_time);
+        // Tipos: i (user_id), s (date_recorded), d (weight_kg), d (neck), d (chest), d (waist), d (abdomen), d (hips), s (created_at)
+        // 9 parâmetros: i + s + d + d + d + d + d + d + s = "isdddddds" (9 caracteres)
+        $stmt->bind_param("isdddddds", $user_id, $date_recorded, $weight_kg, $neck, $chest, $waist, $abdomen, $hips, $current_time);
         $stmt->execute();
         $measurement_id = $conn->insert_id;
         $stmt->close();
