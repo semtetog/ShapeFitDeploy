@@ -436,18 +436,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalDate.textContent = date;
                 
                 // Usar medidas do parâmetro ou das fotos coletadas
-                const finalMeasurements = measurements || (allPhotos[currentPhotoIndex]?.measurements || '');
+                // Priorizar o parâmetro measurements passado diretamente
+                const finalMeasurements = (measurements && measurements.trim() !== '') ? measurements : (allPhotos[currentPhotoIndex]?.measurements || '');
+                console.log('[view_user_progress] openPhotoModal - measurements param:', measurements);
+                console.log('[view_user_progress] openPhotoModal - allPhotos[currentPhotoIndex]:', allPhotos[currentPhotoIndex]);
                 console.log('[view_user_progress] openPhotoModal - finalMeasurements:', finalMeasurements);
+                
+                // Atualizar também no array de fotos para garantir que está salvo
+                if (allPhotos[currentPhotoIndex]) {
+                    if (finalMeasurements && finalMeasurements.trim() !== '') {
+                        allPhotos[currentPhotoIndex].measurements = finalMeasurements;
+                    }
+                }
                 
                 if (modalMeasurements) {
                     modalMeasurements.textContent = finalMeasurements || '';
-                    modalMeasurements.style.display = finalMeasurements && finalMeasurements.trim() !== '' ? 'block' : 'none';
-                    console.log('[view_user_progress] openPhotoModal - modalMeasurements.display:', modalMeasurements.style.display);
-                }
-                
-                // Atualizar também no array de fotos se ainda não tiver
-                if (allPhotos[currentPhotoIndex] && !allPhotos[currentPhotoIndex].measurements && measurements) {
-                    allPhotos[currentPhotoIndex].measurements = measurements;
+                    const shouldShow = finalMeasurements && finalMeasurements.trim() !== '';
+                    modalMeasurements.style.display = shouldShow ? 'block' : 'none';
+                    console.log('[view_user_progress] openPhotoModal - modalMeasurements:', {
+                        text: finalMeasurements,
+                        display: modalMeasurements.style.display,
+                        shouldShow: shouldShow,
+                        element: modalMeasurements
+                    });
                 }
                 
                 updatePhotoModalContent();
