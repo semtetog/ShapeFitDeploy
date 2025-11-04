@@ -372,61 +372,62 @@ document.addEventListener('DOMContentLoaded', function() {
         // Coletar todas as fotos da galeria e do card inicial
         function collectAllPhotos() {
             allPhotos = [];
-            const photosMap = new Map(); // Usar Map para evitar duplicatas por nome do arquivo
-            const seenFiles = new Set(); // Set para rastrear arquivos já vistos
+            const seenFiles = new Set(); // Set para rastrear arquivos já vistos (garantir unicidade)
             
-            // Coletar fotos da galeria modal PRIMEIRO (elas têm informações mais completas)
+            // PRIORIDADE 1: Coletar fotos da galeria modal (elas têm informações mais completas)
+            // A galeria tem TODAS as fotos, então se ela existir, usamos apenas ela
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
-            galleryItems.forEach(item => {
-                const img = item.querySelector('img');
-                if (!img || !img.src) return;
-                
-                const type = item.querySelector('.gallery-photo-type')?.textContent || '';
-                const date = item.querySelector('.gallery-photo-date')?.textContent || '';
-                const measurementsEl = item.querySelector('.gallery-photo-measurements');
-                const measurements = measurementsEl ? measurementsEl.textContent.trim() : '';
-                
-                // Usar nome do arquivo como chave única
-                const fileName = getFileName(img.src);
-                
-                if (fileName && !seenFiles.has(fileName)) {
-                    seenFiles.add(fileName);
-                    photosMap.set(fileName, {
-                        src: img.src,
-                        label: type,
-                        date: date,
-                        measurements: measurements
-                    });
-                }
-            });
             
-            // Coletar fotos do card inicial (somente se não existirem na galeria)
-            const photoItems = document.querySelectorAll('.photo-item');
-            photoItems.forEach(item => {
-                const img = item.querySelector('img');
-                if (!img || !img.src) return;
-                
-                const dateSpan = item.querySelector('.photo-date');
-                const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
-                const date = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
-                
-                // Usar nome do arquivo como chave única
-                const fileName = getFileName(img.src);
-                
-                if (fileName && !seenFiles.has(fileName)) {
-                    // Só adicionar se não existir na galeria (evitar duplicatas)
-                    seenFiles.add(fileName);
-                    photosMap.set(fileName, {
-                        src: img.src,
-                        label: type,
-                        date: date,
-                        measurements: '' // Medidas não estão no DOM do card inicial, serão passadas via onclick
-                    });
-                }
-            });
+            if (galleryItems.length > 0) {
+                // Se a galeria existe, usar APENAS ela (evita duplicatas do card inicial)
+                galleryItems.forEach(item => {
+                    const img = item.querySelector('img');
+                    if (!img || !img.src) return;
+                    
+                    const type = item.querySelector('.gallery-photo-type')?.textContent || '';
+                    const date = item.querySelector('.gallery-photo-date')?.textContent || '';
+                    const measurementsEl = item.querySelector('.gallery-photo-measurements');
+                    const measurements = measurementsEl ? measurementsEl.textContent.trim() : '';
+                    
+                    // Usar nome do arquivo como chave única
+                    const fileName = getFileName(img.src);
+                    
+                    if (fileName && !seenFiles.has(fileName)) {
+                        seenFiles.add(fileName);
+                        allPhotos.push({
+                            src: img.src,
+                            label: type,
+                            date: date,
+                            measurements: measurements
+                        });
+                    }
+                });
+            } else {
+                // FALLBACK: Se a galeria não existe (ainda não foi aberta), usar o card inicial
+                const photoItems = document.querySelectorAll('.photo-item');
+                photoItems.forEach(item => {
+                    const img = item.querySelector('img');
+                    if (!img || !img.src) return;
+                    
+                    const dateSpan = item.querySelector('.photo-date');
+                    const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
+                    const date = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
+                    
+                    // Usar nome do arquivo como chave única
+                    const fileName = getFileName(img.src);
+                    
+                    if (fileName && !seenFiles.has(fileName)) {
+                        seenFiles.add(fileName);
+                        allPhotos.push({
+                            src: img.src,
+                            label: type,
+                            date: date,
+                            measurements: '' // Medidas não estão no DOM do card inicial, serão passadas via onclick
+                        });
+                    }
+                });
+            }
             
-            // Converter Map para array
-            allPhotos = Array.from(photosMap.values());
             console.log('[view_user_progress] collectAllPhotos - Total de fotos coletadas:', allPhotos.length);
             console.log('[view_user_progress] collectAllPhotos - Nomes dos arquivos:', allPhotos.map(p => getFileName(p.src)));
             console.log('[view_user_progress] collectAllPhotos - Fotos únicas verificadas:', seenFiles.size);
