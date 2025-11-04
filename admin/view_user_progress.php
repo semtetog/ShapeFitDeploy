@@ -430,10 +430,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Abrir modal de foto individual
         window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
-            // Coletar fotos apenas se ainda não foram coletadas
-            if (allPhotos.length === 0) {
-                collectAllPhotos();
-            }
+            // SEMPRE recolher fotos para garantir que temos todas atualizadas
+            collectAllPhotos();
             
             // Usar nome do arquivo para comparação
             const fileName = getFileName(imageSrc);
@@ -445,15 +443,30 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // Se não encontrou a foto, criar uma nova entrada com as informações do onclick
+            // Mas verificar novamente antes de adicionar para evitar duplicatas
             if (currentPhotoIndex === -1) {
-                allPhotos.push({
-                    src: imageSrc,
-                    label: label,
-                    date: date,
-                    measurements: measurements || ''
+                // Verificar se realmente não existe antes de adicionar
+                const exists = allPhotos.some(photo => {
+                    const photoFileName = getFileName(photo.src);
+                    return photoFileName === fileName;
                 });
-                currentPhotoIndex = allPhotos.length - 1;
-                console.log('[view_user_progress] openPhotoModal - Foto adicionada ao array. Total agora:', allPhotos.length);
+                
+                if (!exists) {
+                    allPhotos.push({
+                        src: imageSrc,
+                        label: label,
+                        date: date,
+                        measurements: measurements || ''
+                    });
+                    currentPhotoIndex = allPhotos.length - 1;
+                    console.log('[view_user_progress] openPhotoModal - Foto adicionada ao array. Total agora:', allPhotos.length);
+                } else {
+                    // Se existe mas não encontramos, tentar encontrar novamente
+                    currentPhotoIndex = allPhotos.findIndex(photo => {
+                        const photoFileName = getFileName(photo.src);
+                        return photoFileName === fileName;
+                    });
+                }
             } else {
                 // Se encontrou, atualizar com as informações mais completas do onclick
                 allPhotos[currentPhotoIndex].label = label;
@@ -464,6 +477,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             console.log('[view_user_progress] openPhotoModal - currentPhotoIndex:', currentPhotoIndex, 'total:', allPhotos.length);
+            console.log('[view_user_progress] openPhotoModal - fileName:', fileName);
+            console.log('[view_user_progress] openPhotoModal - allPhotos fileNames:', allPhotos.map(p => getFileName(p.src)));
             
             const modal = document.getElementById('photoModal');
             const modalImage = document.getElementById('photoModalImage');
