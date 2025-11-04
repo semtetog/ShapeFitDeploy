@@ -2497,6 +2497,21 @@ function applyChartPeriodSelection() {
 }
 
 
+// Função para fechar modal de calendário
+function closeChartCalendar() {
+    const modal = document.getElementById('chartCalendarModal');
+    const popup = document.getElementById('chartCalendarHelpPopup');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        chartDateStart = null;
+        chartDateEnd = null;
+    }
+    if (popup) {
+        popup.style.display = 'none';
+    }
+}
+
 // Função para abrir/fechar popup de ajuda do calendário
 function toggleChartCalendarHelp() {
     const popup = document.getElementById('chartCalendarHelpPopup');
