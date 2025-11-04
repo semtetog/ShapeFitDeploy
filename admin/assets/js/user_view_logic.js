@@ -37,43 +37,8 @@ window.addEventListener('load', function(){
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[user_view_logic] weight chart init');
     
-    // --- LÓGICA DAS ABAS (fallback se o código principal falhar) ---
-    // Verificar se já existe um sistema de abas funcionando
-    let tabsInitialized = false;
-    const tabLinks = document.querySelectorAll('.tab-link');
-    
-    // Verificar se há listeners já adicionados (teste simples)
-    if (tabLinks.length > 0) {
-        // Aguardar um pouco para ver se o código principal já inicializou
-        setTimeout(() => {
-            // Testar se as abas estão funcionando
-            const testTab = tabLinks[0];
-            const originalClick = testTab.onclick;
-            if (!originalClick && !testTab.hasAttribute('data-tabs-initialized')) {
-                console.log('[user_view_logic] Inicializando abas (fallback)');
-                tabLinks.forEach(link => {
-                    // Marcar como inicializado
-                    link.setAttribute('data-tabs-initialized', 'true');
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const tabId = this.dataset.tab;
-                        if (!tabId) return;
-                        
-                        const tabContents = document.querySelectorAll('.tab-content');
-                        tabLinks.forEach(l => l.classList.remove('active'));
-                        tabContents.forEach(c => c.classList.remove('active'));
-                        this.classList.add('active');
-                        const activeContent = document.getElementById(`tab-${tabId}`);
-                        if (activeContent) {
-                            activeContent.classList.add('active');
-                            console.log(`[user_view_logic] Aba ${tabId} ativada (fallback)`);
-                        }
-                    });
-                });
-            }
-        }, 100);
-    }
+    // --- LÓGICA DAS ABAS REMOVIDA - usando apenas o código principal em view_user.php ---
+    // Não inicializar abas aqui para evitar conflitos
 
     // --- LÓGICA DO GRÁFICO DE PESO ---
     const weightChartCtx = document.getElementById('weightHistoryChart');
