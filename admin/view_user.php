@@ -1632,118 +1632,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <script>
-// Sistema de edição inline para metas (idêntico ao referência)
-document.addEventListener('DOMContentLoaded', function() {
-    const editableValues = document.querySelectorAll('.editable-value');
-    editableValues.forEach(element => {
-        element.addEventListener('click', function() {
-            if (this.querySelector('input')) return;
-            const field = this.dataset.field;
-            const userId = this.dataset.userId;
-            const currentValue = this.dataset.original;
-            const fullText = this.textContent;
-            const suffix = fullText.replace(currentValue, '').trim();
-            const originalStyles = {
-                fontSize: window.getComputedStyle(this).fontSize,
-                fontWeight: window.getComputedStyle(this).fontWeight,
-                color: window.getComputedStyle(this).color,
-                textAlign: window.getComputedStyle(this).textAlign
-            };
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.value = currentValue;
-            input.style.cssText = `
-                background: rgba(255, 255, 255, 0.08);
-                border: 2px solid var(--accent-orange);
-                border-radius: 8px;
-                padding: 0.25rem 0.5rem;
-                color: ${originalStyles.color};
-                font-size: ${originalStyles.fontSize};
-                font-weight: ${originalStyles.fontWeight};
-                text-align: ${originalStyles.textAlign};
-                width: 100%;
-                max-width: 150px;
-                outline: none;
-                font-family: 'Montserrat', sans-serif;
-            `;
-            this.textContent = '';
-            this.appendChild(input);
-            input.focus();
-            input.select();
-
-            const saveValue = async () => {
-                const newValue = input.value;
-                if (!newValue || newValue === currentValue) {
-                    cancelEdit();
-                    return;
-                }
-                try {
-                    const caloriesEl = document.querySelector('[data-field="daily_calories"]');
-                    const proteinEl = document.querySelector('[data-field="protein_g"]');
-                    const carbsEl = document.querySelector('[data-field="carbs_g"]');
-                    const fatEl = document.querySelector('[data-field="fat_g"]');
-                    const formData = new FormData();
-                    formData.append('user_id', userId);
-                    formData.append('daily_calories', field === 'daily_calories' ? newValue : caloriesEl.dataset.original);
-                    formData.append('protein_g', field === 'protein_g' ? newValue : proteinEl.dataset.original);
-                    formData.append('carbs_g', field === 'carbs_g' ? newValue : carbsEl.dataset.original);
-                    formData.append('fat_g', field === 'fat_g' ? newValue : fatEl.dataset.original);
-                    formData.append('water_ml', <?php echo $water_goal_ml; ?>);
-                    const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/update_user_goals.php', {
-                        method: 'POST',
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                        body: formData
-                    });
-                    const responseText = await response.text();
-                    let result;
-                    try {
-                        result = JSON.parse(responseText);
-                    } catch (e) {
-                        console.error('Erro ao fazer parse do JSON:', e, responseText);
-                        alert('Erro: Resposta inválida do servidor');
-                        cancelEdit();
-                        return;
-                    }
-                    if (result.success) {
-                        element.dataset.original = newValue;
-                        element.textContent = newValue + suffix;
-                        element.style.animation = 'pulse 0.5s ease';
-                        setTimeout(() => element.style.animation = '', 500);
-                    } else {
-                        alert('Erro ao salvar: ' + result.message);
-                        cancelEdit();
-                    }
-                } catch (error) {
-                    console.error('Erro:', error);
-                    alert('Erro ao salvar alterações');
-                    cancelEdit();
-                }
-            };
-
-            const cancelEdit = () => {
-                element.textContent = currentValue + suffix;
-            };
-
-            input.addEventListener('blur', saveValue);
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') { e.preventDefault(); saveValue(); }
-                else if (e.key === 'Escape') { cancelEdit(); }
-            });
-        });
-
-        element.style.cursor = 'pointer';
-        element.addEventListener('mouseenter', function() {
-            if (!this.querySelector('input')) {
-                this.style.textDecoration = 'underline';
-                this.style.textDecorationStyle = 'dashed';
-                this.style.textDecorationColor = 'var(--accent-orange)';
-            }
-        });
-        element.addEventListener('mouseleave', function() {
-            this.style.textDecoration = 'none';
-        });
-    });
-});
+// Sistema de edição inline removido - usando apenas o sistema IIFE abaixo para evitar duplicação
 
 // Animação pulse usada no feedback visual
 (function(){
@@ -1755,7 +1644,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // Delegação de eventos resiliente p/ edição inline (garante funcionamento mesmo se outro script falhar)
-(function(){
+document.addEventListener('DOMContentLoaded', function(){
     function startInlineEdit(element){
         console.log('[inline-edit] click on', element?.dataset?.field, element?.dataset);
         if (element.querySelector('input')) return;
@@ -1808,14 +1697,18 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); saveValue(); } else if (e.key==='Escape'){ cancelEdit(); } });
     }
 
-    document.addEventListener('click', function(e){
-        const el = e.target.closest('.editable-value');
-        // Só processar se não for um input ou botão
-        if (el && !e.target.closest('input') && !e.target.closest('button') && !e.target.closest('a')) {
-            startInlineEdit(el);
-        }
+    // Adicionar listener apenas aos elementos .editable-value diretamente
+    // Não usar listener global para evitar bloquear outros cliques
+    const editableElements = document.querySelectorAll('.editable-value');
+    editableElements.forEach(el => {
+        el.addEventListener('click', function(e) {
+            // Não bloquear propagação - deixar outros listeners funcionarem
+            if (this.querySelector('input')) return;
+            if (e.target.closest('input') || e.target.closest('button') || e.target.closest('a')) return;
+            startInlineEdit(this);
+        });
     });
-})();
+});
 
 // Logs leves para diagnosticar modais no prod
 window.showRevertModal = (function(orig){
