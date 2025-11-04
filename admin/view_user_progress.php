@@ -450,36 +450,15 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('[view_user_progress] openPhotoModal - modalMeasurements element:', modalMeasurements);
             
             if (modal && modalImage && modalLabel && modalDate) {
-                modalImage.src = imageSrc;
-                modalLabel.textContent = label;
-                modalDate.textContent = date;
-                
-                // Usar medidas do parâmetro ou das fotos coletadas
-                // Priorizar o parâmetro measurements passado diretamente
-                const finalMeasurements = (measurements && measurements.trim() !== '') ? measurements : (allPhotos[currentPhotoIndex]?.measurements || '');
-                console.log('[view_user_progress] openPhotoModal - measurements param:', measurements);
-                console.log('[view_user_progress] openPhotoModal - allPhotos[currentPhotoIndex]:', allPhotos[currentPhotoIndex]);
-                console.log('[view_user_progress] openPhotoModal - finalMeasurements:', finalMeasurements);
-                
-                // Atualizar também no array de fotos para garantir que está salvo
-                if (allPhotos[currentPhotoIndex]) {
-                    if (finalMeasurements && finalMeasurements.trim() !== '') {
-                        allPhotos[currentPhotoIndex].measurements = finalMeasurements;
+                // IMPORTANTE: Se medidas foram passadas no parâmetro, salvar no array ANTES de updatePhotoModalContent
+                // Isso garante que as medidas apareçam no modal mesmo que não estejam no DOM do card
+                if (measurements && measurements.trim() !== '') {
+                    if (allPhotos[currentPhotoIndex]) {
+                        allPhotos[currentPhotoIndex].measurements = measurements;
                     }
                 }
                 
-                if (modalMeasurements) {
-                    modalMeasurements.textContent = finalMeasurements || '';
-                    const shouldShow = finalMeasurements && finalMeasurements.trim() !== '';
-                    modalMeasurements.style.display = shouldShow ? 'block' : 'none';
-                    console.log('[view_user_progress] openPhotoModal - modalMeasurements:', {
-                        text: finalMeasurements,
-                        display: modalMeasurements.style.display,
-                        shouldShow: shouldShow,
-                        element: modalMeasurements
-                    });
-                }
-                
+                // Atualizar o conteúdo do modal (que usará as medidas do array)
                 updatePhotoModalContent();
                 modal.style.display = 'flex';
                 modal.style.alignItems = 'center';
@@ -1299,6 +1278,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 </style>
+
 
 
 
