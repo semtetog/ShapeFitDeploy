@@ -1557,58 +1557,38 @@ window.closeAlertModal = closeAlertModal;
 window.openSleepDetailsModal = openSleepDetailsModal;
 window.closeSleepDetailsModal = closeSleepDetailsModal;
 
-// Fallback de tabs: garante troca de abas mesmo se o JS externo falhar (COMO NA REFERÊNCIA)
+// Fallback de tabs: garante troca de abas mesmo se o JS externo falhar
 document.addEventListener('DOMContentLoaded', function(){
-    console.log('[view_user] DOMContentLoaded - inicializando abas');
+    console.log('[view_user] inline scripts ready');
     const tabLinks = document.querySelectorAll('.tab-link');
     const tabContents = document.querySelectorAll('.tab-content');
     
-    if (tabLinks.length === 0) {
-        console.warn('[view_user] Nenhuma aba encontrada');
-        return;
+    console.log('[view_user] Encontradas', tabLinks.length, 'abas');
+    
+    // Função para trocar de aba
+    function switchTab(tabId) {
+        console.log('[view_user] Trocando para aba:', tabId);
+        tabLinks.forEach(l => l.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        const clickedTab = document.querySelector(`.tab-link[data-tab="${tabId}"]`);
+        const targetContent = document.getElementById(`tab-${tabId}`);
+        if (clickedTab) clickedTab.classList.add('active');
+        if (targetContent) targetContent.classList.add('active');
     }
     
-    console.log(`[view_user] Encontradas ${tabLinks.length} abas e ${tabContents.length} conteúdos`);
-    
+    // Adicionar listener direto em cada aba (na fase de captura para interceptar antes de outros)
     tabLinks.forEach(link => {
-        link.addEventListener('click', function(){
-            const tabId = this.getAttribute('data-tab');
-            console.log(`[view_user] Aba clicada: ${tabId}`);
-            
-            if (!tabId) {
-                console.warn('[view_user] Aba sem data-tab');
-                return;
-            }
-            
-            // Remover active de todas as abas e conteúdos
-            tabLinks.forEach(l => l.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            
-            // Adicionar active na aba clicada
-            this.classList.add('active');
-            
-            // Adicionar active no conteúdo correspondente
-            const target = document.getElementById(`tab-${tabId}`);
-            if (target) {
-                target.classList.add('active');
-                console.log(`[view_user] Aba ${tabId} ativada com sucesso`);
-            } else {
-                console.warn(`[view_user] Conteúdo tab-${tabId} não encontrado ainda`);
-            }
-        });
+        const tabId = link.getAttribute('data-tab');
+        if (!tabId) return;
+        
+        link.addEventListener('click', function(e){
+            console.log('[view_user] Clique detectado na aba:', tabId);
+            e.stopPropagation();
+            e.preventDefault();
+            switchTab(tabId);
+            return false;
+        }, true); // Fase de captura para interceptar antes de outros listeners
     });
-    
-    // Garantir que a primeira aba esteja ativa por padrão
-    const firstTab = document.querySelector('.tab-link.active') || document.querySelector('.tab-link');
-    if (firstTab) {
-        const firstTabId = firstTab.getAttribute('data-tab');
-        if (firstTabId) {
-            const firstContent = document.getElementById(`tab-${firstTabId}`);
-            if (firstContent) {
-                firstContent.classList.add('active');
-            }
-        }
-    }
 });
 </script>
 
