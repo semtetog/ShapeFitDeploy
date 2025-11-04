@@ -427,6 +427,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Abrir modal de foto individual
         window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
+            console.log('[view_user_progress] openPhotoModal CHAMADO!', {
+                imageSrc: imageSrc,
+                label: label,
+                date: date,
+                measurements: measurements,
+                measurementsType: typeof measurements,
+                measurementsLength: measurements ? measurements.length : 0
+            });
+            
             collectAllPhotos();
             
             // Encontrar índice da foto atual
@@ -441,6 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('[view_user_progress] openPhotoModal - measurements recebido:', measurements);
             console.log('[view_user_progress] openPhotoModal - allPhotos[currentPhotoIndex]:', allPhotos[currentPhotoIndex]);
+            console.log('[view_user_progress] openPhotoModal - modalMeasurements element:', modalMeasurements);
             
             if (modal && modalImage && modalLabel && modalDate) {
                 modalImage.src = imageSrc;
