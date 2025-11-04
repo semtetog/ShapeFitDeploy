@@ -736,8 +736,18 @@ if (empty($avatar_html)) {
 
 require_once __DIR__ . '/includes/header.php';
 ?>
-<link rel="stylesheet" href="<?php echo BASE_ADMIN_URL; ?>/assets/css/view_user_addon.css?v=<?php echo time(); ?>">
+<!-- =================================================================== -->
+<!--  PASSO 3: DADOS GLOBAIS PARA JAVASCRIPT - ANTES DE QUALQUER SCRIPT -->
+<!-- =================================================================== -->
 <script>
+// Objeto global único para conter todos os dados da view
+window.userViewData = {
+    // Dados para a Aba Progresso
+    weightHistory: <?php echo json_encode($weight_chart_data); ?>,
+    photoHistory: <?php echo json_encode($photo_history); ?>
+    // Adicione aqui os dados de outras abas se necessário
+};
+
 // Declarações globais (evitar duplicação)
 if (typeof window.monthNamesShort === 'undefined') {
     window.monthNamesShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
