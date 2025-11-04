@@ -2116,9 +2116,8 @@ window.closeHelpModal = closeHelpModal;
 /* Popup de ajuda do calendário - lateral direita (fora do modal) */
 .chart-calendar-help-popup {
     position: fixed;
-    top: 50%;
-    right: calc(50% - 275px + 1.5rem);
-    transform: translateY(-50%);
+    top: 15%;
+    right: calc(50% - 275px - 300px);
     z-index: 10002;
     pointer-events: all;
     width: 280px;
@@ -2246,6 +2245,9 @@ async function openChartCalendar(type) {
             const hasSeenHelp = localStorage.getItem('chartCalendarHelpSeen');
             if (!hasSeenHelp) {
                 helpPopup.style.display = 'block';
+            } else {
+                // Se já viu, não mostrar automaticamente
+                helpPopup.style.display = 'none';
             }
         }
     }
