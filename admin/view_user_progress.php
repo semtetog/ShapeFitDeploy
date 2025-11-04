@@ -440,8 +440,17 @@ document.addEventListener('keydown', function(e) {
                 }
             }
         });
+        }
     }
-});
+    
+    // Aguardar carregamento completo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initProgressChart);
+    } else {
+        // DOM já carregado, executar após um pequeno delay para evitar conflitos
+        setTimeout(initProgressChart, 100);
+    }
+})();
 </script>
 
 <style>
