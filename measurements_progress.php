@@ -101,7 +101,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     try {
         $date_recorded = $_POST['date_recorded'];
-        $weight_kg = floatval($_POST['weight_kg']);
+        
+        // VALIDAÇÃO 1: Verificar se a data não é futura
+        $today = new DateTime('today');
+        $recorded_date = new DateTime($date_recorded);
+        if ($recorded_date > $today) {
+            $error_message = "Não é possível registrar fotos com data futura. Por favor, selecione uma data válida.";
+            header("Location: " . $_SERVER['PHP_SELF'] . "?error=1&msg=" . urlencode($error_message));
+            exit();
+        }
+        
+        // VALIDAÇÃO 2: Verificar se pelo menos uma foto foi enviada
+        $has_photo = false;
+        $photo_types = ['front', 'side', 'back'];
+        foreach ($photo_types as $type) {
+            if (isset($_FILES["photo_$type"]) && $_FILES["photo_$type"]['error'] === UPLOAD_ERR_OK) {
+                $has_photo = true;
+                break;
+            }
+        }
+        
+        if (!$has_photo) {
+            $error_message = "Por favor, envie pelo menos uma foto antes de salvar.";
+            header("Location: " . $_SERVER['PHP_SELF'] . "?error=1&msg=" . urlencode($error_message));
+            exit();
+        }
+        
+        // Puxar peso do perfil do usuário (não permitir edição)
+        $weight_kg = null;
+        if ($user_profile_data && isset($user_profile_data['weight_kg']) && $user_profile_data['weight_kg'] > 0) {
+            $weight_kg = floatval($user_profile_data['weight_kg']);
+        }
         
         // Sempre criar um novo registro para cada sessão de fotos
         $current_time = date('Y-m-d H:i:s');
@@ -117,7 +147,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             mkdir($upload_dir, 0777, true);
         }
         
-        $photo_types = ['front', 'side', 'back'];
         $uploaded_photos = [];
         
         foreach ($photo_types as $type) {
@@ -1005,6 +1034,12 @@ input[type="date"].form-control {
             </div>
         <?php endif; ?>
         
+        <?php if (isset($_GET['error']) && $_GET['error'] == '1'): ?>
+            <div class="alert alert-error" style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); color: #dc3545; padding: 12px; margin: 10px 0; border-radius: 8px; text-align: center;">
+                <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($_GET['msg'] ?? 'Erro ao processar a solicitação.'); ?>
+            </div>
+        <?php endif; ?>
+        
         <?php if (isset($error_message)): ?>
             <div class="alert alert-error" style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); color: #dc3545; padding: 12px; margin: 10px 0; border-radius: 8px; text-align: center;">
                 <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error_message); ?>
@@ -1019,11 +1054,16 @@ input[type="date"].form-control {
 
             <!-- Data do Registro -->
         <div class="form-section">
-                <div class="form-group">
-                    <label for="date_recorded"><i class="fas fa-calendar-alt"></i> Data do Registro</label>
-                    <div class="date-input-wrapper">
-                        <input type="date" id="date_recorded" name="date_recorded" class="form-control" value="<?php echo date('Y-m-d'); ?>">
-                    </div>
+                    <div class="form-group">
+                        <label for="date_recorded"><i class="fas fa-calendar-alt"></i> Data do Registro</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" id="date_recorded" name="date_recorded" class="form-control" 
+                                   value="<?php echo date('Y-m-d'); ?>" 
+                                   max="<?php echo date('Y-m-d'); ?>">
+                        </div>
+                        <div style="margin-top: 6px; font-size: 0.8rem; color: var(--text-secondary);">
+                            <i class="fas fa-info-circle"></i> Não é possível registrar fotos com data futura.
+                        </div>
             </div>
         </div>
 
@@ -1085,7 +1125,16 @@ input[type="date"].form-control {
             <div class="measurements-grid">
                     <div class="form-group">
                         <label for="weight_kg"><i class="fas fa-weight"></i> Peso (kg)</label>
-                        <input type="number" id="weight_kg" name="weight_kg" class="form-control" step="0.1" min="0" placeholder="Ex: 70.5" required>
+                        <?php 
+                        $current_weight = $user_profile_data['weight_kg'] ?? 0;
+                        ?>
+                        <input type="number" id="weight_kg" name="weight_kg" class="form-control" step="0.1" min="0" 
+                               value="<?php echo $current_weight > 0 ? number_format($current_weight, 1, '.', '') : ''; ?>" 
+                               placeholder="<?php echo $current_weight > 0 ? number_format($current_weight, 1, '.', '') : 'Ex: 70.5'; ?>" 
+                               readonly style="background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.6); cursor: not-allowed;">
+                        <div style="margin-top: 6px; font-size: 0.8rem; color: var(--text-secondary);">
+                            <i class="fas fa-info-circle"></i> O peso é automaticamente puxado do seu perfil. Para alterar, edite seu perfil.
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="neck">Pescoço (cm)</label>
@@ -1111,7 +1160,7 @@ input[type="date"].form-control {
         </div>
 
         <div class="form-actions">
-                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Salvar Medidas e Fotos</button>
+                <button type="submit" class="btn-primary" id="submit-btn"><i class="fas fa-save"></i> Salvar Medidas e Fotos</button>
         </div>
     </form>
 
