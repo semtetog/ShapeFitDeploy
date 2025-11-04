@@ -358,7 +358,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Coletar todas as fotos da galeria e do card inicial
         function collectAllPhotos() {
             allPhotos = [];
-            const photosMap = new Map(); // Usar Map para evitar duplicatas por src normalizado
+            const photosMap = new Map(); // Usar Map para evitar duplicatas por nome do arquivo
+            
+            // Função auxiliar para extrair nome do arquivo do src
+            function getFileName(src) {
+                if (!src) return '';
+                const url = new URL(src);
+                const pathParts = url.pathname.split('/');
+                return pathParts[pathParts.length - 1];
+            }
             
             // Coletar fotos da galeria modal PRIMEIRO (elas têm informações mais completas)
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
@@ -371,11 +379,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const measurementsEl = item.querySelector('.gallery-photo-measurements');
                 const measurements = measurementsEl ? measurementsEl.textContent.trim() : '';
                 
-                // Normalizar src para evitar duplicatas
-                const normalizedSrc = img.src.split('?')[0];
+                // Usar nome do arquivo como chave única
+                const fileName = getFileName(img.src);
                 
-                if (!photosMap.has(normalizedSrc)) {
-                    photosMap.set(normalizedSrc, {
+                if (fileName && !photosMap.has(fileName)) {
+                    photosMap.set(fileName, {
                         src: img.src,
                         label: type,
                         date: date,
@@ -394,12 +402,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
                 const date = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
                 
-                // Normalizar src para comparação
-                const normalizedSrc = img.src.split('?')[0];
+                // Usar nome do arquivo como chave única
+                const fileName = getFileName(img.src);
                 
-                if (!photosMap.has(normalizedSrc)) {
+                if (fileName && !photosMap.has(fileName)) {
                     // Só adicionar se não existir na galeria (evitar duplicatas)
-                    photosMap.set(normalizedSrc, {
+                    photosMap.set(fileName, {
                         src: img.src,
                         label: type,
                         date: date,
@@ -414,18 +422,32 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Abrir modal de foto individual
         window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
+            // Função auxiliar para extrair nome do arquivo do src
+            function getFileName(src) {
+                if (!src) return '';
+                try {
+                    const url = new URL(src);
+                    const pathParts = url.pathname.split('/');
+                    return pathParts[pathParts.length - 1];
+                } catch (e) {
+                    // Fallback para src relativo
+                    const parts = src.split('/');
+                    return parts[parts.length - 1];
+                }
+            }
+            
             // Coletar fotos apenas se ainda não foram coletadas
             if (allPhotos.length === 0) {
                 collectAllPhotos();
             }
             
-            // Normalizar o src para comparação (remover query strings, etc)
-            const normalizedSrc = imageSrc.split('?')[0];
+            // Usar nome do arquivo para comparação
+            const fileName = getFileName(imageSrc);
             
-            // Encontrar índice da foto atual
+            // Encontrar índice da foto atual pelo nome do arquivo
             currentPhotoIndex = allPhotos.findIndex(photo => {
-                const photoSrc = photo.src.split('?')[0];
-                return photoSrc === normalizedSrc;
+                const photoFileName = getFileName(photo.src);
+                return photoFileName === fileName;
             });
             
             // Se não encontrou a foto, criar uma nova entrada com as informações do onclick
