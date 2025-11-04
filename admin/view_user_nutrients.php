@@ -74,7 +74,7 @@ if ($nutrients_stats_15['avg_kcal'] > 0 && $nutrients_stats_7['avg_kcal'] > 0) {
             </div>
                 <div class="summary-info">
                     <h3>Consumo Nutricional</h3>
-                    <div class="summary-meta">Meta calórica diária: <strong><?php echo $total_daily_calories_goal; ?> kcal</strong></div>
+                    <div class="summary-meta">Meta diária: <strong><?php echo $total_daily_calories_goal; ?> kcal</strong></div>
                     <div class="summary-description">Baseado nos registros de refeições do paciente no aplicativo</div>
         </div>
                 <div class="summary-status status-<?php echo $nutrients_stats_7['avg_overall_percentage'] >= 90 ? 'excellent' : ($nutrients_stats_7['avg_overall_percentage'] >= 70 ? 'good' : ($nutrients_stats_7['avg_overall_percentage'] >= 50 ? 'fair' : 'poor')); ?>">
