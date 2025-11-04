@@ -296,14 +296,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
         
-        // Coletar todas as fotos da galeria
+        // Coletar todas as fotos da galeria e do card inicial
         function collectAllPhotos() {
             allPhotos = [];
-            const galleryItems = document.querySelectorAll('.gallery-photo-item');
-            galleryItems.forEach(item => {
+            
+            // Coletar fotos do card inicial (photo-item)
+            const photoItems = document.querySelectorAll('.photo-item');
+            photoItems.forEach(item => {
                 const img = item.querySelector('img');
-                const type = item.querySelector('.gallery-photo-type')?.textContent || '';
-                const date = item.querySelector('.gallery-photo-date')?.textContent || '';
+                const dateSpan = item.querySelector('.photo-date');
+                const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
+                const date = dateSpan?.querySelector('span:last-child')?.textContent || '';
                 if (img && img.src) {
                     allPhotos.push({
                         src: img.src,
@@ -312,6 +315,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             });
+            
+            // Coletar fotos da galeria modal (gallery-photo-item)
+            const galleryItems = document.querySelectorAll('.gallery-photo-item');
+            galleryItems.forEach(item => {
+                const img = item.querySelector('img');
+                const type = item.querySelector('.gallery-photo-type')?.textContent || '';
+                const date = item.querySelector('.gallery-photo-date')?.textContent || '';
+                if (img && img.src) {
+                    // Evitar duplicatas
+                    const exists = allPhotos.some(photo => photo.src === img.src);
+                    if (!exists) {
+                        allPhotos.push({
+                            src: img.src,
+                            label: type,
+                            date: date
+                        });
+                    }
+                }
+            });
+            
             console.log('[view_user_progress] Fotos coletadas:', allPhotos.length);
         }
         
@@ -643,11 +666,11 @@ document.addEventListener('DOMContentLoaded', function() {
     border-radius: 20px;
     width: 90%;
     max-width: 1200px;
-    height: 90vh;
-    margin: 5vh auto;
+    max-height: 90vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .gallery-modal-header {
@@ -749,8 +772,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .gallery-session-photos {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 200px));
     gap: 1rem;
+    justify-content: start;
 }
 
 .gallery-photo-item {
@@ -771,17 +795,10 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .gallery-photo-item img {
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
-}
-
-.gallery-session-photos {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 200px));
-    gap: 1rem;
-    justify-content: start;
 }
 
 .gallery-photo-item:hover img {
@@ -834,11 +851,11 @@ document.addEventListener('DOMContentLoaded', function() {
     border-radius: 20px;
     width: 90%;
     max-width: 800px;
-    height: 90vh;
-    margin: 5vh auto;
+    max-height: 90vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .photo-modal-header {
