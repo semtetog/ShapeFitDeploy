@@ -65,7 +65,7 @@ foreach ($all_weights as $date => $weight) {
 }
 
 // --- FOTOS ---
-$stmt_photos = $conn->prepare("SELECT date_recorded, photo_front, photo_side, photo_back FROM sf_user_measurements WHERE user_id = ? AND (photo_front IS NOT NULL OR photo_side IS NOT NULL OR photo_back IS NOT NULL) ORDER BY date_recorded DESC");
+$stmt_photos = $conn->prepare("SELECT date_recorded, created_at, photo_front, photo_side, photo_back, neck, chest, waist, abdomen, hips FROM sf_user_measurements WHERE user_id = ? AND (photo_front IS NOT NULL OR photo_side IS NOT NULL OR photo_back IS NOT NULL) ORDER BY created_at DESC, date_recorded DESC");
 $stmt_photos->bind_param("i", $user_id);
 $stmt_photos->execute();
 $photo_history = $stmt_photos->get_result()->fetch_all(MYSQLI_ASSOC);

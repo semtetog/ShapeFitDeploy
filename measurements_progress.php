@@ -133,10 +133,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $weight_kg = floatval($user_profile_data['weight_kg']);
         }
         
+        // Coletar medidas corporais (opcionais)
+        $neck = !empty($_POST['neck']) ? floatval($_POST['neck']) : null;
+        $chest = !empty($_POST['chest']) ? floatval($_POST['chest']) : null;
+        $waist = !empty($_POST['waist']) ? floatval($_POST['waist']) : null;
+        $abdomen = !empty($_POST['abdomen']) ? floatval($_POST['abdomen']) : null;
+        $hips = !empty($_POST['hips']) ? floatval($_POST['hips']) : null;
+        
         // Sempre criar um novo registro para cada sessão de fotos
         $current_time = date('Y-m-d H:i:s');
-        $stmt = $conn->prepare("INSERT INTO sf_user_measurements (user_id, date_recorded, weight_kg, created_at) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("isds", $user_id, $date_recorded, $weight_kg, $current_time);
+        $stmt = $conn->prepare("INSERT INTO sf_user_measurements (user_id, date_recorded, weight_kg, neck, chest, waist, abdomen, hips, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("isddddddds", $user_id, $date_recorded, $weight_kg, $neck, $chest, $waist, $abdomen, $hips, $current_time);
         $stmt->execute();
         $measurement_id = $conn->insert_id;
         $stmt->close();

@@ -109,14 +109,36 @@
                                 $displayed_count++;
                     ?>
                                 <?php 
-                                $timestamp = !empty($photo_set['created_at']) ? strtotime($photo_set['created_at']) : strtotime($photo_set['date_recorded']);
-                                $display_date = $timestamp ? date('d/m/Y H:i', $timestamp) : date('d/m/Y H:i');
+                                // Usar created_at para horário correto, mas date_recorded para a data que o usuário escolheu
+                                $recorded_date = !empty($photo_set['date_recorded']) ? date('d/m/Y', strtotime($photo_set['date_recorded'])) : date('d/m/Y');
+                                $timestamp = !empty($photo_set['created_at']) ? strtotime($photo_set['created_at']) : false;
+                                $display_time = $timestamp ? date('H:i', $timestamp) : date('H:i');
+                                $display_date = $recorded_date . ' ' . $display_time;
+                                
+                                // Coletar medidas do corpo (se existirem)
+                                $measurements = [];
+                                $measurement_labels = [
+                                    'neck' => 'Pescoço',
+                                    'chest' => 'Tórax',
+                                    'waist' => 'Cintura',
+                                    'abdomen' => 'Abdômen',
+                                    'hips' => 'Quadril'
+                                ];
+                                foreach ($measurement_labels as $key => $label) {
+                                    if (!empty($photo_set[$key]) && $photo_set[$key] > 0) {
+                                        $measurements[] = $label . ': ' . number_format($photo_set[$key], 1) . 'cm';
+                                    }
+                                }
+                                $measurements_text = !empty($measurements) ? implode(' | ', $measurements) : '';
                                 ?>
-                                <div class="photo-item" onclick="openPhotoModal('<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>', '<?php echo $label; ?>', '<?php echo $display_date; ?>')">
+                                <div class="photo-item" onclick="openPhotoModal('<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>', '<?php echo $label; ?>', '<?php echo $display_date; ?>', '<?php echo htmlspecialchars($measurements_text, ENT_QUOTES); ?>')">
                                     <img src="<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>" loading="lazy" alt="Foto de progresso - <?php echo $label; ?>" onerror="this.style.display='none'">
                                     <div class="photo-date">
                                         <span><?php echo $label; ?></span>
                                         <span><?php echo $display_date; ?></span>
+                                        <?php if (!empty($measurements_text)): ?>
+                                            <span class="photo-measurements"><?php echo $measurements_text; ?></span>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php 
@@ -146,9 +168,27 @@
                 // Agrupar fotos por data e sessão
                 $grouped_photos = [];
                 foreach($photo_history as $photo_set) {
-                    $date_key = date('Y-m-d', strtotime($photo_set['date_recorded']));
+                    // Usar date_recorded para agrupar por data (data que o usuário escolheu)
+                    $date_key = !empty($photo_set['date_recorded']) ? date('Y-m-d', strtotime($photo_set['date_recorded'])) : date('Y-m-d');
+                    // Usar created_at para o horário correto (quando foi salvo)
                     $timestamp = !empty($photo_set['created_at']) ? strtotime($photo_set['created_at']) : false;
                     $time_key = $timestamp ? date('H:i', $timestamp) : date('H:i');
+                    
+                    // Coletar medidas do corpo
+                    $measurements = [];
+                    $measurement_labels = [
+                        'neck' => 'Pescoço',
+                        'chest' => 'Tórax',
+                        'waist' => 'Cintura',
+                        'abdomen' => 'Abdômen',
+                        'hips' => 'Quadril'
+                    ];
+                    foreach ($measurement_labels as $key => $label) {
+                        if (!empty($photo_set[$key]) && $photo_set[$key] > 0) {
+                            $measurements[] = $label . ': ' . number_format($photo_set[$key], 1) . 'cm';
+                        }
+                    }
+                    $measurements_text = !empty($measurements) ? implode(' | ', $measurements) : '';
                     
                     if (!isset($grouped_photos[$date_key])) {
                         $grouped_photos[$date_key] = [];
@@ -156,7 +196,8 @@
                     if (!isset($grouped_photos[$date_key][$time_key])) {
                         $grouped_photos[$date_key][$time_key] = [
                             'time' => $time_key,
-                            'photos' => []
+                            'photos' => [],
+                            'measurements' => $measurements_text
                         ];
                     }
                     
@@ -164,7 +205,8 @@
                         if (!empty($photo_set[$photo_type])) {
                             $grouped_photos[$date_key][$time_key]['photos'][] = [
                                 'filename' => $photo_set[$photo_type],
-                                'label' => $label
+                                'label' => $label,
+                                'measurements' => $measurements_text
                             ];
                         }
                     }
@@ -195,11 +237,14 @@
                                 
                                 <div class="gallery-session-photos">
                                     <?php foreach ($session['photos'] as $photo): ?>
-                                        <div class="gallery-photo-item" onclick="openPhotoModal('<?php echo BASE_APP_URL; ?>/uploads/measurements/<?php echo htmlspecialchars($photo['filename']); ?>', '<?php echo $photo['label']; ?>', '<?php echo $date_display . ' ' . $session['time']; ?>')">
+                                        <div class="gallery-photo-item" onclick="openPhotoModal('<?php echo BASE_APP_URL; ?>/uploads/measurements/<?php echo htmlspecialchars($photo['filename']); ?>', '<?php echo $photo['label']; ?>', '<?php echo $date_display . ' ' . $session['time']; ?>', '<?php echo htmlspecialchars($photo['measurements'] ?? '', ENT_QUOTES); ?>')">
                                             <img src="<?php echo BASE_APP_URL; ?>/uploads/measurements/<?php echo htmlspecialchars($photo['filename']); ?>" alt="<?php echo $photo['label']; ?>" onerror="this.style.display='none'">
                                             <div class="gallery-photo-overlay">
                                                 <span class="gallery-photo-type"><?php echo $photo['label']; ?></span>
                                                 <span class="gallery-photo-date"><?php echo $date_display . ' ' . $session['time']; ?></span>
+                                                <?php if (!empty($photo['measurements'])): ?>
+                                                    <span class="gallery-photo-measurements"><?php echo htmlspecialchars($photo['measurements']); ?></span>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
@@ -238,6 +283,7 @@
                 <div class="photo-details">
                     <span id="photoModalLabel">Tipo</span>
                     <span id="photoModalDate">Data</span>
+                    <span id="photoModalMeasurements" style="display: none; font-size: 0.75rem; margin-top: 0.25rem; color: var(--accent-orange);"></span>
                 </div>
                 <div class="photo-actions">
                     <button class="btn-view-gallery-in-modal" onclick="closePhotoModal(); setTimeout(() => openGalleryModal(), 100);">
@@ -341,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Abrir modal de foto individual
-        window.openPhotoModal = function(imageSrc, label, date) {
+        window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
             collectAllPhotos();
             
             // Encontrar índice da foto atual
@@ -352,11 +398,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const modalImage = document.getElementById('photoModalImage');
             const modalLabel = document.getElementById('photoModalLabel');
             const modalDate = document.getElementById('photoModalDate');
+            const modalMeasurements = document.getElementById('photoModalMeasurements');
             
             if (modal && modalImage && modalLabel && modalDate) {
                 modalImage.src = imageSrc;
                 modalLabel.textContent = label;
                 modalDate.textContent = date;
+                if (modalMeasurements) {
+                    modalMeasurements.textContent = measurements || '';
+                    modalMeasurements.style.display = measurements ? 'block' : 'none';
+                }
                 updatePhotoModalContent();
                 modal.style.display = 'flex';
                 modal.style.alignItems = 'center';
@@ -397,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const modalImage = document.getElementById('photoModalImage');
             const modalLabel = document.getElementById('photoModalLabel');
             const modalDate = document.getElementById('photoModalDate');
+            const modalMeasurements = document.getElementById('photoModalMeasurements');
             const photoCounter = document.getElementById('photoCounter');
             const prevBtn = document.getElementById('prevPhotoBtn');
             const nextBtn = document.getElementById('nextPhotoBtn');
@@ -404,6 +456,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (modalImage) modalImage.src = photo.src;
             if (modalLabel) modalLabel.textContent = photo.label;
             if (modalDate) modalDate.textContent = photo.date;
+            if (modalMeasurements) {
+                modalMeasurements.textContent = photo.measurements || '';
+                modalMeasurements.style.display = photo.measurements ? 'block' : 'none';
+            }
             if (photoCounter) photoCounter.textContent = `${currentPhotoIndex + 1} de ${allPhotos.length}`;
             
             // Mostrar/ocultar botões de navegação
@@ -641,9 +697,17 @@ document.addEventListener('DOMContentLoaded', function() {
     color: var(--accent-orange);
 }
 
-.photo-date span:last-child {
+.photo-date span:nth-child(2) {
     opacity: 0.8;
     font-size: 0.7rem;
+}
+
+.photo-date .photo-measurements {
+    opacity: 0.9;
+    font-size: 0.65rem;
+    color: var(--accent-orange);
+    margin-top: 0.25rem;
+    display: block;
 }
 
 /* Modal de Galeria */
@@ -836,6 +900,14 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.65rem;
     opacity: 0.9;
     font-weight: 400;
+}
+
+.gallery-photo-measurements {
+    font-size: 0.6rem;
+    opacity: 0.85;
+    color: var(--accent-orange);
+    margin-top: 0.25rem;
+    display: block;
 }
 
 /* Modal de Foto Individual */
