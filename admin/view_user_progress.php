@@ -603,6 +603,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            // REMOVER DUPLICATAS antes de usar o array
+            const seenFiles = new Set();
+            const uniquePhotos = [];
+            const seenFileNames = new Set();
+            
+            allPhotos.forEach(photo => {
+                const fileName = getFileName(photo.src);
+                if (fileName && !seenFileNames.has(fileName)) {
+                    seenFileNames.add(fileName);
+                    uniquePhotos.push(photo);
+                } else if (fileName) {
+                    console.log('[view_user_progress] updatePhotoModalContent - DUPLICATA REMOVIDA:', fileName);
+                }
+            });
+            
+            // Atualizar allPhotos com array sem duplicatas
+            if (uniquePhotos.length !== allPhotos.length) {
+                console.log('[view_user_progress] updatePhotoModalContent - DUPLICATAS REMOVIDAS! Antes:', allPhotos.length, 'Depois:', uniquePhotos.length);
+                allPhotos = uniquePhotos;
+                
+                // Ajustar currentPhotoIndex se necessário
+                if (currentPhotoIndex >= allPhotos.length) {
+                    currentPhotoIndex = allPhotos.length - 1;
+                }
+            }
+            
             if (currentPhotoIndex < 0 || currentPhotoIndex >= allPhotos.length) {
                 console.error('[view_user_progress] updatePhotoModalContent - ERRO: currentPhotoIndex inválido:', currentPhotoIndex, 'Total:', allPhotos.length);
                 return;
@@ -646,8 +672,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (photoCounter) {
+                // Usar o tamanho do array SEM duplicatas
                 photoCounter.textContent = `${currentPhotoIndex + 1} de ${allPhotos.length}`;
-                console.log('[view_user_progress] updatePhotoModalContent - Contador atualizado:', photoCounter.textContent);
+                console.log('[view_user_progress] updatePhotoModalContent - Contador atualizado:', photoCounter.textContent, 'Total único:', allPhotos.length);
             }
             
             // Mostrar/ocultar botões de navegação
