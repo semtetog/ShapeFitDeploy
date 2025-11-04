@@ -15,7 +15,7 @@ while ($row = $weight_results->fetch_assoc()) {
 $stmt_weights->close();
 
 // Adicionar peso atual do perfil se disponível
-$current_weight_from_profile = (float)($user_data['weight_kg'] ?? 0);
+$current_weight_from_profile = $user_data['current_weight'] ?? 0;
 if ($current_weight_from_profile > 0) {
     $all_weights[date('Y-m-d')] = $current_weight_from_profile;
 }
@@ -92,40 +92,42 @@ $stmt_photos->close();
 </div>
 
 <!-- Card de Medidas dentro da aba Progresso -->
-<div class="dashboard-card">
-    <h3><i class="fas fa-camera"></i> Histórico de Medidas Corporais</h3>
-    <div class="measurements-content">
-        <?php if (empty($photo_history)): ?>
-            <p class="empty-state">Nenhuma foto de progresso encontrada.</p>
-        <?php else: ?>
-            <div class="photo-gallery">
-                <?php 
-                $displayed_count = 0;
-                foreach($photo_history as $photo_set): 
-                    if ($displayed_count >= 6) break;
-                    foreach(['photo_front' => 'Frente', 'photo_side' => 'Lado', 'photo_back' => 'Costas'] as $photo_type => $label): 
+<div id="tab-progress" class="tab-content">
+    <div class="dashboard-card">
+        <h3><i class="fas fa-camera"></i> Histórico de Medidas Corporais</h3>
+        <div class="measurements-content">
+            <?php if (empty($photo_history)): ?>
+                <p class="empty-state">Nenhuma foto de progresso encontrada.</p>
+            <?php else: ?>
+                <div class="photo-gallery">
+                    <?php 
+                    $displayed_count = 0;
+                    foreach($photo_history as $photo_set): 
                         if ($displayed_count >= 6) break;
-                        if(!empty($photo_set[$photo_type])): 
-                            $displayed_count++;
-                ?>
-                            <?php 
-                            $timestamp = !empty($photo_set['created_at']) ? strtotime($photo_set['created_at']) : strtotime($photo_set['date_recorded']);
-                            $display_date = $timestamp ? date('d/m/Y H:i', $timestamp) : date('d/m/Y H:i');
-                            ?>
-                            <div class="photo-item" onclick="openPhotoModal('<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>', '<?php echo $label; ?>', '<?php echo $display_date; ?>')">
-                                <img src="<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>" loading="lazy" alt="Foto de progresso - <?php echo $label; ?>" onerror="this.style.display='none'">
-                                <div class="photo-date">
-                                    <span><?php echo $label; ?></span>
-                                    <span><?php echo $display_date; ?></span>
+                        foreach(['photo_front' => 'Frente', 'photo_side' => 'Lado', 'photo_back' => 'Costas'] as $photo_type => $label): 
+                            if ($displayed_count >= 6) break;
+                            if(!empty($photo_set[$photo_type])): 
+                                $displayed_count++;
+                    ?>
+                                <?php 
+                                $timestamp = !empty($photo_set['created_at']) ? strtotime($photo_set['created_at']) : strtotime($photo_set['date_recorded']);
+                                $display_date = $timestamp ? date('d/m/Y H:i', $timestamp) : date('d/m/Y H:i');
+                                ?>
+                                <div class="photo-item" onclick="openPhotoModal('<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>', '<?php echo $label; ?>', '<?php echo $display_date; ?>')">
+                                    <img src="<?php echo BASE_APP_URL . '/uploads/measurements/' . htmlspecialchars($photo_set[$photo_type]); ?>" loading="lazy" alt="Foto de progresso - <?php echo $label; ?>" onerror="this.style.display='none'">
+                                    <div class="photo-date">
+                                        <span><?php echo $label; ?></span>
+                                        <span><?php echo $display_date; ?></span>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php 
-                        endif; 
+                            <?php 
+                            endif; 
+                        endforeach; 
                     endforeach; 
-                endforeach; 
-                ?>
-            </div>
-        <?php endif; ?>
+                    ?>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 

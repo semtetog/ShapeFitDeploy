@@ -1290,7 +1290,9 @@ if (typeof window.userId === 'undefined') {
 
 <?php include __DIR__ . '/view_user_nutrients.php'; ?>
 
-<?php include __DIR__ . '/view_user_progress.php'; ?>
+<div id="tab-progress" class="tab-content">
+    <!-- Conteúdo da aba Progresso será inserido via include -->
+</div>
 
 <div id="tab-routine" class="tab-content">
     <?php include __DIR__ . '/view_user_routine.php'; ?>
