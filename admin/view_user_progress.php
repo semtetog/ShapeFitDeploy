@@ -358,36 +358,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Coletar todas as fotos da galeria e do card inicial
         function collectAllPhotos() {
             allPhotos = [];
+            const photosMap = new Map(); // Usar Map para evitar duplicatas por src
             
-            // Coletar fotos do card inicial (photo-item)
-            const photoItems = document.querySelectorAll('.photo-item');
-            photoItems.forEach(item => {
-                const img = item.querySelector('img');
-                const dateSpan = item.querySelector('.photo-date');
-                const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
-                const date = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
-                const measurementsEl = dateSpan?.querySelector('.photo-measurements');
-                const measurements = measurementsEl ? measurementsEl.textContent.trim() : '';
-                
-                console.log('[view_user_progress] collectAllPhotos - photo-item:', {
-                    src: img?.src,
-                    type: type,
-                    date: date,
-                    measurements: measurements,
-                    measurementsEl: measurementsEl
-                });
-                
-                if (img && img.src) {
-                    allPhotos.push({
-                        src: img.src,
-                        label: type,
-                        date: date,
-                        measurements: measurements
-                    });
-                }
-            });
-            
-            // Coletar fotos da galeria modal (gallery-photo-item)
+            // Coletar fotos da galeria modal PRIMEIRO (elas têm informações mais completas)
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
             galleryItems.forEach(item => {
                 const img = item.querySelector('img');
@@ -396,48 +369,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 const measurementsEl = item.querySelector('.gallery-photo-measurements');
                 const measurements = measurementsEl ? measurementsEl.textContent.trim() : '';
                 
-                console.log('[view_user_progress] collectAllPhotos - gallery-photo-item:', {
-                    src: img?.src,
-                    type: type,
-                    date: date,
-                    measurements: measurements,
-                    measurementsEl: measurementsEl
-                });
-                
                 if (img && img.src) {
-                    // Evitar duplicatas
-                    const exists = allPhotos.some(photo => photo.src === img.src);
-                    if (!exists) {
-                        allPhotos.push({
-                            src: img.src,
-                            label: type,
-                            date: date,
-                            measurements: measurements
-                        });
-                    }
+                    photosMap.set(img.src, {
+                        src: img.src,
+                        label: type,
+                        date: date,
+                        measurements: measurements
+                    });
                 }
             });
             
-            console.log('[view_user_progress] Fotos coletadas:', allPhotos.length);
-            console.log('[view_user_progress] Fotos com medidas:', allPhotos.filter(p => p.measurements).length);
+            // Coletar fotos do card inicial (somente se não existirem na galeria)
+            const photoItems = document.querySelectorAll('.photo-item');
+            photoItems.forEach(item => {
+                const img = item.querySelector('img');
+                const dateSpan = item.querySelector('.photo-date');
+                const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
+                const date = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
+                
+                if (img && img.src && !photosMap.has(img.src)) {
+                    // Só adicionar se não existir na galeria (evitar duplicatas)
+                    photosMap.set(img.src, {
+                        src: img.src,
+                        label: type,
+                        date: date,
+                        measurements: '' // Medidas não estão no DOM do card inicial, serão passadas via onclick
+                    });
+                }
+            });
+            
+            // Converter Map para array
+            allPhotos = Array.from(photosMap.values());
         }
         
         // Abrir modal de foto individual
         window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
-            console.log('[view_user_progress] openPhotoModal CHAMADO!', {
-                imageSrc: imageSrc,
-                label: label,
-                date: date,
-                measurements: measurements,
-                measurementsType: typeof measurements,
-                measurementsLength: measurements ? measurements.length : 0
-            });
-            
             collectAllPhotos();
             
-            // Encontrar índice da foto atual
+            // Encontrar índice da foto atual ou criar uma nova entrada se não existir
             currentPhotoIndex = allPhotos.findIndex(photo => photo.src === imageSrc);
-            if (currentPhotoIndex === -1) currentPhotoIndex = 0;
+            
+            // Se não encontrou a foto, criar uma nova entrada
+            if (currentPhotoIndex === -1) {
+                allPhotos.push({
+                    src: imageSrc,
+                    label: label,
+                    date: date,
+                    measurements: measurements || ''
+                });
+                currentPhotoIndex = allPhotos.length - 1;
+            } else {
+                // Se encontrou, atualizar com as informações mais completas do onclick
+                if (allPhotos[currentPhotoIndex]) {
+                    allPhotos[currentPhotoIndex].label = label;
+                    allPhotos[currentPhotoIndex].date = date;
+                    // Atualizar medidas se foram passadas via onclick
+                    if (measurements && measurements.trim() !== '') {
+                        allPhotos[currentPhotoIndex].measurements = measurements;
+                    }
+                }
+            }
             
             const modal = document.getElementById('photoModal');
             const modalImage = document.getElementById('photoModalImage');
@@ -445,20 +436,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const modalDate = document.getElementById('photoModalDate');
             const modalMeasurements = document.getElementById('photoModalMeasurements');
             
-            console.log('[view_user_progress] openPhotoModal - measurements recebido:', measurements);
-            console.log('[view_user_progress] openPhotoModal - allPhotos[currentPhotoIndex]:', allPhotos[currentPhotoIndex]);
-            console.log('[view_user_progress] openPhotoModal - modalMeasurements element:', modalMeasurements);
-            
             if (modal && modalImage && modalLabel && modalDate) {
-                // IMPORTANTE: Se medidas foram passadas no parâmetro, salvar no array ANTES de updatePhotoModalContent
-                // Isso garante que as medidas apareçam no modal mesmo que não estejam no DOM do card
-                if (measurements && measurements.trim() !== '') {
-                    if (allPhotos[currentPhotoIndex]) {
-                        allPhotos[currentPhotoIndex].measurements = measurements;
-                    }
-                }
-                
-                // Atualizar o conteúdo do modal (que usará as medidas do array)
+                // Atualizar o conteúdo do modal (que usará as medidas do array atualizado)
                 updatePhotoModalContent();
                 modal.style.display = 'flex';
                 modal.style.alignItems = 'center';
