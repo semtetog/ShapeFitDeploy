@@ -2133,25 +2133,6 @@ window.closeHelpModal = closeHelpModal;
     position: relative;
 }
 
-.chart-calendar-help-popup-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s;
-}
-
-.chart-calendar-help-popup-close:hover {
-    color: var(--text-primary);
-}
 
 .chart-calendar-help-popup-header {
     display: flex;

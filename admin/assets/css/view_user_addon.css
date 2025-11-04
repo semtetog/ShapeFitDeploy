@@ -3053,7 +3053,9 @@
 }
 
 /* Botão X */
-.calendar-btn-close {
+/* Botões de fechar - usar mesmo estilo do sleep-modal-close */
+.calendar-btn-close,
+.chart-calendar-help-popup-close {
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -3073,7 +3075,8 @@
   z-index: 10;
 }
 
-.calendar-btn-close:hover {
+.calendar-btn-close:hover,
+.chart-calendar-help-popup-close:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--accent-orange);
 }
