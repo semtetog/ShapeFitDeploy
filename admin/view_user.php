@@ -1594,11 +1594,18 @@ document.addEventListener('DOMContentLoaded', function(){
     tabLinks.forEach(link => {
         link.addEventListener('click', function(){
             const tabId = this.getAttribute('data-tab');
+            console.log('[TABS] Clicado na aba:', tabId);
             tabLinks.forEach(l => l.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
             this.classList.add('active');
             const target = document.getElementById(`tab-${tabId}`);
-            if (target) target.classList.add('active');
+            console.log('[TABS] Elemento encontrado:', target ? 'SIM' : 'NÃO', 'ID:', `tab-${tabId}`);
+            if (target) {
+                target.classList.add('active');
+                console.log('[TABS] Classe active adicionada');
+            } else {
+                console.error('[TABS] Elemento não encontrado:', `tab-${tabId}`);
+            }
         });
     });
 });
