@@ -71,11 +71,13 @@ if ($avg_percentage_7 >= 90) {
         <!-- 3. GRÁFICO COM BOTÕES DE PERÍODO -->
         <div class="chart-section">
             <div class="hydration-chart-improved">
-                <div class="chart-header" style="position: relative; padding-bottom: 3rem;">
+                <div class="chart-header">
                     <h4><i class="fas fa-chart-bar"></i> Progresso de Hidratação</h4>
-                    <button class="diary-calendar-icon-btn" onclick="showHydrationCalendar()" id="hydration-period-btn" title="Selecionar período" style="position: absolute; top: 50%; right: 0; transform: translateY(-50%); width: auto; min-width: auto; padding: 12px 24px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; font-family: 'Montserrat', sans-serif; display: flex; align-items: center; gap: 12px; white-space: nowrap;">
-                        <i class="fas fa-calendar-alt"></i> <span id="hydration-period-text">Últimos 7 dias</span>
-                    </button>
+                    <div class="period-buttons">
+                        <button class="period-btn active" onclick="showHydrationCalendar()" id="hydration-period-btn" title="Selecionar período">
+                            <i class="fas fa-calendar-alt"></i> Últimos 7 dias
+                        </button>
+                </div>
             </div>
                 <div class="improved-chart" id="hydration-chart">
                 <?php if (empty($hydration_data)): ?>
@@ -269,11 +271,8 @@ function renderHydrationChart(data) {
 // Atualizar texto do botão de período
 function updateHydrationPeriodButton(label) {
     const btn = document.getElementById('hydration-period-btn');
-    const textSpan = document.getElementById('hydration-period-text');
-    if (btn && textSpan) {
-        textSpan.textContent = label;
-    } else if (btn) {
-        btn.innerHTML = `<i class="fas fa-calendar-alt"></i> <span id="hydration-period-text">${label}</span>`;
+    if (btn) {
+        btn.innerHTML = `<i class="fas fa-calendar-alt"></i> ${label}`;
     }
 }
 
