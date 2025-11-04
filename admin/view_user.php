@@ -2117,7 +2117,7 @@ window.closeHelpModal = closeHelpModal;
 .chart-calendar-help-popup {
     position: fixed;
     top: 15%;
-    right: calc(50% - 275px - 300px);
+    right: calc(50% - 275px - 20px);
     z-index: 10002;
     pointer-events: all;
     width: 280px;
