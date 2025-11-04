@@ -373,6 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function collectAllPhotos() {
             allPhotos = [];
             const photosMap = new Map(); // Usar Map para evitar duplicatas por nome do arquivo
+            const seenFiles = new Set(); // Set para rastrear arquivos já vistos
             
             // Coletar fotos da galeria modal PRIMEIRO (elas têm informações mais completas)
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
@@ -388,7 +389,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Usar nome do arquivo como chave única
                 const fileName = getFileName(img.src);
                 
-                if (fileName && !photosMap.has(fileName)) {
+                if (fileName && !seenFiles.has(fileName)) {
+                    seenFiles.add(fileName);
                     photosMap.set(fileName, {
                         src: img.src,
                         label: type,
@@ -411,8 +413,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Usar nome do arquivo como chave única
                 const fileName = getFileName(img.src);
                 
-                if (fileName && !photosMap.has(fileName)) {
+                if (fileName && !seenFiles.has(fileName)) {
                     // Só adicionar se não existir na galeria (evitar duplicatas)
+                    seenFiles.add(fileName);
                     photosMap.set(fileName, {
                         src: img.src,
                         label: type,
@@ -426,6 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
             allPhotos = Array.from(photosMap.values());
             console.log('[view_user_progress] collectAllPhotos - Total de fotos coletadas:', allPhotos.length);
             console.log('[view_user_progress] collectAllPhotos - Nomes dos arquivos:', allPhotos.map(p => getFileName(p.src)));
+            console.log('[view_user_progress] collectAllPhotos - Fotos únicas verificadas:', seenFiles.size);
         }
         
         // Abrir modal de foto individual
@@ -443,13 +447,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // Se não encontrou a foto, criar uma nova entrada com as informações do onclick
-            // Mas verificar novamente antes de adicionar para evitar duplicatas
+            // Mas APENAS se realmente não existir (verificação dupla)
             if (currentPhotoIndex === -1) {
-                // Verificar se realmente não existe antes de adicionar
-                const exists = allPhotos.some(photo => {
-                    const photoFileName = getFileName(photo.src);
-                    return photoFileName === fileName;
-                });
+                // Verificar novamente se realmente não existe
+                const exists = allPhotos.some(photo => getFileName(photo.src) === fileName);
                 
                 if (!exists) {
                     allPhotos.push({
@@ -459,13 +460,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         measurements: measurements || ''
                     });
                     currentPhotoIndex = allPhotos.length - 1;
-                    console.log('[view_user_progress] openPhotoModal - Foto adicionada ao array. Total agora:', allPhotos.length);
+                    console.log('[view_user_progress] openPhotoModal - Foto adicionada. Total:', allPhotos.length);
                 } else {
-                    // Se existe mas não encontramos, tentar encontrar novamente
-                    currentPhotoIndex = allPhotos.findIndex(photo => {
-                        const photoFileName = getFileName(photo.src);
-                        return photoFileName === fileName;
-                    });
+                    // Se existe mas findIndex falhou, tentar novamente
+                    currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
                 }
             } else {
                 // Se encontrou, atualizar com as informações mais completas do onclick
@@ -476,7 +474,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            console.log('[view_user_progress] openPhotoModal - currentPhotoIndex:', currentPhotoIndex, 'total:', allPhotos.length);
+            console.log('[view_user_progress] openPhotoModal - currentPhotoIndex:', currentPhotoIndex);
+            console.log('[view_user_progress] openPhotoModal - Total de fotos:', allPhotos.length);
             console.log('[view_user_progress] openPhotoModal - fileName:', fileName);
             console.log('[view_user_progress] openPhotoModal - allPhotos fileNames:', allPhotos.map(p => getFileName(p.src)));
             
