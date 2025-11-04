@@ -2423,9 +2423,6 @@
 
 .summary-info {
   flex: 1;
-}
-
-.summary-info {
   display: flex;
   flex-direction: column;
   gap: 0;
