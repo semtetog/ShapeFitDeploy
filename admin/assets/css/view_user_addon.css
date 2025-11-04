@@ -3909,42 +3909,57 @@
   border: 1px solid var(--border-color);
 }
 
-.period-btn {
-  padding: 10px 20px;
-  border: 1px solid rgba(255, 107, 0, 0.2);
-  background: rgba(255, 107, 0, 0.08);
-  color: var(--accent-orange);
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  font-family: 'Montserrat', sans-serif;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  white-space: nowrap;
-  width: auto;
-  min-width: auto;
+/* Estilo específico para period-btn com maior especificidade */
+.period-buttons .period-btn,
+button.period-btn {
+  padding: 10px 20px !important;
+  border: 1px solid rgba(255, 107, 0, 0.2) !important;
+  background: rgba(255, 107, 0, 0.08) !important;
+  color: var(--accent-orange) !important;
+  border-radius: 20px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  font-family: 'Montserrat', sans-serif !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: auto !important;
+  height: auto !important;
+  line-height: 1 !important;
+  justify-content: flex-start !important;
 }
 
-.period-btn i {
-  font-size: 1rem;
-  flex-shrink: 0;
+.period-buttons .period-btn i,
+button.period-btn i {
+  font-size: 1rem !important;
+  flex-shrink: 0 !important;
+  color: inherit !important;
 }
 
-.period-btn:hover {
-  background: rgba(255, 107, 0, 0.15);
-  border-color: var(--accent-orange);
-  transform: scale(1.05);
+.period-buttons .period-btn:hover,
+button.period-btn:hover {
+  background: rgba(255, 107, 0, 0.15) !important;
+  border-color: var(--accent-orange) !important;
+  transform: scale(1.05) !important;
+  color: var(--accent-orange) !important;
 }
 
-.period-btn.active {
-  background: var(--accent-orange);
-  color: white;
-  border-color: var(--accent-orange);
-  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+.period-buttons .period-btn.active,
+button.period-btn.active {
+  background: var(--accent-orange) !important;
+  color: white !important;
+  border-color: var(--accent-orange) !important;
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3) !important;
+}
+
+.period-buttons .period-btn.active i,
+button.period-btn.active i {
+  color: white !important;
 }
 
 /* Layout em fileiras para as barras */
