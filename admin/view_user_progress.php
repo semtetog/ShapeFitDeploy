@@ -359,6 +359,8 @@ document.addEventListener('DOMContentLoaded', function() {
         function getFileName(src) {
             if (!src) return '';
             try {
+                // REMOVER query strings ANTES de processar
+                src = src.split('?')[0];
                 const url = new URL(src);
                 const pathParts = url.pathname.split('/');
                 return pathParts[pathParts.length - 1];
@@ -439,13 +441,13 @@ document.addEventListener('DOMContentLoaded', function() {
             allPhotos = [];
             const seenFiles = new Set(); // Set para garantir unicidade absoluta
             
-            // Coletar fotos APENAS da galeria (que tem todas as fotos únicas)
+            // EVITA coletar do card inicial - SEMPRE usar apenas a galeria
             // A galeria sempre existe no DOM, mesmo que esteja oculta
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
             
             console.log('[view_user_progress] openPhotoModal - Total de itens na galeria HTML:', galleryItems.length);
             
-            // Coletar fotos da galeria com verificação rigorosa de duplicatas
+            // Coletar fotos APENAS da galeria (fonte oficial das fotos)
             galleryItems.forEach((item, index) => {
                 const img = item.querySelector('img');
                 if (!img || !img.src) {
@@ -458,6 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const measurementsEl = item.querySelector('.gallery-photo-measurements');
                 const measurementsText = measurementsEl ? measurementsEl.textContent.trim() : '';
                 
+                // REMOVER query strings antes de extrair fileName
                 const fileName = getFileName(img.src);
                 
                 if (!fileName) {
@@ -485,33 +488,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('[view_user_progress] openPhotoModal - Total de fotos únicas coletadas da galeria:', allPhotos.length);
             console.log('[view_user_progress] openPhotoModal - Arquivos únicos:', Array.from(seenFiles));
             
-            // Se não encontrou fotos na galeria (não deveria acontecer, mas fallback), usar card inicial
-            if (allPhotos.length === 0) {
-                console.log('[view_user_progress] openPhotoModal - Galeria vazia, usando card inicial como fallback');
-                const photoItems = document.querySelectorAll('.photo-item');
-                const seenFilesCard = new Set();
-                
-                photoItems.forEach(item => {
-                    const img = item.querySelector('img');
-                    if (!img || !img.src) return;
-                    
-                    const dateSpan = item.querySelector('.photo-date');
-                    const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
-                    const dateText = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
-                    
-                    const fileName = getFileName(img.src);
-                    
-                    if (fileName && !seenFilesCard.has(fileName)) {
-                        seenFilesCard.add(fileName);
-                        allPhotos.push({
-                            src: img.src,
-                            label: type,
-                            date: dateText,
-                            measurements: '' // Será atualizado abaixo
-                        });
-                    }
-                });
-            }
+            // REMOVIDO: Fallback que coletava do card inicial - isso causava duplicatas
+            // Agora SEMPRE coletamos apenas da galeria (fonte oficial)
             
             // Encontrar a foto atual e atualizar com informações do onclick (especialmente medidas)
             const fileName = getFileName(imageSrc);
@@ -552,7 +530,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            console.log('[view_user_progress] openPhotoModal - Total FINAL de fotos:', allPhotos.length);
+            // GARANTIR que não há duplicatas antes de continuar
+            const uniquePhotos = [];
+            const seenFileNamesFinal = new Set();
+            allPhotos.forEach(photo => {
+                const photoFileName = getFileName(photo.src);
+                if (photoFileName && !seenFileNamesFinal.has(photoFileName)) {
+                    seenFileNamesFinal.add(photoFileName);
+                    uniquePhotos.push(photo);
+                }
+            });
+            
+            if (uniquePhotos.length !== allPhotos.length) {
+                console.log('[view_user_progress] openPhotoModal - DUPLICATAS REMOVIDAS ANTES DE ABRIR MODAL! Antes:', allPhotos.length, 'Depois:', uniquePhotos.length);
+                allPhotos = uniquePhotos;
+                
+                // Reencontrar o índice da foto atual
+                currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
+                if (currentPhotoIndex === -1) {
+                    currentPhotoIndex = 0;
+                }
+            }
+            
+            console.log('[view_user_progress] openPhotoModal - Total FINAL de fotos (SEM duplicatas):', allPhotos.length);
             console.log('[view_user_progress] openPhotoModal - currentPhotoIndex:', currentPhotoIndex);
             console.log('[view_user_progress] openPhotoModal - Array completo:', allPhotos.map(p => ({ fileName: getFileName(p.src), label: p.label })));
             
