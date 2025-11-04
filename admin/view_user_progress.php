@@ -115,18 +115,18 @@
                                 $display_time = $timestamp ? date('H:i', $timestamp) : date('H:i');
                                 $display_date = $recorded_date . ' ' . $display_time;
                                 
-                                // Coletar medidas do corpo (se existirem)
+                                // Coletar medidas do corpo (se existirem) - usar nome diferente para não conflitar com $label da foto
                                 $measurements = [];
-                                $measurement_labels = [
+                                $measurement_labels_map = [
                                     'neck' => 'Pescoço',
                                     'chest' => 'Tórax',
                                     'waist' => 'Cintura',
                                     'abdomen' => 'Abdômen',
                                     'hips' => 'Quadril'
                                 ];
-                                foreach ($measurement_labels as $key => $label) {
-                                    if (!empty($photo_set[$key]) && $photo_set[$key] > 0) {
-                                        $measurements[] = $label . ': ' . number_format($photo_set[$key], 1) . 'cm';
+                                foreach ($measurement_labels_map as $measure_key => $measure_label_name) {
+                                    if (!empty($photo_set[$measure_key]) && $photo_set[$measure_key] > 0) {
+                                        $measurements[] = $measure_label_name . ': ' . number_format($photo_set[$measure_key], 1) . 'cm';
                                     }
                                 }
                                 $measurements_text = !empty($measurements) ? implode(' | ', $measurements) : '';
@@ -174,18 +174,18 @@
                     $timestamp = !empty($photo_set['created_at']) ? strtotime($photo_set['created_at']) : false;
                     $time_key = $timestamp ? date('H:i', $timestamp) : date('H:i');
                     
-                    // Coletar medidas do corpo
+                    // Coletar medidas do corpo - usar nome diferente para não conflitar
                     $measurements = [];
-                    $measurement_labels = [
+                    $measurement_labels_map = [
                         'neck' => 'Pescoço',
                         'chest' => 'Tórax',
                         'waist' => 'Cintura',
                         'abdomen' => 'Abdômen',
                         'hips' => 'Quadril'
                     ];
-                    foreach ($measurement_labels as $key => $label) {
-                        if (!empty($photo_set[$key]) && $photo_set[$key] > 0) {
-                            $measurements[] = $label . ': ' . number_format($photo_set[$key], 1) . 'cm';
+                    foreach ($measurement_labels_map as $measure_key => $measure_label_name) {
+                        if (!empty($photo_set[$measure_key]) && $photo_set[$measure_key] > 0) {
+                            $measurements[] = $measure_label_name . ': ' . number_format($photo_set[$measure_key], 1) . 'cm';
                         }
                     }
                     $measurements_text = !empty($measurements) ? implode(' | ', $measurements) : '';
@@ -280,19 +280,21 @@
                 </button>
             </div>
             <div class="photo-info">
-                <div class="photo-details">
-                    <span id="photoModalLabel">Tipo</span>
-                    <span id="photoModalDate">Data</span>
-                    <span id="photoModalMeasurements" style="display: none; font-size: 0.75rem; margin-top: 0.25rem; color: var(--accent-orange);"></span>
-                </div>
-                <div class="photo-actions">
-                    <button class="btn-view-gallery-in-modal" onclick="closePhotoModal(); setTimeout(() => openGalleryModal(), 100);">
-                        <i class="fas fa-images"></i> Ver Galeria
-                    </button>
-                    <div class="photo-counter">
-                        <span id="photoCounter">1 de 1</span>
+                <div class="photo-info-top">
+                    <div class="photo-details">
+                        <span id="photoModalLabel">Tipo</span>
+                        <span id="photoModalDate">Data</span>
+                    </div>
+                    <div class="photo-actions">
+                        <button class="btn-view-gallery-in-modal" onclick="closePhotoModal(); setTimeout(() => openGalleryModal(), 100);">
+                            <i class="fas fa-images"></i> Ver Galeria
+                        </button>
+                        <div class="photo-counter">
+                            <span id="photoCounter">1 de 1</span>
+                        </div>
                     </div>
                 </div>
+                <div id="photoModalMeasurements" class="photo-modal-measurements" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -408,10 +410,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalImage.src = imageSrc;
                 modalLabel.textContent = label;
                 modalDate.textContent = date;
-                if (modalMeasurements) {
-                    modalMeasurements.textContent = measurements || '';
-                    modalMeasurements.style.display = measurements ? 'block' : 'none';
-                }
+            if (modalMeasurements) {
+                modalMeasurements.textContent = measurements || '';
+                modalMeasurements.style.display = measurements && measurements.trim() !== '' ? 'block' : 'none';
+            }
                 updatePhotoModalContent();
                 modal.style.display = 'flex';
                 modal.style.alignItems = 'center';
@@ -462,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (modalDate) modalDate.textContent = photo.date;
             if (modalMeasurements) {
                 modalMeasurements.textContent = photo.measurements || '';
-                modalMeasurements.style.display = photo.measurements ? 'block' : 'none';
+                modalMeasurements.style.display = photo.measurements && photo.measurements.trim() !== '' ? 'block' : 'none';
             }
             if (photoCounter) photoCounter.textContent = `${currentPhotoIndex + 1} de ${allPhotos.length}`;
             
@@ -1014,11 +1016,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .photo-info {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
     padding: 1rem 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.02);
+}
+
+.photo-info-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
 .photo-actions {
@@ -1042,6 +1051,19 @@ document.addEventListener('DOMContentLoaded', function() {
 .photo-details span:last-child {
     color: var(--text-secondary);
     font-size: 0.75rem;
+}
+
+.photo-modal-measurements {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    border-radius: 8px;
+    color: var(--accent-orange);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    text-align: center;
+    margin-top: 0.5rem;
 }
 
 .photo-counter {
