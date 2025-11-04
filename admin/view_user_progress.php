@@ -246,10 +246,20 @@ $stmt_photos->close();
 
 <!-- Dados para JavaScript -->
 <script>
-const userViewData = {
-    weightHistory: <?php echo json_encode($weight_chart_data); ?>,
-    photoHistory: <?php echo json_encode($photo_history); ?>
-};
+// Encapsular dados do progresso para evitar conflitos
+if (typeof window.progressData === 'undefined') {
+    window.progressData = {};
+}
+window.progressData.weightHistory = <?php echo json_encode($weight_chart_data); ?>;
+window.progressData.photoHistory = <?php echo json_encode($photo_history); ?>;
+
+// Manter compatibilidade com user_view_logic.js se necessário
+if (typeof userViewData === 'undefined') {
+    var userViewData = {
+        weightHistory: window.progressData.weightHistory,
+        photoHistory: window.progressData.photoHistory
+    };
+}
 
 let currentPhotoIndex = 0;
 let allPhotos = [];
@@ -323,18 +333,18 @@ function closeGalleryModal() {
     document.body.style.overflow = '';
 }
 
-// Fechar modais ao clicar fora
-window.onclick = function(event) {
+// Fechar modais ao clicar fora - usar event delegation para não sobrescrever outros handlers
+document.addEventListener('click', function(event) {
     const galleryModal = document.getElementById('galleryModal');
     const photoModal = document.getElementById('photoModal');
     
-    if (event.target === galleryModal) {
+    if (galleryModal && event.target === galleryModal) {
         closeGalleryModal();
     }
-    if (event.target === photoModal) {
+    if (photoModal && event.target === photoModal) {
         closePhotoModal();
     }
-}
+}, true);
 
 // Navegação por teclado
 document.addEventListener('keydown', function(e) {
@@ -355,14 +365,23 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Inicializar gráfico de peso quando a página carregar
-document.addEventListener('DOMContentLoaded', function() {
-    const weightChartCtx = document.getElementById('weightHistoryChart');
-    
-    if (weightChartCtx && typeof userViewData !== 'undefined' && userViewData && userViewData.weightHistory && userViewData.weightHistory.data.length >= 1) {
-        const ctx = weightChartCtx.getContext('2d');
+// Inicializar gráfico de peso quando a página carregar - verificar se já não foi inicializado
+(function() {
+    function initProgressChart() {
+        const weightChartCtx = document.getElementById('weightHistoryChart');
         
-        new Chart(ctx, {
+        // Verificar se o gráfico já foi inicializado
+        if (weightChartCtx && weightChartCtx._chart) {
+            return; // Gráfico já inicializado
+        }
+        
+        if (weightChartCtx && typeof Chart !== 'undefined' && typeof userViewData !== 'undefined' && userViewData && userViewData.weightHistory && userViewData.weightHistory.data.length >= 1) {
+            const ctx = weightChartCtx.getContext('2d');
+            
+            // Marcar como inicializado
+            weightChartCtx._chart = true;
+            
+            new Chart(ctx, {
             type: 'line',
             data: {
                 labels: userViewData.weightHistory.labels,
