@@ -3437,17 +3437,7 @@
 
 /* Estilo removido - agora usa o estilo padrão do summary-icon com cores específicas */
 
-.nutrients-summary-card .summary-info h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-}
-
-.nutrients-summary-card .summary-meta {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
+/* Estilo removido - agora usa o estilo padrão do summary-info (igual ao diário e rotina) */
 
 .nutrients-summary-card .summary-status {
   margin-left: auto;
@@ -4402,17 +4392,7 @@ button.period-btn.active:hover {
 
 /* Estilo removido - agora usa o estilo padrão do summary-icon com cores específicas */
 
-.nutrients-summary-card .summary-info h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-}
-
-.nutrients-summary-card .summary-meta {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
+/* Estilo removido - agora usa o estilo padrão do summary-info (igual ao diário e rotina) */
 
 .nutrients-summary-card .summary-status {
   margin-left: auto;
