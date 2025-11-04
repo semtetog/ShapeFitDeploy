@@ -354,12 +354,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const img = item.querySelector('img');
                 const dateSpan = item.querySelector('.photo-date');
                 const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
-                const date = dateSpan?.querySelector('span:last-child')?.textContent || '';
+                const date = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
+                const measurements = dateSpan?.querySelector('.photo-measurements')?.textContent || '';
                 if (img && img.src) {
                     allPhotos.push({
                         src: img.src,
                         label: type,
-                        date: date
+                        date: date,
+                        measurements: measurements
                     });
                 }
             });
@@ -370,6 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const img = item.querySelector('img');
                 const type = item.querySelector('.gallery-photo-type')?.textContent || '';
                 const date = item.querySelector('.gallery-photo-date')?.textContent || '';
+                const measurements = item.querySelector('.gallery-photo-measurements')?.textContent || '';
                 if (img && img.src) {
                     // Evitar duplicatas
                     const exists = allPhotos.some(photo => photo.src === img.src);
@@ -377,7 +380,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         allPhotos.push({
                             src: img.src,
                             label: type,
-                            date: date
+                            date: date,
+                            measurements: measurements
                         });
                     }
                 }
