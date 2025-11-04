@@ -1233,33 +1233,33 @@ if (typeof window.userId === 'undefined') {
 
 <div class="tabs-wrapper">
     <div class="tabs-row">
-        <div class="tab-link active" data-tab="diary">
+        <div class="tab-link active" data-tab="diary" onclick="console.log('CLIQUE DIRETO NA ABA DIARY'); switchTab('diary');">
             <i class="fas fa-book"></i>
             <span>Diário</span>
         </div>
-        <div class="tab-link" data-tab="hydration">
+        <div class="tab-link" data-tab="hydration" onclick="switchTab('hydration'); return false;">
             <i class="fas fa-tint"></i>
             <span>Hidratação</span>
         </div>
-        <div class="tab-link" data-tab="nutrients">
+        <div class="tab-link" data-tab="nutrients" onclick="switchTab('nutrients'); return false;">
             <i class="fas fa-apple-alt"></i>
             <span>Nutrientes</span>
         </div>
-        <div class="tab-link" data-tab="progress">
+        <div class="tab-link" data-tab="progress" onclick="switchTab('progress'); return false;">
             <i class="fas fa-chart-line"></i>
             <span>Progresso</span>
         </div>
-        <div class="tab-link" data-tab="routine">
+        <div class="tab-link" data-tab="routine" onclick="switchTab('routine'); return false;">
             <i class="fas fa-tasks"></i>
             <span>Rotina</span>
         </div>
     </div>
     <div class="tabs-row">
-        <div class="tab-link" data-tab="feedback_analysis">
+        <div class="tab-link" data-tab="feedback_analysis" onclick="switchTab('feedback_analysis'); return false;">
             <i class="fas fa-comments"></i>
             <span>Feedback</span>
         </div>
-        <div class="tab-link" data-tab="personalized_goals">
+        <div class="tab-link" data-tab="personalized_goals" onclick="switchTab('personalized_goals'); return false;">
             <i class="fas fa-bullseye"></i>
             <span>Metas</span>
         </div>
@@ -1549,61 +1549,51 @@ window.closeAlertModal = closeAlertModal;
 window.openSleepDetailsModal = openSleepDetailsModal;
 window.closeSleepDetailsModal = closeSleepDetailsModal;
 
-// Sistema de abas - TESTE DIRETO
+// Função global para trocar abas - FUNCIONA SEMPRE
+function switchTab(tabId) {
+    console.log('[switchTab] Chamado com:', tabId);
+    
+    // Remover active de todas as abas e conteúdos
+    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    // Adicionar active na aba clicada
+    const clickedTab = document.querySelector(`[data-tab="${tabId}"]`);
+    if (clickedTab) {
+        clickedTab.classList.add('active');
+    }
+    
+    // Adicionar active no conteúdo correspondente
+    const target = document.getElementById(`tab-${tabId}`);
+    if (target) {
+        target.classList.add('active');
+        console.log(`[switchTab] SUCESSO: Aba ${tabId} ativada`);
+    } else {
+        console.error(`[switchTab] ERRO: Elemento tab-${tabId} não encontrado`);
+    }
+}
+
+// Sistema de abas - usando onclick inline como fallback
 (function(){
     function initTabs() {
-        console.log('[TABS] Inicializando sistema de abas...');
+        console.log('[TABS] Inicializando...');
         
         const tabLinks = document.querySelectorAll('.tab-link');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        console.log(`[TABS] Encontrados: ${tabLinks.length} abas, ${tabContents.length} conteúdos`);
         
         if (tabLinks.length === 0) {
-            console.error('[TABS] ERRO: Nenhuma aba encontrada!');
+            console.error('[TABS] Nenhuma aba encontrada!');
             return;
         }
         
-        // Teste: verificar se os elementos existem
-        tabLinks.forEach((link, index) => {
-            const tabId = link.getAttribute('data-tab');
-            console.log(`[TABS] Aba ${index}: data-tab="${tabId}"`);
-        });
+        console.log(`[TABS] Encontradas ${tabLinks.length} abas`);
         
-        // Adicionar listeners diretamente - SEM nenhuma prevenção
+        // Adicionar onclick inline como fallback
         tabLinks.forEach(link => {
-            // Remover qualquer listener anterior
-            const newLink = link.cloneNode(true);
-            link.parentNode.replaceChild(newLink, link);
-            
-            // Adicionar listener novo
-            newLink.addEventListener('click', function(e) {
-                console.log('[TABS] CLIQUE DETECTADO!', this);
-                
-                const tabId = this.getAttribute('data-tab');
-                console.log(`[TABS] Tab ID: ${tabId}`);
-                
-                if (!tabId) {
-                    console.error('[TABS] ERRO: Sem data-tab');
-                    return;
-                }
-                
-                // Remover active
-                document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Adicionar active
-                this.classList.add('active');
-                const target = document.getElementById(`tab-${tabId}`);
-                if (target) {
-                    target.classList.add('active');
-                    console.log(`[TABS] SUCESSO: Aba ${tabId} ativada`);
-                } else {
-                    console.error(`[TABS] ERRO: Elemento tab-${tabId} não encontrado`);
-                }
-            }, false); // false = não usar capture
-            
-            console.log(`[TABS] Listener adicionado à aba: ${newLink.getAttribute('data-tab')}`);
+            const tabId = link.getAttribute('data-tab');
+            if (tabId && !link.getAttribute('onclick')) {
+                link.setAttribute('onclick', `switchTab('${tabId}'); return false;`);
+                console.log(`[TABS] onclick adicionado à aba: ${tabId}`);
+            }
         });
         
         // Ativar primeira aba
@@ -1613,21 +1603,17 @@ window.closeSleepDetailsModal = closeSleepDetailsModal;
             const firstContent = document.getElementById(`tab-${firstTabId}`);
             if (firstContent) {
                 firstContent.classList.add('active');
-                console.log(`[TABS] Primeira aba ativada: ${firstTabId}`);
             }
         }
     }
     
-    // Tentar inicializar imediatamente
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initTabs);
     } else {
         initTabs();
     }
     
-    // Tentar novamente após um delay (caso elementos sejam carregados depois)
     setTimeout(initTabs, 500);
-    setTimeout(initTabs, 1000);
 })();
 </script>
 
