@@ -5,6 +5,7 @@
 ?>
 
 <div id="tab-progress" class="tab-content">
+    <div class="progress-container">
     <!-- HEADER NO ESTILO DAS OUTRAS ABAS -->
     <div class="progress-summary-card">
         <div class="summary-main">
@@ -71,7 +72,10 @@
 
     <div class="progress-grid">
         <div class="dashboard-card weight-history-card">
-            <h4>Histórico de Peso</h4>
+            <div class="section-header">
+                <h4><i class="fas fa-weight"></i> Histórico de Peso</h4>
+            </div>
+            <div class="weight-chart-container">
             <?php if (empty($weight_chart_data['data'])): ?>
                 <p class="empty-state">O paciente ainda não registrou nenhum peso.</p>
             <?php else: ?>
@@ -80,13 +84,14 @@
                     <p class="info-message-chart">Aguardando o próximo registro de peso para traçar a linha de progresso.</p>
                 <?php endif; ?>
             <?php endif; ?>
+            </div>
         </div>
         <div class="dashboard-card photos-history-card">
             <div class="section-header">
-                <h4>Fotos de Progresso</h4>
+                <h4><i class="fas fa-images"></i> Fotos de Progresso</h4>
                 <?php if (count($photo_history) > 3): ?>
-                    <button class="btn-secondary" onclick="openGalleryModal()">
-                        <i class="fas fa-images"></i> Ver Todas (<?php echo count($photo_history); ?>)
+                    <button class="btn-view-gallery" onclick="openGalleryModal()">
+                        <i class="fas fa-images"></i> Ver Galeria
                     </button>
                 <?php endif; ?>
             </div>
@@ -123,6 +128,7 @@
             <?php endif; ?>
         </div>
     </div>
+    </div>
 </div>
 
 <!-- Modal de Galeria Completa -->
@@ -130,7 +136,7 @@
     <div class="gallery-modal-content">
         <div class="gallery-modal-header">
             <h3><i class="fas fa-images"></i> Galeria de Fotos de Progresso</h3>
-            <button class="gallery-close-btn" onclick="closeGalleryModal()">
+            <button class="sleep-modal-close" onclick="closeGalleryModal()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -193,6 +199,7 @@
                                             <img src="<?php echo BASE_APP_URL; ?>/uploads/measurements/<?php echo htmlspecialchars($photo['filename']); ?>" alt="<?php echo $photo['label']; ?>" onerror="this.style.display='none'">
                                             <div class="gallery-photo-overlay">
                                                 <span class="gallery-photo-type"><?php echo $photo['label']; ?></span>
+                                                <span class="gallery-photo-date"><?php echo $date_display . ' ' . $session['time']; ?></span>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
@@ -211,7 +218,7 @@
     <div class="photo-modal-content">
         <div class="photo-modal-header">
             <h3 id="photoModalTitle">Foto de Progresso</h3>
-            <button class="photo-close-btn" onclick="closePhotoModal()">
+            <button class="sleep-modal-close" onclick="closePhotoModal()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -232,15 +239,193 @@
                     <span id="photoModalLabel">Tipo</span>
                     <span id="photoModalDate">Data</span>
                 </div>
-                <div class="photo-counter">
-                    <span id="photoCounter">1 de 1</span>
+                <div class="photo-actions">
+                    <button class="btn-view-gallery-in-modal" onclick="closePhotoModal(); setTimeout(() => openGalleryModal(), 100);">
+                        <i class="fas fa-images"></i> Ver Galeria
+                    </button>
+                    <div class="photo-counter">
+                        <span id="photoCounter">1 de 1</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- JavaScript removido - agora está centralizado em user_view_logic.js -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        console.log('[view_user_progress] DOMContentLoaded iniciado');
+        const progressTab = document.getElementById('tab-progress');
+        if (!progressTab) {
+            console.log('[view_user_progress] Aba progress não encontrada, saindo...');
+            return;
+        }
+        console.log('[view_user_progress] Aba progress encontrada, inicializando...');
+        
+        let currentPhotoIndex = 0;
+        let allPhotos = [];
+        
+        // Função para bloquear scroll do body
+        function lockBodyScroll() {
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = window.innerWidth - document.documentElement.clientWidth + 'px';
+        }
+        
+        // Função para desbloquear scroll do body
+        function unlockBodyScroll() {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+        
+        // Abrir modal de galeria
+        window.openGalleryModal = function() {
+            const modal = document.getElementById('galleryModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                lockBodyScroll();
+            }
+        };
+        
+        // Fechar modal de galeria
+        window.closeGalleryModal = function() {
+            const modal = document.getElementById('galleryModal');
+            if (modal) {
+                modal.style.display = 'none';
+                unlockBodyScroll();
+            }
+        };
+        
+        // Coletar todas as fotos da galeria
+        function collectAllPhotos() {
+            allPhotos = [];
+            const galleryItems = document.querySelectorAll('.gallery-photo-item');
+            galleryItems.forEach(item => {
+                const img = item.querySelector('img');
+                const type = item.querySelector('.gallery-photo-type')?.textContent || '';
+                const date = item.querySelector('.gallery-photo-date')?.textContent || '';
+                if (img && img.src) {
+                    allPhotos.push({
+                        src: img.src,
+                        label: type,
+                        date: date
+                    });
+                }
+            });
+            console.log('[view_user_progress] Fotos coletadas:', allPhotos.length);
+        }
+        
+        // Abrir modal de foto individual
+        window.openPhotoModal = function(imageSrc, label, date) {
+            collectAllPhotos();
+            
+            // Encontrar índice da foto atual
+            currentPhotoIndex = allPhotos.findIndex(photo => photo.src === imageSrc);
+            if (currentPhotoIndex === -1) currentPhotoIndex = 0;
+            
+            const modal = document.getElementById('photoModal');
+            const modalImage = document.getElementById('photoModalImage');
+            const modalLabel = document.getElementById('photoModalLabel');
+            const modalDate = document.getElementById('photoModalDate');
+            
+            if (modal && modalImage && modalLabel && modalDate) {
+                modalImage.src = imageSrc;
+                modalLabel.textContent = label;
+                modalDate.textContent = date;
+                updatePhotoModalContent();
+                modal.style.display = 'flex';
+                lockBodyScroll();
+            }
+        };
+        
+        // Fechar modal de foto individual
+        window.closePhotoModal = function() {
+            const modal = document.getElementById('photoModal');
+            if (modal) {
+                modal.style.display = 'none';
+                unlockBodyScroll();
+            }
+        };
+        
+        // Navegar entre fotos
+        window.navigatePhoto = function(direction) {
+            if (allPhotos.length === 0) return;
+            
+            currentPhotoIndex += direction;
+            
+            if (currentPhotoIndex < 0) {
+                currentPhotoIndex = allPhotos.length - 1;
+            } else if (currentPhotoIndex >= allPhotos.length) {
+                currentPhotoIndex = 0;
+            }
+            
+            updatePhotoModalContent();
+        };
+        
+        // Atualizar conteúdo do modal de foto
+        function updatePhotoModalContent() {
+            if (allPhotos.length === 0) return;
+            
+            const photo = allPhotos[currentPhotoIndex];
+            const modalImage = document.getElementById('photoModalImage');
+            const modalLabel = document.getElementById('photoModalLabel');
+            const modalDate = document.getElementById('photoModalDate');
+            const photoCounter = document.getElementById('photoCounter');
+            const prevBtn = document.getElementById('prevPhotoBtn');
+            const nextBtn = document.getElementById('nextPhotoBtn');
+            
+            if (modalImage) modalImage.src = photo.src;
+            if (modalLabel) modalLabel.textContent = photo.label;
+            if (modalDate) modalDate.textContent = photo.date;
+            if (photoCounter) photoCounter.textContent = `${currentPhotoIndex + 1} de ${allPhotos.length}`;
+            
+            // Mostrar/ocultar botões de navegação
+            if (prevBtn) prevBtn.style.visibility = allPhotos.length > 1 ? 'visible' : 'hidden';
+            if (nextBtn) nextBtn.style.visibility = allPhotos.length > 1 ? 'visible' : 'hidden';
+        }
+        
+        // Event listeners para fechar modais ao clicar no overlay
+        const galleryModal = document.getElementById('galleryModal');
+        const photoModal = document.getElementById('photoModal');
+        
+        if (galleryModal) {
+            galleryModal.addEventListener('click', function(event) {
+                if (event.target === galleryModal) {
+                    window.closeGalleryModal();
+                }
+            });
+        }
+        
+        if (photoModal) {
+            photoModal.addEventListener('click', function(event) {
+                if (event.target === photoModal) {
+                    window.closePhotoModal();
+                }
+            });
+        }
+        
+        // Event listener para teclado (ESC e setas)
+        document.addEventListener('keydown', function(e) {
+            if (photoModal && photoModal.style.display === 'flex') {
+                if (e.key === 'ArrowLeft') {
+                    window.navigatePhoto(-1);
+                } else if (e.key === 'ArrowRight') {
+                    window.navigatePhoto(1);
+                } else if (e.key === 'Escape') {
+                    window.closePhotoModal();
+                }
+            }
+            if (galleryModal && galleryModal.style.display === 'flex' && e.key === 'Escape') {
+                window.closeGalleryModal();
+            }
+        });
+        
+        console.log('[view_user_progress] Inicialização completa!');
+    } catch (error) {
+        console.error('[view_user_progress] ERRO FATAL na inicialização:', error);
+    }
+});
+</script>
 
 <style>
 /* ========================================================================= */
@@ -254,13 +439,17 @@
     margin-bottom: 2rem;
 }
 
+.progress-container {
+    width: 100%;
+}
+
 .dashboard-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 1.5rem;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     min-height: auto;
 }
 
@@ -276,7 +465,7 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: #FFFFFF;
-    margin: 0 0 1rem 0;
+    margin: 0;
     font-family: 'Montserrat', sans-serif;
     display: flex;
     align-items: center;
@@ -285,7 +474,11 @@
 
 .dashboard-card h4 {
     font-size: 1.1rem;
-    margin-bottom: 1.5rem;
+}
+
+.dashboard-card h4 i {
+    color: var(--accent-orange);
+    font-size: 1rem;
 }
 
 .section-header {
@@ -299,7 +492,39 @@
     margin: 0;
 }
 
-.btn-secondary {
+.weight-chart-container {
+    height: 300px;
+    position: relative;
+}
+
+.btn-view-gallery {
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    color: var(--accent-orange);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.photos-history-card:hover .btn-view-gallery {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.btn-view-gallery:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+    transform: translateY(-1px);
+}
+
+.btn-view-gallery-in-modal {
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.3);
     color: var(--accent-orange);
@@ -313,7 +538,7 @@
     gap: 0.5rem;
 }
 
-.btn-secondary:hover {
+.btn-view-gallery-in-modal:hover {
     background: rgba(255, 107, 0, 0.2);
     border-color: var(--accent-orange);
     transform: translateY(-1px);
@@ -418,7 +643,8 @@
     border-radius: 20px;
     width: 90%;
     max-width: 1200px;
-    max-height: 90vh;
+    height: 90vh;
+    margin: 5vh auto;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -440,7 +666,7 @@
     gap: 0.5rem;
 }
 
-.gallery-close-btn {
+.sleep-modal-close {
     background: none;
     border: none;
     color: var(--text-secondary);
@@ -449,9 +675,14 @@
     padding: 0.5rem;
     border-radius: 8px;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
 }
 
-.gallery-close-btn:hover {
+.sleep-modal-close:hover {
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
 }
@@ -540,10 +771,17 @@
 }
 
 .gallery-photo-item img {
-    width: 100%;
-    height: 100%;
+    width: 200px;
+    height: 200px;
     object-fit: cover;
     transition: transform 0.3s ease;
+}
+
+.gallery-session-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 200px));
+    gap: 1rem;
+    justify-content: start;
 }
 
 .gallery-photo-item:hover img {
@@ -561,6 +799,20 @@
     font-size: 0.75rem;
     font-weight: 600;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.gallery-photo-type {
+    color: var(--accent-orange);
+    font-weight: 600;
+}
+
+.gallery-photo-date {
+    font-size: 0.65rem;
+    opacity: 0.9;
+    font-weight: 400;
 }
 
 /* Modal de Foto Individual */
@@ -582,7 +834,8 @@
     border-radius: 20px;
     width: 90%;
     max-width: 800px;
-    max-height: 90vh;
+    height: 90vh;
+    margin: 5vh auto;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -601,21 +854,6 @@
     color: var(--text-primary);
 }
 
-.photo-close-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.photo-close-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-}
 
 .photo-modal-body {
     flex: 1;
@@ -675,6 +913,12 @@
     padding: 1rem 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.02);
+}
+
+.photo-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .photo-details {
