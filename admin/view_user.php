@@ -1549,63 +1549,86 @@ window.closeAlertModal = closeAlertModal;
 window.openSleepDetailsModal = openSleepDetailsModal;
 window.closeSleepDetailsModal = closeSleepDetailsModal;
 
-// Sistema de abas SIMPLIFICADO - sem conflitos
-document.addEventListener('DOMContentLoaded', function(){
-    console.log('[view_user] DOMContentLoaded - inicializando abas');
-    
-    // Sistema simples de abas - sem prevenções desnecessárias
-    const tabLinks = document.querySelectorAll('.tab-link');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    if (tabLinks.length === 0) {
-        console.warn('[view_user] Nenhuma aba encontrada');
-        return;
-    }
-    
-    console.log(`[view_user] Encontradas ${tabLinks.length} abas`);
-    
-    // Adicionar listeners às abas
-    tabLinks.forEach(link => {
-        link.addEventListener('click', function(e){
-            const tabId = this.getAttribute('data-tab');
-            
-            if (!tabId) {
-                console.warn('[view_user] Aba sem data-tab');
-                return;
-            }
-            
-            console.log(`[view_user] Aba clicada: ${tabId}`);
-            
-            // Remover active de todas as abas e conteúdos
-            tabLinks.forEach(l => l.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            
-            // Adicionar active na aba clicada
-            this.classList.add('active');
-            
-            // Adicionar active no conteúdo correspondente
-            const target = document.getElementById(`tab-${tabId}`);
-            if (target) {
-                target.classList.add('active');
-                console.log(`[view_user] Aba ${tabId} ativada com sucesso`);
-            } else {
-                console.error(`[view_user] Conteúdo tab-${tabId} não encontrado`);
-            }
+// Sistema de abas - TESTE DIRETO
+(function(){
+    function initTabs() {
+        console.log('[TABS] Inicializando sistema de abas...');
+        
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        console.log(`[TABS] Encontrados: ${tabLinks.length} abas, ${tabContents.length} conteúdos`);
+        
+        if (tabLinks.length === 0) {
+            console.error('[TABS] ERRO: Nenhuma aba encontrada!');
+            return;
+        }
+        
+        // Teste: verificar se os elementos existem
+        tabLinks.forEach((link, index) => {
+            const tabId = link.getAttribute('data-tab');
+            console.log(`[TABS] Aba ${index}: data-tab="${tabId}"`);
         });
-    });
-    
-    // Garantir que a primeira aba esteja ativa por padrão
-    const firstTab = document.querySelector('.tab-link.active');
-    if (firstTab) {
-        const firstTabId = firstTab.getAttribute('data-tab');
-        if (firstTabId) {
+        
+        // Adicionar listeners diretamente - SEM nenhuma prevenção
+        tabLinks.forEach(link => {
+            // Remover qualquer listener anterior
+            const newLink = link.cloneNode(true);
+            link.parentNode.replaceChild(newLink, link);
+            
+            // Adicionar listener novo
+            newLink.addEventListener('click', function(e) {
+                console.log('[TABS] CLIQUE DETECTADO!', this);
+                
+                const tabId = this.getAttribute('data-tab');
+                console.log(`[TABS] Tab ID: ${tabId}`);
+                
+                if (!tabId) {
+                    console.error('[TABS] ERRO: Sem data-tab');
+                    return;
+                }
+                
+                // Remover active
+                document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Adicionar active
+                this.classList.add('active');
+                const target = document.getElementById(`tab-${tabId}`);
+                if (target) {
+                    target.classList.add('active');
+                    console.log(`[TABS] SUCESSO: Aba ${tabId} ativada`);
+                } else {
+                    console.error(`[TABS] ERRO: Elemento tab-${tabId} não encontrado`);
+                }
+            }, false); // false = não usar capture
+            
+            console.log(`[TABS] Listener adicionado à aba: ${newLink.getAttribute('data-tab')}`);
+        });
+        
+        // Ativar primeira aba
+        const firstTab = document.querySelector('.tab-link.active') || document.querySelector('.tab-link');
+        if (firstTab) {
+            const firstTabId = firstTab.getAttribute('data-tab');
             const firstContent = document.getElementById(`tab-${firstTabId}`);
             if (firstContent) {
                 firstContent.classList.add('active');
+                console.log(`[TABS] Primeira aba ativada: ${firstTabId}`);
             }
         }
     }
-});
+    
+    // Tentar inicializar imediatamente
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTabs);
+    } else {
+        initTabs();
+    }
+    
+    // Tentar novamente após um delay (caso elementos sejam carregados depois)
+    setTimeout(initTabs, 500);
+    setTimeout(initTabs, 1000);
+})();
 </script>
 
 <script>
