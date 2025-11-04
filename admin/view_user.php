@@ -746,89 +746,13 @@ if (typeof window.userId === 'undefined') {
     window.userId = <?php echo $user_id; ?>;
 }
 
-// Função global para trocar abas - DEFINIDA ANTES DAS ABAS
-function switchTab(tabId) {
-    console.log('[switchTab] Chamado com:', tabId);
-    
-    // Remover active de todas as abas e conteúdos
-    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    
-    // Adicionar active na aba clicada
-    const clickedTab = document.querySelector(`[data-tab="${tabId}"]`);
-    if (clickedTab) {
-        clickedTab.classList.add('active');
-    }
-    
-    // Adicionar active no conteúdo correspondente - tentar múltiplas vezes se necessário
-    function activateTab() {
-        const target = document.getElementById(`tab-${tabId}`);
-        if (target) {
-            target.classList.add('active');
-            console.log(`[switchTab] SUCESSO: Aba ${tabId} ativada`);
-            return true;
-        }
-        return false;
-    }
-    
-    // Tentar imediatamente
-    if (!activateTab()) {
-        // Se não encontrou, tentar após delays maiores (includes PHP podem ainda estar carregando)
-        setTimeout(() => {
-            if (!activateTab()) {
-                setTimeout(() => {
-                    if (!activateTab()) {
-                        setTimeout(() => {
-                            if (!activateTab()) {
-                                console.error(`[switchTab] ERRO: Elemento tab-${tabId} não encontrado após múltiplas tentativas`);
-                            }
-                        }, 500);
-                    }
-                }, 300);
-            }
-        }, 100);
-    }
-}
+// Sistema de abas - SIMPLES E FUNCIONAL (como na referência)
 
-// Variáveis globais para calendário de gráficos - DEFINIDAS ANTES DOS INCLUDES
-window._chartCalendarData = window._chartCalendarData || {
-    currentChartType: null,
-    currentChartCalendarDate: new Date(),
-    chartDateStart: null,
-    chartDateEnd: null,
-    daysWithChartData: new Set()
+// Função global para calendário de gráficos - DEFINIDA ANTES DOS INCLUDES (como na referência)
+// Será implementada completamente depois, mas pelo menos existe aqui
+window.openChartCalendar = window.openChartCalendar || function openChartCalendar(type) {
+    console.log('[openChartCalendar] Chamada com:', type, '- aguardando implementação...');
 };
-
-// Função global para calendário de gráficos - STUB inicial que será implementada depois
-window.openChartCalendar = window.openChartCalendar || (async function openChartCalendar(type) {
-    console.log('[openChartCalendar] Chamada com:', type, '- verificando implementação...');
-    
-    // Se a implementação completa já foi carregada, usar ela
-    if (window._openChartCalendarImpl && typeof window._openChartCalendarImpl === 'function') {
-        return window._openChartCalendarImpl(type);
-    }
-    
-    // Caso contrário, aguardar um pouco e tentar novamente
-    return new Promise((resolve, reject) => {
-        let attempts = 0;
-        const maxAttempts = 30; // 30 tentativas = 3 segundos
-        
-        function tryExecute() {
-            attempts++;
-            if (window._openChartCalendarImpl && typeof window._openChartCalendarImpl === 'function') {
-                console.log('[openChartCalendar] Implementação encontrada, executando...');
-                resolve(window._openChartCalendarImpl(type));
-            } else if (attempts < maxAttempts) {
-                setTimeout(tryExecute, 100);
-            } else {
-                console.error('[openChartCalendar] ERRO: Implementação não encontrada após', maxAttempts, 'tentativas');
-                reject(new Error('Implementação não encontrada'));
-            }
-        }
-        
-        setTimeout(tryExecute, 50);
-    });
-});
 
 // Fallbacks imediatos: garantem que os handlers inline existam
 (function(){
@@ -1317,33 +1241,33 @@ window.openChartCalendar = window.openChartCalendar || (async function openChart
 
 <div class="tabs-wrapper">
     <div class="tabs-row">
-        <div class="tab-link active" data-tab="diary" onclick="switchTab('diary'); return false;">
+        <div class="tab-link active" data-tab="diary">
             <i class="fas fa-book"></i>
             <span>Diário</span>
         </div>
-        <div class="tab-link" data-tab="hydration" onclick="switchTab('hydration'); return false;">
+        <div class="tab-link" data-tab="hydration">
             <i class="fas fa-tint"></i>
             <span>Hidratação</span>
         </div>
-        <div class="tab-link" data-tab="nutrients" onclick="switchTab('nutrients'); return false;">
+        <div class="tab-link" data-tab="nutrients">
             <i class="fas fa-apple-alt"></i>
             <span>Nutrientes</span>
         </div>
-        <div class="tab-link" data-tab="progress" onclick="switchTab('progress'); return false;">
+        <div class="tab-link" data-tab="progress">
             <i class="fas fa-chart-line"></i>
             <span>Progresso</span>
         </div>
-        <div class="tab-link" data-tab="routine" onclick="switchTab('routine'); return false;">
+        <div class="tab-link" data-tab="routine">
             <i class="fas fa-tasks"></i>
             <span>Rotina</span>
         </div>
     </div>
     <div class="tabs-row">
-        <div class="tab-link" data-tab="feedback_analysis" onclick="switchTab('feedback_analysis'); return false;">
+        <div class="tab-link" data-tab="feedback_analysis">
             <i class="fas fa-comments"></i>
             <span>Feedback</span>
         </div>
-        <div class="tab-link" data-tab="personalized_goals" onclick="switchTab('personalized_goals'); return false;">
+        <div class="tab-link" data-tab="personalized_goals">
             <i class="fas fa-bullseye"></i>
             <span>Metas</span>
         </div>
@@ -1633,48 +1557,59 @@ window.closeAlertModal = closeAlertModal;
 window.openSleepDetailsModal = openSleepDetailsModal;
 window.closeSleepDetailsModal = closeSleepDetailsModal;
 
-// Sistema de abas - usando onclick inline como fallback
-(function(){
-    function initTabs() {
-        console.log('[TABS] Inicializando...');
-        
-        const tabLinks = document.querySelectorAll('.tab-link');
-        
-        if (tabLinks.length === 0) {
-            console.error('[TABS] Nenhuma aba encontrada!');
-            return;
-        }
-        
-        console.log(`[TABS] Encontradas ${tabLinks.length} abas`);
-        
-        // Adicionar onclick inline como fallback
-        tabLinks.forEach(link => {
-            const tabId = link.getAttribute('data-tab');
-            if (tabId && !link.getAttribute('onclick')) {
-                link.setAttribute('onclick', `switchTab('${tabId}'); return false;`);
-                console.log(`[TABS] onclick adicionado à aba: ${tabId}`);
+// Fallback de tabs: garante troca de abas mesmo se o JS externo falhar (COMO NA REFERÊNCIA)
+document.addEventListener('DOMContentLoaded', function(){
+    console.log('[view_user] DOMContentLoaded - inicializando abas');
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    if (tabLinks.length === 0) {
+        console.warn('[view_user] Nenhuma aba encontrada');
+        return;
+    }
+    
+    console.log(`[view_user] Encontradas ${tabLinks.length} abas e ${tabContents.length} conteúdos`);
+    
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(){
+            const tabId = this.getAttribute('data-tab');
+            console.log(`[view_user] Aba clicada: ${tabId}`);
+            
+            if (!tabId) {
+                console.warn('[view_user] Aba sem data-tab');
+                return;
+            }
+            
+            // Remover active de todas as abas e conteúdos
+            tabLinks.forEach(l => l.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            // Adicionar active na aba clicada
+            this.classList.add('active');
+            
+            // Adicionar active no conteúdo correspondente
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) {
+                target.classList.add('active');
+                console.log(`[view_user] Aba ${tabId} ativada com sucesso`);
+            } else {
+                console.warn(`[view_user] Conteúdo tab-${tabId} não encontrado ainda`);
             }
         });
-        
-        // Ativar primeira aba
-        const firstTab = document.querySelector('.tab-link.active') || document.querySelector('.tab-link');
-        if (firstTab) {
-            const firstTabId = firstTab.getAttribute('data-tab');
+    });
+    
+    // Garantir que a primeira aba esteja ativa por padrão
+    const firstTab = document.querySelector('.tab-link.active') || document.querySelector('.tab-link');
+    if (firstTab) {
+        const firstTabId = firstTab.getAttribute('data-tab');
+        if (firstTabId) {
             const firstContent = document.getElementById(`tab-${firstTabId}`);
             if (firstContent) {
                 firstContent.classList.add('active');
             }
         }
     }
-    
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initTabs);
-    } else {
-        initTabs();
-    }
-    
-    setTimeout(initTabs, 500);
-})();
+});
 </script>
 
 <script>
@@ -2223,8 +2158,8 @@ let daysWithChartData = new Set();
 // Usar monthNamesShort global diretamente - referenciar window.monthNamesShort quando necessário
 // Não criar variável local para evitar redeclaração
 
-// Implementação completa da função openChartCalendar
-window._openChartCalendarImpl = async function openChartCalendar(type) {
+// Abrir modal de calendário para gráficos (COMO NA REFERÊNCIA - FUNÇÃO SIMPLES)
+async function openChartCalendar(type) {
     currentChartType = type;
     currentChartCalendarDate = new Date();
     chartDateStart = null;
@@ -2250,15 +2185,10 @@ window._openChartCalendarImpl = async function openChartCalendar(type) {
             }
         }
     }
-};
-
-// SUBSTITUIR a função global pela implementação completa
-if (window._openChartCalendarImpl) {
-    window.openChartCalendar = window._openChartCalendarImpl;
-    console.log('[openChartCalendar] Implementação completa carregada e ativada');
-} else {
-    console.error('[openChartCalendar] ERRO: _openChartCalendarImpl não foi definido!');
 }
+
+// Expor função globalmente
+window.openChartCalendar = openChartCalendar;
 
 // Carregar dados de datas do calendário
 async function loadChartCalendarData(type) {
