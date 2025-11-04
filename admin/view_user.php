@@ -1558,58 +1558,137 @@ window.openSleepDetailsModal = openSleepDetailsModal;
 window.closeSleepDetailsModal = closeSleepDetailsModal;
 
 // Fallback de tabs: garante troca de abas mesmo se o JS externo falhar
-// Executar imediatamente E no DOMContentLoaded para garantir
-(function initTabs() {
-    function setupTabs() {
-        console.log('[TABS] Inicializando abas...');
-        const tabLinks = document.querySelectorAll('.tab-link');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        console.log('[TABS] Encontradas', tabLinks.length, 'abas');
-        
-        if (tabLinks.length === 0) {
-            console.warn('[TABS] Nenhuma aba encontrada, tentando novamente...');
-            setTimeout(setupTabs, 100);
-            return;
-        }
-        
-        tabLinks.forEach((link) => {
-            link.addEventListener('click', function(e) {
-                console.log('[TABS] Clique detectado na aba:', this.getAttribute('data-tab'));
-                e.stopImmediatePropagation(); // Parar TODOS os outros listeners
-                const tabId = this.getAttribute('data-tab');
-                if (!tabId) return;
-                
-                tabLinks.forEach(l => l.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                const target = document.getElementById(`tab-${tabId}`);
-                if (target) {
-                    target.classList.add('active');
-                    console.log('[TABS] Aba', tabId, 'ativada com sucesso');
-                } else {
-                    console.warn('[TABS] Conteúdo tab-', tabId, 'não encontrado');
-                }
-            }, true); // Fase de captura para interceptar ANTES de tudo
+document.addEventListener('DOMContentLoaded', function(){
+    console.log('[view_user] inline scripts ready');
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(){
+            const tabId = this.getAttribute('data-tab');
+            tabLinks.forEach(l => l.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.add('active');
         });
-        
-        console.log('[TABS] Abas configuradas com sucesso');
-    }
-    
-    // Tentar imediatamente
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupTabs);
-    } else {
-        setupTabs();
-    }
-    
-    // Também tentar no DOMContentLoaded como backup
-    document.addEventListener('DOMContentLoaded', setupTabs);
-})();
+    });
+});
 </script>
 
 <script>
-// Sistema de edição inline removido - usando apenas o sistema IIFE abaixo para evitar duplicação
+// Sistema de edição inline para metas (idêntico ao referência)
+document.addEventListener('DOMContentLoaded', function() {
+    const editableValues = document.querySelectorAll('.editable-value');
+    editableValues.forEach(element => {
+        element.addEventListener('click', function() {
+            if (this.querySelector('input')) return;
+            const field = this.dataset.field;
+            const userId = this.dataset.userId;
+            const currentValue = this.dataset.original;
+            const fullText = this.textContent;
+            const suffix = fullText.replace(currentValue, '').trim();
+            const originalStyles = {
+                fontSize: window.getComputedStyle(this).fontSize,
+                fontWeight: window.getComputedStyle(this).fontWeight,
+                color: window.getComputedStyle(this).color,
+                textAlign: window.getComputedStyle(this).textAlign
+            };
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentValue;
+            input.style.cssText = `
+                background: rgba(255, 255, 255, 0.08);
+                border: 2px solid var(--accent-orange);
+                border-radius: 8px;
+                padding: 0.25rem 0.5rem;
+                color: ${originalStyles.color};
+                font-size: ${originalStyles.fontSize};
+                font-weight: ${originalStyles.fontWeight};
+                text-align: ${originalStyles.textAlign};
+                width: 100%;
+                max-width: 150px;
+                outline: none;
+                font-family: 'Montserrat', sans-serif;
+            `;
+            this.textContent = '';
+            this.appendChild(input);
+            input.focus();
+            input.select();
+
+            const saveValue = async () => {
+                const newValue = input.value;
+                if (!newValue || newValue === currentValue) {
+                    cancelEdit();
+                    return;
+                }
+                try {
+                    const caloriesEl = document.querySelector('[data-field="daily_calories"]');
+                    const proteinEl = document.querySelector('[data-field="protein_g"]');
+                    const carbsEl = document.querySelector('[data-field="carbs_g"]');
+                    const fatEl = document.querySelector('[data-field="fat_g"]');
+                    const formData = new FormData();
+                    formData.append('user_id', userId);
+                    formData.append('daily_calories', field === 'daily_calories' ? newValue : caloriesEl.dataset.original);
+                    formData.append('protein_g', field === 'protein_g' ? newValue : proteinEl.dataset.original);
+                    formData.append('carbs_g', field === 'carbs_g' ? newValue : carbsEl.dataset.original);
+                    formData.append('fat_g', field === 'fat_g' ? newValue : fatEl.dataset.original);
+                    formData.append('water_ml', <?php echo $water_goal_ml; ?>);
+                    const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/update_user_goals.php', {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData
+                    });
+                    const responseText = await response.text();
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (e) {
+                        console.error('Erro ao fazer parse do JSON:', e, responseText);
+                        alert('Erro: Resposta inválida do servidor');
+                        cancelEdit();
+                        return;
+                    }
+                    if (result.success) {
+                        element.dataset.original = newValue;
+                        element.textContent = newValue + suffix;
+                        element.style.animation = 'pulse 0.5s ease';
+                        setTimeout(() => element.style.animation = '', 500);
+                    } else {
+                        alert('Erro ao salvar: ' + result.message);
+                        cancelEdit();
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao salvar alterações');
+                    cancelEdit();
+                }
+            };
+
+            const cancelEdit = () => {
+                element.textContent = currentValue + suffix;
+            };
+
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); saveValue(); }
+                else if (e.key === 'Escape') { cancelEdit(); }
+            });
+        });
+
+        element.style.cursor = 'pointer';
+        element.addEventListener('mouseenter', function() {
+            if (!this.querySelector('input')) {
+                this.style.textDecoration = 'underline';
+                this.style.textDecorationStyle = 'dashed';
+                this.style.textDecorationColor = 'var(--accent-orange)';
+            }
+        });
+        element.addEventListener('mouseleave', function() {
+            this.style.textDecoration = 'none';
+        });
+    });
+});
 
 // Animação pulse usada no feedback visual
 (function(){
@@ -1621,7 +1700,7 @@ window.closeSleepDetailsModal = closeSleepDetailsModal;
 
 <script>
 // Delegação de eventos resiliente p/ edição inline (garante funcionamento mesmo se outro script falhar)
-document.addEventListener('DOMContentLoaded', function(){
+(function(){
     function startInlineEdit(element){
         console.log('[inline-edit] click on', element?.dataset?.field, element?.dataset);
         if (element.querySelector('input')) return;
@@ -1674,18 +1753,11 @@ document.addEventListener('DOMContentLoaded', function(){
         input.addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); saveValue(); } else if (e.key==='Escape'){ cancelEdit(); } });
     }
 
-    // Adicionar listener apenas aos elementos .editable-value diretamente
-    // Não usar listener global para evitar bloquear outros cliques
-    const editableElements = document.querySelectorAll('.editable-value');
-    editableElements.forEach(el => {
-        el.addEventListener('click', function(e) {
-            // Não bloquear propagação - deixar outros listeners funcionarem
-            if (this.querySelector('input')) return;
-            if (e.target.closest('input') || e.target.closest('button') || e.target.closest('a')) return;
-            startInlineEdit(this);
-        });
+    document.addEventListener('click', function(e){
+        const el = e.target.closest('.editable-value');
+        if (el) { e.preventDefault(); startInlineEdit(el); }
     });
-});
+})();
 
 // Logs leves para diagnosticar modais no prod
 window.showRevertModal = (function(orig){
