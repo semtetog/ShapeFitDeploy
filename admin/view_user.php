@@ -2021,18 +2021,8 @@ window.closeHelpModal = closeHelpModal;
             <div class="separator-line"></div>
         </div>
         
-        <!-- Informação de seleção de período -->
-        <div id="chartPeriodSelection" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 107, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 107, 0, 0.3); display: none;">
-            <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
-                <i class="fas fa-info-circle"></i> Selecione um período
-            </div>
-            <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
-                <div style="margin-bottom: 0.5rem;">Clique em uma data para início, depois em outra para fim</div>
-                <div style="font-weight: 500; color: var(--text-primary); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                    Dica: Dê duplo clique em um dia para ver apenas esse dia específico
-                </div>
-            </div>
-        </div>
+        <!-- Ícone de ajuda para abrir popup de instruções -->
+        <i class="fas fa-question-circle chart-calendar-help-icon" onclick="toggleChartCalendarHelp()" title="Ajuda - Como usar o calendário"></i>
         
         <div class="calendar-footer-legend">
             <div class="legend-row">
@@ -2106,6 +2096,120 @@ window.closeHelpModal = closeHelpModal;
     color: var(--accent-orange) !important;
     font-weight: 600 !important;
 }
+
+/* Ícone de ajuda do calendário - estilo igual ao sleep-details-icon */
+.chart-calendar-help-icon {
+    position: absolute;
+    top: 1.5rem;
+    right: 4.5rem;
+    color: var(--accent-orange);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.chart-calendar-help-icon:hover {
+    opacity: 0.7;
+}
+
+/* Popup de ajuda do calendário - lateral direita (fora do modal) */
+.chart-calendar-help-popup {
+    position: fixed;
+    top: 50%;
+    right: calc(50% - 275px + 1.5rem);
+    transform: translateY(-50%);
+    z-index: 10002;
+    pointer-events: all;
+    width: 280px;
+    max-width: calc(100vw - 2rem);
+}
+
+.chart-calendar-help-popup-content {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.chart-calendar-help-popup-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.chart-calendar-help-popup-close:hover {
+    color: var(--text-primary);
+}
+
+.chart-calendar-help-popup-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent-orange);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.chart-calendar-help-popup-header i {
+    font-size: 1rem;
+}
+
+.chart-calendar-help-popup-body {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.chart-calendar-help-popup-body p {
+    margin: 0 0 0.5rem 0;
+}
+
+.chart-calendar-help-popup-tip {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    font-weight: 500 !important;
+    color: var(--text-primary) !important;
+}
+
+.chart-calendar-help-popup-tip strong {
+    color: var(--accent-orange);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .chart-calendar-help-popup {
+        position: fixed !important;
+        top: 2rem !important;
+        right: 1rem !important;
+        left: auto !important;
+        transform: none !important;
+        max-width: calc(100vw - 2rem);
+        width: calc(100vw - 2rem) !important;
+    }
+    
+    .chart-calendar-help-icon {
+        top: 1rem;
+        right: 4rem;
+        font-size: 0.9rem;
+    }
+}
 </style>
 
 <script>
@@ -2136,8 +2240,14 @@ async function openChartCalendar(type) {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
         
-        // Mostrar instrução
-        document.getElementById('chartPeriodSelection').style.display = 'block';
+        // Mostrar popup de ajuda (apenas na primeira vez)
+        const helpPopup = document.getElementById('chartCalendarHelpPopup');
+        if (helpPopup) {
+            const hasSeenHelp = localStorage.getItem('chartCalendarHelpSeen');
+            if (!hasSeenHelp) {
+                helpPopup.style.display = 'block';
+            }
+        }
     }
 }
 
@@ -2159,17 +2269,6 @@ async function loadChartCalendarData(type) {
     }
 }
 
-// Fechar modal de calendário
-function closeChartCalendar() {
-    const modal = document.getElementById('chartCalendarModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        chartDateStart = null;
-        chartDateEnd = null;
-        document.getElementById('chartPeriodSelection').style.display = 'none';
-    }
-}
 
 // Mudar mês do calendário
 function changeChartCalendarMonth(direction) {
@@ -2297,17 +2396,6 @@ function selectChartDate(dateStr) {
         // Nova seleção - definir início
         chartDateStart = dateStr;
         chartDateEnd = null;
-        document.getElementById('chartPeriodSelection').innerHTML = `
-            <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
-                <i class="fas fa-calendar-check"></i> Data inicial selecionada
-            </div>
-            <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
-                <div style="margin-bottom: 0.5rem;">${new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')} - Selecione a data final</div>
-                <div style="font-weight: 500; color: var(--text-primary); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                    Dica: Dê duplo clique para ver apenas este dia
-                </div>
-            </div>
-        `;
     } else {
         // Selecionar fim
         const startDate = new Date(chartDateStart + 'T00:00:00');
@@ -2409,6 +2497,19 @@ function applyChartPeriodSelection() {
 }
 
 
+// Função para abrir/fechar popup de ajuda do calendário
+function toggleChartCalendarHelp() {
+    const popup = document.getElementById('chartCalendarHelpPopup');
+    if (popup) {
+        if (popup.style.display === 'none' || popup.style.display === '') {
+            popup.style.display = 'block';
+        } else {
+            popup.style.display = 'none';
+            localStorage.setItem('chartCalendarHelpSeen', 'true');
+        }
+    }
+}
+
 // Fechar modal clicando fora
 document.addEventListener('click', function(event) {
     const modal = document.getElementById('chartCalendarModal');
@@ -2421,7 +2522,27 @@ document.addEventListener('click', function(event) {
 window.openChartCalendar = openChartCalendar;
 window.closeChartCalendar = closeChartCalendar;
 window.changeChartCalendarMonth = changeChartCalendarMonth;
+window.toggleChartCalendarHelp = toggleChartCalendarHelp;
 </script>
+
+<!-- Popup de ajuda do calendário - lateral direita (fora do modal) -->
+<div id="chartCalendarHelpPopup" class="chart-calendar-help-popup" style="display: none;">
+    <div class="chart-calendar-help-popup-content">
+        <button class="chart-calendar-help-popup-close" onclick="toggleChartCalendarHelp()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="chart-calendar-help-popup-header">
+            <i class="fas fa-info-circle"></i>
+            <span>Selecione um período</span>
+        </div>
+        <div class="chart-calendar-help-popup-body">
+            <p>Clique em uma data para início, depois em outra para fim</p>
+            <p class="chart-calendar-help-popup-tip">
+                <strong>Dica:</strong> Dê duplo clique em um dia para ver apenas esse dia específico
+            </p>
+        </div>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
