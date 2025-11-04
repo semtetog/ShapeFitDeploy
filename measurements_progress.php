@@ -1276,8 +1276,66 @@ input[type="date"].form-control {
 </div>
 
 <script>
-// Preview de fotos e controles de enquadramento
+// Validação e preview de fotos
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('measurements-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const dateInput = document.getElementById('date_recorded');
+    
+    // Validar data futura
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('max', today);
+        
+        dateInput.addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+            
+            if (selectedDate > todayDate) {
+                alert('Não é possível registrar fotos com data futura. Por favor, selecione uma data válida.');
+                this.value = today;
+            }
+        });
+    }
+    
+    // Validar envio de formulário
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Verificar se pelo menos uma foto foi enviada
+            const photoInputs = ['photo_front', 'photo_side', 'photo_back'];
+            let hasPhoto = false;
+            
+            photoInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input && input.files && input.files.length > 0) {
+                    hasPhoto = true;
+                }
+            });
+            
+            if (!hasPhoto) {
+                e.preventDefault();
+                alert('Por favor, envie pelo menos uma foto antes de salvar.');
+                return false;
+            }
+            
+            // Validar data (verificação dupla)
+            if (dateInput) {
+                const selectedDate = new Date(dateInput.value);
+                const todayDate = new Date();
+                todayDate.setHours(0, 0, 0, 0);
+                
+                if (selectedDate > todayDate) {
+                    e.preventDefault();
+                    alert('Não é possível registrar fotos com data futura. Por favor, selecione uma data válida.');
+                    dateInput.value = todayDate.toISOString().split('T')[0];
+                    return false;
+                }
+            }
+        });
+    }
+    
+    // Preview de fotos e controles de enquadramento
     const photoInputs = document.querySelectorAll('input[type="file"]');
     
     
