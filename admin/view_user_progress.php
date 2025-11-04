@@ -436,11 +436,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Abrir modal de foto individual
         window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
             // Coletar fotos APENAS da galeria (que tem todas as fotos únicas)
-            // Não coletar do card inicial para evitar duplicatas
+            // A galeria sempre existe no DOM, mesmo que esteja oculta
             allPhotos = [];
             const seenFiles = new Set();
             
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
+            
             galleryItems.forEach(item => {
                 const img = item.querySelector('img');
                 if (!img || !img.src) return;
@@ -463,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // Se não encontrou fotos na galeria (primeira vez que abre), usar informações do onclick
+            // Se não encontrou fotos na galeria (não deveria acontecer, mas fallback), usar card inicial
             if (allPhotos.length === 0) {
                 const photoItems = document.querySelectorAll('.photo-item');
                 const seenFilesCard = new Set();
@@ -484,18 +485,18 @@ document.addEventListener('DOMContentLoaded', function() {
                             src: img.src,
                             label: type,
                             date: dateText,
-                            measurements: '' // Será atualizado via onclick
+                            measurements: '' // Será atualizado abaixo
                         });
                     }
                 });
             }
             
-            // Usar nome do arquivo para encontrar a foto atual
+            // Encontrar a foto atual e atualizar com informações do onclick (especialmente medidas)
             const fileName = getFileName(imageSrc);
             currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
             
-            // Se não encontrou, adicionar com informações do onclick
             if (currentPhotoIndex === -1) {
+                // Se não encontrou, adicionar com informações do onclick
                 allPhotos.push({
                     src: imageSrc,
                     label: label,
@@ -504,9 +505,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 currentPhotoIndex = allPhotos.length - 1;
             } else {
-                // Atualizar com informações do onclick (especialmente medidas)
+                // SEMPRE atualizar com informações do onclick (especialmente medidas)
+                // Isso garante que as medidas passadas via onclick sejam usadas
                 allPhotos[currentPhotoIndex].label = label;
                 allPhotos[currentPhotoIndex].date = date;
+                // IMPORTANTE: Atualizar medidas se foram passadas via onclick
                 if (measurements && measurements.trim() !== '') {
                     allPhotos[currentPhotoIndex].measurements = measurements;
                 }
