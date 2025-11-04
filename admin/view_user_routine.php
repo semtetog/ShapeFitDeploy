@@ -21,7 +21,7 @@
                 
                 <!-- Navegação e data principal -->
                 <div class="diary-nav-row">
-                    <button class="diary-nav-side diary-nav-left" onclick="navigateRoutineDate(-1)" type="button">
+                    <button class="diary-nav-side diary-nav-left" onclick="window.routineView.navigateRoutineDate(-1)" type="button">
                         <i class="fas fa-chevron-left"></i>
                         <?php 
                         $weekdayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
@@ -39,7 +39,7 @@
                         <div class="diary-weekday" id="routineWeekday"><?php echo $weekdayNames[date('w')]; ?></div>
                     </div>
                     
-                    <button class="diary-nav-side diary-nav-right" onclick="navigateRoutineDate(1)" type="button" style="visibility: hidden;">
+                    <button class="diary-nav-side diary-nav-right" onclick="window.routineView.navigateRoutineDate(1)" type="button" style="visibility: hidden;">
                         <span id="routineNextDate">-</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
@@ -53,7 +53,7 @@
                 </div>
                 
                 <!-- Botão de calendário -->
-                <button class="diary-calendar-icon-btn" onclick="openRoutineCalendar()" type="button" title="Ver calendário">
+                <button class="diary-calendar-icon-btn" onclick="window.routineView.openRoutineCalendar()" type="button" title="Ver calendário">
                     <i class="fas fa-calendar-alt"></i>
                 </button>
             </div>
@@ -82,7 +82,7 @@
                         <p>Gerencie as missões de rotina personalizadas para este paciente</p>
                     </div>
                 </div>
-                <button class="btn-add-mission-circular" onclick="openMissionModal()" title="Adicionar Missão">
+                <button class="btn-add-mission-circular" onclick="window.routineView.openMissionModal()" title="Adicionar Missão">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
@@ -385,6 +385,9 @@
 
 <script>
 (function initRoutine() {
+    // Namespace global para funções da rotina, garantindo que sejam acessíveis
+    window.routineView = {};
+
     const routineUserId = <?php echo json_encode($user_id); ?>;
     if (!routineUserId) {
         console.error("[Routine] ID do usuário não encontrado.");
@@ -398,7 +401,7 @@
     let currentRoutineDate = new Date();
 
     // Funções do slider (navigateRoutineDate, updateRoutineDateDisplay, loadRoutineForDate)
-    function navigateRoutineDate(direction) {
+    window.routineView.navigateRoutineDate = function(direction) {
         const newDate = new Date(currentRoutineDate);
         newDate.setDate(newDate.getDate() + direction);
         const today = new Date();
@@ -407,10 +410,8 @@
 
         currentRoutineDate.setDate(currentRoutineDate.getDate() + direction);
         updateRoutineDateDisplay();
-        loadRoutineForDate(currentRoutineDate);
+        loadRoutineForDate(currentRoutineDate, direction);
     };
-    window.navigateRoutineDate = navigateRoutineDate;
-
 
     function updateRoutineDateDisplay() {
         const today = new Date();
@@ -442,23 +443,39 @@
         }
     }
 
-    async function loadRoutineForDate(date) {
+    async function loadRoutineForDate(date, direction = 0) {
         const dateString = date.toISOString().split('T')[0];
         console.log(`[routine] Carregando data: ${dateString}`);
         const wrapper = document.getElementById('routineContentWrapper');
-        const loadingState = document.getElementById('routineLoadingState');
-        if (loadingState) {
-            loadingState.style.display = 'flex';
-            wrapper.innerHTML = '';
-            wrapper.appendChild(loadingState);
+        
+        // Animação de saída
+        if (direction !== 0 && wrapper.children.length > 0 && !wrapper.querySelector('.diary-loading-state')) {
+            wrapper.style.transition = 'opacity 0.15s ease-out, transform 0.15s ease-out';
+            wrapper.style.opacity = '0';
+            wrapper.style.transform = `translateX(${direction > 0 ? '-20px' : '20px'})`;
+            await new Promise(resolve => setTimeout(resolve, 150));
+        } else {
+            const loadingState = document.getElementById('routineLoadingState');
+            if (loadingState) {
+                loadingState.style.display = 'flex';
+                wrapper.innerHTML = '';
+                wrapper.appendChild(loadingState);
+            }
         }
 
         try {
             const response = await fetch(`actions/load_routine_days.php?user_id=${routineUserId}&date=${dateString}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
+
+            // Preparar para animação de entrada
+            wrapper.style.transition = 'none';
+             if (direction !== 0) {
+                wrapper.style.opacity = '0';
+                wrapper.style.transform = `translateX(${direction > 0 ? '20px' : '-20px'})`;
+            }
             
-            // Extrair contagem de missões do HTML antes de inseri-lo
+            // Inserir conteúdo
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
             const summaryData = tempDiv.querySelector('[data-missions-completed]');
@@ -469,8 +486,13 @@
                 total = summaryData.getAttribute('data-missions-total') || 0;
             }
             document.getElementById('routineSummaryMissions').textContent = `${completed}/${total} missões`;
-            
             wrapper.innerHTML = html;
+
+            // Forçar reflow e animar entrada
+            void wrapper.offsetHeight;
+            wrapper.style.transition = 'opacity 0.15s ease-in, transform 0.15s ease-in';
+            wrapper.style.opacity = '1';
+            wrapper.style.transform = 'translateX(0px)';
 
         } catch (error) {
             console.error('Erro ao carregar rotina:', error);
@@ -521,8 +543,8 @@
                     <div class="mission-header">
                         <div class="mission-icon"><i class="fas ${mission.icon_class}"></i></div>
                         <div class="mission-actions">
-                            <button class="btn-edit" onclick="editMission('${mission.id}', ${isDynamic ? 0 : (isPersonal ? 1 : 0)})" title="Editar"><i class="fas fa-edit"></i></button>
-                            ${!isDynamic ? `<button class="btn-delete" onclick="deleteMission('${mission.id}', '${mission.title.replace(/'/g, "\\'")}', ${isPersonal ? 1 : 0})" title="Excluir"><i class="fas fa-trash"></i></button>` : ''}
+                            <button class="btn-edit" onclick="window.routineView.editMission('${mission.id}', ${isDynamic ? 0 : (isPersonal ? 1 : 0)})" title="Editar"><i class="fas fa-edit"></i></button>
+                            ${!isDynamic ? `<button class="btn-delete" onclick="window.routineView.deleteMission('${mission.id}', '${mission.title.replace(/'/g, "\\'")}', ${isPersonal ? 1 : 0})" title="Excluir"><i class="fas fa-trash"></i></button>` : ''}
                         </div>
                     </div>
                     <div class="mission-body">
@@ -540,7 +562,7 @@
         container.innerHTML = `<div class="empty-missions"><i class="fas fa-info-circle"></i><span>${message}</span></div>`;
     }
 
-    function openMissionModal(mission = null) {
+    window.routineView.openMissionModal = function(mission = null) {
         missionToEdit = mission;
         const modal = document.getElementById('missionModal');
         const form = document.getElementById('missionForm');
@@ -582,24 +604,24 @@
         modal.style.display = 'flex';
     };
 
-    function closeMissionModal() {
+    window.routineView.closeMissionModal = function() {
         document.getElementById('missionModal').style.display = 'none';
     };
 
-    function editMission(missionId, isPersonal) {
+    window.routineView.editMission = function(missionId, isPersonal) {
         fetch(`api/routine_crud.php?action=get_mission&id=${encodeURIComponent(missionId)}&patient_id=${routineUserId}&is_personal=${isPersonal}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.data) {
                     sessionStorage.setItem('current_mission_is_personal', isPersonal);
-                    openMissionModal(data.data);
+                    window.routineView.openMissionModal(data.data);
                 } else {
                     alert('Erro ao carregar dados da missão: ' + data.message);
                 }
             }).catch(error => alert('Erro de conexão ao buscar missão.'));
     };
 
-    function deleteMission(missionId, missionTitle, isPersonal) {
+    window.routineView.deleteMission = function(missionId, missionTitle, isPersonal) {
         if (confirm(`Tem certeza que deseja excluir a missão "${missionTitle}"?`)) {
             fetch('api/routine_crud.php', {
                 method: 'POST',
@@ -639,12 +661,12 @@
     let currentRoutineCalendarDate = new Date();
     let routineDaysWithData = new Set(<?php echo json_encode($routine_days_with_data); ?>);
 
-    function openRoutineCalendar() {
+    window.routineView.openRoutineCalendar = function() {
         document.getElementById('routineCalendarModal').style.display = 'flex';
         renderRoutineCalendar();
     };
 
-    function closeRoutineCalendar() {
+    window.routineView.closeRoutineCalendar = function() {
         document.getElementById('routineCalendarModal').style.display = 'none';
     };
 
@@ -701,7 +723,7 @@
         }
     }
 
-    function navigateRoutineCalendar(direction) {
+    window.routineView.navigateRoutineCalendar = function(direction) {
         currentRoutineCalendarDate.setMonth(currentRoutineCalendarDate.getMonth() + direction);
         renderRoutineCalendar();
     };
@@ -710,7 +732,7 @@
         currentRoutineDate = date;
         updateRoutineDateDisplay();
         loadRoutineForDate(date);
-        closeRoutineCalendar();
+        window.routineView.closeRoutineCalendar();
     }
 
     // ============ INICIALIZAÇÃO E EVENTOS ============
@@ -754,7 +776,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        closeMissionModal();
+                        window.routineView.closeMissionModal();
                         loadMissionsAdminList();
                     } else {
                         alert('Erro ao salvar missão: ' + data.message);
@@ -770,7 +792,7 @@
         function initializeRoutineTab() {
             const routineTab = document.getElementById('tab-routine');
             if (routineTab && routineTab.classList.contains('active')) {
-                loadRoutineForDate(currentRoutineDate);
+                loadRoutineForDate(currentRoutineDate, 0);
                 loadMissionsAdminList();
             }
         }
@@ -779,7 +801,7 @@
             link.addEventListener('click', function() {
                 if (this.getAttribute('data-tab') === 'routine') {
                     setTimeout(() => {
-                        loadRoutineForDate(currentRoutineDate);
+                        loadRoutineForDate(currentRoutineDate, 0);
                         loadMissionsAdminList();
                     }, 150); 
                 }
@@ -1105,9 +1127,9 @@
 
         <!-- Modal do Calendário da Rotina (idêntico ao da aba Diário) -->
         <div id="routineCalendarModal" class="custom-modal">
-            <div class="custom-modal-overlay" onclick="closeRoutineCalendar()"></div>
+            <div class="custom-modal-overlay" onclick="window.routineView.closeRoutineCalendar()"></div>
             <div class="diary-calendar-wrapper">
-                <button class="calendar-btn-close" onclick="closeRoutineCalendar()" type="button">
+                <button class="calendar-btn-close" onclick="window.routineView.closeRoutineCalendar()" type="button">
                     <i class="fas fa-times"></i>
                 </button>
                 
@@ -1116,11 +1138,11 @@
                 </div>
                 
                 <div class="calendar-nav-buttons">
-                    <button class="calendar-btn-nav" onclick="changeRoutineCalendarMonth(-1)" type="button">
+                    <button class="calendar-btn-nav" onclick="window.routineView.navigateRoutineCalendar(-1)" type="button">
                         <i class="fas fa-chevron-left"></i>
                     </button>
                     <div class="calendar-month" id="routineCalendarMonth">OUT</div>
-                    <button class="calendar-btn-nav" id="routineNextMonthBtn" onclick="changeRoutineCalendarMonth(1)" type="button">
+                    <button class="calendar-btn-nav" id="routineNextMonthBtn" onclick="window.routineView.navigateRoutineCalendar(1)" type="button">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
@@ -1166,9 +1188,9 @@
 
         <!-- Modal de Gerenciamento de Missões -->
         <div id="missionModal" class="custom-modal" style="display: none;">
-            <div class="custom-modal-overlay" onclick="closeMissionModal()"></div>
+            <div class="custom-modal-overlay" onclick="window.routineView.closeMissionModal()"></div>
             <div class="diary-calendar-wrapper">
-                <button class="calendar-btn-close" onclick="closeMissionModal()" type="button">
+                <button class="calendar-btn-close" onclick="window.routineView.closeMissionModal()" type="button">
                     <i class="fas fa-times"></i>
                 </button>
                 <div class="modal-header">
