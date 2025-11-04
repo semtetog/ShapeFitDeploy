@@ -1510,6 +1510,21 @@
   padding: 3rem;
   color: var(--text-secondary);
   gap: 1rem;
+  width: 100%;
+  min-height: 240px;
+  text-align: center;
+}
+
+/* Garantir que o loading fique centralizado no card */
+#hydration-bars .empty-chart,
+#nutrients-bars .empty-chart {
+  min-height: 240px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .empty-chart i {
