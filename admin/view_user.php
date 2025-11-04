@@ -766,8 +766,160 @@ window.switchTab = function(tabId) {
     console.log('[TABS] Aba', tabId, 'ativada');
 };
 
-// Função global para calendário de gráficos - será definida completamente depois
-// Não definir stub aqui para evitar sobrescrever a implementação completa
+// Variáveis globais para calendário de gráficos
+let currentChartType = null;
+let currentChartCalendarDate = new Date();
+let chartDateStart = null;
+let chartDateEnd = null;
+let daysWithChartData = new Set();
+
+// Função global para calendário de gráficos - DEFINIR ANTES DOS INCLUDES
+async function openChartCalendar(type) {
+    currentChartType = type;
+    currentChartCalendarDate = new Date();
+    chartDateStart = null;
+    chartDateEnd = null;
+    
+    // Buscar dias com dados do tipo específico
+    await loadChartCalendarData(type);
+    
+    // Renderizar calendário
+    renderChartCalendar();
+    
+    const modal = document.getElementById('chartCalendarModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Mostrar popup de instruções (apenas na primeira vez)
+        const helpPopup = document.getElementById('chartCalendarHelpPopup');
+        if (helpPopup) {
+            const hasSeenHelp = localStorage.getItem('chartCalendarHelpSeen');
+            if (!hasSeenHelp) {
+                helpPopup.style.display = 'block';
+            }
+        }
+    }
+}
+
+// Carregar dados de datas do calendário
+async function loadChartCalendarData(type) {
+    const userIdChart = <?php echo $user_id; ?>;
+    daysWithChartData.clear();
+    
+    try {
+        // Buscar todos os dias que têm dados para o tipo específico
+        const response = await fetch(`<?php echo BASE_ADMIN_URL; ?>/ajax_get_chart_data.php?user_id=${userIdChart}&type=${type}&start_date=2020-01-01&end_date=${new Date().toISOString().split('T')[0]}&list_dates_only=1`);
+        const result = await response.json();
+        
+        if (result.success && result.dates) {
+            result.dates.forEach(date => daysWithChartData.add(date));
+        }
+    } catch (error) {
+        console.error('Erro ao carregar datas do calendário:', error);
+    }
+}
+
+// Renderizar calendário (será definido depois, mas precisa estar acessível)
+function renderChartCalendar() {
+    const year = currentChartCalendarDate.getFullYear();
+    const month = currentChartCalendarDate.getMonth();
+    
+    const yearEl = document.getElementById('chartCalendarYear');
+    const monthEl = document.getElementById('chartCalendarMonth');
+    if (yearEl) yearEl.textContent = year;
+    if (monthEl) monthEl.textContent = window.monthNamesShort[month];
+    
+    const nextBtn = document.getElementById('chartNextMonthBtn');
+    const now = new Date();
+    if (nextBtn) {
+        if (year === now.getFullYear() && month === now.getMonth()) {
+            nextBtn.classList.add('disabled');
+        } else {
+            nextBtn.classList.remove('disabled');
+        }
+    }
+    
+    const grid = document.getElementById('chartCalendarDaysGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const prevMonth = new Date(year, month, 0);
+    const daysInPrevMonth = prevMonth.getDate();
+    const startDay = firstDay.getDay();
+    
+    // Dias do mês anterior
+    for (let i = startDay - 1; i >= 0; i--) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day other-month';
+        dayEl.textContent = daysInPrevMonth - i;
+        grid.appendChild(dayEl);
+    }
+    
+    // Dias do mês atual
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayEl = document.createElement('div');
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        dayEl.className = 'calendar-day';
+        dayEl.textContent = day;
+        dayEl.setAttribute('data-date', dateStr);
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetDate = new Date(dateStr + 'T00:00:00');
+        
+        // Bloquear dias futuros
+        if (targetDate > today) {
+            dayEl.classList.add('future-day');
+        } else {
+            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                dayEl.classList.add('today');
+            }
+            
+            if (daysWithChartData.has(dateStr)) {
+                dayEl.classList.add('has-data');
+            }
+            
+            // Marcar se está no período selecionado
+            if (chartDateStart && chartDateEnd) {
+                const selStart = new Date(chartDateStart + 'T00:00:00');
+                const selEnd = new Date(chartDateEnd + 'T00:00:00');
+                if (targetDate >= selStart && targetDate <= selEnd) {
+                    dayEl.classList.add('selected-range');
+                }
+            } else if (chartDateStart && dateStr === chartDateStart) {
+                dayEl.classList.add('selected-start');
+            }
+            
+            // Adicionar evento de clique
+            dayEl.addEventListener('click', function() {
+                if (targetDate > today) return;
+                
+                if (!chartDateStart || (chartDateStart && chartDateEnd)) {
+                    chartDateStart = dateStr;
+                    chartDateEnd = null;
+                } else {
+                    const start = new Date(chartDateStart + 'T00:00:00');
+                    if (targetDate < start) {
+                        chartDateEnd = chartDateStart;
+                        chartDateStart = dateStr;
+                    } else {
+                        chartDateEnd = dateStr;
+                    }
+                }
+                renderChartCalendar();
+            });
+        }
+        
+        grid.appendChild(dayEl);
+    }
+}
+
+// Expor função globalmente
+window.openChartCalendar = openChartCalendar;
 
 // Fallbacks imediatos: garantem que os handlers inline existam
 (function(){
@@ -2239,82 +2391,12 @@ window.closeHelpModal = closeHelpModal;
 </style>
 
 <script>
-let currentChartType = null; // 'nutrients' ou 'hydration'
-let currentChartCalendarDate = new Date();
-let chartDateStart = null;
-let chartDateEnd = null;
-let daysWithChartData = new Set();
+// Funções e variáveis já definidas antes dos includes - não redeclarar aqui
+// Apenas adicionar funções auxiliares que faltam
 
-// Usar monthNamesShort global diretamente - referenciar window.monthNamesShort quando necessário
-// Não criar variável local para evitar redeclaração
-
-// Abrir modal de calendário para gráficos (COMO NA REFERÊNCIA - FUNÇÃO SIMPLES)
-async function openChartCalendar(type) {
-    currentChartType = type;
-    currentChartCalendarDate = new Date();
-    chartDateStart = null;
-    chartDateEnd = null;
-    
-    // Buscar dias com dados do tipo específico
-    await loadChartCalendarData(type);
-    
-    // Renderizar calendário
-    renderChartCalendar();
-    
-    const modal = document.getElementById('chartCalendarModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        
-        // Mostrar popup de instruções (apenas na primeira vez)
-        const helpPopup = document.getElementById('chartCalendarHelpPopup');
-        if (helpPopup) {
-            const hasSeenHelp = localStorage.getItem('chartCalendarHelpSeen');
-            if (!hasSeenHelp) {
-                helpPopup.style.display = 'block';
-            }
-        }
-    }
-}
-
-// Expor função globalmente
-window.openChartCalendar = openChartCalendar;
-
-// Carregar dados de datas do calendário
-async function loadChartCalendarData(type) {
-    const userIdChart = <?php echo $user_id; ?>;
-    daysWithChartData.clear();
-    
-    try {
-        // Buscar todos os dias que têm dados para o tipo específico
-        const response = await fetch(`ajax_get_chart_data.php?user_id=${userIdChart}&type=${type}&start_date=2020-01-01&end_date=${new Date().toISOString().split('T')[0]}&list_dates_only=1`);
-        const result = await response.json();
-        
-        if (result.success && result.dates) {
-            result.dates.forEach(date => daysWithChartData.add(date));
-        }
-    } catch (error) {
-        console.error('Erro ao carregar datas do calendário:', error);
-    }
-}
-
-// Fechar modal de calendário
-function closeChartCalendar() {
-    const modal = document.getElementById('chartCalendarModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        chartDateStart = null;
-        chartDateEnd = null;
-        const helpPopup = document.getElementById('chartCalendarHelpPopup');
-        if (helpPopup) {
-            helpPopup.style.display = 'none';
-        }
-    }
-}
-
-// Mudar mês do calendário
-function changeChartCalendarMonth(direction) {
+// Mudar mês do calendário (já definido antes, mas garantir que está disponível)
+if (typeof changeChartCalendarMonth !== 'function') {
+    function changeChartCalendarMonth(direction) {
     const newDate = new Date(currentChartCalendarDate);
     newDate.setMonth(newDate.getMonth() + direction);
     
