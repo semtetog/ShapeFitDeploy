@@ -89,8 +89,10 @@ $stmt_photos->close();
             <?php endif; ?>
         </div>
     </div>
-    
-    <!-- Card de Medidas dentro da aba Progresso -->
+</div>
+
+<!-- Card de Medidas dentro da aba Progresso -->
+<div id="tab-progress" class="tab-content">
     <div class="dashboard-card">
         <h3><i class="fas fa-camera"></i> Histórico de Medidas Corporais</h3>
         <div class="measurements-content">

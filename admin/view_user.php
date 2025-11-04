@@ -746,181 +746,6 @@ if (typeof window.userId === 'undefined') {
     window.userId = <?php echo $user_id; ?>;
 }
 
-// Sistema de abas - SIMPLES E FUNCIONAL (como na referência)
-
-// Função global para trocar de aba - DEFINIR ANTES DE TUDO
-window.switchTab = function(tabId) {
-    console.log('[TABS] switchTab chamado com:', tabId);
-    const tabLinks = document.querySelectorAll('.tab-link');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    tabLinks.forEach(l => l.classList.remove('active'));
-    tabContents.forEach(c => c.classList.remove('active'));
-    
-    const clickedTab = document.querySelector(`.tab-link[data-tab="${tabId}"]`);
-    const targetContent = document.getElementById(`tab-${tabId}`);
-    
-    if (clickedTab) clickedTab.classList.add('active');
-    if (targetContent) targetContent.classList.add('active');
-    
-    console.log('[TABS] Aba', tabId, 'ativada');
-};
-
-// Variáveis globais para calendário de gráficos
-let currentChartType = null;
-let currentChartCalendarDate = new Date();
-let chartDateStart = null;
-let chartDateEnd = null;
-let daysWithChartData = new Set();
-
-// Função global para calendário de gráficos - DEFINIR ANTES DOS INCLUDES
-async function openChartCalendar(type) {
-    currentChartType = type;
-    currentChartCalendarDate = new Date();
-    chartDateStart = null;
-    chartDateEnd = null;
-    
-    // Buscar dias com dados do tipo específico
-    await loadChartCalendarData(type);
-    
-    // Renderizar calendário
-    renderChartCalendar();
-    
-    const modal = document.getElementById('chartCalendarModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        
-        // Mostrar popup de instruções (apenas na primeira vez)
-        const helpPopup = document.getElementById('chartCalendarHelpPopup');
-        if (helpPopup) {
-            const hasSeenHelp = localStorage.getItem('chartCalendarHelpSeen');
-            if (!hasSeenHelp) {
-                helpPopup.style.display = 'block';
-            }
-        }
-    }
-}
-
-// Carregar dados de datas do calendário
-async function loadChartCalendarData(type) {
-    const userIdChart = <?php echo $user_id; ?>;
-    daysWithChartData.clear();
-    
-    try {
-        // Buscar todos os dias que têm dados para o tipo específico
-        const response = await fetch(`<?php echo BASE_ADMIN_URL; ?>/ajax_get_chart_data.php?user_id=${userIdChart}&type=${type}&start_date=2020-01-01&end_date=${new Date().toISOString().split('T')[0]}&list_dates_only=1`);
-        const result = await response.json();
-        
-        if (result.success && result.dates) {
-            result.dates.forEach(date => daysWithChartData.add(date));
-        }
-    } catch (error) {
-        console.error('Erro ao carregar datas do calendário:', error);
-    }
-}
-
-// Renderizar calendário (será definido depois, mas precisa estar acessível)
-function renderChartCalendar() {
-    const year = currentChartCalendarDate.getFullYear();
-    const month = currentChartCalendarDate.getMonth();
-    
-    const yearEl = document.getElementById('chartCalendarYear');
-    const monthEl = document.getElementById('chartCalendarMonth');
-    if (yearEl) yearEl.textContent = year;
-    if (monthEl) monthEl.textContent = window.monthNamesShort[month];
-    
-    const nextBtn = document.getElementById('chartNextMonthBtn');
-    const now = new Date();
-    if (nextBtn) {
-        if (year === now.getFullYear() && month === now.getMonth()) {
-            nextBtn.classList.add('disabled');
-        } else {
-            nextBtn.classList.remove('disabled');
-        }
-    }
-    
-    const grid = document.getElementById('chartCalendarDaysGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const prevMonth = new Date(year, month, 0);
-    const daysInPrevMonth = prevMonth.getDate();
-    const startDay = firstDay.getDay();
-    
-    // Dias do mês anterior
-    for (let i = startDay - 1; i >= 0; i--) {
-        const dayEl = document.createElement('div');
-        dayEl.className = 'calendar-day other-month';
-        dayEl.textContent = daysInPrevMonth - i;
-        grid.appendChild(dayEl);
-    }
-    
-    // Dias do mês atual
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-        const dayEl = document.createElement('div');
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        dayEl.className = 'calendar-day';
-        dayEl.textContent = day;
-        dayEl.setAttribute('data-date', dateStr);
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const targetDate = new Date(dateStr + 'T00:00:00');
-        
-        // Bloquear dias futuros
-        if (targetDate > today) {
-            dayEl.classList.add('future-day');
-        } else {
-            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
-                dayEl.classList.add('today');
-            }
-            
-            if (daysWithChartData.has(dateStr)) {
-                dayEl.classList.add('has-data');
-            }
-            
-            // Marcar se está no período selecionado
-            if (chartDateStart && chartDateEnd) {
-                const selStart = new Date(chartDateStart + 'T00:00:00');
-                const selEnd = new Date(chartDateEnd + 'T00:00:00');
-                if (targetDate >= selStart && targetDate <= selEnd) {
-                    dayEl.classList.add('selected-range');
-                }
-            } else if (chartDateStart && dateStr === chartDateStart) {
-                dayEl.classList.add('selected-start');
-            }
-            
-            // Adicionar evento de clique
-            dayEl.addEventListener('click', function() {
-                if (targetDate > today) return;
-                
-                if (!chartDateStart || (chartDateStart && chartDateEnd)) {
-                    chartDateStart = dateStr;
-                    chartDateEnd = null;
-                } else {
-                    const start = new Date(chartDateStart + 'T00:00:00');
-                    if (targetDate < start) {
-                        chartDateEnd = chartDateStart;
-                        chartDateStart = dateStr;
-                    } else {
-                        chartDateEnd = dateStr;
-                    }
-                }
-                renderChartCalendar();
-            });
-        }
-        
-        grid.appendChild(dayEl);
-    }
-}
-
-// Expor função globalmente
-window.openChartCalendar = openChartCalendar;
-
 // Fallbacks imediatos: garantem que os handlers inline existam
 (function(){
     if (typeof window.showRevertModal !== 'function') {
@@ -961,6 +786,23 @@ window.openChartCalendar = openChartCalendar;
             } catch(e) { console.error(e); }
         };
     }
+    // Fallback simples de abas
+    document.addEventListener('DOMContentLoaded', function(){
+        var tabLinks = document.querySelectorAll('.tab-link');
+        var tabContents = document.querySelectorAll('.tab-content');
+        if (tabLinks.length) {
+            tabLinks.forEach(function(link){
+                link.addEventListener('click', function(){
+                    var tabId = this.getAttribute('data-tab');
+                    tabLinks.forEach(function(l){ l.classList.remove('active'); });
+                    tabContents.forEach(function(c){ c.classList.remove('active'); });
+                    this.classList.add('active');
+                    var target = document.getElementById('tab-' + tabId);
+                    if (target) target.classList.add('active');
+                });
+            });
+        }
+    });
 })();
 </script>
 <style>
@@ -1408,33 +1250,33 @@ window.openChartCalendar = openChartCalendar;
 
 <div class="tabs-wrapper">
     <div class="tabs-row">
-        <div class="tab-link active" data-tab="diary" onclick="window.switchTab('diary'); return false;">
+        <div class="tab-link active" data-tab="diary">
             <i class="fas fa-book"></i>
             <span>Diário</span>
         </div>
-        <div class="tab-link" data-tab="hydration" onclick="window.switchTab('hydration'); return false;">
+        <div class="tab-link" data-tab="hydration">
             <i class="fas fa-tint"></i>
             <span>Hidratação</span>
         </div>
-        <div class="tab-link" data-tab="nutrients" onclick="window.switchTab('nutrients'); return false;">
+        <div class="tab-link" data-tab="nutrients">
             <i class="fas fa-apple-alt"></i>
             <span>Nutrientes</span>
         </div>
-        <div class="tab-link" data-tab="progress" onclick="window.switchTab('progress'); return false;">
+        <div class="tab-link" data-tab="progress">
             <i class="fas fa-chart-line"></i>
             <span>Progresso</span>
         </div>
-        <div class="tab-link" data-tab="routine" onclick="window.switchTab('routine'); return false;">
+        <div class="tab-link" data-tab="routine">
             <i class="fas fa-tasks"></i>
             <span>Rotina</span>
         </div>
     </div>
     <div class="tabs-row">
-        <div class="tab-link" data-tab="feedback_analysis" onclick="window.switchTab('feedback_analysis'); return false;">
+        <div class="tab-link" data-tab="feedback_analysis">
             <i class="fas fa-comments"></i>
             <span>Feedback</span>
         </div>
-        <div class="tab-link" data-tab="personalized_goals" onclick="window.switchTab('personalized_goals'); return false;">
+        <div class="tab-link" data-tab="personalized_goals">
             <i class="fas fa-bullseye"></i>
             <span>Metas</span>
         </div>
@@ -1448,7 +1290,9 @@ window.openChartCalendar = openChartCalendar;
 
 <?php include __DIR__ . '/view_user_nutrients.php'; ?>
 
-<?php include __DIR__ . '/view_user_progress.php'; ?>
+<div id="tab-progress" class="tab-content">
+    <!-- Conteúdo da aba Progresso será inserido via include -->
+</div>
 
 <div id="tab-routine" class="tab-content">
     <?php include __DIR__ . '/view_user_routine.php'; ?>
@@ -1729,23 +1573,35 @@ document.addEventListener('DOMContentLoaded', function(){
     console.log('[view_user] inline scripts ready');
     const tabLinks = document.querySelectorAll('.tab-link');
     const tabContents = document.querySelectorAll('.tab-content');
-    
-    // Adicionar onclick inline como backup
-    tabLinks.forEach(link => {
-        const tabId = link.getAttribute('data-tab');
-        if (tabId) {
-            link.setAttribute('onclick', `window.switchTab('${tabId}'); return false;`);
+    // Garantir click do botão de reverter metas mesmo sem inline handler (CSP, etc.)
+    const revertBtn = document.querySelector('.btn-revert-goals');
+    if (revertBtn && typeof window.showRevertModal === 'function') {
+        revertBtn.addEventListener('click', function(e){
+            // Evita qualquer submit acidental caso esteja dentro de um <form>
+            e.preventDefault();
+            e.stopPropagation();
+            window.showRevertModal(<?php echo (int)$user_id; ?>);
+        });
+    }
+    // Delegação defensiva: se clicarem no ícone interno ou se existir overlay de layout
+    document.addEventListener('click', function(e){
+        const btn = e.target.closest('.btn-revert-goals');
+        if (btn && typeof window.showRevertModal === 'function') {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('[view_user] delegated click on .btn-revert-goals');
+            window.showRevertModal(<?php echo (int)$user_id; ?>);
         }
-    });
-    
-    // Também adicionar listener
+    }, true);
     tabLinks.forEach(link => {
-        link.addEventListener('click', function(e){
-            e.stopImmediatePropagation(); // Parar outros listeners
+        link.addEventListener('click', function(){
             const tabId = this.getAttribute('data-tab');
-            if (!tabId) return;
-            window.switchTab(tabId);
-        }, true); // Fase de captura
+            tabLinks.forEach(l => l.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.add('active');
+        });
     });
 });
 </script>
@@ -2116,12 +1972,10 @@ window.closeHelpModal = closeHelpModal;
 <!-- Modal de Calendário para Gráficos (Nutrientes e Hidratação) -->
 <div id="chartCalendarModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeChartCalendar()"></div>
-    <div class="diary-calendar-wrapper" style="position: relative;">
+    <div class="diary-calendar-wrapper">
         <button class="calendar-btn-close" onclick="closeChartCalendar()" type="button">
             <i class="fas fa-times"></i>
         </button>
-        
-        <i class="fas fa-question-circle calendar-help-icon" onclick="openChartCalendarHelp()" title="Ajuda - Como usar o calendário"></i>
         
         <div class="calendar-header-title">
             <div class="calendar-year" id="chartCalendarYear"></div>
@@ -2167,6 +2021,19 @@ window.closeHelpModal = closeHelpModal;
             <div class="separator-line"></div>
         </div>
         
+        <!-- Informação de seleção de período -->
+        <div id="chartPeriodSelection" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 107, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 107, 0, 0.3); display: none;">
+            <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
+                <i class="fas fa-info-circle"></i> Selecione um período
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
+                <div style="margin-bottom: 0.5rem;">Clique em uma data para início, depois em outra para fim</div>
+                <div style="font-weight: 500; color: var(--text-primary); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    Dica: Dê duplo clique em um dia para ver apenas esse dia específico
+                </div>
+            </div>
+        </div>
+        
         <div class="calendar-footer-legend">
             <div class="legend-row">
                 <span class="legend-marker today-marker"></span>
@@ -2180,25 +2047,6 @@ window.closeHelpModal = closeHelpModal;
                 <span class="legend-marker no-data-marker"></span>
                 <span class="legend-text">Sem registros</span>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Popup de instruções externo (canto superior direito) - FORA do modal -->
-<div id="chartCalendarHelpPopup" class="calendar-help-popup-external" style="display: none;">
-    <div class="calendar-help-popup-content">
-        <button class="calendar-help-popup-close" onclick="closeChartCalendarHelp()">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="calendar-help-popup-header">
-            <i class="fas fa-info-circle"></i>
-            <span>Selecione um período</span>
-        </div>
-        <div class="calendar-help-popup-body">
-            <p>Clique em uma data para início, depois em outra para fim</p>
-            <p class="calendar-help-popup-tip">
-                <strong>Dica:</strong> Dê duplo clique em um dia para ver apenas esse dia específico
-            </p>
         </div>
     </div>
 </div>
@@ -2258,145 +2106,73 @@ window.closeHelpModal = closeHelpModal;
     color: var(--accent-orange) !important;
     font-weight: 600 !important;
 }
-
-/* Popup de ajuda do calendário - EXTERNO (lateral ao calendário) */
-.calendar-help-popup-external {
-    position: fixed;
-    top: 10%;
-    left: calc(50% + 275px + 1.5rem); /* Centro da tela + metade da largura do calendário (550px/2) + margem */
-    z-index: 10002;
-    pointer-events: all;
-    width: 280px;
-}
-
-.calendar-help-popup-content {
-    background: var(--card-bg);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 12px;
-    padding: 1.25rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    max-width: 280px;
-    position: relative;
-}
-
-.calendar-help-popup-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s;
-}
-
-.calendar-help-popup-close:hover {
-    color: var(--text-primary);
-}
-
-.calendar-help-popup-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--accent-orange);
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.calendar-help-popup-header i {
-    font-size: 1rem;
-}
-
-.calendar-help-popup-body {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    line-height: 1.6;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.calendar-help-popup-body p {
-    margin: 0 0 0.5rem 0;
-}
-
-.calendar-help-popup-tip {
-    margin-top: 0.75rem !important;
-    padding-top: 0.75rem !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-    font-weight: 500 !important;
-    color: var(--text-primary) !important;
-}
-
-.calendar-help-popup-tip strong {
-    color: var(--accent-orange);
-}
-
-/* Seta removida - popup fica externo sem seta */
-
-/* Ícone de ajuda do calendário - simples como nos cards */
-.calendar-help-icon {
-    position: absolute;
-    top: 1.5rem;
-    right: 4.5rem;
-    color: var(--accent-orange);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    z-index: 10;
-}
-
-.calendar-help-icon:hover {
-    color: var(--accent-orange);
-    transform: scale(1.1);
-    opacity: 0.8;
-}
-
-/* Responsivo */
-@media (max-width: 768px) {
-    .calendar-help-popup-external {
-        position: fixed !important;
-        top: 2rem !important;
-        right: 1rem !important;
-        left: auto !important;
-        transform: none !important;
-        margin-left: 0 !important;
-        max-width: calc(100vw - 2rem);
-        width: calc(100vw - 2rem) !important;
-    }
-    
-    #chartCalendarModal.active .calendar-help-popup-external {
-        position: fixed !important;
-        top: 2rem !important;
-        right: 1rem !important;
-        left: auto !important;
-        transform: none !important;
-    }
-    
-    .calendar-help-popup-content {
-        max-width: 240px;
-    }
-    
-    .calendar-help-icon {
-        top: 1rem;
-        right: 4rem;
-        font-size: 0.9rem;
-    }
-}
 </style>
 
 <script>
-// Funções e variáveis já definidas antes dos includes - não redeclarar aqui
-// Apenas adicionar funções auxiliares que faltam
+let currentChartType = null; // 'nutrients' ou 'hydration'
+let currentChartCalendarDate = new Date();
+let chartDateStart = null;
+let chartDateEnd = null;
+let daysWithChartData = new Set();
 
-// Mudar mês do calendário (já definido antes, mas garantir que está disponível)
-if (typeof changeChartCalendarMonth !== 'function') {
-    function changeChartCalendarMonth(direction) {
+// Usar monthNamesShort global diretamente - referenciar window.monthNamesShort quando necessário
+// Não criar variável local para evitar redeclaração
+
+// Abrir modal de calendário para gráficos
+async function openChartCalendar(type) {
+    currentChartType = type;
+    currentChartCalendarDate = new Date();
+    chartDateStart = null;
+    chartDateEnd = null;
+    
+    // Buscar dias com dados do tipo específico
+    await loadChartCalendarData(type);
+    
+    // Renderizar calendário
+    renderChartCalendar();
+    
+    const modal = document.getElementById('chartCalendarModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Mostrar instrução
+        document.getElementById('chartPeriodSelection').style.display = 'block';
+    }
+}
+
+// Carregar dados de datas do calendário
+async function loadChartCalendarData(type) {
+    const userIdChart = <?php echo $user_id; ?>;
+    daysWithChartData.clear();
+    
+    try {
+        // Buscar todos os dias que têm dados para o tipo específico
+        const response = await fetch(`ajax_get_chart_data.php?user_id=${userIdChart}&type=${type}&start_date=2020-01-01&end_date=${new Date().toISOString().split('T')[0]}&list_dates_only=1`);
+        const result = await response.json();
+        
+        if (result.success && result.dates) {
+            result.dates.forEach(date => daysWithChartData.add(date));
+        }
+    } catch (error) {
+        console.error('Erro ao carregar datas do calendário:', error);
+    }
+}
+
+// Fechar modal de calendário
+function closeChartCalendar() {
+    const modal = document.getElementById('chartCalendarModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        chartDateStart = null;
+        chartDateEnd = null;
+        document.getElementById('chartPeriodSelection').style.display = 'none';
+    }
+}
+
+// Mudar mês do calendário
+function changeChartCalendarMonth(direction) {
     const newDate = new Date(currentChartCalendarDate);
     newDate.setMonth(newDate.getMonth() + direction);
     
@@ -2521,6 +2297,17 @@ function selectChartDate(dateStr) {
         // Nova seleção - definir início
         chartDateStart = dateStr;
         chartDateEnd = null;
+        document.getElementById('chartPeriodSelection').innerHTML = `
+            <div style="color: var(--accent-orange); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
+                <i class="fas fa-calendar-check"></i> Data inicial selecionada
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
+                <div style="margin-bottom: 0.5rem;">${new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')} - Selecione a data final</div>
+                <div style="font-weight: 500; color: var(--text-primary); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    Dica: Dê duplo clique para ver apenas este dia
+                </div>
+            </div>
+        `;
     } else {
         // Selecionar fim
         const startDate = new Date(chartDateStart + 'T00:00:00');
@@ -2631,29 +2418,9 @@ document.addEventListener('click', function(event) {
 });
 
 // Expor função globalmente para ser acessível por outros scripts
-// Já exposta acima
+window.openChartCalendar = openChartCalendar;
 window.closeChartCalendar = closeChartCalendar;
 window.changeChartCalendarMonth = changeChartCalendarMonth;
-
-// Fechar popup de ajuda
-function closeChartCalendarHelp() {
-    const helpPopup = document.getElementById('chartCalendarHelpPopup');
-    if (helpPopup) {
-        helpPopup.style.display = 'none';
-        localStorage.setItem('chartCalendarHelpSeen', 'true');
-    }
-}
-
-// Abrir popup de ajuda
-function openChartCalendarHelp() {
-    const helpPopup = document.getElementById('chartCalendarHelpPopup');
-    if (helpPopup) {
-        helpPopup.style.display = 'block';
-    }
-}
-
-window.openChartCalendarHelp = openChartCalendarHelp;
-window.closeChartCalendarHelp = closeChartCalendarHelp;
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

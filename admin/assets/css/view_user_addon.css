@@ -2367,34 +2367,15 @@
 }
 
 .summary-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(54, 162, 235, 0.2), rgba(54, 162, 235, 0.05));
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  font-size: 1.25rem;
-}
-
-.summary-icon i {
-  font-size: 1.25rem;
-}
-
-/* Ícone de hidratação - mesmo estilo do diary-header-icon */
-.hydration-summary-card .summary-icon {
-  width: 48px !important;
-  height: 48px !important;
-  border-radius: 12px !important;
-  background: linear-gradient(135deg, rgba(54, 162, 235, 0.2), rgba(54, 162, 235, 0.05)) !important;
-  border: 1px solid rgba(54, 162, 235, 0.2) !important;
-  color: #36A2EB !important;
-  font-size: 1.25rem !important;
-}
-
-.hydration-summary-card .summary-icon i {
-  font-size: 1.25rem !important;
-  color: #36A2EB !important;
+  font-size: 1.75rem;
+  color: var(--primary-blue);
 }
 
 .summary-info {
@@ -3071,7 +3052,7 @@
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8);
 }
 
-/* Botão X - IGUAL AO sleep-modal-close */
+/* Botão X */
 .calendar-btn-close {
   position: absolute;
   top: 1rem;
@@ -3398,22 +3379,16 @@
 }
 
 .nutrients-summary-card .summary-icon {
-  width: 48px !important;
-  height: 48px !important;
-  border-radius: 12px !important;
-  background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.05)) !important;
-  border: 1px solid rgba(244, 67, 54, 0.2) !important;
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, var(--accent-orange), #ff8e53);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem !important;
-  color: #F44336 !important;
+  font-size: 1.5rem;
+  color: white;
   flex-shrink: 0;
-}
-
-.nutrients-summary-card .summary-icon i {
-  font-size: 1.25rem !important;
-  color: #F44336 !important;
 }
 
 .nutrients-summary-card .summary-info h3 {
