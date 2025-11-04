@@ -767,19 +767,46 @@ function switchTab(tabId) {
             target.classList.add('active');
             console.log(`[switchTab] SUCESSO: Aba ${tabId} ativada`);
             return true;
-        } else {
-            console.warn(`[switchTab] Elemento tab-${tabId} não encontrado ainda, tentando novamente...`);
-            return false;
         }
+        return false;
     }
     
     // Tentar imediatamente
     if (!activateTab()) {
-        // Se não encontrou, tentar após um pequeno delay (includes PHP podem ainda estar carregando)
-        setTimeout(activateTab, 50);
-        setTimeout(activateTab, 200);
+        // Se não encontrou, tentar após delays maiores (includes PHP podem ainda estar carregando)
+        setTimeout(() => {
+            if (!activateTab()) {
+                setTimeout(() => {
+                    if (!activateTab()) {
+                        setTimeout(() => {
+                            if (!activateTab()) {
+                                console.error(`[switchTab] ERRO: Elemento tab-${tabId} não encontrado após múltiplas tentativas`);
+                            }
+                        }, 500);
+                    }
+                }, 300);
+            }
+        }, 100);
     }
 }
+
+// Função global para calendário de gráficos - DEFINIDA ANTES DOS INCLUDES
+window.openChartCalendar = window.openChartCalendar || (async function openChartCalendar(type) {
+    // Esta função será definida completamente depois, mas pelo menos existe aqui
+    console.log('[openChartCalendar] Chamada com:', type);
+    if (typeof window._openChartCalendarImpl === 'function') {
+        return window._openChartCalendarImpl(type);
+    } else {
+        console.warn('[openChartCalendar] Implementação ainda não carregada, aguardando...');
+        setTimeout(() => {
+            if (typeof window._openChartCalendarImpl === 'function') {
+                window._openChartCalendarImpl(type);
+            } else {
+                console.error('[openChartCalendar] ERRO: Implementação não encontrada');
+            }
+        }, 500);
+    }
+});
 
 // Fallbacks imediatos: garantem que os handlers inline existam
 (function(){
@@ -2174,9 +2201,8 @@ let daysWithChartData = new Set();
 // Usar monthNamesShort global diretamente - referenciar window.monthNamesShort quando necessário
 // Não criar variável local para evitar redeclaração
 
-// Abrir modal de calendário para gráficos
-// Expor função globalmente antes de ser usada
-window.openChartCalendar = window.openChartCalendar || async function openChartCalendar(type) {
+// Implementação completa da função openChartCalendar
+window._openChartCalendarImpl = async function openChartCalendar(type) {
     currentChartType = type;
     currentChartCalendarDate = new Date();
     chartDateStart = null;
@@ -2202,7 +2228,10 @@ window.openChartCalendar = window.openChartCalendar || async function openChartC
             }
         }
     }
-}
+};
+
+// Atualizar a função global para usar a implementação
+window.openChartCalendar = window._openChartCalendarImpl || window.openChartCalendar;
 
 // Carregar dados de datas do calendário
 async function loadChartCalendarData(type) {
