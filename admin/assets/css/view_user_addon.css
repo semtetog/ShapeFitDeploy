@@ -3911,9 +3911,9 @@
 
 .period-btn {
   padding: 10px 20px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
+  border: 1px solid rgba(255, 107, 0, 0.2);
+  background: rgba(255, 107, 0, 0.08);
+  color: var(--accent-orange);
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -3921,16 +3921,29 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+  width: auto;
+  min-width: auto;
+}
+
+.period-btn i {
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .period-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+  background: rgba(255, 107, 0, 0.15);
+  border-color: var(--accent-orange);
+  transform: scale(1.05);
 }
 
 .period-btn.active {
   background: var(--accent-orange);
   color: white;
+  border-color: var(--accent-orange);
   box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
 }
 
