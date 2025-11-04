@@ -398,7 +398,7 @@
     let currentRoutineDate = new Date();
 
     // Funções do slider (navigateRoutineDate, updateRoutineDateDisplay, loadRoutineForDate)
-    window.navigateRoutineDate = function(direction) {
+    function navigateRoutineDate(direction) {
         const newDate = new Date(currentRoutineDate);
         newDate.setDate(newDate.getDate() + direction);
         const today = new Date();
@@ -409,6 +409,8 @@
         updateRoutineDateDisplay();
         loadRoutineForDate(currentRoutineDate);
     };
+    window.navigateRoutineDate = navigateRoutineDate;
+
 
     function updateRoutineDateDisplay() {
         const today = new Date();
@@ -538,7 +540,7 @@
         container.innerHTML = `<div class="empty-missions"><i class="fas fa-info-circle"></i><span>${message}</span></div>`;
     }
 
-    window.openMissionModal = function(mission = null) {
+    function openMissionModal(mission = null) {
         missionToEdit = mission;
         const modal = document.getElementById('missionModal');
         const form = document.getElementById('missionForm');
@@ -580,11 +582,11 @@
         modal.style.display = 'flex';
     };
 
-    window.closeMissionModal = function() {
+    function closeMissionModal() {
         document.getElementById('missionModal').style.display = 'none';
     };
 
-    window.editMission = function(missionId, isPersonal) {
+    function editMission(missionId, isPersonal) {
         fetch(`api/routine_crud.php?action=get_mission&id=${encodeURIComponent(missionId)}&patient_id=${routineUserId}&is_personal=${isPersonal}`)
             .then(response => response.json())
             .then(data => {
@@ -597,7 +599,7 @@
             }).catch(error => alert('Erro de conexão ao buscar missão.'));
     };
 
-    window.deleteMission = function(missionId, missionTitle, isPersonal) {
+    function deleteMission(missionId, missionTitle, isPersonal) {
         if (confirm(`Tem certeza que deseja excluir a missão "${missionTitle}"?`)) {
             fetch('api/routine_crud.php', {
                 method: 'POST',
@@ -637,12 +639,12 @@
     let currentRoutineCalendarDate = new Date();
     let routineDaysWithData = new Set(<?php echo json_encode($routine_days_with_data); ?>);
 
-    window.openRoutineCalendar = function() {
+    function openRoutineCalendar() {
         document.getElementById('routineCalendarModal').style.display = 'flex';
         renderRoutineCalendar();
     };
 
-    window.closeRoutineCalendar = function() {
+    function closeRoutineCalendar() {
         document.getElementById('routineCalendarModal').style.display = 'none';
     };
 
@@ -699,7 +701,7 @@
         }
     }
 
-    window.navigateRoutineCalendar = function(direction) {
+    function navigateRoutineCalendar(direction) {
         currentRoutineCalendarDate.setMonth(currentRoutineCalendarDate.getMonth() + direction);
         renderRoutineCalendar();
     };
