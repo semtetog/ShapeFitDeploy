@@ -435,16 +435,23 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Abrir modal de foto individual
         window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
+            // LIMPAR array ANTES de coletar (evitar duplicatas de chamadas anteriores)
+            allPhotos = [];
+            const seenFiles = new Set(); // Set para garantir unicidade absoluta
+            
             // Coletar fotos APENAS da galeria (que tem todas as fotos únicas)
             // A galeria sempre existe no DOM, mesmo que esteja oculta
-            allPhotos = [];
-            const seenFiles = new Set();
-            
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
             
-            galleryItems.forEach(item => {
+            console.log('[view_user_progress] openPhotoModal - Total de itens na galeria HTML:', galleryItems.length);
+            
+            // Coletar fotos da galeria com verificação rigorosa de duplicatas
+            galleryItems.forEach((item, index) => {
                 const img = item.querySelector('img');
-                if (!img || !img.src) return;
+                if (!img || !img.src) {
+                    console.log('[view_user_progress] openPhotoModal - Item sem img:', index);
+                    return;
+                }
                 
                 const type = item.querySelector('.gallery-photo-type')?.textContent || '';
                 const dateText = item.querySelector('.gallery-photo-date')?.textContent || '';
@@ -453,19 +460,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const fileName = getFileName(img.src);
                 
-                if (fileName && !seenFiles.has(fileName)) {
-                    seenFiles.add(fileName);
-                    allPhotos.push({
-                        src: img.src,
-                        label: type,
-                        date: dateText,
-                        measurements: measurementsText
-                    });
+                if (!fileName) {
+                    console.log('[view_user_progress] openPhotoModal - Item sem fileName:', index, img.src);
+                    return;
                 }
+                
+                // VERIFICAÇÃO RIGOROSA: Se já vimos este arquivo, IGNORAR completamente
+                if (seenFiles.has(fileName)) {
+                    console.log('[view_user_progress] openPhotoModal - DUPLICATA DETECTADA e IGNORADA:', fileName, 'Índice no DOM:', index);
+                    return;
+                }
+                
+                // Adicionar ao Set e ao array
+                seenFiles.add(fileName);
+                allPhotos.push({
+                    src: img.src,
+                    label: type,
+                    date: dateText,
+                    measurements: measurementsText
+                });
+                console.log('[view_user_progress] openPhotoModal - Foto adicionada da galeria:', fileName, 'Total até agora:', allPhotos.length);
             });
+            
+            console.log('[view_user_progress] openPhotoModal - Total de fotos únicas coletadas da galeria:', allPhotos.length);
+            console.log('[view_user_progress] openPhotoModal - Arquivos únicos:', Array.from(seenFiles));
             
             // Se não encontrou fotos na galeria (não deveria acontecer, mas fallback), usar card inicial
             if (allPhotos.length === 0) {
+                console.log('[view_user_progress] openPhotoModal - Galeria vazia, usando card inicial como fallback');
                 const photoItems = document.querySelectorAll('.photo-item');
                 const seenFilesCard = new Set();
                 
@@ -495,18 +517,33 @@ document.addEventListener('DOMContentLoaded', function() {
             const fileName = getFileName(imageSrc);
             currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
             
+            console.log('[view_user_progress] openPhotoModal - Foto atual procurada:', fileName);
+            console.log('[view_user_progress] openPhotoModal - Índice encontrado:', currentPhotoIndex);
+            
             if (currentPhotoIndex === -1) {
                 // Se não encontrou, adicionar com informações do onclick
-                allPhotos.push({
-                    src: imageSrc,
-                    label: label,
-                    date: date,
-                    measurements: measurements || ''
-                });
-                currentPhotoIndex = allPhotos.length - 1;
+                console.log('[view_user_progress] openPhotoModal - Foto não encontrada, adicionando ao array');
+                
+                // Verificar se não é duplicata antes de adicionar
+                if (!seenFiles.has(fileName)) {
+                    seenFiles.add(fileName);
+                    allPhotos.push({
+                        src: imageSrc,
+                        label: label,
+                        date: date,
+                        measurements: measurements || ''
+                    });
+                    currentPhotoIndex = allPhotos.length - 1;
+                    console.log('[view_user_progress] openPhotoModal - Foto adicionada via onclick. Total:', allPhotos.length);
+                } else {
+                    console.log('[view_user_progress] openPhotoModal - AVISO: Tentativa de adicionar foto duplicada via onclick:', fileName);
+                    // Tentar encontrar novamente
+                    currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
+                }
             } else {
                 // SEMPRE atualizar com informações do onclick (especialmente medidas)
                 // Isso garante que as medidas passadas via onclick sejam usadas
+                console.log('[view_user_progress] openPhotoModal - Foto encontrada, atualizando informações');
                 allPhotos[currentPhotoIndex].label = label;
                 allPhotos[currentPhotoIndex].date = date;
                 // IMPORTANTE: Atualizar medidas se foram passadas via onclick
@@ -514,6 +551,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     allPhotos[currentPhotoIndex].measurements = measurements;
                 }
             }
+            
+            console.log('[view_user_progress] openPhotoModal - Total FINAL de fotos:', allPhotos.length);
+            console.log('[view_user_progress] openPhotoModal - currentPhotoIndex:', currentPhotoIndex);
+            console.log('[view_user_progress] openPhotoModal - Array completo:', allPhotos.map(p => ({ fileName: getFileName(p.src), label: p.label })));
             
             const modal = document.getElementById('photoModal');
             const modalImage = document.getElementById('photoModalImage');
@@ -557,7 +598,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Atualizar conteúdo do modal de foto
         function updatePhotoModalContent() {
-            if (allPhotos.length === 0) return;
+            if (allPhotos.length === 0) {
+                console.error('[view_user_progress] updatePhotoModalContent - ERRO: allPhotos está vazio!');
+                return;
+            }
+            
+            if (currentPhotoIndex < 0 || currentPhotoIndex >= allPhotos.length) {
+                console.error('[view_user_progress] updatePhotoModalContent - ERRO: currentPhotoIndex inválido:', currentPhotoIndex, 'Total:', allPhotos.length);
+                return;
+            }
             
             const photo = allPhotos[currentPhotoIndex];
             const modalImage = document.getElementById('photoModalImage');
@@ -567,6 +616,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const photoCounter = document.getElementById('photoCounter');
             const prevBtn = document.getElementById('prevPhotoBtn');
             const nextBtn = document.getElementById('nextPhotoBtn');
+            
+            console.log('[view_user_progress] updatePhotoModalContent - Atualizando foto:', {
+                index: currentPhotoIndex,
+                total: allPhotos.length,
+                fileName: getFileName(photo.src),
+                label: photo.label,
+                date: photo.date,
+                measurements: photo.measurements
+            });
             
             if (modalImage) modalImage.src = photo.src;
             if (modalLabel) modalLabel.textContent = photo.label;
@@ -586,7 +644,11 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 console.error('[view_user_progress] updatePhotoModalContent - ERRO: modalMeasurements element não encontrado!');
             }
-            if (photoCounter) photoCounter.textContent = `${currentPhotoIndex + 1} de ${allPhotos.length}`;
+            
+            if (photoCounter) {
+                photoCounter.textContent = `${currentPhotoIndex + 1} de ${allPhotos.length}`;
+                console.log('[view_user_progress] updatePhotoModalContent - Contador atualizado:', photoCounter.textContent);
+            }
             
             // Mostrar/ocultar botões de navegação
             if (prevBtn) prevBtn.style.visibility = allPhotos.length > 1 ? 'visible' : 'hidden';
