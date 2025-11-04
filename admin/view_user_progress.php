@@ -366,22 +366,21 @@ document.addEventListener('keydown', function(e) {
 });
 
 // Inicializar gráfico de peso quando a página carregar - verificar se já não foi inicializado
-(function() {
-    function initProgressChart() {
-        const weightChartCtx = document.getElementById('weightHistoryChart');
+document.addEventListener('DOMContentLoaded', function() {
+    const weightChartCtx = document.getElementById('weightHistoryChart');
+    
+    // Verificar se o gráfico já foi inicializado
+    if (weightChartCtx && weightChartCtx._chart) {
+        return; // Gráfico já inicializado
+    }
+    
+    if (weightChartCtx && typeof Chart !== 'undefined' && typeof userViewData !== 'undefined' && userViewData && userViewData.weightHistory && userViewData.weightHistory.data.length >= 1) {
+        const ctx = weightChartCtx.getContext('2d');
         
-        // Verificar se o gráfico já foi inicializado
-        if (weightChartCtx && weightChartCtx._chart) {
-            return; // Gráfico já inicializado
-        }
+        // Marcar como inicializado
+        weightChartCtx._chart = true;
         
-        if (weightChartCtx && typeof Chart !== 'undefined' && typeof userViewData !== 'undefined' && userViewData && userViewData.weightHistory && userViewData.weightHistory.data.length >= 1) {
-            const ctx = weightChartCtx.getContext('2d');
-            
-            // Marcar como inicializado
-            weightChartCtx._chart = true;
-            
-            new Chart(ctx, {
+        new Chart(ctx, {
             type: 'line',
             data: {
                 labels: userViewData.weightHistory.labels,
