@@ -1558,38 +1558,54 @@ window.openSleepDetailsModal = openSleepDetailsModal;
 window.closeSleepDetailsModal = closeSleepDetailsModal;
 
 // Fallback de tabs: garante troca de abas mesmo se o JS externo falhar
-document.addEventListener('DOMContentLoaded', function(){
-    console.log('[view_user] inline scripts ready');
-    const tabLinks = document.querySelectorAll('.tab-link');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    console.log('[view_user] Encontradas', tabLinks.length, 'abas');
-    
-    // Função para trocar de aba
-    function switchTab(tabId) {
-        console.log('[view_user] Trocando para aba:', tabId);
-        tabLinks.forEach(l => l.classList.remove('active'));
-        tabContents.forEach(c => c.classList.remove('active'));
-        const clickedTab = document.querySelector(`.tab-link[data-tab="${tabId}"]`);
-        const targetContent = document.getElementById(`tab-${tabId}`);
-        if (clickedTab) clickedTab.classList.add('active');
-        if (targetContent) targetContent.classList.add('active');
+// Executar imediatamente E no DOMContentLoaded para garantir
+(function initTabs() {
+    function setupTabs() {
+        console.log('[TABS] Inicializando abas...');
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        console.log('[TABS] Encontradas', tabLinks.length, 'abas');
+        
+        if (tabLinks.length === 0) {
+            console.warn('[TABS] Nenhuma aba encontrada, tentando novamente...');
+            setTimeout(setupTabs, 100);
+            return;
+        }
+        
+        tabLinks.forEach((link) => {
+            link.addEventListener('click', function(e) {
+                console.log('[TABS] Clique detectado na aba:', this.getAttribute('data-tab'));
+                e.stopImmediatePropagation(); // Parar TODOS os outros listeners
+                const tabId = this.getAttribute('data-tab');
+                if (!tabId) return;
+                
+                tabLinks.forEach(l => l.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                const target = document.getElementById(`tab-${tabId}`);
+                if (target) {
+                    target.classList.add('active');
+                    console.log('[TABS] Aba', tabId, 'ativada com sucesso');
+                } else {
+                    console.warn('[TABS] Conteúdo tab-', tabId, 'não encontrado');
+                }
+            }, true); // Fase de captura para interceptar ANTES de tudo
+        });
+        
+        console.log('[TABS] Abas configuradas com sucesso');
     }
     
-    // Adicionar listener direto em cada aba (na fase de captura para interceptar antes de outros)
-    tabLinks.forEach(link => {
-        const tabId = link.getAttribute('data-tab');
-        if (!tabId) return;
-        
-        link.addEventListener('click', function(e){
-            console.log('[view_user] Clique detectado na aba:', tabId);
-            e.stopPropagation();
-            e.preventDefault();
-            switchTab(tabId);
-            return false;
-        }, true); // Fase de captura para interceptar antes de outros listeners
-    });
-});
+    // Tentar imediatamente
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupTabs);
+    } else {
+        setupTabs();
+    }
+    
+    // Também tentar no DOMContentLoaded como backup
+    document.addEventListener('DOMContentLoaded', setupTabs);
+})();
 </script>
 
 <script>
