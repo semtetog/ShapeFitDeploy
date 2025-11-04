@@ -786,23 +786,6 @@ if (typeof window.userId === 'undefined') {
             } catch(e) { console.error(e); }
         };
     }
-    // Fallback simples de abas
-    document.addEventListener('DOMContentLoaded', function(){
-        var tabLinks = document.querySelectorAll('.tab-link');
-        var tabContents = document.querySelectorAll('.tab-content');
-        if (tabLinks.length) {
-            tabLinks.forEach(function(link){
-                link.addEventListener('click', function(){
-                    var tabId = this.getAttribute('data-tab');
-                    tabLinks.forEach(function(l){ l.classList.remove('active'); });
-                    tabContents.forEach(function(c){ c.classList.remove('active'); });
-                    this.classList.add('active');
-                    var target = document.getElementById('tab-' + tabId);
-                    if (target) target.classList.add('active');
-                });
-            });
-        }
-    });
 })();
 </script>
 <style>
@@ -1290,9 +1273,7 @@ if (typeof window.userId === 'undefined') {
 
 <?php include __DIR__ . '/view_user_nutrients.php'; ?>
 
-<div id="tab-progress" class="tab-content">
-    <!-- Conteúdo da aba Progresso será inserido via include -->
-</div>
+<?php include __DIR__ . '/view_user_progress.php'; ?>
 
 <div id="tab-routine" class="tab-content">
     <?php include __DIR__ . '/view_user_routine.php'; ?>
@@ -1568,21 +1549,85 @@ window.closeAlertModal = closeAlertModal;
 window.openSleepDetailsModal = openSleepDetailsModal;
 window.closeSleepDetailsModal = closeSleepDetailsModal;
 
-// Fallback de tabs: garante troca de abas mesmo se o JS externo falhar
+// Sistema de abas: garante funcionamento mesmo se o JS externo falhar
 document.addEventListener('DOMContentLoaded', function(){
-    console.log('[view_user] inline scripts ready');
-    const tabLinks = document.querySelectorAll('.tab-link');
-    const tabContents = document.querySelectorAll('.tab-content');
+    console.log('[view_user] DOMContentLoaded - inicializando abas');
+    
+    // Inicializar sistema de abas
+    function initTabs() {
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        if (tabLinks.length === 0 || tabContents.length === 0) {
+            console.warn('[view_user] Abas não encontradas');
+            return;
+        }
+        
+        console.log(`[view_user] Encontradas ${tabLinks.length} abas e ${tabContents.length} conteúdos`);
+        
+        // Adicionar listeners às abas
+        tabLinks.forEach(link => {
+            // Marcar como inicializado para evitar conflitos
+            if (link.hasAttribute('data-tabs-initialized')) {
+                return; // Já inicializado
+            }
+            link.setAttribute('data-tabs-initialized', 'true');
+            link.addEventListener('click', function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const tabId = this.getAttribute('data-tab');
+                console.log(`[view_user] Clicou na aba: ${tabId}`);
+                
+                if (!tabId) {
+                    console.warn('[view_user] Aba sem data-tab atributo');
+                    return;
+                }
+                
+                // Remover active de todas as abas e conteúdos
+                document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Adicionar active na aba clicada
+                this.classList.add('active');
+                
+                // Adicionar active no conteúdo correspondente
+                const target = document.getElementById(`tab-${tabId}`);
+                if (target) {
+                    target.classList.add('active');
+                    console.log(`[view_user] Aba ${tabId} ativada`);
+                } else {
+                    console.error(`[view_user] Conteúdo da aba ${tabId} não encontrado (tab-${tabId})`);
+                }
+            });
+        });
+        
+        // Garantir que a primeira aba esteja ativa por padrão
+        const firstTab = document.querySelector('.tab-link.active');
+        if (firstTab) {
+            const firstTabId = firstTab.getAttribute('data-tab');
+            if (firstTabId) {
+                const firstContent = document.getElementById(`tab-${firstTabId}`);
+                if (firstContent) {
+                    firstContent.classList.add('active');
+                }
+            }
+        }
+    }
+    
+    // Inicializar abas
+    initTabs();
+    
     // Garantir click do botão de reverter metas mesmo sem inline handler (CSP, etc.)
     const revertBtn = document.querySelector('.btn-revert-goals');
     if (revertBtn && typeof window.showRevertModal === 'function') {
         revertBtn.addEventListener('click', function(e){
-            // Evita qualquer submit acidental caso esteja dentro de um <form>
             e.preventDefault();
             e.stopPropagation();
             window.showRevertModal(<?php echo (int)$user_id; ?>);
         });
     }
+    
     // Delegação defensiva: se clicarem no ícone interno ou se existir overlay de layout
     document.addEventListener('click', function(e){
         const btn = e.target.closest('.btn-revert-goals');
@@ -1593,16 +1638,6 @@ document.addEventListener('DOMContentLoaded', function(){
             window.showRevertModal(<?php echo (int)$user_id; ?>);
         }
     }, true);
-    tabLinks.forEach(link => {
-        link.addEventListener('click', function(){
-            const tabId = this.getAttribute('data-tab');
-            tabLinks.forEach(l => l.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            const target = document.getElementById(`tab-${tabId}`);
-            if (target) target.classList.add('active');
-        });
-    });
 });
 </script>
 
