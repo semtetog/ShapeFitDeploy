@@ -435,50 +435,82 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Abrir modal de foto individual
         window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
-            // SEMPRE recolher fotos para garantir que temos todas atualizadas
-            collectAllPhotos();
+            // Coletar fotos APENAS da galeria (que tem todas as fotos únicas)
+            // Não coletar do card inicial para evitar duplicatas
+            allPhotos = [];
+            const seenFiles = new Set();
             
-            // Usar nome do arquivo para comparação
-            const fileName = getFileName(imageSrc);
-            
-            // Encontrar índice da foto atual pelo nome do arquivo
-            currentPhotoIndex = allPhotos.findIndex(photo => {
-                const photoFileName = getFileName(photo.src);
-                return photoFileName === fileName;
+            const galleryItems = document.querySelectorAll('.gallery-photo-item');
+            galleryItems.forEach(item => {
+                const img = item.querySelector('img');
+                if (!img || !img.src) return;
+                
+                const type = item.querySelector('.gallery-photo-type')?.textContent || '';
+                const dateText = item.querySelector('.gallery-photo-date')?.textContent || '';
+                const measurementsEl = item.querySelector('.gallery-photo-measurements');
+                const measurementsText = measurementsEl ? measurementsEl.textContent.trim() : '';
+                
+                const fileName = getFileName(img.src);
+                
+                if (fileName && !seenFiles.has(fileName)) {
+                    seenFiles.add(fileName);
+                    allPhotos.push({
+                        src: img.src,
+                        label: type,
+                        date: dateText,
+                        measurements: measurementsText
+                    });
+                }
             });
             
-            // Se não encontrou a foto, criar uma nova entrada com as informações do onclick
-            // Mas APENAS se realmente não existir (verificação dupla)
-            if (currentPhotoIndex === -1) {
-                // Verificar novamente se realmente não existe
-                const exists = allPhotos.some(photo => getFileName(photo.src) === fileName);
+            // Se não encontrou fotos na galeria (primeira vez que abre), usar informações do onclick
+            if (allPhotos.length === 0) {
+                const photoItems = document.querySelectorAll('.photo-item');
+                const seenFilesCard = new Set();
                 
-                if (!exists) {
-                    allPhotos.push({
-                        src: imageSrc,
-                        label: label,
-                        date: date,
-                        measurements: measurements || ''
-                    });
-                    currentPhotoIndex = allPhotos.length - 1;
-                    console.log('[view_user_progress] openPhotoModal - Foto adicionada. Total:', allPhotos.length);
-                } else {
-                    // Se existe mas findIndex falhou, tentar novamente
-                    currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
-                }
+                photoItems.forEach(item => {
+                    const img = item.querySelector('img');
+                    if (!img || !img.src) return;
+                    
+                    const dateSpan = item.querySelector('.photo-date');
+                    const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
+                    const dateText = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
+                    
+                    const fileName = getFileName(img.src);
+                    
+                    if (fileName && !seenFilesCard.has(fileName)) {
+                        seenFilesCard.add(fileName);
+                        allPhotos.push({
+                            src: img.src,
+                            label: type,
+                            date: dateText,
+                            measurements: '' // Será atualizado via onclick
+                        });
+                    }
+                });
+            }
+            
+            // Usar nome do arquivo para encontrar a foto atual
+            const fileName = getFileName(imageSrc);
+            currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
+            
+            // Se não encontrou, adicionar com informações do onclick
+            if (currentPhotoIndex === -1) {
+                allPhotos.push({
+                    src: imageSrc,
+                    label: label,
+                    date: date,
+                    measurements: measurements || ''
+                });
+                currentPhotoIndex = allPhotos.length - 1;
             } else {
-                // Se encontrou, atualizar com as informações mais completas do onclick
+                // Atualizar com informações do onclick (especialmente medidas)
                 allPhotos[currentPhotoIndex].label = label;
                 allPhotos[currentPhotoIndex].date = date;
                 if (measurements && measurements.trim() !== '') {
                     allPhotos[currentPhotoIndex].measurements = measurements;
                 }
             }
-            
-            console.log('[view_user_progress] openPhotoModal - currentPhotoIndex:', currentPhotoIndex);
-            console.log('[view_user_progress] openPhotoModal - Total de fotos:', allPhotos.length);
-            console.log('[view_user_progress] openPhotoModal - fileName:', fileName);
-            console.log('[view_user_progress] openPhotoModal - allPhotos fileNames:', allPhotos.map(p => getFileName(p.src)));
             
             const modal = document.getElementById('photoModal');
             const modalImage = document.getElementById('photoModalImage');
@@ -541,6 +573,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const shouldShow = measurementsText && measurementsText.trim() !== '';
                 modalMeasurements.textContent = measurementsText;
                 modalMeasurements.style.display = shouldShow ? 'block' : 'none';
+                
+                // Debug: verificar se as medidas estão sendo exibidas
+                if (shouldShow) {
+                    console.log('[view_user_progress] updatePhotoModalContent - Medidas exibidas:', measurementsText);
+                } else {
+                    console.log('[view_user_progress] updatePhotoModalContent - AVISO: Medidas vazias para foto:', photo);
+                }
+            } else {
+                console.error('[view_user_progress] updatePhotoModalContent - ERRO: modalMeasurements element não encontrado!');
             }
             if (photoCounter) photoCounter.textContent = `${currentPhotoIndex + 1} de ${allPhotos.length}`;
             
