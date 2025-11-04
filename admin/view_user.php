@@ -791,21 +791,27 @@ function switchTab(tabId) {
 }
 
 // Função global para calendário de gráficos - DEFINIDA ANTES DOS INCLUDES
+// Esta é uma função stub que será substituída pela implementação completa depois
 window.openChartCalendar = window.openChartCalendar || (async function openChartCalendar(type) {
-    // Esta função será definida completamente depois, mas pelo menos existe aqui
-    console.log('[openChartCalendar] Chamada com:', type);
-    if (typeof window._openChartCalendarImpl === 'function') {
-        return window._openChartCalendarImpl(type);
-    } else {
-        console.warn('[openChartCalendar] Implementação ainda não carregada, aguardando...');
-        setTimeout(() => {
-            if (typeof window._openChartCalendarImpl === 'function') {
-                window._openChartCalendarImpl(type);
-            } else {
-                console.error('[openChartCalendar] ERRO: Implementação não encontrada');
-            }
-        }, 500);
+    console.log('[openChartCalendar] Chamada com:', type, '- aguardando implementação...');
+    
+    // Aguardar até que a implementação esteja disponível
+    let attempts = 0;
+    const maxAttempts = 20; // 20 tentativas = 2 segundos
+    
+    function tryExecute() {
+        attempts++;
+        if (typeof window._openChartCalendarImpl === 'function') {
+            console.log('[openChartCalendar] Implementação encontrada, executando...');
+            return window._openChartCalendarImpl(type);
+        } else if (attempts < maxAttempts) {
+            setTimeout(tryExecute, 100);
+        } else {
+            console.error('[openChartCalendar] ERRO: Implementação não encontrada após', maxAttempts, 'tentativas');
+        }
     }
+    
+    setTimeout(tryExecute, 50);
 });
 
 // Fallbacks imediatos: garantem que os handlers inline existam
@@ -2230,8 +2236,9 @@ window._openChartCalendarImpl = async function openChartCalendar(type) {
     }
 };
 
-// Atualizar a função global para usar a implementação
-window.openChartCalendar = window._openChartCalendarImpl || window.openChartCalendar;
+// Atualizar a função global para usar a implementação completa
+window.openChartCalendar = window._openChartCalendarImpl;
+console.log('[openChartCalendar] Implementação completa carregada');
 
 // Carregar dados de datas do calendário
 async function loadChartCalendarData(type) {
