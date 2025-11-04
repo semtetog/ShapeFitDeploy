@@ -358,19 +358,24 @@ document.addEventListener('DOMContentLoaded', function() {
         // Coletar todas as fotos da galeria e do card inicial
         function collectAllPhotos() {
             allPhotos = [];
-            const photosMap = new Map(); // Usar Map para evitar duplicatas por src
+            const photosMap = new Map(); // Usar Map para evitar duplicatas por src normalizado
             
             // Coletar fotos da galeria modal PRIMEIRO (elas têm informações mais completas)
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
             galleryItems.forEach(item => {
                 const img = item.querySelector('img');
+                if (!img || !img.src) return;
+                
                 const type = item.querySelector('.gallery-photo-type')?.textContent || '';
                 const date = item.querySelector('.gallery-photo-date')?.textContent || '';
                 const measurementsEl = item.querySelector('.gallery-photo-measurements');
                 const measurements = measurementsEl ? measurementsEl.textContent.trim() : '';
                 
-                if (img && img.src) {
-                    photosMap.set(img.src, {
+                // Normalizar src para evitar duplicatas
+                const normalizedSrc = img.src.split('?')[0];
+                
+                if (!photosMap.has(normalizedSrc)) {
+                    photosMap.set(normalizedSrc, {
                         src: img.src,
                         label: type,
                         date: date,
@@ -383,13 +388,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const photoItems = document.querySelectorAll('.photo-item');
             photoItems.forEach(item => {
                 const img = item.querySelector('img');
+                if (!img || !img.src) return;
+                
                 const dateSpan = item.querySelector('.photo-date');
                 const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
                 const date = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
                 
-                if (img && img.src && !photosMap.has(img.src)) {
+                // Normalizar src para comparação
+                const normalizedSrc = img.src.split('?')[0];
+                
+                if (!photosMap.has(normalizedSrc)) {
                     // Só adicionar se não existir na galeria (evitar duplicatas)
-                    photosMap.set(img.src, {
+                    photosMap.set(normalizedSrc, {
                         src: img.src,
                         label: type,
                         date: date,
@@ -404,12 +414,21 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Abrir modal de foto individual
         window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
-            collectAllPhotos();
+            // Coletar fotos apenas se ainda não foram coletadas
+            if (allPhotos.length === 0) {
+                collectAllPhotos();
+            }
             
-            // Encontrar índice da foto atual ou criar uma nova entrada se não existir
-            currentPhotoIndex = allPhotos.findIndex(photo => photo.src === imageSrc);
+            // Normalizar o src para comparação (remover query strings, etc)
+            const normalizedSrc = imageSrc.split('?')[0];
             
-            // Se não encontrou a foto, criar uma nova entrada
+            // Encontrar índice da foto atual
+            currentPhotoIndex = allPhotos.findIndex(photo => {
+                const photoSrc = photo.src.split('?')[0];
+                return photoSrc === normalizedSrc;
+            });
+            
+            // Se não encontrou a foto, criar uma nova entrada com as informações do onclick
             if (currentPhotoIndex === -1) {
                 allPhotos.push({
                     src: imageSrc,
@@ -420,13 +439,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentPhotoIndex = allPhotos.length - 1;
             } else {
                 // Se encontrou, atualizar com as informações mais completas do onclick
-                if (allPhotos[currentPhotoIndex]) {
-                    allPhotos[currentPhotoIndex].label = label;
-                    allPhotos[currentPhotoIndex].date = date;
-                    // Atualizar medidas se foram passadas via onclick
-                    if (measurements && measurements.trim() !== '') {
-                        allPhotos[currentPhotoIndex].measurements = measurements;
-                    }
+                allPhotos[currentPhotoIndex].label = label;
+                allPhotos[currentPhotoIndex].date = date;
+                if (measurements && measurements.trim() !== '') {
+                    allPhotos[currentPhotoIndex].measurements = measurements;
                 }
             }
             
