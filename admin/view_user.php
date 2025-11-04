@@ -748,6 +748,24 @@ if (typeof window.userId === 'undefined') {
 
 // Sistema de abas - SIMPLES E FUNCIONAL (como na referência)
 
+// Função global para trocar de aba - DEFINIR ANTES DE TUDO
+window.switchTab = function(tabId) {
+    console.log('[TABS] switchTab chamado com:', tabId);
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabLinks.forEach(l => l.classList.remove('active'));
+    tabContents.forEach(c => c.classList.remove('active'));
+    
+    const clickedTab = document.querySelector(`.tab-link[data-tab="${tabId}"]`);
+    const targetContent = document.getElementById(`tab-${tabId}`);
+    
+    if (clickedTab) clickedTab.classList.add('active');
+    if (targetContent) targetContent.classList.add('active');
+    
+    console.log('[TABS] Aba', tabId, 'ativada');
+};
+
 // Função global para calendário de gráficos - DEFINIDA ANTES DOS INCLUDES (como na referência)
 // Será implementada completamente depois, mas pelo menos existe aqui
 window.openChartCalendar = window.openChartCalendar || function openChartCalendar(type) {
@@ -1241,33 +1259,33 @@ window.openChartCalendar = window.openChartCalendar || function openChartCalenda
 
 <div class="tabs-wrapper">
     <div class="tabs-row">
-        <div class="tab-link active" data-tab="diary">
+        <div class="tab-link active" data-tab="diary" onclick="window.switchTab('diary'); return false;">
             <i class="fas fa-book"></i>
             <span>Diário</span>
         </div>
-        <div class="tab-link" data-tab="hydration">
+        <div class="tab-link" data-tab="hydration" onclick="window.switchTab('hydration'); return false;">
             <i class="fas fa-tint"></i>
             <span>Hidratação</span>
         </div>
-        <div class="tab-link" data-tab="nutrients">
+        <div class="tab-link" data-tab="nutrients" onclick="window.switchTab('nutrients'); return false;">
             <i class="fas fa-apple-alt"></i>
             <span>Nutrientes</span>
         </div>
-        <div class="tab-link" data-tab="progress">
+        <div class="tab-link" data-tab="progress" onclick="window.switchTab('progress'); return false;">
             <i class="fas fa-chart-line"></i>
             <span>Progresso</span>
         </div>
-        <div class="tab-link" data-tab="routine">
+        <div class="tab-link" data-tab="routine" onclick="window.switchTab('routine'); return false;">
             <i class="fas fa-tasks"></i>
             <span>Rotina</span>
         </div>
     </div>
     <div class="tabs-row">
-        <div class="tab-link" data-tab="feedback_analysis">
+        <div class="tab-link" data-tab="feedback_analysis" onclick="window.switchTab('feedback_analysis'); return false;">
             <i class="fas fa-comments"></i>
             <span>Feedback</span>
         </div>
-        <div class="tab-link" data-tab="personalized_goals">
+        <div class="tab-link" data-tab="personalized_goals" onclick="window.switchTab('personalized_goals'); return false;">
             <i class="fas fa-bullseye"></i>
             <span>Metas</span>
         </div>
@@ -1563,15 +1581,22 @@ document.addEventListener('DOMContentLoaded', function(){
     const tabLinks = document.querySelectorAll('.tab-link');
     const tabContents = document.querySelectorAll('.tab-content');
     
+    // Adicionar onclick inline como backup
     tabLinks.forEach(link => {
-        link.addEventListener('click', function(){
+        const tabId = link.getAttribute('data-tab');
+        if (tabId) {
+            link.setAttribute('onclick', `window.switchTab('${tabId}'); return false;`);
+        }
+    });
+    
+    // Também adicionar listener
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(e){
+            e.stopImmediatePropagation(); // Parar outros listeners
             const tabId = this.getAttribute('data-tab');
-            tabLinks.forEach(l => l.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            const target = document.getElementById(`tab-${tabId}`);
-            if (target) target.classList.add('active');
-        });
+            if (!tabId) return;
+            window.switchTab(tabId);
+        }, true); // Fase de captura
     });
 });
 </script>
