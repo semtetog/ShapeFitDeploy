@@ -11,23 +11,23 @@ window.addEventListener('error', function(e){
 // Garantir handlers mesmo se inline for bloqueado (CSP)
 document.addEventListener('DOMContentLoaded', function(){
   console.log('[user_view_logic] DOMContentLoaded');
-  // Delegação para botão de reverter metas
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('.btn-revert-goals');
-    if (btn){
-      console.log('[user_view_logic] delegated click .btn-revert-goals');
-      e.preventDefault();
-      e.stopPropagation();
-      if (typeof window.showRevertModal === 'function') {
-        try { window.showRevertModal(parseInt(btn.getAttribute('onclick')?.match(/\d+/)?.[0] || btn.dataset.userId || '0', 10)); }
-        catch(err){ console.log('[user_view_logic] showRevertModal call error', err); }
-      } else {
-        console.log('[user_view_logic] showRevertModal not found; toggling modal fallback');
-        const m = document.getElementById('revertGoalsModal');
-        if (m){ m.classList.add('active'); document.body.style.overflow = 'hidden'; }
+  // Delegação para botão de reverter metas - apenas se necessário
+  const revertBtn = document.querySelector('.btn-revert-goals');
+  if (revertBtn && typeof window.showRevertModal !== 'undefined') {
+    revertBtn.addEventListener('click', function(e){
+      // Só prevenir se for um botão dentro de um form
+      if (this.closest('form')) {
+        e.preventDefault();
       }
-    }
-  }, true);
+      if (typeof window.showRevertModal === 'function') {
+        try { 
+          const userId = parseInt(this.dataset.userId || this.getAttribute('onclick')?.match(/\d+/)?.[0] || '0', 10);
+          window.showRevertModal(userId); 
+        }
+        catch(err){ console.log('[user_view_logic] showRevertModal call error', err); }
+      }
+    });
+  }
 });
 
 window.addEventListener('load', function(){

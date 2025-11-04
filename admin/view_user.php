@@ -1573,8 +1573,7 @@ document.addEventListener('DOMContentLoaded', function(){
             }
             link.setAttribute('data-tabs-initialized', 'true');
             link.addEventListener('click', function(e){
-                e.preventDefault();
-                e.stopPropagation();
+                // Não prevenir default - deixar o comportamento normal
                 
                 const tabId = this.getAttribute('data-tab');
                 console.log(`[view_user] Clicou na aba: ${tabId}`);
@@ -1622,22 +1621,13 @@ document.addEventListener('DOMContentLoaded', function(){
     const revertBtn = document.querySelector('.btn-revert-goals');
     if (revertBtn && typeof window.showRevertModal === 'function') {
         revertBtn.addEventListener('click', function(e){
-            e.preventDefault();
-            e.stopPropagation();
+            // Só prevenir se for um botão dentro de um form
+            if (this.closest('form')) {
+                e.preventDefault();
+            }
             window.showRevertModal(<?php echo (int)$user_id; ?>);
         });
     }
-    
-    // Delegação defensiva: se clicarem no ícone interno ou se existir overlay de layout
-    document.addEventListener('click', function(e){
-        const btn = e.target.closest('.btn-revert-goals');
-        if (btn && typeof window.showRevertModal === 'function') {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('[view_user] delegated click on .btn-revert-goals');
-            window.showRevertModal(<?php echo (int)$user_id; ?>);
-        }
-    }, true);
 });
 </script>
 
@@ -1820,7 +1810,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('click', function(e){
         const el = e.target.closest('.editable-value');
-        if (el) { e.preventDefault(); startInlineEdit(el); }
+        // Só processar se não for um input ou botão
+        if (el && !e.target.closest('input') && !e.target.closest('button') && !e.target.closest('a')) {
+            startInlineEdit(el);
+        }
     });
 })();
 
