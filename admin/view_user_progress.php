@@ -533,12 +533,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const shouldShow = measurementsText && measurementsText.trim() !== '';
                 modalMeasurements.textContent = measurementsText;
                 modalMeasurements.style.display = shouldShow ? 'block' : 'none';
-                console.log('[view_user_progress] updatePhotoModalContent - modalMeasurements:', {
-                    text: measurementsText,
-                    display: modalMeasurements.style.display,
-                    shouldShow: shouldShow,
-                    photoMeasurements: photo.measurements
-                });
             }
             if (photoCounter) photoCounter.textContent = `${currentPhotoIndex + 1} de ${allPhotos.length}`;
             
