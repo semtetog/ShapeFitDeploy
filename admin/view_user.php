@@ -766,11 +766,8 @@ window.switchTab = function(tabId) {
     console.log('[TABS] Aba', tabId, 'ativada');
 };
 
-// Função global para calendário de gráficos - DEFINIDA ANTES DOS INCLUDES (como na referência)
-// Será implementada completamente depois, mas pelo menos existe aqui
-window.openChartCalendar = window.openChartCalendar || function openChartCalendar(type) {
-    console.log('[openChartCalendar] Chamada com:', type, '- aguardando implementação...');
-};
+// Função global para calendário de gráficos - será definida completamente depois
+// Não definir stub aqui para evitar sobrescrever a implementação completa
 
 // Fallbacks imediatos: garantem que os handlers inline existam
 (function(){
