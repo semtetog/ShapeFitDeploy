@@ -677,28 +677,28 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*       CSS SIMPLES E EFETIVO PARA OS CARDS DE PROGRESSO (FINAL)          */
+/*       CSS DEFINITIVO E ROBUSTO PARA OS CARDS DE PROGRESSO               */
 /* ========================================================================= */
 
-/* 1. O Grid principal que organiza os dois cards */
+/* 1. O Grid principal. Deixamos ele esticar os itens (comportamento padrão) */
 .progress-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
-    align-items: start; /* Impede que um card estique o outro */
+    /* A propriedade 'align-items' é removida para que os cards tenham a mesma altura */
 }
 
-/* 2. Removemos toda a complexidade Flexbox dos cards */
+/* 2. Transformamos AMBOS os cards em containers flexíveis */
 .dashboard-card.weight-history-card,
 .dashboard-card.photos-history-card {
-    /* Nenhuma regra de display:flex ou flex-direction aqui */
+    display: flex;
+    flex-direction: column;
 }
 
-/* 3. Uma altura fixa e razoável para o container do gráfico,
-      que funciona bem na maioria dos zooms. */
+/* 3. O container do GRÁFICO vai crescer para preencher o espaço */
 .weight-chart-container {
     position: relative;
-    height: 230px; /* Uma altura um pouco maior para acomodar o gráfico */
+    flex-grow: 1; /* Faz o container do gráfico se esticar para preencher a altura do card */
 }
 
 .btn-view-gallery {
