@@ -1061,9 +1061,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .gallery-session-photos {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 200px));
+    grid-template-columns: repeat(4, 1fr); /* 4 fotos por linha - todas do mesmo tamanho */
     gap: 1rem;
-    justify-content: start;
+    justify-content: center;
 }
 
 .gallery-photo-item {
