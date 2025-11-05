@@ -868,6 +868,114 @@ if (typeof window.userId === 'undefined') {
     font-size: 0.9rem;
 }
 
+/* Avatar clicável */
+.avatar-clickable {
+    transition: all 0.3s ease;
+}
+
+.avatar-clickable:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.4);
+}
+
+/* Modal de Avatar Expandido */
+.avatar-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.avatar-modal.active {
+    display: flex !important;
+    opacity: 1;
+}
+
+.avatar-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    cursor: pointer;
+}
+
+.avatar-modal-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.avatar-modal.active .avatar-modal-content {
+    transform: scale(1);
+}
+
+.avatar-modal-content img {
+    max-width: 100%;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    object-fit: contain;
+}
+
+.avatar-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10002;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+.avatar-modal-close:hover {
+    background: rgba(244, 67, 54, 0.9);
+    border-color: var(--danger-red);
+    color: white;
+    transform: scale(1.1);
+}
+
+.avatar-modal-close:active {
+    transform: scale(0.95);
+}
+
+.avatar-modal-close i {
+    font-size: 1rem;
+}
+
 /* Botão de perigo no modal */
 .btn-modal-danger {
     background: rgba(244, 67, 54, 0.15);
