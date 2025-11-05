@@ -443,6 +443,77 @@ input[type=number] {
     font-size: 0.875rem;
 }
 
+/* ===== SECTION STYLES ===== */
+.ingredients-section,
+.nutrition-section {
+    margin-bottom: 2rem;
+}
+
+.section-subtitle {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.section-divider {
+    border: none;
+    border-top: 1px solid var(--glass-border);
+    margin: 1.5rem 0;
+}
+
+.btn-add-ingredient {
+    margin-top: 1rem;
+}
+
+/* ===== CALCULATION TOOL ===== */
+.calculation-tool {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--glass-border);
+}
+
+.calculation-label {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: block;
+    font-weight: 500;
+}
+
+.calculation-tool .form-group {
+    margin-bottom: 1rem;
+}
+
+.calculation-tool .form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== READONLY INPUT ===== */
+.form-control-readonly {
+    background-color: rgba(17, 17, 17, 0.6) !important;
+    color: var(--accent-orange) !important;
+    font-weight: 600 !important;
+    border-style: dashed !important;
+    border-color: var(--accent-orange) !important;
+    cursor: not-allowed;
+}
+
+.field-help {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    display: block;
+    line-height: 1.4;
+}
+
+.categories-help {
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
 /* ===== PREVIEW ===== */
 .mobile-preview-wrapper {
     width: 380px;
@@ -489,8 +560,8 @@ input[type=number] {
                 <h3>Ingredientes e Informações Nutricionais</h3>
                 <div class="card-body">
                     <!-- SEÇÃO DE INGREDIENTES -->
-                    <div style="margin-bottom: 2rem;">
-                        <h4 style="color: var(--text-color); margin-bottom: 1rem; font-size: 1.1rem;">Ingredientes</h4>
+                    <div class="ingredients-section">
+                        <h4 class="section-subtitle">Ingredientes</h4>
                         <div id="ingredients-container">
                             <?php if (!empty($ingredients)) : foreach ($ingredients as $ing) : ?>
                             <div class="ingredient-row">
@@ -526,18 +597,18 @@ input[type=number] {
                             </div>
                             <?php endif; ?>
                         </div>
-                        <button type="button" id="btn-add-ingredient" class="btn btn-secondary btn-sm" style="margin-top: 10px;"><i class="fas fa-plus"></i> Adicionar Ingrediente</button>
+                        <button type="button" id="btn-add-ingredient" class="btn btn-secondary btn-sm btn-add-ingredient"><i class="fas fa-plus"></i> Adicionar Ingrediente</button>
                     </div>
 
-                    <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+                    <hr class="section-divider">
 
                     <!-- SEÇÃO DE INFORMAÇÕES NUTRICIONAIS E PORÇÕES -->
-                    <div>
-                        <h4 style="color: var(--text-color); margin-bottom: 1rem; font-size: 1.1rem;">Informações Nutricionais e Porções</h4>
+                    <div class="nutrition-section">
+                        <h4 class="section-subtitle">Informações Nutricionais e Porções</h4>
 
                         <!-- FERRAMENTA DE CÁLCULO (AGORA É A ENTRADA PRINCIPAL) -->
-                        <div class="form-group" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 1.5rem;">
-                            <label style="font-size: 0.9rem; color: var(--text-color); margin-bottom: 1rem;">1. Preencha os dados da sua receita pronta:</label>
+                        <div class="calculation-tool">
+                            <label class="calculation-label">1. Preencha os dados da sua receita pronta:</label>
                             <div class="form-group-grid-2">
                                 <div class="form-group">
                                     <label for="helper_total_weight">Peso Total da Receita (g)</label>
@@ -553,14 +624,13 @@ input[type=number] {
                         <!-- CAMPO DE RESULTADO (O QUE SERÁ SALVO) -->
                         <div class="form-group">
                             <label for="serving_size_g">2. Peso Final por Porção (calculado)</label>
-                            <input type="number" id="serving_size_g" name="serving_size_g" class="form-control" 
+                            <input type="number" id="serving_size_g" name="serving_size_g" class="form-control form-control-readonly" 
                                    value="<?php echo htmlspecialchars($recipe['serving_size_g'] ?? ''); ?>" 
-                                   step="0.01" readonly 
-                                   style="background-color: #111; color: var(--primary-accent); font-weight: bold; border-style: dashed;">
-                            <small style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; display: block;">Este valor é calculado automaticamente a partir do Peso Total e do Rendimento. É este valor que será salvo.</small>
+                                   step="0.01" readonly>
+                            <small class="field-help">Este valor é calculado automaticamente a partir do Peso Total e do Rendimento. É este valor que será salvo.</small>
                         </div>
                         
-                        <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+                        <hr class="section-divider">
 
                          <div class="form-group-grid-2">
                             <div class="form-group"><label>Calorias (kcal)</label><input type="text" id="kcal_per_serving" name="kcal_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['kcal_per_serving'] ?? ''); ?>"></div>
@@ -613,7 +683,7 @@ input[type=number] {
              <div class="content-card">
                 <h3>Categorias</h3>
                 <div class="card-body">
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 15px;">Selecione todas as categorias que se aplicam.</p>
+                    <p class="field-help categories-help">Selecione todas as categorias que se aplicam.</p>
                     <div class="checkbox-grid" id="categories-grid-container">
                         <?php foreach($all_categories as $category): ?>
                         <div class="checkbox-item">
