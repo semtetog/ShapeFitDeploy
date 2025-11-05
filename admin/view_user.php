@@ -868,24 +868,25 @@ if (typeof window.userId === 'undefined') {
 
 /* Botão de perigo no modal */
 .btn-modal-danger {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    color: white;
-    border: none;
+    background: rgba(244, 67, 54, 0.15);
+    color: var(--danger-red);
+    border: 1px solid rgba(244, 67, 54, 0.4);
     border-radius: 8px;
-    padding: 10px 20px;
+    padding: 0.75rem 1.5rem;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
 }
 
 .btn-modal-danger:hover {
-    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    background: rgba(244, 67, 54, 0.25);
+    border-color: var(--danger-red);
+    color: var(--danger-red);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
 }
 
 /* Deploy check badge */
@@ -1844,12 +1845,6 @@ async function confirmDeleteUser() {
     const userNameToDelete = currentUserNameToDelete;
     
     closeDeleteUserModal();
-    
-    // Confirmar novamente com prompt nativo para segurança extra
-    const confirmMessage = `Tem CERTEZA ABSOLUTA que deseja excluir PERMANENTEMENTE o usuário "${userNameToDelete}"?\n\nEsta ação NÃO PODE SER DESFEITA!`;
-    if (!confirm(confirmMessage)) {
-        return;
-    }
     
     try {
         const formData = new FormData();
