@@ -747,9 +747,9 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Galeria de Fotos */
 .photo-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 200px));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    justify-content: start;
+    max-width: 100%;
 }
 
 .photo-item {
@@ -761,8 +761,8 @@ document.addEventListener('DOMContentLoaded', function() {
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
     max-width: 200px;
-    max-height: 200px;
 }
 
 .photo-item:hover {
@@ -1141,15 +1141,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .photo-modal-measurements {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.2);
     border-radius: 8px;
     color: var(--accent-orange);
-    font-size: 0.75rem;
-    line-height: 1.5;
+    font-size: 0.875rem;
+    line-height: 1.6;
     text-align: center;
-    margin-top: 0.5rem;
+    margin-top: 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .photo-counter {
