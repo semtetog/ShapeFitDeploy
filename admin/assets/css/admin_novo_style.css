@@ -885,12 +885,38 @@ html *, body *, .admin-wrapper *, .main-content *, .content-wrapper * {
 .sidebar-nav a {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1.5rem;
   color: #CCCCCC;
   text-decoration: none;
   transition: all 0.3s ease;
   font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Alinhamento perfeito dos ícones */
+.sidebar-nav a i {
+  width: 20px;
+  min-width: 20px;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Alinhamento perfeito do texto */
+.sidebar-nav a {
+  vertical-align: middle;
+}
+
+.sidebar-nav a > *:not(i) {
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .sidebar-nav a:hover {
