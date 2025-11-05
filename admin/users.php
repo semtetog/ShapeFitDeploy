@@ -192,6 +192,44 @@ require_once __DIR__ . '/includes/header.php';
 .user-card-wrapper .user-card {
     text-decoration: none;
     color: inherit;
+    min-height: 280px; /* Altura mínima para todos os cards */
+    max-height: 280px; /* Altura máxima para todos os cards */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Garantir que o body tenha altura fixa */
+.user-card-wrapper .user-card .user-card-body {
+    flex: 1 1 auto;
+    min-height: 0; /* Permite que o conteúdo se ajuste */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Nome do usuário - truncar com ellipsis após 2 linhas */
+.user-card-wrapper .user-card .user-card-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limitar a 2 linhas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    max-height: 2.8em; /* Aproximadamente 2 linhas (1.4 * 2) */
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Email - truncar com ellipsis após 2 linhas */
+.user-card-wrapper .user-card .user-card-email {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limitar a 2 linhas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    max-height: 2.8em; /* Aproximadamente 2 linhas */
+    word-wrap: break-word;
 }
 
 /* Botão de exclusão no card */
