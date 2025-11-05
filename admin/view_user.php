@@ -837,25 +837,25 @@ if (typeof window.userId === 'undefined') {
 }
 
 .btn-delete-user {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    color: white;
-    border: none;
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--danger-red);
+    border: 1px solid rgba(244, 67, 54, 0.3);
     border-radius: 8px;
-    padding: 10px 16px;
+    padding: 0.75rem 1.25rem;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    gap: 0.5rem;
+    transition: all 0.3s ease;
 }
 
 .btn-delete-user:hover {
-    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    background: rgba(244, 67, 54, 0.2);
+    border-color: var(--danger-red);
+    color: var(--danger-red);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
 }
 
 .btn-delete-user:active {
