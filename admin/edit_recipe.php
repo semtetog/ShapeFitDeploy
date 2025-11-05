@@ -1,5 +1,5 @@
 <?php
-// admin/edit_recipe.php (VERSÃO FINAL COMPLETA - LAYOUT E CHECKBOX CORRIGIDOS)
+// admin/edit_recipe.php - REFATORADO COMPLETAMENTE NO ESTILO VIEW_USER
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -9,14 +9,27 @@ require_once __DIR__ . '/includes/auth_admin.php';
 $conn = require __DIR__ . '/../includes/db.php';
 requireAdminLogin();
 
-function format_decimal_for_input($value) { return $value !== null ? str_replace('.', ',', $value) : ''; }
+function format_decimal_for_input($value) { 
+    return $value !== null ? str_replace('.', ',', $value) : ''; 
+}
 
-$suggestion_options = [ 'cafe_da_manha' => 'Café da Manhã', 'lanche_da_manha' => 'Lanche da Manhã', 'almoco' => 'Almoço', 'lanche_da_tarde' => 'Lanche da Tarde', 'jantar' => 'Jantar', 'ceia' => 'Ceia', 'qualquer_hora' => 'Qualquer Hora' ];
+$suggestion_options = [ 
+    'cafe_da_manha' => 'Café da Manhã', 
+    'lanche_da_manha' => 'Lanche da Manhã', 
+    'almoco' => 'Almoço', 
+    'lanche_da_tarde' => 'Lanche da Tarde', 
+    'jantar' => 'Jantar', 
+    'ceia' => 'Ceia', 
+    'qualquer_hora' => 'Qualquer Hora' 
+];
 
 $page_slug = 'recipes';
 $page_title = 'Nova Receita';
 $recipe_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-$recipe = []; $ingredients = []; $selected_category_ids = []; $selected_suggestions = [];
+$recipe = []; 
+$ingredients = []; 
+$selected_category_ids = []; 
+$selected_suggestions = [];
 $all_categories = $conn->query("SELECT id, name FROM sf_categories ORDER BY display_order ASC, name ASC")->fetch_all(MYSQLI_ASSOC);
 
 if ($recipe_id) {
@@ -27,41 +40,52 @@ if ($recipe_id) {
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $recipe = $result->fetch_assoc();
-        if (!empty($recipe['meal_type_suggestion'])) { $selected_suggestions = explode(',', $recipe['meal_type_suggestion']); }
+        if (!empty($recipe['meal_type_suggestion'])) { 
+            $selected_suggestions = explode(',', $recipe['meal_type_suggestion']); 
+        }
         $stmt_ing = $conn->prepare("SELECT ingredient_description, quantity_value, quantity_unit FROM sf_recipe_ingredients WHERE recipe_id = ? ORDER BY id ASC");
-        $stmt_ing->bind_param("i", $recipe_id); $stmt_ing->execute(); $ingredients = $stmt_ing->get_result()->fetch_all(MYSQLI_ASSOC); $stmt_ing->close();
+        $stmt_ing->bind_param("i", $recipe_id); 
+        $stmt_ing->execute(); 
+        $ingredients = $stmt_ing->get_result()->fetch_all(MYSQLI_ASSOC); 
+        $stmt_ing->close();
         $stmt_cat = $conn->prepare("SELECT category_id FROM sf_recipe_has_categories WHERE recipe_id = ?");
-        $stmt_cat->bind_param("i", $recipe_id); $stmt_cat->execute(); $cat_result = $stmt_cat->get_result();
-        while($row = $cat_result->fetch_assoc()){ $selected_category_ids[] = $row['category_id']; }
+        $stmt_cat->bind_param("i", $recipe_id); 
+        $stmt_cat->execute(); 
+        $cat_result = $stmt_cat->get_result();
+        while($row = $cat_result->fetch_assoc()){ 
+            $selected_category_ids[] = $row['category_id']; 
+        }
         $stmt_cat->close();
-    } else { die("Receita não encontrada."); }
+    } else { 
+        die("Receita não encontrada."); 
+    }
 }
 
-if (empty($_SESSION['csrf_token'])) { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
+if (empty($_SESSION['csrf_token'])) { 
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); 
+}
 $csrf_token = $_SESSION['csrf_token'];
 ?>
 <?php require_once __DIR__ . '/includes/header.php'; ?>
+
 <style>
-/* ============================================================= */
-/*       REFATORAÇÃO COMPLETA PARA PADRÃO VIEW_USER             */
-/* ============================================================= */
+/* ========================================================================= */
+/*       REFATORAÇÃO COMPLETA - ESTILO VIEW_USER 100%                       */
+/* ========================================================================= */
 
 :root {
-    --bg-color: #121212;
-    --card-bg-color: #1E1E1E;
-    --primary-accent: #ff6b00;
-    --text-color: #EAEAEA;
-    --text-muted: #8E8E93;
-    --border-color: #333333;
-    --input-bg-color: #2C2C2E;
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --text-primary: #FFFFFF;
-    --text-secondary: #8E8E93;
     --accent-orange: #FF6B00;
+    --text-primary: #F5F5F5;
+    --text-secondary: #A3A3A3;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --bg-color: #101010;
+    --surface-color: #1E1E1E;
 }
 
-.main-content {
-    padding-bottom: 100px;
+/* ===== CONTAINER PRINCIPAL ===== */
+.edit-recipe-container {
+    max-width: 100%;
+    padding: 0;
 }
 
 .live-editor-container {
@@ -83,56 +107,86 @@ $csrf_token = $_SESSION['csrf_token'];
 }
 
 /* ===== CARDS (PADRÃO VIEW_USER) ===== */
-.content-card {
+.dashboard-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     padding: 1.5rem;
     transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.content-card:hover {
+.dashboard-card:hover {
     background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
     border-color: var(--accent-orange);
 }
 
-/* ===== HEADERS (PADRÃO VIEW_USER) ===== */
+/* ===== SECTION HEADER (PADRÃO VIEW_USER) ===== */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    height: 3rem;
+    padding: 0;
+}
+
+.section-header h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.5;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-header h4 i {
+    color: var(--accent-orange);
+    font-size: 1rem;
+}
+
+.section-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.5;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* ===== HEADER COM AÇÕES ===== */
 .card-header-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 1rem;
     margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
     border-bottom: 1px solid var(--glass-border);
 }
 
 .card-header-actions h3 {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #FFFFFF;
     margin: 0;
     padding: 0;
-    border-bottom: none;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.content-card h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 1.5rem 0;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--glass-border);
     font-family: 'Montserrat', sans-serif;
 }
 
 .header-buttons {
     display: flex;
     gap: 0.75rem;
-}
-
-.card-body {
-    padding: 0;
 }
 
 /* ===== FORM CONTROLS (PADRÃO VIEW_USER) ===== */
@@ -185,7 +239,7 @@ textarea.form-control {
 /* ===== INGREDIENT ROW ===== */
 .ingredient-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 100px 40px;
+    grid-template-columns: 1fr 1fr 120px 48px;
     gap: 0.75rem;
     align-items: center;
     margin-bottom: 0.75rem;
@@ -194,17 +248,18 @@ textarea.form-control {
 .btn-remove-ingredient {
     background: rgba(244, 67, 54, 0.1);
     border: 1px solid rgba(244, 67, 54, 0.3);
-    border-radius: 8px;
+    border-radius: 12px;
     color: #F44336;
     cursor: pointer;
     font-size: 1.2rem;
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
     padding: 0;
+    border: none;
 }
 
 .btn-remove-ingredient:hover {
@@ -379,13 +434,14 @@ input[type=number] {
 .btn-delete-category {
     background: rgba(244, 67, 54, 0.1);
     border: 1px solid rgba(244, 67, 54, 0.3);
-    border-radius: 8px;
-    color: var(--text-muted);
+    border-radius: 12px;
+    color: var(--text-secondary);
     cursor: pointer;
     font-size: 1rem;
-    padding: 0.25rem 0.5rem;
+    padding: 0.5rem 0.75rem;
     opacity: 0.6;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
+    border: none;
 }
 
 .checkbox-item:hover .btn-delete-category {
@@ -534,31 +590,45 @@ input[type=number] {
 }
 </style>
 
-<form action="save_recipe.php" method="POST" enctype="multipart/form-data" id="recipe-form">
-    <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe['id'] ?? ''); ?>">
-    <input type="hidden" name="existing_image_filename" value="<?php echo htmlspecialchars($recipe['image_filename'] ?? ''); ?>">
-    <input type="hidden" id="csrf-token" value="<?php echo $csrf_token; ?>">
+<div class="edit-recipe-container">
+    <form action="save_recipe.php" method="POST" enctype="multipart/form-data" id="recipe-form">
+        <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe['id'] ?? ''); ?>">
+        <input type="hidden" name="existing_image_filename" value="<?php echo htmlspecialchars($recipe['image_filename'] ?? ''); ?>">
+        <input type="hidden" id="csrf-token" value="<?php echo $csrf_token; ?>">
 
-    <div class="live-editor-container">
-        <div class="editor-panel">
-            <div class="content-card">
-                <!-- ALTERAÇÃO AQUI: Novo div para o cabeçalho com ações -->
-                <div class="card-header-actions">
-                    <h3>Conteúdo Principal</h3>
-                    <div class="header-buttons">
-                        <a href="recipes.php" class="btn btn-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Receita</button>
+        <div class="live-editor-container">
+            <div class="editor-panel">
+                <!-- CARD PRINCIPAL COM HEADER E AÇÕES -->
+                <div class="dashboard-card">
+                    <div class="card-header-actions">
+                        <h3>Conteúdo Principal</h3>
+                        <div class="header-buttons">
+                            <a href="recipes.php" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar Receita
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Nome da Receita</label>
+                        <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Descrição Curta</label>
+                        <textarea id="description" name="description" class="form-control" rows="3"><?php echo htmlspecialchars($recipe['description'] ?? ''); ?></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="instructions">Modo de Preparo (um passo por linha)</label>
+                        <textarea id="instructions" name="instructions" class="form-control" rows="7"><?php echo htmlspecialchars($recipe['instructions'] ?? ''); ?></textarea>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="form-group"><label for="name">Nome da Receita</label><input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>" required></div>
-                    <div class="form-group"><label for="description">Descrição Curta</label><textarea id="description" name="description" class="form-control" rows="3"><?php echo htmlspecialchars($recipe['description'] ?? ''); ?></textarea></div>
-                    <div class="form-group"><label for="instructions">Modo de Preparo (um passo por linha)</label><textarea id="instructions" name="instructions" class="form-control" rows="7"><?php echo htmlspecialchars($recipe['instructions'] ?? ''); ?></textarea></div>
-                </div>
-            </div>
-            <div class="content-card">
-                <h3>Ingredientes e Informações Nutricionais</h3>
-                <div class="card-body">
+
+                <!-- CARD DE INGREDIENTES E NUTRIÇÕES -->
+                <div class="dashboard-card">
+                    <div class="section-header">
+                        <h4><i class="fas fa-utensils"></i> Ingredientes e Informações Nutricionais</h4>
+                    </div>
+                    
                     <!-- SEÇÃO DE INGREDIENTES -->
                     <div class="ingredients-section">
                         <h4 class="section-subtitle">Ingredientes</h4>
@@ -597,7 +667,9 @@ input[type=number] {
                             </div>
                             <?php endif; ?>
                         </div>
-                        <button type="button" id="btn-add-ingredient" class="btn btn-secondary btn-sm btn-add-ingredient"><i class="fas fa-plus"></i> Adicionar Ingrediente</button>
+                        <button type="button" id="btn-add-ingredient" class="btn btn-secondary btn-sm btn-add-ingredient">
+                            <i class="fas fa-plus"></i> Adicionar Ingrediente
+                        </button>
                     </div>
 
                     <hr class="section-divider">
@@ -606,7 +678,7 @@ input[type=number] {
                     <div class="nutrition-section">
                         <h4 class="section-subtitle">Informações Nutricionais e Porções</h4>
 
-                        <!-- FERRAMENTA DE CÁLCULO (AGORA É A ENTRADA PRINCIPAL) -->
+                        <!-- FERRAMENTA DE CÁLCULO -->
                         <div class="calculation-tool">
                             <label class="calculation-label">1. Preencha os dados da sua receita pronta:</label>
                             <div class="form-group-grid-2">
@@ -621,7 +693,7 @@ input[type=number] {
                             </div>
                         </div>
 
-                        <!-- CAMPO DE RESULTADO (O QUE SERÁ SALVO) -->
+                        <!-- CAMPO DE RESULTADO -->
                         <div class="form-group">
                             <label for="serving_size_g">2. Peso Final por Porção (calculado)</label>
                             <input type="number" id="serving_size_g" name="serving_size_g" class="form-control form-control-readonly" 
@@ -632,18 +704,32 @@ input[type=number] {
                         
                         <hr class="section-divider">
 
-                         <div class="form-group-grid-2">
-                            <div class="form-group"><label>Calorias (kcal)</label><input type="text" id="kcal_per_serving" name="kcal_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['kcal_per_serving'] ?? ''); ?>"></div>
-                            <div class="form-group"><label>Carboidratos (g)</label><input type="text" id="carbs_g_per_serving" name="carbs_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['carbs_g_per_serving'] ?? ''); ?>"></div>
-                            <div class="form-group"><label>Gorduras (g)</label><input type="text" id="fat_g_per_serving" name="fat_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['fat_g_per_serving'] ?? ''); ?>"></div>
-                            <div class="form-group"><label>Proteínas (g)</label><input type="text" id="protein_g_per_serving" name="protein_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['protein_g_per_serving'] ?? ''); ?>"></div>
+                        <div class="form-group-grid-2">
+                            <div class="form-group">
+                                <label>Calorias (kcal)</label>
+                                <input type="text" id="kcal_per_serving" name="kcal_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['kcal_per_serving'] ?? ''); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Carboidratos (g)</label>
+                                <input type="text" id="carbs_g_per_serving" name="carbs_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['carbs_g_per_serving'] ?? ''); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Gorduras (g)</label>
+                                <input type="text" id="fat_g_per_serving" name="fat_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['fat_g_per_serving'] ?? ''); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label>Proteínas (g)</label>
+                                <input type="text" id="protein_g_per_serving" name="protein_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['protein_g_per_serving'] ?? ''); ?>">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="content-card">
-                <h3>Configurações e Imagem</h3>
-                 <div class="card-body">
+
+                <!-- CARD DE CONFIGURAÇÕES -->
+                <div class="dashboard-card">
+                    <div class="section-header">
+                        <h4><i class="fas fa-cog"></i> Configurações e Imagem</h4>
+                    </div>
                     <div class="form-group">
                         <label for="is_public">Status</label>
                         <div class="custom-select-wrapper">
@@ -662,14 +748,22 @@ input[type=number] {
                         <input type="file" id="image" name="image" class="form-control" accept="image/jpeg, image/png, image/webp">
                     </div>
                     <div class="form-group-grid-2">
-                        <div class="form-group"><label>Preparo (min)</label><input type="number" id="prep_time_minutes" name="prep_time_minutes" class="form-control" value="<?php echo htmlspecialchars($recipe['prep_time_minutes'] ?? ''); ?>"></div>
-                        <div class="form-group"><label>Cozimento (min)</label><input type="number" id="cook_time_minutes" name="cook_time_minutes" class="form-control" value="<?php echo htmlspecialchars($recipe['cook_time_minutes'] ?? ''); ?>"></div>
+                        <div class="form-group">
+                            <label>Preparo (min)</label>
+                            <input type="number" id="prep_time_minutes" name="prep_time_minutes" class="form-control" value="<?php echo htmlspecialchars($recipe['prep_time_minutes'] ?? ''); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Cozimento (min)</label>
+                            <input type="number" id="cook_time_minutes" name="cook_time_minutes" class="form-control" value="<?php echo htmlspecialchars($recipe['cook_time_minutes'] ?? ''); ?>">
+                        </div>
                     </div>
-                 </div>
-            </div>
-            <div class="content-card">
-                <h3>Sugestões para o Dashboard (por Horário)</h3>
-                <div class="card-body">
+                </div>
+
+                <!-- CARD DE SUGESTÕES -->
+                <div class="dashboard-card">
+                    <div class="section-header">
+                        <h4><i class="fas fa-clock"></i> Sugestões para o Dashboard (por Horário)</h4>
+                    </div>
                     <div class="checkbox-grid">
                         <?php foreach ($suggestion_options as $value => $label): ?>
                         <div class="checkbox-item">
@@ -679,10 +773,12 @@ input[type=number] {
                         <?php endforeach; ?>
                     </div>
                 </div>
-            </div>
-             <div class="content-card">
-                <h3>Categorias</h3>
-                <div class="card-body">
+
+                <!-- CARD DE CATEGORIAS -->
+                <div class="dashboard-card">
+                    <div class="section-header">
+                        <h4><i class="fas fa-tags"></i> Categorias</h4>
+                    </div>
                     <p class="field-help categories-help">Selecione todas as categorias que se aplicam.</p>
                     <div class="checkbox-grid" id="categories-grid-container">
                         <?php foreach($all_categories as $category): ?>
@@ -700,19 +796,16 @@ input[type=number] {
                     <span id="add-category-feedback" class="add-category-feedback"></span>
                 </div>
             </div>
-        </div>
 
-        <div class="preview-panel">
-            <div class="mobile-preview-wrapper"><iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe></div>
+            <!-- PREVIEW PANEL -->
+            <div class="preview-panel">
+                <div class="mobile-preview-wrapper">
+                    <iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <!-- REMOVIDO: A barra inferior de ações não existe mais aqui -->
-    <!-- <div class="form-actions-footer">
-        <a href="recipes.php" class="btn btn-secondary">Cancelar</a>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Receita</button>
-    </div> -->
-</form>
+    </form>
+</div>
 
 <script>
 // SCRIPTS EXISTENTES (PREVIEW, ETC.)
@@ -720,15 +813,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('image');
     const fileNameDisplay = document.getElementById('file-name-display');
     const fileLabelText = document.getElementById('file-label-text');
-    if(fileInput) fileInput.addEventListener('change', function() { if (this.files && this.files.length > 0) { fileNameDisplay.textContent = this.files[0].name; fileLabelText.style.display = 'none'; } else { fileNameDisplay.textContent = 'Nenhum arquivo escolhido'; fileLabelText.style.display = 'inline'; } });
+    if(fileInput) fileInput.addEventListener('change', function() { 
+        if (this.files && this.files.length > 0) { 
+            fileNameDisplay.textContent = this.files[0].name; 
+            fileLabelText.style.display = 'none'; 
+        } else { 
+            fileNameDisplay.textContent = 'Nenhum arquivo escolhido'; 
+            fileLabelText.style.display = 'inline'; 
+        } 
+    });
     const iframe = document.getElementById('recipe-preview-frame');
     if(iframe) iframe.addEventListener('load', function() {
         const iframeWindow = iframe.contentWindow;
-        function updatePreview(type, value) { iframeWindow.postMessage({ type, value }, '*'); }
-        const simpleMappings = { '#name': 'updateName', '#description': 'updateDescription', '#instructions': 'updateInstructions' };
-        for (const selector in simpleMappings) { document.querySelector(selector)?.addEventListener('input', (e) => updatePreview(simpleMappings[selector], e.target.value)); }
-        function sendMacroAndTimeUpdate() { updatePreview('updateMacrosAndTime', getAllMacroAndTimeData()); }
-        ['#prep_time_minutes', '#cook_time_minutes', '#kcal_per_serving', '#carbs_g_per_serving', '#fat_g_per_serving', '#protein_g_per_serving'].forEach(selector => { document.querySelector(selector)?.addEventListener('input', sendMacroAndTimeUpdate); });
+        function updatePreview(type, value) { 
+            iframeWindow.postMessage({ type, value }, '*'); 
+        }
+        const simpleMappings = { 
+            '#name': 'updateName', 
+            '#description': 'updateDescription', 
+            '#instructions': 'updateInstructions' 
+        };
+        for (const selector in simpleMappings) { 
+            document.querySelector(selector)?.addEventListener('input', (e) => updatePreview(simpleMappings[selector], e.target.value)); 
+        }
+        function sendMacroAndTimeUpdate() { 
+            updatePreview('updateMacrosAndTime', getAllMacroAndTimeData()); 
+        }
+        ['#prep_time_minutes', '#cook_time_minutes', '#kcal_per_serving', '#carbs_g_per_serving', '#fat_g_per_serving', '#protein_g_per_serving'].forEach(selector => { 
+            document.querySelector(selector)?.addEventListener('input', sendMacroAndTimeUpdate); 
+        });
         function handleIngredientUpdates() { 
             const ingredients = [];
             document.querySelectorAll('.ingredient-row').forEach(row => {
@@ -757,17 +870,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }); 
         }
         document.querySelectorAll('.ingredient-row').forEach(attachIngredientListeners);
-        document.getElementById('btn-add-ingredient')?.addEventListener('click', () => { const container = document.getElementById('ingredients-container'); const newRow = document.createElement('div'); newRow.className = 'ingredient-row'; newRow.innerHTML = `<input type="text" name="ingredient_description[]" class="form-control" placeholder="Ex: Farinha de trigo"><input type="number" name="ingredient_quantity[]" class="form-control" placeholder="Quantidade" step="0.01"><select name="ingredient_unit[]" class="form-control"><option value="">Unidade</option><option value="g">g (gramas)</option><option value="kg">kg (quilogramas)</option><option value="ml">ml (mililitros)</option><option value="l">l (litros)</option><option value="xícara">xícara (240ml)</option><option value="colher_sopa">colher de sopa (15ml)</option><option value="colher_cha">colher de chá (5ml)</option></select><button type="button" class="btn-remove-ingredient" title="Remover">×</button>`; container.appendChild(newRow); attachIngredientListeners(newRow); });
-        fileInput.addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = (event) => updatePreview('updateImage', event.target.result); reader.readAsDataURL(e.target.files[0]); } });
-        function getAllMacroAndTimeData() { return { prep: document.getElementById('prep_time_minutes').value, cook: document.getElementById('cook_time_minutes').value, kcal: document.getElementById('kcal_per_serving').value, carbs: document.getElementById('carbs_g_per_serving').value, protein: document.getElementById('protein_g_per_serving').value, fat: document.getElementById('fat_g_per_serving').value }; }
+        document.getElementById('btn-add-ingredient')?.addEventListener('click', () => { 
+            const container = document.getElementById('ingredients-container'); 
+            const newRow = document.createElement('div'); 
+            newRow.className = 'ingredient-row'; 
+            newRow.innerHTML = `
+                <input type="text" name="ingredient_description[]" class="form-control" placeholder="Ex: Farinha de trigo">
+                <input type="number" name="ingredient_quantity[]" class="form-control" placeholder="Quantidade" step="0.01">
+                <select name="ingredient_unit[]" class="form-control">
+                    <option value="">Unidade</option>
+                    <option value="g">g (gramas)</option>
+                    <option value="kg">kg (quilogramas)</option>
+                    <option value="ml">ml (mililitros)</option>
+                    <option value="l">l (litros)</option>
+                    <option value="xícara">xícara (240ml)</option>
+                    <option value="colher_sopa">colher de sopa (15ml)</option>
+                    <option value="colher_cha">colher de chá (5ml)</option>
+                </select>
+                <button type="button" class="btn-remove-ingredient" title="Remover">×</button>
+            `; 
+            container.appendChild(newRow); 
+            attachIngredientListeners(newRow); 
+        });
+        fileInput.addEventListener('change', function(e) { 
+            if (e.target.files && e.target.files[0]) { 
+                const reader = new FileReader(); 
+                reader.onload = (event) => updatePreview('updateImage', event.target.result); 
+                reader.readAsDataURL(e.target.files[0]); 
+            } 
+        });
+        function getAllMacroAndTimeData() { 
+            return { 
+                prep: document.getElementById('prep_time_minutes').value, 
+                cook: document.getElementById('cook_time_minutes').value, 
+                kcal: document.getElementById('kcal_per_serving').value, 
+                carbs: document.getElementById('carbs_g_per_serving').value, 
+                protein: document.getElementById('protein_g_per_serving').value, 
+                fat: document.getElementById('fat_g_per_serving').value 
+            }; 
+        }
     });
-    // REMOVIDO: Funções relacionadas ao posicionamento da barra inferior
-    /*
-    function adjustFooterPosition() { const sidebar = document.querySelector('.sidebar'); const footer = document.querySelector('.form-actions-footer'); if (sidebar && footer) { const sidebarWidth = document.body.classList.contains('sidebar-collapsed') ? '80px' : '250px'; document.documentElement.style.setProperty('--sidebar-width', sidebarWidth); } }
-    adjustFooterPosition();
-    const sidebarToggler = document.querySelector('.sidebar-toggler'); 
-    if(sidebarToggler) { sidebarToggler.addEventListener('click', () => { setTimeout(adjustFooterPosition, 300); }); }
-    */
 });
 
 // SCRIPT PARA GERENCIAMENTO DE CATEGORIAS (CRIAR E EXCLUIR)
@@ -786,7 +928,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const createCategory = () => {
         const categoryName = newCategoryInput.value.trim();
-        if (!categoryName) { showFeedback('Por favor, insira um nome para a categoria.'); return; }
+        if (!categoryName) { 
+            showFeedback('Por favor, insira um nome para a categoria.'); 
+            return; 
+        }
         const formData = new FormData();
         formData.append('category_name', categoryName);
         formData.append('csrf_token', csrfToken);
@@ -797,7 +942,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const newItem = document.createElement('div');
                 newItem.className = 'checkbox-item';
                 const newId = `category_${data.id}`;
-                // ESTRUTURA HTML CORRIGIDA: <input> e <label> como irmãos
                 newItem.innerHTML = `
                     <input type="checkbox" id="${newId}" name="categories[]" value="${data.id}" checked>
                     <label for="${newId}">${data.name}</label>
@@ -806,9 +950,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 gridContainer.appendChild(newItem);
                 newCategoryInput.value = '';
                 showFeedback('Categoria criada e selecionada!', 'success');
-            } else { showFeedback(data.message || 'Ocorreu um erro.'); }
+            } else { 
+                showFeedback(data.message || 'Ocorreu um erro.'); 
+            }
         })
-        .catch(error => { console.error('Erro na requisição:', error); showFeedback('Erro de conexão ao criar categoria.'); });
+        .catch(error => { 
+            console.error('Erro na requisição:', error); 
+            showFeedback('Erro de conexão ao criar categoria.'); 
+        });
     };
 
     const deleteCategory = (button) => {
@@ -829,13 +978,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 categoryItem.remove();
                 showFeedback(`Categoria "${categoryName}" excluída.`, 'success');
-            } else { showFeedback(data.message || 'Ocorreu um erro.'); }
+            } else { 
+                showFeedback(data.message || 'Ocorreu um erro.'); 
+            }
         })
-        .catch(error => { console.error('Erro na requisição:', error); showFeedback('Erro de conexão ao excluir categoria.'); });
+        .catch(error => { 
+            console.error('Erro na requisição:', error); 
+            showFeedback('Erro de conexão ao excluir categoria.'); 
+        });
     };
 
     if(addCategoryBtn) addCategoryBtn.addEventListener('click', createCategory);
-    if(newCategoryInput) newCategoryInput.addEventListener('keypress', function(event) { if (event.key === 'Enter') { event.preventDefault(); createCategory(); } });
+    if(newCategoryInput) newCategoryInput.addEventListener('keypress', function(event) { 
+        if (event.key === 'Enter') { 
+            event.preventDefault(); 
+            createCategory(); 
+        } 
+    });
 
     if(gridContainer) gridContainer.addEventListener('click', function(event) {
         if (event.target && event.target.classList.contains('btn-delete-category')) {
@@ -844,21 +1003,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// FERRAMENTA DE CÁLCULO DE PESO DA PORÇÃO - FLUXO PROFISSIONAL
+// FERRAMENTA DE CÁLCULO DE PESO DA PORÇÃO
 document.addEventListener('DOMContentLoaded', function() {
-    // Referências aos elementos do formulário
     const totalWeightInput = document.getElementById('helper_total_weight');
     const servingsInput = document.getElementById('servings');
     const servingSizeResultInput = document.getElementById('serving_size_g');
     const iframe = document.getElementById('recipe-preview-frame');
 
-    // Função para atualizar o preview
     function sendServingInfoUpdate() {
         if (iframe) {
             iframe.contentWindow.postMessage({
                 type: 'updateMacrosAndTime',
                 value: {
-                    ...getAllMacroAndTimeData(), // Função que já existe no seu código
+                    prep: document.getElementById('prep_time_minutes').value,
+                    cook: document.getElementById('cook_time_minutes').value,
+                    kcal: document.getElementById('kcal_per_serving').value,
+                    carbs: document.getElementById('carbs_g_per_serving').value,
+                    protein: document.getElementById('protein_g_per_serving').value,
+                    fat: document.getElementById('fat_g_per_serving').value,
                     servings: servingsInput.value,
                     serving_size_g: servingSizeResultInput.value
                 }
@@ -866,7 +1028,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Função que realiza o cálculo
     const calculateServingSize = () => {
         const totalWeight = parseFloat(totalWeightInput.value);
         const servings = parseInt(servingsInput.value);
@@ -875,21 +1036,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const calculatedSize = totalWeight / servings;
             servingSizeResultInput.value = calculatedSize.toFixed(2);
         } else {
-            // Se os valores não forem válidos, limpa o campo de resultado
             servingSizeResultInput.value = '';
         }
-        // Sempre atualiza o preview após um cálculo
         sendServingInfoUpdate();
     };
 
-    // Adiciona os "escutadores" de eventos para calcular em tempo real
     if (totalWeightInput && servingsInput && servingSizeResultInput) {
         totalWeightInput.addEventListener('input', calculateServingSize);
         servingsInput.addEventListener('input', calculateServingSize);
     }
     
-    // Garante que o preview também seja atualizado quando outros campos de macro mudarem
-    ['#kcal_per_serving', '#carbs_g_per_serving', '#fat_g_per_serving', '#protein_g_per_serving'].forEach(selector => {
+    ['#prep_time_minutes', '#cook_time_minutes', '#kcal_per_serving', '#carbs_g_per_serving', '#fat_g_per_serving', '#protein_g_per_serving'].forEach(selector => {
         const element = document.querySelector(selector);
         if (element) {
             element.addEventListener('input', sendServingInfoUpdate);
