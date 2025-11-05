@@ -1653,10 +1653,11 @@ window.openMissionModal = function(missionId = null, skipReset = false) {
     // Usar requestAnimationFrame para garantir transição suave
     requestAnimationFrame(() => {
         modal.style.display = 'flex';
-        // Inicializar seletor de ícones após modal estar visível
-        setTimeout(() => {
-            initIconPicker();
-        }, 50);
+        // Inicializar seletor de ícones SEM delay para evitar piscar
+        // O ícone já será selecionado pela função editMission se necessário
+        const selectedIconField = document.getElementById('selectedIcon');
+        const iconToSelect = selectedIconField ? selectedIconField.value : null;
+        initIconPicker(iconToSelect || null);
     });
 };
 
@@ -1725,18 +1726,8 @@ window.editMission = function(missionId, isPersonal = 0) {
                 }
                 
                 // Abrir modal (não resetar formulário pois já preenchemos os dados)
+                // O ícone já está definido no campo hidden, então o initIconPicker no openMissionModal vai selecioná-lo
                 openMissionModal(missionId, true);
-                
-                // Selecionar ícone visualmente após modal abrir e inicializar
-                setTimeout(() => {
-                    if (mission.icon_class) {
-                        // Inicializar picker com o ícone selecionado
-                        initIconPicker(mission.icon_class);
-                    } else {
-                        // Se não tiver ícone, usar o padrão
-                        initIconPicker('fa-check-circle');
-                    }
-                }, 100);
             } else {
                 console.error('Erro ao carregar missão:', data.message);
                 alert('Erro ao carregar dados da missão');
