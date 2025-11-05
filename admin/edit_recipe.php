@@ -249,7 +249,7 @@ $csrf_token = $_SESSION['csrf_token'];
 /* ===== INGREDIENT ROW ===== */
 .edit-recipe-container .ingredient-row {
     display: grid !important;
-    grid-template-columns: 1fr 1fr 120px 48px !important;
+    grid-template-columns: 2fr 100px 140px 48px !important;
     gap: 0.75rem !important;
     align-items: center !important;
     margin-bottom: 0.75rem !important;
@@ -485,18 +485,20 @@ input[type=number] {
 .edit-recipe-container .btn-primary,
 .edit-recipe-container button.btn-primary,
 .edit-recipe-container a.btn-primary {
-    background: linear-gradient(135deg, var(--accent-orange) 0%, #FF8533 100%) !important;
-    color: white !important;
-    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3) !important;
+    background: rgba(255, 107, 0, 0.08) !important;
+    border: 1px solid rgba(255, 107, 0, 0.2) !important;
+    color: var(--accent-orange) !important;
+    box-shadow: none !important;
 }
 
 .edit-recipe-container .btn-primary:hover,
 .edit-recipe-container button.btn-primary:hover,
 .edit-recipe-container a.btn-primary:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4) !important;
-    color: white !important;
-    background: linear-gradient(135deg, var(--accent-orange) 0%, #FF8533 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: none !important;
+    color: var(--accent-orange) !important;
+    background: rgba(255, 107, 0, 0.15) !important;
+    border-color: var(--accent-orange) !important;
 }
 
 .edit-recipe-container .btn-secondary,
