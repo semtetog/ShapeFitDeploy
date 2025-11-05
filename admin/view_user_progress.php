@@ -677,32 +677,35 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*        CSS FINAL E CORRETO PARA OS CARDS DE PROGRESSO                 */
+/*        CSS FINAL-FINAL PARA OS CARDS DE PROGRESSO (Layout Robusto)       */
 /* ========================================================================= */
 
-/* 1. Define o alinhamento do grid para o topo. 
-      Isso impede que os cards se estiquem para ter a mesma altura.
-      Cada card terá sua altura natural. */
+/* 1. Removemos o 'align-items: start' para que os cards voltem a ter a mesma altura */
 .progress-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
     margin-bottom: 2rem;
-    align-items: start; /* A MUDANÇA MAIS IMPORTANTE ESTÁ AQUI */
+    /* align-items: start; FOI REMOVIDO DAQUI */
 }
 
-/* 2. Removemos a lógica Flexbox dos cards, pois não é mais necessária */
+/* 2. Voltamos a usar Flexbox nos cards para controlar o conteúdo interno */
 .dashboard-card.weight-history-card,
 .dashboard-card.photos-history-card {
-    /* As propriedades 'display: flex' e 'flex-direction' foram removidas */
+    display: flex;
+    flex-direction: column;
 }
 
-/* 3. Definimos uma altura para o container do gráfico que visualmente 
-      combina com a altura de uma linha de fotos. */
+/* 3. A SOLUÇÃO PARA O GRÁFICO:
+      Ele vai crescer para preencher o card, e seu conteúdo (o <canvas>) 
+      também se adaptará. A altura mínima garante que ele não desapareça. */
 .weight-chart-container {
     position: relative;
-    height: 170px; /* Ajuste este valor se necessário (ex: 160px ou 180px) */
-    /* 'flex-grow' e 'min-height' foram removidos */
+    flex-grow: 1; /* Permite que o container cresça */
+    min-height: 180px; /* Garante uma altura mínima para o gráfico não sumir */
+    display: flex; /* Adicionado para controlar o <canvas> interno */
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-view-gallery {
@@ -768,12 +771,14 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* 3. Galeria de Fotos com layout natural e compacto */
+/* 4. A SOLUÇÃO PARA AS FOTOS:
+      O container da galeria também cresce e centraliza as fotos no meio. */
 .photo-gallery {
+    flex-grow: 1; /* Permite que a galeria cresça para igualar a altura do outro card */
     display: grid;
+    place-content: center; /* Centraliza as fotos (o grid) no espaço disponível */
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    /* Todas as outras propriedades como flex-grow e place-content foram removidas */
 }
 
 /* Item de foto individual */
