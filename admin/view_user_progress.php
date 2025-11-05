@@ -14,13 +14,18 @@ function formatMeasurement($value) {
     
     // Se for um número inteiro (sem parte decimal significativa), mostrar sem .0
     if ($floatValue == intval($floatValue)) {
-        return intval($floatValue);
+        return (string)intval($floatValue);
     }
     
     // Se tem decimal não-zero (ex: 15.5), formatar normalmente
-    // Remove zeros à direita desnecessários (ex: 15.50 -> 15.5)
+    // Remove apenas .0 no final, mas mantém outros decimais
     $formatted = number_format($floatValue, 1, '.', '');
-    return rtrim($formatted, '0'); // Remove zeros à direita
+    // Se termina com .0, remove o .0
+    if (substr($formatted, -2) === '.0') {
+        return substr($formatted, 0, -2);
+    }
+    // Remove zeros à direita após o ponto (ex: 15.50 -> 15.5)
+    return rtrim(rtrim($formatted, '0'), '.');
 }
 ?>
 
