@@ -185,7 +185,9 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="recipe-image-container">
                         <img src="<?php echo BASE_ASSET_URL . '/assets/images/recipes/' . ($recipe['image_filename'] ?: 'placeholder_food.jpg'); ?>" 
                              alt="Foto de <?php echo htmlspecialchars($recipe['name']); ?>" 
-                             class="recipe-image">
+                             class="recipe-image"
+                             loading="lazy"
+                             decoding="async">
                         <span class="status-badge <?php echo $recipe['is_public'] ? 'status-public' : 'status-private'; ?>">
                             <?php echo $recipe['is_public'] ? 'Pública' : 'Privada'; ?>
                         </span>
@@ -283,6 +285,8 @@ require_once __DIR__ . '/includes/header.php';
 /* Header Card */
 .recipes-header-card {
     margin-bottom: 2rem;
+    overflow: visible; /* Permite que o dropdown apareça fora do card */
+    position: relative;
 }
 
 .card-header-section {
@@ -324,6 +328,7 @@ require_once __DIR__ . '/includes/header.php';
     padding: 0.75rem 1.5rem;
     text-decoration: none;
     white-space: nowrap;
+    border-radius: 12px;
 }
 
 /* Filter Form */
@@ -354,12 +359,14 @@ require_once __DIR__ . '/includes/header.php';
     padding: 0.75rem 1.25rem;
     white-space: nowrap;
     text-decoration: none;
+    border-radius: 12px;
 }
 
 /* Custom Select */
 .custom-select-wrapper {
     position: relative;
     width: 100%;
+    z-index: 1000; /* Z-index alto para o container do select */
 }
 
 .custom-select {
@@ -401,10 +408,11 @@ require_once __DIR__ . '/includes/header.php';
     left: 0;
     right: 0;
     background: rgba(30, 30, 30, 0.98);
+    backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    z-index: 10000; /* Z-index muito alto para aparecer sobre tudo */
     max-height: 300px;
     overflow-y: auto;
     display: none;
@@ -539,7 +547,7 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
@@ -625,6 +633,7 @@ require_once __DIR__ . '/includes/header.php';
     padding: 0.75rem 1.25rem;
     text-decoration: none;
     white-space: nowrap;
+    border-radius: 12px;
 }
 
 .pagination-numbers {
@@ -642,7 +651,7 @@ require_once __DIR__ . '/includes/header.php';
     padding: 0 0.75rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    border-radius: 12px;
     color: var(--text-primary);
     text-decoration: none;
     font-weight: 600;
