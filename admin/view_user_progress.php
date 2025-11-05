@@ -943,8 +943,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .sleep-modal-close {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 1.25rem;
+    right: 1.25rem;
     background: none;
     border: none;
     color: var(--text-secondary);
