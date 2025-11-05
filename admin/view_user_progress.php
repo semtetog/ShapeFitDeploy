@@ -269,7 +269,6 @@
     <div class="photo-modal-content">
         <div class="photo-modal-header">
             <div class="photo-modal-header-content">
-                <h3 id="photoModalTitle">Foto de Progresso</h3>
                 <div id="photoModalMeasurements" class="photo-modal-measurements" style="display: none;"></div>
             </div>
             <button class="sleep-modal-close" onclick="closePhotoModal()">
@@ -945,19 +944,20 @@ document.addEventListener('DOMContentLoaded', function() {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: rgba(30, 30, 30, 0.95); /* Background para não ser cortado pelo traçado */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
+    background: none;
+    border: none;
     color: var(--text-secondary);
     font-size: 1.2rem;
     cursor: pointer;
     padding: 0.5rem;
+    border-radius: 50%;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 20; /* Z-index maior para ficar acima do traçado */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* Sombra para destacar */
+    z-index: 10;
+    width: 2.5rem;
+    height: 2.5rem;
 }
 
 .sleep-modal-close:hover {
@@ -1130,8 +1130,6 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: flex-start;
     padding: 1rem 1.25rem;
     padding-right: 3.5rem; /* Espaço para o botão X */
-    padding-bottom: 1.25rem; /* Espaço extra na parte inferior para o botão X */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     flex-shrink: 0; /* Não encolhe */
 }
 
