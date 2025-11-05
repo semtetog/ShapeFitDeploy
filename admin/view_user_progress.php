@@ -677,32 +677,28 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*       CSS FINALÍSSIMO - APENAS GRID, SEM COMPLICAÇÃO (VAI FUNCIONAR)    */
+/*       CSS SIMPLES E EFETIVO PARA OS CARDS DE PROGRESSO (FINAL)          */
 /* ========================================================================= */
 
 /* 1. O Grid principal que organiza os dois cards */
 .progress-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Duas colunas de larguras iguais */
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
-    align-items: stretch; /* Garante que ambos os cards tenham a mesma altura */
+    align-items: start; /* Impede que um card estique o outro */
 }
 
-/* 2. O Card do Gráfico: usamos flexbox SÓ aqui dentro para o gráfico se expandir */
-.dashboard-card.weight-history-card {
-    display: flex;
-    flex-direction: column;
+/* 2. Removemos toda a complexidade Flexbox dos cards */
+.dashboard-card.weight-history-card,
+.dashboard-card.photos-history-card {
+    /* Nenhuma regra de display:flex ou flex-direction aqui */
 }
 
+/* 3. Uma altura fixa e razoável para o container do gráfico,
+      que funciona bem na maioria dos zooms. */
 .weight-chart-container {
     position: relative;
-    flex-grow: 1; /* Faz o container do gráfico preencher o espaço vertical do seu card */
-}
-
-/* 3. O Card de Fotos: TAMBÉM usamos flexbox aqui dentro */
-.dashboard-card.photos-history-card {
-    display: flex;
-    flex-direction: column;
+    height: 230px; /* Uma altura um pouco maior para acomodar o gráfico */
 }
 
 .btn-view-gallery {
@@ -768,18 +764,12 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* 4. A Galeria de Fotos: ela também se expande e centraliza as fotos */
+/* 4. A galeria de fotos com layout simples e adaptável */
 .photo-gallery {
-    flex-grow: 1; /* Faz a galeria preencher o espaço vertical do seu card */
-    
     display: grid;
-    /* Centraliza as fotos no meio do espaço disponível (vertical e horizontal) */
-    place-content: center;
-    
-    /* Define 3 colunas, mas com um tamanho MÁXIMO para não ficarem gigantes no zoom */
-    grid-template-columns: repeat(3, minmax(0, 150px));
+    /* Usa auto-fit para criar colunas que se adaptam, com um tamanho mínimo e máximo */
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 1rem;
-    justify-content: center; /* Garante a centralização do grid como um todo */
 }
 
 /* Item de foto individual */
