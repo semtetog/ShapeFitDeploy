@@ -1452,7 +1452,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     .gallery-session-photos {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        grid-template-columns: repeat(2, 1fr); /* 2 fotos por linha em mobile */
     }
     
     .photo-modal-content {
