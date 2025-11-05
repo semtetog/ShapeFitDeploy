@@ -2,6 +2,29 @@
 // view_user_progress.php - Apenas HTML e CSS
 // Os dados já são preparados no view_user.php
 // O JavaScript está centralizado em user_view_logic.js
+
+// Função para formatar medidas sem .0 desnecessário
+function formatMeasurement($value) {
+    if ($value === null || $value === '' || floatval($value) <= 0) {
+        return '';
+    }
+    
+    // Converter para float para comparação
+    $floatValue = floatval($value);
+    
+    // Verificar se o valor original tinha .0 ou ,0 explicitamente
+    $originalStr = trim((string)$value);
+    $hasExplicitDecimal = (strpos($originalStr, '.0') !== false || strpos($originalStr, ',0') !== false || 
+                          strpos($originalStr, '.') !== false || strpos($originalStr, ',') !== false);
+    
+    // Se for um número inteiro e não tinha decimal explícito, mostrar sem .0
+    if ($floatValue == intval($floatValue) && !$hasExplicitDecimal) {
+        return intval($floatValue);
+    }
+    
+    // Caso contrário, formatar normalmente (pode ter decimal ou o usuário mandou com .0)
+    return number_format($floatValue, 1, '.', '');
+}
 ?>
 
 <div id="tab-progress" class="tab-content">
@@ -189,7 +212,10 @@
                     foreach ($measurement_labels_map as $measure_key => $measure_label_name) {
                         // Verificar se a medida existe e é maior que 0
                         if (isset($photo_set[$measure_key]) && $photo_set[$measure_key] !== null && $photo_set[$measure_key] !== '' && floatval($photo_set[$measure_key]) > 0) {
-                            $measurements[] = $measure_label_name . ': ' . number_format(floatval($photo_set[$measure_key]), 1) . 'cm';
+                            $formattedValue = formatMeasurement($photo_set[$measure_key]);
+                            if ($formattedValue !== '') {
+                                $measurements[] = $measure_label_name . ': ' . $formattedValue . 'cm';
+                            }
                         }
                     }
                     $measurements_text = !empty($measurements) ? implode(' | ', $measurements) : '';
