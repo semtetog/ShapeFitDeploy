@@ -1061,9 +1061,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .gallery-session-photos {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 fotos por linha - todas do mesmo tamanho */
+    grid-template-columns: repeat(6, 1fr); /* 6 fotos por linha - todas do mesmo tamanho */
     gap: 1rem;
     justify-content: center;
+}
+
+/* Responsivo: 4 fotos em telas médias */
+@media (max-width: 1200px) {
+    .gallery-session-photos {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 .gallery-photo-item {
