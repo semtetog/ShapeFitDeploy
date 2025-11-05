@@ -373,79 +373,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Coletar todas as fotos da galeria e do card inicial
+        // SEMPRE usar parse do onclick (fonte confiável com todas as informações)
         function collectAllPhotos() {
             allPhotos = [];
             const seenFiles = new Set(); // Set para rastrear arquivos já vistos (garantir unicidade)
             
-            // PRIORIDADE 1: Coletar fotos da galeria modal (elas têm informações mais completas)
-            // A galeria tem TODAS as fotos, então se ela existir, usamos apenas ela
-            const galleryItems = document.querySelectorAll('.gallery-photo-item');
-            
-            if (galleryItems.length > 0) {
-                // Se a galeria existe, usar APENAS ela (evita duplicatas do card inicial)
-                galleryItems.forEach(item => {
-                    const img = item.querySelector('img');
-                    if (!img || !img.src) return;
-                    
-                    const type = item.querySelector('.gallery-photo-type')?.textContent || '';
-                    const date = item.querySelector('.gallery-photo-date')?.textContent || '';
-                    const measurementsEl = item.querySelector('.gallery-photo-measurements');
-                    const measurements = measurementsEl ? measurementsEl.textContent.trim() : '';
-                    
-                    // Usar nome do arquivo como chave única
-                    const fileName = getFileName(img.src);
-                    
-                    if (fileName && !seenFiles.has(fileName)) {
-                        seenFiles.add(fileName);
-                        allPhotos.push({
-                            src: img.src,
-                            label: type,
-                            date: date,
-                            measurements: measurements
-                        });
-                    }
-                });
-            } else {
-                // FALLBACK: Se a galeria não existe (ainda não foi aberta), usar o card inicial
-                const photoItems = document.querySelectorAll('.photo-item');
-                photoItems.forEach(item => {
-                    const img = item.querySelector('img');
-                    if (!img || !img.src) return;
-                    
-                    const dateSpan = item.querySelector('.photo-date');
-                    const type = dateSpan?.querySelector('span:first-child')?.textContent || '';
-                    const date = dateSpan?.querySelector('span:nth-child(2)')?.textContent || '';
-                    
-                    // Usar nome do arquivo como chave única
-                    const fileName = getFileName(img.src);
-                    
-                    if (fileName && !seenFiles.has(fileName)) {
-                        seenFiles.add(fileName);
-                        allPhotos.push({
-                            src: img.src,
-                            label: type,
-                            date: date,
-                            measurements: '' // Medidas não estão no DOM do card inicial, serão passadas via onclick
-                        });
-                    }
-                });
-            }
-            
-            console.log('[view_user_progress] collectAllPhotos - Total de fotos coletadas:', allPhotos.length);
-            console.log('[view_user_progress] collectAllPhotos - Nomes dos arquivos:', allPhotos.map(p => getFileName(p.src)));
-            console.log('[view_user_progress] collectAllPhotos - Fotos únicas verificadas:', seenFiles.size);
-        }
-        
-        // Abrir modal de foto individual
-        window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
-            // LIMPAR array ANTES de coletar (evitar duplicatas de chamadas anteriores)
-            allPhotos = [];
-            const seenFiles = new Set(); // Set para garantir unicidade absoluta
-            
-            // SEMPRE usar parse do onclick (mesmo método do measurements_progress.php)
-            // Isso garante que pegamos as informações corretas, não do DOM que pode estar vazio
-            
-            // PRIORIDADE 1: Tentar coletar da galeria usando onclick (fonte oficial com todas as infos)
+            // PRIORIDADE 1: Coletar fotos da galeria usando onclick (fonte oficial com todas as infos)
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
             
             if (galleryItems.length > 0) {
@@ -508,26 +441,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
             }
+        }
+        
+        // Abrir modal de foto individual
+        window.openPhotoModal = function(imageSrc, label, date, measurements = '') {
+            // Se o array estiver vazio, coletar fotos uma única vez
+            if (allPhotos.length === 0) {
+                collectAllPhotos();
+            }
             
-            // Encontrar a foto atual (normalizar imageSrc também para evitar duplicatas)
+            // Encontrar a foto atual
             const fileName = getFileName(imageSrc);
             currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
             
             if (currentPhotoIndex === -1) {
-                // Se não encontrou na coleta, adicionar com informações do onclick
-                // Mas APENAS se realmente não existe (verificação dupla)
-                if (!seenFiles.has(fileName)) {
-                    seenFiles.add(fileName);
-                    allPhotos.push({
-                        src: imageSrc,
-                        label: label,
-                        date: date,
-                        measurements: measurements || ''
-                    });
-                    currentPhotoIndex = allPhotos.length - 1;
-                }
+                // Se não encontrou, adicionar com informações do onclick
+                allPhotos.push({
+                    src: imageSrc,
+                    label: label,
+                    date: date,
+                    measurements: measurements || ''
+                });
+                currentPhotoIndex = allPhotos.length - 1;
             } else {
-                // SEMPRE atualizar com informações do onclick (garantir dados mais recentes)
+                // Atualizar com informações do onclick (garantir dados mais recentes)
                 allPhotos[currentPhotoIndex].label = label;
                 allPhotos[currentPhotoIndex].date = date;
                 if (measurements && measurements.trim() !== '') {
@@ -535,15 +472,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            const modal = document.getElementById('photoModal');
-            const modalImage = document.getElementById('photoModalImage');
-            const modalLabel = document.getElementById('photoModalLabel');
-            const modalDate = document.getElementById('photoModalDate');
-            const modalMeasurements = document.getElementById('photoModalMeasurements');
+            // Atualizar o conteúdo do modal
+            updatePhotoModalContent();
             
-            if (modal && modalImage && modalLabel && modalDate) {
-                // Atualizar o conteúdo do modal
-                updatePhotoModalContent();
+            const modal = document.getElementById('photoModal');
+            if (modal) {
                 modal.style.display = 'flex';
                 modal.style.alignItems = 'center';
                 modal.style.justifyContent = 'center';
