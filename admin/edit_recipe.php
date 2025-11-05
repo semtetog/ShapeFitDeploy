@@ -71,6 +71,7 @@ $csrf_token = $_SESSION['csrf_token'];
 <style>
 /* ========================================================================= */
 /*       REFATORAÇÃO COMPLETA - ESTILO VIEW_USER 100%                       */
+/*       USANDO !important PARA SOBRESCREVER CSS GLOBAL                     */
 /* ========================================================================= */
 
 :root {
@@ -84,8 +85,17 @@ $csrf_token = $_SESSION['csrf_token'];
 
 /* ===== CONTAINER PRINCIPAL ===== */
 .edit-recipe-container {
-    max-width: 100%;
-    padding: 0;
+    max-width: 100% !important;
+    padding: 0 !important;
+}
+
+/* SOBRESCREVER TODOS OS ESTILOS GLOBAIS DENTRO DO CONTAINER */
+.edit-recipe-container .dashboard-card,
+.edit-recipe-container .dashboard-card *,
+.edit-recipe-container .btn,
+.edit-recipe-container .form-control,
+.edit-recipe-container .section-header {
+    /* Reset de estilos globais */
 }
 
 .live-editor-container {
@@ -107,218 +117,218 @@ $csrf_token = $_SESSION['csrf_token'];
 }
 
 /* ===== CARDS (PADRÃO VIEW_USER) ===== */
-.dashboard-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+.edit-recipe-container .dashboard-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 1.5rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.dashboard-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-1px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-    border-color: var(--accent-orange);
+.edit-recipe-container .dashboard-card:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
+    border-color: var(--accent-orange) !important;
 }
 
 /* ===== SECTION HEADER (PADRÃO VIEW_USER) ===== */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    height: 3rem;
-    padding: 0;
+.edit-recipe-container .section-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 1.5rem !important;
+    height: 3rem !important;
+    padding: 0 !important;
 }
 
-.section-header h4 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #FFFFFF;
-    margin: 0;
-    padding: 0;
-    font-family: 'Montserrat', sans-serif;
-    line-height: 1.5;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+.edit-recipe-container .section-header h4 {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'Montserrat', sans-serif !important;
+    line-height: 1.5 !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
 }
 
-.section-header h4 i {
-    color: var(--accent-orange);
-    font-size: 1rem;
+.edit-recipe-container .section-header h4 i {
+    color: var(--accent-orange) !important;
+    font-size: 1rem !important;
 }
 
-.section-header h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #FFFFFF;
-    margin: 0;
-    padding: 0;
-    font-family: 'Montserrat', sans-serif;
-    line-height: 1.5;
-    height: 100%;
-    display: flex;
-    align-items: center;
+.edit-recipe-container .section-header h3 {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'Montserrat', sans-serif !important;
+    line-height: 1.5 !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 /* ===== HEADER COM AÇÕES ===== */
-.card-header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--glass-border);
+.edit-recipe-container .card-header-actions {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 1.5rem !important;
+    padding-bottom: 1rem !important;
+    border-bottom: 1px solid var(--glass-border) !important;
 }
 
-.card-header-actions h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #FFFFFF;
-    margin: 0;
-    padding: 0;
-    font-family: 'Montserrat', sans-serif;
+.edit-recipe-container .card-header-actions h3 {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'Montserrat', sans-serif !important;
 }
 
-.header-buttons {
-    display: flex;
-    gap: 0.75rem;
+.edit-recipe-container .header-buttons {
+    display: flex !important;
+    gap: 0.75rem !important;
 }
 
 /* ===== FORM CONTROLS (PADRÃO VIEW_USER) ===== */
-.form-group {
-    margin-bottom: 1.5rem;
+.edit-recipe-container .form-group {
+    margin-bottom: 1.5rem !important;
 }
 
-.form-group:last-child {
-    margin-bottom: 0;
+.edit-recipe-container .form-group:last-child {
+    margin-bottom: 0 !important;
 }
 
-.form-group label {
-    font-size: 0.875rem;
-    margin-bottom: 0.5rem;
-    display: block;
-    color: var(--text-secondary);
-    font-weight: 500;
+.edit-recipe-container .form-group label {
+    font-size: 0.875rem !important;
+    margin-bottom: 0.5rem !important;
+    display: block !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
 }
 
-.form-control {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    color: var(--text-primary);
-    transition: all 0.3s ease;
-    box-sizing: border-box;
+.edit-recipe-container .form-control {
+    width: 100% !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    color: var(--text-primary) !important;
+    transition: all 0.3s ease !important;
+    box-sizing: border-box !important;
 }
 
-.form-control:focus {
-    border-color: var(--accent-orange);
-    outline: none;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+.edit-recipe-container .form-control:focus {
+    border-color: var(--accent-orange) !important;
+    outline: none !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
 }
 
-textarea.form-control {
-    min-height: 120px;
-    resize: vertical;
+.edit-recipe-container textarea.form-control {
+    min-height: 120px !important;
+    resize: vertical !important;
 }
 
-.form-group-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+.edit-recipe-container .form-group-grid-2 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem !important;
 }
 
 /* ===== INGREDIENT ROW ===== */
-.ingredient-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 120px 48px;
-    gap: 0.75rem;
-    align-items: center;
-    margin-bottom: 0.75rem;
+.edit-recipe-container .ingredient-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 120px 48px !important;
+    gap: 0.75rem !important;
+    align-items: center !important;
+    margin-bottom: 0.75rem !important;
 }
 
-.btn-remove-ingredient {
-    background: rgba(244, 67, 54, 0.1);
-    border: 1px solid rgba(244, 67, 54, 0.3);
-    border-radius: 12px;
-    color: #F44336;
-    cursor: pointer;
-    font-size: 1.2rem;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    padding: 0;
-    border: none;
+.edit-recipe-container .btn-remove-ingredient {
+    background: rgba(244, 67, 54, 0.1) !important;
+    border: 1px solid rgba(244, 67, 54, 0.3) !important;
+    border-radius: 12px !important;
+    color: #F44336 !important;
+    cursor: pointer !important;
+    font-size: 1.2rem !important;
+    width: 48px !important;
+    height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
-.btn-remove-ingredient:hover {
-    background: rgba(244, 67, 54, 0.2);
-    border-color: #F44336;
-    transform: scale(1.05);
+.edit-recipe-container .btn-remove-ingredient:hover {
+    background: rgba(244, 67, 54, 0.2) !important;
+    border-color: #F44336 !important;
+    transform: scale(1.05) !important;
 }
 
 /* ===== SELECT CUSTOMIZADO ===== */
-.custom-select-wrapper {
-    position: relative;
+.edit-recipe-container .custom-select-wrapper {
+    position: relative !important;
 }
 
-.custom-select-wrapper::after {
-    content: '\f078';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    position: absolute;
-    top: 50%;
-    right: 15px;
-    transform: translateY(-50%);
-    color: var(--text-secondary);
-    pointer-events: none;
+.edit-recipe-container .custom-select-wrapper::after {
+    content: '\f078' !important;
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    position: absolute !important;
+    top: 50% !important;
+    right: 15px !important;
+    transform: translateY(-50%) !important;
+    color: var(--text-secondary) !important;
+    pointer-events: none !important;
 }
 
-.custom-select-wrapper select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    padding-right: 40px;
+.edit-recipe-container .custom-select-wrapper select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    padding-right: 40px !important;
 }
 
 /* ===== FILE INPUT ===== */
-.custom-file-input-wrapper {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 0.75rem 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.edit-recipe-container .custom-file-input-wrapper {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    padding: 0.75rem 1rem !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
 }
 
-.custom-file-input-wrapper:hover {
-    border-color: var(--accent-orange);
-    background: rgba(255, 255, 255, 0.08);
+.edit-recipe-container .custom-file-input-wrapper:hover {
+    border-color: var(--accent-orange) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
 }
 
-.file-input-label {
-    color: var(--text-secondary);
+.edit-recipe-container .file-input-label {
+    color: var(--text-secondary) !important;
 }
 
-.file-input-filename {
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.edit-recipe-container .file-input-filename {
+    color: var(--text-primary) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 input[type="file"].form-control {
@@ -336,167 +346,178 @@ input[type=number] {
 }
 
 /* ===== CHECKBOX GRID ===== */
-.checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0.75rem;
+.edit-recipe-container .checkbox-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+    gap: 0.75rem !important;
 }
 
 /* ===== CHECKBOX CUSTOMIZADO ===== */
-.checkbox-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
+.edit-recipe-container .checkbox-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 0.5rem !important;
 }
 
-.checkbox-item input[type="checkbox"] {
-    opacity: 0;
-    position: absolute;
-    width: 0;
-    height: 0;
+.edit-recipe-container .checkbox-item input[type="checkbox"] {
+    opacity: 0 !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
-.checkbox-item label {
-    flex-grow: 1;
-    color: var(--text-secondary);
-    padding-left: 32px;
-    position: relative;
-    cursor: pointer;
-    user-select: none;
-    font-size: 0.9rem;
-    transition: color 0.2s;
+.edit-recipe-container .checkbox-item label {
+    flex-grow: 1 !important;
+    color: var(--text-secondary) !important;
+    padding-left: 32px !important;
+    position: relative !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    font-size: 0.9rem !important;
+    transition: color 0.2s !important;
 }
 
-.checkbox-item label:hover {
-    color: var(--text-primary);
+.edit-recipe-container .checkbox-item label:hover {
+    color: var(--text-primary) !important;
 }
 
-.checkbox-item label::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 6px;
-    transition: all 0.2s;
+.edit-recipe-container .checkbox-item label::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 18px !important;
+    height: 18px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 6px !important;
+    transition: all 0.2s !important;
 }
 
-.checkbox-item input:checked + label::before {
-    background: var(--accent-orange);
-    border-color: var(--accent-orange);
+.edit-recipe-container .checkbox-item input:checked + label::before {
+    background: var(--accent-orange) !important;
+    border-color: var(--accent-orange) !important;
 }
 
-.checkbox-item input:checked + label::after {
-    content: '\f00c';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    position: absolute;
-    left: 4px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: white;
-    font-size: 10px;
+.edit-recipe-container .checkbox-item input:checked + label::after {
+    content: '\f00c' !important;
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    position: absolute !important;
+    left: 4px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: white !important;
+    font-size: 10px !important;
 }
 
 /* ===== ADD CATEGORY FORM ===== */
-.add-category-form {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--glass-border);
-    padding-top: 1.5rem;
+.edit-recipe-container .add-category-form {
+    display: flex !important;
+    gap: 0.75rem !important;
+    margin-top: 1.5rem !important;
+    border-top: 1px solid var(--glass-border) !important;
+    padding-top: 1.5rem !important;
 }
 
-.add-category-form .form-control {
-    flex-grow: 1;
+.edit-recipe-container .add-category-form .form-control {
+    flex-grow: 1 !important;
 }
 
-.add-category-feedback {
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
-    display: block;
-    height: 1em;
+.edit-recipe-container .add-category-feedback {
+    font-size: 0.8rem !important;
+    margin-top: 0.5rem !important;
+    display: block !important;
+    height: 1em !important;
 }
 
-.add-category-feedback.success {
-    color: #4CAF50;
+.edit-recipe-container .add-category-feedback.success {
+    color: #4CAF50 !important;
 }
 
-.add-category-feedback.error {
-    color: #F44336;
+.edit-recipe-container .add-category-feedback.error {
+    color: #F44336 !important;
 }
 
-.btn-delete-category {
-    background: rgba(244, 67, 54, 0.1);
-    border: 1px solid rgba(244, 67, 54, 0.3);
-    border-radius: 12px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0.5rem 0.75rem;
-    opacity: 0.6;
-    transition: all 0.3s ease;
-    border: none;
+.edit-recipe-container .btn-delete-category {
+    background: rgba(244, 67, 54, 0.1) !important;
+    border: 1px solid rgba(244, 67, 54, 0.3) !important;
+    border-radius: 12px !important;
+    color: var(--text-secondary) !important;
+    cursor: pointer !important;
+    font-size: 1rem !important;
+    padding: 0.5rem 0.75rem !important;
+    opacity: 0.6 !important;
+    transition: all 0.3s ease !important;
+    border: none !important;
 }
 
-.checkbox-item:hover .btn-delete-category {
-    opacity: 1;
+.edit-recipe-container .checkbox-item:hover .btn-delete-category {
+    opacity: 1 !important;
 }
 
-.btn-delete-category:hover {
-    color: #F44336;
-    background: rgba(244, 67, 54, 0.2);
-    border-color: #F44336;
+.edit-recipe-container .btn-delete-category:hover {
+    color: #F44336 !important;
+    background: rgba(244, 67, 54, 0.2) !important;
+    border-color: #F44336 !important;
 }
 
-/* ===== BUTTONS (PADRÃO VIEW_USER) ===== */
-.btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    border: none;
+/* ===== BUTTONS (PADRÃO VIEW_USER) - SOBRESCREVENDO CSS GLOBAL ===== */
+.edit-recipe-container .btn,
+.edit-recipe-container button.btn,
+.edit-recipe-container a.btn {
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 12px !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    border: none !important;
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--accent-orange) 0%, #FF8533 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+.edit-recipe-container .btn-primary,
+.edit-recipe-container button.btn-primary,
+.edit-recipe-container a.btn-primary {
+    background: linear-gradient(135deg, var(--accent-orange) 0%, #FF8533 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3) !important;
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
-    color: white;
+.edit-recipe-container .btn-primary:hover,
+.edit-recipe-container button.btn-primary:hover,
+.edit-recipe-container a.btn-primary:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4) !important;
+    color: white !important;
+    background: linear-gradient(135deg, var(--accent-orange) 0%, #FF8533 100%) !important;
 }
 
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
-    border: 1px solid var(--glass-border);
+.edit-recipe-container .btn-secondary,
+.edit-recipe-container button.btn-secondary,
+.edit-recipe-container a.btn-secondary {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--glass-border) !important;
 }
 
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent-orange);
-    transform: translateY(-1px);
+.edit-recipe-container .btn-secondary:hover,
+.edit-recipe-container button.btn-secondary:hover,
+.edit-recipe-container a.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--accent-orange) !important;
+    transform: translateY(-1px) !important;
 }
 
-.btn-sm {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+.edit-recipe-container .btn-sm {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
 }
 
 /* ===== SECTION STYLES ===== */
