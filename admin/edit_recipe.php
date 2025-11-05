@@ -520,6 +520,38 @@ input[type=number] {
     font-size: 0.875rem !important;
 }
 
+/* ===== BOTÃO CIRCULAR (ESTILO VIEW_USER_ROUTINE) ===== */
+.edit-recipe-container .btn-save-circular,
+.edit-recipe-container .btn-add-circular {
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 107, 0, 0.08) !important;
+    border: 1px solid rgba(255, 107, 0, 0.2) !important;
+    color: var(--accent-orange) !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+.edit-recipe-container .btn-save-circular:hover,
+.edit-recipe-container .btn-add-circular:hover {
+    background: rgba(255, 107, 0, 0.15) !important;
+    border-color: var(--accent-orange) !important;
+    transform: scale(1.05) !important;
+}
+
+.edit-recipe-container .btn-save-circular i,
+.edit-recipe-container .btn-add-circular i {
+    font-size: 1.5rem !important;
+}
+
 /* ===== SECTION STYLES ===== */
 .edit-recipe-container .ingredients-section,
 .edit-recipe-container .nutrition-section {
@@ -625,8 +657,8 @@ input[type=number] {
                         <h3>Conteúdo Principal</h3>
                         <div class="header-buttons">
                             <a href="recipes.php" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Salvar Receita
+                            <button type="submit" class="btn-save-circular" title="Salvar Receita">
+                                <i class="fas fa-save"></i>
                             </button>
                         </div>
                     </div>
@@ -688,8 +720,8 @@ input[type=number] {
                             </div>
                             <?php endif; ?>
                         </div>
-                        <button type="button" id="btn-add-ingredient" class="btn btn-secondary btn-sm btn-add-ingredient">
-                            <i class="fas fa-plus"></i> Adicionar Ingrediente
+                        <button type="button" id="btn-add-ingredient" class="btn-add-circular" title="Adicionar Ingrediente">
+                            <i class="fas fa-plus"></i>
                         </button>
                     </div>
 
