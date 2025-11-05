@@ -464,7 +464,7 @@ require_once __DIR__ . '/includes/header.php';
     
     z-index: 1000; /* Garante que fique por cima de outros elementos */
     
-    background: rgba(40, 40, 45, 0.85); /* Fundo intermediário - mais escuro que o trigger mas não muito */
+    background: rgba(35, 35, 35, 0.9); /* Fundo neutro cinza escuro - sem tom azulado */
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
