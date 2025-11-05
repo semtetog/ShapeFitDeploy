@@ -1033,6 +1033,7 @@ document.addEventListener('DOMContentLoaded', function() {
     flex-direction: column;
     position: relative;
     margin: auto;
+    box-sizing: border-box;
 }
 
 .photo-modal-header {
@@ -1053,6 +1054,9 @@ document.addEventListener('DOMContentLoaded', function() {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .photo-navigation {
@@ -1104,9 +1108,12 @@ document.addEventListener('DOMContentLoaded', function() {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 1rem 1.5rem;
+    padding: 1.25rem 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.02);
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
 }
 
 .photo-info-top {
@@ -1283,8 +1290,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     .photo-gallery {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
+    }
+    
+    .photo-item {
+        max-width: 100%;
     }
     
     .gallery-modal-content {
