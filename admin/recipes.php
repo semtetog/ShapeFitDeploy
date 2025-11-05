@@ -285,8 +285,9 @@ require_once __DIR__ . '/includes/header.php';
 /* Header Card */
 .recipes-header-card {
     margin-bottom: 2rem;
-    overflow: visible; /* Permite que o dropdown apareça fora do card */
+    overflow: visible !important; /* Permite que o dropdown apareça fora do card */
     position: relative;
+    z-index: 1; /* Z-index baixo para não interferir */
 }
 
 .card-header-section {
@@ -411,11 +412,13 @@ require_once __DIR__ . '/includes/header.php';
 .custom-select-wrapper {
     position: relative;
     width: 100%;
-    z-index: 1000; /* Z-index alto para o container do select */
+    z-index: 1; /* Z-index baixo para não criar contexto de empilhamento */
+    isolation: isolate; /* Criar novo contexto de empilhamento isolado */
 }
 
 .custom-select {
     position: relative;
+    z-index: 1;
 }
 
 .custom-select-trigger {
@@ -743,7 +746,7 @@ require_once __DIR__ . '/includes/header.php';
 </style>
 
 <script>
-// Custom Select Dropdown Functionality - REFATORADO COMPLETAMENTE
+// Custom Select Dropdown Functionality - REFATORADO COM PORTAL PARA BODY
 (function() {
     const customSelect = document.getElementById('category_select');
     if (!customSelect) return;
@@ -755,21 +758,35 @@ require_once __DIR__ . '/includes/header.php';
     const valueDisplay = customSelect.querySelector('.custom-select-value');
     
     let isDropdownOpen = false;
+    let dropdownPortal = null;
+    
+    // Criar portal para o dropdown no body (fora de qualquer contexto de empilhamento)
+    function createDropdownPortal() {
+        if (dropdownPortal) return dropdownPortal;
+        
+        dropdownPortal = optionsContainer.cloneNode(true);
+        dropdownPortal.id = 'category_select_portal';
+        dropdownPortal.style.position = 'fixed';
+        dropdownPortal.style.zIndex = '999999';
+        dropdownPortal.style.display = 'none';
+        document.body.appendChild(dropdownPortal);
+        
+        return dropdownPortal;
+    }
     
     // Função para posicionar o dropdown corretamente
     function positionDropdown() {
-        if (!isDropdownOpen) return;
+        if (!isDropdownOpen || !dropdownPortal) return;
         
         const rect = trigger.getBoundingClientRect();
         
         // Usar getBoundingClientRect que já retorna coordenadas da viewport
-        // Não usar window.scrollY pois fixed já é relativo à viewport
-        optionsContainer.style.position = 'fixed';
-        optionsContainer.style.top = (rect.bottom + 8) + 'px';
-        optionsContainer.style.left = rect.left + 'px';
-        optionsContainer.style.width = rect.width + 'px';
-        optionsContainer.style.zIndex = '999999';
-        optionsContainer.style.display = 'block';
+        dropdownPortal.style.position = 'fixed';
+        dropdownPortal.style.top = (rect.bottom + 8) + 'px';
+        dropdownPortal.style.left = rect.left + 'px';
+        dropdownPortal.style.width = rect.width + 'px';
+        dropdownPortal.style.zIndex = '999999';
+        dropdownPortal.style.display = 'block';
     }
     
     // Função para abrir o dropdown
@@ -780,6 +797,47 @@ require_once __DIR__ . '/includes/header.php';
                 select.classList.remove('active');
             }
         });
+        
+        // Criar portal se não existir
+        if (!dropdownPortal) {
+            createDropdownPortal();
+            
+            // Reatachar eventos nas opções do portal
+            const portalOptions = dropdownPortal.querySelectorAll('.custom-select-option');
+            portalOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    // Remove selected class from all options
+                    portalOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Update hidden input value
+                    const value = this.getAttribute('data-value');
+                    hiddenInput.value = value;
+                    
+                    // Update displayed value
+                    valueDisplay.textContent = this.textContent;
+                    
+                    // Close dropdown
+                    closeDropdown();
+                    
+                    // Auto-submit form
+                    const form = customSelect.closest('form');
+                    if (form) {
+                        form.submit();
+                    }
+                });
+            });
+            
+            // Prevenir que cliques dentro do dropdown o fechem
+            dropdownPortal.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
         
         customSelect.classList.add('active');
         isDropdownOpen = true;
@@ -794,6 +852,10 @@ require_once __DIR__ . '/includes/header.php';
     function closeDropdown() {
         customSelect.classList.remove('active');
         isDropdownOpen = false;
+        if (dropdownPortal) {
+            dropdownPortal.style.display = 'none';
+        }
+        // Esconder o container original também
         optionsContainer.style.display = 'none';
     }
     
@@ -814,7 +876,7 @@ require_once __DIR__ . '/includes/header.php';
         e.stopPropagation();
     });
     
-    // Select option
+    // Select option (backup no container original)
     options.forEach(option => {
         option.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -846,8 +908,12 @@ require_once __DIR__ . '/includes/header.php';
     
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
-        // Verificar se o clique foi fora do select
-        if (!customSelect.contains(e.target) && !optionsContainer.contains(e.target)) {
+        // Verificar se o clique foi fora do select e do portal
+        const clickedOutside = !customSelect.contains(e.target) && 
+                               !optionsContainer.contains(e.target) &&
+                               (!dropdownPortal || !dropdownPortal.contains(e.target));
+        
+        if (clickedOutside && isDropdownOpen) {
             closeDropdown();
         }
     }, true); // Usar capture phase para garantir que execute antes
@@ -874,6 +940,13 @@ require_once __DIR__ . '/includes/header.php';
     
     // Garantir que o dropdown comece fechado
     closeDropdown();
+    
+    // Limpar portal quando a página for descarregada
+    window.addEventListener('beforeunload', function() {
+        if (dropdownPortal && dropdownPortal.parentNode) {
+            dropdownPortal.parentNode.removeChild(dropdownPortal);
+        }
+    });
 })();
 </script>
 
