@@ -356,18 +356,19 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         // Função auxiliar para extrair nome do arquivo do src (compartilhada)
+        // SEMPRE remove querystring ANTES de processar para evitar duplicatas
         function getFileName(src) {
             if (!src) return '';
+            
+            // Remove qualquer querystring ANTES de processar (ESSENCIAL para evitar duplicatas)
+            src = src.split('?')[0];
+            
             try {
-                // REMOVER query strings ANTES de processar
-                src = src.split('?')[0];
                 const url = new URL(src);
-                const pathParts = url.pathname.split('/');
-                return pathParts[pathParts.length - 1];
+                return url.pathname.split('/').pop();
             } catch (e) {
-                // Fallback para src relativo ou absoluto sem protocolo
-                const parts = src.split('/');
-                return parts[parts.length - 1].split('?')[0];
+                // Fallback para caminhos relativos ou absolutos sem protocolo
+                return src.split('/').pop();
             }
         }
         
@@ -444,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // SEMPRE usar parse do onclick (mesmo método do measurements_progress.php)
             // Isso garante que pegamos as informações corretas, não do DOM que pode estar vazio
             
-            // PRIORIDADE 1: Tentar coletar da galeria usando onclick
+            // PRIORIDADE 1: Tentar coletar da galeria usando onclick (fonte oficial com todas as infos)
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
             
             if (galleryItems.length > 0) {
@@ -460,7 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             const parsedDate = match[3];
                             const parsedMeasurements = match[4] || '';
                             
-                            // Usar nome do arquivo como chave única
+                            // Usar nome do arquivo como chave única (getFileName já remove querystring)
                             const fileName = getFileName(parsedSrc);
                             
                             if (fileName && !seenFiles.has(fileName)) {
@@ -477,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // PRIORIDADE 2: Se não coletou nada da galeria, coletar do card inicial usando onclick
+            // PRIORIDADE 2 (somente se a galeria estiver vazia): coletar do card inicial usando onclick
             if (allPhotos.length === 0) {
                 const photoItems = document.querySelectorAll('.photo-item');
                 photoItems.forEach(item => {
@@ -491,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             const parsedDate = match[3];
                             const parsedMeasurements = match[4] || '';
                             
-                            // Usar nome do arquivo como chave única
+                            // Usar nome do arquivo como chave única (getFileName já remove querystring)
                             const fileName = getFileName(parsedSrc);
                             
                             if (fileName && !seenFiles.has(fileName)) {
@@ -508,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // Encontrar a foto atual
+            // Encontrar a foto atual (normalizar imageSrc também para evitar duplicatas)
             const fileName = getFileName(imageSrc);
             currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
             
