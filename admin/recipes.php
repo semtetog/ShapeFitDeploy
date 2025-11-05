@@ -663,6 +663,14 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0;
 }
 
+.empty-state-content .btn-primary {
+    text-decoration: none !important;
+    border-bottom: none !important;
+    text-decoration-line: none !important;
+    text-underline-offset: 0 !important;
+    text-decoration-color: transparent !important;
+}
+
 /* Pagination */
 .pagination-card {
     margin-top: 2rem;
