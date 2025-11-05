@@ -677,28 +677,28 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*       CSS FINAL E DEFINITIVO PARA OS CARDS DE PROGRESSO                 */
+/*       A SOLUÇÃO FINAL, PELO AMOR DO CSS                                 */
 /* ========================================================================= */
 
-/* 1. O Grid principal. Deixamos ele esticar os cards para terem a mesma altura. */
+/* 1. O Grid principal. stretch para forçar a mesma altura. */
 .progress-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
-    align-items: stretch; /* Garante que os cards tenham a mesma altura */
+    align-items: stretch; /* FORÇA os dois cards a terem a mesma altura */
 }
 
-/* 2. AMBOS os cards são transformados em containers flexíveis verticais */
+/* 2. AMBOS os cards são containers flexíveis. */
 .dashboard-card.weight-history-card,
 .dashboard-card.photos-history-card {
     display: flex;
     flex-direction: column;
 }
 
-/* 3. O container do GRÁFICO vai crescer para preencher o espaço vertical do card */
+/* 3. O container do GRÁFICO. Ele se estica para preencher o espaço. */
 .weight-chart-container {
     position: relative;
-    flex-grow: 1; /* Faz o container do gráfico se esticar para preencher a altura */
+    flex-grow: 1;
 }
 
 .btn-view-gallery {
@@ -764,14 +764,14 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* 4. A galeria de FOTOS é centralizada verticalmente no espaço que sobrar */
+/* 4. A galeria de FOTOS. ELA NÃO SE ESTICA, mas se centraliza. */
 .photo-gallery {
-    /* A MÁGICA FINAL: Margem automática em cima e embaixo para centralizar */
-    margin-top: auto;
-    margin-bottom: auto;
+    /* A mágica para centralizar verticalmente em um container flex */
+    margin: auto 0;
     
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    /* Colunas flexíveis que se adaptam bem ao zoom */
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 1rem;
 }
 
