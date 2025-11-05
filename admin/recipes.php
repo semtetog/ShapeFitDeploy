@@ -448,22 +448,23 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .custom-select-options {
-    position: fixed; /* Fixed para garantir que fique por cima de tudo */
-    background: rgba(30, 30, 30, 0.98);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 999999; /* Z-index EXTREMO para prioridade máxima */
+    position: fixed !important; /* Fixed para garantir que fique por cima de tudo */
+    background: rgba(30, 30, 30, 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    z-index: 999999 !important; /* Z-index EXTREMO para prioridade máxima */
     max-height: 300px;
     overflow-y: auto;
-    display: none;
+    display: none !important;
     min-width: 200px; /* Largura mínima para o dropdown */
     /* Posição será calculada via JavaScript */
+    pointer-events: auto !important; /* Garantir que pode receber cliques */
 }
 
 .custom-select.active .custom-select-options {
-    display: block;
+    display: block !important;
 }
 
 .custom-select-option {
@@ -742,7 +743,7 @@ require_once __DIR__ . '/includes/header.php';
 </style>
 
 <script>
-// Custom Select Dropdown Functionality - REFATORADO
+// Custom Select Dropdown Functionality - REFATORADO COMPLETAMENTE
 (function() {
     const customSelect = document.getElementById('category_select');
     if (!customSelect) return;
@@ -753,21 +754,47 @@ require_once __DIR__ . '/includes/header.php';
     const options = customSelect.querySelectorAll('.custom-select-option');
     const valueDisplay = customSelect.querySelector('.custom-select-value');
     
-    // Função para posicionar o dropdown
+    let isDropdownOpen = false;
+    
+    // Função para posicionar o dropdown corretamente
     function positionDropdown() {
-        if (!customSelect.classList.contains('active')) return;
+        if (!isDropdownOpen) return;
         
         const rect = trigger.getBoundingClientRect();
+        
+        // Usar getBoundingClientRect que já retorna coordenadas da viewport
+        // Não usar window.scrollY pois fixed já é relativo à viewport
         optionsContainer.style.position = 'fixed';
-        optionsContainer.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+        optionsContainer.style.top = (rect.bottom + 8) + 'px';
         optionsContainer.style.left = rect.left + 'px';
         optionsContainer.style.width = rect.width + 'px';
         optionsContainer.style.zIndex = '999999';
+        optionsContainer.style.display = 'block';
+    }
+    
+    // Função para abrir o dropdown
+    function openDropdown() {
+        // Fechar todos os outros dropdowns primeiro
+        document.querySelectorAll('.custom-select').forEach(select => {
+            if (select !== customSelect) {
+                select.classList.remove('active');
+            }
+        });
+        
+        customSelect.classList.add('active');
+        isDropdownOpen = true;
+        
+        // Posicionar após um pequeno delay para garantir que o DOM atualizou
+        requestAnimationFrame(() => {
+            positionDropdown();
+        });
     }
     
     // Função para fechar o dropdown
     function closeDropdown() {
         customSelect.classList.remove('active');
+        isDropdownOpen = false;
+        optionsContainer.style.display = 'none';
     }
     
     // Toggle dropdown - único listener
@@ -775,22 +802,16 @@ require_once __DIR__ . '/includes/header.php';
         e.stopPropagation();
         e.preventDefault();
         
-        const isActive = customSelect.classList.contains('active');
-        
-        // Fechar todos os outros dropdowns (se houver)
-        document.querySelectorAll('.custom-select').forEach(select => {
-            if (select !== customSelect) {
-                select.classList.remove('active');
-            }
-        });
-        
-        // Toggle do dropdown atual
-        customSelect.classList.toggle('active');
-        
-        // Posicionar após abrir
-        if (!isActive) {
-            setTimeout(positionDropdown, 0);
+        if (isDropdownOpen) {
+            closeDropdown();
+        } else {
+            openDropdown();
         }
+    });
+    
+    // Prevenir que cliques dentro do dropdown o fechem
+    optionsContainer.addEventListener('click', function(e) {
+        e.stopPropagation();
     });
     
     // Select option
@@ -825,14 +846,15 @@ require_once __DIR__ . '/includes/header.php';
     
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
-        if (!customSelect.contains(e.target)) {
+        // Verificar se o clique foi fora do select
+        if (!customSelect.contains(e.target) && !optionsContainer.contains(e.target)) {
             closeDropdown();
         }
-    });
+    }, true); // Usar capture phase para garantir que execute antes
     
     // Close dropdown on escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && customSelect.classList.contains('active')) {
+        if (e.key === 'Escape' && isDropdownOpen) {
             closeDropdown();
         }
     });
@@ -840,12 +862,18 @@ require_once __DIR__ . '/includes/header.php';
     // Reposicionar quando a janela é redimensionada ou scroll
     let repositionTimeout;
     function debouncedReposition() {
+        if (!isDropdownOpen) return;
         clearTimeout(repositionTimeout);
-        repositionTimeout = setTimeout(positionDropdown, 10);
+        repositionTimeout = setTimeout(() => {
+            positionDropdown();
+        }, 10);
     }
     
     window.addEventListener('resize', debouncedReposition);
     window.addEventListener('scroll', debouncedReposition, true);
+    
+    // Garantir que o dropdown comece fechado
+    closeDropdown();
 })();
 </script>
 
