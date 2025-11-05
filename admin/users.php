@@ -87,18 +87,17 @@ require_once __DIR__ . '/includes/header.php';
                         $avatar_url = '';
 
                         if (!empty($user['profile_image_filename'])) {
-                            $thumb_filename = 'thumb_' . $user['profile_image_filename'];
-                            $thumb_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
-                            
-                            // Prioridade 1: A thumbnail existe?
-                            if (file_exists($thumb_path_on_server)) {
-                                $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                            // Verificar primeiro a imagem original (prioridade)
+                            $original_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'];
+                            if (file_exists($original_path_on_server)) {
+                                $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']);
                                 $has_photo = true;
                             } else {
-                                // Prioridade 2: Se a thumb não existe, a imagem original existe?
-                                $original_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'];
-                                if (file_exists($original_path_on_server)) {
-                                    $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']);
+                                // Fallback: verificar thumbnail
+                                $thumb_filename = 'thumb_' . $user['profile_image_filename'];
+                                $thumb_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+                                if (file_exists($thumb_path_on_server)) {
+                                    $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
                                     $has_photo = true;
                                 }
                             }
