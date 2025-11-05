@@ -240,22 +240,24 @@ require_once __DIR__ . '/includes/header.php';
     word-wrap: break-word;
 }
 
-/* Botão de exclusão no card */
+/* Botão de exclusão no card - estilo igual ao painel admin */
 .btn-delete-user-card {
     position: absolute;
     top: 8px;
     right: 8px;
-    background: rgba(220, 38, 38, 0.9);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 10px;
-    font-size: 0.85rem;
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--danger-red);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    font-size: 0.9rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     z-index: 10;
     opacity: 0;
     transform: scale(0.8);
@@ -267,20 +269,26 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .btn-delete-user-card:hover {
-    background: #dc2626;
-    transform: scale(1.1);
+    background: rgba(244, 67, 54, 0.2);
+    border-color: var(--danger-red);
+    color: var(--danger-red);
+    transform: translateY(-2px);
 }
 
 .btn-delete-user-card:active {
-    transform: scale(0.95);
+    transform: translateY(0);
+}
+
+.btn-delete-user-card i {
+    font-size: 0.9rem;
 }
 </style>
 
 <!-- Modal de Exclusão de Usuário -->
-<div id="deleteUserModal" class="custom-modal" style="display: none;">
+<div id="deleteUserModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeDeleteUserModal()"></div>
     <div class="custom-modal-content">
-        <div class="custom-modal-header" style="color: #dc2626;">
+        <div class="custom-modal-header" style="color: var(--danger-red);">
             <i class="fas fa-exclamation-triangle"></i>
             <h3>Excluir Usuário Permanentemente</h3>
         </div>
@@ -297,7 +305,7 @@ require_once __DIR__ . '/includes/header.php';
                 <li>Rotinas e exercícios</li>
                 <li>Todos os dados relacionados</li>
             </ul>
-            <p style="color: #dc2626; font-weight: 600;">Esta ação é IRREVERSÍVEL!</p>
+            <p style="color: var(--danger-red); font-weight: 600;">Esta ação é IRREVERSÍVEL!</p>
         </div>
         <div class="custom-modal-footer">
             <button class="btn-modal-cancel" onclick="closeDeleteUserModal()">
@@ -330,22 +338,25 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <style>
-/* Estilos para modais */
+/* Estilos para modais - idênticos ao view_user.php */
 .custom-modal {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: none;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
 }
 
 .custom-modal.active {
-    display: flex !important;
+    opacity: 1;
+    pointer-events: all;
 }
 
 .custom-modal-overlay {
@@ -354,89 +365,113 @@ require_once __DIR__ . '/includes/header.php';
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    cursor: pointer;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: none !important;
 }
 
 .custom-modal-content {
-    background: var(--surface-color);
-    border-radius: 12px;
-    padding: 24px;
+    position: relative;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 0;
     max-width: 500px;
     width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    z-index: 10000;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
 }
 
-.custom-modal-small {
+.custom-modal.active .custom-modal-content {
+    transform: scale(1);
+}
+
+.custom-modal-content.custom-modal-small {
     max-width: 400px;
 }
 
 .custom-modal-header {
+    padding: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    font-size: 1.3rem;
+    gap: 1rem;
+    color: var(--accent-orange);
 }
 
 .custom-modal-header i {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
 }
 
 .custom-modal-header h3 {
     margin: 0;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 .custom-modal-body {
-    margin-bottom: 24px;
-    color: var(--primary-text-color);
-    line-height: 1.6;
+    padding: 2rem;
 }
 
 .custom-modal-body p {
-    margin: 12px 0;
+    margin: 0 0 1rem 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.custom-modal-body p:last-child {
+    margin-bottom: 0;
+}
+
+.custom-modal-body p strong {
+    color: var(--text-primary);
+    font-weight: 600;
 }
 
 .modal-warning {
-    color: var(--secondary-text-color);
-    font-size: 0.95rem;
+    color: var(--text-secondary) !important;
+    font-size: 0.9rem;
+    padding: 1rem;
+    background: rgba(255, 107, 0, 0.08);
+    border-left: 3px solid var(--accent-orange);
+    border-radius: 8px;
 }
 
 .custom-modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
-    gap: 12px;
+    gap: 1rem;
     justify-content: flex-end;
 }
 
 .btn-modal-cancel,
 .btn-modal-primary,
 .btn-modal-danger {
-    padding: 10px 20px;
+    padding: 0.75rem 1.5rem;
     border-radius: 8px;
-    border: none;
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
+    gap: 0.5rem;
+    border: none;
 }
 
 .btn-modal-cancel {
-    background: var(--surface-color);
-    color: var(--primary-text-color);
-    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-modal-cancel:hover {
-    background: var(--bg-color);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .btn-modal-primary {
@@ -446,26 +481,35 @@ require_once __DIR__ . '/includes/header.php';
 
 .btn-modal-primary:hover {
     background: var(--accent-orange-hover);
+    transform: translateY(-1px);
 }
 
+/* Botão de perigo no modal - estilo igual ao view_user.php */
 .btn-modal-danger {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    color: white;
+    background: rgba(244, 67, 54, 0.15);
+    color: var(--danger-red);
+    border: 1px solid rgba(244, 67, 54, 0.4);
 }
 
 .btn-modal-danger:hover {
-    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    background: rgba(244, 67, 54, 0.25);
+    border-color: var(--danger-red);
+    color: var(--danger-red);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
 }
+
+/* Forçar exibição de modais quando .active */
+.custom-modal { display: none; }
+.custom-modal.active { display: flex !important; }
 </style>
 
 <script>
-// Sistema de exclusão de usuário
+// Sistema de exclusão de usuário - idêntico ao view_user.php
 let currentUserIdToDelete = null;
 let currentUserNameToDelete = null;
 
 function showDeleteUserModal(userId, userName) {
+    console.log('[showDeleteUserModal] userId=', userId, 'userName=', userName);
     currentUserIdToDelete = userId;
     currentUserNameToDelete = userName;
     document.getElementById('delete-user-name').textContent = userName;
@@ -487,6 +531,58 @@ function closeDeleteUserModal() {
     currentUserIdToDelete = null;
     currentUserNameToDelete = null;
 }
+
+async function confirmDeleteUser() {
+    if (!currentUserIdToDelete) {
+        alert('Erro: ID do usuário não encontrado. Recarregue a página e tente novamente.');
+        return;
+    }
+    
+    const userIdToDelete = currentUserIdToDelete;
+    const userNameToDelete = currentUserNameToDelete;
+    
+    closeDeleteUserModal();
+    
+    try {
+        const formData = new FormData();
+        formData.append('user_id', String(userIdToDelete));
+        
+        const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/actions/delete_user.php', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        });
+        
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('Erro ao fazer parse do JSON:', e, text);
+            showAlertModal('Erro', 'Resposta inválida do servidor: ' + text.substring(0, 100), false);
+            return;
+        }
+        
+        if (data.success) {
+            const alertModal = document.getElementById('alertModal');
+            if (alertModal) {
+                alertModal.dataset.redirectOnClose = 'true';
+                alertModal.dataset.redirectUrl = '<?php echo BASE_ADMIN_URL; ?>/users.php';
+            }
+            showAlertModal('Usuário Excluído', data.message, true);
+        } else {
+            showAlertModal('Erro', data.message, false);
+        }
+    } catch (error) {
+        console.error('Erro ao excluir usuário:', error);
+        showAlertModal('Erro', 'Erro ao excluir usuário. Verifique o console para mais detalhes.', false);
+    }
+}
+
+// Expor funções globalmente
+window.showDeleteUserModal = showDeleteUserModal;
+window.closeDeleteUserModal = closeDeleteUserModal;
+window.confirmDeleteUser = confirmDeleteUser;
 
 function showAlertModal(title, message, isSuccess = true) {
     const modal = document.getElementById('alertModal');
