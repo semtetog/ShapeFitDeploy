@@ -102,8 +102,8 @@ require_once __DIR__ . '/includes/header.php';
                 <h2><i class="fas fa-utensils"></i> Gerenciar Receitas</h2>
                 <p>Gerencie todas as receitas cadastradas no sistema</p>
             </div>
-            <a href="edit_recipe.php" class="btn-primary recipe-add-btn">
-                <i class="fas fa-plus"></i> Nova Receita
+            <a href="edit_recipe.php" class="btn-add-recipe-circular" title="Nova Receita">
+                <i class="fas fa-plus"></i>
             </a>
         </div>
         
@@ -118,7 +118,7 @@ require_once __DIR__ . '/includes/header.php';
                            class="form-control recipe-search-input">
                 </div>
                 <div class="form-group">
-                    <div class="custom-select-wrapper">
+                    <div class="custom-select-wrapper" id="category_select_wrapper">
                         <input type="hidden" name="category_id" id="category_id_input" value="<?php echo $category_id ?: ''; ?>">
                         <div class="custom-select" id="category_select">
                             <div class="custom-select-trigger">
@@ -150,8 +150,8 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn-primary recipe-filter-btn">
-                        <i class="fas fa-search"></i> Filtrar
+                    <button type="submit" class="btn-filter-circular" title="Filtrar">
+                        <i class="fas fa-search"></i>
                     </button>
                 </div>
                 <?php if (!empty($search_term) || $category_id): ?>
@@ -321,14 +321,60 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-secondary);
 }
 
-.recipe-add-btn {
+/* Botão circular de adicionar receita (igual ao botão de adicionar missão) */
+.btn-add-recipe-circular {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
     text-decoration: none;
-    white-space: nowrap;
-    border-radius: 12px;
+}
+
+.btn-add-recipe-circular:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
+}
+
+.btn-add-recipe-circular i {
+    font-size: 1.5rem;
+}
+
+/* Botão circular de filtrar */
+.btn-filter-circular {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    text-decoration: none;
+    padding: 0;
+    margin: 0;
+}
+
+.btn-filter-circular:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
+}
+
+.btn-filter-circular i {
+    font-size: 1.25rem;
 }
 
 /* Filter Form */
@@ -340,7 +386,7 @@ require_once __DIR__ . '/includes/header.php';
     display: grid;
     grid-template-columns: 2fr 1fr auto auto;
     gap: 1rem;
-    align-items: end;
+    align-items: center;
 }
 
 .filter-row .form-group {
@@ -351,7 +397,6 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
 }
 
-.recipe-filter-btn,
 .recipe-clear-btn {
     display: flex;
     align-items: center;
@@ -403,19 +448,19 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .custom-select-options {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 0;
-    right: 0;
+    position: fixed; /* Mudado de absolute para fixed para garantir que fique por cima de tudo */
+    top: auto; /* Será calculado via JavaScript */
+    left: auto; /* Será calculado via JavaScript */
     background: rgba(30, 30, 30, 0.98);
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 10000; /* Z-index muito alto para aparecer sobre tudo */
+    z-index: 999999; /* Z-index EXTREMO para prioridade máxima */
     max-height: 300px;
     overflow-y: auto;
     display: none;
+    min-width: 200px; /* Largura mínima para o dropdown */
 }
 
 .custom-select.active .custom-select-options {
@@ -750,6 +795,38 @@ require_once __DIR__ . '/includes/header.php';
             customSelect.classList.remove('active');
         }
     });
+    
+    // Posicionar dropdown usando fixed positioning para garantir que fique por cima de tudo
+    trigger.addEventListener('click', function() {
+        if (customSelect.classList.contains('active')) {
+            const options = customSelect.querySelector('.custom-select-options');
+            const rect = trigger.getBoundingClientRect();
+            options.style.position = 'fixed';
+            options.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+            options.style.left = rect.left + 'px';
+            options.style.width = rect.width + 'px';
+        }
+    });
+    
+    // Reposicionar quando a janela é redimensionada ou scroll
+    window.addEventListener('resize', function() {
+        if (customSelect.classList.contains('active')) {
+            const options = customSelect.querySelector('.custom-select-options');
+            const rect = trigger.getBoundingClientRect();
+            options.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+            options.style.left = rect.left + 'px';
+            options.style.width = rect.width + 'px';
+        }
+    });
+    
+    window.addEventListener('scroll', function() {
+        if (customSelect.classList.contains('active')) {
+            const options = customSelect.querySelector('.custom-select-options');
+            const rect = trigger.getBoundingClientRect();
+            options.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+            options.style.left = rect.left + 'px';
+        }
+    }, true);
 })();
 </script>
 
