@@ -1237,22 +1237,20 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .photo-modal-measurements {
-    width: auto;
-    max-width: 90%;
+    width: 100%;
+    max-width: 500px;
     padding: 0.5rem 0.75rem;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.2);
     border-radius: 6px;
     color: var(--accent-orange);
-    font-size: 0.75rem;
-    line-height: 1.3;
+    font-size: 0.7rem;
+    line-height: 1.4;
     text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     box-sizing: border-box;
     margin: 0 auto;
-    display: inline-block;
 }
 
 .photo-counter {
