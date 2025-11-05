@@ -759,17 +759,12 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* 3. Faz a GALERIA DE FOTOS crescer e centraliza seu conteúdo */
+/* 3. Galeria de Fotos com layout natural e compacto */
 .photo-gallery {
-    flex-grow: 1; /* Faz a galeria se esticar para preencher o espaço vertical */
-    
-    /* A MÁGICA FINAL: */
     display: grid;
-    /* Centraliza o CONJUNTO de fotos (o grid) verticalmente e horizontalmente */
-    place-content: center;
-    
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+    /* Todas as outras propriedades como flex-grow e place-content foram removidas */
 }
 
 /* Item de foto individual */
