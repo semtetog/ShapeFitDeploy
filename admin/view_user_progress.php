@@ -680,25 +680,19 @@ document.addEventListener('DOMContentLoaded', function() {
 /*       CSS DEFINITIVO E ROBUSTO PARA OS CARDS DE PROGRESSO               */
 /* ========================================================================= */
 
-/* 1. O Grid principal. Deixamos ele esticar os itens (comportamento padrão) */
+/* Este é o CSS que deixou as fotos perfeitas. MANTENHA-O ASSIM. */
 .progress-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
-    /* A propriedade 'align-items' é removida para que os cards tenham a mesma altura */
+    align-items: start; /* Impede que um card estique o outro */
 }
 
-/* 2. Transformamos AMBOS os cards em containers flexíveis */
-.dashboard-card.weight-history-card,
-.dashboard-card.photos-history-card {
-    display: flex;
-    flex-direction: column;
-}
-
-/* 3. O container do GRÁFICO vai crescer para preencher o espaço */
+/* A ÚNICA MUDANÇA NECESSÁRIA - apenas no container do gráfico */
 .weight-chart-container {
     position: relative;
-    flex-grow: 1; /* Faz o container do gráfico se esticar para preencher a altura do card */
+    min-height: 230px; /* Usamos ALTURA MÍNIMA em vez de altura fixa */
+    display: flex;     /* Isso garante que o canvas se ajuste ao espaço */
 }
 
 .btn-view-gallery {
@@ -764,14 +758,9 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* 4. A galeria de fotos com layout simples e adaptável */
 .photo-gallery {
-    /* Esta margem é a chave: ela centraliza verticalmente a galeria de fotos
-       dentro do espaço que o flex-grow cria. */
-    margin: auto 0;
-    
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 1rem;
 }
 
