@@ -1594,16 +1594,28 @@ function initIconPicker(selectedIconClass = null) {
         });
     });
     
-    // Selecionar ícone se fornecido
+    // Selecionar ícone se fornecido (sem triggerar click para evitar piscar)
     if (selectedIconClass) {
         const iconOption = iconPicker.querySelector(`.icon-option[data-icon="${selectedIconClass}"]`);
         if (iconOption) {
-            iconOption.click();
+            // Remover seleção anterior
+            iconPicker.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+            // Selecionar visualmente sem triggerar click
+            iconOption.classList.add('selected');
+            // Atualizar campo hidden diretamente
+            const selectedIconField = document.getElementById('selectedIcon');
+            if (selectedIconField) {
+                selectedIconField.value = selectedIconClass;
+            }
         } else {
             // Se não encontrar, usar o primeiro ícone como padrão
             const firstOption = iconPicker.querySelector('.icon-option');
             if (firstOption) {
-                firstOption.click();
+                firstOption.classList.add('selected');
+                const selectedIconField = document.getElementById('selectedIcon');
+                if (selectedIconField) {
+                    selectedIconField.value = firstOption.dataset.icon;
+                }
             }
         }
     }
