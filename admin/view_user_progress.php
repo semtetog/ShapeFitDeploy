@@ -16,58 +16,58 @@
                 <h3>Progresso Geral</h3>
                 <div class="summary-meta">Acompanhamento de peso e evolução visual</div>
                 <div class="summary-description">Visualize o histórico de peso e fotos de progresso do paciente</div>
-                <?php 
-                // Calcular peso atual e inicial
-                $current_weight = 0;
-                $initial_weight = 0;
-                if (!empty($weight_chart_data['data'])) {
-                    $current_weight = end($weight_chart_data['data']);
-                    $initial_weight = reset($weight_chart_data['data']);
-                } elseif (!empty($user_data['weight_kg'])) {
-                    $current_weight = (float)$user_data['weight_kg'];
-                    $initial_weight = (float)$user_data['weight_kg'];
-                }
-                
-                if ($current_weight > 0 || $initial_weight > 0): 
-                    $weight_diff = $current_weight - $initial_weight;
-                    $diff_text = '';
-                    $diff_class = '';
-                    if ($initial_weight > 0 && $current_weight > 0) {
-                        if ($weight_diff > 0) {
-                            $diff_text = '+' . number_format($weight_diff, 1) . 'kg';
-                            $diff_class = 'status-poor'; // Ganho de peso
-                        } elseif ($weight_diff < 0) {
-                            $diff_text = number_format($weight_diff, 1) . 'kg';
-                            $diff_class = 'status-excellent'; // Perda de peso
-                        } else {
-                            $diff_text = '0.0kg';
-                            $diff_class = 'status-fair'; // Sem alteração
-                        }
-                    } else {
-                        $diff_text = 'N/A';
-                        $diff_class = 'status-fair';
-                    }
-                ?>
-                    <div class="summary-stats">
-                        <div class="summary-stat">
-                            <div class="stat-value"><?php echo $current_weight > 0 ? number_format($current_weight, 1) : 'N/A'; ?>kg</div>
-                            <div class="stat-label">Peso Atual</div>
-                            <div class="stat-description">Último registro</div>
-                        </div>
-                        <div class="summary-stat">
-                            <div class="stat-value"><?php echo $initial_weight > 0 ? number_format($initial_weight, 1) : 'N/A'; ?>kg</div>
-                            <div class="stat-label">Peso Inicial</div>
-                            <div class="stat-description">No cadastro</div>
-                        </div>
-                        <div class="summary-stat">
-                            <div class="stat-value <?php echo $diff_class; ?>"><?php echo $diff_text; ?></div>
-                            <div class="stat-label">Variação</div>
-                            <div class="stat-description">Comparado ao início</div>
-                        </div>
-                    </div>
-                <?php endif; ?>
             </div>
         </div>
+        <?php 
+        // Calcular peso atual e inicial
+        $current_weight = 0;
+        $initial_weight = 0;
+        if (!empty($weight_chart_data['data'])) {
+            $current_weight = end($weight_chart_data['data']);
+            $initial_weight = reset($weight_chart_data['data']);
+        } elseif (!empty($user_data['weight_kg'])) {
+            $current_weight = (float)$user_data['weight_kg'];
+            $initial_weight = (float)$user_data['weight_kg'];
+        }
+        
+        if ($current_weight > 0 || $initial_weight > 0): 
+            $weight_diff = $current_weight - $initial_weight;
+            $diff_text = '';
+            $diff_class = '';
+            if ($initial_weight > 0 && $current_weight > 0) {
+                if ($weight_diff > 0) {
+                    $diff_text = '+' . number_format($weight_diff, 1) . 'kg';
+                    $diff_class = 'status-poor'; // Ganho de peso
+                } elseif ($weight_diff < 0) {
+                    $diff_text = number_format($weight_diff, 1) . 'kg';
+                    $diff_class = 'status-excellent'; // Perda de peso
+                } else {
+                    $diff_text = '0.0kg';
+                    $diff_class = 'status-fair'; // Sem alteração
+                }
+            } else {
+                $diff_text = 'N/A';
+                $diff_class = 'status-fair';
+            }
+        ?>
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <div class="stat-value"><?php echo $current_weight > 0 ? number_format($current_weight, 1) : 'N/A'; ?>kg</div>
+                    <div class="stat-label">Peso Atual</div>
+                    <div class="stat-description">Último registro</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value"><?php echo $initial_weight > 0 ? number_format($initial_weight, 1) : 'N/A'; ?>kg</div>
+                    <div class="stat-label">Peso Inicial</div>
+                    <div class="stat-description">No cadastro</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value <?php echo $diff_class; ?>"><?php echo $diff_text; ?></div>
+                    <div class="stat-label">Variação</div>
+                    <div class="stat-description">Comparado ao início</div>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="progress-grid">
