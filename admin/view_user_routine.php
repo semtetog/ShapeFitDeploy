@@ -1813,12 +1813,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 exercise_type = '';
             }
             
+            // Garantir que o icon_class seja obtido corretamente
+            let iconClass = formData.get('icon_class');
+            if (!iconClass || iconClass.trim() === '') {
+                // Se não tiver, tentar pegar do campo hidden
+                const selectedIconField = document.getElementById('selectedIcon');
+                if (selectedIconField && selectedIconField.value) {
+                    iconClass = selectedIconField.value;
+                } else {
+                    iconClass = 'fa-check-circle'; // Fallback
+                }
+            }
+            
+            console.log('[SUBMIT] Icon class obtido:', iconClass);
+            console.log('[SUBMIT] isPersonal:', isPersonal);
+            console.log('[SUBMIT] is_exercise:', is_exercise);
+            console.log('[SUBMIT] missionId:', missionId);
+            
             // Criar objeto com dados
             const data = {
                 action: action,
                 title: formData.get('title'),
                 description: formData.get('description'),
-                icon_class: formData.get('icon_class') || 'fa-check-circle',
+                icon_class: iconClass,
                 is_exercise: is_exercise,
                 exercise_type: exercise_type,
                 patient_id: routineUserId,
