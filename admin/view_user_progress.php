@@ -150,7 +150,10 @@ function formatMeasurement($value) {
                                 foreach ($measurement_labels_map as $measure_key => $measure_label_name) {
                                     // Verificar se a medida existe e é maior que 0
                                     if (isset($photo_set[$measure_key]) && $photo_set[$measure_key] !== null && $photo_set[$measure_key] !== '' && floatval($photo_set[$measure_key]) > 0) {
-                                        $measurements[] = $measure_label_name . ': ' . number_format(floatval($photo_set[$measure_key]), 1) . 'cm';
+                                        $formattedValue = formatMeasurement($photo_set[$measure_key]);
+                                        if ($formattedValue !== '') {
+                                            $measurements[] = $measure_label_name . ': ' . $formattedValue . 'cm';
+                                        }
                                     }
                                 }
                                 $measurements_text = !empty($measurements) ? implode(' | ', $measurements) : '';
