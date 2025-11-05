@@ -711,11 +711,9 @@ if (!empty($user_data['sleep_time_bed']) && !empty($user_data['sleep_time_wake']
 
 // LÓGICA DE AVATAR
 $avatar_html = '';
-$avatar_url_full = '';
 if (!empty($user_data['profile_image_filename'])) {
     $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user_data['profile_image_filename']);
-    $avatar_url_full = $avatar_url; // URL completa para o modal
-    $avatar_html = '<img src="' . $avatar_url . '" alt="Foto de ' . htmlspecialchars($user_data['name']) . '" class="profile-avatar-large avatar-clickable" onclick="openAvatarModal(\'' . htmlspecialchars($avatar_url_full, ENT_QUOTES) . '\', \'' . htmlspecialchars($user_data['name'], ENT_QUOTES) . '\')" style="cursor: pointer;">';
+    $avatar_html = '<img src="' . $avatar_url . '" alt="Foto de ' . htmlspecialchars($user_data['name']) . '" class="profile-avatar-large">';
 }
 if (empty($avatar_html)) {
     $name_parts = explode(' ', trim($user_data['name']));
@@ -1554,17 +1552,6 @@ if (typeof window.userId === 'undefined') {
     </div>
 </div>
 
-<!-- Modal de Avatar Expandido -->
-<div id="avatarModal" class="avatar-modal">
-    <div class="avatar-modal-overlay" onclick="closeAvatarModal()"></div>
-    <div class="avatar-modal-content">
-        <button class="avatar-modal-close" onclick="closeAvatarModal()" type="button">
-            <i class="fas fa-times"></i>
-        </button>
-        <img id="avatarModalImage" src="" alt="Foto de perfil">
-    </div>
-</div>
-
 <!-- Modal de Exclusão de Usuário -->
 <div id="deleteUserModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeDeleteUserModal()"></div>
@@ -2007,38 +1994,7 @@ async function confirmDeleteUser() {
     }
 }
 
-// Modal de Avatar Expandido
-function openAvatarModal(imageUrl, userName) {
-    const modal = document.getElementById('avatarModal');
-    const image = document.getElementById('avatarModalImage');
-    if (modal && image) {
-        image.src = imageUrl;
-        image.alt = 'Foto de ' + userName;
-        modal.classList.add('active');
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeAvatarModal() {
-    const modal = document.getElementById('avatarModal');
-    if (modal) {
-        modal.classList.remove('active');
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-}
-
-// Fechar modal ao pressionar ESC
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeAvatarModal();
-    }
-});
-
 // Expor funções globalmente
-window.openAvatarModal = openAvatarModal;
-window.closeAvatarModal = closeAvatarModal;
 window.showDeleteUserModal = showDeleteUserModal;
 window.closeDeleteUserModal = closeDeleteUserModal;
 window.confirmDeleteUser = confirmDeleteUser;
