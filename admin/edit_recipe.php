@@ -844,7 +844,9 @@ input[type=number] {
                     </div>
                     <div class="add-category-form">
                         <input type="text" id="new-category-name" class="form-control" placeholder="Ou crie uma nova categoria">
-                        <button type="button" id="btn-add-category" class="btn btn-primary">Adicionar</button>
+                        <button type="button" id="btn-add-category" class="btn-add-circular" title="Adicionar Categoria">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                     <span id="add-category-feedback" class="add-category-feedback"></span>
                 </div>
