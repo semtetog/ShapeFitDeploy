@@ -677,26 +677,22 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*       CSS FINALÍSSIMO E CORRETO                                          */
+/*       CSS FINAL E SIMPLES PARA OS CARDS DE PROGRESSO                    */
 /* ========================================================================= */
 
+/* 1. O Grid principal. O 'align-items: start' é a chave para a independência dos cards. */
 .progress-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
-    align-items: stretch; /* Garante que os cards tenham a mesma altura */
+    align-items: start; /* Impede que um card estique o outro */
 }
 
-.dashboard-card.weight-history-card,
-.dashboard-card.photos-history-card {
-    display: flex;
-    flex-direction: column;
-}
-
+/* 2. Uma altura fixa e razoável para o container do gráfico.
+      Esta altura é escolhida para harmonizar com a altura do card de fotos. */
 .weight-chart-container {
     position: relative;
-    flex-grow: 1; /* Permite que o container cresça */
-    /* NENHUMA altura fixa ou mínima aqui */
+    height: 230px; /* Altura fixa para harmonizar com o card de fotos */
 }
 
 .btn-view-gallery {
@@ -762,11 +758,11 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
+/* 3. A galeria de fotos com layout adaptável que já está funcionando perfeitamente. */
 .photo-gallery {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 1rem;
-    align-content: start; /* Alinha as fotos no topo do espaço */
 }
 
 /* Item de foto individual */
