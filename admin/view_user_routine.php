@@ -1524,10 +1524,10 @@ function renderMissionsGrid(missions) {
                     <i class="fas ${mission.icon_class}"></i>
                 </div>
                 <div class="mission-actions">
-                    <button class="btn-edit" onclick="editMission('${mission.id}', ${isDynamic ? 0 : (isPersonal ? 1 : 0)})" title="Editar">
+                    ${!isDynamic ? `
+                    <button class="btn-edit" onclick="editMission('${mission.id}', ${isPersonal ? 1 : 0})" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
-                    ${!isDynamic ? `
                     <button class="btn-delete" onclick="deleteMission(${mission.id}, '${mission.title}', ${isPersonal ? 1 : 0})" title="Excluir">
                         <i class="fas fa-trash"></i>
                     </button>
