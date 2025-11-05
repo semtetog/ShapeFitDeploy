@@ -757,13 +757,12 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* Galeria de Fotos com layout aprimorado */
+/* Galeria de Fotos com layout aprimorado (VERSÃO CORRIGIDA) */
 .photo-gallery {
     display: grid;
-    /* Define 3 colunas que ocupam o espaço igualmente, centralizando o conteúdo */
+    /* Define 3 colunas que ocupam o espaço igualmente */
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    margin-top: auto; /* Alinha as fotos na parte de baixo do card se houver espaço */
 }
 
 /* Item de foto individual */
