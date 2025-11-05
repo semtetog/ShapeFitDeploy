@@ -676,9 +676,22 @@ document.addEventListener('DOMContentLoaded', function() {
     margin: 0;
 }
 
+/* ========================================================================= */
+/*        CSS REFATORADO PARA OS CARDS DE PROGRESSO (Solução Definitiva)   */
+/* ========================================================================= */
+
+/* Tornando os cards de progresso em containers flexíveis */
+.dashboard-card.weight-history-card,
+.dashboard-card.photos-history-card {
+    display: flex;
+    flex-direction: column; /* Organiza o conteúdo (título e corpo) em uma coluna */
+}
+
+/* Faz o container do gráfico crescer para preencher o espaço vertical disponível */
 .weight-chart-container {
-    height: 250px;
     position: relative;
+    flex-grow: 1; /* ESSA É A MÁGICA: faz o gráfico se esticar para preencher o card */
+    min-height: 200px; /* Garante uma altura mínima caso não haja fotos */
 }
 
 .btn-view-gallery {
@@ -744,26 +757,25 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* Galeria de Fotos */
+/* Galeria de Fotos com layout aprimorado */
 .photo-gallery {
     display: grid;
+    /* Define 3 colunas que ocupam o espaço igualmente, centralizando o conteúdo */
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    max-width: 100%;
-    justify-content: center;
+    margin-top: auto; /* Alinha as fotos na parte de baixo do card se houver espaço */
 }
 
+/* Item de foto individual */
 .photo-item {
     position: relative;
-    aspect-ratio: 1;
+    aspect-ratio: 1; /* Mantém o formato quadrado perfeito */
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    width: 100%;
-    max-width: 200px;
 }
 
 .photo-item:hover {
