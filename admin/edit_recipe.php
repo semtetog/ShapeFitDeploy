@@ -657,8 +657,8 @@ input[type=number] {
                         <h3>Conteúdo Principal</h3>
                         <div class="header-buttons">
                             <a href="recipes.php" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn-save-circular" title="Salvar Receita">
-                                <i class="fas fa-save"></i>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar
                             </button>
                         </div>
                     </div>
