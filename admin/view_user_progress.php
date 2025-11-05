@@ -696,24 +696,28 @@ document.addEventListener('DOMContentLoaded', function() {
     min-height: 0; /* Permite que o conteúdo se ajuste */
 }
 
-/* 3. Títulos alinhados - Mesma altura e estrutura */
+/* 3. Títulos alinhados PERFEITAMENTE - Mesma altura e estrutura */
 .dashboard-card.weight-history-card .section-header,
 .dashboard-card.photos-history-card .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 3rem; /* Altura mínima uniforme para alinhar títulos */
+    height: 3rem; /* Altura FIXA para alinhar títulos perfeitamente */
     margin-bottom: 1rem;
     flex-shrink: 0; /* Não encolhe */
+    padding: 0; /* Remove padding para alinhamento perfeito */
 }
 
 .dashboard-card.weight-history-card .section-header h4,
 .dashboard-card.photos-history-card .section-header h4 {
     margin: 0;
+    padding: 0;
     font-size: 1.125rem;
+    line-height: 1.5; /* Altura de linha consistente */
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    height: 100%; /* Ocupa toda a altura do header */
 }
 
 /* 4. Container do GRÁFICO - Adapta-se sem achatar */
