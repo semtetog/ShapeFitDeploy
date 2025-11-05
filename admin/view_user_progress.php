@@ -251,9 +251,6 @@
                                             <div class="gallery-photo-overlay">
                                                 <span class="gallery-photo-type"><?php echo $photo['label']; ?></span>
                                                 <span class="gallery-photo-date"><?php echo $date_display . ' ' . $session['time']; ?></span>
-                                                <?php if (!empty($photo['measurements'])): ?>
-                                                    <span class="gallery-photo-measurements"><?php echo htmlspecialchars($photo['measurements']); ?></span>
-                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
@@ -809,13 +806,7 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.7rem;
 }
 
-.photo-date .photo-measurements {
-    opacity: 0.9;
-    font-size: 0.65rem;
-    color: var(--accent-orange);
-    margin-top: 0.25rem;
-    display: block;
-}
+/* Removido: photo-measurements não é mais exibido no card inicial */
 
 /* Modal de Galeria */
 .gallery-modal {
@@ -1009,13 +1000,7 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 400;
 }
 
-.gallery-photo-measurements {
-    font-size: 0.6rem;
-    opacity: 0.85;
-    color: var(--accent-orange);
-    margin-top: 0.25rem;
-    display: block;
-}
+/* Removido: gallery-photo-measurements não é mais exibido na galeria */
 
 /* Modal de Foto Individual */
 .photo-modal {
