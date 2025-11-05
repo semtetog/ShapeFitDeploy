@@ -795,18 +795,20 @@ document.addEventListener('DOMContentLoaded', function() {
     transform: scale(1.1);
 }
 
+/* Legenda da foto */
 .photo-date {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-    padding: 1rem 0.75rem 0.75rem;
+    padding: 0.75rem;
     color: white;
     font-size: 0.75rem;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    text-align: left;
 }
 
 .photo-date span:first-child {
