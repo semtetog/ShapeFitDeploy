@@ -677,21 +677,23 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*        CSS REFATORADO PARA OS CARDS DE PROGRESSO (Solução Definitiva)   */
+/*        CSS FINAL PARA OS CARDS DE PROGRESSO (Layout Balanceado)          */
 /* ========================================================================= */
 
-/* Tornando os cards de progresso em containers flexíveis */
+/* 1. Transforma ambos os cards em containers flexíveis verticais */
 .dashboard-card.weight-history-card,
 .dashboard-card.photos-history-card {
     display: flex;
-    flex-direction: column; /* Organiza o conteúdo (título e corpo) em uma coluna */
+    flex-direction: column;
 }
 
-/* Faz o container do gráfico crescer para preencher o espaço vertical disponível */
+/* 2. Faz o container do GRÁFICO crescer para preencher o espaço vertical */
 .weight-chart-container {
     position: relative;
-    flex-grow: 1; /* ESSA É A MÁGICA: faz o gráfico se esticar para preencher o card */
-    min-height: 200px; /* Garante uma altura mínima caso não haja fotos */
+    flex-grow: 1; /* Faz o container do gráfico se esticar */
+    display: flex; /* Permite centralizar o conteúdo interno, se necessário */
+    align-items: center; /* Centraliza verticalmente o 'empty-state' ou 'info-message' */
+    justify-content: center; /* Centraliza horizontalmente o 'empty-state' ou 'info-message' */
 }
 
 .btn-view-gallery {
@@ -757,10 +759,15 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* Galeria de Fotos com layout aprimorado (VERSÃO CORRIGIDA) */
+/* 3. Faz a GALERIA DE FOTOS crescer e centraliza seu conteúdo */
 .photo-gallery {
+    flex-grow: 1; /* Faz a galeria se esticar para preencher o espaço vertical */
+    
+    /* A MÁGICA FINAL: */
     display: grid;
-    /* Define 3 colunas que ocupam o espaço igualmente */
+    /* Centraliza o CONJUNTO de fotos (o grid) verticalmente e horizontalmente */
+    place-content: center;
+    
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
 }
