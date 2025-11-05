@@ -1442,6 +1442,17 @@ if (typeof window.userId === 'undefined') {
     </div>
 </div>
 
+<!-- Modal de Avatar Expandido -->
+<div id="avatarModal" class="avatar-modal">
+    <div class="avatar-modal-overlay" onclick="closeAvatarModal()"></div>
+    <div class="avatar-modal-content">
+        <button class="avatar-modal-close" onclick="closeAvatarModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="avatarModalImage" src="" alt="Foto de perfil">
+    </div>
+</div>
+
 <!-- Modal de Exclusão de Usuário -->
 <div id="deleteUserModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeDeleteUserModal()"></div>
