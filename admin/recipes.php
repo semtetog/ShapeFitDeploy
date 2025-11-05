@@ -408,17 +408,18 @@ require_once __DIR__ . '/includes/header.php';
     border-radius: 12px;
 }
 
-/* Custom Select */
+/* ============================================================= */
+/*       CSS FINAL E CORRETO PARA O CUSTOM SELECT              */
+/* ============================================================= */
+
+/* 1. O container principal PRECISA ter position: relative */
 .custom-select-wrapper {
     position: relative;
     width: 100%;
-    z-index: 1; /* Z-index baixo para não criar contexto de empilhamento */
-    isolation: isolate; /* Criar novo contexto de empilhamento isolado */
 }
 
 .custom-select {
     position: relative;
-    z-index: 1;
 }
 
 .custom-select-trigger {
@@ -434,11 +435,15 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s ease;
+    box-sizing: border-box; /* Garante que o padding não afete a largura total */
 }
 
+/* Efeito hover e rotação da seta */
 .custom-select-trigger:hover {
-    background: rgba(255, 255, 255, 0.08);
     border-color: var(--accent-orange);
+}
+.custom-select.active .custom-select-trigger i {
+    transform: rotate(180deg);
 }
 
 .custom-select-trigger i {
@@ -446,29 +451,32 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-secondary);
 }
 
-.custom-select.active .custom-select-trigger i {
-    transform: rotate(180deg);
-}
-
+/* 2. A lista de opções. A MÁGICA ESTÁ AQUI. */
 .custom-select-options {
-    position: fixed !important; /* Fixed para garantir que fique por cima de tudo */
-    background: rgba(255, 255, 255, 0.05) !important; /* Mesma cor do trigger */
-    backdrop-filter: blur(20px) !important;
-    border: 1px solid var(--glass-border) !important; /* Mesma border do trigger */
-    border-radius: 8px !important; /* Mesmo border-radius do trigger */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
-    box-sizing: border-box !important; /* Mesmo box-sizing do trigger */
-    z-index: 999999 !important; /* Z-index EXTREMO para prioridade máxima */
-    max-height: 300px;
+    display: none; /* Escondido por padrão */
+    position: absolute; /* Posicionado em relação ao .custom-select-wrapper */
+    
+    top: calc(100% + 8px); /* Aparece abaixo do botão com um respiro de 8px */
+    
+    /* FORÇA A LARGURA A SER IDÊNTICA AO PAI */
+    left: 0;
+    right: 0;
+    
+    z-index: 1000; /* Garante que fique por cima de outros elementos */
+    
+    background: rgba(255, 255, 255, 0.05); /* Mesma cor do trigger */
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    max-height: 250px;
     overflow-y: auto;
-    display: none !important;
-    /* Largura será calculada via JavaScript para ser EXATAMENTE igual ao trigger */
-    pointer-events: auto !important; /* Garantir que pode receber cliques */
-    padding: 0 !important; /* Remover padding para não afetar a largura */
+    box-sizing: border-box; /* Essencial para o cálculo correto da largura */
 }
 
+/* 3. Mostra a lista quando o pai tem a classe .active */
 .custom-select.active .custom-select-options {
-    display: block !important;
+    display: block;
 }
 
 .custom-select-option {
@@ -747,7 +755,7 @@ require_once __DIR__ . '/includes/header.php';
 </style>
 
 <script>
-// Custom Select Dropdown Functionality - REFATORADO COM PORTAL PARA BODY
+// Custom Select Dropdown Functionality - VERSÃO SIMPLIFICADA (CSS FAZ O TRABALHO)
 (function() {
     const customSelect = document.getElementById('category_select');
     if (!customSelect) return;
@@ -757,204 +765,46 @@ require_once __DIR__ . '/includes/header.php';
     const optionsContainer = customSelect.querySelector('.custom-select-options');
     const options = customSelect.querySelectorAll('.custom-select-option');
     const valueDisplay = customSelect.querySelector('.custom-select-value');
-    
-    let isDropdownOpen = false;
-    let dropdownPortal = null;
-    
-    // Criar portal para o dropdown no body (fora de qualquer contexto de empilhamento)
-    function createDropdownPortal() {
-        if (dropdownPortal) return dropdownPortal;
-        
-        dropdownPortal = optionsContainer.cloneNode(true);
-        dropdownPortal.id = 'category_select_portal';
-        dropdownPortal.style.position = 'fixed';
-        dropdownPortal.style.zIndex = '999999';
-        dropdownPortal.style.display = 'none';
-        document.body.appendChild(dropdownPortal);
-        
-        return dropdownPortal;
-    }
-    
-    // Função para posicionar o dropdown corretamente
-    function positionDropdown() {
-        if (!isDropdownOpen || !dropdownPortal) return;
-        
-        const rect = trigger.getBoundingClientRect();
-        
-        // Usar getBoundingClientRect().width que já retorna a largura total incluindo padding e border
-        // Isso garante que o dropdown tenha EXATAMENTE a mesma largura do trigger
-        const exactWidth = rect.width + 'px';
-        
-        // Garantir que o dropdown tenha o mesmo box-sizing
-        dropdownPortal.style.boxSizing = 'border-box';
-        
-        // Usar getBoundingClientRect que já retorna coordenadas da viewport
-        dropdownPortal.style.position = 'fixed';
-        dropdownPortal.style.top = (rect.bottom + 8) + 'px';
-        dropdownPortal.style.left = rect.left + 'px';
-        dropdownPortal.style.width = exactWidth;
-        dropdownPortal.style.minWidth = exactWidth;
-        dropdownPortal.style.maxWidth = exactWidth;
-        dropdownPortal.style.zIndex = '999999';
-        dropdownPortal.style.display = 'block';
-    }
-    
-    // Função para abrir o dropdown
-    function openDropdown() {
-        // Fechar todos os outros dropdowns primeiro
-        document.querySelectorAll('.custom-select').forEach(select => {
-            if (select !== customSelect) {
-                select.classList.remove('active');
-            }
-        });
-        
-        // Criar portal se não existir
-        if (!dropdownPortal) {
-            createDropdownPortal();
-            
-            // Reatachar eventos nas opções do portal
-            const portalOptions = dropdownPortal.querySelectorAll('.custom-select-option');
-            portalOptions.forEach(option => {
-                option.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    
-                    // Remove selected class from all options
-                    portalOptions.forEach(opt => opt.classList.remove('selected'));
-                    
-                    // Add selected class to clicked option
-                    this.classList.add('selected');
-                    
-                    // Update hidden input value
-                    const value = this.getAttribute('data-value');
-                    hiddenInput.value = value;
-                    
-                    // Update displayed value
-                    valueDisplay.textContent = this.textContent;
-                    
-                    // Close dropdown
-                    closeDropdown();
-                    
-                    // Auto-submit form
-                    const form = customSelect.closest('form');
-                    if (form) {
-                        form.submit();
-                    }
-                });
-            });
-            
-            // Prevenir que cliques dentro do dropdown o fechem
-            dropdownPortal.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        }
-        
-        customSelect.classList.add('active');
-        isDropdownOpen = true;
-        
-        // Posicionar após um pequeno delay para garantir que o DOM atualizou
-        requestAnimationFrame(() => {
-            positionDropdown();
-        });
-    }
-    
-    // Função para fechar o dropdown
-    function closeDropdown() {
-        customSelect.classList.remove('active');
-        isDropdownOpen = false;
-        if (dropdownPortal) {
-            dropdownPortal.style.display = 'none';
-        }
-        // Esconder o container original também
-        optionsContainer.style.display = 'none';
-    }
-    
-    // Toggle dropdown - único listener
+
+    // Abre/fecha o dropdown
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
-        e.preventDefault();
-        
-        if (isDropdownOpen) {
-            closeDropdown();
-        } else {
-            openDropdown();
-        }
+        customSelect.classList.toggle('active');
     });
-    
-    // Prevenir que cliques dentro do dropdown o fechem
-    optionsContainer.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
-    
-    // Select option (backup no container original)
+
+    // Seleciona uma opção
     options.forEach(option => {
         option.addEventListener('click', function(e) {
             e.stopPropagation();
-            e.preventDefault();
             
-            // Remove selected class from all options
-            options.forEach(opt => opt.classList.remove('selected'));
-            
-            // Add selected class to clicked option
-            this.classList.add('selected');
-            
-            // Update hidden input value
-            const value = this.getAttribute('data-value');
-            hiddenInput.value = value;
-            
-            // Update displayed value
+            // Atualiza o valor do input escondido
+            hiddenInput.value = this.getAttribute('data-value');
+            // Atualiza o texto visível
             valueDisplay.textContent = this.textContent;
             
-            // Close dropdown
-            closeDropdown();
+            // Remove a classe 'selected' de todos e adiciona na clicada
+            options.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+
+            // Fecha o dropdown
+            customSelect.classList.remove('active');
             
-            // Auto-submit form
-            const form = customSelect.closest('form');
-            if (form) {
-                form.submit();
-            }
+            // Submete o formulário
+            customSelect.closest('form').submit();
         });
     });
-    
-    // Close dropdown when clicking outside
+
+    // Fecha o dropdown se clicar fora
     document.addEventListener('click', function(e) {
-        // Verificar se o clique foi fora do select e do portal
-        const clickedOutside = !customSelect.contains(e.target) && 
-                               !optionsContainer.contains(e.target) &&
-                               (!dropdownPortal || !dropdownPortal.contains(e.target));
-        
-        if (clickedOutside && isDropdownOpen) {
-            closeDropdown();
-        }
-    }, true); // Usar capture phase para garantir que execute antes
-    
-    // Close dropdown on escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isDropdownOpen) {
-            closeDropdown();
+        if (!customSelect.contains(e.target)) {
+            customSelect.classList.remove('active');
         }
     });
-    
-    // Reposicionar quando a janela é redimensionada ou scroll
-    let repositionTimeout;
-    function debouncedReposition() {
-        if (!isDropdownOpen) return;
-        clearTimeout(repositionTimeout);
-        repositionTimeout = setTimeout(() => {
-            positionDropdown();
-        }, 10);
-    }
-    
-    window.addEventListener('resize', debouncedReposition);
-    window.addEventListener('scroll', debouncedReposition, true);
-    
-    // Garantir que o dropdown comece fechado
-    closeDropdown();
-    
-    // Limpar portal quando a página for descarregada
-    window.addEventListener('beforeunload', function() {
-        if (dropdownPortal && dropdownPortal.parentNode) {
-            dropdownPortal.parentNode.removeChild(dropdownPortal);
+
+    // Fecha com a tecla Esc
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            customSelect.classList.remove('active');
         }
     });
 })();
