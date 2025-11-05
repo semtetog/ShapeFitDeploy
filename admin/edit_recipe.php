@@ -42,78 +42,425 @@ $csrf_token = $_SESSION['csrf_token'];
 ?>
 <?php require_once __DIR__ . '/includes/header.php'; ?>
 <style>
-:root { --bg-color: #121212; --card-bg-color: #1E1E1E; --primary-accent: #ff6b00; --text-color: #EAEAEA; --text-muted: #8E8E93; --border-color: #333333; --input-bg-color: #2C2C2E; }
-.main-content { padding-bottom: 100px; }
-.live-editor-container { display: grid; grid-template-columns: 1fr 400px; gap: 1.5rem; align-items: flex-start; }
-.editor-panel { display: flex; flex-direction: column; gap: 1.5rem; }
-.preview-panel { position: sticky; top: 20px; }
-.content-card { background: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 12px; }
-/* ESTILO NOVO: Header com ações */
+/* ============================================================= */
+/*       REFATORAÇÃO COMPLETA PARA PADRÃO VIEW_USER             */
+/* ============================================================= */
+
+:root {
+    --bg-color: #121212;
+    --card-bg-color: #1E1E1E;
+    --primary-accent: #ff6b00;
+    --text-color: #EAEAEA;
+    --text-muted: #8E8E93;
+    --border-color: #333333;
+    --input-bg-color: #2C2C2E;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #FFFFFF;
+    --text-secondary: #8E8E93;
+    --accent-orange: #FF6B00;
+}
+
+.main-content {
+    padding-bottom: 100px;
+}
+
+.live-editor-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.editor-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.preview-panel {
+    position: sticky;
+    top: 20px;
+}
+
+/* ===== CARDS (PADRÃO VIEW_USER) ===== */
+.content-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.content-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-orange);
+}
+
+/* ===== HEADERS (PADRÃO VIEW_USER) ===== */
 .card-header-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
 }
-.card-header-actions h3 { /* Reseta os estilos padrão do h3 para o novo layout */
-    font-size: 1rem;
-    padding: 0;
+
+.card-header-actions h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
     margin: 0;
+    padding: 0;
     border-bottom: none;
+    font-family: 'Montserrat', sans-serif;
 }
+
+.content-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    font-family: 'Montserrat', sans-serif;
+}
+
 .header-buttons {
     display: flex;
     gap: 0.75rem;
 }
-/* Estilo antigo do h3 removido/modificado */
-.content-card h3 {
-    /*font-size: 1rem; padding: 1rem 1.25rem; margin:0; border-bottom: 1px solid var(--border-color);*/
-    /* Este estilo será sobrescrito por .card-header-actions h3 para os cards que usarem o novo layout */
+
+.card-body {
+    padding: 0;
 }
-.card-body { padding: 1.25rem; }
-.form-group { margin-bottom: 1rem; }
-.form-group:last-child { margin-bottom: 0; }
-.form-group label { font-size: 0.8rem; margin-bottom: 0.4rem; display: block; color: var(--text-muted); }
-.form-control { width: 100%; padding: 10px 12px; font-size: 0.9rem; background: var(--input-bg-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; transition: border-color 0.2s; }
-.form-control:focus { border-color: var(--primary-accent); outline: none; }
-textarea.form-control { min-height: 100px; resize: vertical; }
-.form-group-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.ingredient-row { display: grid; grid-template-columns: 1fr 1fr 100px 30px; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
-.btn-remove-ingredient { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem; }
-.custom-select-wrapper { position: relative; }
-.custom-select-wrapper::after { content: '\f078'; font-family: 'Font Awesome 5 Free'; font-weight: 900; position: absolute; top: 50%; right: 15px; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-.custom-select-wrapper select { -webkit-appearance: none; -moz-appearance: none; appearance: none; padding-right: 40px; }
-.custom-file-input-wrapper { background: var(--input-bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-.custom-file-input-wrapper:hover { border-color: var(--primary-accent); }
-.file-input-label { color: var(--text-muted); }
-.file-input-filename { color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-input[type="file"].form-control { display: none; }
-input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-input[type=number] { -moz-appearance: textfield; }
-.checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
-.mobile-preview-wrapper { width: 380px; height: 750px; padding: 12px; background: #1c1c1c; border-radius: 40px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
-#recipe-preview-frame { width: 100%; height: 100%; border-radius: 28px; border: none; background: #222; }
-/* REMOVIDO: .form-actions-footer não é mais fixo */
-/* .form-actions-footer { position: fixed; bottom: 0; right: 0; left: var(--sidebar-width, 250px); padding: 1rem 2rem; background: rgba(18, 18, 18, 0.9); backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 1rem; z-index: 1000; transition: left 0.3s ease-in-out; } */
 
-/* ESTILO CORRIGIDO: Checkbox Customizado e Limpo */
-.checkbox-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
-.checkbox-item input[type="checkbox"] { opacity: 0; position: absolute; width: 0; height: 0; }
-.checkbox-item label { flex-grow: 1; color: var(--text-muted); padding-left: 28px; position: relative; cursor: pointer; user-select: none; font-size: 0.9rem; transition: color 0.2s; }
-.checkbox-item label:hover { color: var(--text-color); }
-.checkbox-item label::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; background: var(--input-bg-color); border: 1px solid var(--border-color); border-radius: 4px; transition: all 0.2s; }
-.checkbox-item input:checked + label::before { background: var(--primary-accent); border-color: var(--primary-accent); }
+/* ===== FORM CONTROLS (PADRÃO VIEW_USER) ===== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
 
-.add-category-form { display: flex; gap: 0.75rem; margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
-.add-category-form .form-control { flex-grow: 1; }
-.add-category-form .btn-primary { flex-shrink: 0; padding: 0 1.5rem; }
-.add-category-feedback { font-size: 0.8rem; margin-top: 0.5rem; display: block; height: 1em; }
-.add-category-feedback.success { color: #4CAF50; }
-.add-category-feedback.error { color: #F44336; }
-.btn-delete-category { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 0 5px; opacity: 0.2; transition: opacity 0.2s, color 0.2s; }
-.checkbox-item:hover .btn-delete-category { opacity: 1; }
-.btn-delete-category:hover { color: #F44336; }
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: var(--accent-orange);
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-group-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* ===== INGREDIENT ROW ===== */
+.ingredient-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 100px 40px;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.btn-remove-ingredient {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: 8px;
+    color: #F44336;
+    cursor: pointer;
+    font-size: 1.2rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.btn-remove-ingredient:hover {
+    background: rgba(244, 67, 54, 0.2);
+    border-color: #F44336;
+    transform: scale(1.05);
+}
+
+/* ===== SELECT CUSTOMIZADO ===== */
+.custom-select-wrapper {
+    position: relative;
+}
+
+.custom-select-wrapper::after {
+    content: '\f078';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.custom-select-wrapper select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 40px;
+}
+
+/* ===== FILE INPUT ===== */
+.custom-file-input-wrapper {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.custom-file-input-wrapper:hover {
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.file-input-label {
+    color: var(--text-secondary);
+}
+
+.file-input-filename {
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+input[type="file"].form-control {
+    display: none;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* ===== CHECKBOX GRID ===== */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+}
+
+/* ===== CHECKBOX CUSTOMIZADO ===== */
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+.checkbox-item label {
+    flex-grow: 1;
+    color: var(--text-secondary);
+    padding-left: 32px;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.checkbox-item label:hover {
+    color: var(--text-primary);
+}
+
+.checkbox-item label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.checkbox-item input:checked + label::before {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+}
+
+.checkbox-item input:checked + label::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 10px;
+}
+
+/* ===== ADD CATEGORY FORM ===== */
+.add-category-form {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 1.5rem;
+}
+
+.add-category-form .form-control {
+    flex-grow: 1;
+}
+
+.add-category-feedback {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    display: block;
+    height: 1em;
+}
+
+.add-category-feedback.success {
+    color: #4CAF50;
+}
+
+.add-category-feedback.error {
+    color: #F44336;
+}
+
+.btn-delete-category {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    opacity: 0.6;
+    transition: all 0.2s;
+}
+
+.checkbox-item:hover .btn-delete-category {
+    opacity: 1;
+}
+
+.btn-delete-category:hover {
+    color: #F44336;
+    background: rgba(244, 67, 54, 0.2);
+    border-color: #F44336;
+}
+
+/* ===== BUTTONS (PADRÃO VIEW_USER) ===== */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-orange) 0%, #FF8533 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+    color: white;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-orange);
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* ===== PREVIEW ===== */
+.mobile-preview-wrapper {
+    width: 380px;
+    height: 750px;
+    padding: 12px;
+    background: rgba(28, 28, 28, 0.8);
+    border-radius: 40px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--glass-border);
+}
+
+#recipe-preview-frame {
+    width: 100%;
+    height: 100%;
+    border-radius: 28px;
+    border: none;
+    background: #222;
+}
 </style>
 
 <form action="save_recipe.php" method="POST" enctype="multipart/form-data" id="recipe-form">
