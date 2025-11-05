@@ -910,7 +910,6 @@
   max-width: 100%;
   overflow: hidden !important;
   position: relative;
-  border-radius: 16px;
   contain: layout style;
   min-height: auto;
   height: auto;
