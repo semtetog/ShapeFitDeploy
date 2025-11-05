@@ -12,23 +12,15 @@ function formatMeasurement($value) {
     // Converter para float para comparação
     $floatValue = floatval($value);
     
-    // Verificar se o valor original tinha .0 ou ,0 explicitamente
-    $originalStr = trim((string)$value);
-    $hasExplicitZero = (strpos($originalStr, '.0') !== false || strpos($originalStr, ',0') !== false);
-    $hasDecimal = (strpos($originalStr, '.') !== false || strpos($originalStr, ',') !== false);
-    
-    // Se for um número inteiro
+    // Se for um número inteiro (sem parte decimal significativa), mostrar sem .0
     if ($floatValue == intval($floatValue)) {
-        // Se tinha .0 ou ,0 explicitamente, mostrar com .0
-        if ($hasExplicitZero) {
-            return number_format($floatValue, 1, '.', '');
-        }
-        // Se não tinha decimal explícito, mostrar sem .0
         return intval($floatValue);
     }
     
     // Se tem decimal não-zero (ex: 15.5), formatar normalmente
-    return number_format($floatValue, 1, '.', '');
+    // Remove zeros à direita desnecessários (ex: 15.50 -> 15.5)
+    $formatted = number_format($floatValue, 1, '.', '');
+    return rtrim($formatted, '0'); // Remove zeros à direita
 }
 ?>
 
