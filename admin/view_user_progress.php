@@ -766,9 +766,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* 4. A galeria de fotos com layout simples e adaptável */
 .photo-gallery {
+    /* Esta margem é a chave: ela centraliza verticalmente a galeria de fotos
+       dentro do espaço que o flex-grow cria. */
+    margin: auto 0;
+    
     display: grid;
-    /* Usa auto-fit para criar colunas que se adaptam, com um tamanho mínimo e máximo */
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
 }
 
