@@ -410,12 +410,42 @@ try {
             
             $id_raw = $data['id'];
             
-            // Se é uma missão dinâmica (onboarding_), atualizar no perfil
+            // Se é uma missão dinâmica (onboarding_), criar/atualizar como missão real no banco
             if (strpos($id_raw, 'onboarding_') === 0) {
                 $old_activity = str_replace('onboarding_', '', $id_raw);
                 $new_activity = trim($data['title']);
+                $icon_class = $conn->real_escape_string($data['icon_class'] ?? 'fa-dumbbell');
+                $description = isset($data['description']) ? $conn->real_escape_string(trim($data['description'])) : '';
+                $is_exercise = isset($data['is_exercise']) ? intval($data['is_exercise']) : 0;
+                $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
                 
-                // Buscar o perfil do usuário
+                // Verificar se já existe uma missão com esse título (do exercício antigo)
+                $check_existing = $conn->prepare("SELECT id FROM sf_user_routine_items WHERE user_id = ? AND title = ?");
+                $check_existing->bind_param('is', $patient_id, $old_activity);
+                $check_existing->execute();
+                $existing_result = $check_existing->get_result();
+                $existing_mission = $existing_result->fetch_assoc();
+                $check_existing->close();
+                
+                if ($existing_mission) {
+                    // Se já existe, atualizar incluindo o ícone
+                    $update_stmt = $conn->prepare("UPDATE sf_user_routine_items 
+                                                   SET title = ?, icon_class = ?, description = ?, is_exercise = ?, exercise_type = ?
+                                                   WHERE id = ? AND user_id = ?");
+                    $update_stmt->bind_param('sssisii', $new_activity, $icon_class, $description, $is_exercise, $exercise_type, $existing_mission['id'], $patient_id);
+                    $update_stmt->execute();
+                    $update_stmt->close();
+                } else {
+                    // Se não existe, criar uma nova missão no banco
+                    $insert_stmt = $conn->prepare("INSERT INTO sf_user_routine_items 
+                                                  (user_id, title, icon_class, description, is_exercise, exercise_type) 
+                                                  VALUES (?, ?, ?, ?, ?, ?)");
+                    $insert_stmt->bind_param('isssis', $patient_id, $new_activity, $icon_class, $description, $is_exercise, $exercise_type);
+                    $insert_stmt->execute();
+                    $insert_stmt->close();
+                }
+                
+                // Atualizar o perfil do usuário também (nome do exercício)
                 $sql_profile = "SELECT exercise_type FROM sf_user_profiles WHERE user_id = ?";
                 $stmt_profile = $conn->prepare($sql_profile);
                 if ($stmt_profile) {
@@ -435,20 +465,20 @@ try {
                             $user_activities[$key] = $new_activity;
                             $new_activities_string = implode(', ', $user_activities);
                             
-                            // Atualizar no banco
+                            // Atualizar o perfil
                             $update_sql = "UPDATE sf_user_profiles SET exercise_type = ? WHERE user_id = ?";
                             $update_stmt = $conn->prepare($update_sql);
                             if ($update_stmt) {
                                 $update_stmt->bind_param('si', $new_activities_string, $patient_id);
                                 $update_stmt->execute();
                                 $update_stmt->close();
-                                echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
-                                break;
                             }
                         }
                     }
                 }
-                throw new Exception('Missão dinâmica não encontrada');
+                
+                echo json_encode(['success' => true, 'message' => 'Missão atualizada com sucesso']);
+                break;
             }
             
             $id = intval($id_raw);
