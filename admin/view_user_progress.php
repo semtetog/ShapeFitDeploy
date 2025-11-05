@@ -677,10 +677,10 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*       A SOLUÇÃO FINAL, PELO AMOR DO CSS                                 */
+/*       REFATORAÇÃO COMPLETA DOS CARDS DE PROGRESSO                        */
 /* ========================================================================= */
 
-/* 1. O Grid principal. stretch para forçar a mesma altura. */
+/* 1. Grid principal - Força os cards a terem a mesma altura */
 .progress-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -688,17 +688,50 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: stretch; /* FORÇA os dois cards a terem a mesma altura */
 }
 
-/* 2. AMBOS os cards são containers flexíveis. */
+/* 2. Cards flexíveis - Estrutura uniforme */
 .dashboard-card.weight-history-card,
 .dashboard-card.photos-history-card {
     display: flex;
     flex-direction: column;
+    min-height: 0; /* Permite que o conteúdo se ajuste */
 }
 
-/* 3. O container do GRÁFICO. Ele se estica para preencher o espaço. */
+/* 3. Títulos alinhados - Mesma altura e estrutura */
+.dashboard-card.weight-history-card .section-header,
+.dashboard-card.photos-history-card .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 3rem; /* Altura mínima uniforme para alinhar títulos */
+    margin-bottom: 1rem;
+    flex-shrink: 0; /* Não encolhe */
+}
+
+.dashboard-card.weight-history-card .section-header h4,
+.dashboard-card.photos-history-card .section-header h4 {
+    margin: 0;
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 4. Container do GRÁFICO - Adapta-se sem achatar */
 .weight-chart-container {
     position: relative;
-    flex-grow: 1;
+    flex: 1 1 auto; /* Cresce e encolhe proporcionalmente */
+    min-height: 200px; /* Altura mínima para evitar gráfico muito pequeno */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 5. Canvas do gráfico - Responsivo ao zoom */
+.weight-chart-container canvas {
+    max-width: 100%;
+    max-height: 100%;
+    width: 100% !important;
+    height: auto !important;
 }
 
 .btn-view-gallery {
@@ -764,18 +797,18 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* 4. A galeria de FOTOS. ELA NÃO SE ESTICA, mas se centraliza. */
+/* 6. Galeria de FOTOS - Centralizada e responsiva ao zoom */
 .photo-gallery {
-    /* A mágica para centralizar verticalmente em um container flex */
-    margin: auto 0;
-    
+    flex: 1 1 auto; /* Cresce e encolhe proporcionalmente */
     display: grid;
-    /* Colunas flexíveis que se adaptam bem ao zoom */
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    /* Usa unidades relativas (rem) para adaptar-se ao zoom */
+    grid-template-columns: repeat(auto-fit, minmax(min(8rem, 100%), 1fr));
     gap: 1rem;
+    align-content: center; /* Centraliza verticalmente */
+    padding: 0.5rem 0; /* Espaçamento vertical mínimo */
 }
 
-/* Item de foto individual */
+/* 7. Item de foto individual - Responsivo ao zoom */
 .photo-item {
     position: relative;
     aspect-ratio: 1; /* Mantém o formato quadrado perfeito */
@@ -785,6 +818,9 @@ document.addEventListener('DOMContentLoaded', function() {
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Usa unidades relativas para adaptar ao zoom */
+    width: 100%;
+    height: auto;
 }
 
 .photo-item:hover {
