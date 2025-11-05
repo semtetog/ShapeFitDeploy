@@ -861,8 +861,9 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Galeria de Fotos */
 .photo-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 200px));
     gap: 1rem;
+    justify-content: start;
 }
 
 .photo-item {
@@ -874,6 +875,8 @@ document.addEventListener('DOMContentLoaded', function() {
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 200px;
+    max-height: 200px;
 }
 
 .photo-item:hover {
