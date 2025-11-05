@@ -677,35 +677,32 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*        CSS FINAL-FINAL PARA OS CARDS DE PROGRESSO (Layout Robusto)       */
+/*       CSS FINALÍSSIMO - APENAS GRID, SEM COMPLICAÇÃO (VAI FUNCIONAR)    */
 /* ========================================================================= */
 
-/* 1. Removemos o 'align-items: start' para que os cards voltem a ter a mesma altura */
+/* 1. O Grid principal que organiza os dois cards */
 .progress-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; /* Duas colunas de larguras iguais */
     gap: 2rem;
-    margin-bottom: 2rem;
-    /* align-items: start; FOI REMOVIDO DAQUI */
+    align-items: stretch; /* Garante que ambos os cards tenham a mesma altura */
 }
 
-/* 2. Voltamos a usar Flexbox nos cards para controlar o conteúdo interno */
-.dashboard-card.weight-history-card,
-.dashboard-card.photos-history-card {
+/* 2. O Card do Gráfico: usamos flexbox SÓ aqui dentro para o gráfico se expandir */
+.dashboard-card.weight-history-card {
     display: flex;
     flex-direction: column;
 }
 
-/* 3. A SOLUÇÃO PARA O GRÁFICO:
-      Ele vai crescer para preencher o card, e seu conteúdo (o <canvas>) 
-      também se adaptará. A altura mínima garante que ele não desapareça. */
 .weight-chart-container {
     position: relative;
-    flex-grow: 1; /* Permite que o container cresça */
-    min-height: 180px; /* Garante uma altura mínima para o gráfico não sumir */
-    display: flex; /* Adicionado para controlar o <canvas> interno */
-    align-items: center;
-    justify-content: center;
+    flex-grow: 1; /* Faz o container do gráfico preencher o espaço vertical do seu card */
+}
+
+/* 3. O Card de Fotos: TAMBÉM usamos flexbox aqui dentro */
+.dashboard-card.photos-history-card {
+    display: flex;
+    flex-direction: column;
 }
 
 .btn-view-gallery {
@@ -771,14 +768,18 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
-/* 4. A SOLUÇÃO PARA AS FOTOS:
-      O container da galeria também cresce e centraliza as fotos no meio. */
+/* 4. A Galeria de Fotos: ela também se expande e centraliza as fotos */
 .photo-gallery {
-    flex-grow: 1; /* Permite que a galeria cresça para igualar a altura do outro card */
+    flex-grow: 1; /* Faz a galeria preencher o espaço vertical do seu card */
+    
     display: grid;
-    place-content: center; /* Centraliza as fotos (o grid) no espaço disponível */
-    grid-template-columns: repeat(3, 1fr);
+    /* Centraliza as fotos no meio do espaço disponível (vertical e horizontal) */
+    place-content: center;
+    
+    /* Define 3 colunas, mas com um tamanho MÁXIMO para não ficarem gigantes no zoom */
+    grid-template-columns: repeat(3, minmax(0, 150px));
     gap: 1rem;
+    justify-content: center; /* Garante a centralização do grid como um todo */
 }
 
 /* Item de foto individual */
