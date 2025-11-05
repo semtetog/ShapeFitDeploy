@@ -923,6 +923,7 @@ if (typeof window.userId === 'undefined') {
     z-index: 10001;
     transform: scale(0.9);
     transition: transform 0.3s ease;
+    padding: 3rem; /* Espaço para o botão X fora da foto */
 }
 
 .avatar-modal.active .avatar-modal-content {
@@ -930,10 +931,12 @@ if (typeof window.userId === 'undefined') {
 }
 
 .avatar-modal-content img {
-    max-width: 90vh;
-    max-height: 90vh;
-    width: auto;
-    height: auto;
+    max-width: 75vh;
+    max-height: 75vh;
+    width: 75vh;
+    height: 75vh;
+    min-width: 400px;
+    min-height: 400px;
     border-radius: 50%;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
     object-fit: cover;
