@@ -448,9 +448,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .custom-select-options {
-    position: fixed; /* Mudado de absolute para fixed para garantir que fique por cima de tudo */
-    top: auto; /* Será calculado via JavaScript */
-    left: auto; /* Será calculado via JavaScript */
+    position: fixed; /* Fixed para garantir que fique por cima de tudo */
     background: rgba(30, 30, 30, 0.98);
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
@@ -461,6 +459,7 @@ require_once __DIR__ . '/includes/header.php';
     overflow-y: auto;
     display: none;
     min-width: 200px; /* Largura mínima para o dropdown */
+    /* Posição será calculada via JavaScript */
 }
 
 .custom-select.active .custom-select-options {
@@ -743,26 +742,62 @@ require_once __DIR__ . '/includes/header.php';
 </style>
 
 <script>
-// Custom Select Dropdown Functionality
+// Custom Select Dropdown Functionality - REFATORADO
 (function() {
     const customSelect = document.getElementById('category_select');
     if (!customSelect) return;
     
     const hiddenInput = document.getElementById('category_id_input');
     const trigger = customSelect.querySelector('.custom-select-trigger');
+    const optionsContainer = customSelect.querySelector('.custom-select-options');
     const options = customSelect.querySelectorAll('.custom-select-option');
     const valueDisplay = customSelect.querySelector('.custom-select-value');
     
-    // Toggle dropdown
+    // Função para posicionar o dropdown
+    function positionDropdown() {
+        if (!customSelect.classList.contains('active')) return;
+        
+        const rect = trigger.getBoundingClientRect();
+        optionsContainer.style.position = 'fixed';
+        optionsContainer.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+        optionsContainer.style.left = rect.left + 'px';
+        optionsContainer.style.width = rect.width + 'px';
+        optionsContainer.style.zIndex = '999999';
+    }
+    
+    // Função para fechar o dropdown
+    function closeDropdown() {
+        customSelect.classList.remove('active');
+    }
+    
+    // Toggle dropdown - único listener
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
+        e.preventDefault();
+        
+        const isActive = customSelect.classList.contains('active');
+        
+        // Fechar todos os outros dropdowns (se houver)
+        document.querySelectorAll('.custom-select').forEach(select => {
+            if (select !== customSelect) {
+                select.classList.remove('active');
+            }
+        });
+        
+        // Toggle do dropdown atual
         customSelect.classList.toggle('active');
+        
+        // Posicionar após abrir
+        if (!isActive) {
+            setTimeout(positionDropdown, 0);
+        }
     });
     
     // Select option
     options.forEach(option => {
         option.addEventListener('click', function(e) {
             e.stopPropagation();
+            e.preventDefault();
             
             // Remove selected class from all options
             options.forEach(opt => opt.classList.remove('selected'));
@@ -778,55 +813,39 @@ require_once __DIR__ . '/includes/header.php';
             valueDisplay.textContent = this.textContent;
             
             // Close dropdown
-            customSelect.classList.remove('active');
+            closeDropdown();
+            
+            // Auto-submit form
+            const form = customSelect.closest('form');
+            if (form) {
+                form.submit();
+            }
         });
     });
     
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         if (!customSelect.contains(e.target)) {
-            customSelect.classList.remove('active');
+            closeDropdown();
         }
     });
     
     // Close dropdown on escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && customSelect.classList.contains('active')) {
-            customSelect.classList.remove('active');
-        }
-    });
-    
-    // Posicionar dropdown usando fixed positioning para garantir que fique por cima de tudo
-    trigger.addEventListener('click', function() {
-        if (customSelect.classList.contains('active')) {
-            const options = customSelect.querySelector('.custom-select-options');
-            const rect = trigger.getBoundingClientRect();
-            options.style.position = 'fixed';
-            options.style.top = (rect.bottom + window.scrollY + 8) + 'px';
-            options.style.left = rect.left + 'px';
-            options.style.width = rect.width + 'px';
+            closeDropdown();
         }
     });
     
     // Reposicionar quando a janela é redimensionada ou scroll
-    window.addEventListener('resize', function() {
-        if (customSelect.classList.contains('active')) {
-            const options = customSelect.querySelector('.custom-select-options');
-            const rect = trigger.getBoundingClientRect();
-            options.style.top = (rect.bottom + window.scrollY + 8) + 'px';
-            options.style.left = rect.left + 'px';
-            options.style.width = rect.width + 'px';
-        }
-    });
+    let repositionTimeout;
+    function debouncedReposition() {
+        clearTimeout(repositionTimeout);
+        repositionTimeout = setTimeout(positionDropdown, 10);
+    }
     
-    window.addEventListener('scroll', function() {
-        if (customSelect.classList.contains('active')) {
-            const options = customSelect.querySelector('.custom-select-options');
-            const rect = trigger.getBoundingClientRect();
-            options.style.top = (rect.bottom + window.scrollY + 8) + 'px';
-            options.style.left = rect.left + 'px';
-        }
-    }, true);
+    window.addEventListener('resize', debouncedReposition);
+    window.addEventListener('scroll', debouncedReposition, true);
 })();
 </script>
 
