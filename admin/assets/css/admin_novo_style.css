@@ -895,28 +895,18 @@ html *, body *, .admin-wrapper *, .main-content *, .content-wrapper * {
   line-height: 1.5;
 }
 
-/* Alinhamento perfeito dos ícones */
+/* Alinhamento perfeito dos ícones - todos na mesma coluna vertical */
 .sidebar-nav a i {
   width: 20px;
   min-width: 20px;
   text-align: center;
   font-size: 1rem;
   line-height: 1;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-/* Alinhamento perfeito do texto */
-.sidebar-nav a {
   vertical-align: middle;
-}
-
-.sidebar-nav a > *:not(i) {
-  flex: 1;
-  display: flex;
-  align-items: center;
 }
 
 .sidebar-nav a:hover {
