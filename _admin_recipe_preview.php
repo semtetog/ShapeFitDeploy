@@ -260,9 +260,9 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     font-weight: 600;
     color: var(--text-primary);
     margin: 0 0 16px 0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    padding: 0;
+    display: block;
+    position: relative;
 }
 
 .recipe-section-title::before {
@@ -271,6 +271,10 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     height: 20px;
     background: #ff6b00;
     border-radius: 2px;
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* === INGREDIENTES === */
