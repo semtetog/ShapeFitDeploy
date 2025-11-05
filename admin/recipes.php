@@ -452,17 +452,16 @@ require_once __DIR__ . '/includes/header.php';
 
 .custom-select-options {
     position: fixed !important; /* Fixed para garantir que fique por cima de tudo */
-    background: rgba(30, 30, 30, 0.98) !important;
+    background: rgba(255, 255, 255, 0.05) !important; /* Mesma cor do trigger */
     backdrop-filter: blur(20px) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 12px !important;
+    border: 1px solid var(--glass-border) !important; /* Mesma border do trigger */
+    border-radius: 8px !important; /* Mesmo border-radius do trigger */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
     z-index: 999999 !important; /* Z-index EXTREMO para prioridade máxima */
     max-height: 300px;
     overflow-y: auto;
     display: none !important;
-    min-width: 200px; /* Largura mínima para o dropdown */
-    /* Posição será calculada via JavaScript */
+    /* Largura será calculada via JavaScript para ser EXATAMENTE igual ao trigger */
     pointer-events: auto !important; /* Garantir que pode receber cliques */
 }
 
@@ -780,11 +779,24 @@ require_once __DIR__ . '/includes/header.php';
         
         const rect = trigger.getBoundingClientRect();
         
+        // Calcular largura EXATA incluindo padding e border do trigger
+        const triggerStyle = window.getComputedStyle(trigger);
+        const triggerWidth = trigger.offsetWidth;
+        const triggerPaddingLeft = parseFloat(triggerStyle.paddingLeft);
+        const triggerPaddingRight = parseFloat(triggerStyle.paddingRight);
+        const triggerBorderLeft = parseFloat(triggerStyle.borderLeftWidth);
+        const triggerBorderRight = parseFloat(triggerStyle.borderRightWidth);
+        
+        // Largura total = offsetWidth (já inclui padding e border)
+        const exactWidth = triggerWidth + 'px';
+        
         // Usar getBoundingClientRect que já retorna coordenadas da viewport
         dropdownPortal.style.position = 'fixed';
         dropdownPortal.style.top = (rect.bottom + 8) + 'px';
         dropdownPortal.style.left = rect.left + 'px';
-        dropdownPortal.style.width = rect.width + 'px';
+        dropdownPortal.style.width = exactWidth;
+        dropdownPortal.style.minWidth = exactWidth;
+        dropdownPortal.style.maxWidth = exactWidth;
         dropdownPortal.style.zIndex = '999999';
         dropdownPortal.style.display = 'block';
     }
