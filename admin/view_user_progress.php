@@ -1202,6 +1202,19 @@ document.addEventListener('DOMContentLoaded', function() {
     justify-content: center;
     transition: all 0.3s ease;
     font-size: 1.25rem;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+.photo-nav-btn i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .photo-nav-btn:hover {
