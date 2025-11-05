@@ -184,6 +184,14 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <style>
+/* Grid de cards - ajustado para evitar espaços vazios no zoom */
+.user-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* auto-fit remove colunas vazias, minmax menor para mais cards caberem */
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
 /* Wrapper para card de usuário com botão de exclusão */
 .user-card-wrapper {
     position: relative;
