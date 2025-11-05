@@ -677,7 +677,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .weight-chart-container {
-    height: 300px;
+    height: 250px;
     position: relative;
 }
 
@@ -750,6 +750,7 @@ document.addEventListener('DOMContentLoaded', function() {
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
     max-width: 100%;
+    justify-content: center;
 }
 
 .photo-item {
