@@ -885,7 +885,7 @@ if (typeof window.userId === 'undefined') {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 10000;
     display: none;
     align-items: center;
@@ -905,7 +905,7 @@ if (typeof window.userId === 'undefined') {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     cursor: pointer;
@@ -930,13 +930,14 @@ if (typeof window.userId === 'undefined') {
 }
 
 .avatar-modal-content img {
-    max-width: 100%;
+    max-width: 90vh;
     max-height: 90vh;
     width: auto;
     height: auto;
-    border-radius: 20px;
+    border-radius: 50%;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-    object-fit: contain;
+    object-fit: cover;
+    aspect-ratio: 1;
 }
 
 .avatar-modal-close {
