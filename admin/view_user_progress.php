@@ -441,68 +441,82 @@ document.addEventListener('DOMContentLoaded', function() {
             allPhotos = [];
             const seenFiles = new Set(); // Set para garantir unicidade absoluta
             
-            // EVITA coletar do card inicial - SEMPRE usar apenas a galeria
-            // A galeria sempre existe no DOM, mesmo que esteja oculta
+            // PRIORIDADE 1: Tentar coletar da galeria (fonte oficial com todas as informações)
             const galleryItems = document.querySelectorAll('.gallery-photo-item');
             
-            console.log('[view_user_progress] openPhotoModal - Total de itens na galeria HTML:', galleryItems.length);
-            
-            // Coletar fotos APENAS da galeria (fonte oficial das fotos)
-            galleryItems.forEach((item, index) => {
-                const img = item.querySelector('img');
-                if (!img || !img.src) {
-                    console.log('[view_user_progress] openPhotoModal - Item sem img:', index);
-                    return;
-                }
-                
-                const type = item.querySelector('.gallery-photo-type')?.textContent || '';
-                const dateText = item.querySelector('.gallery-photo-date')?.textContent || '';
-                const measurementsEl = item.querySelector('.gallery-photo-measurements');
-                const measurementsText = measurementsEl ? measurementsEl.textContent.trim() : '';
-                
-                // REMOVER query strings antes de extrair fileName
-                const fileName = getFileName(img.src);
-                
-                if (!fileName) {
-                    console.log('[view_user_progress] openPhotoModal - Item sem fileName:', index, img.src);
-                    return;
-                }
-                
-                // VERIFICAÇÃO RIGOROSA: Se já vimos este arquivo, IGNORAR completamente
-                if (seenFiles.has(fileName)) {
-                    console.log('[view_user_progress] openPhotoModal - DUPLICATA DETECTADA e IGNORADA:', fileName, 'Índice no DOM:', index);
-                    return;
-                }
-                
-                // Adicionar ao Set e ao array
-                seenFiles.add(fileName);
-                allPhotos.push({
-                    src: img.src,
-                    label: type,
-                    date: dateText,
-                    measurements: measurementsText
+            if (galleryItems.length > 0) {
+                // Se a galeria existe, usar APENAS ela (evita duplicatas do card inicial)
+                galleryItems.forEach((item, index) => {
+                    const img = item.querySelector('img');
+                    if (!img || !img.src) return;
+                    
+                    const type = item.querySelector('.gallery-photo-type')?.textContent || '';
+                    const dateText = item.querySelector('.gallery-photo-date')?.textContent || '';
+                    const measurementsEl = item.querySelector('.gallery-photo-measurements');
+                    const measurementsText = measurementsEl ? measurementsEl.textContent.trim() : '';
+                    
+                    // REMOVER query strings antes de extrair fileName
+                    const fileName = getFileName(img.src);
+                    
+                    if (!fileName) return;
+                    
+                    // VERIFICAÇÃO RIGOROSA: Se já vimos este arquivo, IGNORAR completamente
+                    if (seenFiles.has(fileName)) {
+                        return;
+                    }
+                    
+                    // Adicionar ao Set e ao array
+                    seenFiles.add(fileName);
+                    allPhotos.push({
+                        src: img.src,
+                        label: type,
+                        date: dateText,
+                        measurements: measurementsText
+                    });
                 });
-                console.log('[view_user_progress] openPhotoModal - Foto adicionada da galeria:', fileName, 'Total até agora:', allPhotos.length);
-            });
-            
-            console.log('[view_user_progress] openPhotoModal - Total de fotos únicas coletadas da galeria:', allPhotos.length);
-            console.log('[view_user_progress] openPhotoModal - Arquivos únicos:', Array.from(seenFiles));
-            
-            // REMOVIDO: Fallback que coletava do card inicial - isso causava duplicatas
-            // Agora SEMPRE coletamos apenas da galeria (fonte oficial)
+            } else {
+                // FALLBACK: Se a galeria não existe (ainda não foi aberta), coletar do card inicial
+                // Usar o mesmo método do measurements_progress.php: parse do onclick
+                const photoItems = document.querySelectorAll('.photo-item');
+                photoItems.forEach(item => {
+                    const img = item.querySelector('img');
+                    if (!img || !img.src) return;
+                    
+                    // Parse do onclick para extrair informações (mesmo método do measurements_progress.php)
+                    const onclick = item.getAttribute('onclick');
+                    if (onclick) {
+                        // Formato: openPhotoModal('src', 'label', 'date', 'measurements')
+                        const match = onclick.match(/openPhotoModal\('([^']+)',\s*'([^']+)',\s*'([^']+)',\s*'([^']*)'\)/);
+                        if (match) {
+                            const parsedSrc = match[1];
+                            const parsedLabel = match[2];
+                            const parsedDate = match[3];
+                            const parsedMeasurements = match[4] || '';
+                            
+                            // Usar nome do arquivo como chave única
+                            const fileName = getFileName(parsedSrc);
+                            
+                            if (fileName && !seenFiles.has(fileName)) {
+                                seenFiles.add(fileName);
+                                allPhotos.push({
+                                    src: parsedSrc,
+                                    label: parsedLabel,
+                                    date: parsedDate,
+                                    measurements: parsedMeasurements
+                                });
+                            }
+                        }
+                    }
+                });
+            }
             
             // Encontrar a foto atual e atualizar com informações do onclick (especialmente medidas)
             const fileName = getFileName(imageSrc);
             currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
             
-            console.log('[view_user_progress] openPhotoModal - Foto atual procurada:', fileName);
-            console.log('[view_user_progress] openPhotoModal - Índice encontrado:', currentPhotoIndex);
-            
             if (currentPhotoIndex === -1) {
-                // Se não encontrou, adicionar com informações do onclick
-                console.log('[view_user_progress] openPhotoModal - Foto não encontrada, adicionando ao array');
-                
-                // Verificar se não é duplicata antes de adicionar
+                // Se não encontrou na coleta, adicionar com informações do onclick
+                // Mas APENAS se realmente não existe (verificação dupla)
                 if (!seenFiles.has(fileName)) {
                     seenFiles.add(fileName);
                     allPhotos.push({
@@ -512,16 +526,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         measurements: measurements || ''
                     });
                     currentPhotoIndex = allPhotos.length - 1;
-                    console.log('[view_user_progress] openPhotoModal - Foto adicionada via onclick. Total:', allPhotos.length);
-                } else {
-                    console.log('[view_user_progress] openPhotoModal - AVISO: Tentativa de adicionar foto duplicada via onclick:', fileName);
-                    // Tentar encontrar novamente
-                    currentPhotoIndex = allPhotos.findIndex(photo => getFileName(photo.src) === fileName);
                 }
             } else {
                 // SEMPRE atualizar com informações do onclick (especialmente medidas)
                 // Isso garante que as medidas passadas via onclick sejam usadas
-                console.log('[view_user_progress] openPhotoModal - Foto encontrada, atualizando informações');
                 allPhotos[currentPhotoIndex].label = label;
                 allPhotos[currentPhotoIndex].date = date;
                 // IMPORTANTE: Atualizar medidas se foram passadas via onclick
@@ -542,7 +550,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (uniquePhotos.length !== allPhotos.length) {
-                console.log('[view_user_progress] openPhotoModal - DUPLICATAS REMOVIDAS ANTES DE ABRIR MODAL! Antes:', allPhotos.length, 'Depois:', uniquePhotos.length);
                 allPhotos = uniquePhotos;
                 
                 // Reencontrar o índice da foto atual
@@ -551,10 +558,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentPhotoIndex = 0;
                 }
             }
-            
-            console.log('[view_user_progress] openPhotoModal - Total FINAL de fotos (SEM duplicatas):', allPhotos.length);
-            console.log('[view_user_progress] openPhotoModal - currentPhotoIndex:', currentPhotoIndex);
-            console.log('[view_user_progress] openPhotoModal - Array completo:', allPhotos.map(p => ({ fileName: getFileName(p.src), label: p.label })));
             
             const modal = document.getElementById('photoModal');
             const modalImage = document.getElementById('photoModalImage');
