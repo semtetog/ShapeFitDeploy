@@ -677,23 +677,32 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*        CSS FINAL PARA OS CARDS DE PROGRESSO (Layout Balanceado)          */
+/*        CSS FINAL E CORRETO PARA OS CARDS DE PROGRESSO                 */
 /* ========================================================================= */
 
-/* 1. Transforma ambos os cards em containers flexíveis verticais */
-.dashboard-card.weight-history-card,
-.dashboard-card.photos-history-card {
-    display: flex;
-    flex-direction: column;
+/* 1. Define o alinhamento do grid para o topo. 
+      Isso impede que os cards se estiquem para ter a mesma altura.
+      Cada card terá sua altura natural. */
+.progress-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    align-items: start; /* A MUDANÇA MAIS IMPORTANTE ESTÁ AQUI */
 }
 
-/* 2. Faz o container do GRÁFICO crescer para preencher o espaço vertical */
+/* 2. Removemos a lógica Flexbox dos cards, pois não é mais necessária */
+.dashboard-card.weight-history-card,
+.dashboard-card.photos-history-card {
+    /* As propriedades 'display: flex' e 'flex-direction' foram removidas */
+}
+
+/* 3. Definimos uma altura para o container do gráfico que visualmente 
+      combina com a altura de uma linha de fotos. */
 .weight-chart-container {
     position: relative;
-    flex-grow: 1; /* Faz o container do gráfico se esticar */
-    display: flex; /* Permite centralizar o conteúdo interno, se necessário */
-    align-items: center; /* Centraliza verticalmente o 'empty-state' ou 'info-message' */
-    justify-content: center; /* Centraliza horizontalmente o 'empty-state' ou 'info-message' */
+    height: 170px; /* Ajuste este valor se necessário (ex: 160px ou 180px) */
+    /* 'flex-grow' e 'min-height' foram removidos */
 }
 
 .btn-view-gallery {
