@@ -1435,7 +1435,9 @@ document.getElementById('save-crop').addEventListener('click', function() {
     if (!currentImageFile || !cropImageEl.complete || cropImageEl.naturalWidth === 0) return;
 
     const cropImage = document.getElementById('crop-image');
-    const cropCircleDiameter = 200;
+    // Aumentar o tamanho do canvas para preservar qualidade (800px em vez de 200px)
+    const cropCircleDiameter = 800;
+    const displaySize = 200; // Tamanho de exibição (para o avatar pequeno)
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -1506,7 +1508,7 @@ document.getElementById('save-crop').addEventListener('click', function() {
             reader.readAsDataURL(blob);
         };
         reader.readAsDataURL(blob);
-    }, 'image/jpeg', 0.9);
+    }, 'image/jpeg', 0.98); // Qualidade máxima (98%) para preservar qualidade da foto original
     
     closeCropModal();
 });
