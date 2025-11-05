@@ -1091,9 +1091,9 @@ document.addEventListener('DOMContentLoaded', function() {
 .photo-modal-content {
     background: var(--surface-color);
     border-radius: 20px;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
+    width: 85%;
+    max-width: 700px;
+    max-height: 85vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1106,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', function() {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 1.5rem;
+    padding: 1rem 1.25rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     flex-shrink: 0; /* Não encolhe */
 }
@@ -1136,8 +1136,9 @@ document.addEventListener('DOMContentLoaded', function() {
 .photo-navigation {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    flex-shrink: 0;
 }
 
 .photo-nav-btn {
@@ -1172,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .photo-container img {
     max-width: 100%;
-    max-height: 60vh;
+    max-height: 50vh;
     object-fit: contain;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -1181,13 +1182,14 @@ document.addEventListener('DOMContentLoaded', function() {
 .photo-info {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    padding: 1.25rem 1.5rem;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.02);
     max-width: 100%;
     box-sizing: border-box;
     overflow-wrap: break-word;
+    flex-shrink: 0;
 }
 
 .photo-info-top {
@@ -1222,13 +1224,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .photo-modal-measurements {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 0.875rem;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.2);
     border-radius: 8px;
     color: var(--accent-orange);
-    font-size: 0.875rem;
-    line-height: 1.5;
+    font-size: 0.8rem;
+    line-height: 1.4;
     text-align: left;
     word-wrap: break-word;
     overflow-wrap: break-word;
