@@ -1558,7 +1558,7 @@ function showEmptyMissions(message) {
 }
 
 // Função para inicializar seletor de ícones
-function initIconPicker() {
+function initIconPicker(selectedIconClass = null) {
     const iconPicker = document.getElementById('iconPicker');
     if (!iconPicker) return;
     
@@ -1584,9 +1584,29 @@ function initIconPicker() {
         option.addEventListener('click', function() {
             iconPicker.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
             this.classList.add('selected');
-            document.getElementById('selectedIcon').value = this.dataset.icon;
+            
+            // Atualizar campo hidden corretamente
+            const selectedIconField = document.getElementById('selectedIcon');
+            if (selectedIconField) {
+                selectedIconField.value = this.dataset.icon;
+                console.log('[initIconPicker] Ícone selecionado:', this.dataset.icon);
+            }
         });
     });
+    
+    // Selecionar ícone se fornecido
+    if (selectedIconClass) {
+        const iconOption = iconPicker.querySelector(`.icon-option[data-icon="${selectedIconClass}"]`);
+        if (iconOption) {
+            iconOption.click();
+        } else {
+            // Se não encontrar, usar o primeiro ícone como padrão
+            const firstOption = iconPicker.querySelector('.icon-option');
+            if (firstOption) {
+                firstOption.click();
+            }
+        }
+    }
 }
 
 // Funções globais para o modal
@@ -1628,14 +1648,16 @@ window.openMissionModal = function(missionId = null, skipReset = false) {
         if (saveButton) saveButton.textContent = 'Salvar Missão';
     }
     
-    modal.style.display = 'flex';
+    // Adicionar classe active primeiro para evitar flicker
     modal.classList.add('active');
-    console.log('[openMissionModal] Modal display setado para flex e classe active adicionada');
-    
-    // Inicializar seletor de ícones após o modal estar visível
-    setTimeout(() => {
-        initIconPicker();
-    }, 100);
+    // Usar requestAnimationFrame para garantir transição suave
+    requestAnimationFrame(() => {
+        modal.style.display = 'flex';
+        // Inicializar seletor de ícones após modal estar visível
+        setTimeout(() => {
+            initIconPicker();
+        }, 50);
+    });
 };
 
 window.closeMissionModal = function() {
@@ -1669,9 +1691,20 @@ window.editMission = function(missionId, isPersonal = 0) {
                 }
                 
                 // Preencher formulário
-                document.getElementById('missionId').value = mission.id;
-                document.getElementById('missionTitle').value = mission.title || '';
-                document.getElementById('missionDescription').value = mission.description || '';
+                const missionIdField = document.getElementById('missionId');
+                const missionTitleField = document.getElementById('missionTitle');
+                const missionDescriptionField = document.getElementById('missionDescription');
+                const selectedIconField = document.getElementById('selectedIcon');
+                
+                if (missionIdField) missionIdField.value = mission.id;
+                if (missionTitleField) missionTitleField.value = mission.title || '';
+                if (missionDescriptionField) missionDescriptionField.value = mission.description || '';
+                
+                // Definir ícone selecionado ANTES de abrir o modal
+                if (selectedIconField && mission.icon_class) {
+                    selectedIconField.value = mission.icon_class;
+                    console.log('[editMission] Ícone definido no campo hidden:', mission.icon_class);
+                }
                 
                 // Mapear tipo de missão do backend para o radio button
                 let missionType = 'yes_no';
@@ -1694,15 +1727,16 @@ window.editMission = function(missionId, isPersonal = 0) {
                 // Abrir modal (não resetar formulário pois já preenchemos os dados)
                 openMissionModal(missionId, true);
                 
-                // Selecionar ícone após modal abrir
+                // Selecionar ícone visualmente após modal abrir e inicializar
                 setTimeout(() => {
                     if (mission.icon_class) {
-                        const iconOption = document.querySelector(`.icon-option[data-icon="${mission.icon_class}"]`);
-                        if (iconOption) {
-                            iconOption.click();
-                        }
+                        // Inicializar picker com o ícone selecionado
+                        initIconPicker(mission.icon_class);
+                    } else {
+                        // Se não tiver ícone, usar o padrão
+                        initIconPicker('fa-check-circle');
                     }
-                }, 150);
+                }, 100);
             } else {
                 console.error('Erro ao carregar missão:', data.message);
                 alert('Erro ao carregar dados da missão');
