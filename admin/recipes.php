@@ -457,12 +457,14 @@ require_once __DIR__ . '/includes/header.php';
     border: 1px solid var(--glass-border) !important; /* Mesma border do trigger */
     border-radius: 8px !important; /* Mesmo border-radius do trigger */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    box-sizing: border-box !important; /* Mesmo box-sizing do trigger */
     z-index: 999999 !important; /* Z-index EXTREMO para prioridade máxima */
     max-height: 300px;
     overflow-y: auto;
     display: none !important;
     /* Largura será calculada via JavaScript para ser EXATAMENTE igual ao trigger */
     pointer-events: auto !important; /* Garantir que pode receber cliques */
+    padding: 0 !important; /* Remover padding para não afetar a largura */
 }
 
 .custom-select.active .custom-select-options {
@@ -779,16 +781,12 @@ require_once __DIR__ . '/includes/header.php';
         
         const rect = trigger.getBoundingClientRect();
         
-        // Calcular largura EXATA incluindo padding e border do trigger
-        const triggerStyle = window.getComputedStyle(trigger);
-        const triggerWidth = trigger.offsetWidth;
-        const triggerPaddingLeft = parseFloat(triggerStyle.paddingLeft);
-        const triggerPaddingRight = parseFloat(triggerStyle.paddingRight);
-        const triggerBorderLeft = parseFloat(triggerStyle.borderLeftWidth);
-        const triggerBorderRight = parseFloat(triggerStyle.borderRightWidth);
+        // Usar getBoundingClientRect().width que já retorna a largura total incluindo padding e border
+        // Isso garante que o dropdown tenha EXATAMENTE a mesma largura do trigger
+        const exactWidth = rect.width + 'px';
         
-        // Largura total = offsetWidth (já inclui padding e border)
-        const exactWidth = triggerWidth + 'px';
+        // Garantir que o dropdown tenha o mesmo box-sizing
+        dropdownPortal.style.boxSizing = 'border-box';
         
         // Usar getBoundingClientRect que já retorna coordenadas da viewport
         dropdownPortal.style.position = 'fixed';
