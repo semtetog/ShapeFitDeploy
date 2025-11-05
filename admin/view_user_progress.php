@@ -295,7 +295,7 @@
                         <span id="photoModalDate">Data</span>
                     </div>
                     <div class="photo-actions">
-                        <button class="btn-view-gallery-in-modal" onclick="closePhotoModal(); setTimeout(() => openGalleryModal(), 100);">
+                        <button class="btn-view-gallery-in-modal" onclick="openGalleryFromPhotoModal();">
                             <i class="fas fa-images"></i> Ver Galeria
                         </button>
                         <div class="photo-counter">
@@ -351,6 +351,22 @@ document.addEventListener('DOMContentLoaded', function() {
             if (modal) {
                 modal.style.display = 'none';
                 unlockBodyScroll();
+            }
+        };
+        
+        // Transição fluida do photoModal para galleryModal
+        window.openGalleryFromPhotoModal = function() {
+            const photoModal = document.getElementById('photoModal');
+            const galleryModal = document.getElementById('galleryModal');
+            
+            if (photoModal && galleryModal) {
+                // Fechar photoModal sem desbloquear scroll
+                photoModal.style.display = 'none';
+                // Abrir galleryModal imediatamente (sem delay)
+                galleryModal.style.display = 'flex';
+                galleryModal.style.alignItems = 'center';
+                galleryModal.style.justifyContent = 'center';
+                // Scroll já está bloqueado, não precisa chamar lockBodyScroll novamente
             }
         };
         
@@ -908,10 +924,12 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .gallery-modal-header {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
+    padding-right: 3.5rem; /* Espaço para o botão X */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -924,24 +942,26 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .sleep-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
     background: none;
     border: none;
     color: var(--text-secondary);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     cursor: pointer;
     padding: 0.5rem;
-    border-radius: 8px;
+    border-radius: 50%;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    z-index: 10;
 }
 
 .sleep-modal-close:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
+    color: var(--accent-orange);
 }
 
 .gallery-modal-body {
@@ -1103,10 +1123,12 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .photo-modal-header {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     padding: 1rem 1.25rem;
+    padding-right: 3.5rem; /* Espaço para o botão X */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     flex-shrink: 0; /* Não encolhe */
 }
