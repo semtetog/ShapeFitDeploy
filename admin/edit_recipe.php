@@ -249,10 +249,24 @@ $csrf_token = $_SESSION['csrf_token'];
 /* ===== INGREDIENT ROW ===== */
 .edit-recipe-container .ingredient-row {
     display: grid !important;
-    grid-template-columns: 2fr 100px 140px 48px !important;
+    /* 
+      1fr:  A primeira coluna (nome) é flexível e ocupa todo o espaço que sobrar.
+      auto: As outras três colunas (quantidade, unidade, botão) terão a largura
+            do seu próprio conteúdo, sem espremer nada.
+    */
+    grid-template-columns: 1fr auto auto auto !important;
     gap: 0.75rem !important;
     align-items: center !important;
     margin-bottom: 0.75rem !important;
+}
+
+/* Garante que os campos tenham uma largura mínima para não serem espremidos */
+.edit-recipe-container .ingredient-row .form-control[type="number"] {
+    min-width: 120px !important;
+}
+
+.edit-recipe-container .ingredient-row select.form-control {
+    min-width: 150px !important;
 }
 
 .edit-recipe-container .btn-remove-ingredient {
