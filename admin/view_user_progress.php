@@ -268,7 +268,10 @@
 <div id="photoModal" class="photo-modal" style="display: none;">
     <div class="photo-modal-content">
         <div class="photo-modal-header">
-            <h3 id="photoModalTitle">Foto de Progresso</h3>
+            <div class="photo-modal-header-content">
+                <h3 id="photoModalTitle">Foto de Progresso</h3>
+                <div id="photoModalMeasurements" class="photo-modal-measurements" style="display: none;"></div>
+            </div>
             <button class="sleep-modal-close" onclick="closePhotoModal()">
                 <i class="fas fa-times"></i>
             </button>
@@ -300,7 +303,6 @@
                         </div>
                     </div>
                 </div>
-                <div id="photoModalMeasurements" class="photo-modal-measurements" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -1103,9 +1105,17 @@ document.addEventListener('DOMContentLoaded', function() {
 .photo-modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     padding: 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0; /* Não encolhe */
+}
+
+.photo-modal-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
 }
 
 .photo-modal-header h3 {
@@ -1212,19 +1222,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .photo-modal-measurements {
     width: 100%;
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1rem;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.2);
     border-radius: 8px;
     color: var(--accent-orange);
     font-size: 0.875rem;
-    line-height: 1.6;
-    text-align: center;
-    margin-top: 1rem;
+    line-height: 1.5;
+    text-align: left;
     word-wrap: break-word;
     overflow-wrap: break-word;
     max-width: 100%;
     box-sizing: border-box;
+    margin: 0;
 }
 
 .photo-counter {
