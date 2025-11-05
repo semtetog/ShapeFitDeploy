@@ -677,22 +677,26 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* ========================================================================= */
-/*       CSS DEFINITIVO E ROBUSTO PARA OS CARDS DE PROGRESSO               */
+/*       CSS FINALÍSSIMO E CORRETO                                          */
 /* ========================================================================= */
 
-/* Este é o CSS que deixou as fotos perfeitas. MANTENHA-O ASSIM. */
 .progress-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
-    align-items: start; /* Impede que um card estique o outro */
+    align-items: stretch; /* Garante que os cards tenham a mesma altura */
 }
 
-/* A ÚNICA MUDANÇA NECESSÁRIA - apenas no container do gráfico */
+.dashboard-card.weight-history-card,
+.dashboard-card.photos-history-card {
+    display: flex;
+    flex-direction: column;
+}
+
 .weight-chart-container {
     position: relative;
-    min-height: 230px; /* Usamos ALTURA MÍNIMA em vez de altura fixa */
-    display: flex;     /* Isso garante que o canvas se ajuste ao espaço */
+    flex-grow: 1; /* Permite que o container cresça */
+    /* NENHUMA altura fixa ou mínima aqui */
 }
 
 .btn-view-gallery {
@@ -762,6 +766,7 @@ document.addEventListener('DOMContentLoaded', function() {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 1rem;
+    align-content: start; /* Alinha as fotos no topo do espaço */
 }
 
 /* Item de foto individual */
