@@ -521,74 +521,74 @@ input[type=number] {
 }
 
 /* ===== SECTION STYLES ===== */
-.ingredients-section,
-.nutrition-section {
-    margin-bottom: 2rem;
+.edit-recipe-container .ingredients-section,
+.edit-recipe-container .nutrition-section {
+    margin-bottom: 2rem !important;
 }
 
-.section-subtitle {
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
+.edit-recipe-container .section-subtitle {
+    color: var(--text-primary) !important;
+    margin-bottom: 1rem !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
 }
 
-.section-divider {
-    border: none;
-    border-top: 1px solid var(--glass-border);
-    margin: 1.5rem 0;
+.edit-recipe-container .section-divider {
+    border: none !important;
+    border-top: 1px solid var(--glass-border) !important;
+    margin: 1.5rem 0 !important;
 }
 
-.btn-add-ingredient {
-    margin-top: 1rem;
+.edit-recipe-container .btn-add-ingredient {
+    margin-top: 1rem !important;
 }
 
 /* ===== CALCULATION TOOL ===== */
-.calculation-tool {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 1.5rem;
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--glass-border);
+.edit-recipe-container .calculation-tool {
+    background: rgba(0, 0, 0, 0.2) !important;
+    padding: 1.5rem !important;
+    border-radius: 12px !important;
+    margin-bottom: 1.5rem !important;
+    border: 1px solid var(--glass-border) !important;
 }
 
-.calculation-label {
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-    display: block;
-    font-weight: 500;
+.edit-recipe-container .calculation-label {
+    font-size: 0.9rem !important;
+    color: var(--text-primary) !important;
+    margin-bottom: 1rem !important;
+    display: block !important;
+    font-weight: 500 !important;
 }
 
-.calculation-tool .form-group {
-    margin-bottom: 1rem;
+.edit-recipe-container .calculation-tool .form-group {
+    margin-bottom: 1rem !important;
 }
 
-.calculation-tool .form-group:last-child {
-    margin-bottom: 0;
+.edit-recipe-container .calculation-tool .form-group:last-child {
+    margin-bottom: 0 !important;
 }
 
 /* ===== READONLY INPUT ===== */
-.form-control-readonly {
+.edit-recipe-container .form-control-readonly {
     background-color: rgba(17, 17, 17, 0.6) !important;
     color: var(--accent-orange) !important;
     font-weight: 600 !important;
     border-style: dashed !important;
     border-color: var(--accent-orange) !important;
-    cursor: not-allowed;
+    cursor: not-allowed !important;
 }
 
-.field-help {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-top: 0.5rem;
-    display: block;
-    line-height: 1.4;
+.edit-recipe-container .field-help {
+    font-size: 0.75rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 0.5rem !important;
+    display: block !important;
+    line-height: 1.4 !important;
 }
 
-.categories-help {
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
+.edit-recipe-container .categories-help {
+    margin-top: -0.5rem !important;
+    margin-bottom: 1rem !important;
 }
 
 /* ===== PREVIEW ===== */
