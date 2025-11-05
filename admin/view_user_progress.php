@@ -268,9 +268,6 @@
 <div id="photoModal" class="photo-modal" style="display: none;">
     <div class="photo-modal-content">
         <div class="photo-modal-header">
-            <div class="photo-modal-header-content">
-                <div id="photoModalMeasurements" class="photo-modal-measurements" style="display: none;"></div>
-            </div>
             <button class="sleep-modal-close" onclick="closePhotoModal()">
                 <i class="fas fa-times"></i>
             </button>
@@ -282,6 +279,7 @@
                 </button>
                 <div class="photo-container">
                     <img id="photoModalImage" src="" alt="Foto de progresso">
+                    <div id="photoModalMeasurements" class="photo-modal-measurements" style="display: none;"></div>
                 </div>
                 <button class="photo-nav-btn" id="nextPhotoBtn" onclick="navigatePhoto(1)">
                     <i class="fas fa-chevron-right"></i>
@@ -1126,18 +1124,10 @@ document.addEventListener('DOMContentLoaded', function() {
 .photo-modal-header {
     position: relative;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: flex-start;
     padding: 1rem 1.25rem;
-    padding-right: 3.5rem; /* Espaço para o botão X */
     flex-shrink: 0; /* Não encolhe */
-}
-
-.photo-modal-header-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    flex: 1;
 }
 
 .photo-modal-header h3 {
@@ -1188,9 +1178,11 @@ document.addEventListener('DOMContentLoaded', function() {
 .photo-container {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    gap: 1rem;
 }
 
 .photo-container img {
@@ -1246,19 +1238,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .photo-modal-measurements {
     width: 100%;
-    padding: 0.625rem 0.875rem;
+    max-width: 600px;
+    padding: 0.75rem 1rem;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.2);
     border-radius: 8px;
     color: var(--accent-orange);
-    font-size: 0.8rem;
-    line-height: 1.4;
-    text-align: left;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-align: center;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    max-width: 100%;
     box-sizing: border-box;
-    margin: 0;
+    margin: 0 auto;
 }
 
 .photo-counter {
