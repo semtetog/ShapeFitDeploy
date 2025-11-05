@@ -419,14 +419,24 @@ try {
                 $is_exercise = isset($data['is_exercise']) ? intval($data['is_exercise']) : 0;
                 $exercise_type = isset($data['exercise_type']) ? $conn->real_escape_string($data['exercise_type']) : '';
                 
-                // Verificar se já existe uma missão com esse título (exercício) - procurar pelo título antigo OU novo
-                // Priorizar missão com título antigo (para atualizar a existente)
-                $check_existing = $conn->prepare("SELECT id FROM sf_user_routine_items WHERE user_id = ? AND (title = ? OR title = ?) AND is_exercise = 1 ORDER BY title = ? DESC LIMIT 1");
-                $check_existing->bind_param('issi', $patient_id, $old_activity, $new_activity, $old_activity);
+                // Verificar se já existe uma missão de exercício com esse título (do exercício antigo)
+                // Isso garante que se já existe uma missão "Musculação" no banco, ela será atualizada
+                $check_existing = $conn->prepare("SELECT id FROM sf_user_routine_items WHERE user_id = ? AND title = ? AND is_exercise = 1 LIMIT 1");
+                $check_existing->bind_param('is', $patient_id, $old_activity);
                 $check_existing->execute();
                 $existing_result = $check_existing->get_result();
                 $existing_mission = $existing_result->fetch_assoc();
                 $check_existing->close();
+                
+                // Se não encontrou com o título antigo, verificar se existe com o novo título (caso o título não tenha mudado)
+                if (!$existing_mission && $old_activity === $new_activity) {
+                    $check_existing2 = $conn->prepare("SELECT id FROM sf_user_routine_items WHERE user_id = ? AND title = ? AND is_exercise = 1 LIMIT 1");
+                    $check_existing2->bind_param('is', $patient_id, $new_activity);
+                    $check_existing2->execute();
+                    $existing_result2 = $check_existing2->get_result();
+                    $existing_mission = $existing_result2->fetch_assoc();
+                    $check_existing2->close();
+                }
                 
                 if ($existing_mission) {
                     // Se já existe, atualizar incluindo o ícone
