@@ -890,15 +890,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const popupContent = document.createElement('div');
             popupContent.style.cssText = `
                 background: rgba(18, 18, 18, 0.5);
-                backdrop-filter: blur(24px);
-                -webkit-backdrop-filter: blur(24px);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 16px;
                 padding: 0;
                 min-width: 200px;
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
                 transform: scale(0.95) translateY(-5px);
-                transition: transform 0.2s ease, opacity 0.2s ease;
+                transition: transform 0.2s ease, opacity 0.2s ease, backdrop-filter 0.2s ease;
                 opacity: 0;
                 overflow: hidden;
             `;
@@ -1014,14 +1014,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     popup.style.display = 'block';
                     
-                    // Trigger animation
-                    setTimeout(() => {
+                    // Trigger animation - blur e popup juntos
+                    requestAnimationFrame(() => {
                         popup.style.opacity = '1';
                         if (content) {
                             content.style.opacity = '1';
                             content.style.transform = 'scale(1) translateY(0)';
+                            content.style.backdropFilter = 'blur(12px)';
+                            content.style.webkitBackdropFilter = 'blur(12px)';
                         }
-                    }, 10);
+                    });
                 }
             }
             
