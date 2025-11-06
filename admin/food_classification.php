@@ -1580,6 +1580,28 @@ function updateBulkButton() {
     }
 }
 
+// Função para fechar todos os dropdowns
+function closeAllDropdowns() {
+    document.querySelectorAll('.custom-select.active').forEach(select => {
+        select.classList.remove('active');
+        const wrapper = select.closest('.custom-select-wrapper');
+        if (wrapper) {
+            wrapper.classList.remove('active');
+            // Remove classe do card pai
+            const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+            if (card) {
+                card.classList.remove('dropdown-active');
+            }
+        }
+    });
+    
+    // Remove classe do container principal
+    const mainContent = document.querySelector('.foods-main-content');
+    if (mainContent) {
+        mainContent.classList.remove('dropdown-open');
+    }
+}
+
 // Função para inicializar custom select - VERSÃO SIMPLIFICADA (igual recipes.php)
 function initCustomSelect(selectId, inputId, submitForm) {
     const customSelect = document.getElementById(selectId);
@@ -1597,6 +1619,12 @@ function initCustomSelect(selectId, inputId, submitForm) {
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
         const isOpening = !customSelect.classList.contains('active');
+        
+        // Se estiver abrindo, fecha todos os outros dropdowns primeiro
+        if (isOpening) {
+            closeAllDropdowns();
+        }
+        
         customSelect.classList.toggle('active');
         if (wrapper) {
             if (isOpening) {
@@ -1675,41 +1703,16 @@ function initCustomSelect(selectId, inputId, submitForm) {
     
     // Fecha o dropdown se clicar fora
     document.addEventListener('click', function(e) {
-        if (!customSelect.contains(e.target)) {
-            customSelect.classList.remove('active');
-            if (wrapper) {
-                wrapper.classList.remove('active');
-                // Remove classe do card pai
-                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
-                if (card) {
-                    card.classList.remove('dropdown-active');
-                }
-                // Remove classe do container principal
-                const mainContent = document.querySelector('.foods-main-content');
-                if (mainContent) {
-                    mainContent.classList.remove('dropdown-open');
-                }
-            }
+        // Se clicar fora de qualquer dropdown, fecha todos
+        if (!e.target.closest('.custom-select')) {
+            closeAllDropdowns();
         }
     });
     
     // Fecha com a tecla Esc
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            customSelect.classList.remove('active');
-            if (wrapper) {
-                wrapper.classList.remove('active');
-                // Remove classe do card pai
-                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
-                if (card) {
-                    card.classList.remove('dropdown-active');
-                }
-                // Remove classe do container principal
-                const mainContent = document.querySelector('.foods-main-content');
-                if (mainContent) {
-                    mainContent.classList.remove('dropdown-open');
-                }
-            }
+            closeAllDropdowns();
         }
     });
 }
