@@ -869,6 +869,11 @@ const updateInstructions = (text) => {
             
             list.appendChild(stepDiv);
         });
+        
+        // Configurar listeners após atualizar
+        if (typeof setupInstructionListeners === 'function') {
+            setupInstructionListeners();
+        }
     } else {
         // Se não há texto, manter as instruções originais do PHP
         console.log('No instructions text provided, keeping original content');
