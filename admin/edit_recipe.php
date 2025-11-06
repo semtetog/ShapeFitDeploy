@@ -991,39 +991,70 @@ document.addEventListener('DOMContentLoaded', function() {
             return popup;
         }
 
-        function openImageModal() {
+        function openImageModal(eventData = null) {
             const popup = createImageModal();
             const content = popup.querySelector('div');
             
-            // Obter posição da imagem no iframe
-            if (iframe && iframe.contentWindow) {
+            // Função para calcular e posicionar o popup
+            const positionPopup = () => {
+                if (!iframe || !iframe.contentWindow) return;
+                
                 const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
                 const imageElement = iframeDoc.getElementById('recipe-image') || iframeDoc.getElementById('recipe-image-placeholder');
                 
-                if (imageElement) {
-                    const iframeRect = iframe.getBoundingClientRect();
-                    const imageRect = imageElement.getBoundingClientRect();
-                    
-                    // Calcular posição relativa ao viewport
-                    const popupX = iframeRect.left + imageRect.left + (imageRect.width / 2);
-                    const popupY = iframeRect.top + imageRect.top + (imageRect.height / 2);
-                    
-                    // Posicionar popup centralizado sobre a imagem
-                    popup.style.left = popupX + 'px';
-                    popup.style.top = popupY + 'px';
-                    popup.style.transform = 'translate(-50%, -50%)';
-                    
-                    popup.style.display = 'block';
-                    
-                    // Trigger animation - blur já está aplicado no CSS
-                    requestAnimationFrame(() => {
-                        popup.style.opacity = '1';
-                        if (content) {
-                            content.style.opacity = '1';
-                            content.style.transform = 'scale(1) translateY(0)';
-                        }
-                    });
+                if (!imageElement) return;
+                
+                // Obter posição do iframe no viewport principal
+                const iframeRect = iframe.getBoundingClientRect();
+                
+                // Obter posição da imagem
+                let imageRect;
+                
+                // Se temos dados do evento (enviados pelo iframe), usar eles (mais preciso)
+                if (eventData && eventData.imageRect) {
+                    imageRect = eventData.imageRect;
+                } else {
+                    // Fallback: tentar obter do contexto do iframe
+                    try {
+                        imageRect = imageElement.getBoundingClientRect();
+                    } catch (e) {
+                        console.error('Erro ao obter posição da imagem:', e);
+                        return;
+                    }
                 }
+                
+                // Calcular posição absoluta no viewport principal
+                // A posição da imagem (imageRect) é relativa ao viewport do iframe
+                // Precisamos somar com a posição do iframe no viewport principal
+                const popupX = iframeRect.left + imageRect.left + (imageRect.width / 2);
+                const popupY = iframeRect.top + imageRect.top + (imageRect.height / 2);
+                
+                // Posicionar popup centralizado sobre a imagem
+                popup.style.position = 'fixed';
+                popup.style.left = popupX + 'px';
+                popup.style.top = popupY + 'px';
+                popup.style.transform = 'translate(-50%, -50%)';
+                
+                popup.style.display = 'block';
+                
+                // Trigger animation - blur já está aplicado no CSS
+                requestAnimationFrame(() => {
+                    popup.style.opacity = '1';
+                    if (content) {
+                        content.style.opacity = '1';
+                        content.style.transform = 'scale(1) translateY(0)';
+                    }
+                });
+            };
+            
+            // Se temos dados do evento, usar imediatamente, senão calcular
+            if (eventData) {
+                positionPopup();
+            } else {
+                // Aguardar um frame para garantir que o iframe está renderizado
+                requestAnimationFrame(() => {
+                    positionPopup();
+                });
             }
             
             // Fechar ao clicar fora (qualquer lugar - celular ou fora)
@@ -1085,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Escutar clicks na imagem do preview
         window.addEventListener('message', function(event) {
             if (event.data.type === 'imageClick') {
-                openImageModal();
+                openImageModal(event.data);
             }
         });
 
