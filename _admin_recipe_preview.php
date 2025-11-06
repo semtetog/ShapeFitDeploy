@@ -589,9 +589,9 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
         <ul id="ingredient-list" class="recipe-ingredient-list">
             <?php if (!empty($ingredients)): ?>
                 <?php foreach($ingredients as $ingredient): ?>
-                <li class="ingredient-item-editable" contenteditable="true" data-ingredient-text="<?php echo htmlspecialchars($ingredient); ?>">
-                    <span class="ingredient-text-content"><?php echo htmlspecialchars($ingredient); ?></span>
-                    <button type="button" class="btn-remove-ingredient-inline" title="Remover" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center;">×</button>
+                <li class="ingredient-item-editable" data-ingredient-text="<?php echo htmlspecialchars($ingredient); ?>">
+                    <span class="ingredient-text-content" contenteditable="true"><?php echo htmlspecialchars($ingredient); ?></span>
+                    <button type="button" class="btn-remove-ingredient-inline" title="Remover" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; z-index: 10; position: relative;">×</button>
                 </li>
                 <?php endforeach; ?>
             <?php else: ?>
