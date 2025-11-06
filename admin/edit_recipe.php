@@ -767,7 +767,7 @@ input[type=number] {
                 <div class="dashboard-card">
                     <div class="section-header">
                         <h4><i class="fas fa-cog"></i> Configurações</h4>
-                        </div>
+                                </div>
                     <div class="form-group">
                         <label for="is_public">Status</label>
                         <div class="custom-select-wrapper">
@@ -920,8 +920,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 font-size: 0.875rem;
                 font-weight: 600;
                 cursor: pointer;
-                background: rgba(255, 107, 0, 0.1);
-                border: 1px solid rgba(255, 107, 0, 0.25);
+                background: rgba(255, 107, 0, 0.15);
+                border: 1px solid rgba(255, 107, 0, 0.3);
                 color: var(--accent-orange);
                 transition: all 0.2s ease;
                 display: flex;
@@ -931,13 +931,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 font-family: 'Montserrat', sans-serif;
             `;
             changeButton.onmouseenter = () => {
-                changeButton.style.background = 'rgba(255, 107, 0, 0.12)';
-                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.3)';
+                changeButton.style.background = 'rgba(255, 107, 0, 0.18)';
+                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.35)';
                 changeButton.style.transform = 'translateY(-1px)';
             };
             changeButton.onmouseleave = () => {
-                changeButton.style.background = 'rgba(255, 107, 0, 0.08)';
-                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.2)';
+                changeButton.style.background = 'rgba(255, 107, 0, 0.15)';
+                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.3)';
                 changeButton.style.transform = 'translateY(0)';
             };
             changeButton.onclick = () => {
@@ -954,8 +954,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 font-size: 0.875rem;
                 font-weight: 600;
                 cursor: pointer;
-                background: rgba(244, 67, 54, 0.1);
-                border: 1px solid rgba(244, 67, 54, 0.25);
+                background: rgba(244, 67, 54, 0.15);
+                border: 1px solid rgba(244, 67, 54, 0.3);
                 color: #F44336;
                 transition: all 0.2s ease;
                 display: flex;
@@ -965,13 +965,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 font-family: 'Montserrat', sans-serif;
             `;
             deleteButton.onmouseenter = () => {
-                deleteButton.style.background = 'rgba(244, 67, 54, 0.12)';
-                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.3)';
+                deleteButton.style.background = 'rgba(244, 67, 54, 0.18)';
+                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.35)';
                 deleteButton.style.transform = 'translateY(-1px)';
             };
             deleteButton.onmouseleave = () => {
-                deleteButton.style.background = 'rgba(244, 67, 54, 0.08)';
-                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.2)';
+                deleteButton.style.background = 'rgba(244, 67, 54, 0.15)';
+                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.3)';
                 deleteButton.style.transform = 'translateY(0)';
             };
             deleteButton.onclick = () => {
@@ -1382,7 +1382,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const servingsInput = document.getElementById('servings');
     const servingSizeResultInput = document.getElementById('serving_size_g');
     const previewFrame = document.getElementById('recipe-preview-frame');
-    
+
     function sendServingInfoUpdate() {
         if (previewFrame && previewFrame.contentWindow) {
             const prep = document.getElementById('prep_time_minutes')?.value || 0;
