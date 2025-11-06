@@ -630,16 +630,24 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     font-family: 'Montserrat', sans-serif;
 }
 
-/* Animações */
+/* Animações - otimizadas para performance */
 @keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.unit-item {
+    will-change: transform, opacity;
+}
+
+.unit-item.animate-in {
+    animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Responsividade */
@@ -802,7 +810,7 @@ function renderUnitsList() {
     }
     
     container.innerHTML = currentUnits.map((unit, index) => `
-        <div class="unit-item" style="animation: slideIn 0.3s ease-out;">
+        <div class="unit-item" style="opacity: 0; transform: translateY(10px);">
             <div class="unit-info">
                 <div class="unit-name">
                     ${unit.name} (${unit.abbreviation})
@@ -822,6 +830,19 @@ function renderUnitsList() {
             </div>
         </div>
     `).join('');
+    
+    // Anima os cards de forma escalonada e suave usando requestAnimationFrame
+    const items = container.querySelectorAll('.unit-item');
+    items.forEach((item, index) => {
+        // Força reflow
+        void item.offsetHeight;
+        // Aplica animação com delay escalonado
+        setTimeout(() => {
+            item.style.transition = 'opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, index * 30); // Delay de 30ms entre cada card
+    });
 }
 
 function addNewUnit() {
