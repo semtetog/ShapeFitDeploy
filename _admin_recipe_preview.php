@@ -620,7 +620,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     $total_time = ($recipe['prep_time_minutes'] ?? 0) + ($recipe['cook_time_minutes'] ?? 0);
     if ($total_time > 0 || !empty($recipe['servings'])): 
     ?>
-    <div class="recipe-timing-servings card-shadow-light">
+    <div class="recipe-timing-servings card-shadow-light" id="timing-servings-clickable" style="cursor: pointer;">
         <?php if ($total_time > 0): ?><div id="total-time" class="timing-item"><i class="far fa-clock"></i> <?php echo $total_time; ?> min</div><?php endif; ?>
         <?php if (!empty($recipe['servings'])): ?>
             <?php 
@@ -1179,11 +1179,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Scroll para Cálculo Nutricional ao clicar nas porções
+    // Scroll para Cálculo Nutricional ao clicar nas porções (dentro do card de macros)
     const servingInfo = document.getElementById('serving-info-clickable');
     if (servingInfo) {
         servingInfo.addEventListener('click', function(e) {
             e.stopPropagation(); // Prevenir que o clique no macros também seja acionado
+            // Enviar mensagem para o parent para rolar até o card de cálculo nutricional
+            if (window.parent && window.parent.postMessage) {
+                window.parent.postMessage({ 
+                    type: 'scrollToNutritional' 
+                }, '*');
+            }
+        });
+    }
+    
+    // Scroll para Cálculo Nutricional ao clicar no card de porções (timing-servings)
+    const timingServings = document.getElementById('timing-servings-clickable');
+    if (timingServings) {
+        timingServings.addEventListener('click', function() {
             // Enviar mensagem para o parent para rolar até o card de cálculo nutricional
             if (window.parent && window.parent.postMessage) {
                 window.parent.postMessage({ 
