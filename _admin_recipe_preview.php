@@ -854,21 +854,33 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             e.stopPropagation();
             
-            // Obter posição da imagem no momento do clique (relativa ao viewport do iframe)
-            const rect = newElement.getBoundingClientRect();
+            // Verificar se é placeholder (sem imagem) ou imagem existente
+            const hasImage = newElement.dataset.hasImage === 'true' || newElement.id === 'recipe-image';
             
-            if (window.parent && window.parent.postMessage) {
-                window.parent.postMessage({ 
-                    type: 'imageClick',
-                    imageRect: {
-                        left: rect.left,
-                        top: rect.top,
-                        width: rect.width,
-                        height: rect.height,
-                        right: rect.right,
-                        bottom: rect.bottom
-                    }
-                }, '*');
+            if (hasImage) {
+                // Se tem imagem, abrir popup com opções
+                const rect = newElement.getBoundingClientRect();
+                
+                if (window.parent && window.parent.postMessage) {
+                    window.parent.postMessage({ 
+                        type: 'imageClick',
+                        imageRect: {
+                            left: rect.left,
+                            top: rect.top,
+                            width: rect.width,
+                            height: rect.height,
+                            right: rect.right,
+                            bottom: rect.bottom
+                        }
+                    }, '*');
+                }
+            } else {
+                // Se é placeholder (sem imagem), abrir seletor de arquivo diretamente
+                if (window.parent && window.parent.postMessage) {
+                    window.parent.postMessage({ 
+                        type: 'imagePlaceholderClick'
+                    }, '*');
+                }
             }
         });
     };

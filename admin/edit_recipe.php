@@ -1116,7 +1116,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Escutar clicks na imagem do preview
         window.addEventListener('message', function(event) {
             if (event.data.type === 'imageClick') {
+                // Se tem imagem, abrir popup com opções
                 openImageModal(event.data);
+            } else if (event.data.type === 'imagePlaceholderClick') {
+                // Se é placeholder (sem imagem), abrir seletor de arquivo diretamente
+                if (imageInput) {
+                    imageInput.click();
+                }
             }
         });
 
