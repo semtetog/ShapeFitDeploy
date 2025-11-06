@@ -83,33 +83,25 @@ $csrf_token = $_SESSION['csrf_token'];
     --surface-color: #1E1E1E;
 }
 
-/* 1. O CONTAINER PRINCIPAL USA FLEXBOX */
-.edit-recipe-container {
-    padding: 2rem !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-.edit-recipe-container .live-editor-container {
-    display: flex !important;
-    gap: 2rem !important; /* Espaço entre o celular e as configurações */
-    align-items: flex-start !important; /* Alinha os itens no topo */
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* 2. O PAINEL DO CELULAR (ESQUERDA) */
+/* 1. O PAINEL DO CELULAR (ESQUERDA) - A CHAVE DA SOLUÇÃO */
 .mobile-mockup-panel {
-    position: sticky !important; /* Fica fixo durante o scroll */
-    top: 2rem !important; /* Distância do topo */
-    width: 375px !important; /* Largura fixa para o mockup */
-    flex-shrink: 0 !important; /* Impede que o mockup encolha */
-    height: fit-content !important;
+    position: fixed !important; /* FIXO NA TELA, NÃO ROLA */
+    
+    /* Posição: Alinhado ao topo, com espaço para o header do admin */
+    top: 100px !important;
+    
+    /* Posição: Alinhado à esquerda, com espaço para o menu lateral principal */
+    left: calc(256px + 2rem) !important; /* 256px do seu menu + 2rem de espaço */
+    
+    width: 375px !important; /* LARGURA FIXA, NÃO MUDA COM ZOOM */
+    height: 750px !important; /* ALTURA FIXA */
+    
+    z-index: 10 !important; /* Garante que fique na frente de outros elementos */
 }
 
 .mobile-mockup-wrapper {
     width: 100% !important;
-    height: 750px !important;
+    height: 100% !important;
     padding: 12px !important;
     background: #1a1a1a !important;
     border-radius: 40px !important;
@@ -133,13 +125,16 @@ $csrf_token = $_SESSION['csrf_token'];
     display: block !important;
 }
 
-/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) */
+/* 2. O PAINEL DE CONFIGURAÇÕES (DIREITA) - A OUTRA CHAVE */
 .config-panel {
-    flex-grow: 1 !important; /* Ocupa todo o espaço restante */
+    /* Margem à esquerda para criar espaço para o celular fixo */
+    margin-left: calc(375px + 2rem) !important; /* Largura do celular + gap */
+    
     display: flex !important;
     flex-direction: column !important;
     gap: 2rem !important;
-    min-width: 0 !important; /* Correção de bug de overflow do flexbox */
+    padding: 2rem !important;
+    box-sizing: border-box !important;
 }
 
 /* ===== HEADER COM AÇÕES ===== */
@@ -667,21 +662,15 @@ input[type=number] {
     border-color: var(--accent-orange) !important;
 }
 
-/* ===== RESPONSIVIDADE ===== */
-@media (max-width: 992px) {
-    .edit-recipe-container .live-editor-container {
-        flex-direction: column !important;
-    }
-    
+/* RESPONSIVIDADE PARA TELAS MENORES */
+@media (max-width: 1200px) {
     .mobile-mockup-panel {
-        position: static !important;
-        width: 100% !important;
-        max-width: 375px !important;
-        margin: 0 auto 2rem auto !important;
+        display: none !important; /* Esconde o celular em telas menores */
     }
     
-    .mobile-mockup-wrapper {
-        height: 750px !important;
+    .config-panel {
+        margin-left: 0 !important; /* Remove a margem, painel ocupa tudo */
+        padding: 2rem !important;
     }
 }
 </style>
