@@ -364,8 +364,15 @@ input[type=number] {
 .checkbox-item {
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
+    gap: 0.75rem !important; /* Espaço entre checkbox, label e botão */
     margin-bottom: 0.5rem !important;
+    padding: 0.5rem !important;
+    border-radius: 8px !important;
+    transition: background 0.2s ease !important;
+}
+
+.checkbox-item:hover {
+    background: rgba(255, 255, 255, 0.03) !important;
 }
 
 .checkbox-item input[type="checkbox"] {
@@ -374,12 +381,13 @@ input[type=number] {
 }
 
 .checkbox-item label {
-    flex-grow: 1 !important;
+    flex: 1 !important; /* Ocupa espaço disponível mas não cresce demais */
     color: var(--text-secondary) !important;
     padding-left: 32px !important;
     position: relative !important;
     cursor: pointer !important;
     font-size: 0.9rem !important;
+    margin: 0 !important; /* Remove margens */
 }
 
 .checkbox-item label::before {
@@ -422,15 +430,38 @@ input[type=number] {
 }
 
 .btn-delete-category {
-    background: transparent !important;
-    border: none !important;
-    color: var(--text-secondary) !important;
+    background: rgba(244, 67, 54, 0.1) !important;
+    border: 1px solid rgba(244, 67, 54, 0.2) !important;
+    border-radius: 6px !important;
+    color: #F44336 !important;
     cursor: pointer !important;
-    opacity: 0.6 !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.2rem !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    opacity: 0.7 !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important; /* Não encolhe */
 }
 
-.checkbox-item:hover .btn-delete-category {
+.btn-delete-category:hover {
+    background: rgba(244, 67, 54, 0.2) !important;
+    border-color: rgba(244, 67, 54, 0.4) !important;
     opacity: 1 !important;
+    transform: scale(1.1) !important;
+}
+
+/* Mostra o botão delete apenas quando o checkbox está marcado */
+.checkbox-item:has(input[type="checkbox"]:checked) .btn-delete-category {
+    opacity: 1 !important;
+}
+
+.checkbox-item:has(input[type="checkbox"]:not(:checked)) .btn-delete-category {
+    opacity: 0.3 !important;
 }
 
 .btn, button.btn, a.btn {
