@@ -1608,9 +1608,18 @@ function initCustomSelect(selectId, inputId, submitForm) {
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
         const wrapper = customSelect.closest('.custom-select-wrapper');
+        const isOpening = !customSelect.classList.contains('active');
         customSelect.classList.toggle('active');
         if (wrapper) {
             wrapper.classList.toggle('active');
+        }
+        
+        // Se estiver abrindo, calcular posição fixed
+        if (isOpening && optionsContainer) {
+            const triggerRect = trigger.getBoundingClientRect();
+            optionsContainer.style.top = (triggerRect.bottom + 8) + 'px';
+            optionsContainer.style.left = triggerRect.left + 'px';
+            optionsContainer.style.width = triggerRect.width + 'px';
         }
     });
     
