@@ -402,49 +402,53 @@ include 'includes/header.php';
     white-space: nowrap;
 }
 
-/* SOBRESCREVE QUALQUER CSS GLOBAL QUE POSSA ESTAR CONFLITANDO */
+/* DROPDOWN SIMPLIFICADO - SEM TRANSPARÊNCIA, SEM BLUR, SEM TRANSIÇÕES */
 .custom-select-options {
-    /* NUNCA usa display: none - mantém elemento sempre renderizado */
     position: absolute !important;
     top: calc(100% + 8px) !important;
     left: 0 !important;
     right: 0 !important;
     z-index: 9999 !important;
-    background: rgba(35, 35, 35, 1) !important; /* Totalmente opaco desde o início */
-    /* backdrop-filter removido para evitar delay na renderização */
+    background: #232323 !important; /* Background sólido e opaco - SEM rgba */
     border: 1px solid var(--glass-border) !important;
     border-radius: 8px !important;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
     max-height: 250px !important;
     overflow-y: auto !important;
     box-sizing: border-box !important;
-    pointer-events: none !important; /* Desabilita cliques quando invisível */
-    will-change: transform !important;
-    transform: translateZ(0) !important; /* Força aceleração de hardware - SEM translateY */
-    -webkit-transform: translateZ(0) !important;
-    backface-visibility: hidden !important; /* Otimiza renderização */
-    -webkit-backface-visibility: hidden !important;
-    /* Usa visibility e opacity em vez de display para evitar reflow */
+    pointer-events: none !important;
+    display: block !important; /* SEMPRE renderizado */
     visibility: hidden !important;
     opacity: 0 !important;
-    transition: none !important; /* Remove QUALQUER transição que possa estar vindo de CSS global */
+    /* ZERO transições - remove TUDO */
+    transition: none !important;
     -webkit-transition: none !important;
     -moz-transition: none !important;
+    -ms-transition: none !important;
     -o-transition: none !important;
-    /* Remove qualquer transform que possa estar vindo de CSS global */
-    translate: none !important;
+    /* ZERO transforms que possam causar delay */
+    transform: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+    /* ZERO backdrop-filter */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 .custom-select.active .custom-select-options {
     visibility: visible !important;
     opacity: 1 !important;
-    pointer-events: auto !important; /* Habilita cliques quando visível */
-    transform: translateZ(0) !important; /* Mantém apenas translateZ, sem translateY */
-    -webkit-transform: translateZ(0) !important;
-    transition: none !important; /* Garante que não há transição */
+    pointer-events: auto !important;
+    /* Garante que não há transição mesmo quando ativo */
+    transition: none !important;
     -webkit-transition: none !important;
     -moz-transition: none !important;
+    -ms-transition: none !important;
     -o-transition: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
 }
 
 .custom-select-option {
@@ -1614,6 +1618,14 @@ function closeAllDropdowns(excludeSelect = null) {
             return;
         }
         
+        // Remove estilos inline primeiro
+        const optionsContainer = select.querySelector('.custom-select-options');
+        if (optionsContainer) {
+            optionsContainer.style.visibility = 'hidden';
+            optionsContainer.style.opacity = '0';
+            optionsContainer.style.pointerEvents = 'none';
+        }
+        
         select.classList.remove('active');
         const wrapper = select.closest('.custom-select-wrapper');
         if (wrapper) {
@@ -1656,50 +1668,36 @@ function initCustomSelect(selectId, inputId, submitForm) {
         const isOpening = !customSelect.classList.contains('active');
         
         if (isOpening) {
-            // PRIMEIRO fecha todos os outros dropdowns (para evitar sobreposição visual)
+            // Fecha todos os outros dropdowns PRIMEIRO
             closeAllDropdowns(customSelect);
             
-            // Aplica z-index do novo dropdown
+            // Aplica todas as classes de uma vez
             customSelect.classList.add('active');
             let card = null;
             if (wrapper) {
                 wrapper.classList.add('active');
-                // Adiciona classe no card pai para aumentar z-index
                 card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
                 if (card) {
                     card.classList.add('dropdown-active');
                 }
-                // Adiciona classe no container principal para desabilitar cliques nos cards
                 const mainContent = document.querySelector('.foods-main-content');
                 if (mainContent) {
                     mainContent.classList.add('dropdown-open');
                 }
             }
             
-            // FORÇA REFLOW COMPLETO DO NAVEGADOR para garantir que o background seja renderizado
-            // ANTES de tornar o dropdown visível - isso elimina a transparência
+            // FORÇA RENDERIZAÇÃO IMEDIATA - aplica estilos diretamente no elemento
             const optionsContainer = customSelect.querySelector('.custom-select-options');
             if (optionsContainer) {
-                // Força o navegador a calcular e renderizar o novo dropdown
-                // Usa getBoundingClientRect() que força um reflow completo
-                void optionsContainer.getBoundingClientRect();
-                if (wrapper) {
-                    void wrapper.getBoundingClientRect();
-                }
-                if (card) {
-                    void card.getBoundingClientRect();
-                }
-                // Força renderização do background e opacidade ANTES de tornar visível
+                // Aplica estilos diretamente para garantir renderização imediata
+                optionsContainer.style.visibility = 'visible';
+                optionsContainer.style.opacity = '1';
+                optionsContainer.style.pointerEvents = 'auto';
+                optionsContainer.style.background = '#232323'; // Background sólido
+                
+                // Força reflow para garantir que o background seja renderizado
                 void optionsContainer.offsetHeight;
-                void optionsContainer.offsetWidth;
-                // Força renderização do background especificamente
-                const computedStyle = window.getComputedStyle(optionsContainer);
-                void computedStyle.backgroundColor;
-                void computedStyle.opacity;
             }
-            
-            // Agora torna o dropdown visível (já está totalmente renderizado)
-            // A classe 'active' já foi aplicada, então visibility e opacity já estão corretos
         } else {
             // Fechando o dropdown
             customSelect.classList.remove('active');
