@@ -381,6 +381,16 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     flex: 1;
     min-width: 0;
     padding-right: 8px;
+    cursor: text;
+    outline: none;
+}
+
+.recipe-ingredient-list li .ingredient-text-content:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: -2px -4px;
 }
 
 .recipe-ingredient-list li .btn-remove-ingredient-inline {
