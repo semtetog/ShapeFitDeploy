@@ -148,7 +148,7 @@ $csrf_token = $_SESSION['csrf_token'];
 .config-panel {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 3rem; /* Aumenta espaçamento entre os cards */
     flex-grow: 1; /* Força ocupar todo espaço disponível */
     flex-basis: 0; /* Permite crescer sem restrições */
     width: auto; /* Em vez de width 100% */
