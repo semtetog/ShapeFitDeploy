@@ -82,7 +82,11 @@ $csrf_token = $_SESSION['csrf_token'];
     
     --sidebar-width: 256px;
     --layout-gap: 2rem;
-    --mockup-width: 410px; /* Aumentado de 375px para melhor visualização */
+    
+    /* A MÁGICA ESTÁ AQUI: O tamanho é baseado na altura da tela (vh) */
+    /* Isso mantém a proporção de um celular, independente da largura ou zoom */
+    --mockup-height: 85vh; /* Ocupa 85% da altura da tela */
+    --mockup-width: calc(var(--mockup-height) / 2); /* Largura é metade da altura (proporção ~2:1) */
 }
 
 /* 1. O CONTAINER PRINCIPAL */
@@ -95,16 +99,23 @@ $csrf_token = $_SESSION['csrf_token'];
     box-sizing: border-box !important;
 }
 
-/* 2. O PAINEL DO CELULAR - A MÁGICA FINAL */
+/* 2. O PAINEL DO CELULAR (ESQUERDA) - FIXO E COM TAMANHO RELATIVO À ALTURA */
 .mobile-mockup-panel {
     position: fixed !important;
     
-    /* Centraliza na vertical com espaços iguais */
-    top: var(--layout-gap) !important;
-    bottom: var(--layout-gap) !important;
+    /* Centralização vertical perfeita */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
     
     left: calc(var(--sidebar-width) + var(--layout-gap)) !important;
+    
+    /* USA AS VARIÁVEIS DE VIEWPORT */
     width: var(--mockup-width) !important;
+    height: var(--mockup-height) !important;
+    
+    /* Define um tamanho máximo para não ficar gigante em monitores ultrawide */
+    max-width: 410px !important;
+    max-height: 820px !important;
     
     z-index: 10 !important;
 }
