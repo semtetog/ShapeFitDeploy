@@ -1029,6 +1029,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reconfigurar botão de remover
             const removeBtn = newItem.querySelector('.btn-remove-ingredient-inline');
             if (removeBtn) {
+                removeBtn.style.cssText = 'float: right; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 0; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1;';
+                removeBtn.addEventListener('mouseenter', function() {
+                    this.style.opacity = '1';
+                });
+                removeBtn.addEventListener('mouseleave', function() {
+                    this.style.opacity = '0.5';
+                });
                 removeBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     newItem.remove();
