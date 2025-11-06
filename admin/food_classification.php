@@ -1781,6 +1781,12 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('click', function(e) {
         // Se clicar fora de qualquer dropdown, fecha todos
         if (!e.target.closest('.custom-select')) {
+            // Remove estilos inline de todos os dropdowns
+            document.querySelectorAll('.custom-select-options').forEach(optionsContainer => {
+                optionsContainer.style.visibility = 'hidden';
+                optionsContainer.style.opacity = '0';
+                optionsContainer.style.pointerEvents = 'none';
+            });
             closeAllDropdowns();
         }
     });
@@ -1788,6 +1794,12 @@ function initCustomSelect(selectId, inputId, submitForm) {
     // Fecha com a tecla Esc
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
+            // Remove estilos inline de todos os dropdowns
+            document.querySelectorAll('.custom-select-options').forEach(optionsContainer => {
+                optionsContainer.style.visibility = 'hidden';
+                optionsContainer.style.opacity = '0';
+                optionsContainer.style.pointerEvents = 'none';
+            });
             closeAllDropdowns();
         }
     });
