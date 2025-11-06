@@ -517,7 +517,7 @@ input[type=number] {
 /* Ajuste específico para zoom 100% - reduz gap entre celular e menu */
 @media (min-height: 900px) and (max-height: 1100px) {
     .edit-recipe-container {
-        padding-left: calc(var(--mockup-width) + 1.5rem) !important;
+        padding-left: calc(var(--mockup-width) + 1rem) !important;
     }
 }
 
