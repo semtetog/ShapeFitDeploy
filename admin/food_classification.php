@@ -403,7 +403,7 @@ include 'includes/header.php';
 }
 
 .custom-select-options {
-    display: none;
+    /* NUNCA usa display: none - mantém elemento sempre renderizado */
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
@@ -417,19 +417,22 @@ include 'includes/header.php';
     max-height: 250px;
     overflow-y: auto;
     box-sizing: border-box;
-    pointer-events: auto;
+    pointer-events: none; /* Desabilita cliques quando invisível */
     will-change: transform;
-    opacity: 1 !important; /* Força opacidade total */
-    transition: none !important; /* Remove qualquer transição */
     transform: translateZ(0); /* Força aceleração de hardware */
     -webkit-transform: translateZ(0);
     backface-visibility: hidden; /* Otimiza renderização */
     -webkit-backface-visibility: hidden;
+    /* Usa visibility e opacity em vez de display para evitar reflow */
+    visibility: hidden;
+    opacity: 0;
+    transition: none !important; /* Remove qualquer transição */
 }
 
 .custom-select.active .custom-select-options {
-    display: block;
-    opacity: 1 !important; /* Garante opacidade total quando ativo */
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important; /* Habilita cliques quando visível */
 }
 
 .custom-select-option {
@@ -1641,7 +1644,10 @@ function initCustomSelect(selectId, inputId, submitForm) {
         const isOpening = !customSelect.classList.contains('active');
         
         if (isOpening) {
-            // Aplica z-index do novo dropdown PRIMEIRO (antes de fechar os outros)
+            // PRIMEIRO fecha todos os outros dropdowns (para evitar sobreposição visual)
+            closeAllDropdowns(customSelect);
+            
+            // Aplica z-index do novo dropdown
             customSelect.classList.add('active');
             let card = null;
             if (wrapper) {
@@ -1658,8 +1664,8 @@ function initCustomSelect(selectId, inputId, submitForm) {
                 }
             }
             
-            // FORÇA REFLOW COMPLETO DO NAVEGADOR para garantir que o z-index seja aplicado
-            // antes de fechar os outros dropdowns - isso elimina o "piscar"
+            // FORÇA REFLOW COMPLETO DO NAVEGADOR para garantir que o background seja renderizado
+            // ANTES de tornar o dropdown visível - isso elimina a transparência
             const optionsContainer = customSelect.querySelector('.custom-select-options');
             if (optionsContainer) {
                 // Força o navegador a calcular e renderizar o novo dropdown
@@ -1671,13 +1677,17 @@ function initCustomSelect(selectId, inputId, submitForm) {
                 if (card) {
                     void card.getBoundingClientRect();
                 }
-                // Força renderização do background e opacidade
+                // Força renderização do background e opacidade ANTES de tornar visível
                 void optionsContainer.offsetHeight;
                 void optionsContainer.offsetWidth;
+                // Força renderização do background especificamente
+                const computedStyle = window.getComputedStyle(optionsContainer);
+                void computedStyle.backgroundColor;
+                void computedStyle.opacity;
             }
             
-            // Agora fecha todos os outros dropdowns (o novo já está renderizado com z-index alto)
-            closeAllDropdowns(customSelect);
+            // Agora torna o dropdown visível (já está totalmente renderizado)
+            // A classe 'active' já foi aplicada, então visibility e opacity já estão corretos
         } else {
             // Fechando o dropdown
             customSelect.classList.remove('active');
