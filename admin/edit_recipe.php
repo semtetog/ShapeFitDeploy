@@ -659,33 +659,33 @@ input[type=number] {
                 <div class="dashboard-card">
                     <div class="section-header">
                         <h4><i class="fas fa-calculator"></i> Cálculo Nutricional</h4>
-                </div>
-                    
+                    </div>
+
                     <div class="calculation-tool">
                         <label class="calculation-label">1. Preencha os dados da sua receita pronta:</label>
-                        <div class="form-group-grid-2">
-                            <div class="form-group">
-                                <label for="helper_total_weight">Peso Total da Receita (g)</label>
-                                <input type="number" id="helper_total_weight" class="form-control" placeholder="Ex: 1200">
-            </div>
-                            <div class="form-group">
-                                <label for="servings">Rendimento (Nº de Porções)</label>
-                                <input type="number" id="servings" name="servings" class="form-control" value="<?php echo htmlspecialchars($recipe['servings'] ?? '1'); ?>" step="1" min="1" placeholder="Ex: 4">
+                            <div class="form-group-grid-2">
+                                <div class="form-group">
+                                    <label for="helper_total_weight">Peso Total da Receita (g)</label>
+                                    <input type="number" id="helper_total_weight" class="form-control" placeholder="Ex: 1200">
+                                </div>
+                                <div class="form-group">
+                                    <label for="servings">Rendimento (Nº de Porções)</label>
+                                    <input type="number" id="servings" name="servings" class="form-control" value="<?php echo htmlspecialchars($recipe['servings'] ?? '1'); ?>" step="1" min="1" placeholder="Ex: 4">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="serving_size_g">2. Peso Final por Porção (calculado)</label>
+                        <div class="form-group">
+                            <label for="serving_size_g">2. Peso Final por Porção (calculado)</label>
                         <input type="number" id="serving_size_g" name="serving_size_g" class="form-control form-control-readonly" 
-                               value="<?php echo htmlspecialchars($recipe['serving_size_g'] ?? ''); ?>" 
+                                   value="<?php echo htmlspecialchars($recipe['serving_size_g'] ?? ''); ?>" 
                                step="0.01" readonly>
                         <small class="field-help">Este valor é calculado automaticamente a partir do Peso Total e do Rendimento.</small>
-                    </div>
-                    
+                        </div>
+                        
                     <hr class="section-divider">
 
-                    <div class="form-group-grid-2">
+                         <div class="form-group-grid-2">
                         <div class="form-group">
                             <label>Calorias (kcal)</label>
                             <input type="text" id="kcal_per_serving" name="kcal_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['kcal_per_serving'] ?? ''); ?>" placeholder="0">
@@ -693,15 +693,15 @@ input[type=number] {
                         <div class="form-group">
                             <label>Carboidratos (g)</label>
                             <input type="text" id="carbs_g_per_serving" name="carbs_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['carbs_g_per_serving'] ?? ''); ?>" placeholder="0">
-                        </div>
+                    </div>
                         <div class="form-group">
                             <label>Gorduras (g)</label>
                             <input type="text" id="fat_g_per_serving" name="fat_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['fat_g_per_serving'] ?? ''); ?>" placeholder="0">
-                        </div>
+                </div>
                         <div class="form-group">
                             <label>Proteínas (g)</label>
                             <input type="text" id="protein_g_per_serving" name="protein_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['protein_g_per_serving'] ?? ''); ?>" placeholder="0">
-                        </div>
+            </div>
                     </div>
                     <div class="form-group-grid-2">
                         <div class="form-group">
@@ -1143,71 +1143,34 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Função para atualizar ingredientes
-        function handleIngredientUpdates() { 
-            const ingredients = [];
-            document.querySelectorAll('.ingredient-row').forEach(row => {
-                const description = row.querySelector('input[name="ingredient_description[]"]').value;
-                const quantity = row.querySelector('input[name="ingredient_quantity[]"]').value;
-                const unit = row.querySelector('select[name="ingredient_unit[]"]').value;
-                
-                let ingredientText = description;
-                if (quantity && unit) {
-                    ingredientText = quantity + ' ' + unit + ' de ' + description;
-                } else if (description) {
-                    ingredientText = description;
-                }
-                
-                if (ingredientText.trim()) {
-                ingredients.push(ingredientText);
-                }
-            });
-            updatePreview('updateIngredients', ingredients); 
-        }
-        
-        // Função para anexar listeners aos ingredientes
-        function attachIngredientListeners(row) { 
-            row.querySelectorAll('input, select').forEach(input => {
-                input.addEventListener('input', handleIngredientUpdates);
-                input.addEventListener('change', handleIngredientUpdates);
-            });
+        // Sincronizar ingredientes do preview para inputs hidden
+        function syncIngredientsToHiddenInputs(ingredients) {
+            const container = document.getElementById('ingredients-hidden-container');
+            if (!container) return;
             
-            const removeBtn = row.querySelector('.btn-remove-ingredient');
-            if (removeBtn) {
-                removeBtn.addEventListener('click', () => { 
-                if (document.querySelectorAll('.ingredient-row').length > 1) { 
-                    row.remove(); 
-                    handleIngredientUpdates(); 
-                } 
-            }); 
-        }
+            // Limpar inputs anteriores
+            container.innerHTML = '';
+            
+            // Criar inputs hidden para cada ingrediente
+            if (ingredients && ingredients.length > 0) {
+                ingredients.forEach((ingredient) => {
+                    if (ingredient.trim()) {
+                        // Criar input hidden para o ingrediente completo (formato texto simples)
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ingredients[]';
+                        input.value = ingredient.trim();
+                        container.appendChild(input);
+                    }
+                });
+            }
         }
         
-        // Anexar listeners aos ingredientes existentes
-        document.querySelectorAll('.ingredient-row').forEach(attachIngredientListeners);
-        
-        // Botão para adicionar ingrediente
-        document.getElementById('btn-add-ingredient')?.addEventListener('click', () => { 
-            const container = document.getElementById('ingredients-container'); 
-            const newRow = document.createElement('div'); 
-            newRow.className = 'ingredient-row'; 
-            newRow.innerHTML = `
-                <input type="text" name="ingredient_description[]" class="form-control" placeholder="Ex: Farinha de trigo">
-                <input type="number" name="ingredient_quantity[]" class="form-control" placeholder="Quantidade" step="0.01">
-                <select name="ingredient_unit[]" class="form-control">
-                    <option value="">Unidade</option>
-                    <option value="g">g (gramas)</option>
-                    <option value="kg">kg (quilogramas)</option>
-                    <option value="ml">ml (mililitros)</option>
-                    <option value="l">l (litros)</option>
-                    <option value="xícara">xícara (240ml)</option>
-                    <option value="colher_sopa">colher de sopa (15ml)</option>
-                    <option value="colher_cha">colher de chá (5ml)</option>
-                </select>
-                <button type="button" class="btn-remove-ingredient" title="Remover">×</button>
-            `; 
-            container.appendChild(newRow); 
-            attachIngredientListeners(newRow); 
+        // Escutar atualizações de ingredientes do preview
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'updateIngredients') {
+                syncIngredientsToHiddenInputs(event.data.value);
+            }
         });
         
         // Atualizar imagem quando selecionada
