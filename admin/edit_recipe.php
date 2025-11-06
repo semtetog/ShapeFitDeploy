@@ -96,7 +96,7 @@ $csrf_token = $_SESSION['csrf_token'];
     /* Padding à esquerda para criar espaço onde o celular fixo fica */
     /* O main-content já tem margin-left: 256px (sidebar), então só precisamos: mockup-width + gap */
     padding-left: calc(var(--mockup-width) + var(--layout-gap));
-    padding-right: var(--layout-gap);
+    padding-right: calc(var(--layout-gap) * 2); /* Um pouco mais de espaço à direita */
     width: calc(100vw - var(--sidebar-width)); /* Ocupa toda largura disponível menos o sidebar */
     max-width: none; /* Remove restrição e deixa expandir até a borda */
     box-sizing: border-box;
