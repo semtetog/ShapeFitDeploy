@@ -99,6 +99,13 @@ include 'includes/header.php';
 /*       FOOD CLASSIFICATION PAGE - DESIGN LIMPO E MODERNO                    */
 /* ========================================================================= */
 
+/* Anti-aliasing de fontes para evitar serrilhado */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
 .foods-classification-page {
     padding: 1.5rem 2rem !important;
     min-height: 100vh;
@@ -162,6 +169,9 @@ include 'includes/header.php';
     font-weight: 600 !important;
     color: var(--category-color) !important;
     margin: 0 0 0.75rem 0 !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 .category-item-info {
@@ -574,7 +584,6 @@ include 'includes/header.php';
     background: var(--accent-orange);
     border-color: var(--accent-orange);
     color: white;
-    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4);
 }
 
 .food-item-checkbox:checked ~ .food-item-content {
@@ -600,6 +609,9 @@ include 'includes/header.php';
     min-height: 3rem;
     display: flex;
     align-items: flex-start;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 .food-item-brand {
@@ -636,6 +648,9 @@ include 'includes/header.php';
     letter-spacing: 0.5px !important;
     margin-bottom: 0.5rem !important;
     font-weight: 600 !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 .food-item-macro-value {
@@ -643,6 +658,9 @@ include 'includes/header.php';
     font-weight: 700 !important;
     color: var(--text-primary) !important;
     line-height: 1.2 !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 /* Categorias atuais */
@@ -664,6 +682,9 @@ include 'includes/header.php';
     font-size: 0.75rem !important;
     font-weight: 600 !important;
     white-space: nowrap !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 .food-category-badge i {
@@ -711,13 +732,11 @@ include 'includes/header.php';
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
-.food-category-btn {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
 
 .food-category-btn:hover {
     background: var(--category-color) !important;
@@ -1029,61 +1048,61 @@ include 'includes/header.php';
         <div class="dashboard-card categories-sidebar">
             <h3>Categorias</h3>
             <p>Clique para classificar</p>
-            
-            <?php 
-            // Definir unidades e exemplos para cada categoria
-            $category_units = [
-                'líquido' => ['ml', 'l', 'cs', 'cc', 'xc'],
-                'semi_liquido' => ['g', 'ml', 'cs', 'cc', 'xc'],
-                'granular' => ['g', 'kg', 'cs', 'cc', 'xc'],
-                'unidade_inteira' => ['un', 'g', 'kg'],
-                'fatias_pedacos' => ['fat', 'g', 'kg'],
-                'corte_porcao' => ['g', 'kg', 'un'],
-                'colher_cremoso' => ['cs', 'cc', 'g'],
-                'condimentos' => ['cc', 'cs', 'g'],
-                'oleos_gorduras' => ['cs', 'cc', 'ml', 'l'],
-                'preparacoes_compostas' => ['g', 'kg', 'un']
-            ];
-            
-            $category_examples = [
-                'líquido' => ['Água', 'Suco', 'Leite', 'Refrigerante', 'Café'],
-                'semi_liquido' => ['Iogurte', 'Pudim', 'Mingau', 'Vitamina', 'Abacate'],
-                'granular' => ['Arroz', 'Feijão', 'Açúcar', 'Sal', 'Farinha'],
-                'unidade_inteira' => ['Maçã', 'Banana', 'Ovo', 'Pão', 'Biscoito'],
-                'fatias_pedacos' => ['Queijo', 'Presunto', 'Tomate', 'Cenoura', 'Batata'],
-                'corte_porcao' => ['Carne', 'Frango', 'Peixe', 'Lasanha', 'Pizza'],
-                'colher_cremoso' => ['Manteiga', 'Cream Cheese', 'Doce de Leite', 'Maionese'],
-                'condimentos' => ['Sal', 'Pimenta', 'Açúcar', 'Canela', 'Orégano'],
-                'oleos_gorduras' => ['Azeite', 'Óleo', 'Manteiga', 'Margarina', 'Banha'],
-                'preparacoes_compostas' => ['Lasanha', 'Pizza', 'Bolo', 'Torta', 'Sopa']
-            ];
-            
-            // Nomes das unidades
-            $unit_names = [
-                'ml' => 'Mililitro',
-                'l' => 'Litro', 
-                'cs' => 'Colher de Sopa',
-                'cc' => 'Colher de Chá',
-                'xc' => 'Xícara',
-                'g' => 'Grama',
-                'kg' => 'Quilograma',
-                'un' => 'Unidade',
-                'fat' => 'Fatia'
-            ];
-            
-            foreach ($categories as $key => $cat): 
-                $units = $category_units[$key] ?? [];
-                $examples = $category_examples[$key] ?? [];
-            ?>
+        
+        <?php 
+        // Definir unidades e exemplos para cada categoria
+        $category_units = [
+            'líquido' => ['ml', 'l', 'cs', 'cc', 'xc'],
+            'semi_liquido' => ['g', 'ml', 'cs', 'cc', 'xc'],
+            'granular' => ['g', 'kg', 'cs', 'cc', 'xc'],
+            'unidade_inteira' => ['un', 'g', 'kg'],
+            'fatias_pedacos' => ['fat', 'g', 'kg'],
+            'corte_porcao' => ['g', 'kg', 'un'],
+            'colher_cremoso' => ['cs', 'cc', 'g'],
+            'condimentos' => ['cc', 'cs', 'g'],
+            'oleos_gorduras' => ['cs', 'cc', 'ml', 'l'],
+            'preparacoes_compostas' => ['g', 'kg', 'un']
+        ];
+        
+        $category_examples = [
+            'líquido' => ['Água', 'Suco', 'Leite', 'Refrigerante', 'Café'],
+            'semi_liquido' => ['Iogurte', 'Pudim', 'Mingau', 'Vitamina', 'Abacate'],
+            'granular' => ['Arroz', 'Feijão', 'Açúcar', 'Sal', 'Farinha'],
+            'unidade_inteira' => ['Maçã', 'Banana', 'Ovo', 'Pão', 'Biscoito'],
+            'fatias_pedacos' => ['Queijo', 'Presunto', 'Tomate', 'Cenoura', 'Batata'],
+            'corte_porcao' => ['Carne', 'Frango', 'Peixe', 'Lasanha', 'Pizza'],
+            'colher_cremoso' => ['Manteiga', 'Cream Cheese', 'Doce de Leite', 'Maionese'],
+            'condimentos' => ['Sal', 'Pimenta', 'Açúcar', 'Canela', 'Orégano'],
+            'oleos_gorduras' => ['Azeite', 'Óleo', 'Manteiga', 'Margarina', 'Banha'],
+            'preparacoes_compostas' => ['Lasanha', 'Pizza', 'Bolo', 'Torta', 'Sopa']
+        ];
+        
+        // Nomes das unidades
+        $unit_names = [
+            'ml' => 'Mililitro',
+            'l' => 'Litro', 
+            'cs' => 'Colher de Sopa',
+            'cc' => 'Colher de Chá',
+            'xc' => 'Xícara',
+            'g' => 'Grama',
+            'kg' => 'Quilograma',
+            'un' => 'Unidade',
+            'fat' => 'Fatia'
+        ];
+        
+        foreach ($categories as $key => $cat): 
+            $units = $category_units[$key] ?? [];
+            $examples = $category_examples[$key] ?? [];
+        ?>
                 <div class="category-item" data-category="<?= $key ?>" style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
                     <h4 class="category-item-name"><?= $cat['name'] ?></h4>
                     <div class="category-item-info">
                         <strong>Exemplos:</strong> <?= implode(', ', $examples) ?><br>
                         <strong>Unidades:</strong> <?= implode(', ', array_map(fn($u) => $unit_names[$u] ?? $u, $units)) ?>
-                    </div>
                 </div>
-            <?php endforeach; ?>
-        </div>
+                </div>
+                        <?php endforeach; ?>
+                    </div>
 
         <!-- CONTEÚDO PRINCIPAL (LADO DIREITO) -->
         <div class="foods-main-content">
@@ -1093,7 +1112,7 @@ include 'includes/header.php';
                     <h2>Alimentos</h2>
                     <p>Gerencie e classifique todos os alimentos do sistema</p>
                 </div>
-
+                
                 <!-- Estatísticas Simplificadas -->
                 <div class="foods-stats-simple">
                     <div class="foods-stat-item">
@@ -1103,27 +1122,27 @@ include 'includes/header.php';
                     <div class="foods-stat-item">
                         <span class="foods-stat-label">Classificados:</span>
                         <span class="foods-stat-number" id="classified-count"><?= $classified_count ?></span>
-                    </div>
+                </div>
                     <div class="foods-stat-item">
                         <span class="foods-stat-label">Restantes:</span>
                         <span class="foods-stat-number" id="remaining-count"><?= $total_items - $classified_count ?></span>
-                    </div>
-                </div>
+            </div>
+    </div>
 
                 <!-- Legenda -->
                 <div class="foods-legend">
                     <div class="legend-item">
                         <div class="legend-indicator classified"></div>
                         <span class="legend-text">Borda verde = Categorizado</span>
-                    </div>
+        </div>
                     <div class="legend-item">
                         <div class="legend-indicator unclassified"></div>
                         <span class="legend-text">Borda vermelha = Não categorizado</span>
-                    </div>
-                </div>
             </div>
+            </div>
+        </div>
 
-            <!-- Filtros -->
+        <!-- Filtros -->
             <div class="dashboard-card foods-filter-card">
                 <h3 class="foods-filter-title">Buscar</h3>
                 <form method="GET" class="foods-filter-row">
@@ -1134,38 +1153,38 @@ include 'includes/header.php';
                            placeholder="Nome do alimento...">
                     <select class="foods-category-select" name="category">
                         <option value="">Todas as categorias</option>
-                        <?php foreach ($categories as $key => $cat): ?>
-                            <option value="<?= $key ?>" <?= $category_filter === $key ? 'selected' : '' ?>>
+                    <?php foreach ($categories as $key => $cat): ?>
+                        <option value="<?= $key ?>" <?= $category_filter === $key ? 'selected' : '' ?>>
                                 <?= $cat['name'] ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
                     <button type="submit" class="foods-filter-btn">Buscar</button>
                     <?php if (!empty($search) || !empty($category_filter)): ?>
                     <a href="food_classification.php" class="foods-clear-btn">Limpar</a>
                     <?php endif; ?>
-                </form>
-            </div>
+            </form>
+        </div>
 
-            <!-- Ações em Lote -->
+        <!-- Ações em Lote -->
             <div class="dashboard-card foods-bulk-card">
                 <h3 class="foods-bulk-title">Ações em Lote</h3>
                 <div class="foods-bulk-controls">
                     <select class="foods-bulk-select" id="bulk-category">
-                        <option value="">Selecione uma categoria</option>
-                        <?php foreach ($categories as $key => $cat): ?>
+                    <option value="">Selecione uma categoria</option>
+                    <?php foreach ($categories as $key => $cat): ?>
                             <option value="<?= $key ?>"><?= $cat['name'] ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                    <?php endforeach; ?>
+                </select>
                     <button class="foods-bulk-btn" onclick="applyBulkClassification()" id="bulk-btn" disabled>
-                        Aplicar aos Selecionados
-                    </button>
+                    Aplicar aos Selecionados
+                </button>
                     <label class="foods-select-all">
                         <input type="checkbox" id="select-all">
-                        Selecionar Todos
-                    </label>
-                </div>
+                    Selecionar Todos
+                </label>
             </div>
+        </div>
 
             <!-- Grid de Alimentos -->
             <?php if (empty($foods)): ?>
@@ -1176,8 +1195,8 @@ include 'includes/header.php';
                     <?php endif; ?>
                 </div>
             <?php else: ?>
-                <div class="foods-grid" id="foods-list">
-                    <?php foreach ($foods as $food): ?>
+        <div class="foods-grid" id="foods-list">
+            <?php foreach ($foods as $food): ?>
                         <div class="food-item-card <?= !empty($food['categories']) ? 'classified' : 'unclassified' ?>" data-food-id="<?= $food['id'] ?>">
                             <input type="checkbox" class="food-item-checkbox" value="<?= $food['id'] ?>">
                             <div class="food-item-checkbox-indicator">
@@ -1188,62 +1207,62 @@ include 'includes/header.php';
                                 <h4 class="food-item-name"><?= htmlspecialchars($food['name_pt']) ?></h4>
                                 
                                 <div class="food-item-brand">
-                                    <?php if (!empty($food['brand']) && $food['brand'] !== 'TACO'): ?>
+                                <?php if (!empty($food['brand']) && $food['brand'] !== 'TACO'): ?>
                                         <?= htmlspecialchars($food['brand']) ?>
-                                    <?php endif; ?>
-                                </div>
+                                <?php endif; ?>
+                            </div>
                                 
                                 <div class="food-item-macros">
                                     <div class="food-item-macro">
                                         <div class="food-item-macro-label">Cal.</div>
                                         <div class="food-item-macro-value"><?= number_format($food['energy_kcal_100g'], 0) ?>kcal</div>
-                                    </div>
+                                </div>
                                     <div class="food-item-macro">
                                         <div class="food-item-macro-label">Prot.</div>
                                         <div class="food-item-macro-value"><?= number_format($food['protein_g_100g'], 1) ?>g</div>
-                                    </div>
+                                </div>
                                     <div class="food-item-macro">
                                         <div class="food-item-macro-label">Carb.</div>
                                         <div class="food-item-macro-value"><?= number_format($food['carbohydrate_g_100g'], 1) ?>g</div>
-                                    </div>
+                                </div>
                                     <div class="food-item-macro">
                                         <div class="food-item-macro-label">Gord.</div>
                                         <div class="food-item-macro-value"><?= number_format($food['fat_g_100g'], 1) ?>g</div>
-                                    </div>
                                 </div>
+                            </div>
                                 
                                 <div class="food-item-categories" 
-                                     id="category-display-<?= $food['id'] ?>" 
-                                     data-categories="<?= htmlspecialchars($food['categories'] ?? '') ?>">
-                                    <?php 
-                                    if (!empty($food['categories'])) {
-                                        $food_categories = explode(',', $food['categories']);
-                                        $tagsHtml = '';
-                                        foreach ($food_categories as $cat_key) {
-                                            if (isset($categories[$cat_key])) {
-                                                $cat_info = $categories[$cat_key];
-                                                $tagsHtml .= sprintf(
+                                 id="category-display-<?= $food['id'] ?>" 
+                                 data-categories="<?= htmlspecialchars($food['categories'] ?? '') ?>">
+                                <?php 
+                                if (!empty($food['categories'])) {
+                                    $food_categories = explode(',', $food['categories']);
+                                    $tagsHtml = '';
+                                    foreach ($food_categories as $cat_key) {
+                                        if (isset($categories[$cat_key])) {
+                                            $cat_info = $categories[$cat_key];
+                                            $tagsHtml .= sprintf(
                                                     '<span class="food-category-badge" style="background: %s20; color: %s; border: 1px solid %s40;">%s</span>',
                                                     $cat_info['color'], $cat_info['color'], $cat_info['color'], $cat_info['name']
-                                                );
-                                            }
+                                            );
                                         }
-                                        echo $tagsHtml;
-                                    } else {
-                                        echo '<span class="food-unclassified-badge">Não classificado</span>';
                                     }
-                                    ?>
-                                </div>
+                                    echo $tagsHtml;
+                                } else {
+                                        echo '<span class="food-unclassified-badge">Não classificado</span>';
+                                }
+                                ?>
+                            </div>
                                 
                                 <div class="food-item-actions">
-                                    <?php foreach ($categories as $key => $cat): ?>
+                                <?php foreach ($categories as $key => $cat): ?>
                                         <button class="food-category-btn" 
-                                                data-food-id="<?= $food['id'] ?>"
-                                                data-category="<?= $key ?>"
-                                                style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
+                                            data-food-id="<?= $food['id'] ?>"
+                                            data-category="<?= $key ?>"
+                                            style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
                                             <?= $cat['name'] ?>
-                                        </button>
-                                    <?php endforeach; ?>
+                                    </button>
+                                <?php endforeach; ?>
                                 </div>
                                 
                                 <button class="food-units-btn <?= empty($food['categories']) ? 'disabled' : '' ?>" 
@@ -1251,10 +1270,10 @@ include 'includes/header.php';
                                         onclick="openUnitsEditor(<?= $food['id'] ?>, '<?= htmlspecialchars($food['name_pt']) ?>', getFoodCategories(<?= $food['id'] ?>))">
                                     Unidades
                                 </button>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                    </div>
                 </div>
+            <?php endforeach; ?>
+        </div>
 
                 <!-- Paginação -->
                 <?php if ($total_pages > 1): ?>
@@ -1263,13 +1282,13 @@ include 'includes/header.php';
                             Mostrando <?= ($offset + 1) ?> - <?= min($offset + $per_page, $total_items) ?> de <?= number_format($total_items) ?> alimentos
                         </div>
                         <div class="foods-pagination-controls">
-                                <?php if ($page > 1): ?>
+                <?php if ($page > 1): ?>
                                 <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
                                    class="foods-pagination-btn">
                                     Anterior
                                 </a>
-                            <?php endif; ?>
-                            
+                <?php endif; ?>
+                
                             <div class="foods-pagination-numbers">
                                 <?php
                                 $start_page = max(1, $page - 2);
@@ -1284,35 +1303,35 @@ include 'includes/header.php';
                                 <?php endif; ?>
                                 
                                 <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                                    <?php if ($i == $page): ?>
+                    <?php if ($i == $page): ?>
                                         <span class="foods-pagination-number current"><?= $i ?></span>
-                                    <?php else: ?>
+                    <?php else: ?>
                                         <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
                                            class="foods-pagination-number"><?= $i ?></a>
-                                    <?php endif; ?>
-                                <?php endfor; ?>
-                                
+                    <?php endif; ?>
+                <?php endfor; ?>
+                
                                 <?php if ($end_page < $total_pages): ?>
                                     <?php if ($end_page < $total_pages - 1): ?>
                                         <span class="foods-pagination-ellipsis">...</span>
-                                    <?php endif; ?>
+                <?php endif; ?>
                                     <a href="?page=<?= $total_pages ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
                                        class="foods-pagination-number"><?= $total_pages ?></a>
-                                <?php endif; ?>
-                            </div>
-                            
+        <?php endif; ?>
+</div>
+
                             <?php if ($page < $total_pages): ?>
                                 <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
                                    class="foods-pagination-btn">
                                     Próxima
                                 </a>
                             <?php endif; ?>
-                        </div>
-                    </div>
+      </div>
+    </div>
                 <?php endif; ?>
             <?php endif; ?>
-        </div>
     </div>
+  </div>
 </div>
 
 <!-- Auto-save indicator -->
