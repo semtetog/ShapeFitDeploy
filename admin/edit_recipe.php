@@ -519,9 +519,34 @@ input[type=number] {
 
 .btn-add-circular:active {
     transform: scale(0.95) !important;
-    transition: all 0.3s ease !important;
 }
 
+.add-category-feedback {
+    display: none;
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    color: #F44336;
+    backdrop-filter: blur(10px);
+}
+
+.add-category-feedback.success {
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    color: #4CAF50;
+}
+
+.add-category-feedback.error {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    color: #F44336;
+}
 
 .section-divider {
     border: none !important;
@@ -790,7 +815,7 @@ input[type=number] {
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <span id="add-category-feedback" class="add-category-feedback"></span>
+                    <div id="add-category-feedback" class="add-category-feedback"></div>
                 </div>
             </div>
         </div>
@@ -1231,7 +1256,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const showFeedback = (message, type = 'error') => {
         feedbackSpan.textContent = message;
         feedbackSpan.className = `add-category-feedback ${type}`;
-        setTimeout(() => { feedbackSpan.textContent = ''; }, 4000);
+        feedbackSpan.style.display = 'block';
+        setTimeout(() => { 
+            feedbackSpan.textContent = '';
+            feedbackSpan.style.display = 'none';
+        }, 4000);
     };
 
     const createCategory = () => {
