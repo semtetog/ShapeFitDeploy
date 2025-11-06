@@ -738,6 +738,8 @@ const updateIngredients = (ingredients) => {
                 removeBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     e.preventDefault();
+                    // Prevenir que o blur do contenteditable seja acionado
+                    textSpan.blur();
                     li.remove();
                     syncIngredientsToParent();
                 });
@@ -1164,6 +1166,8 @@ document.addEventListener('DOMContentLoaded', function() {
             removeBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
+                // Prevenir que o blur do contenteditable seja acionado
+                textSpan.blur();
                 li.remove();
                 syncIngredientsToParent();
             });
