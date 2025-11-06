@@ -304,6 +304,7 @@ include 'includes/header.php';
 
 .foods-filter-card.dropdown-active {
     z-index: 9998 !important;
+    will-change: z-index;
 }
 
 .foods-filter-title {
@@ -358,6 +359,7 @@ include 'includes/header.php';
 .custom-select-wrapper.active {
     z-index: 9999 !important;
     position: relative;
+    will-change: z-index;
 }
 
 .custom-select {
@@ -416,6 +418,7 @@ include 'includes/header.php';
     overflow-y: auto;
     box-sizing: border-box;
     pointer-events: auto;
+    will-change: transform, opacity;
 }
 
 .custom-select.active .custom-select-options {
@@ -522,6 +525,7 @@ include 'includes/header.php';
 
 .foods-bulk-card.dropdown-active {
     z-index: 9998 !important;
+    will-change: z-index;
 }
 
 /* Garante que os cards de alimentos não interceptem cliques quando dropdown está aberto */
@@ -1631,12 +1635,12 @@ function initCustomSelect(selectId, inputId, submitForm) {
         
         if (isOpening) {
             // Aplica z-index do novo dropdown PRIMEIRO (antes de fechar os outros)
-            // Isso evita o "piscar" visual porque o z-index já está aplicado
             customSelect.classList.add('active');
+            let card = null;
             if (wrapper) {
                 wrapper.classList.add('active');
                 // Adiciona classe no card pai para aumentar z-index
-                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
                 if (card) {
                     card.classList.add('dropdown-active');
                 }
@@ -1646,7 +1650,23 @@ function initCustomSelect(selectId, inputId, submitForm) {
                     mainContent.classList.add('dropdown-open');
                 }
             }
-            // Agora fecha todos os outros dropdowns (o novo já está com z-index alto)
+            
+            // FORÇA REFLOW COMPLETO DO NAVEGADOR para garantir que o z-index seja aplicado
+            // antes de fechar os outros dropdowns - isso elimina o "piscar"
+            const optionsContainer = customSelect.querySelector('.custom-select-options');
+            if (optionsContainer) {
+                // Força o navegador a calcular e renderizar o novo dropdown
+                // Usa getBoundingClientRect() que força um reflow completo
+                void optionsContainer.getBoundingClientRect();
+                if (wrapper) {
+                    void wrapper.getBoundingClientRect();
+                }
+                if (card) {
+                    void card.getBoundingClientRect();
+                }
+            }
+            
+            // Agora fecha todos os outros dropdowns (o novo já está renderizado com z-index alto)
             closeAllDropdowns(customSelect);
         } else {
             // Fechando o dropdown
