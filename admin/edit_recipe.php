@@ -1132,29 +1132,42 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!mockupPanel) return;
 
     function adjustMockupSizeAndPosition() {
-        // Pega o nível de zoom do navegador usando uma técnica mais confiável
-        // Calcula o zoom baseado na diferença entre innerWidth e outerWidth
-        const zoomLevel = window.outerWidth / window.innerWidth;
+        // Detecta o zoom usando múltiplas técnicas para máxima compatibilidade
+        let zoomLevel = 1;
         
-        // Se não conseguir calcular, usa devicePixelRatio como fallback
-        const effectiveZoom = zoomLevel && !isNaN(zoomLevel) && zoomLevel > 0 ? zoomLevel : (window.devicePixelRatio || 1);
+        // Técnica 1: Compara outerWidth com innerWidth (funciona na maioria dos navegadores)
+        if (window.outerWidth && window.innerWidth) {
+            const zoomByWidth = window.outerWidth / window.innerWidth;
+            if (!isNaN(zoomByWidth) && zoomByWidth > 0 && zoomByWidth < 10) {
+                zoomLevel = zoomByWidth;
+            }
+        }
+        
+        // Técnica 2: Usa devicePixelRatio como fallback (pode não refletir zoom do navegador)
+        // Mas é útil para detectar zoom do sistema operacional
+        if (zoomLevel === 1 && window.devicePixelRatio) {
+            zoomLevel = window.devicePixelRatio;
+        }
 
         // Calcula a escala inversa para "cancelar" o zoom
         // Se o zoom é 1.25 (125%), a escala será 1 / 1.25 = 0.8
-        const scale = 1 / effectiveZoom;
+        const scale = 1 / zoomLevel;
 
-        // Calcula a posição Y para centralizar verticalmente, considerando a nova escala
-        const mockupHeight = mockupPanel.offsetHeight;
-        const windowHeight = window.innerHeight;
-        const scaledHeight = mockupHeight * scale;
-        const topPosition = (windowHeight - scaledHeight) / 2;
+        // Espera um frame para garantir que o offsetHeight está correto
+        requestAnimationFrame(() => {
+            const mockupHeight = mockupPanel.offsetHeight || 750; // Fallback para 750px se não conseguir medir
+            const windowHeight = window.innerHeight;
+            const scaledHeight = mockupHeight * scale;
+            const topPosition = (windowHeight - scaledHeight) / 2;
 
-        // Aplica a transformação: move para a posição Y e aplica a escala inversa
-        mockupPanel.style.transform = `translateY(-${mockupHeight / 2}px) translateY(${topPosition / scale}px) scale(${scale})`;
+            // Aplica a transformação: move para a posição Y e aplica a escala inversa
+            // Usa translateY duplo para centralizar corretamente
+            mockupPanel.style.transform = `translateY(-${mockupHeight / 2}px) translateY(${topPosition / scale}px) scale(${scale})`;
+        });
     }
 
-    // Chama a função uma vez no carregamento
-    adjustMockupSizeAndPosition();
+    // Chama a função uma vez no carregamento (com delay para garantir renderização)
+    setTimeout(adjustMockupSizeAndPosition, 100);
 
     // E chama novamente sempre que a janela for redimensionada ou o zoom mudar
     window.addEventListener('resize', adjustMockupSizeAndPosition);
