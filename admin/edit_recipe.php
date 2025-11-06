@@ -88,6 +88,15 @@ $csrf_token = $_SESSION['csrf_token'];
     max-width: 100% !important;
     padding: 0 !important;
     width: 100% !important;
+    overflow: visible !important;
+}
+
+/* FORÇAR LAYOUT DE 2 COLUNAS - SOBRESCREVER QUALQUER CSS GLOBAL */
+.content-wrapper .edit-recipe-container,
+.main-content .edit-recipe-container,
+.admin-wrapper .edit-recipe-container {
+    max-width: 100% !important;
+    width: 100% !important;
 }
 
 /* ===== LAYOUT DE 2 COLUNAS ===== */
