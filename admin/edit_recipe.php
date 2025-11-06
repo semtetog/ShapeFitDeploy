@@ -514,6 +514,13 @@ input[type=number] {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
+/* Ajuste específico para zoom 100% - reduz gap entre celular e menu */
+@media (min-height: 900px) and (max-height: 1100px) {
+    .edit-recipe-container {
+        padding-left: calc(var(--mockup-width) + 1.5rem) !important;
+    }
+}
+
 /* RESPONSIVIDADE */
 @media (max-width: 1200px) {
     .edit-recipe-container {
