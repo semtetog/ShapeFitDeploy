@@ -92,20 +92,18 @@ $csrf_token = $_SESSION['csrf_token'];
 .edit-recipe-container {
     padding: var(--layout-gap);
     /* Padding à esquerda para criar espaço onde o celular fixo fica */
-    /* Celular está em: left = sidebar + gap, então container precisa começar em: sidebar + celular + gap */
-    padding-left: calc(var(--sidebar-width) + var(--mockup-width) + var(--layout-gap));
+    /* O main-content já tem margin-left: 256px (sidebar), então só precisamos: mockup-width + gap */
+    padding-left: calc(var(--mockup-width) + var(--layout-gap));
 }
 
 /* PAINEL DO CELULAR (ESQUERDA) */
 .mobile-mockup-panel {
-    width: var(--mockup-width);
-    flex-shrink: 0; /* Impede que ele seja espremido */
-    
     position: fixed; /* FIXO! NÃO ROLA COM A PÁGINA */
     top: var(--layout-gap);
     bottom: var(--layout-gap);
-    left: calc(var(--sidebar-width) + var(--layout-gap));
+    left: calc(var(--sidebar-width) + var(--layout-gap)); /* Logo após o sidebar com gap pequeno */
     
+    width: var(--mockup-width);
     height: var(--mockup-height); /* Usa a variável de altura */
     
     /* Limites para não ficar nem gigante nem minúsculo */
