@@ -69,22 +69,10 @@ function saveClassifications() {
     
     // 2. Se não há classificações, apenas reportar sucesso (não desclassificar por padrão)
     if (empty($classifications)) {
-        // Contar total de alimentos classificados
-        $classified_sql = "SELECT COUNT(DISTINCT sfi.id) as classified_count 
-                           FROM sf_food_items sfi 
-                           INNER JOIN sf_food_categories sfc ON sfi.id = sfc.food_id";
-        $classified_result = $conn->query($classified_sql);
-        $classified_count = $classified_result->fetch_assoc()['classified_count'];
-        
         if ($declassification_result) {
-            $declassification_result['classified_count'] = $classified_count;
             echo json_encode($declassification_result);
         } else {
-            echo json_encode([
-                'success' => true, 
-                'message' => 'Nenhuma alteração necessária!',
-                'classified_count' => $classified_count
-            ]);
+            echo json_encode(['success' => true, 'message' => 'Nenhuma alteração necessária!']);
         }
         return;
     }
@@ -177,13 +165,6 @@ function saveClassifications() {
         $total_errors = $errors;
         $messages = ["{$saved} classificações salvas com sucesso!"];
         
-        // Contar total de alimentos classificados
-        $classified_sql = "SELECT COUNT(DISTINCT sfi.id) as classified_count 
-                           FROM sf_food_items sfi 
-                           INNER JOIN sf_food_categories sfc ON sfi.id = sfc.food_id";
-        $classified_result = $conn->query($classified_sql);
-        $classified_count = $classified_result->fetch_assoc()['classified_count'];
-        
         if ($declassification_result && $declassification_result['success']) {
             $total_saved += $declassification_result['saved'];
             $total_errors = array_merge($total_errors, $declassification_result['errors']);
@@ -194,8 +175,7 @@ function saveClassifications() {
             'success' => true,
             'saved' => $total_saved,
             'errors' => $total_errors,
-            'message' => implode(' | ', $messages),
-            'classified_count' => $classified_count
+            'message' => implode(' | ', $messages)
         ]);
         
     } catch (Exception $e) {
