@@ -124,6 +124,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 .recipe-detail-image {
     width: 100% !important;
     height: 280px !important;
+    min-height: 280px !important;
+    max-height: 280px !important;
     object-fit: cover !important;
     border-radius: 20px !important;
     margin-top: 0 !important;
@@ -133,6 +135,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     z-index: 1 !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
+    box-sizing: border-box !important;
 }
 
 .recipe-detail-image:hover {
@@ -160,6 +163,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     flex-direction: column !important;
     gap: 12px !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
+    padding: 0 !important;
 }
 
 .recipe-image-placeholder:hover {
