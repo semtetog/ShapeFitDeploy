@@ -81,32 +81,35 @@ $csrf_token = $_SESSION['csrf_token'];
     --glass-border: rgba(255, 255, 255, 0.1);
     
     --sidebar-width: 256px;
-    --layout-gap: 2rem;       /* O "respiro" que você quer */
-    --mockup-width: 410px;      /* A largura que você gostou no zoom 110% */
+    --layout-gap: 2rem;
+    
+    /* A MÁGICA FINAL: Tamanho baseado na ALTURA da tela */
+    --mockup-height: calc(100vh - (var(--layout-gap) * 2));
+    --mockup-width: calc(var(--mockup-height) / 2); /* Força a proporção 2:1 */
 }
 
-/* 1. O CONTAINER PRINCIPAL - CRIA O ESPAÇO VAZIO PARA O CELULAR */
+/* O CONTAINER PRINCIPAL USA FLEXBOX */
 .edit-recipe-container {
-    /* Padding à esquerda para criar a "calha" onde o celular fixo vai ficar */
-    padding-left: calc(var(--sidebar-width) + var(--mockup-width) + (var(--layout-gap) * 2));
-    padding-right: var(--layout-gap);
-    padding-top: var(--layout-gap);
-    padding-bottom: var(--layout-gap);
+    display: flex;
+    gap: var(--layout-gap);
+    padding: var(--layout-gap);
+    /* Alinha os painéis no topo, importante para o sticky funcionar bem */
+    align-items: flex-start;
 }
 
-/* 2. O PAINEL DO CELULAR (ESQUERDA) - A MÁGICA FINAL */
+/* PAINEL DO CELULAR (ESQUERDA) */
 .mobile-mockup-panel {
-    position: fixed; /* <<<< FIXO! NÃO ROLA COM A PÁGINA. */
+    width: var(--mockup-width);
+    flex-shrink: 0; /* Impede que ele seja espremido */
     
-    /* Define o respiro em cima e embaixo, ocupando a altura toda */
+    position: sticky; /* A MÁGICA: "gruda" no topo quando a página rola */
     top: var(--layout-gap);
-    bottom: var(--layout-gap);
     
-    /* Posição horizontal correta */
-    left: calc(var(--sidebar-width) + var(--layout-gap));
+    height: var(--mockup-height); /* Usa a variável de altura */
     
-    width: var(--mockup-width); /* LARGURA FIXA EM PIXELS */
-    z-index: 10;
+    /* Limites para não ficar nem gigante nem minúsculo */
+    max-width: 410px;
+    max-height: 820px;
 }
 
 .mobile-mockup-wrapper {
@@ -134,12 +137,13 @@ $csrf_token = $_SESSION['csrf_token'];
     border: none;
 }
 
-/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) */
+/* PAINEL DE CONFIGURAÇÕES (DIREITA) */
 .config-panel {
+    flex-grow: 1; /* Ocupa todo o resto do espaço */
+    min-width: 0; /* Previne que os inputs quebrem o layout */
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    width: 100%; /* Ocupa 100% do espaço que o padding-left deixou */
 }
 
 /* ===== ESTILOS INTERNOS (COPIADOS, SEM GRANDES MUDANÇAS) ===== */
@@ -513,10 +517,14 @@ input[type=number] {
 /* RESPONSIVIDADE */
 @media (max-width: 1200px) {
     .edit-recipe-container {
-        padding-left: var(--layout-gap) !important;
+        flex-direction: column;
     }
     .mobile-mockup-panel {
-        display: none !important;
+        position: static; /* Deixa de ser "grudento" */
+        width: 100%;
+        max-width: 410px;
+        height: 750px; /* Altura fixa para telas menores */
+        margin: 0 auto 2rem auto; /* Centraliza e adiciona espaço embaixo */
     }
 }
 </style>
