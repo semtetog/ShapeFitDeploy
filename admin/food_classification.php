@@ -516,13 +516,13 @@ include 'includes/header.php';
     border-color: #EF4444 !important;
 }
 
-/* Checkbox melhorado - apenas para seleção em lote */
+/* Checkbox no estilo da página - apenas para seleção em lote */
 .food-item-checkbox {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     opacity: 0;
     cursor: pointer;
     z-index: 10;
@@ -546,23 +546,31 @@ include 'includes/header.php';
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 22px;
-    height: 22px;
-    background: var(--accent-orange);
-    border: 2px solid var(--accent-orange);
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--glass-border);
     border-radius: 6px;
     display: none;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 0.7rem;
+    color: var(--accent-orange);
+    font-size: 0.75rem;
     z-index: 9;
-    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4);
+    transition: all 0.2s ease;
 }
 
 .food-item-checkbox-indicator::after {
     content: '✓';
     font-weight: bold;
+}
+
+.food-item-checkbox:checked + .food-item-checkbox-indicator {
+    display: flex;
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4);
 }
 
 .food-item-checkbox:checked ~ .food-item-content {
@@ -603,26 +611,27 @@ include 'includes/header.php';
 
 .food-item-macro {
     flex: 1;
-    min-width: 70px;
+    min-width: 90px;
     background: rgba(255, 255, 255, 0.03) !important;
     border-radius: 8px !important;
-    padding: 0.5rem !important;
+    padding: 0.75rem 0.5rem !important;
     text-align: center !important;
 }
 
 .food-item-macro-label {
-    font-size: 0.65rem !important;
+    font-size: 0.6rem !important;
     color: var(--text-secondary) !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
-    margin-bottom: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
     font-weight: 600 !important;
 }
 
 .food-item-macro-value {
-    font-size: 0.9rem !important;
+    font-size: 1rem !important;
     font-weight: 700 !important;
     color: var(--text-primary) !important;
+    line-height: 1.2 !important;
 }
 
 /* Categorias atuais */
@@ -1053,8 +1062,8 @@ include 'includes/header.php';
                 <div class="category-item" data-category="<?= $key ?>" style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
                     <h4 class="category-item-name"><?= $cat['name'] ?></h4>
                     <div class="category-item-info">
-                        <strong>Exemplos:</strong> <?= implode(', ', array_slice($examples, 0, 3)) ?><?= count($examples) > 3 ? '...' : '' ?><br>
-                        <strong>Unidades:</strong> <?= implode(', ', array_map(fn($u) => $unit_names[$u] ?? $u, array_slice($units, 0, 3))) ?><?= count($units) > 3 ? '...' : '' ?>
+                        <strong>Exemplos:</strong> <?= implode(', ', $examples) ?><br>
+                        <strong>Unidades:</strong> <?= implode(', ', array_map(fn($u) => $unit_names[$u] ?? $u, $units)) ?>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -1170,19 +1179,19 @@ include 'includes/header.php';
                                 
                                 <div class="food-item-macros">
                                     <div class="food-item-macro">
-                                        <div class="food-item-macro-label">Calorias</div>
+                                        <div class="food-item-macro-label">Cal.</div>
                                         <div class="food-item-macro-value"><?= number_format($food['energy_kcal_100g'], 0) ?>kcal</div>
                                     </div>
                                     <div class="food-item-macro">
-                                        <div class="food-item-macro-label">Proteína</div>
+                                        <div class="food-item-macro-label">Prot.</div>
                                         <div class="food-item-macro-value"><?= number_format($food['protein_g_100g'], 1) ?>g</div>
                                     </div>
                                     <div class="food-item-macro">
-                                        <div class="food-item-macro-label">Carboidratos</div>
+                                        <div class="food-item-macro-label">Carb.</div>
                                         <div class="food-item-macro-value"><?= number_format($food['carbohydrate_g_100g'], 1) ?>g</div>
                                     </div>
                                     <div class="food-item-macro">
-                                        <div class="food-item-macro-label">Gorduras</div>
+                                        <div class="food-item-macro-label">Gord.</div>
                                         <div class="food-item-macro-value"><?= number_format($food['fat_g_100g'], 1) ?>g</div>
                                     </div>
                                 </div>
