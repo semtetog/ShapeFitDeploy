@@ -582,8 +582,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
                 </li>
                 <?php endforeach; ?>
             <?php else: ?>
-                <li class="ingredient-item-editable empty-placeholder" contenteditable="true" data-placeholder="Clique para adicionar ingrediente..." style="opacity: 0.5; font-style: italic;">
-                    Clique para adicionar ingrediente...
+                <li class="ingredient-item-editable empty-placeholder" style="opacity: 0.5; font-style: italic;">
+                    <span class="ingredient-text-content" contenteditable="true" data-placeholder="Clique para adicionar ingrediente...">Clique para adicionar ingrediente...</span>
                 </li>
             <?php endif; ?>
         </ul>
@@ -1077,7 +1077,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const ingredients = [];
         const items = ingredientList.querySelectorAll('.ingredient-item-editable');
         items.forEach(item => {
-            const text = item.textContent.trim();
+            const textContent = item.querySelector('.ingredient-text-content');
+            const text = textContent ? textContent.textContent.trim() : item.textContent.trim();
             if (text && !item.classList.contains('empty-placeholder')) {
                 ingredients.push(text);
             }
