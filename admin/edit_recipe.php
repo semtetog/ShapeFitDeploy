@@ -1224,6 +1224,186 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // =========================================================================
+    //       MODAL DE GERENCIAMENTO DE IMAGEM (INLINE NO PREVIEW)
+    // =========================================================================
+    const iframe = document.getElementById('recipe-preview-frame');
+    const imageInput = document.getElementById('image');
+    let imageModal = null;
+
+    // Criar modal de imagem
+    function createImageModal() {
+        if (imageModal) return imageModal;
+
+        const modal = document.createElement('div');
+        modal.id = 'image-management-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        `;
+
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        `;
+
+        const title = document.createElement('h3');
+        title.textContent = 'Gerenciar Imagem';
+        title.style.cssText = `
+            color: #FFFFFF;
+            margin: 0 0 1.5rem 0;
+            font-size: 1.5rem;
+            font-family: 'Montserrat', sans-serif;
+        `;
+
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        `;
+
+        const changeButton = document.createElement('button');
+        changeButton.textContent = 'Trocar Imagem';
+        changeButton.className = 'btn btn-primary';
+        changeButton.style.cssText = `
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(255, 107, 0, 0.1);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            color: var(--accent-orange);
+        `;
+        changeButton.onclick = () => {
+            imageInput?.click();
+            closeImageModal();
+        };
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Excluir Imagem';
+        deleteButton.className = 'btn btn-secondary';
+        deleteButton.style.cssText = `
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #F44336;
+        `;
+        deleteButton.onclick = () => {
+            deleteImage();
+            closeImageModal();
+        };
+
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = 'Cancelar';
+        cancelButton.className = 'btn btn-secondary';
+        cancelButton.style.cssText = `
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        `;
+        cancelButton.onclick = closeImageModal;
+
+        buttonsContainer.appendChild(changeButton);
+        buttonsContainer.appendChild(deleteButton);
+        buttonsContainer.appendChild(cancelButton);
+        modalContent.appendChild(title);
+        modalContent.appendChild(buttonsContainer);
+        modal.appendChild(modalContent);
+
+        // Fechar ao clicar fora
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                closeImageModal();
+            }
+        };
+
+        document.body.appendChild(modal);
+        imageModal = modal;
+        return modal;
+    }
+
+    function openImageModal() {
+        const modal = createImageModal();
+        modal.style.display = 'flex';
+    }
+
+    function closeImageModal() {
+        if (imageModal) {
+            imageModal.style.display = 'none';
+        }
+    }
+
+    function deleteImage() {
+        // Remover imagem do input
+        if (imageInput) {
+            imageInput.value = '';
+        }
+
+        // Atualizar preview para mostrar placeholder
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({
+                type: 'updateImage',
+                value: null
+            }, '*');
+        }
+    }
+
+    // Escutar clicks na imagem do preview
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'imageClick') {
+            openImageModal();
+        }
+    });
+
+    // Quando uma nova imagem for selecionada
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Atualizar preview
+                    if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({
+                            type: 'updateImage',
+                            value: e.target.result
+                        }, '*');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 });
 
 </script>

@@ -131,6 +131,43 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     display: block !important;
     position: relative !important;
     z-index: 1 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.recipe-detail-image:hover {
+    opacity: 0.8 !important;
+    transform: scale(1.02) !important;
+}
+
+.recipe-image-placeholder {
+    width: 100% !important;
+    height: 280px !important;
+    border-radius: 20px !important;
+    margin-top: 0 !important;
+    margin-bottom: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 2px dashed rgba(255, 255, 255, 0.12) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    color: var(--text-secondary) !important;
+    font-size: 16px !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+.recipe-image-placeholder:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: var(--accent-orange) !important;
+    color: var(--accent-orange) !important;
+}
+
+.recipe-image-placeholder i {
+    font-size: 48px !important;
+    opacity: 0.5 !important;
 }
 
 /* === INFORMAÇÕES PRINCIPAIS === */
@@ -420,10 +457,18 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 
 <div class="app-container">
 
-    <img id="recipe-image" 
-         src="<?php echo BASE_ASSET_URL . '/assets/images/recipes/' . htmlspecialchars($recipe['image_filename'] ?: 'placeholder_food.jpg'); ?>" 
-         alt="<?php echo htmlspecialchars($recipe['name']); ?>" 
-         class="recipe-detail-image">
+    <?php if (!empty($recipe['image_filename']) && $recipe['image_filename'] !== 'placeholder_food.jpg'): ?>
+        <img id="recipe-image" 
+             src="<?php echo BASE_ASSET_URL . '/assets/images/recipes/' . htmlspecialchars($recipe['image_filename']); ?>" 
+             alt="<?php echo htmlspecialchars($recipe['name']); ?>" 
+             class="recipe-detail-image"
+             data-has-image="true">
+    <?php else: ?>
+        <div id="recipe-image-placeholder" class="recipe-image-placeholder" data-has-image="false">
+            <i class="fas fa-image"></i>
+            <span>Clique para adicionar imagem</span>
+        </div>
+    <?php endif; ?>
 
     <div class="recipe-main-info card-shadow-light">
         <h1 id="recipe-name" class="recipe-name-main" contenteditable="true" data-placeholder="Nome da Receita"><?php echo htmlspecialchars($recipe['name']); ?></h1>
