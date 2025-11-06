@@ -764,6 +764,38 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Configurar click listener na imagem para abrir modal
+    function setupImageClick(element) {
+        if (element) {
+            element.addEventListener('click', function() {
+                if (window.parent && window.parent.postMessage) {
+                    window.parent.postMessage({ 
+                        type: 'imageClick' 
+                    }, '*');
+                }
+            });
+        }
+    }
+
+    const imageElement = document.getElementById('recipe-image');
+    const placeholderElement = document.getElementById('recipe-image-placeholder');
+    
+    setupImageClick(imageElement);
+    setupImageClick(placeholderElement);
+
+    // Reconfigurar quando a imagem for atualizada
+    const originalUpdateImage = window.updateImage;
+    if (originalUpdateImage) {
+        window.updateImage = function(value) {
+            originalUpdateImage(value);
+            // Reconfigurar click listeners após atualização
+            setTimeout(() => {
+                setupImageClick(document.getElementById('recipe-image'));
+                setupImageClick(document.getElementById('recipe-image-placeholder'));
+            }, 100);
+        };
+    }
 });
 
 // Debug: Verificar se os números estão sendo renderizados

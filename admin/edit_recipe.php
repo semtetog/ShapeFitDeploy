@@ -760,20 +760,8 @@ input[type=number] {
                         </div>
                     </div>
 
-                <!-- CARD: IMAGEM -->
-                <div class="dashboard-card">
-                    <div class="section-header">
-                        <h4><i class="fas fa-image"></i> Imagem da Receita</h4>
-                                </div>
-                                <div class="form-group">
-                        <label for="image">Escolher Imagem</label>
-                        <label for="image" class="custom-file-input-wrapper">
-                            <span class="file-input-label" id="file-label-text">Escolher arquivo</span>
-                            <span class="file-input-filename" id="file-name-display"><?php echo !empty($recipe['image_filename']) ? htmlspecialchars($recipe['image_filename']) : 'Nenhum arquivo escolhido'; ?></span>
-                        </label>
-                        <input type="file" id="image" name="image" class="form-control" accept="image/jpeg, image/png, image/webp">
-                            </div>
-                        </div>
+                <!-- INPUT DE IMAGEM OCULTO (gerenciado pelo modal) -->
+                <input type="file" id="image" name="image" class="form-control" accept="image/jpeg, image/png, image/webp" style="display: none;">
 
                 <!-- CARD: CONFIGURAÇÕES -->
                 <div class="dashboard-card">
@@ -878,6 +866,185 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+        
+        // =========================================================================
+        //       MODAL DE GERENCIAMENTO DE IMAGEM (INLINE NO PREVIEW)
+        // =========================================================================
+        const imageInput = document.getElementById('image');
+        let imageModal = null;
+
+        // Criar modal de imagem
+        function createImageModal() {
+            if (imageModal) return imageModal;
+
+            const modal = document.createElement('div');
+            modal.id = 'image-management-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: rgba(30, 30, 30, 0.95);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 2rem;
+                max-width: 400px;
+                width: 90%;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            `;
+
+            const title = document.createElement('h3');
+            title.textContent = 'Gerenciar Imagem';
+            title.style.cssText = `
+                color: #FFFFFF;
+                margin: 0 0 1.5rem 0;
+                font-size: 1.5rem;
+                font-family: 'Montserrat', sans-serif;
+            `;
+
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.style.cssText = `
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            `;
+
+            const changeButton = document.createElement('button');
+            changeButton.textContent = 'Trocar Imagem';
+            changeButton.className = 'btn btn-primary';
+            changeButton.style.cssText = `
+                width: 100%;
+                padding: 0.75rem 1.5rem;
+                border-radius: 12px;
+                font-size: 0.95rem;
+                font-weight: 600;
+                cursor: pointer;
+                background: rgba(255, 107, 0, 0.1);
+                border: 1px solid rgba(255, 107, 0, 0.3);
+                color: var(--accent-orange);
+            `;
+            changeButton.onclick = () => {
+                imageInput?.click();
+                closeImageModal();
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Excluir Imagem';
+            deleteButton.className = 'btn btn-secondary';
+            deleteButton.style.cssText = `
+                width: 100%;
+                padding: 0.75rem 1.5rem;
+                border-radius: 12px;
+                font-size: 0.95rem;
+                font-weight: 600;
+                cursor: pointer;
+                background: rgba(244, 67, 54, 0.1);
+                border: 1px solid rgba(244, 67, 54, 0.3);
+                color: #F44336;
+            `;
+            deleteButton.onclick = () => {
+                deleteImage();
+                closeImageModal();
+            };
+
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancelar';
+            cancelButton.className = 'btn btn-secondary';
+            cancelButton.style.cssText = `
+                width: 100%;
+                padding: 0.75rem 1.5rem;
+                border-radius: 12px;
+                font-size: 0.95rem;
+                font-weight: 600;
+                cursor: pointer;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: var(--text-secondary);
+                margin-top: 0.5rem;
+            `;
+            cancelButton.onclick = closeImageModal;
+
+            buttonsContainer.appendChild(changeButton);
+            buttonsContainer.appendChild(deleteButton);
+            buttonsContainer.appendChild(cancelButton);
+            modalContent.appendChild(title);
+            modalContent.appendChild(buttonsContainer);
+            modal.appendChild(modalContent);
+
+            // Fechar ao clicar fora
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    closeImageModal();
+                }
+            };
+
+            document.body.appendChild(modal);
+            imageModal = modal;
+            return modal;
+        }
+
+        function openImageModal() {
+            const modal = createImageModal();
+            modal.style.display = 'flex';
+        }
+
+        function closeImageModal() {
+            if (imageModal) {
+                imageModal.style.display = 'none';
+            }
+        }
+
+        function deleteImage() {
+            // Remover imagem do input
+            if (imageInput) {
+                imageInput.value = '';
+            }
+
+            // Atualizar preview para mostrar placeholder
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    type: 'updateImage',
+                    value: null
+                }, '*');
+            }
+        }
+
+        // Escutar clicks na imagem do preview
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'imageClick') {
+                openImageModal();
+            }
+        });
+
+        // Quando uma nova imagem for selecionada
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Atualizar preview
+                        if (iframe && iframe.contentWindow) {
+                            iframe.contentWindow.postMessage({
+                                type: 'updateImage',
+                                value: e.target.result
+                            }, '*');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
         
         // Sincronizar inputs ocultos com preview (bidirecional)
         const nameInput = document.getElementById('name');
@@ -1056,15 +1223,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Atualizar preview com a nova categoria imediatamente
                 setTimeout(() => {
-                    const iframe = document.getElementById('recipe-preview-frame');
-                    if (iframe && iframe.contentWindow) {
+                    const previewFrame = document.getElementById('recipe-preview-frame');
+                    if (previewFrame && previewFrame.contentWindow) {
                         const selectedCategories = Array.from(gridContainer.querySelectorAll('input[type="checkbox"]:checked'))
                             .map(cb => {
                                 const label = cb.nextElementSibling;
                                 return label ? label.textContent.trim() : '';
                             })
                             .filter(name => name);
-                        iframe.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
+                        previewFrame.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
                     }
                 }, 100);
             } else { 
@@ -1097,11 +1264,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 showFeedback(`Categoria "${categoryName}" excluída.`, 'success');
                 
                 // Atualizar preview removendo a categoria
-                const iframe = document.getElementById('recipe-preview-frame');
-                if (iframe && iframe.contentWindow) {
+                const previewFrame = document.getElementById('recipe-preview-frame');
+                if (previewFrame && previewFrame.contentWindow) {
                     const selectedCategories = Array.from(gridContainer.querySelectorAll('input[type="checkbox"]:checked'))
                         .map(cb => cb.nextElementSibling.textContent.trim());
-                    iframe.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
+                    previewFrame.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
                 }
             } else { 
                 showFeedback(data.message || 'Ocorreu um erro.'); 
@@ -1131,11 +1298,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Atualizar preview quando categorias são selecionadas/desselecionadas
         gridContainer.addEventListener('change', function(event) {
             if (event.target && event.target.type === 'checkbox' && event.target.name === 'categories[]') {
-                const iframe = document.getElementById('recipe-preview-frame');
-                if (iframe && iframe.contentWindow) {
+                const previewFrame = document.getElementById('recipe-preview-frame');
+                if (previewFrame && previewFrame.contentWindow) {
                     const selectedCategories = Array.from(gridContainer.querySelectorAll('input[type="checkbox"]:checked'))
                         .map(cb => cb.nextElementSibling.textContent.trim());
-                    iframe.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
+                    previewFrame.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
                 }
             }
         });
@@ -1150,10 +1317,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalWeightInput = document.getElementById('helper_total_weight');
     const servingsInput = document.getElementById('servings');
     const servingSizeResultInput = document.getElementById('serving_size_g');
-    const iframe = document.getElementById('recipe-preview-frame');
-
+    const previewFrame = document.getElementById('recipe-preview-frame');
+    
     function sendServingInfoUpdate() {
-        if (iframe && iframe.contentWindow) {
+        if (previewFrame && previewFrame.contentWindow) {
             const prep = document.getElementById('prep_time_minutes')?.value || 0;
             const cook = document.getElementById('cook_time_minutes')?.value || 0;
             const kcal = document.getElementById('kcal_per_serving')?.value || 0;
@@ -1161,7 +1328,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const protein = document.getElementById('protein_g_per_serving')?.value || 0;
             const fat = document.getElementById('fat_g_per_serving')?.value || 0;
             
-            iframe.contentWindow.postMessage({
+            previewFrame.contentWindow.postMessage({
                 type: 'updateMacrosAndTime',
                 value: {
                     prep: prep,
@@ -1224,186 +1391,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-
-    // =========================================================================
-    //       MODAL DE GERENCIAMENTO DE IMAGEM (INLINE NO PREVIEW)
-    // =========================================================================
-    const iframe = document.getElementById('recipe-preview-frame');
-    const imageInput = document.getElementById('image');
-    let imageModal = null;
-
-    // Criar modal de imagem
-    function createImageModal() {
-        if (imageModal) return imageModal;
-
-        const modal = document.createElement('div');
-        modal.id = 'image-management-modal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        `;
-
-        const modalContent = document.createElement('div');
-        modalContent.style.cssText = `
-            background: rgba(30, 30, 30, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        `;
-
-        const title = document.createElement('h3');
-        title.textContent = 'Gerenciar Imagem';
-        title.style.cssText = `
-            color: #FFFFFF;
-            margin: 0 0 1.5rem 0;
-            font-size: 1.5rem;
-            font-family: 'Montserrat', sans-serif;
-        `;
-
-        const buttonsContainer = document.createElement('div');
-        buttonsContainer.style.cssText = `
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        `;
-
-        const changeButton = document.createElement('button');
-        changeButton.textContent = 'Trocar Imagem';
-        changeButton.className = 'btn btn-primary';
-        changeButton.style.cssText = `
-            width: 100%;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            background: rgba(255, 107, 0, 0.1);
-            border: 1px solid rgba(255, 107, 0, 0.3);
-            color: var(--accent-orange);
-        `;
-        changeButton.onclick = () => {
-            imageInput?.click();
-            closeImageModal();
-        };
-
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Excluir Imagem';
-        deleteButton.className = 'btn btn-secondary';
-        deleteButton.style.cssText = `
-            width: 100%;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            background: rgba(244, 67, 54, 0.1);
-            border: 1px solid rgba(244, 67, 54, 0.3);
-            color: #F44336;
-        `;
-        deleteButton.onclick = () => {
-            deleteImage();
-            closeImageModal();
-        };
-
-        const cancelButton = document.createElement('button');
-        cancelButton.textContent = 'Cancelar';
-        cancelButton.className = 'btn btn-secondary';
-        cancelButton.style.cssText = `
-            width: 100%;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-        `;
-        cancelButton.onclick = closeImageModal;
-
-        buttonsContainer.appendChild(changeButton);
-        buttonsContainer.appendChild(deleteButton);
-        buttonsContainer.appendChild(cancelButton);
-        modalContent.appendChild(title);
-        modalContent.appendChild(buttonsContainer);
-        modal.appendChild(modalContent);
-
-        // Fechar ao clicar fora
-        modal.onclick = (e) => {
-            if (e.target === modal) {
-                closeImageModal();
-            }
-        };
-
-        document.body.appendChild(modal);
-        imageModal = modal;
-        return modal;
-    }
-
-    function openImageModal() {
-        const modal = createImageModal();
-        modal.style.display = 'flex';
-    }
-
-    function closeImageModal() {
-        if (imageModal) {
-            imageModal.style.display = 'none';
-        }
-    }
-
-    function deleteImage() {
-        // Remover imagem do input
-        if (imageInput) {
-            imageInput.value = '';
-        }
-
-        // Atualizar preview para mostrar placeholder
-        if (iframe && iframe.contentWindow) {
-            iframe.contentWindow.postMessage({
-                type: 'updateImage',
-                value: null
-            }, '*');
-        }
-    }
-
-    // Escutar clicks na imagem do preview
-    window.addEventListener('message', function(event) {
-        if (event.data.type === 'imageClick') {
-            openImageModal();
-        }
-    });
-
-    // Quando uma nova imagem for selecionada
-    if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Atualizar preview
-                    if (iframe && iframe.contentWindow) {
-                        iframe.contentWindow.postMessage({
-                            type: 'updateImage',
-                            value: e.target.result
-                        }, '*');
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
 });
 
 </script>
