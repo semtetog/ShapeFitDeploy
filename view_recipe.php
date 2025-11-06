@@ -186,6 +186,10 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     padding: 24px;
     margin-bottom: 20px;
     transition: all 0.2s ease;
+    overflow: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
 }
 
 .recipe-main-info:hover {
@@ -198,6 +202,11 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     color: var(--text-primary);
     margin: 0 0 12px 0;
     line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .recipe-description-short {
@@ -205,6 +214,11 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     color: var(--text-secondary);
     line-height: 1.5;
     margin: 0 0 16px 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .category-tags-container { 
