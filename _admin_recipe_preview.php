@@ -673,7 +673,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
                 foreach ($steps as $step_text) {
                     if ($step_text_trimmed = trim($step_text)) {
                         $step_text_cleaned = preg_replace('/^\d+[\.\)]\s*/', '', $step_text_trimmed);
-                        echo '<div class="instruction-step"><span class="step-number">' . $step_number++ . '</span><p>' . nl2br(htmlspecialchars($step_text_cleaned)) . '</p></div>';
+                        echo '<div class="instruction-step"><span class="step-number">' . $step_number++ . '</span><p class="instruction-text-content" contenteditable="true">' . nl2br(htmlspecialchars($step_text_cleaned)) . '</p><button type="button" class="btn-remove-instruction-inline" title="Remover" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: auto; margin-right: 0; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; z-index: 10; position: relative; flex-shrink: 0;">×</button></div>';
                     }
                 }
             }
