@@ -873,7 +873,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const imageInput = document.getElementById('image');
         let imageModal = null;
 
-        // Criar modal de imagem
+        // Criar popup de imagem com glassmorphism
         function createImageModal() {
             if (imageModal) return imageModal;
 
@@ -885,99 +885,173 @@ document.addEventListener('DOMContentLoaded', function() {
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.7);
+                background: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
                 display: none;
                 align-items: center;
                 justify-content: center;
                 z-index: 10000;
+                opacity: 0;
+                transition: opacity 0.2s ease;
             `;
 
             const modalContent = document.createElement('div');
             modalContent.style.cssText = `
-                background: rgba(30, 30, 30, 0.95);
+                background: rgba(18, 18, 18, 0.7);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
                 border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 20px;
-                padding: 2rem;
-                max-width: 400px;
+                border-radius: 24px;
+                padding: 0;
+                max-width: 420px;
                 width: 90%;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+                transform: scale(0.95) translateY(10px);
+                transition: transform 0.2s ease, opacity 0.2s ease;
+                opacity: 0;
+                overflow: hidden;
+            `;
+
+            const header = document.createElement('div');
+            header.style.cssText = `
+                padding: 1.5rem 2rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
             `;
 
             const title = document.createElement('h3');
-            title.textContent = 'Gerenciar Imagem';
             title.style.cssText = `
-                color: #FFFFFF;
-                margin: 0 0 1.5rem 0;
-                font-size: 1.5rem;
+                color: var(--text-primary);
+                margin: 0;
+                font-size: 1.25rem;
+                font-weight: 600;
                 font-family: 'Montserrat', sans-serif;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
             `;
+
+            const titleIcon = document.createElement('i');
+            titleIcon.className = 'fas fa-image';
+            titleIcon.style.cssText = `
+                color: var(--accent-orange);
+                font-size: 1.1rem;
+            `;
+            title.appendChild(titleIcon);
+            title.appendChild(document.createTextNode(' Gerenciar Imagem'));
+
+            const closeButton = document.createElement('button');
+            closeButton.innerHTML = '<i class="fas fa-times"></i>';
+            closeButton.style.cssText = `
+                background: transparent;
+                border: none;
+                color: var(--text-secondary);
+                font-size: 1.1rem;
+                cursor: pointer;
+                padding: 0.5rem;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+            `;
+            closeButton.onmouseenter = () => {
+                closeButton.style.background = 'rgba(255, 255, 255, 0.05)';
+                closeButton.style.color = 'var(--text-primary)';
+            };
+            closeButton.onmouseleave = () => {
+                closeButton.style.background = 'transparent';
+                closeButton.style.color = 'var(--text-secondary)';
+            };
+            closeButton.onclick = closeImageModal;
+
+            header.appendChild(title);
+            header.appendChild(closeButton);
 
             const buttonsContainer = document.createElement('div');
             buttonsContainer.style.cssText = `
                 display: flex;
                 flex-direction: column;
-                gap: 1rem;
+                gap: 0.75rem;
+                padding: 1.5rem 2rem;
             `;
 
             const changeButton = document.createElement('button');
-            changeButton.textContent = 'Trocar Imagem';
-            changeButton.className = 'btn btn-primary';
+            changeButton.innerHTML = '<i class="fas fa-exchange-alt"></i> Trocar Imagem';
             changeButton.style.cssText = `
                 width: 100%;
-                padding: 0.75rem 1.5rem;
+                padding: 0.875rem 1.5rem;
                 border-radius: 12px;
                 font-size: 0.95rem;
                 font-weight: 600;
                 cursor: pointer;
-                background: rgba(255, 107, 0, 0.1);
-                border: 1px solid rgba(255, 107, 0, 0.3);
+                background: rgba(255, 107, 0, 0.08);
+                border: 1px solid rgba(255, 107, 0, 0.2);
                 color: var(--accent-orange);
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.75rem;
+                font-family: 'Montserrat', sans-serif;
             `;
+            changeButton.onmouseenter = () => {
+                changeButton.style.background = 'rgba(255, 107, 0, 0.12)';
+                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.3)';
+                changeButton.style.transform = 'translateY(-1px)';
+            };
+            changeButton.onmouseleave = () => {
+                changeButton.style.background = 'rgba(255, 107, 0, 0.08)';
+                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.2)';
+                changeButton.style.transform = 'translateY(0)';
+            };
             changeButton.onclick = () => {
                 imageInput?.click();
                 closeImageModal();
             };
 
             const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Excluir Imagem';
-            deleteButton.className = 'btn btn-secondary';
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i> Excluir Imagem';
             deleteButton.style.cssText = `
                 width: 100%;
-                padding: 0.75rem 1.5rem;
+                padding: 0.875rem 1.5rem;
                 border-radius: 12px;
                 font-size: 0.95rem;
                 font-weight: 600;
                 cursor: pointer;
-                background: rgba(244, 67, 54, 0.1);
-                border: 1px solid rgba(244, 67, 54, 0.3);
+                background: rgba(244, 67, 54, 0.08);
+                border: 1px solid rgba(244, 67, 54, 0.2);
                 color: #F44336;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.75rem;
+                font-family: 'Montserrat', sans-serif;
             `;
+            deleteButton.onmouseenter = () => {
+                deleteButton.style.background = 'rgba(244, 67, 54, 0.12)';
+                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.3)';
+                deleteButton.style.transform = 'translateY(-1px)';
+            };
+            deleteButton.onmouseleave = () => {
+                deleteButton.style.background = 'rgba(244, 67, 54, 0.08)';
+                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.2)';
+                deleteButton.style.transform = 'translateY(0)';
+            };
             deleteButton.onclick = () => {
                 deleteImage();
                 closeImageModal();
             };
 
-            const cancelButton = document.createElement('button');
-            cancelButton.textContent = 'Cancelar';
-            cancelButton.className = 'btn btn-secondary';
-            cancelButton.style.cssText = `
-                width: 100%;
-                padding: 0.75rem 1.5rem;
-                border-radius: 12px;
-                font-size: 0.95rem;
-                font-weight: 600;
-                cursor: pointer;
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                color: var(--text-secondary);
-                margin-top: 0.5rem;
-            `;
-            cancelButton.onclick = closeImageModal;
-
             buttonsContainer.appendChild(changeButton);
             buttonsContainer.appendChild(deleteButton);
-            buttonsContainer.appendChild(cancelButton);
-            modalContent.appendChild(title);
+            modalContent.appendChild(header);
             modalContent.appendChild(buttonsContainer);
             modal.appendChild(modalContent);
 
@@ -988,6 +1062,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
 
+            // Fechar com ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.style.display === 'flex') {
+                    closeImageModal();
+                }
+            });
+
             document.body.appendChild(modal);
             imageModal = modal;
             return modal;
@@ -995,12 +1076,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function openImageModal() {
             const modal = createImageModal();
+            const content = modal.querySelector('div');
             modal.style.display = 'flex';
+            
+            // Trigger animation
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                content.style.opacity = '1';
+                content.style.transform = 'scale(1) translateY(0)';
+            }, 10);
         }
 
         function closeImageModal() {
             if (imageModal) {
-                imageModal.style.display = 'none';
+                const content = imageModal.querySelector('div');
+                imageModal.style.opacity = '0';
+                if (content) {
+                    content.style.opacity = '0';
+                    content.style.transform = 'scale(0.95) translateY(10px)';
+                }
+                
+                setTimeout(() => {
+                    imageModal.style.display = 'none';
+                }, 200);
             }
         }
 
