@@ -1064,6 +1064,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Botão de adicionar ingrediente
     const addIngredientBtn = document.getElementById('btn-add-ingredient-preview');
     if (addIngredientBtn) {
+        addIngredientBtn.addEventListener('mouseenter', function() {
+            this.style.opacity = '1';
+        });
+        addIngredientBtn.addEventListener('mouseleave', function() {
+            this.style.opacity = '0.7';
+        });
         addIngredientBtn.addEventListener('click', function() {
             const ingredientList = document.getElementById('ingredient-list');
             if (!ingredientList) return;
