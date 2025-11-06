@@ -402,37 +402,49 @@ include 'includes/header.php';
     white-space: nowrap;
 }
 
+/* SOBRESCREVE QUALQUER CSS GLOBAL QUE POSSA ESTAR CONFLITANDO */
 .custom-select-options {
     /* NUNCA usa display: none - mantém elemento sempre renderizado */
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    right: 0;
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: 0 !important;
     z-index: 9999 !important;
     background: rgba(35, 35, 35, 1) !important; /* Totalmente opaco desde o início */
     /* backdrop-filter removido para evitar delay na renderização */
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    max-height: 250px;
-    overflow-y: auto;
-    box-sizing: border-box;
-    pointer-events: none; /* Desabilita cliques quando invisível */
-    will-change: transform;
-    transform: translateZ(0); /* Força aceleração de hardware */
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden; /* Otimiza renderização */
-    -webkit-backface-visibility: hidden;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+    max-height: 250px !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    pointer-events: none !important; /* Desabilita cliques quando invisível */
+    will-change: transform !important;
+    transform: translateZ(0) !important; /* Força aceleração de hardware - SEM translateY */
+    -webkit-transform: translateZ(0) !important;
+    backface-visibility: hidden !important; /* Otimiza renderização */
+    -webkit-backface-visibility: hidden !important;
     /* Usa visibility e opacity em vez de display para evitar reflow */
-    visibility: hidden;
-    opacity: 0;
-    transition: none !important; /* Remove qualquer transição */
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transition: none !important; /* Remove QUALQUER transição que possa estar vindo de CSS global */
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    /* Remove qualquer transform que possa estar vindo de CSS global */
+    translate: none !important;
 }
 
 .custom-select.active .custom-select-options {
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important; /* Habilita cliques quando visível */
+    transform: translateZ(0) !important; /* Mantém apenas translateZ, sem translateY */
+    -webkit-transform: translateZ(0) !important;
+    transition: none !important; /* Garante que não há transição */
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
 }
 
 .custom-select-option {
