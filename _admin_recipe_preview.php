@@ -457,12 +457,46 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     border-radius: 12px;
     border-left: 3px solid transparent;
     transition: all 0.2s ease;
+    align-items: center;
+    position: relative;
 }
 
 .instruction-step:focus-within,
 .instruction-step.editing {
     border-left: 3px solid #ff6b00;
     background: rgba(255, 255, 255, 0.04);
+}
+
+.instruction-step .instruction-text-content {
+    flex: 1;
+    min-width: 0;
+    padding-right: 0;
+    cursor: text;
+    outline: none;
+}
+
+.instruction-step .btn-remove-instruction-inline {
+    flex-shrink: 0;
+    margin-left: auto;
+    margin-right: 0;
+    z-index: 10;
+    position: relative;
+    pointer-events: auto;
+}
+
+.btn-add-instruction-inline {
+    background: transparent;
+    border: none;
+    color: var(--accent-orange);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.btn-add-instruction-inline:hover {
+    opacity: 1;
 }
 
 .step-number {
@@ -625,8 +659,13 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     </div>
 
     <div class="recipe-section card-shadow-light">
-        <h3 class="recipe-section-title">Modo de Preparo</h3>
-        <div id="instructions-list" class="recipe-instructions" contenteditable="true" data-placeholder="1. Primeiro passo...&#10;2. Segundo passo...&#10;3. Terceiro passo...">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 class="recipe-section-title" style="margin: 0;">Modo de Preparo</h3>
+            <button type="button" id="btn-add-instruction-preview" class="btn-add-instruction-inline" title="Adicionar Passo" style="background: transparent; border: none; color: var(--accent-orange); cursor: pointer; font-size: 18px; padding: 4px 8px; opacity: 0.7; transition: opacity 0.2s ease;">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <div id="instructions-list" class="recipe-instructions">
             <?php
             if (!empty($recipe['instructions'])) {
                 $steps = explode("\n", trim($recipe['instructions']));
