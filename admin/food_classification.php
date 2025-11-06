@@ -1699,7 +1699,14 @@ function initCustomSelect(selectId, inputId, submitForm) {
                 void optionsContainer.offsetHeight;
             }
         } else {
-            // Fechando o dropdown
+            // Fechando o dropdown - remove estilos inline primeiro
+            const optionsContainer = customSelect.querySelector('.custom-select-options');
+            if (optionsContainer) {
+                optionsContainer.style.visibility = 'hidden';
+                optionsContainer.style.opacity = '0';
+                optionsContainer.style.pointerEvents = 'none';
+            }
+            
             customSelect.classList.remove('active');
             if (wrapper) {
                 wrapper.classList.remove('active');
