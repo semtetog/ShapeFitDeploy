@@ -91,33 +91,39 @@ $csrf_token = $_SESSION['csrf_token'];
     overflow: visible !important;
 }
 
-/* ===== LAYOUT DE 2 COLUNAS: CELULAR À ESQUERDA, CONFIGURAÇÕES À DIREITA ===== */
+/* ===== LAYOUT DE 2 COLUNAS: CELULAR À ESQUERDA (FIXED), CONFIGURAÇÕES À DIREITA ===== */
 .edit-recipe-container .live-editor-container {
-    display: grid !important;
-    grid-template-columns: 420px 1fr !important;
-    gap: 3rem !important;
-    align-items: flex-start !important;
+    display: block !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    position: relative !important;
 }
 
-/* ===== MOCKUP DE CELULAR À ESQUERDA ===== */
+/* Espaçamento à esquerda para o mockup fixed */
+.edit-recipe-container .config-panel {
+    margin-left: 360px !important;
+}
+
+/* ===== MOCKUP DE CELULAR À ESQUERDA (FIXED - SEMPRE VISÍVEL) ===== */
 .edit-recipe-container .mobile-mockup-wrapper {
-    position: sticky !important;
-    top: 2rem !important;
-    width: 420px !important;
-    height: 850px !important;
-    padding: 12px !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 2rem !important;
+    transform: translateY(-50%) !important;
+    width: 320px !important;
+    height: 650px !important;
+    padding: 10px !important;
     background: #1a1a1a !important;
-    border-radius: 36px !important;
+    border-radius: 30px !important;
     box-shadow: 
-        0 0 0 6px rgba(0, 0, 0, 0.2),
+        0 0 0 4px rgba(0, 0, 0, 0.2),
         0 20px 60px rgba(0, 0, 0, 0.6) !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-start !important;
+    z-index: 100 !important;
 }
 
 /* Tela do celular */
@@ -125,12 +131,11 @@ $csrf_token = $_SESSION['csrf_token'];
     width: 100% !important;
     height: 100% !important;
     background: #121212 !important;
-    border-radius: 28px !important;
+    border-radius: 24px !important;
     overflow: hidden !important;
     position: relative !important;
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    min-height: 800px !important;
 }
 
 .edit-recipe-container #recipe-preview-frame {
