@@ -369,9 +369,23 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     line-height: 1.4;
     position: relative;
     padding-left: 20px;
-    padding-right: 60px;
+    padding-right: 40px;
     min-height: 24px;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.recipe-ingredient-list li .ingredient-text-content {
+    flex: 1;
+    min-width: 0;
+    padding-right: 8px;
+}
+
+.recipe-ingredient-list li .btn-remove-ingredient-inline {
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
 .recipe-ingredient-list li[contenteditable="true"]:focus {
@@ -379,8 +393,13 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     outline-offset: 2px;
     background: rgba(255, 255, 255, 0.02);
     border-radius: 4px;
-    padding: 8px;
-    margin: -8px;
+}
+
+.recipe-ingredient-list li[contenteditable="true"]:focus .ingredient-text-content {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+    padding: 4px;
+    margin: -4px;
 }
 
 .recipe-ingredient-list li[contenteditable="true"]:empty:before {
@@ -558,8 +577,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
             <?php if (!empty($ingredients)): ?>
                 <?php foreach($ingredients as $ingredient): ?>
                 <li class="ingredient-item-editable" contenteditable="true" data-ingredient-text="<?php echo htmlspecialchars($ingredient); ?>">
-                    <?php echo htmlspecialchars($ingredient); ?>
-                    <button type="button" class="btn-remove-ingredient-inline" title="Remover" style="float: right; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 0; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1;">×</button>
+                    <span class="ingredient-text-content"><?php echo htmlspecialchars($ingredient); ?></span>
+                    <button type="button" class="btn-remove-ingredient-inline" title="Remover" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center;">×</button>
                 </li>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -995,36 +1014,41 @@ document.addEventListener('DOMContentLoaded', function() {
             item.parentNode.replaceChild(newItem, item);
             
             // Adicionar listener de input
-            newItem.addEventListener('input', function() {
-                syncIngredientsToParent();
-            });
-            
-            newItem.addEventListener('blur', function() {
-                if (!this.textContent.trim()) {
-                    // Se ficou vazio, remover ou mostrar placeholder
-                    if (ingredientList.querySelectorAll('.ingredient-item-editable').length > 1) {
-                        this.remove();
+            const textContent = newItem.querySelector('.ingredient-text-content');
+            if (textContent) {
+                textContent.contentEditable = 'true';
+                
+                textContent.addEventListener('input', function() {
+                    syncIngredientsToParent();
+                });
+                
+                textContent.addEventListener('blur', function() {
+                    if (!this.textContent.trim()) {
+                        // Se ficou vazio, remover ou mostrar placeholder
+                        if (ingredientList.querySelectorAll('.ingredient-item-editable').length > 1) {
+                            newItem.remove();
+                        } else {
+                            newItem.className = 'ingredient-item-editable empty-placeholder';
+                            newItem.dataset.placeholder = 'Clique para adicionar ingrediente...';
+                            newItem.style.cssText = 'opacity: 0.5; font-style: italic;';
+                            textContent.textContent = 'Clique para adicionar ingrediente...';
+                        }
                     } else {
-                        this.className = 'ingredient-item-editable empty-placeholder';
-                        this.dataset.placeholder = 'Clique para adicionar ingrediente...';
-                        this.style.cssText = 'opacity: 0.5; font-style: italic;';
-                        this.textContent = 'Clique para adicionar ingrediente...';
+                        // Remover classe de placeholder se tiver conteúdo
+                        newItem.classList.remove('empty-placeholder');
+                        newItem.style.cssText = '';
                     }
-                } else {
-                    // Remover classe de placeholder se tiver conteúdo
-                    this.classList.remove('empty-placeholder');
-                    this.style.cssText = '';
-                }
-                syncIngredientsToParent();
-            });
-            
-            newItem.addEventListener('focus', function() {
-                if (this.classList.contains('empty-placeholder')) {
-                    this.textContent = '';
-                    this.classList.remove('empty-placeholder');
-                    this.style.cssText = '';
-                }
-            });
+                    syncIngredientsToParent();
+                });
+                
+                textContent.addEventListener('focus', function() {
+                    if (newItem.classList.contains('empty-placeholder')) {
+                        this.textContent = '';
+                        newItem.classList.remove('empty-placeholder');
+                        newItem.style.cssText = '';
+                    }
+                });
+            }
             
             // Reconfigurar botão de remover
             const removeBtn = newItem.querySelector('.btn-remove-ingredient-inline');
@@ -1090,15 +1114,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Criar novo item
             const li = document.createElement('li');
             li.className = 'ingredient-item-editable';
-            li.contentEditable = 'true';
-            li.textContent = '';
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'ingredient-text-content';
+            textSpan.contentEditable = 'true';
+            textSpan.textContent = '';
             
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'btn-remove-ingredient-inline';
             removeBtn.title = 'Remover';
             removeBtn.innerHTML = '×';
-            removeBtn.style.cssText = 'float: right; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 0; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1;';
+            removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;';
             removeBtn.addEventListener('mouseenter', function() {
                 this.style.opacity = '1';
             });
@@ -1107,15 +1134,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             removeBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
+                e.preventDefault();
                 li.remove();
                 syncIngredientsToParent();
             });
             
+            li.appendChild(textSpan);
             li.appendChild(removeBtn);
             ingredientList.appendChild(li);
             
             // Focar no novo item
-            li.focus();
+            textSpan.focus();
             
             // Reconfigurar listeners
             setupIngredientListeners();
