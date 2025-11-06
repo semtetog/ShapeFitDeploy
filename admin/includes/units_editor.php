@@ -835,14 +835,20 @@ function renderUnitsList() {
     // Anima os cards de forma escalonada e suave usando requestAnimationFrame
     const items = container.querySelectorAll('.unit-item');
     items.forEach((item, index) => {
-        // Força reflow
-        void item.offsetHeight;
-        // Aplica animação com delay escalonado
-        setTimeout(() => {
-            item.style.transition = 'opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-            item.style.opacity = '1';
-            item.style.transform = 'translateY(0)';
-        }, index * 30); // Delay de 30ms entre cada card
+        // Usa requestAnimationFrame para garantir renderização suave
+        requestAnimationFrame(() => {
+            // Força reflow antes de aplicar a transição
+            void item.offsetHeight;
+            // Aplica animação com delay escalonado
+            setTimeout(() => {
+                item.style.transition = 'opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+                // Força outro reflow antes de mudar as propriedades para animação mais suave
+                requestAnimationFrame(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                });
+            }, index * 20); // Delay de 20ms entre cada card (mais rápido e fluido)
+        });
     });
 }
 
