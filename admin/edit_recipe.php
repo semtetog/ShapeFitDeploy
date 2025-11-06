@@ -496,6 +496,10 @@ input[type=number] {
 .btn-add-circular {
     width: 48px !important;
     height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    max-width: 48px !important;
+    max-height: 48px !important;
     border-radius: 50% !important;
     background: rgba(255, 107, 0, 0.08) !important;
     border: 1px solid rgba(255, 107, 0, 0.2) !important;
@@ -504,6 +508,17 @@ input[type=number] {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: transform 0.2s ease !important;
+}
+
+.btn-add-circular:hover {
+    transform: scale(1.1) !important;
+}
+
+.btn-add-circular:active {
+    transform: scale(0.95) !important;
     transition: all 0.3s ease !important;
 }
 
