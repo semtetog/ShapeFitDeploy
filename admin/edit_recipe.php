@@ -530,6 +530,9 @@ input[type=number] {
     .edit-recipe-container {
         padding-left: calc(var(--mockup-width) + 1rem) !important;
     }
+    .mobile-mockup-panel {
+        left: calc(var(--sidebar-width) + var(--layout-gap) + 0.5rem) !important; /* Move um pouco para a direita */
+    }
 }
 
 /* RESPONSIVIDADE */
