@@ -1202,6 +1202,28 @@ document.addEventListener('DOMContentLoaded', function() {
             element.addEventListener('input', sendServingInfoUpdate);
         }
     });
+
+    // =========================================================================
+    //       CLICK NAS CATEGORIAS DO PREVIEW: ROLAR ATÉ O CARD DE CATEGORIAS
+    // =========================================================================
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'scrollToCategories') {
+            const categoriesCard = document.getElementById('categories-card');
+            if (categoriesCard) {
+                categoriesCard.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // Feedback visual - highlight do card
+                categoriesCard.style.border = '2px solid var(--accent-orange)';
+                categoriesCard.style.transition = 'border 0.3s ease';
+                setTimeout(() => {
+                    categoriesCard.style.border = '';
+                }, 2000);
+            }
+        }
+    });
 });
 
 </script>

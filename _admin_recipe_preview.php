@@ -428,7 +428,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     <div class="recipe-main-info card-shadow-light">
         <h1 id="recipe-name" class="recipe-name-main" contenteditable="true" data-placeholder="Nome da Receita"><?php echo htmlspecialchars($recipe['name']); ?></h1>
         <p id="recipe-description" class="recipe-description-short" contenteditable="true" data-placeholder="Descreva brevemente a receita..."><?php echo !empty($recipe['description']) ? nl2br(htmlspecialchars($recipe['description'])) : ''; ?></p>
-        <div class="category-tags-container">
+        <div class="category-tags-container" id="category-tags-clickable" style="cursor: pointer;">
             <?php if (!empty($categories)): ?>
                 <?php foreach ($categories as $category): ?><span class="category-tag"><?php echo htmlspecialchars($category['name']); ?></span><?php endforeach; ?>
             <?php endif; ?>
