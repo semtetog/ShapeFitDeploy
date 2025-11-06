@@ -889,9 +889,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const popupContent = document.createElement('div');
             popupContent.style.cssText = `
-                background: rgba(18, 18, 18, 0.5);
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
+                background: rgba(18, 18, 18, 0.4);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 16px;
                 padding: 0;
@@ -1020,8 +1020,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (content) {
                             content.style.opacity = '1';
                             content.style.transform = 'scale(1) translateY(0)';
-                            content.style.backdropFilter = 'blur(12px)';
-                            content.style.webkitBackdropFilter = 'blur(12px)';
+                            content.style.backdropFilter = 'blur(8px)';
+                            content.style.webkitBackdropFilter = 'blur(8px)';
                         }
                     });
                 }
