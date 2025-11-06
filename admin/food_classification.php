@@ -1611,6 +1611,10 @@ function initCustomSelect(selectId, inputId, submitForm) {
             
             // Fecha o dropdown
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
             
             // Se for o filtro de categoria, submete o formulário
             if (submitForm) {
@@ -1629,6 +1633,10 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('click', function(e) {
         if (!customSelect.contains(e.target)) {
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
         }
     });
     
@@ -1636,6 +1644,10 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && customSelect.classList.contains('active')) {
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
         }
     });
 }
