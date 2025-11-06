@@ -975,6 +975,130 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
         };
     }
+    
+    // Configurar edição inline de ingredientes
+    function setupIngredientListeners() {
+        const ingredientList = document.getElementById('ingredient-list');
+        if (!ingredientList) return;
+        
+        // Remover listeners anteriores
+        const items = ingredientList.querySelectorAll('.ingredient-item-editable');
+        items.forEach(item => {
+            // Remover listeners antigos clonando o elemento
+            const newItem = item.cloneNode(true);
+            item.parentNode.replaceChild(newItem, item);
+            
+            // Adicionar listener de input
+            newItem.addEventListener('input', function() {
+                syncIngredientsToParent();
+            });
+            
+            newItem.addEventListener('blur', function() {
+                if (!this.textContent.trim()) {
+                    // Se ficou vazio, remover ou mostrar placeholder
+                    if (ingredientList.querySelectorAll('.ingredient-item-editable').length > 1) {
+                        this.remove();
+                    } else {
+                        this.className = 'ingredient-item-editable empty-placeholder';
+                        this.dataset.placeholder = 'Clique para adicionar ingrediente...';
+                        this.style.cssText = 'opacity: 0.5; font-style: italic;';
+                        this.textContent = 'Clique para adicionar ingrediente...';
+                    }
+                } else {
+                    // Remover classe de placeholder se tiver conteúdo
+                    this.classList.remove('empty-placeholder');
+                    this.style.cssText = '';
+                }
+                syncIngredientsToParent();
+            });
+            
+            newItem.addEventListener('focus', function() {
+                if (this.classList.contains('empty-placeholder')) {
+                    this.textContent = '';
+                    this.classList.remove('empty-placeholder');
+                    this.style.cssText = '';
+                }
+            });
+            
+            // Reconfigurar botão de remover
+            const removeBtn = newItem.querySelector('.btn-remove-ingredient-inline');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    newItem.remove();
+                    syncIngredientsToParent();
+                });
+            }
+        });
+    }
+    
+    // Função para sincronizar ingredientes com o parent
+    function syncIngredientsToParent() {
+        const ingredientList = document.getElementById('ingredient-list');
+        if (!ingredientList) return;
+        
+        const ingredients = [];
+        const items = ingredientList.querySelectorAll('.ingredient-item-editable');
+        items.forEach(item => {
+            const text = item.textContent.trim();
+            if (text && !item.classList.contains('empty-placeholder')) {
+                ingredients.push(text);
+            }
+        });
+        
+        // Enviar para o parent
+        if (window.parent && window.parent.postMessage) {
+            window.parent.postMessage({
+                type: 'updateIngredients',
+                value: ingredients
+            }, '*');
+        }
+    }
+    
+    // Botão de adicionar ingrediente
+    const addIngredientBtn = document.getElementById('btn-add-ingredient-preview');
+    if (addIngredientBtn) {
+        addIngredientBtn.addEventListener('click', function() {
+            const ingredientList = document.getElementById('ingredient-list');
+            if (!ingredientList) return;
+            
+            // Remover placeholder se existir
+            const placeholder = ingredientList.querySelector('.empty-placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
+            // Criar novo item
+            const li = document.createElement('li');
+            li.className = 'ingredient-item-editable';
+            li.contentEditable = 'true';
+            li.textContent = '';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn-remove-ingredient-inline';
+            removeBtn.title = 'Remover';
+            removeBtn.innerHTML = '×';
+            removeBtn.style.cssText = 'float: right; background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); color: #F44336; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; margin-left: 8px;';
+            removeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                li.remove();
+                syncIngredientsToParent();
+            });
+            
+            li.appendChild(removeBtn);
+            ingredientList.appendChild(li);
+            
+            // Focar no novo item
+            li.focus();
+            
+            // Reconfigurar listeners
+            setupIngredientListeners();
+        });
+    }
+    
+    // Configurar listeners iniciais
+    setupIngredientListeners();
 });
 
 // Debug: Verificar se os números estão sendo renderizados
