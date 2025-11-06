@@ -8,10 +8,13 @@ require_once __DIR__ . '/../../includes/units_manager.php';
 
 <!-- Modal para editar unidades -->
 <div class="units-editor-modal" id="units-editor-modal">
+    <div class="units-editor-overlay" onclick="closeUnitsEditor()"></div>
     <div class="units-editor-content">
+        <button class="sleep-modal-close" onclick="closeUnitsEditor()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
         <div class="units-editor-header">
             <h3 id="units-editor-title">Editar Unidades de Medida</h3>
-            <button class="units-editor-close" onclick="closeUnitsEditor()">&times;</button>
         </div>
         
         <div class="units-editor-body">
@@ -43,10 +46,13 @@ require_once __DIR__ . '/../../includes/units_manager.php';
 
 <!-- Modal para adicionar/editar unidade individual -->
 <div class="unit-edit-modal" id="unit-edit-modal">
+    <div class="unit-edit-overlay" onclick="closeUnitEdit()"></div>
     <div class="unit-edit-content">
+        <button class="sleep-modal-close" onclick="closeUnitEdit()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
         <div class="unit-edit-header">
             <h4 id="unit-edit-title">Adicionar Unidade</h4>
-            <button class="unit-edit-close" onclick="closeUnitEdit()">&times;</button>
         </div>
         
         <div class="unit-edit-body">
@@ -97,7 +103,7 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.1s ease;
 }
 
 .units-editor-modal.visible {
@@ -105,8 +111,8 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     pointer-events: all;
 }
 
-.units-editor-modal::before {
-    content: '';
+/* Overlay separado - igual view_user para blur mais rápido */
+.units-editor-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -115,6 +121,7 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    transition: none !important;
 }
 
 .units-editor-content {
@@ -153,27 +160,30 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     font-family: 'Montserrat', sans-serif;
 }
 
-.units-editor-close {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+/* Botão X - copiado do sleep-modal-close do view_user */
+.sleep-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
     color: var(--text-secondary);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    padding: 0;
-    width: 40px;
-    height: 40px;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
     transition: all 0.3s ease;
+    z-index: 10;
 }
 
-.units-editor-close:hover {
+.sleep-modal-close:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent-orange);
     color: var(--accent-orange);
-    transform: translateY(-2px);
 }
 
 .units-editor-body {
@@ -446,7 +456,7 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.1s ease;
 }
 
 .unit-edit-modal.visible {
@@ -454,8 +464,8 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     pointer-events: all;
 }
 
-.unit-edit-modal::before {
-    content: '';
+/* Overlay separado - igual view_user para blur mais rápido */
+.unit-edit-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -464,6 +474,7 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    transition: none !important;
 }
 
 .unit-edit-content {
@@ -499,28 +510,6 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     font-family: 'Montserrat', sans-serif;
 }
 
-.unit-edit-close {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.unit-edit-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent-orange);
-    color: var(--accent-orange);
-    transform: translateY(-2px);
-}
 
 .unit-edit-body {
     padding: 2rem;
