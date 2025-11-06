@@ -82,7 +82,10 @@ $csrf_token = $_SESSION['csrf_token'];
     
     --sidebar-width: 256px;
     --layout-gap: 2rem;
-    --mockup-width: 410px; /* Largura que você gostou */
+    
+    /* A MÁGICA FINAL: Tamanho baseado na ALTURA da tela */
+    --mockup-height: calc(100vh - (var(--layout-gap) * 2));
+    --mockup-width: calc(var(--mockup-height) / 2); /* Força a proporção 2:1 */
 }
 
 /* O CONTAINER PRINCIPAL USA FLEXBOX */
@@ -102,11 +105,11 @@ $csrf_token = $_SESSION['csrf_token'];
     position: sticky; /* A MÁGICA: "gruda" no topo quando a página rola */
     top: var(--layout-gap);
     
-    /* A altura preenche a tela com um "respiro" em cima e embaixo */
-    height: calc(100vh - (var(--layout-gap) * 2));
+    height: var(--mockup-height); /* Usa a variável de altura */
     
-    /* Limita o tamanho máximo para não ficar muito largo com zoom */
+    /* Limites para não ficar nem gigante nem minúsculo */
     max-width: 410px;
+    max-height: 820px;
 }
 
 .mobile-mockup-wrapper {
