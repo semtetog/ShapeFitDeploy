@@ -842,33 +842,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar click listener na imagem para abrir modal
     // Mover para escopo global para ser acessível em updateImage
     window.setupImageClick = function(element) {
-        if (element) {
-            // Remover listeners anteriores para evitar duplicação
-            const newElement = element.cloneNode(true);
+        if (!element) return;
+        
+        // Remover listeners anteriores se existirem
+        const newElement = element.cloneNode(true);
+        if (element.parentNode) {
             element.parentNode.replaceChild(newElement, element);
-            
-            newElement.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Obter posição da imagem no momento do clique (relativa ao viewport do iframe)
-                const rect = newElement.getBoundingClientRect();
-                
-                if (window.parent && window.parent.postMessage) {
-                    window.parent.postMessage({ 
-                        type: 'imageClick',
-                        imageRect: {
-                            left: rect.left,
-                            top: rect.top,
-                            width: rect.width,
-                            height: rect.height,
-                            right: rect.right,
-                            bottom: rect.bottom
-                        }
-                    }, '*');
-                }
-            });
         }
+        
+        newElement.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Obter posição da imagem no momento do clique (relativa ao viewport do iframe)
+            const rect = newElement.getBoundingClientRect();
+            
+            if (window.parent && window.parent.postMessage) {
+                window.parent.postMessage({ 
+                    type: 'imageClick',
+                    imageRect: {
+                        left: rect.left,
+                        top: rect.top,
+                        width: rect.width,
+                        height: rect.height,
+                        right: rect.right,
+                        bottom: rect.bottom
+                    }
+                }, '*');
+            }
+        });
     };
     
     const setupImageClick = window.setupImageClick;
