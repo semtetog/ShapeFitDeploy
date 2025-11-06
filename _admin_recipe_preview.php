@@ -97,11 +97,16 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 }
 
 /* === CONTAINER === */
-/* Remover padding do app-container para garantir que a imagem não entre no card */
+/* Garantir que app-container tenha padding igual ao view_recipe.php */
 .app-container {
-    padding: 24px !important;
-    padding-top: 24px !important;
-    padding-bottom: calc(60px + 20px + env(safe-area-inset-bottom)) !important;
+    padding: env(safe-area-inset-top) 24px calc(60px + 20px + env(safe-area-inset-bottom)) 24px !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    background-color: transparent !important;
 }
 
 .recipe-detail-container {
@@ -115,21 +120,28 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 
 /* === IMAGEM === */
 .recipe-detail-image {
-    width: 100%;
-    height: 280px;
-    object-fit: cover;
-    border-radius: 20px;
-    margin-bottom: 20px;
+    width: 100% !important;
+    height: 280px !important;
+    object-fit: cover !important;
+    border-radius: 20px !important;
+    margin-bottom: 20px !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 /* === INFORMAÇÕES PRINCIPAIS === */
 .recipe-main-info {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 20px;
-    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 20px !important;
+    padding: 24px !important;
+    margin-bottom: 20px !important;
+    margin-top: 0 !important;
+    transition: all 0.2s ease !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .recipe-main-info:hover {
