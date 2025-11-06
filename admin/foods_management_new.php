@@ -113,22 +113,18 @@ require_once __DIR__ . '/includes/header.php';
 /* ========================================================================= */
 
 .foods-page-container {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 2rem;
     min-height: 100vh;
 }
 
 /* Header Card */
 .foods-header-card {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: 2rem;
-    padding: 2rem;
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     position: relative;
 }
@@ -148,7 +144,7 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
+    margin-bottom: 1.5rem;
     gap: 1.5rem;
 }
 
@@ -411,78 +407,109 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--accent-orange);
 }
 
-/* Foods Grid */
-.foods-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.food-card {
+/* Data Table */
+.foods-table-container {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-    position: relative;
+    border-radius: 20px;
+    padding: 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
 }
 
-.food-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-    border-color: var(--accent-orange);
+.table-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
 }
 
-.food-name {
-    font-size: 1.125rem;
+.table-title {
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin: 0 0 1rem 0;
-    line-height: 1.4;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-.food-brand {
+.table-title i {
+    color: var(--accent-orange);
+}
+
+.table-content {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.data-table thead {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.data-table th {
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+
+.data-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(255, 107, 0, 0.08);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.food-name-cell {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.food-brand-cell {
     font-size: 0.875rem;
     color: var(--text-secondary);
-    margin-bottom: 1rem;
+    margin-top: 0.25rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.food-macros {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 12px;
-}
-
-.macro-item {
-    text-align: center;
+.food-brand-cell i {
+    color: var(--accent-orange);
+    font-size: 0.75rem;
 }
 
 .macro-value {
-    font-size: 1.125rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--accent-orange);
-    display: block;
-    margin-bottom: 0.25rem;
 }
 
-.macro-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.food-source {
+.source-badge {
     display: inline-block;
     padding: 0.375rem 0.75rem;
     background: rgba(255, 107, 0, 0.1);
@@ -491,23 +518,21 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--accent-orange);
     font-size: 0.75rem;
     font-weight: 500;
-    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.food-actions {
+/* Action Buttons */
+.actions {
     display: flex;
     gap: 0.75rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-action {
-    flex: 1;
     padding: 0.625rem 1rem;
     border-radius: 10px;
     text-decoration: none;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
@@ -516,6 +541,7 @@ require_once __DIR__ . '/includes/header.php';
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .btn-action.edit {
@@ -552,6 +578,7 @@ require_once __DIR__ . '/includes/header.php';
     border-radius: 20px;
     padding: 4rem 2rem;
     text-align: center;
+    margin-bottom: 2rem;
 }
 
 .empty-state-content i {
@@ -674,104 +701,6 @@ require_once __DIR__ . '/includes/header.php';
     padding: 0 0.5rem;
 }
 
-/* Add Food Section */
-.add-food-section {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.section-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.section-header h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.section-header h3 i {
-    color: var(--accent-orange);
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.25rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.form-group label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.form-control {
-    padding: 0.875rem 1.25rem;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    font-family: 'Montserrat', sans-serif;
-    transition: all 0.3s ease;
-    outline: none;
-}
-
-.form-control:focus {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--accent-orange);
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
-}
-
-.form-control::placeholder {
-    color: var(--text-secondary);
-    opacity: 0.7;
-}
-
-.btn-success {
-    padding: 0.875rem 2rem;
-    background: var(--accent-orange);
-    border: none;
-    border-radius: 12px;
-    color: #FFFFFF;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-    grid-column: 1 / -1;
-    justify-self: start;
-}
-
-.btn-success:hover {
-    background: #e65c00;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .foods-page-container {
@@ -779,20 +708,30 @@ require_once __DIR__ . '/includes/header.php';
     }
     
     .foods-header-card {
-        flex-direction: column;
         padding: 1.5rem;
+    }
+    
+    .card-header-section {
+        flex-direction: column;
+        align-items: flex-start;
     }
     
     .stats-grid {
         grid-template-columns: 1fr;
     }
     
-    .foods-grid {
-        grid-template-columns: 1fr;
+    .data-table {
+        font-size: 0.875rem;
     }
     
-    .form-grid {
-        grid-template-columns: 1fr;
+    .data-table th,
+    .data-table td {
+        padding: 1rem;
+    }
+    
+    .actions {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }
 </style>
@@ -869,7 +808,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </form>
     </div>
-    
+
     <!-- Estatísticas -->
     <div class="stats-grid">
         <div class="stat-card">
@@ -895,8 +834,8 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         <?php endforeach; ?>
     </div>
-    
-    <!-- Grid de Alimentos -->
+
+    <!-- Tabela de Alimentos -->
     <?php if (empty($foods)): ?>
         <div class="dashboard-card empty-state-card">
             <div class="empty-state-content">
@@ -910,75 +849,107 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
     <?php else: ?>
-        <div class="foods-grid">
-            <?php foreach ($foods as $food): ?>
-                <div class="dashboard-card food-card">
-                    <h3 class="food-name"><?php echo htmlspecialchars($food['name_pt']); ?></h3>
-                    
+        <div class="dashboard-card foods-table-container">
+            <div class="table-header">
+                <h3 class="table-title">
+                    <i class="fas fa-list"></i>
+                    Alimentos 
+                    <?php if (!empty($search_term) || !empty($source_filter)): ?>
+                        - Filtrados
+                    <?php endif; ?>
+                    <span style="color: var(--text-secondary); font-weight: 400; margin-left: 0.5rem;">
+                        (<?php echo number_format($total_items); ?> total)
+                    </span>
+                </h3>
+            </div>
+            
+            <div class="table-content">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Calorias</th>
+                            <th>Proteína</th>
+                            <th>Carboidratos</th>
+                            <th>Gordura</th>
+                            <th>Fonte</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($foods as $food): ?>
+                            <tr>
+                                <td>
+                                    <div class="food-name-cell">
+                                        <?php echo htmlspecialchars($food['name_pt']); ?>
+                                    </div>
                                     <?php if (!empty($food['brand']) && $food['brand'] !== 'TACO'): ?>
-                        <div class="food-brand">
-                            <i class="fas fa-tag"></i>
-                            <?php echo htmlspecialchars($food['brand']); ?>
-                        </div>
+                                        <div class="food-brand-cell">
+                                            <i class="fas fa-tag"></i>
+                                            <?php echo htmlspecialchars($food['brand']); ?>
+                                        </div>
                                     <?php endif; ?>
-                    
-                    <div class="food-macros">
-                        <div class="macro-item">
-                            <span class="macro-value"><?php echo number_format($food['energy_kcal_100g'], 0); ?></span>
-                            <span class="macro-label">Kcal</span>
-                        </div>
-                        <div class="macro-item">
-                            <span class="macro-value"><?php echo number_format($food['protein_g_100g'], 1); ?>g</span>
-                            <span class="macro-label">Proteína</span>
-                        </div>
-                        <div class="macro-item">
-                            <span class="macro-value"><?php echo number_format($food['carbohydrate_g_100g'], 1); ?>g</span>
-                            <span class="macro-label">Carbo</span>
-                        </div>
-                        <div class="macro-item">
-                            <span class="macro-value"><?php echo number_format($food['fat_g_100g'], 1); ?>g</span>
-                            <span class="macro-label">Gordura</span>
-                        </div>
-                                </div>
-                    
-                    <div class="food-source">
-                                <?php
-                                $source = $food['source_table'];
-                                    switch ($source) {
-                                        case 'Sonia Tucunduva (Prioridade)': echo 'Sonia (Atualizado)'; break;
-                                        default: echo htmlspecialchars($source);
-                                    }
-                                    ?>
-                    </div>
-                    
-                    <div class="food-actions">
-                        <a href="edit_food_new.php?id=<?php echo $food['id']; ?>" class="btn-action edit">
-                            <i class="fas fa-edit"></i> Editar
-                                    </a>
-                                    <a href="process_food.php?action=delete&id=<?php echo $food['id']; ?>" 
-                           class="btn-action delete" 
-                           onclick="return confirm('Tem certeza que deseja excluir este alimento? Esta ação não pode ser desfeita.');">
-                            <i class="fas fa-trash"></i> Excluir
-                                    </a>
-                                </div>
-                </div>
-                    <?php endforeach; ?>
-    </div>
-    
-    <!-- Paginação -->
-    <?php if ($total_pages > 1): ?>
+                                </td>
+                                <td>
+                                    <span class="macro-value"><?php echo number_format($food['energy_kcal_100g'], 0); ?></span>
+                                    <span style="color: var(--text-secondary); font-size: 0.875rem;"> kcal</span>
+                                </td>
+                                <td>
+                                    <span class="macro-value"><?php echo number_format($food['protein_g_100g'], 1); ?></span>
+                                    <span style="color: var(--text-secondary); font-size: 0.875rem;">g</span>
+                                </td>
+                                <td>
+                                    <span class="macro-value"><?php echo number_format($food['carbohydrate_g_100g'], 1); ?></span>
+                                    <span style="color: var(--text-secondary); font-size: 0.875rem;">g</span>
+                                </td>
+                                <td>
+                                    <span class="macro-value"><?php echo number_format($food['fat_g_100g'], 1); ?></span>
+                                    <span style="color: var(--text-secondary); font-size: 0.875rem;">g</span>
+                                </td>
+                                <td>
+                                    <span class="source-badge">
+                                        <?php 
+                                        $source = $food['source_table'];
+                                        switch ($source) {
+                                            case 'Sonia Tucunduva (Prioridade)': echo 'Sonia (Atualizado)'; break;
+                                            default: echo htmlspecialchars($source);
+                                        }
+                                        ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="actions">
+                                        <a href="edit_food_new.php?id=<?php echo $food['id']; ?>" class="btn-action edit">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        <a href="process_food.php?action=delete&id=<?php echo $food['id']; ?>" 
+                                           class="btn-action delete" 
+                                           onclick="return confirm('Tem certeza que deseja excluir este alimento? Esta ação não pode ser desfeita.');">
+                                            <i class="fas fa-trash"></i> Excluir
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginação -->
+        <?php if ($total_pages > 1): ?>
             <div class="dashboard-card pagination-card">
                 <div class="pagination-info">
                     Mostrando <?php echo ($offset + 1); ?> - <?php echo min($offset + $per_page, $total_items); ?> de <?php echo number_format($total_items); ?> alimentos
                 </div>
                 <div class="pagination-controls">
-            <?php if ($page > 1): ?>
+                    <?php if ($page > 1): ?>
                         <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page - 1])); ?>" 
                            class="btn-secondary pagination-btn">
                             <i class="fas fa-chevron-left"></i> Anterior
-                </a>
-            <?php endif; ?>
-            
+                        </a>
+                    <?php endif; ?>
+                    
                     <div class="pagination-numbers">
                         <?php
                         $start_page = max(1, $page - 2);
@@ -993,13 +964,13 @@ require_once __DIR__ . '/includes/header.php';
                         <?php endif; ?>
                         
                         <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                <?php if ($i == $page): ?>
+                            <?php if ($i == $page): ?>
                                 <span class="pagination-number current"><?php echo $i; ?></span>
-                <?php else: ?>
+                            <?php else: ?>
                                 <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>" 
                                    class="pagination-number"><?php echo $i; ?></a>
-                <?php endif; ?>
-            <?php endfor; ?>
+                            <?php endif; ?>
+                        <?php endfor; ?>
                         
                         <?php if ($end_page < $total_pages): ?>
                             <?php if ($end_page < $total_pages - 1): ?>
@@ -1009,14 +980,14 @@ require_once __DIR__ . '/includes/header.php';
                                class="pagination-number"><?php echo $total_pages; ?></a>
                         <?php endif; ?>
                     </div>
-            
-            <?php if ($page < $total_pages): ?>
+                    
+                    <?php if ($page < $total_pages): ?>
                         <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page + 1])); ?>" 
                            class="btn-secondary pagination-btn">
                             Próxima <i class="fas fa-chevron-right"></i>
-                </a>
-            <?php endif; ?>
-        </div>
+                        </a>
+                    <?php endif; ?>
+                </div>
             </div>
         <?php endif; ?>
     <?php endif; ?>
