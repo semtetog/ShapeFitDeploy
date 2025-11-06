@@ -617,7 +617,7 @@ input[type=number] {
 }
 
 /* ===== PREVIEW MOBILE (IDÊNTICO AO VIEW_RECIPE.PHP) ===== */
-.mobile-preview-wrapper {
+.edit-recipe-container .mobile-preview-wrapper {
     width: 380px !important;
     height: 750px !important;
     padding: 12px !important;
@@ -625,16 +625,19 @@ input[type=number] {
     border-radius: 40px !important;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5) !important;
     border: 1px solid var(--glass-border) !important;
-    position: sticky !important;
-    top: 20px !important;
+    position: relative !important;
+    display: block !important;
+    visibility: visible !important;
 }
 
-#recipe-preview-frame {
+.edit-recipe-container #recipe-preview-frame {
     width: 100% !important;
     height: 100% !important;
     border-radius: 28px !important;
     border: none !important;
     background: #222 !important;
+    display: block !important;
+    visibility: visible !important;
 }
 </style>
 
