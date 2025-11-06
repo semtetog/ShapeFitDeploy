@@ -85,56 +85,59 @@ $csrf_token = $_SESSION['csrf_token'];
     --mockup-width: 410px; /* Largura que você gostou */
 }
 
-/* 1. O CONTAINER PRINCIPAL USA FLEXBOX */
+/* O CONTAINER PRINCIPAL USA FLEXBOX */
 .edit-recipe-container {
     display: flex;
     gap: var(--layout-gap);
-    padding: var(--layout-gap); /* Espaçamento geral */
-    align-items: flex-start; /* Alinha os dois painéis no topo */
+    padding: var(--layout-gap);
+    /* Alinha os painéis no topo, importante para o sticky funcionar bem */
+    align-items: flex-start;
 }
 
-/* 2. O PAINEL DO CELULAR (ESQUERDA) */
+/* PAINEL DO CELULAR (ESQUERDA) */
 .mobile-mockup-panel {
     width: var(--mockup-width);
-    flex-shrink: 0; /* Impede que ele encolha */
+    flex-shrink: 0; /* Impede que ele seja espremido */
     
     position: sticky; /* A MÁGICA: "gruda" no topo quando a página rola */
-    top: var(--layout-gap); /* Distância do topo antes de grudar */
+    top: var(--layout-gap);
     
-    /* Altura que preenche a tela, com "respiro" */
+    /* A altura preenche a tela com um "respiro" em cima e embaixo */
     height: calc(100vh - (var(--layout-gap) * 2));
+    
+    /* Limita o tamanho máximo para não ficar muito largo com zoom */
+    max-width: 410px;
 }
 
 .mobile-mockup-wrapper {
-    width: 100% !important;
-    height: 100% !important;
-    padding: 12px !important;
-    background: #1a1a1a !important;
-    border-radius: 40px !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
-    border: 1px solid var(--glass-border) !important;
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+    background: #1a1a1a;
+    border-radius: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--glass-border);
 }
 
 .mobile-screen {
-    width: 100% !important;
-    height: 100% !important;
-    background: #121212 !important;
-    border-radius: 28px !important;
-    overflow: hidden !important;
-    position: relative !important;
+    width: 100%;
+    height: 100%;
+    background: #121212;
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
 }
 
 #recipe-preview-frame {
-    width: 100% !important;
-    height: 100% !important;
-    border: none !important;
-    display: block !important;
+    width: 100%;
+    height: 100%;
+    border: none;
 }
 
-/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) */
+/* PAINEL DE CONFIGURAÇÕES (DIREITA) */
 .config-panel {
-    flex-grow: 1; /* Ocupa todo o resto do espaço na horizontal */
-    min-width: 0; /* Previne bugs de overflow do flexbox */
+    flex-grow: 1; /* Ocupa todo o resto do espaço */
+    min-width: 0; /* Previne que os inputs quebrem o layout */
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -518,7 +521,7 @@ input[type=number] {
         width: 100%;
         max-width: 410px;
         height: 750px; /* Altura fixa para telas menores */
-        margin: 0 auto;
+        margin: 0 auto 2rem auto; /* Centraliza e adiciona espaço embaixo */
     }
 }
 </style>
