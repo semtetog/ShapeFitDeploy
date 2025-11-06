@@ -821,10 +821,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar click listener na imagem para abrir modal
     function setupImageClick(element) {
         if (element) {
-            element.addEventListener('click', function() {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Obter posição da imagem no momento do clique (relativa ao viewport do iframe)
+                const rect = element.getBoundingClientRect();
+                
                 if (window.parent && window.parent.postMessage) {
                     window.parent.postMessage({ 
-                        type: 'imageClick' 
+                        type: 'imageClick',
+                        imageRect: {
+                            left: rect.left,
+                            top: rect.top,
+                            width: rect.width,
+                            height: rect.height,
+                            right: rect.right,
+                            bottom: rect.bottom
+                        }
                     }, '*');
                 }
             });
