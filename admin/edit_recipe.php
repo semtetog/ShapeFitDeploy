@@ -71,7 +71,7 @@ $csrf_token = $_SESSION['csrf_token'];
 
 <style>
 /* ========================================================================= */
-/*       CSS FINALÍSSIMO - LAYOUT COM COLUNA FIXA E CENTRALIZADA           */
+/*       CSS FINALÍSSIMO - LAYOUT À PROVA DE ZOOM                          */
 /* ========================================================================= */
 
 :root {
@@ -79,42 +79,40 @@ $csrf_token = $_SESSION['csrf_token'];
     --text-primary: #F5F5F5;
     --text-secondary: #A3A3A3;
     --glass-border: rgba(255, 255, 255, 0.1);
-    --sidebar-width: 256px; /* Largura da sua sidebar principal */
-    --mockup-width: 375px;  /* Largura fixa do mockup */
-    --layout-gap: 2rem;     /* Espaçamento entre os elementos */
+    
+    /* Variáveis baseadas na LARGURA DA JANELA (vw) para serem imunes ao zoom */
+    --sidebar-width: 256px; /* A sidebar principal parece ter largura fixa */
+    --layout-gap: 2vw;      /* Usamos vw para o espaçamento */
+    --mockup-width: 20vw;   /* O celular terá 20% da largura da tela */
+    --mockup-max-width: 375px; /* Mas não passará de 375px */
 }
 
-/* 1. O CONTAINER PRINCIPAL - A CHAVE DA SOLUÇÃO */
+/* 1. O CONTAINER PRINCIPAL */
+/* Removemos o padding daqui e o controlamos no painel de configurações */
 .edit-recipe-container {
-    /* Cria o espaço à esquerda para o celular fixo */
-    padding-left: calc(var(--sidebar-width) + var(--mockup-width) + (var(--layout-gap) * 2)) !important;
-    padding-right: var(--layout-gap) !important;
-    padding-top: 2rem !important;
-    padding-bottom: 2rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
 }
 
-/* 2. O PAINEL DO CELULAR (ESQUERDA) - FIXO E CENTRALIZADO */
+/* 2. O PAINEL DO CELULAR (ESQUERDA) - FIXO E IMUNE AO ZOOM */
 .mobile-mockup-panel {
-    position: fixed !important; /* FIXO NA TELA, NÃO ROLA */
-    
-    /* Centralização vertical perfeita */
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    
-    /* Posição horizontal fixa */
+    position: fixed !important;
+    top: 2rem !important;
+    bottom: 2rem !important; /* Usa top e bottom para centralizar e definir altura */
     left: calc(var(--sidebar-width) + var(--layout-gap)) !important;
     
-    width: var(--mockup-width) !important; /* LARGURA FIXA, NÃO MUDA COM ZOOM */
-    height: 750px !important; /* ALTURA FIXA */
+    width: var(--mockup-width) !important;
+    max-width: var(--mockup-max-width) !important;
     
     z-index: 10 !important;
+    display: flex !important; /* Para centralizar o wrapper interno */
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .mobile-mockup-wrapper {
     width: 100% !important;
-    height: 100% !important;
+    height: 100% !important; /* Ocupa 100% da altura definida pelo top/bottom do pai */
     padding: 12px !important;
     background: #1a1a1a !important;
     border-radius: 40px !important;
@@ -138,12 +136,15 @@ $csrf_token = $_SESSION['csrf_token'];
     display: block !important;
 }
 
-/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) - SÓ ROLA ELE */
+/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) - A PARTE QUE ROLA */
 .config-panel {
+    /* Margem para não ficar atrás do celular */
+    margin-left: calc(var(--sidebar-width) + var(--mockup-width) + (var(--layout-gap) * 2)) !important;
+    padding: 2rem var(--layout-gap) !important; /* Espaçamento interno */
+    
     display: flex !important;
     flex-direction: column !important;
     gap: 2rem !important;
-    width: 100% !important; /* Ocupa 100% do espaço que o padding-left deixou */
 }
 
 /* ===== HEADER COM AÇÕES ===== */
@@ -169,50 +170,33 @@ $csrf_token = $_SESSION['csrf_token'];
     gap: 0.75rem !important;
 }
 
-/* ===== CARDS (PADRÃO VIEW_USER) ===== */
-.edit-recipe-container .dashboard-card {
+.dashboard-card {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 20px !important;
     padding: 1.5rem !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.edit-recipe-container .dashboard-card:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
-    border-color: var(--accent-orange) !important;
-}
-
-/* ===== SECTION HEADER ===== */
-.edit-recipe-container .section-header {
+.section-header {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
     margin-bottom: 1.5rem !important;
-    height: 3rem !important;
-    padding: 0 !important;
 }
 
-.edit-recipe-container .section-header h4 {
+.section-header h4 {
     font-size: 1.25rem !important;
     font-weight: 700 !important;
     color: #FFFFFF !important;
     margin: 0 !important;
-    padding: 0 !important;
     font-family: 'Montserrat', sans-serif !important;
-    line-height: 1.5 !important;
-    height: 100% !important;
     display: flex !important;
     align-items: center !important;
     gap: 0.75rem !important;
 }
 
-.edit-recipe-container .section-header h4 i {
+.section-header h4 i {
     color: var(--accent-orange) !important;
-    font-size: 1rem !important;
 }
 
 .form-group {
@@ -535,14 +519,14 @@ input[type=number] {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* RESPONSIVIDADE PARA ESCONDER O CELULAR */
+/* RESPONSIVIDADE */
 @media (max-width: 1200px) {
     .mobile-mockup-panel {
         display: none !important;
     }
     
     .edit-recipe-container {
-        padding-left: var(--layout-gap) !important; /* Reseta o padding quando o celular some */
+        padding-left: var(--layout-gap) !important;
     }
 }
 </style>
