@@ -635,10 +635,10 @@ input[type=number] {
 
     <!-- PAINEL DE CONFIGURAÇÕES (DIREITA) -->
     <div class="config-panel">
-        <form action="save_recipe.php" method="POST" enctype="multipart/form-data" id="recipe-form">
-            <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe['id'] ?? ''); ?>">
-            <input type="hidden" name="existing_image_filename" value="<?php echo htmlspecialchars($recipe['image_filename'] ?? ''); ?>">
-            <input type="hidden" id="csrf-token" value="<?php echo $csrf_token; ?>">
+<form action="save_recipe.php" method="POST" enctype="multipart/form-data" id="recipe-form">
+    <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe['id'] ?? ''); ?>">
+    <input type="hidden" name="existing_image_filename" value="<?php echo htmlspecialchars($recipe['image_filename'] ?? ''); ?>">
+    <input type="hidden" id="csrf-token" value="<?php echo $csrf_token; ?>">
 
             <!-- INPUTS OCULTOS PARA SINCRONIZAÇÃO COM PREVIEW -->
             <input type="hidden" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>" required>
@@ -807,10 +807,10 @@ input[type=number] {
                 </div>
 
                 <!-- CARD: CATEGORIAS -->
-                <div class="dashboard-card">
+                <div class="dashboard-card" id="categories-card">
                     <div class="section-header">
                         <h4><i class="fas fa-tags"></i> Categorias</h4>
-                    </div>
+            </div>
                     <p class="field-help categories-help">Selecione todas as categorias que se aplicam.</p>
                     <div class="checkbox-grid" id="categories-grid-container">
                         <?php foreach($all_categories as $category): ?>
@@ -832,8 +832,8 @@ input[type=number] {
             </div>
         </div>
         </form>
+        </div>
     </div>
-</div>
 
 <script>
 // =========================================================================
