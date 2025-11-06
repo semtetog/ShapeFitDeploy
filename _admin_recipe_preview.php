@@ -369,6 +369,30 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     line-height: 1.4;
     position: relative;
     padding-left: 20px;
+    padding-right: 60px;
+    min-height: 24px;
+    transition: all 0.2s ease;
+}
+
+.recipe-ingredient-list li[contenteditable="true"]:focus {
+    outline: 2px solid rgba(255, 107, 0, 0.3);
+    outline-offset: 2px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+    padding: 8px;
+    margin: -8px;
+}
+
+.recipe-ingredient-list li[contenteditable="true"]:empty:before {
+    content: attr(data-placeholder);
+    color: var(--text-secondary);
+    opacity: 0.5;
+    font-style: italic;
+}
+
+.recipe-ingredient-list li.empty-placeholder {
+    opacity: 0.5;
+    font-style: italic;
 }
 
 .recipe-ingredient-list li:last-child {
@@ -523,14 +547,28 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     </div>
     <?php endif; ?>
 
-    <?php if (!empty($ingredients)): ?>
     <div class="recipe-section card-shadow-light">
-        <h3 class="recipe-section-title">Ingredientes</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 class="recipe-section-title" style="margin: 0;">Ingredientes</h3>
+            <button type="button" id="btn-add-ingredient-preview" class="btn-add-ingredient-inline" title="Adicionar Ingrediente" style="background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 14px; transition: all 0.2s ease;">
+                <i class="fas fa-plus"></i> Adicionar
+            </button>
+        </div>
         <ul id="ingredient-list" class="recipe-ingredient-list">
-            <?php foreach($ingredients as $ingredient): ?><li><?php echo htmlspecialchars($ingredient); ?></li><?php endforeach; ?>
+            <?php if (!empty($ingredients)): ?>
+                <?php foreach($ingredients as $ingredient): ?>
+                <li class="ingredient-item-editable" contenteditable="true" data-ingredient-text="<?php echo htmlspecialchars($ingredient); ?>">
+                    <?php echo htmlspecialchars($ingredient); ?>
+                    <button type="button" class="btn-remove-ingredient-inline" title="Remover" style="float: right; background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); color: #F44336; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; margin-left: 8px;">×</button>
+                </li>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <li class="ingredient-item-editable empty-placeholder" contenteditable="true" data-placeholder="Clique para adicionar ingrediente..." style="opacity: 0.5; font-style: italic;">
+                    Clique para adicionar ingrediente...
+                </li>
+            <?php endif; ?>
         </ul>
     </div>
-    <?php endif; ?>
 
     <div class="recipe-section card-shadow-light">
         <h3 class="recipe-section-title">Modo de Preparo</h3>
@@ -641,16 +679,47 @@ const updateImage = (value) => {
 
 const updateIngredients = (ingredients) => {
     const list = document.getElementById('ingredient-list'); 
+    if (!list) return;
+    
     list.innerHTML = '';
-    if (ingredients) { 
+    if (ingredients && ingredients.length > 0) { 
         ingredients.forEach(ingText => { 
             if (ingText.trim()) { 
-                const li = document.createElement('li'); 
-                li.textContent = ingText; 
-                list.appendChild(li); 
-            } 
+                const li = document.createElement('li');
+                li.className = 'ingredient-item-editable';
+                li.contentEditable = 'true';
+                li.dataset.ingredientText = ingText;
+                li.textContent = ingText;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn-remove-ingredient-inline';
+                removeBtn.title = 'Remover';
+                removeBtn.innerHTML = '×';
+                removeBtn.style.cssText = 'float: right; background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); color: #F44336; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; margin-left: 8px;';
+                removeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    li.remove();
+                    syncIngredientsToParent();
+                });
+                
+                li.appendChild(removeBtn);
+                list.appendChild(li);
+            }
         }); 
+    } else {
+        // Placeholder vazio
+        const li = document.createElement('li');
+        li.className = 'ingredient-item-editable empty-placeholder';
+        li.contentEditable = 'true';
+        li.dataset.placeholder = 'Clique para adicionar ingrediente...';
+        li.style.cssText = 'opacity: 0.5; font-style: italic;';
+        li.textContent = 'Clique para adicionar ingrediente...';
+        list.appendChild(li);
     }
+    
+    // Reconfigurar listeners após atualização
+    setupIngredientListeners();
 };
 
 const updateInstructions = (text) => {

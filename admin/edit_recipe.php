@@ -715,50 +715,10 @@ input[type=number] {
                     </div>
                 </div>
 
-                <!-- INGREDIENTES INLINE (sem card) -->
-                    <div style="margin-bottom: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h4 style="margin: 0; color: var(--text-primary); font-size: 1.125rem;"><i class="fas fa-utensils"></i> Ingredientes</h4>
-                        <button type="button" id="btn-add-ingredient" class="btn-add-circular" title="Adicionar Ingrediente">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                        <div id="ingredients-container">
-                            <?php if (!empty($ingredients)) : foreach ($ingredients as $ing) : ?>
-                            <div class="ingredient-row">
-                                <input type="text" name="ingredient_description[]" class="form-control" value="<?php echo htmlspecialchars($ing['ingredient_description']); ?>" placeholder="Ex: Farinha de trigo">
-                                <input type="number" name="ingredient_quantity[]" class="form-control" value="<?php echo htmlspecialchars($ing['quantity_value'] ?? ''); ?>" placeholder="Quantidade" step="0.01">
-                                <select name="ingredient_unit[]" class="form-control">
-                                    <option value="">Unidade</option>
-                                    <option value="g" <?php if(($ing['quantity_unit'] ?? '') == 'g') echo 'selected'; ?>>g (gramas)</option>
-                                    <option value="kg" <?php if(($ing['quantity_unit'] ?? '') == 'kg') echo 'selected'; ?>>kg (quilogramas)</option>
-                                    <option value="ml" <?php if(($ing['quantity_unit'] ?? '') == 'ml') echo 'selected'; ?>>ml (mililitros)</option>
-                                    <option value="l" <?php if(($ing['quantity_unit'] ?? '') == 'l') echo 'selected'; ?>>l (litros)</option>
-                                    <option value="xícara" <?php if(($ing['quantity_unit'] ?? '') == 'xícara') echo 'selected'; ?>>xícara (240ml)</option>
-                                    <option value="colher_sopa" <?php if(($ing['quantity_unit'] ?? '') == 'colher_sopa') echo 'selected'; ?>>colher de sopa (15ml)</option>
-                                    <option value="colher_cha" <?php if(($ing['quantity_unit'] ?? '') == 'colher_cha') echo 'selected'; ?>>colher de chá (5ml)</option>
-                                </select>
-                                <button type="button" class="btn-remove-ingredient" title="Remover">×</button>
-                            </div>
-                            <?php endforeach; else: ?>
-                            <div class="ingredient-row">
-                                <input type="text" name="ingredient_description[]" class="form-control" value="" placeholder="Ex: Farinha de trigo">
-                                <input type="number" name="ingredient_quantity[]" class="form-control" value="" placeholder="Quantidade" step="0.01">
-                                <select name="ingredient_unit[]" class="form-control">
-                                    <option value="">Unidade</option>
-                                    <option value="g">g (gramas)</option>
-                                    <option value="kg">kg (quilogramas)</option>
-                                    <option value="ml">ml (mililitros)</option>
-                                    <option value="l">l (litros)</option>
-                                    <option value="xícara">xícara (240ml)</option>
-                                    <option value="colher_sopa">colher de sopa (15ml)</option>
-                                    <option value="colher_cha">colher de chá (5ml)</option>
-                                </select>
-                                <button type="button" class="btn-remove-ingredient" title="Remover">×</button>
-                            </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+                <!-- INGREDIENTES EDITADOS DIRETAMENTE NO PREVIEW (inputs hidden para sincronização) -->
+                <div id="ingredients-hidden-container" style="display: none;">
+                    <!-- Inputs hidden serão criados dinamicamente pelo JavaScript -->
+                </div>
 
                 <!-- INPUT DE IMAGEM OCULTO (gerenciado pelo modal) -->
                 <input type="file" id="image" name="image" class="form-control" accept="image/jpeg, image/png, image/webp" style="display: none;">
