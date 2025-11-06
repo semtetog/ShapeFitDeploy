@@ -101,32 +101,34 @@ $csrf_token = $_SESSION['csrf_token'];
     padding: 0 !important;
 }
 
-/* ===== MOCKUP DE CELULAR À ESQUERDA (SIMPLIFICADO) ===== */
+/* ===== MOCKUP DE CELULAR À ESQUERDA ===== */
 .edit-recipe-container .mobile-mockup-wrapper {
     position: sticky !important;
     top: 2rem !important;
     width: 420px !important;
     height: 850px !important;
-    padding: 0 !important;
-    background: transparent !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    padding: 12px !important;
+    background: #1a1a1a !important;
+    border-radius: 36px !important;
+    box-shadow: 
+        0 0 0 6px rgba(0, 0, 0, 0.2),
+        0 20px 60px rgba(0, 0, 0, 0.6) !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-start !important;
 }
 
-/* Tela do celular (sem bordas, sem notch) */
+/* Tela do celular */
 .edit-recipe-container .mobile-screen {
     width: 100% !important;
     height: 100% !important;
     background: #121212 !important;
-    border-radius: 0 !important;
+    border-radius: 28px !important;
     overflow: hidden !important;
     position: relative !important;
-    box-shadow: none !important;
-    border: none !important;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
 .edit-recipe-container #recipe-preview-frame {
