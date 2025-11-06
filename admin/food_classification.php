@@ -589,18 +589,21 @@ include 'includes/header.php';
     border-color: #EF4444 !important;
 }
 
-/* Checkbox no estilo da página - apenas para seleção em lote */
+/* Checkbox para seleção em lote - NOVA VERSÃO LIMPA */
 .food-item-checkbox {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 20px;
-    height: 20px;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 10;
+    width: 18px;
+    height: 18px;
     margin: 0;
     padding: 0;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .food-item-card:hover .food-item-checkbox {
@@ -611,45 +614,40 @@ include 'includes/header.php';
     opacity: 1;
 }
 
-.food-item-checkbox:checked + .food-item-checkbox-indicator {
-    display: flex;
+.food-item-checkbox:checked ~ .food-item-content {
+    opacity: 0.7;
 }
 
-.food-item-checkbox-indicator {
+.food-item-checkbox::before {
+    content: '';
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    width: 20px;
-    height: 20px;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid var(--glass-border);
-    border-radius: 6px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent-orange);
-    font-size: 0.75rem;
-    z-index: 9;
+    border-radius: 4px;
     transition: all 0.2s ease;
     pointer-events: none;
 }
 
-.food-item-checkbox-indicator::after {
-    content: '✓';
-    font-weight: bold;
-    display: block;
-    line-height: 1;
-}
-
-.food-item-checkbox:checked + .food-item-checkbox-indicator {
-    display: flex;
+.food-item-checkbox:checked::before {
     background: var(--accent-orange);
     border-color: var(--accent-orange);
-    color: white;
 }
 
-.food-item-checkbox:checked ~ .food-item-content {
-    opacity: 0.7;
+.food-item-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+    pointer-events: none;
 }
 
 /* Conteúdo do Card */
@@ -1289,7 +1287,6 @@ include 'includes/header.php';
             <?php foreach ($foods as $food): ?>
                         <div class="food-item-card <?= !empty($food['categories']) ? 'classified' : 'unclassified' ?>" data-food-id="<?= $food['id'] ?>">
                             <input type="checkbox" class="food-item-checkbox" value="<?= $food['id'] ?>">
-                            <div class="food-item-checkbox-indicator"></div>
                             
                             <div class="food-item-content">
                                 <h4 class="food-item-name"><?= htmlspecialchars($food['name_pt']) ?></h4>
@@ -1499,7 +1496,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const checkboxes = document.querySelectorAll('.food-item-checkbox');
             checkboxes.forEach(cb => {
                 cb.checked = this.checked;
-                updateCheckboxVisual(cb);
             });
             updateBulkButton();
         });
@@ -1508,7 +1504,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 4. Atualizar botão bulk quando checkboxes mudarem
     document.querySelectorAll('.food-item-checkbox').forEach(cb => {
         cb.addEventListener('change', function() {
-            updateCheckboxVisual(this);
             updateBulkButton();
         });
     });
@@ -1518,26 +1513,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 6. Custom Select para bulk category
     initCustomSelect('bulk_category_select', 'bulk-category', false);
-    
-    // 6. Atualizar visual dos checkboxes ao carregar
-    document.querySelectorAll('.food-item-checkbox').forEach(cb => {
-        updateCheckboxVisual(cb);
-    });
 });
-
-function updateCheckboxVisual(checkbox) {
-    const card = checkbox.closest('.food-item-card');
-    const indicator = card.querySelector('.food-item-checkbox-indicator');
-    const content = card.querySelector('.food-item-content');
-    
-    if (checkbox.checked) {
-        indicator.style.display = 'flex';
-        if (content) content.style.opacity = '0.7';
-    } else {
-        indicator.style.display = 'none';
-        if (content) content.style.opacity = '1';
-    }
-}
 
 function updateBulkButton() {
     const selected = document.querySelectorAll('.food-item-checkbox:checked');
@@ -1640,7 +1616,6 @@ function applyBulkClassification() {
     document.getElementById('select-all').checked = false;
     document.querySelectorAll('.food-item-checkbox').forEach(cb => {
         cb.checked = false;
-        updateCheckboxVisual(cb);
     });
     updateBulkButton();
 }
