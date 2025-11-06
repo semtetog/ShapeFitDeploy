@@ -409,7 +409,7 @@ include 'includes/header.php';
     left: 0 !important;
     right: 0 !important;
     z-index: 9999 !important;
-    background: #232323 !important; /* Background sólido e opaco - SEM rgba */
+    background: #FF0000 !important; /* TESTE: Background VERMELHO BRILHANTE para testar commits */
     border: 1px solid var(--glass-border) !important;
     border-radius: 8px !important;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
@@ -1698,8 +1698,8 @@ function initCustomSelect(selectId, inputId, submitForm) {
             const optionsContainer = customSelect.querySelector('.custom-select-options');
             if (optionsContainer) {
                 // Aplica background PRIMEIRO (antes de tornar visível)
-                optionsContainer.style.background = '#232323';
-                optionsContainer.style.backgroundColor = '#232323';
+                optionsContainer.style.background = '#FF0000'; // TESTE: VERMELHO BRILHANTE
+                optionsContainer.style.backgroundColor = '#FF0000'; // TESTE: VERMELHO BRILHANTE
                 
                 // Força reflow para garantir que o background foi renderizado
                 void optionsContainer.offsetHeight;
