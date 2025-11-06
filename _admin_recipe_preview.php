@@ -1092,6 +1092,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 removeBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
+                    e.preventDefault();
+                    // Prevenir que o blur do contenteditable seja acionado
+                    const textContent = newItem.querySelector('.ingredient-text-content');
+                    if (textContent) {
+                        textContent.blur();
+                    }
                     newItem.remove();
                     syncIngredientsToParent();
                 });
