@@ -198,19 +198,18 @@ include 'includes/header.php';
     position: relative;
 }
 
-.foods-header-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent-orange), #FFA500);
-    border-radius: 20px 20px 0 0;
+
+.foods-header-title-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 1.5rem !important;
+    gap: 1rem !important;
 }
 
 .foods-header-title {
-    margin-bottom: 1.5rem !important;
+    flex: 1;
+    margin-bottom: 0 !important;
 }
 
 .foods-header-title h2 {
@@ -224,6 +223,36 @@ include 'includes/header.php';
     color: var(--text-secondary) !important;
     font-size: 0.95rem !important;
     margin: 0 !important;
+}
+
+.btn-add-food-circular {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    max-width: 64px;
+    max-height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.btn-add-food-circular:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
+}
+
+.btn-add-food-circular i {
+    font-size: 1.5rem;
 }
 
 /* Stats Simplificadas */
@@ -347,10 +376,12 @@ include 'includes/header.php';
     position: relative;
     min-width: 220px !important;
     flex: 1;
+    z-index: 100;
 }
 
 .custom-select {
     position: relative;
+    z-index: 100;
 }
 
 .custom-select-trigger {
@@ -403,11 +434,12 @@ include 'includes/header.php';
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    z-index: 1000;
-    background: rgba(35, 35, 35, 0.9);
+    z-index: 10000 !important;
+    background: rgba(35, 35, 35, 0.95) !important;
+    backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
     max-height: 250px;
     overflow-y: auto;
     box-sizing: border-box;
@@ -536,17 +568,62 @@ include 'includes/header.php';
 .foods-select-all {
     display: flex !important;
     align-items: center !important;
-    gap: 0.5rem !important;
+    gap: 0.75rem !important;
     color: var(--text-secondary) !important;
     font-size: 0.95rem !important;
     cursor: pointer;
     user-select: none;
+    position: relative;
 }
 
 .foods-select-all input[type="checkbox"] {
-    transform: scale(1.1) !important;
-    accent-color: var(--accent-orange) !important;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
     cursor: pointer;
+    opacity: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    z-index: 1;
+}
+
+.foods-select-all input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--glass-border);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    box-sizing: border-box;
+    z-index: 0;
+}
+
+.foods-select-all input[type="checkbox"]:checked::before {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+}
+
+.foods-select-all input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -60%) rotate(45deg);
+    pointer-events: none;
+    box-sizing: border-box;
+    z-index: 2;
 }
 
 /* ===== GRID DE ALIMENTOS ===== */
@@ -667,19 +744,58 @@ include 'includes/header.php';
     width: 100%;
 }
 
+.food-item-name-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+    position: relative;
+}
+
 .food-item-name {
     font-size: 1.125rem !important;
     font-weight: 600 !important;
     color: var(--text-primary) !important;
-    margin: 0 0 0.75rem 0 !important;
+    margin: 0 !important;
     line-height: 1.4 !important;
-    padding-right: 2rem;
+    flex: 1;
     min-height: 3rem;
     display: flex;
     align-items: flex-start;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+}
+
+.food-item-edit-btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.food-item-edit-btn:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.food-item-edit-btn i {
+    font-size: 0.875rem;
 }
 
 .food-item-brand {
@@ -1179,9 +1295,14 @@ include 'includes/header.php';
         <div class="foods-main-content">
             <!-- Header Card -->
             <div class="dashboard-card foods-header-card">
-                <div class="foods-header-title">
-                    <h2>Alimentos</h2>
-                    <p>Gerencie e classifique todos os alimentos do sistema</p>
+                <div class="foods-header-title-wrapper">
+                    <div class="foods-header-title">
+                        <h2>Alimentos</h2>
+                        <p>Gerencie e classifique todos os alimentos do sistema</p>
+                    </div>
+                    <a href="edit_food_new.php" class="btn-add-food-circular" title="Novo Alimento">
+                        <i class="fas fa-plus"></i>
+                    </a>
                 </div>
                 
                 <!-- Estatísticas Simplificadas -->
@@ -1300,7 +1421,12 @@ include 'includes/header.php';
                             <input type="checkbox" class="food-item-checkbox" value="<?= $food['id'] ?>">
                             
                             <div class="food-item-content">
-                                <h4 class="food-item-name"><?= htmlspecialchars($food['name_pt']) ?></h4>
+                                <div class="food-item-name-wrapper">
+                                    <h4 class="food-item-name" data-food-id="<?= $food['id'] ?>"><?= htmlspecialchars($food['name_pt']) ?></h4>
+                                    <a href="edit_food_new.php?id=<?= $food['id'] ?>" class="food-item-edit-btn" title="Editar Alimento">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
                                 
                                 <div class="food-item-brand">
                                 <?php if (!empty($food['brand']) && $food['brand'] !== 'TACO'): ?>
@@ -1728,7 +1854,21 @@ function saveClassification(foodId) {
         hideLoading();
         if (data.success) {
             showAutoSaveIndicator();
-            updateCounters();
+            // Atualiza contadores com a contagem real do servidor
+            if (data.classified_count !== undefined) {
+                const classifiedCountEl = document.getElementById('classified-count');
+                const remainingCountEl = document.getElementById('remaining-count');
+                const totalItems = <?= (int)$total_items ?>;
+                
+                if (classifiedCountEl) {
+                    classifiedCountEl.textContent = data.classified_count;
+                }
+                if (remainingCountEl) {
+                    remainingCountEl.textContent = totalItems - data.classified_count;
+                }
+            } else {
+                updateCounters();
+            }
         } else {
             alert('Erro ao salvar: ' + (data.message || 'Erro desconhecido.'));
         }
