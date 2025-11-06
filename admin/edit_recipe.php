@@ -71,7 +71,7 @@ $csrf_token = $_SESSION['csrf_token'];
 
 <style>
 /* ========================================================================= */
-/*       CSS FINAL E SIMPLES - A ABORDAGEM CORRETA                         */
+/*       CSS FINAL, SIMPLES E CORRETO.                                     */
 /* ========================================================================= */
 
 :root {
@@ -82,33 +82,27 @@ $csrf_token = $_SESSION['csrf_token'];
     
     --sidebar-width: 256px;
     --layout-gap: 2rem;
-    --mockup-width: 410px; /* <<<< TAMANHO FIXO E CORRETO */
+    --mockup-width: 410px; /* Largura que você gostou */
 }
 
-/* 1. O BODY segura o espaço para o menu lateral */
-body {
-    padding-left: var(--sidebar-width);
-}
-
-/* 2. O CONTAINER PRINCIPAL usa Flexbox */
+/* 1. O CONTAINER PRINCIPAL USA FLEXBOX */
 .edit-recipe-container {
     display: flex;
     gap: var(--layout-gap);
-    padding: var(--layout-gap);
+    padding: var(--layout-gap); /* Espaçamento geral */
+    align-items: flex-start; /* Alinha os dois painéis no topo */
 }
 
-/* 3. O PAINEL DO CELULAR (ESQUERDA) */
+/* 2. O PAINEL DO CELULAR (ESQUERDA) */
 .mobile-mockup-panel {
-    position: sticky; /* GRUDA no topo quando a página rola */
-    top: var(--layout-gap);
-    
     width: var(--mockup-width);
     flex-shrink: 0; /* Impede que ele encolha */
     
-    /* Calculamos a altura para preencher a tela com o respiro */
-    height: calc(100vh - (var(--layout-gap) * 2));
+    position: sticky; /* A MÁGICA: "gruda" no topo quando a página rola */
+    top: var(--layout-gap); /* Distância do topo antes de grudar */
     
-    z-index: 10;
+    /* Altura que preenche a tela, com "respiro" */
+    height: calc(100vh - (var(--layout-gap) * 2));
 }
 
 .mobile-mockup-wrapper {
@@ -137,10 +131,10 @@ body {
     display: block !important;
 }
 
-/* 4. O PAINEL DE CONFIGURAÇÕES (DIREITA) */
+/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) */
 .config-panel {
-    flex-grow: 1; /* Ocupa todo o resto do espaço */
-    min-width: 0; /* Previne bugs de overflow do flex */
+    flex-grow: 1; /* Ocupa todo o resto do espaço na horizontal */
+    min-width: 0; /* Previne bugs de overflow do flexbox */
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -516,61 +510,57 @@ input[type=number] {
 
 /* RESPONSIVIDADE */
 @media (max-width: 1200px) {
-    body {
-        padding-left: var(--sidebar-width) !important;
-    }
     .edit-recipe-container {
         flex-direction: column;
     }
     .mobile-mockup-panel {
-        position: static; /* Deixa de ser fixo */
+        position: static; /* Deixa de ser "grudento" */
         width: 100%;
         max-width: 410px;
-        height: 750px; /* Altura fixa para o modo responsivo */
+        height: 750px; /* Altura fixa para telas menores */
         margin: 0 auto;
     }
 }
 </style>
 
+<!-- Mensagem de sucesso quando salvar -->
+<?php if ($status === 'saved'): ?>
+<div id="save-success-message" style="position: fixed; top: 20px; right: 20px; background: rgba(76, 175, 80, 0.9); color: white; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; display: flex; align-items: center; gap: 0.75rem; transition: opacity 0.3s ease;">
+    <i class="fas fa-check-circle"></i>
+    <span>Receita salva com sucesso!</span>
+</div>
+<script>
+    setTimeout(() => {
+        const msg = document.getElementById('save-success-message');
+        if (msg) {
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 300);
+        }
+    }, 3000);
+</script>
+<?php endif; ?>
+
 <div class="edit-recipe-container">
-<form action="save_recipe.php" method="POST" enctype="multipart/form-data" id="recipe-form">
-    <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe['id'] ?? ''); ?>">
-    <input type="hidden" name="existing_image_filename" value="<?php echo htmlspecialchars($recipe['image_filename'] ?? ''); ?>">
-    <input type="hidden" id="csrf-token" value="<?php echo $csrf_token; ?>">
-
-        <!-- INPUTS OCULTOS PARA SINCRONIZAÇÃO COM PREVIEW -->
-        <input type="hidden" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>" required>
-        <input type="hidden" id="description" name="description" value="<?php echo htmlspecialchars($recipe['description'] ?? ''); ?>">
-        <input type="hidden" id="instructions" name="instructions" value="<?php echo htmlspecialchars($recipe['instructions'] ?? ''); ?>">
-        
-        <!-- Mensagem de sucesso quando salvar -->
-        <?php if ($status === 'saved'): ?>
-        <div id="save-success-message" style="position: fixed; top: 20px; right: 20px; background: rgba(76, 175, 80, 0.9); color: white; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; display: flex; align-items: center; gap: 0.75rem; transition: opacity 0.3s ease;">
-            <i class="fas fa-check-circle"></i>
-            <span>Receita salva com sucesso!</span>
-        </div>
-        <script>
-            setTimeout(() => {
-                const msg = document.getElementById('save-success-message');
-                if (msg) {
-                    msg.style.opacity = '0';
-                    setTimeout(() => msg.remove(), 300);
-                }
-            }, 3000);
-        </script>
-        <?php endif; ?>
-
-        <!-- PAINEL DO CELULAR (ESQUERDA) -->
-        <div class="mobile-mockup-panel">
-            <div class="mobile-mockup-wrapper">
-                <div class="mobile-screen">
-                    <iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe>
-                </div>
+    <!-- PAINEL DO CELULAR (ESQUERDA) -->
+    <div class="mobile-mockup-panel">
+        <div class="mobile-mockup-wrapper">
+            <div class="mobile-screen">
+                <iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe>
             </div>
         </div>
+    </div>
 
-        <!-- PAINEL DE CONFIGURAÇÕES (DIREITA) -->
-        <div class="config-panel">
+    <!-- PAINEL DE CONFIGURAÇÕES (DIREITA) -->
+    <div class="config-panel">
+        <form action="save_recipe.php" method="POST" enctype="multipart/form-data" id="recipe-form">
+            <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe['id'] ?? ''); ?>">
+            <input type="hidden" name="existing_image_filename" value="<?php echo htmlspecialchars($recipe['image_filename'] ?? ''); ?>">
+            <input type="hidden" id="csrf-token" value="<?php echo $csrf_token; ?>">
+
+            <!-- INPUTS OCULTOS PARA SINCRONIZAÇÃO COM PREVIEW -->
+            <input type="hidden" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>" required>
+            <input type="hidden" id="description" name="description" value="<?php echo htmlspecialchars($recipe['description'] ?? ''); ?>">
+            <input type="hidden" id="instructions" name="instructions" value="<?php echo htmlspecialchars($recipe['instructions'] ?? ''); ?>">
                 <!-- HEADER COM AÇÕES -->
                 <div class="config-header">
                     <h3><?php echo $page_title; ?></h3>
@@ -758,8 +748,9 @@ input[type=number] {
                 </div>
             </div>
         </div>
-    </form>
+        </form>
     </div>
+</div>
 
 <script>
 // =========================================================================
