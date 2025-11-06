@@ -402,53 +402,27 @@ include 'includes/header.php';
     white-space: nowrap;
 }
 
-/* DROPDOWN SIMPLIFICADO - SEM TRANSPARÊNCIA, SEM BLUR, SEM TRANSIÇÕES */
+/* DROPDOWN - COPIADO EXATAMENTE DO recipes.php */
 .custom-select-options {
-    position: absolute !important;
-    top: calc(100% + 8px) !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 9999 !important;
-    background: #232323 !important; /* Background sólido e opaco - SEM rgba */
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
-    max-height: 250px !important;
-    overflow-y: auto !important;
-    box-sizing: border-box !important;
-    pointer-events: none !important;
-    display: block !important; /* SEMPRE renderizado */
-    visibility: hidden !important;
-    opacity: 0 !important;
-    /* ZERO transições - remove TUDO */
-    transition: none !important;
-    -webkit-transition: none !important;
-    -moz-transition: none !important;
-    -ms-transition: none !important;
-    -o-transition: none !important;
-    /* ZERO transforms que possam causar delay */
-    transform: none !important;
-    -webkit-transform: none !important;
-    -moz-transform: none !important;
-    -ms-transform: none !important;
-    -o-transform: none !important;
-    /* ZERO backdrop-filter */
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    display: none; /* Escondido por padrão */
+    position: absolute; /* Posicionado em relação ao .custom-select-wrapper */
+    top: calc(100% + 8px); /* Aparece abaixo do botão com um respiro de 8px */
+    left: 0;
+    right: 0;
+    z-index: 1000; /* Garante que fique por cima de outros elementos */
+    background: rgba(35, 35, 35, 0.9); /* Fundo neutro cinza escuro - sem tom azulado */
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    max-height: 250px;
+    overflow-y: auto;
+    box-sizing: border-box; /* Essencial para o cálculo correto da largura */
 }
 
+/* Mostra a lista quando o pai tem a classe .active */
 .custom-select.active .custom-select-options {
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    /* Garante que não há transição mesmo quando ativo */
-    transition: none !important;
-    -webkit-transition: none !important;
-    -moz-transition: none !important;
-    -ms-transition: none !important;
-    -o-transition: none !important;
-    transform: none !important;
-    -webkit-transform: none !important;
+    display: block;
 }
 
 .custom-select-option {
@@ -1610,46 +1584,8 @@ function updateBulkButton() {
     }
 }
 
-// Função para fechar todos os dropdowns (exceto o que está sendo aberto)
-function closeAllDropdowns(excludeSelect = null) {
-    document.querySelectorAll('.custom-select.active').forEach(select => {
-        // Não fecha o dropdown que está sendo aberto
-        if (select === excludeSelect) {
-            return;
-        }
-        
-        // Remove estilos inline primeiro
-        const optionsContainer = select.querySelector('.custom-select-options');
-        if (optionsContainer) {
-            optionsContainer.style.visibility = 'hidden';
-            optionsContainer.style.opacity = '0';
-            optionsContainer.style.pointerEvents = 'none';
-        }
-        
-        select.classList.remove('active');
-        const wrapper = select.closest('.custom-select-wrapper');
-        if (wrapper) {
-            wrapper.classList.remove('active');
-            // Remove classe do card pai
-            const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
-            if (card) {
-                card.classList.remove('dropdown-active');
-            }
-        }
-    });
-    
-    // Remove classe do container principal apenas se não houver nenhum dropdown aberto
-    // (exceto o que está sendo aberto)
-    const hasOtherActive = document.querySelectorAll('.custom-select.active').length > (excludeSelect ? 1 : 0);
-    if (!hasOtherActive && !excludeSelect) {
-        const mainContent = document.querySelector('.foods-main-content');
-        if (mainContent) {
-            mainContent.classList.remove('dropdown-open');
-        }
-    }
-}
 
-// Função para inicializar custom select - VERSÃO SIMPLIFICADA (igual recipes.php)
+// Função para inicializar custom select - COPIADO EXATAMENTE DO recipes.php
 function initCustomSelect(selectId, inputId, submitForm) {
     const customSelect = document.getElementById(selectId);
     if (!customSelect) return;
@@ -1657,84 +1593,64 @@ function initCustomSelect(selectId, inputId, submitForm) {
     const hiddenInput = document.getElementById(inputId);
     if (!hiddenInput) return;
     
-    const wrapper = customSelect.closest('.custom-select-wrapper');
     const trigger = customSelect.querySelector('.custom-select-trigger');
     const options = customSelect.querySelectorAll('.custom-select-option');
     const valueDisplay = customSelect.querySelector('.custom-select-value');
     
-    // Abre/fecha o dropdown
+    // Abre/fecha o dropdown - SIMPLES como recipes.php
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
         const isOpening = !customSelect.classList.contains('active');
         
+        // Se estiver abrindo, fecha todos os outros primeiro
         if (isOpening) {
-            // Fecha TODOS os dropdowns primeiro (incluindo este se estiver aberto)
-            document.querySelectorAll('.custom-select-options').forEach(optionsContainer => {
-                optionsContainer.style.visibility = 'hidden';
-                optionsContainer.style.opacity = '0';
-                optionsContainer.style.pointerEvents = 'none';
+            document.querySelectorAll('.custom-select.active').forEach(select => {
+                if (select !== customSelect) {
+                    select.classList.remove('active');
+                    const otherWrapper = select.closest('.custom-select-wrapper');
+                    if (otherWrapper) {
+                        otherWrapper.classList.remove('active');
+                        const otherCard = otherWrapper.closest('.foods-filter-card, .foods-bulk-card');
+                        if (otherCard) {
+                            otherCard.classList.remove('dropdown-active');
+                        }
+                    }
+                }
             });
-            closeAllDropdowns();
             
-            // USA requestAnimationFrame para garantir que o fechamento foi RENDERIZADO
-            // antes de abrir o novo dropdown - isso elimina o "piscar"
-            requestAnimationFrame(() => {
-                // Força reflow para garantir que o fechamento foi renderizado
-                void document.body.offsetHeight;
-                
-                // AGORA aplica todas as classes do novo dropdown
-                customSelect.classList.add('active');
-                let card = null;
-                if (wrapper) {
-                    wrapper.classList.add('active');
-                    card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
-                    if (card) {
-                        card.classList.add('dropdown-active');
-                    }
-                    const mainContent = document.querySelector('.foods-main-content');
-                    if (mainContent) {
-                        mainContent.classList.add('dropdown-open');
-                    }
+            // Remove classe do container principal se não houver outros ativos
+            const hasOtherActive = document.querySelectorAll('.custom-select.active').length > 0;
+            if (!hasOtherActive) {
+                const mainContent = document.querySelector('.foods-main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('dropdown-open');
                 }
-                
-                // Aplica estilos inline ANTES de tornar visível
-                const optionsContainer = customSelect.querySelector('.custom-select-options');
-                if (optionsContainer) {
-                    // Aplica background PRIMEIRO (antes de tornar visível)
-                    optionsContainer.style.background = '#232323';
-                    optionsContainer.style.backgroundColor = '#232323';
-                    
-                    // Força reflow para garantir que o background foi renderizado
-                    void optionsContainer.offsetHeight;
-                    void optionsContainer.offsetWidth;
-                    
-                    // USA OUTRO requestAnimationFrame para garantir que background foi renderizado
-                    requestAnimationFrame(() => {
-                        // AGORA torna visível (background já está renderizado)
-                        optionsContainer.style.visibility = 'visible';
-                        optionsContainer.style.opacity = '1';
-                        optionsContainer.style.pointerEvents = 'auto';
-                    });
-                }
-            });
-        } else {
-            // Fechando o dropdown - remove estilos inline primeiro
-            const optionsContainer = customSelect.querySelector('.custom-select-options');
-            if (optionsContainer) {
-                optionsContainer.style.visibility = 'hidden';
-                optionsContainer.style.opacity = '0';
-                optionsContainer.style.pointerEvents = 'none';
             }
             
+            // Aplica classes do novo dropdown
+            customSelect.classList.add('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.add('active');
+                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                if (card) {
+                    card.classList.add('dropdown-active');
+                }
+                const mainContent = document.querySelector('.foods-main-content');
+                if (mainContent) {
+                    mainContent.classList.add('dropdown-open');
+                }
+            }
+        } else {
+            // Fechando
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
             if (wrapper) {
                 wrapper.classList.remove('active');
-                // Remove classe do card pai
                 const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
                 if (card) {
                     card.classList.remove('dropdown-active');
                 }
-                // Remove classe do container principal
                 const mainContent = document.querySelector('.foods-main-content');
                 if (mainContent) {
                     mainContent.classList.remove('dropdown-open');
@@ -1743,83 +1659,78 @@ function initCustomSelect(selectId, inputId, submitForm) {
         }
     });
     
-    // Seleciona uma opção
+    // Seleciona uma opção - SIMPLES como recipes.php
     options.forEach(option => {
         option.addEventListener('click', function(e) {
             e.stopPropagation();
             
             const value = this.getAttribute('data-value');
-            
-            // Atualiza o valor do input escondido
             hiddenInput.value = value;
-            
-            // Atualiza o texto visível
             valueDisplay.textContent = this.textContent;
             
-            // Remove a classe 'selected' de todos e adiciona na clicada
             options.forEach(opt => opt.classList.remove('selected'));
             this.classList.add('selected');
             
-            // Fecha o dropdown - remove estilos inline primeiro
-            const optionsContainer = customSelect.querySelector('.custom-select-options');
-            if (optionsContainer) {
-                optionsContainer.style.visibility = 'hidden';
-                optionsContainer.style.opacity = '0';
-                optionsContainer.style.pointerEvents = 'none';
-            }
-            
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
             if (wrapper) {
                 wrapper.classList.remove('active');
-                // Remove classe do card pai
                 const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
                 if (card) {
                     card.classList.remove('dropdown-active');
                 }
-                // Remove classe do container principal
                 const mainContent = document.querySelector('.foods-main-content');
                 if (mainContent) {
                     mainContent.classList.remove('dropdown-open');
                 }
             }
             
-            // Se for o filtro de categoria, submete o formulário
             if (submitForm) {
                 const form = customSelect.closest('form');
                 if (form) {
                     form.submit();
                 }
             } else {
-                // Se for bulk category, atualiza o botão
                 updateBulkButton();
             }
         });
     });
     
-    // Fecha o dropdown se clicar fora
+    // Fecha o dropdown se clicar fora - SIMPLES como recipes.php
     document.addEventListener('click', function(e) {
-        // Se clicar fora de qualquer dropdown, fecha todos
-        if (!e.target.closest('.custom-select')) {
-            // Remove estilos inline de todos os dropdowns
-            document.querySelectorAll('.custom-select-options').forEach(optionsContainer => {
-                optionsContainer.style.visibility = 'hidden';
-                optionsContainer.style.opacity = '0';
-                optionsContainer.style.pointerEvents = 'none';
-            });
-            closeAllDropdowns();
+        if (!customSelect.contains(e.target)) {
+            customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                if (card) {
+                    card.classList.remove('dropdown-active');
+                }
+                const mainContent = document.querySelector('.foods-main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('dropdown-open');
+                }
+            }
         }
     });
     
-    // Fecha com a tecla Esc
+    // Fecha com a tecla Esc - SIMPLES como recipes.php
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            // Remove estilos inline de todos os dropdowns
-            document.querySelectorAll('.custom-select-options').forEach(optionsContainer => {
-                optionsContainer.style.visibility = 'hidden';
-                optionsContainer.style.opacity = '0';
-                optionsContainer.style.pointerEvents = 'none';
-            });
-            closeAllDropdowns();
+            customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                if (card) {
+                    card.classList.remove('dropdown-active');
+                }
+                const mainContent = document.querySelector('.foods-main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('dropdown-open');
+                }
+            }
         }
     });
 }
