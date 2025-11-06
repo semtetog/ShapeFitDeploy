@@ -409,7 +409,7 @@ include 'includes/header.php';
     top: calc(100% + 8px); /* Aparece abaixo do botão com um respiro de 8px */
     left: 0;
     right: 0;
-    z-index: 1000; /* Garante que fique por cima de outros elementos */
+    z-index: 9999 !important; /* Garante que fique por cima de outros elementos */
     background: rgba(35, 35, 35, 0.9); /* Fundo neutro cinza escuro - sem tom azulado */
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
@@ -1628,7 +1628,6 @@ function initCustomSelect(selectId, inputId, submitForm) {
             }
             
             // Aplica classes do novo dropdown
-            customSelect.classList.add('active');
             const wrapper = customSelect.closest('.custom-select-wrapper');
             if (wrapper) {
                 wrapper.classList.add('active');
@@ -1641,6 +1640,8 @@ function initCustomSelect(selectId, inputId, submitForm) {
                     mainContent.classList.add('dropdown-open');
                 }
             }
+            // Adiciona active DEPOIS do wrapper para garantir z-index
+            customSelect.classList.add('active');
         } else {
             // Fechando
             customSelect.classList.remove('active');
