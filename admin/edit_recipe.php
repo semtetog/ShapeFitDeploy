@@ -82,7 +82,7 @@ $csrf_token = $_SESSION['csrf_token'];
     
     --sidebar-width: 256px;
     --layout-gap: 2rem;
-    --mockup-width: 375px;
+    --mockup-width: 410px; /* Aumentado de 375px para melhor visualização */
 }
 
 /* 1. O CONTAINER PRINCIPAL */
