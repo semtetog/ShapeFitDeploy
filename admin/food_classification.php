@@ -341,6 +341,11 @@ include 'includes/header.php';
     min-width: 200px;
     max-width: 300px;
     flex: 1;
+    z-index: 1;
+}
+
+.custom-select-wrapper.active {
+    z-index: 9999;
 }
 
 .custom-select {
@@ -406,7 +411,7 @@ include 'includes/header.php';
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    z-index: 10000 !important;
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -615,6 +620,7 @@ include 'includes/header.php';
     -moz-osx-font-smoothing: grayscale;
     backface-visibility: hidden;
     transform: translateZ(0);
+    z-index: 1;
 }
 
 .food-item-card:hover {
@@ -1594,7 +1600,11 @@ function initCustomSelect(selectId, inputId, submitForm) {
     // Abre/fecha o dropdown
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
+        const wrapper = customSelect.closest('.custom-select-wrapper');
         customSelect.classList.toggle('active');
+        if (wrapper) {
+            wrapper.classList.toggle('active');
+        }
     });
     
     // Seleciona uma opção
@@ -1616,6 +1626,10 @@ function initCustomSelect(selectId, inputId, submitForm) {
             
             // Fecha o dropdown
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
             
             // Se for o filtro de categoria, submete o formulário
             if (submitForm) {
@@ -1634,6 +1648,10 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('click', function(e) {
         if (!customSelect.contains(e.target)) {
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
         }
     });
     
@@ -1641,6 +1659,10 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
         }
     });
 }
