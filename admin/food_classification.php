@@ -344,60 +344,43 @@ include 'includes/header.php';
 /* Custom Select - Estilo IDÊNTICO ao recipes.php */
 .custom-select-wrapper {
     position: relative;
+    width: 100%;
     min-width: 200px;
     max-width: 300px;
     flex: 1;
-    z-index: 1;
-}
-
-.custom-select-wrapper.active {
-    z-index: 99999 !important;
-    position: relative;
 }
 
 .custom-select {
     position: relative;
-    width: 100%;
 }
 
 .custom-select-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.875rem 1.25rem;
-    font-size: 0.95rem;
-    color: var(--text-primary);
+    width: 100%;
+    padding: 0.75rem 1rem;
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     transition: all 0.3s ease;
-    font-family: 'Montserrat', sans-serif;
-    user-select: none;
+    box-sizing: border-box;
 }
 
 .custom-select-trigger:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
-.custom-select.active .custom-select-trigger {
-    background: rgba(255, 255, 255, 0.08);
     border-color: var(--accent-orange);
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
-}
-
-.custom-select-trigger i {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    transition: transform 0.3s ease;
-    margin-left: 0.75rem;
 }
 
 .custom-select.active .custom-select-trigger i {
     transform: rotate(180deg);
-    color: var(--accent-orange);
+}
+
+.custom-select-trigger i {
+    transition: transform 0.3s ease;
+    color: var(--text-secondary);
 }
 
 .custom-select-value {
@@ -408,59 +391,45 @@ include 'includes/header.php';
 }
 
 .custom-select-options {
-    position: fixed;
-    background: rgba(26, 26, 26, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(35, 35, 35, 0.9);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 999999 !important;
-    max-height: 300px;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    max-height: 250px;
     overflow-y: auto;
-    overflow-x: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
-    pointer-events: none;
-    -webkit-overflow-scrolling: touch;
-    min-width: 200px;
+    box-sizing: border-box;
 }
 
 .custom-select.active .custom-select-options {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    pointer-events: auto;
+    display: block;
 }
 
 .custom-select-option {
-    padding: 0.875rem 1.25rem;
-    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: 'Montserrat', sans-serif;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.custom-select-option:first-child {
-    border-radius: 12px 12px 0 0;
 }
 
 .custom-select-option:last-child {
     border-bottom: none;
-    border-radius: 0 0 12px 12px;
 }
 
 .custom-select-option:hover {
-    background: rgba(255, 107, 0, 0.15);
+    background: rgba(255, 107, 0, 0.1);
     color: var(--accent-orange);
 }
 
 .custom-select-option.selected {
-    background: rgba(255, 107, 0, 0.2);
+    background: rgba(255, 107, 0, 0.15);
     color: var(--accent-orange);
     font-weight: 600;
 }
@@ -1600,27 +1569,13 @@ function initCustomSelect(selectId, inputId, submitForm) {
     if (!hiddenInput) return;
     
     const trigger = customSelect.querySelector('.custom-select-trigger');
-    const optionsContainer = customSelect.querySelector('.custom-select-options');
     const options = customSelect.querySelectorAll('.custom-select-option');
     const valueDisplay = customSelect.querySelector('.custom-select-value');
     
     // Abre/fecha o dropdown
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
-        const wrapper = customSelect.closest('.custom-select-wrapper');
-        const isOpening = !customSelect.classList.contains('active');
         customSelect.classList.toggle('active');
-        if (wrapper) {
-            wrapper.classList.toggle('active');
-        }
-        
-        // Se estiver abrindo, calcular posição fixed
-        if (isOpening && optionsContainer) {
-            const triggerRect = trigger.getBoundingClientRect();
-            optionsContainer.style.top = (triggerRect.bottom + 8) + 'px';
-            optionsContainer.style.left = triggerRect.left + 'px';
-            optionsContainer.style.width = triggerRect.width + 'px';
-        }
     });
     
     // Seleciona uma opção
@@ -1642,10 +1597,6 @@ function initCustomSelect(selectId, inputId, submitForm) {
             
             // Fecha o dropdown
             customSelect.classList.remove('active');
-            const wrapper = customSelect.closest('.custom-select-wrapper');
-            if (wrapper) {
-                wrapper.classList.remove('active');
-            }
             
             // Se for o filtro de categoria, submete o formulário
             if (submitForm) {
@@ -1664,10 +1615,6 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('click', function(e) {
         if (!customSelect.contains(e.target)) {
             customSelect.classList.remove('active');
-            const wrapper = customSelect.closest('.custom-select-wrapper');
-            if (wrapper) {
-                wrapper.classList.remove('active');
-            }
         }
     });
     
@@ -1675,10 +1622,6 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             customSelect.classList.remove('active');
-            const wrapper = customSelect.closest('.custom-select-wrapper');
-            if (wrapper) {
-                wrapper.classList.remove('active');
-            }
         }
     });
 }
