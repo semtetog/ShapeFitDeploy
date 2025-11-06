@@ -447,43 +447,49 @@ include 'includes/header.php';
     font-weight: 600;
 }
 
-.foods-filter-btn,
-.foods-clear-btn {
-    padding: 0.875rem 1.5rem !important;
-    border-radius: 12px !important;
-    font-size: 0.95rem !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    border: none !important;
-    transition: all 0.3s ease !important;
-    text-decoration: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    font-family: 'Montserrat', sans-serif !important;
+.btn-filter-circular {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
-.foods-filter-btn {
-    background: var(--accent-orange) !important;
-    color: #FFFFFF !important;
+.btn-filter-circular:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
 }
 
-.foods-filter-btn:hover {
-    background: #e65c00 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4) !important;
+.btn-filter-circular i {
+    font-size: 1.25rem;
 }
 
 .foods-clear-btn {
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: var(--text-primary) !important;
-    border: 1px solid var(--glass-border) !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    white-space: nowrap;
+    text-decoration: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
 }
 
 .foods-clear-btn:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-color: var(--accent-orange) !important;
-    color: var(--accent-orange) !important;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
 }
 
 /* Bulk Actions Card */
