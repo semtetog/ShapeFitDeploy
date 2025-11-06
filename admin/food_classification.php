@@ -342,24 +342,103 @@ include 'includes/header.php';
     opacity: 0.7 !important;
 }
 
-.foods-category-select {
+/* Custom Select - Estilo igual ao recipes.php */
+.custom-select-wrapper {
+    position: relative;
     min-width: 220px !important;
-    padding: 0.875rem 1.25rem !important;
-    font-size: 0.95rem !important;
-    color: var(--text-primary) !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important;
-    outline: none !important;
-    transition: all 0.3s ease !important;
-    font-family: 'Montserrat', sans-serif !important;
-    cursor: pointer;
+    flex: 1;
 }
 
-.foods-category-select:focus {
+.custom-select {
+    position: relative;
+}
+
+.custom-select-trigger {
+    width: 100%;
+    padding: 0.75rem 1rem !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 8px !important;
+    color: var(--text-primary) !important;
+    font-size: 0.95rem !important;
+    cursor: pointer !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    transition: all 0.3s ease !important;
+    font-family: 'Montserrat', sans-serif !important;
+    box-sizing: border-box !important;
+}
+
+.custom-select-trigger:hover {
+    border-color: var(--accent-orange) !important;
+}
+
+.custom-select.active .custom-select-trigger {
     background: rgba(255, 255, 255, 0.08) !important;
     border-color: var(--accent-orange) !important;
     box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
+}
+
+.custom-select.active .custom-select-trigger i {
+    transform: rotate(180deg);
+}
+
+.custom-select-trigger i {
+    transition: transform 0.3s ease;
+    color: var(--text-secondary);
+    margin-left: 0.5rem;
+}
+
+.custom-select-value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-select-options {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(35, 35, 35, 0.9);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    max-height: 250px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.custom-select.active .custom-select-options {
+    display: block;
+}
+
+.custom-select-option {
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-family: 'Montserrat', sans-serif;
+}
+
+.custom-select-option:last-child {
+    border-bottom: none;
+}
+
+.custom-select-option:hover {
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--accent-orange);
+}
+
+.custom-select-option.selected {
+    background: rgba(255, 107, 0, 0.15);
+    color: var(--accent-orange);
+    font-weight: 600;
 }
 
 .foods-filter-btn,
@@ -424,26 +503,6 @@ include 'includes/header.php';
     flex-wrap: wrap !important;
 }
 
-.foods-bulk-select {
-    flex: 1 !important;
-    min-width: 220px !important;
-    padding: 0.875rem 1.25rem !important;
-    font-size: 0.95rem !important;
-    color: var(--text-primary) !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important;
-    outline: none !important;
-    transition: all 0.3s ease !important;
-    font-family: 'Montserrat', sans-serif !important;
-    cursor: pointer;
-}
-
-.foods-bulk-select:focus {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-color: var(--accent-orange) !important;
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
-}
 
 .foods-bulk-btn {
     padding: 0.875rem 1.5rem !important;
@@ -572,11 +631,14 @@ include 'includes/header.php';
     font-size: 0.75rem;
     z-index: 9;
     transition: all 0.2s ease;
+    pointer-events: none;
 }
 
 .food-item-checkbox-indicator::after {
     content: '✓';
     font-weight: bold;
+    display: block;
+    line-height: 1;
 }
 
 .food-item-checkbox:checked + .food-item-checkbox-indicator {
@@ -1151,14 +1213,31 @@ include 'includes/header.php';
                            name="search" 
                            value="<?= htmlspecialchars($search) ?>" 
                            placeholder="Nome do alimento...">
-                    <select class="foods-category-select" name="category">
-                        <option value="">Todas as categorias</option>
-                    <?php foreach ($categories as $key => $cat): ?>
-                        <option value="<?= $key ?>" <?= $category_filter === $key ? 'selected' : '' ?>>
-                                <?= $cat['name'] ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                    <div class="custom-select-wrapper" id="category_filter_wrapper">
+                        <input type="hidden" name="category" id="category_filter_input" value="<?= htmlspecialchars($category_filter) ?>">
+                        <div class="custom-select" id="category_filter_select">
+                            <div class="custom-select-trigger">
+                                <span class="custom-select-value">
+                                    <?php 
+                                    if ($category_filter && isset($categories[$category_filter])) {
+                                        echo htmlspecialchars($categories[$category_filter]['name']);
+                                    } else {
+                                        echo 'Todas as categorias';
+                                    }
+                                    ?>
+                                </span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="custom-select-options">
+                                <div class="custom-select-option" data-value="">Todas as categorias</div>
+                                <?php foreach ($categories as $key => $cat): ?>
+                                    <div class="custom-select-option <?= $category_filter === $key ? 'selected' : '' ?>" data-value="<?= $key ?>">
+                                        <?= htmlspecialchars($cat['name']) ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
                     <button type="submit" class="foods-filter-btn">Buscar</button>
                     <?php if (!empty($search) || !empty($category_filter)): ?>
                     <a href="food_classification.php" class="foods-clear-btn">Limpar</a>
@@ -1170,12 +1249,23 @@ include 'includes/header.php';
             <div class="dashboard-card foods-bulk-card">
                 <h3 class="foods-bulk-title">Ações em Lote</h3>
                 <div class="foods-bulk-controls">
-                    <select class="foods-bulk-select" id="bulk-category">
-                    <option value="">Selecione uma categoria</option>
-                    <?php foreach ($categories as $key => $cat): ?>
-                            <option value="<?= $key ?>"><?= $cat['name'] ?></option>
-                    <?php endforeach; ?>
-                </select>
+                    <div class="custom-select-wrapper" id="bulk_category_wrapper">
+                        <input type="hidden" id="bulk-category" value="">
+                        <div class="custom-select" id="bulk_category_select">
+                            <div class="custom-select-trigger">
+                                <span class="custom-select-value">Selecione uma categoria</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="custom-select-options">
+                                <div class="custom-select-option" data-value="">Selecione uma categoria</div>
+                                <?php foreach ($categories as $key => $cat): ?>
+                                    <div class="custom-select-option" data-value="<?= $key ?>">
+                                        <?= htmlspecialchars($cat['name']) ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
                     <button class="foods-bulk-btn" onclick="applyBulkClassification()" id="bulk-btn" disabled>
                     Aplicar aos Selecionados
                 </button>
@@ -1199,9 +1289,7 @@ include 'includes/header.php';
             <?php foreach ($foods as $food): ?>
                         <div class="food-item-card <?= !empty($food['categories']) ? 'classified' : 'unclassified' ?>" data-food-id="<?= $food['id'] ?>">
                             <input type="checkbox" class="food-item-checkbox" value="<?= $food['id'] ?>">
-                            <div class="food-item-checkbox-indicator">
-                                <i class="fas fa-check"></i>
-                            </div>
+                            <div class="food-item-checkbox-indicator"></div>
                             
                             <div class="food-item-content">
                                 <h4 class="food-item-name"><?= htmlspecialchars($food['name_pt']) ?></h4>
@@ -1425,11 +1513,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // 5. Bulk category select
-    const bulkCategorySelect = document.getElementById('bulk-category');
-    if (bulkCategorySelect) {
-        bulkCategorySelect.addEventListener('change', updateBulkButton);
-    }
+    // 5. Custom Select para filtro de categoria
+    initCustomSelect('category_filter_select', 'category_filter_input', true);
+    
+    // 6. Custom Select para bulk category
+    initCustomSelect('bulk_category_select', 'bulk-category', false);
     
     // 6. Atualizar visual dos checkboxes ao carregar
     document.querySelectorAll('.food-item-checkbox').forEach(cb => {
@@ -1453,7 +1541,8 @@ function updateCheckboxVisual(checkbox) {
 
 function updateBulkButton() {
     const selected = document.querySelectorAll('.food-item-checkbox:checked');
-    const bulkCategory = document.getElementById('bulk-category').value;
+    const bulkCategoryInput = document.getElementById('bulk-category');
+    const bulkCategory = bulkCategoryInput ? bulkCategoryInput.value : '';
     const bulkBtn = document.getElementById('bulk-btn');
     
     if (bulkBtn) {
@@ -1461,9 +1550,77 @@ function updateBulkButton() {
     }
 }
 
+// Função para inicializar custom select
+function initCustomSelect(selectId, inputId, submitForm) {
+    const customSelect = document.getElementById(selectId);
+    if (!customSelect) return;
+    
+    const hiddenInput = document.getElementById(inputId);
+    if (!hiddenInput) return;
+    
+    const trigger = customSelect.querySelector('.custom-select-trigger');
+    const optionsContainer = customSelect.querySelector('.custom-select-options');
+    const options = customSelect.querySelectorAll('.custom-select-option');
+    const valueDisplay = customSelect.querySelector('.custom-select-value');
+    
+    // Abre/fecha o dropdown
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        customSelect.classList.toggle('active');
+    });
+    
+    // Seleciona uma opção
+    options.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            const value = this.getAttribute('data-value');
+            
+            // Atualiza o valor do input escondido
+            hiddenInput.value = value;
+            
+            // Atualiza o texto visível
+            valueDisplay.textContent = this.textContent;
+            
+            // Remove a classe 'selected' de todos e adiciona na clicada
+            options.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Fecha o dropdown
+            customSelect.classList.remove('active');
+            
+            // Se for o filtro de categoria, submete o formulário
+            if (submitForm) {
+                const form = customSelect.closest('form');
+                if (form) {
+                    form.submit();
+                }
+            } else {
+                // Se for bulk category, atualiza o botão
+                updateBulkButton();
+            }
+        });
+    });
+    
+    // Fecha o dropdown se clicar fora
+    document.addEventListener('click', function(e) {
+        if (!customSelect.contains(e.target)) {
+            customSelect.classList.remove('active');
+        }
+    });
+    
+    // Fecha com a tecla Esc
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && customSelect.classList.contains('active')) {
+            customSelect.classList.remove('active');
+        }
+    });
+}
+
 function applyBulkClassification() {
     const selected = document.querySelectorAll('.food-item-checkbox:checked');
-    const bulkCategory = document.getElementById('bulk-category').value;
+    const bulkCategoryInput = document.getElementById('bulk-category');
+    const bulkCategory = bulkCategoryInput ? bulkCategoryInput.value : '';
     
     if (selected.length === 0 || !bulkCategory) return;
     
