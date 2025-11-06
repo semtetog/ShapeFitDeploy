@@ -832,14 +832,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Configurar click listener na imagem para abrir modal
-    function setupImageClick(element) {
+    // Mover para escopo global para ser acessível em updateImage
+    window.setupImageClick = function(element) {
         if (element) {
-            element.addEventListener('click', function(e) {
+            // Remover listeners anteriores para evitar duplicação
+            const newElement = element.cloneNode(true);
+            element.parentNode.replaceChild(newElement, element);
+            
+            newElement.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 // Obter posição da imagem no momento do clique (relativa ao viewport do iframe)
-                const rect = element.getBoundingClientRect();
+                const rect = newElement.getBoundingClientRect();
                 
                 if (window.parent && window.parent.postMessage) {
                     window.parent.postMessage({ 
@@ -856,7 +861,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
-    }
+    };
+    
+    const setupImageClick = window.setupImageClick;
 
     const imageElement = document.getElementById('recipe-image');
     const placeholderElement = document.getElementById('recipe-image-placeholder');
