@@ -8,7 +8,7 @@ require_once __DIR__ . '/../includes/db.php';
 requireAdminLogin();
 
 $page_slug = 'food_classification';
-$page_title = 'Classificar Alimentos';
+$page_title = 'Alimentos';
 
 // Categorias SIMPLIFICADAS
 $categories = [
@@ -28,17 +28,8 @@ $categories = [
 $search = $_GET['search'] ?? '';
 $category_filter = $_GET['category'] ?? '';
 $page = (int)($_GET['page'] ?? 1);
-$per_page = 15;
+$per_page = 20;
 $offset = ($page - 1) * $per_page;
-
-// Adicionar filtros de intervalo de página no topo
-$page_start = isset($_GET['page_start']) ? max(1, (int)$_GET['page_start']) : 1;
-$page_end = isset($_GET['page_end']) ? max($page_start, (int)$_GET['page_end']) : null; // será definido após $total_pages
-
-// Restringir o offset e a quantidade conforme o intervalo
-if ($page_start > $page_end) $page_end = $page_start;
-$effective_offset = ($page_start - 1) * $per_page;
-$effective_limit = ($page_end - $page_start + 1) * $per_page;
 
 $where_conditions = [];
 $params = [];
@@ -67,74 +58,10 @@ if (!empty($params)) {
 $count_stmt->execute();
 $total_items = $count_stmt->get_result()->fetch_assoc()['total'];
 $total_pages = ceil($total_items / $per_page);
-if ($page_end === null) { $page_end = $total_pages; }
-if ($page_start > $page_end) { $page_end = $page_start; }
-$block_page_count = max(1, $page_end - $page_start + 1);
-$effective_offset = ($page_start - 1) * $per_page;
-$effective_limit = $block_page_count * $per_page;
 
-// Fixar blocos em 5
-$num_blocos = 5;
-$blocos = [];
-$bloco_atual = isset($_GET['bloco']) ? (int)$_GET['bloco'] : null;
-$per_page = 15;
-$paginas_totais = ceil($total_items / $per_page);
-$blocos_tamanhos = array_fill(0, $num_blocos, floor($paginas_totais / $num_blocos));
-$resto = $paginas_totais % $num_blocos; for ($i = 0; $i < $resto; $i++) $blocos_tamanhos[$i]++;
-$page_idx = 1;
-for ($i = 0; $i < $num_blocos; $i++) {
-    $start = $page_idx;
-    $end = $start + $blocos_tamanhos[$i] - 1;
-    $blocos[$i+1] = [ 'pagina_inicio' => $start, 'pagina_fim' => $end ];
-    $page_idx = $end + 1;
-}
-// Determina pagina atual (restrita ao bloco)
-$page = max(1, (int)($_GET['page'] ?? ($bloco_atual && isset($blocos[$bloco_atual]) ? $blocos[$bloco_atual]['pagina_inicio'] : 1)));
-if ($bloco_atual && isset($blocos[$bloco_atual])) {
-    $pagina_ini = $blocos[$bloco_atual]['pagina_inicio'];
-    $pagina_fim = $blocos[$bloco_atual]['pagina_fim'];
-    // Mostrar TODOS os itens do bloco de uma vez: offset no início do bloco e limit até o fim do bloco
-    $offset = ($pagina_ini - 1) * $per_page;
-    $limit = ($pagina_fim - $pagina_ini + 1) * $per_page;
-    $pagina_atual_do_bloco = 1;
-    $total_paginas_bloco = $pagina_fim - $pagina_ini + 1;
-} else {
-    $pagina_ini = 1; $pagina_fim = $paginas_totais;
-    $offset = 0; $limit = $per_page;
-    $pagina_atual_do_bloco = $page; $total_paginas_bloco = $paginas_totais;
-}
-
-// Lógica dos blocos para alimentar o modal e o filtro:
-$blocos = [];
-$bloco_atual = isset($_GET['bloco']) ? (int)$_GET['bloco'] : null;
-$num_blocos = isset($_GET['num_blocos']) ? max(1,(int)$_GET['num_blocos']) : 5; // padrao 5 blocos
-$paginas_totais = ceil($total_items / $per_page);
-$blocos_tamanhos = array_fill(0, $num_blocos, floor($paginas_totais / $num_blocos));
-$resto = $paginas_totais % $num_blocos; for ($i = 0; $i < $resto; $i++) $blocos_tamanhos[$i]++;
-
-// Calcular faixas de cada bloco
-$page_idx = 1;
-for ($i = 0; $i < $num_blocos; $i++) {
-    $start = $page_idx;
-    $end = $start + $blocos_tamanhos[$i] - 1;
-    $blocos[$i+1] = [ 'pagina_inicio' => $start, 'pagina_fim' => $end ];
-    $page_idx = $end + 1;
-}
-
-// Determina o offset a partir do bloco escolhido
-if ($bloco_atual && isset($blocos[$bloco_atual])) {
-    $filtrar_pagina_ini = $blocos[$bloco_atual]['pagina_inicio'];
-    $filtrar_pagina_fim = $blocos[$bloco_atual]['pagina_fim'];
-    $offset = ($filtrar_pagina_ini - 1) * $per_page;
-    $limit = ($filtrar_pagina_fim - $filtrar_pagina_ini + 1) * $per_page;
-} else {
-    $offset = 0;
-    $limit = $per_page;
-}
-
-// Buscar alimentos APENAS do bloco ativo
+// Buscar alimentos
 $sql = "SELECT 
-    sfi.id, sfi.name_pt, sfi.food_type, sfi.energy_kcal_100g, sfi.protein_g_100g, sfi.carbohydrate_g_100g, sfi.fat_g_100g,
+    sfi.id, sfi.name_pt, sfi.food_type, sfi.energy_kcal_100g, sfi.protein_g_100g, sfi.carbohydrate_g_100g, sfi.fat_g_100g, sfi.brand,
     GROUP_CONCAT(sfc.category_type ORDER BY sfc.is_primary DESC, sfc.category_type ASC) as categories
     FROM sf_food_items sfi
     LEFT JOIN sf_food_categories sfc ON sfi.id = sfc.food_id
@@ -143,39 +70,11 @@ $sql = "SELECT
     ORDER BY sfi.name_pt
     LIMIT ? OFFSET ?";
 $param_types .= 'ii';
-array_push($params, $limit, $offset);
+array_push($params, $per_page, $offset);
 $stmt = $conn->prepare($sql);
 $stmt->bind_param($param_types, ...$params);
 $stmt->execute();
 $foods = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-// Calcular progresso de cada bloco:
-$progresso_blocos = [];
-foreach ($blocos as $nb => $faixa) {
-    $offset_b = ($faixa['pagina_inicio'] - 1) * $per_page;
-    $limit_b = ($faixa['pagina_fim'] - $faixa['pagina_inicio'] + 1) * $per_page;
-    $sql_b = "SELECT COUNT(*) AS total, SUM(IF(sfc.category_type IS NULL,0,1)) AS classificados
-        FROM (
-            SELECT sfi.id, GROUP_CONCAT(sfc.category_type) as cts
-            FROM sf_food_items sfi LEFT JOIN sf_food_categories sfc ON sfi.id = sfc.food_id
-            $where_sql
-            GROUP BY sfi.id
-            ORDER BY sfi.name_pt
-            LIMIT $limit_b OFFSET $offset_b
-        ) TB LEFT JOIN sf_food_categories sfc ON TB.id = sfc.food_id";
-    $result_b = $conn->query($sql_b);
-    $dados_b = $result_b->fetch_assoc();
-    $pct = ($dados_b['total'] > 0 ? round(($dados_b['classificados'] / $dados_b['total']) * 100) : 0);
-    $progresso_blocos[$nb] = ['total' => (int)$dados_b['total'], 'classificados' => (int)$dados_b['classificados'], 'pct' => $pct];
-}
-
-// Progresso do bloco atual (com base no resultado carregado)
-$total_items_in_block = count($foods);
-$classified_in_block = 0;
-foreach ($foods as $f_it) {
-    if (!empty($f_it['categories'])) { $classified_in_block++; }
-}
-$block_progress_pct = $total_items_in_block > 0 ? round(($classified_in_block / $total_items_in_block) * 100) : 0;
 
 // Buscar estatísticas
 $stats_sql = "SELECT food_type, COUNT(*) as count FROM sf_food_items GROUP BY food_type";
@@ -201,23 +100,26 @@ include 'includes/header.php';
 /* ========================================================================= */
 
 .classification-container {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
+    padding: 1.5rem 2rem;
     display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 25px;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
     min-height: calc(100vh - 200px);
 }
 
 /* ===== LEGENDAS SIMPLES (LADO ESQUERDO) ===== */
 .legends-panel {
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
     height: fit-content;
     position: sticky;
-    top: 20px;
+    top: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .legends-title {
@@ -331,45 +233,61 @@ include 'includes/header.php';
 
 /* ===== CLASSIFICADOR (LADO DIREITO) ===== */
 .classifier-panel {
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
 }
 
 .classifier-header {
-    text-align: center;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .classifier-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--primary-text-color);
-    margin-bottom: 5px;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.classifier-title i {
+    color: var(--accent-orange);
 }
 
 .classifier-subtitle {
-    font-size: 0.9rem;
-    color: var(--secondary-text-color);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0;
 }
 
 /* Estatísticas simples */
 .stats-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
 .stat-item {
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
     text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .stat-number {
@@ -387,59 +305,15 @@ include 'includes/header.php';
 
 /* Filtros simples */
 .filters-section {
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 15px;
-    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-/* Painel estilizado do bloco de páginas */
-.block-panel {
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 14px;
-    margin-bottom: 16px;
-}
-.block-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--primary-text-color);
-    margin: 0 0 10px 0;
-}
-.block-grid {
-    display: grid;
-    grid-template-columns: repeat(4, max-content) 1fr;
-    gap: 10px 12px;
-    align-items: center;
-}
-.block-input {
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 8px 10px;
-    color: var(--primary-text-color);
-    width: 120px;
-}
-.block-help {
-    font-size: 0.8rem;
-    color: var(--secondary-text-color);
-}
-.block-actions { display:flex; gap:8px; align-items:center; }
-.btn-block {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-color);
-    color: var(--primary-text-color);
-    cursor: pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
-}
-.btn-block.primary { background: var(--accent-orange); color: white; border-color: var(--accent-orange); }
-.btn-block:disabled { opacity: .6; cursor: not-allowed; }
-.progress-wrap { display:flex; align-items:center; gap:10px; }
-.progress-bar { height: 8px; width: 220px; border-radius: 999px; background: rgba(255,255,255,.08); border:1px solid var(--border-color); overflow:hidden; }
-.progress-bar > span { display:block; height:100%; background:#10B981; width:0%; transition:width .3s; }
 
 .filters-title {
     font-size: 0.9rem;
@@ -500,11 +374,13 @@ include 'includes/header.php';
 
 /* Ações em lote simples */
 .bulk-actions {
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 15px;
-    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .bulk-title {
@@ -568,11 +444,13 @@ include 'includes/header.php';
 }
 
 .food-card {
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 15px;
-    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .food-card:hover {
@@ -829,39 +707,6 @@ include 'includes/header.php';
     border-color: var(--accent-orange);
 }
 
-/* ====== CSS do sistema de blocos (modais) ====== */
-.modal-blocos-overlay { position: fixed; left:0; top:0; width:100vw; height:100vh; background: rgba(0,0,0,0.6)!important; z-index: 2000; display: flex; align-items: center; justify-content: center; }
-.modal-blocos { max-width:940px; background: var(--surface-color)!important; color: var(--primary-text-color); border-radius:16px; box-shadow:0 24px 64px #0006; padding:22px 22px 18px 22px; margin:20px; width:98vw; border:1px solid var(--border-color); }
-.modal-header-blocos{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
-.modal-header-blocos h2{margin:0;font-size:1.35rem}
-.modal-header-blocos p{margin:6px 0 0 0;color:var(--secondary-text-color);font-size:.92rem}
-.btn-fechar-x{background:var(--bg-color);color:var(--primary-text-color);border:1px solid var(--border-color);border-radius:8px;font-size:1.15rem;line-height:1;padding:6px 10px;cursor:pointer}
-.blocos-cards { display:grid; gap:13px; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); margin:13px 0 18px 0; }
-.bloco-card { background: var(--bg-color); border-radius: 12px; padding:16px 14px; border: 1px solid var(--border-color); text-align: center; box-shadow:0 5px 30px #0003; position:relative; }
-.bloco-card.mini{padding:12px 12px}
-.bloco-card.ativo-bloco { border-color: var(--accent-orange); background: var(--surface-color); }
-.bloco-titulo { font-size: 1.1em; font-weight: bold; margin-bottom: 3px; }
-.bloco-sub{color:var(--secondary-text-color);font-size:.9rem;margin-bottom:6px}
-.bloco-metricas{display:flex;align-items:center;justify-content:space-between;font-size:.86rem;color:var(--secondary-text-color);margin:6px 4px}
-.bloco-progress-bar { background: var(--border-color); height:7px; border-radius:7px; margin: 10px 0 4px 0; overflow:hidden; }
-.bloco-progress-bar span { display:block; height:100%; background: #45c651; border-radius:7px; min-width:5px; transition:width .3s; }
-.bloco-pct{font-weight:600;margin-top:2px}
-.bloco-form{display:flex;align-items:center;justify-content:center}
-.btn-bloco-card {padding:8px 18px;border-radius:8px;background:var(--accent-orange);color:#fff;font-weight:600;border:1px solid var(--accent-orange);cursor:pointer;margin-top:6px;font-size:.98em;}
-.btn-modal-fechar{margin-top:10px;padding:6px 14px;background:var(--surface-color);color:var(--secondary-text-color);font-size:1em;border:1px solid var(--border-color);border-radius:6px;cursor:pointer;}
-.btn-secondary{padding:8px 14px;background:var(--surface-color);color:var(--primary-text-color);border:1px solid var(--border-color);border-radius:8px;cursor:pointer}
-.btn-blocos-toolbar{position:fixed;right:22px;top:86px;display:flex;gap:10px;z-index:1500}
-.btn-blocos-flutuante{padding:11px 16px;background:var(--accent-orange);color:#fff;font-weight:600;font-size:.98em;border:1px solid var(--accent-orange);border-radius:10px;box-shadow:0 5px 30px #0002;cursor:pointer}
-.btn-blocos-flutuante.muted{background:var(--surface-color);border:1px solid var(--border-color);color:var(--primary-text-color)}
-.config-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg-color);border:1px solid var(--border-color);border-radius:10px;padding:10px 12px}
-.lbl-inline{font-size:.95rem;color:var(--primary-text-color)}
-.num-blocos-wrap{display:flex;align-items:center;gap:8px}
-.num-blocos-wrap input{font-size:1.1rem;width:92px;text-align:center;border-radius:8px;border:1px solid var(--border-color);background:var(--surface-color);color:var(--primary-text-color);padding:6px}
-.btn-preset{background:var(--surface-color);color:var(--primary-text-color);border:1px solid var(--border-color);border-radius:8px;padding:6px 10px;cursor:pointer}
-.stats-inline{color:var(--secondary-text-color);font-size:.9rem}
-.modal-actions{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
-.btn-blocos-flutuante:focus,.btn-preset:focus,.btn-bloco-card:focus{outline:2px solid var(--accent-orange); outline-offset:2px}
-@media(max-width:600px){.modal-blocos{padding:14px 2vw 7px 2vw}.blocos-cards{grid-template-columns:1fr;}.btn-blocos-toolbar{right:10px;top:10vw}.btn-blocos-flutuante{padding:9px 14px}}
 
 /* Auto-save indicator */
 .auto-save-indicator {
@@ -976,32 +821,6 @@ include 'includes/header.php';
     }
 }
 
-.block-btn-row {
-  display:flex;
-  gap:14px;
-  margin-bottom:12px;
-  align-items:center;
-}
-.block-btn {
-  background: var(--surface-color);
-  border:1px solid var(--border-color);
-  color: var(--primary-text-color);
-  border-radius:7px;
-  padding:7px 18px;
-  font-size:1em;
-  font-weight:600;
-  transition:.18s;
-  cursor:pointer;
-}
-.block-btn.primary {
-  background: var(--accent-orange);
-  border-color: var(--accent-orange);
-  color:#fff;
-}
-.block-btn:hover {
-  background: var(--bg-color);
-  border-color: var(--accent-orange);
-}
 </style>
 
 <div class="classification-container">
@@ -1085,8 +904,8 @@ include 'includes/header.php';
     <!-- CLASSIFICADOR (LADO DIREITO) -->
     <div class="classifier-panel">
         <div class="classifier-header">
-            <h1 class="classifier-title">Classificar Alimentos</h1>
-            <p class="classifier-subtitle">Selecione uma categoria para cada alimento</p>
+            <h1 class="classifier-title"><i class="fas fa-apple-alt"></i> Alimentos</h1>
+            <p class="classifier-subtitle">Gerencie e classifique todos os alimentos do sistema</p>
         </div>
 
         <!-- Estatísticas -->
@@ -1109,31 +928,19 @@ include 'includes/header.php';
             </div>
         </div>
 
-        <!-- Indicador de bloco ativo -->
-        <?php if ($bloco_atual && isset($blocos[$bloco_atual])): ?>
-            <div style="margin-bottom:12px; padding:10px 12px; background:#1f2431; border:1px solid #2d3342; border-radius:8px; color:#e8e8e8;">
-                Trabalhando no <b>Bloco <?= (int)$bloco_atual ?></b>: páginas <b><?= $pagina_ini ?></b> – <b><?= $pagina_fim ?></b>
-            </div>
-        <?php endif; ?>
-
         <!-- Filtros -->
         <div class="filters-section">
             <h3 class="filters-title">🔍 Buscar</h3>
-            <div class="block-btn-row" style="justify-content:flex-end;">
-                <button type="button" class="block-btn primary" onclick="document.getElementById('modal-blocos').style.display='flex'">Escolher bloco</button>
-                <button type="button" class="block-btn" onclick="document.getElementById('modal-progress').style.display='flex'">Progresso dos blocos</button>
-            </div>
             <form method="GET" class="filters-grid">
                 <input type="text" class="search-input" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Nome do alimento...">
                 <select class="category-select" name="category">
-                    <option value="">Todas</option>
+                    <option value="">Todas as categorias</option>
                     <?php foreach ($categories as $key => $cat): ?>
                         <option value="<?= $key ?>" <?= $category_filter === $key ? 'selected' : '' ?>>
                             <?= $cat['icon'] ?> <?= $cat['name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <?php if ($bloco_atual): ?><input type="hidden" name="bloco" value="<?= (int)$bloco_atual ?>"><?php endif; ?>
                 <button type="submit" class="filter-btn">Buscar</button>
                 <a href="food_classification.php" class="clear-btn">Limpar</a>
             </form>
@@ -1237,8 +1044,8 @@ include 'includes/header.php';
             <?php endforeach; ?>
         </div>
 
-        <!-- Paginação (escondida quando há bloco selecionado) -->
-        <?php if (!$bloco_atual && $total_pages > 1): ?>
+        <!-- Paginação -->
+        <?php if ($total_pages > 1): ?>
             <div class="pagination">
                 <?php if ($page > 1): ?>
                     <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>">« Anterior</a>
@@ -1260,71 +1067,6 @@ include 'includes/header.php';
     </div>
 </div>
 
-<!-- Modais de Blocos - Seleção e Progresso -->
-<div id="modal-blocos" class="modal-blocos-overlay" style="display:none;">
-  <div class="modal-blocos">
-    <div class="modal-header-blocos">
-      <div>
-        <h2>Dividir em Blocos</h2>
-        <p>Defina o número de blocos para dividir as páginas igualmente. Cada pessoa escolhe um bloco e trabalha somente nele.</p>
-      </div>
-      <button class="btn-fechar-x" title="Fechar" onclick="document.getElementById('modal-blocos').style.display='none'">×</button>
-    </div>
-    <div class="config-row">
-      <div class="lbl-inline" style="font-weight:600;">Este projeto usa 5 blocos fixos</div>
-      <div class="stats-inline">Total: <b><?= $total_items ?></b> alimentos • <b><?= $paginas_totais ?></b> páginas (<?= $per_page ?>/página)</div>
-    </div>
-    <div class="blocos-cards">
-      <?php foreach ($blocos as $b_n => $faixa): ?>
-      <div class="bloco-card<?= $bloco_atual==$b_n?' ativo-bloco':'' ?>">
-        <div class="bloco-titulo">Bloco <?= $b_n ?></div>
-        <div class="bloco-sub">Páginas <?= $faixa['pagina_inicio'] ?>–<?= $faixa['pagina_fim'] ?></div>
-        <div class="bloco-metricas"><span><?= $progresso_blocos[$b_n]['total'] ?> itens</span><span><?= $progresso_blocos[$b_n]['classificados'] ?> classificados</span></div>
-        <div class="bloco-progress-bar"><span style="width:<?= $progresso_blocos[$b_n]['pct'] ?>%"></span></div>
-        <div class="bloco-pct"><?= $progresso_blocos[$b_n]['pct'] ?>% concluído</div>
-        <form method="GET" class="bloco-form">
-          <input type="hidden" name="bloco" value="<?= $b_n ?>">
-          <?php if ($search): ?><input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>"><?php endif; ?>
-          <?php if ($category_filter): ?><input type="hidden" name="category" value="<?= htmlspecialchars($category_filter) ?>"><?php endif; ?>
-          <button class="btn-bloco-card">Trabalhar neste bloco</button>
-        </form>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <div class="modal-actions">
-      <button onclick="document.getElementById('modal-progress').style.display='flex'" class="btn-secondary">Ver progresso geral</button>
-      <button onclick="document.getElementById('modal-blocos').style.display='none'" class="btn-modal-fechar">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-progress" class="modal-blocos-overlay" style="display:none;">
-  <div class="modal-blocos">
-    <div class="modal-header-blocos">
-      <div>
-        <h2>Progresso dos Blocos</h2>
-        <p>Acompanhe o andamento geral da equipe.</p>
-      </div>
-      <button class="btn-fechar-x" title="Fechar" onclick="document.getElementById('modal-progress').style.display='none'">×</button>
-    </div>
-    <div class="blocos-cards">
-      <?php foreach ($blocos as $b_n => $faixa): ?>
-        <div class="bloco-card mini">
-          <div class="bloco-titulo">Bloco <?= $b_n ?></div>
-          <div class="bloco-sub">Páginas <?= $faixa['pagina_inicio'] ?>–<?= $faixa['pagina_fim'] ?></div>
-          <div class="bloco-progress-bar"><span style="width:<?= $progresso_blocos[$b_n]['pct'] ?>%"></span></div>
-          <div class="bloco-pct"><?= $progresso_blocos[$b_n]['pct'] ?>%</div>
-        </div>
-      <?php endforeach; ?>
-    </div>
-    <div class="modal-actions">
-      <button onclick="document.getElementById('modal-progress').style.display='none'" class="btn-modal-fechar">Fechar</button>
-    </div>
-  </div>
-</div>
-
-
-
 <!-- Auto-save indicator -->
 <div class="auto-save-indicator" id="auto-save-indicator">
     💾 Salvo!
@@ -1339,23 +1081,6 @@ include 'includes/header.php';
     </div>
 </div>
 
-<!-- Script de inicialização dos modais de blocos -->
-<script>
-  (function(){
-    function openModal(id){ var el = document.getElementById(id); if(el) el.style.display='flex'; }
-    function showModalOnFirstLoad(){ if(window.location.search.indexOf('bloco=')===-1){ openModal('modal-blocos'); } }
-    document.addEventListener('DOMContentLoaded', function(){
-      // Exibir modal na primeira carga (se bloco não estiver definido)
-      setTimeout(showModalOnFirstLoad, 250);
-      // Garantir navegação limpa ao escolher bloco
-      document.querySelectorAll('.btn-bloco-card').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          // nada extra, só evita submissões duplicadas
-        });
-      });
-    });
-  })();
-</script>
 
 <script>
 // Definir categorias globalmente para acesso no JS

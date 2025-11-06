@@ -59,11 +59,8 @@ if (!defined('BASE_ADMIN_URL')) {
                     <li class="<?php echo ($page_slug ?? '') === 'recipes' ? 'active' : ''; ?>">
                         <a href="<?php echo BASE_ADMIN_URL; ?>/recipes.php"><i class="fas fa-utensils"></i> Receitas</a>
                     </li>
-                    <li class="<?php echo ($page_slug ?? '') === 'foods' ? 'active' : ''; ?>">
-                        <a href="<?php echo BASE_ADMIN_URL; ?>/foods_management_new.php"><i class="fas fa-apple-alt"></i> Alimentos</a>
-                    </li>
                     <li class="<?php echo ($page_slug ?? '') === 'food_classification' ? 'active' : ''; ?>">
-                        <a href="<?php echo BASE_ADMIN_URL; ?>/food_classification.php"><i class="fas fa-tags"></i> Classificar Alimentos</a>
+                        <a href="<?php echo BASE_ADMIN_URL; ?>/food_classification.php"><i class="fas fa-tags"></i> Alimentos</a>
                     </li>
         <li class="<?php echo ($page_slug ?? '') === 'diet_plans' ? 'active' : ''; ?>">
             <a href="<?php echo BASE_ADMIN_URL; ?>/diet_plans.php"><i class="fas fa-clipboard-list"></i> Planos Alimentares</a>
