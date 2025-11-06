@@ -741,10 +741,15 @@ const updateIngredients = (ingredients) => {
         // Placeholder vazio
         const li = document.createElement('li');
         li.className = 'ingredient-item-editable empty-placeholder';
-        li.contentEditable = 'true';
-        li.dataset.placeholder = 'Clique para adicionar ingrediente...';
         li.style.cssText = 'opacity: 0.5; font-style: italic;';
-        li.textContent = 'Clique para adicionar ingrediente...';
+        
+        const textSpan = document.createElement('span');
+        textSpan.className = 'ingredient-text-content';
+        textSpan.contentEditable = 'true';
+        textSpan.dataset.placeholder = 'Clique para adicionar ingrediente...';
+        textSpan.textContent = 'Clique para adicionar ingrediente...';
+        
+        li.appendChild(textSpan);
         list.appendChild(li);
     }
     
