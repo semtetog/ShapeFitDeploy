@@ -93,6 +93,8 @@ $csrf_token = $_SESSION['csrf_token'];
     display: flex;
     gap: var(--layout-gap);
     padding: var(--layout-gap);
+    /* Padding à esquerda para criar espaço onde o celular fixo fica */
+    padding-left: calc(var(--sidebar-width) + var(--mockup-width) + (var(--layout-gap) * 2));
     /* Alinha os painéis no topo */
     align-items: flex-start;
 }
