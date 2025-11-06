@@ -560,7 +560,7 @@ include 'includes/header.php';
 /* Card do Alimento - ESTRUTURA LIMPA */
 .food-item-card {
     background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid var(--glass-border) !important;
+    border: 2px solid var(--glass-border) !important;
     border-radius: 16px !important;
     padding: 1.5rem !important;
     transition: all 0.3s ease !important;
@@ -570,6 +570,11 @@ include 'includes/header.php';
     display: flex;
     flex-direction: column;
     min-height: 400px;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 .food-item-card:hover {
@@ -580,13 +585,13 @@ include 'includes/header.php';
 }
 
 .food-item-card.classified {
-    border-left: 4px solid #10B981 !important;
-    border-color: #10B981 !important;
+    border: 2px solid #10B981 !important;
+    border-radius: 16px !important;
 }
 
 .food-item-card.unclassified {
-    border-left: 4px solid #EF4444 !important;
-    border-color: #EF4444 !important;
+    border: 2px solid #EF4444 !important;
+    border-radius: 16px !important;
 }
 
 /* Checkbox para seleção em lote - NOVA VERSÃO LIMPA */
@@ -630,6 +635,7 @@ include 'includes/header.php';
     border-radius: 4px;
     transition: all 0.2s ease;
     pointer-events: none;
+    box-sizing: border-box;
 }
 
 .food-item-checkbox:checked::before {
@@ -638,16 +644,17 @@ include 'includes/header.php';
 }
 
 .food-item-checkbox:checked::after {
-    content: '✓';
+    content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 1;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -60%) rotate(45deg);
     pointer-events: none;
+    box-sizing: border-box;
 }
 
 /* Conteúdo do Card */
@@ -1225,14 +1232,14 @@ include 'includes/header.php';
                                     ?>
                                 </span>
                                 <i class="fas fa-chevron-down"></i>
-                            </div>
+            </div>
                             <div class="custom-select-options">
                                 <div class="custom-select-option" data-value="">Todas as categorias</div>
-                                <?php foreach ($categories as $key => $cat): ?>
+                    <?php foreach ($categories as $key => $cat): ?>
                                     <div class="custom-select-option <?= $category_filter === $key ? 'selected' : '' ?>" data-value="<?= $key ?>">
                                         <?= htmlspecialchars($cat['name']) ?>
                                     </div>
-                                <?php endforeach; ?>
+                    <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
@@ -1256,11 +1263,11 @@ include 'includes/header.php';
                             </div>
                             <div class="custom-select-options">
                                 <div class="custom-select-option" data-value="">Selecione uma categoria</div>
-                                <?php foreach ($categories as $key => $cat): ?>
+                    <?php foreach ($categories as $key => $cat): ?>
                                     <div class="custom-select-option" data-value="<?= $key ?>">
                                         <?= htmlspecialchars($cat['name']) ?>
                                     </div>
-                                <?php endforeach; ?>
+                    <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
