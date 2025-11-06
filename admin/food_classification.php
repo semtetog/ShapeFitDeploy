@@ -347,10 +347,12 @@ include 'includes/header.php';
     position: relative;
     min-width: 220px !important;
     flex: 1;
+    z-index: 100;
 }
 
 .custom-select {
     position: relative;
+    z-index: 100;
 }
 
 .custom-select-trigger {
@@ -403,11 +405,12 @@ include 'includes/header.php';
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    z-index: 1000;
-    background: rgba(35, 35, 35, 0.9);
+    z-index: 10000 !important;
+    background: rgba(35, 35, 35, 0.95) !important;
+    backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
     max-height: 250px;
     overflow-y: auto;
     box-sizing: border-box;
