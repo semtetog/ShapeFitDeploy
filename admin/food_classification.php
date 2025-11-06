@@ -409,8 +409,9 @@ include 'includes/header.php';
     left: 0;
     right: 0;
     z-index: 9999 !important;
-    background: rgba(35, 35, 35, 0.95);
+    background: rgba(35, 35, 35, 1) !important; /* Totalmente opaco desde o início */
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
@@ -418,11 +419,18 @@ include 'includes/header.php';
     overflow-y: auto;
     box-sizing: border-box;
     pointer-events: auto;
-    will-change: transform, opacity;
+    will-change: transform;
+    opacity: 1 !important; /* Força opacidade total */
+    transition: none !important; /* Remove qualquer transição */
+    transform: translateZ(0); /* Força aceleração de hardware */
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden; /* Otimiza renderização */
+    -webkit-backface-visibility: hidden;
 }
 
 .custom-select.active .custom-select-options {
     display: block;
+    opacity: 1 !important; /* Garante opacidade total quando ativo */
 }
 
 .custom-select-option {
@@ -1664,6 +1672,9 @@ function initCustomSelect(selectId, inputId, submitForm) {
                 if (card) {
                     void card.getBoundingClientRect();
                 }
+                // Força renderização do background e opacidade
+                void optionsContainer.offsetHeight;
+                void optionsContainer.offsetWidth;
             }
             
             // Agora fecha todos os outros dropdowns (o novo já está renderizado com z-index alto)
