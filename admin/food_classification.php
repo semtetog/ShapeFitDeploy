@@ -119,7 +119,6 @@ include 'includes/header.php';
 /* ===== PAINEL DE CATEGORIAS (LADO ESQUERDO) ===== */
 .categories-sidebar {
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 20px !important;
     padding: 1.5rem !important;
@@ -134,13 +133,6 @@ include 'includes/header.php';
     font-weight: 700 !important;
     color: var(--text-primary) !important;
     margin: 0 0 1rem 0 !important;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.categories-sidebar h3 i {
-    color: var(--accent-orange) !important;
 }
 
 .categories-sidebar p {
@@ -165,31 +157,11 @@ include 'includes/header.php';
     transform: translateY(-2px);
 }
 
-.category-item-header {
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.75rem !important;
-    margin-bottom: 0.75rem !important;
-}
-
-.category-item-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--category-color);
-    color: white;
-    font-size: 0.875rem;
-    flex-shrink: 0;
-}
-
 .category-item-name {
     font-size: 0.95rem !important;
     font-weight: 600 !important;
     color: var(--category-color) !important;
-    margin: 0 !important;
+    margin: 0 0 0.75rem 0 !important;
 }
 
 .category-item-info {
@@ -209,7 +181,6 @@ include 'includes/header.php';
 /* Header Card */
 .foods-header-card {
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 20px !important;
     padding: 2rem !important;
@@ -237,13 +208,6 @@ include 'includes/header.php';
     font-weight: 700 !important;
     color: var(--text-primary) !important;
     margin: 0 0 0.5rem 0 !important;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.foods-header-title h2 i {
-    color: var(--accent-orange) !important;
 }
 
 .foods-header-title p {
@@ -252,50 +216,77 @@ include 'includes/header.php';
     margin: 0 !important;
 }
 
-/* Stats Grid */
-.foods-stats-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 1rem !important;
+/* Stats Simplificadas */
+.foods-stats-simple {
+    display: flex !important;
+    gap: 2rem !important;
+    margin-top: 1.5rem !important;
+    padding-top: 1.5rem !important;
+    border-top: 1px solid var(--glass-border) !important;
+    flex-wrap: wrap;
 }
 
-.foods-stat-card {
-    background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 16px !important;
-    padding: 1.5rem !important;
-    text-align: center !important;
-    transition: all 0.3s ease !important;
-}
-
-.foods-stat-card:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
-    border-color: var(--accent-orange) !important;
-}
-
-.foods-stat-number {
-    font-size: 2rem !important;
-    font-weight: 700 !important;
-    color: var(--accent-orange) !important;
-    margin-bottom: 0.5rem !important;
-    line-height: 1;
+.foods-stat-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
 }
 
 .foods-stat-label {
+    font-size: 0.95rem !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+}
+
+.foods-stat-number {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: var(--accent-orange) !important;
+}
+
+/* Legenda */
+.foods-legend {
+    display: flex !important;
+    gap: 2rem !important;
+    margin-top: 1.5rem !important;
+    padding-top: 1.5rem !important;
+    border-top: 1px solid var(--glass-border) !important;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+}
+
+.legend-indicator {
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 4px !important;
+    border: 2px solid !important;
+    flex-shrink: 0;
+}
+
+.legend-indicator.classified {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border-color: #10B981 !important;
+}
+
+.legend-indicator.unclassified {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: #EF4444 !important;
+}
+
+.legend-text {
     font-size: 0.875rem !important;
     color: var(--text-secondary) !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    font-weight: 600 !important;
+    font-weight: 500 !important;
 }
 
 /* Filter Card */
 .foods-filter-card {
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 20px !important;
     padding: 1.5rem !important;
@@ -307,13 +298,6 @@ include 'includes/header.php';
     font-weight: 600 !important;
     color: var(--text-primary) !important;
     margin: 0 0 1rem 0 !important;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.foods-filter-title i {
-    color: var(--accent-orange) !important;
 }
 
 .foods-filter-row {
@@ -330,7 +314,6 @@ include 'includes/header.php';
     font-size: 0.95rem !important;
     color: var(--text-primary) !important;
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(5px) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
     outline: none !important;
@@ -355,7 +338,6 @@ include 'includes/header.php';
     font-size: 0.95rem !important;
     color: var(--text-primary) !important;
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(5px) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
     outline: none !important;
@@ -412,7 +394,6 @@ include 'includes/header.php';
 /* Bulk Actions Card */
 .foods-bulk-card {
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 20px !important;
     padding: 1.5rem !important;
@@ -424,13 +405,6 @@ include 'includes/header.php';
     font-weight: 600 !important;
     color: var(--text-primary) !important;
     margin: 0 0 1rem 0 !important;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.foods-bulk-title i {
-    color: var(--accent-orange) !important;
 }
 
 .foods-bulk-controls {
@@ -447,7 +421,6 @@ include 'includes/header.php';
     font-size: 0.95rem !important;
     color: var(--text-primary) !important;
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(5px) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
     outline: none !important;
@@ -517,7 +490,6 @@ include 'includes/header.php';
 /* Card do Alimento - ESTRUTURA LIMPA */
 .food-item-card {
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 16px !important;
     padding: 1.5rem !important;
@@ -536,22 +508,26 @@ include 'includes/header.php';
 
 .food-item-card.classified {
     border-left: 4px solid #10B981 !important;
+    border-color: #10B981 !important;
 }
 
 .food-item-card.unclassified {
     border-left: 4px solid #EF4444 !important;
+    border-color: #EF4444 !important;
 }
 
-/* Checkbox invisível - apenas para seleção em lote */
+/* Checkbox melhorado - apenas para seleção em lote */
 .food-item-checkbox {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     opacity: 0;
     cursor: pointer;
     z-index: 10;
+    margin: 0;
+    padding: 0;
 }
 
 .food-item-card:hover .food-item-checkbox {
@@ -570,17 +546,23 @@ include 'includes/header.php';
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     background: var(--accent-orange);
+    border: 2px solid var(--accent-orange);
     border-radius: 6px;
     display: none;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     z-index: 9;
     box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4);
+}
+
+.food-item-checkbox-indicator::after {
+    content: '✓';
+    font-weight: bold;
 }
 
 .food-item-checkbox:checked ~ .food-item-content {
@@ -610,10 +592,6 @@ include 'includes/header.php';
     gap: 0.5rem;
 }
 
-.food-item-brand i {
-    color: var(--accent-orange) !important;
-    font-size: 0.75rem !important;
-}
 
 /* Macros em linha horizontal */
 .food-item-macros {
@@ -712,12 +690,7 @@ include 'includes/header.php';
     text-overflow: ellipsis;
 }
 
-.food-category-btn i {
-    font-size: 0.65rem !important;
-    flex-shrink: 0;
-}
-
-.food-category-btn span {
+.food-category-btn {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -750,7 +723,6 @@ include 'includes/header.php';
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.5rem !important;
 }
 
 .food-units-btn:hover:not(.disabled) {
@@ -770,7 +742,6 @@ include 'includes/header.php';
 /* Empty State */
 .foods-empty-state {
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 20px !important;
     padding: 4rem 2rem !important;
@@ -778,12 +749,6 @@ include 'includes/header.php';
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.foods-empty-state i {
-    font-size: 4rem !important;
-    color: var(--text-secondary) !important;
-    opacity: 0.5 !important;
-    margin-bottom: 1.5rem !important;
-}
 
 .foods-empty-state p {
     font-size: 1.125rem !important;
@@ -817,7 +782,6 @@ include 'includes/header.php';
 /* Pagination */
 .foods-pagination {
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 16px !important;
     padding: 1.5rem !important;
@@ -1013,8 +977,14 @@ include 'includes/header.php';
         grid-template-columns: 1fr !important;
     }
     
-    .foods-stats-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
+    .foods-stats-simple {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+    
+    .foods-legend {
+        flex-direction: column !important;
+        gap: 1rem !important;
     }
     
     .foods-bulk-controls {
@@ -1032,7 +1002,7 @@ include 'includes/header.php';
     <div class="foods-classification-layout">
         <!-- CATEGORIAS (LADO ESQUERDO) -->
         <div class="dashboard-card categories-sidebar">
-            <h3><i class="fas fa-tags"></i> Categorias</h3>
+            <h3>Categorias</h3>
             <p>Clique para classificar</p>
             
             <?php 
@@ -1081,12 +1051,7 @@ include 'includes/header.php';
                 $examples = $category_examples[$key] ?? [];
             ?>
                 <div class="category-item" data-category="<?= $key ?>" style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
-                    <div class="category-item-header">
-                        <div class="category-item-icon">
-                            <i class="fas <?= $cat['icon'] ?>"></i>
-                        </div>
-                        <h4 class="category-item-name"><?= $cat['name'] ?></h4>
-                    </div>
+                    <h4 class="category-item-name"><?= $cat['name'] ?></h4>
                     <div class="category-item-info">
                         <strong>Exemplos:</strong> <?= implode(', ', array_slice($examples, 0, 3)) ?><?= count($examples) > 3 ? '...' : '' ?><br>
                         <strong>Unidades:</strong> <?= implode(', ', array_map(fn($u) => $unit_names[$u] ?? $u, array_slice($units, 0, 3))) ?><?= count($units) > 3 ? '...' : '' ?>
@@ -1100,34 +1065,42 @@ include 'includes/header.php';
             <!-- Header Card -->
             <div class="dashboard-card foods-header-card">
                 <div class="foods-header-title">
-                    <h2><i class="fas fa-apple-alt"></i> Alimentos</h2>
+                    <h2>Alimentos</h2>
                     <p>Gerencie e classifique todos os alimentos do sistema</p>
                 </div>
 
-                <!-- Estatísticas -->
-                <div class="foods-stats-grid">
-                    <div class="foods-stat-card">
-                        <div class="foods-stat-number"><?= $total_items ?></div>
-                        <div class="foods-stat-label">Total</div>
+                <!-- Estatísticas Simplificadas -->
+                <div class="foods-stats-simple">
+                    <div class="foods-stat-item">
+                        <span class="foods-stat-label">Total:</span>
+                        <span class="foods-stat-number"><?= $total_items ?></span>
                     </div>
-                    <div class="foods-stat-card">
-                        <div class="foods-stat-number" id="classified-count"><?= $classified_count ?></div>
-                        <div class="foods-stat-label">Classificados</div>
+                    <div class="foods-stat-item">
+                        <span class="foods-stat-label">Classificados:</span>
+                        <span class="foods-stat-number" id="classified-count"><?= $classified_count ?></span>
                     </div>
-                    <div class="foods-stat-card">
-                        <div class="foods-stat-number" id="remaining-count"><?= $total_items - $classified_count ?></div>
-                        <div class="foods-stat-label">Restantes</div>
+                    <div class="foods-stat-item">
+                        <span class="foods-stat-label">Restantes:</span>
+                        <span class="foods-stat-number" id="remaining-count"><?= $total_items - $classified_count ?></span>
                     </div>
-                    <div class="foods-stat-card">
-                        <div class="foods-stat-number" id="session-count">0</div>
-                        <div class="foods-stat-label">Nesta Sessão</div>
+                </div>
+
+                <!-- Legenda -->
+                <div class="foods-legend">
+                    <div class="legend-item">
+                        <div class="legend-indicator classified"></div>
+                        <span class="legend-text">Borda verde = Categorizado</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-indicator unclassified"></div>
+                        <span class="legend-text">Borda vermelha = Não categorizado</span>
                     </div>
                 </div>
             </div>
 
             <!-- Filtros -->
             <div class="dashboard-card foods-filter-card">
-                <h3 class="foods-filter-title"><i class="fas fa-search"></i> Buscar</h3>
+                <h3 class="foods-filter-title">Buscar</h3>
                 <form method="GET" class="foods-filter-row">
                     <input type="text" 
                            class="foods-search-input" 
@@ -1142,20 +1115,16 @@ include 'includes/header.php';
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <button type="submit" class="foods-filter-btn">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
+                    <button type="submit" class="foods-filter-btn">Buscar</button>
                     <?php if (!empty($search) || !empty($category_filter)): ?>
-                    <a href="food_classification.php" class="foods-clear-btn">
-                        <i class="fas fa-times"></i> Limpar
-                    </a>
+                    <a href="food_classification.php" class="foods-clear-btn">Limpar</a>
                     <?php endif; ?>
                 </form>
             </div>
 
             <!-- Ações em Lote -->
             <div class="dashboard-card foods-bulk-card">
-                <h3 class="foods-bulk-title"><i class="fas fa-bolt"></i> Ações em Lote</h3>
+                <h3 class="foods-bulk-title">Ações em Lote</h3>
                 <div class="foods-bulk-controls">
                     <select class="foods-bulk-select" id="bulk-category">
                         <option value="">Selecione uma categoria</option>
@@ -1164,7 +1133,7 @@ include 'includes/header.php';
                         <?php endforeach; ?>
                     </select>
                     <button class="foods-bulk-btn" onclick="applyBulkClassification()" id="bulk-btn" disabled>
-                        <i class="fas fa-check"></i> Aplicar aos Selecionados
+                        Aplicar aos Selecionados
                     </button>
                     <label class="foods-select-all">
                         <input type="checkbox" id="select-all">
@@ -1176,7 +1145,6 @@ include 'includes/header.php';
             <!-- Grid de Alimentos -->
             <?php if (empty($foods)): ?>
                 <div class="dashboard-card foods-empty-state">
-                    <i class="fas fa-apple-alt"></i>
                     <p>Nenhum alimento encontrado.</p>
                     <?php if (!empty($search) || !empty($category_filter)): ?>
                         <a href="food_classification.php" class="btn-primary">Ver Todos os Alimentos</a>
@@ -1196,7 +1164,6 @@ include 'includes/header.php';
                                 
                                 <?php if (!empty($food['brand']) && $food['brand'] !== 'TACO'): ?>
                                     <div class="food-item-brand">
-                                        <i class="fas fa-tag"></i>
                                         <?= htmlspecialchars($food['brand']) ?>
                                     </div>
                                 <?php endif; ?>
@@ -1231,14 +1198,14 @@ include 'includes/header.php';
                                             if (isset($categories[$cat_key])) {
                                                 $cat_info = $categories[$cat_key];
                                                 $tagsHtml .= sprintf(
-                                                    '<span class="food-category-badge" style="background: %s20; color: %s; border: 1px solid %s40;"><i class="fas %s"></i> %s</span>',
-                                                    $cat_info['color'], $cat_info['color'], $cat_info['color'], $cat_info['icon'], $cat_info['name']
+                                                    '<span class="food-category-badge" style="background: %s20; color: %s; border: 1px solid %s40;">%s</span>',
+                                                    $cat_info['color'], $cat_info['color'], $cat_info['color'], $cat_info['name']
                                                 );
                                             }
                                         }
                                         echo $tagsHtml;
                                     } else {
-                                        echo '<span class="food-unclassified-badge"><i class="fas fa-exclamation-circle"></i> Não classificado</span>';
+                                        echo '<span class="food-unclassified-badge">Não classificado</span>';
                                     }
                                     ?>
                                 </div>
@@ -1249,8 +1216,7 @@ include 'includes/header.php';
                                                 data-food-id="<?= $food['id'] ?>"
                                                 data-category="<?= $key ?>"
                                                 style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
-                                            <i class="fas <?= $cat['icon'] ?>"></i>
-                                            <span><?= $cat['name'] ?></span>
+                                            <?= $cat['name'] ?>
                                         </button>
                                     <?php endforeach; ?>
                                 </div>
@@ -1258,8 +1224,7 @@ include 'includes/header.php';
                                 <button class="food-units-btn <?= empty($food['categories']) ? 'disabled' : '' ?>" 
                                         data-food-id="<?= $food['id'] ?>"
                                         onclick="openUnitsEditor(<?= $food['id'] ?>, '<?= htmlspecialchars($food['name_pt']) ?>', getFoodCategories(<?= $food['id'] ?>))">
-                                    <i class="fas fa-ruler"></i>
-                                    <span>Unidades</span>
+                                    Unidades
                                 </button>
                             </div>
                         </div>
@@ -1273,10 +1238,10 @@ include 'includes/header.php';
                             Mostrando <?= ($offset + 1) ?> - <?= min($offset + $per_page, $total_items) ?> de <?= number_format($total_items) ?> alimentos
                         </div>
                         <div class="foods-pagination-controls">
-                            <?php if ($page > 1): ?>
+                                <?php if ($page > 1): ?>
                                 <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
                                    class="foods-pagination-btn">
-                                    <i class="fas fa-chevron-left"></i> Anterior
+                                    Anterior
                                 </a>
                             <?php endif; ?>
                             
@@ -1314,7 +1279,7 @@ include 'includes/header.php';
                             <?php if ($page < $total_pages): ?>
                                 <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
                                    class="foods-pagination-btn">
-                                    Próxima <i class="fas fa-chevron-right"></i>
+                                    Próxima
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -1327,7 +1292,7 @@ include 'includes/header.php';
 
 <!-- Auto-save indicator -->
 <div class="auto-save-indicator" id="auto-save-indicator">
-    <i class="fas fa-save"></i> Salvo!
+    Salvo!
 </div>
 
 <!-- Loading overlay -->
@@ -1515,7 +1480,7 @@ function updateFoodVisual(foodId) {
         const tagsHtml = currentCategories.map(catKey => {
             const catInfo = window.categories[catKey];
             if (!catInfo) return ''; // Segurança caso a categoria não exista
-            return `<span class="food-category-badge" style="background: ${catInfo.color}20; color: ${catInfo.color}; border: 1px solid ${catInfo.color}40;"><i class="fas ${catInfo.icon}"></i> ${catInfo.name}</span>`;
+            return `<span class="food-category-badge" style="background: ${catInfo.color}20; color: ${catInfo.color}; border: 1px solid ${catInfo.color}40;">${catInfo.name}</span>`;
         }).join('');
         categoryDisplay.innerHTML = tagsHtml;
         foodCard.classList.add('classified');
