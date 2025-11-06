@@ -329,6 +329,38 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 /* Buttons */
+.btn-add-recipe-circular {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    max-width: 64px;
+    max-height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.btn-add-recipe-circular:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
+}
+
+.btn-add-recipe-circular i {
+    font-size: 1.5rem;
+}
+
 .btn-filter-circular {
     width: 48px;
     height: 48px;
