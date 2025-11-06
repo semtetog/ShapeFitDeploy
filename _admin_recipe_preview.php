@@ -97,10 +97,17 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 }
 
 /* === CONTAINER === */
+/* Remover padding do app-container para garantir que a imagem não entre no card */
+.app-container {
+    padding: 24px !important;
+    padding-top: 24px !important;
+    padding-bottom: calc(60px + 20px + env(safe-area-inset-bottom)) !important;
+}
+
 .recipe-detail-container {
     max-width: 600px;
     margin: 0 auto;
-    padding: 0 20px 20px 20px;
+    padding: 0;
     background: var(--bg-primary);
     min-height: 100vh;
 }
