@@ -143,6 +143,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 .recipe-image-placeholder {
     width: 100% !important;
     height: 280px !important;
+    min-height: 280px !important;
+    max-height: 280px !important;
     border-radius: 20px !important;
     margin-top: 0 !important;
     margin-bottom: 20px !important;
@@ -157,6 +159,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     font-size: 16px !important;
     flex-direction: column !important;
     gap: 12px !important;
+    box-sizing: border-box !important;
 }
 
 .recipe-image-placeholder:hover {

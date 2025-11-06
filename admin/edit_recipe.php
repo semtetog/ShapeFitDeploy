@@ -898,9 +898,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 min-width: 200px;
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
                 transform: scale(0.95) translateY(-5px);
-                transition: transform 0.2s ease, opacity 0.2s ease, backdrop-filter 0.2s ease;
+                transition: transform 0.2s ease, opacity 0.2s ease;
                 opacity: 0;
                 overflow: hidden;
+                will-change: transform, opacity;
             `;
 
             const buttonsContainer = document.createElement('div');
@@ -920,8 +921,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 font-size: 0.875rem;
                 font-weight: 600;
                 cursor: pointer;
-                background: rgba(255, 107, 0, 0.15);
-                border: 1px solid rgba(255, 107, 0, 0.3);
+                background: rgba(255, 107, 0, 0.2);
+                border: 1px solid rgba(255, 107, 0, 0.35);
                 color: var(--accent-orange);
                 transition: all 0.2s ease;
                 display: flex;
@@ -931,13 +932,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 font-family: 'Montserrat', sans-serif;
             `;
             changeButton.onmouseenter = () => {
-                changeButton.style.background = 'rgba(255, 107, 0, 0.18)';
-                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.35)';
+                changeButton.style.background = 'rgba(255, 107, 0, 0.25)';
+                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.4)';
                 changeButton.style.transform = 'translateY(-1px)';
             };
             changeButton.onmouseleave = () => {
-                changeButton.style.background = 'rgba(255, 107, 0, 0.15)';
-                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.3)';
+                changeButton.style.background = 'rgba(255, 107, 0, 0.2)';
+                changeButton.style.borderColor = 'rgba(255, 107, 0, 0.35)';
                 changeButton.style.transform = 'translateY(0)';
             };
             changeButton.onclick = () => {
@@ -954,8 +955,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 font-size: 0.875rem;
                 font-weight: 600;
                 cursor: pointer;
-                background: rgba(244, 67, 54, 0.15);
-                border: 1px solid rgba(244, 67, 54, 0.3);
+                background: rgba(244, 67, 54, 0.2);
+                border: 1px solid rgba(244, 67, 54, 0.35);
                 color: #F44336;
                 transition: all 0.2s ease;
                 display: flex;
@@ -965,13 +966,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 font-family: 'Montserrat', sans-serif;
             `;
             deleteButton.onmouseenter = () => {
-                deleteButton.style.background = 'rgba(244, 67, 54, 0.18)';
-                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.35)';
+                deleteButton.style.background = 'rgba(244, 67, 54, 0.25)';
+                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.4)';
                 deleteButton.style.transform = 'translateY(-1px)';
             };
             deleteButton.onmouseleave = () => {
-                deleteButton.style.background = 'rgba(244, 67, 54, 0.15)';
-                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.3)';
+                deleteButton.style.background = 'rgba(244, 67, 54, 0.2)';
+                deleteButton.style.borderColor = 'rgba(244, 67, 54, 0.35)';
                 deleteButton.style.transform = 'translateY(0)';
             };
             deleteButton.onclick = () => {
@@ -1014,14 +1015,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     popup.style.display = 'block';
                     
-                    // Trigger animation - blur e popup juntos
+                    // Trigger animation - blur já está aplicado no CSS
                     requestAnimationFrame(() => {
                         popup.style.opacity = '1';
                         if (content) {
                             content.style.opacity = '1';
                             content.style.transform = 'scale(1) translateY(0)';
-                            content.style.backdropFilter = 'blur(8px)';
-                            content.style.webkitBackdropFilter = 'blur(8px)';
                         }
                     });
                 }
