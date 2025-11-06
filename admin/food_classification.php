@@ -186,6 +186,7 @@ include 'includes/header.php';
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    overflow: visible !important;
 }
 
 /* Header Card */
@@ -196,6 +197,7 @@ include 'includes/header.php';
     padding: 2rem !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     position: relative;
+    overflow: visible !important;
 }
 
 .foods-header-card::before {
@@ -301,6 +303,7 @@ include 'includes/header.php';
     border-radius: 20px !important;
     padding: 1.5rem !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    overflow: visible !important;
 }
 
 .foods-filter-title {
@@ -490,6 +493,7 @@ include 'includes/header.php';
     border-radius: 20px !important;
     padding: 1.5rem !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    overflow: visible !important;
 }
 
 .foods-bulk-title {
