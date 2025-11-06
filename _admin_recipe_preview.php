@@ -99,7 +99,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 /* === CONTAINER === */
 /* Garantir que app-container tenha padding igual ao view_recipe.php */
 .app-container {
-    padding: env(safe-area-inset-top) 24px calc(60px + 20px + env(safe-area-inset-bottom)) 24px !important;
+    padding: 20px 24px calc(60px + 20px + env(safe-area-inset-bottom)) 24px !important;
+    padding-top: 20px !important;
     width: 100% !important;
     max-width: 480px !important;
     height: 100% !important;
@@ -124,6 +125,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     height: 280px !important;
     object-fit: cover !important;
     border-radius: 20px !important;
+    margin-top: 0 !important;
     margin-bottom: 20px !important;
     display: block !important;
     position: relative !important;
@@ -353,16 +355,23 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 
 /* === OBSERVAÇÕES === */
 .recipe-notes-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 20px;
-    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 20px !important;
+    padding: 24px !important;
+    margin-bottom: 20px !important;
+    transition: all 0.2s ease !important;
 }
 
 .recipe-notes-card:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Remover margin-bottom do último elemento para evitar espaço extra */
+.recipe-section:last-child,
+.recipe-notes-card:last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: 20px !important;
 }
 
 
