@@ -93,7 +93,7 @@ $csrf_token = $_SESSION['csrf_token'];
     display: flex;
     gap: var(--layout-gap);
     padding: var(--layout-gap);
-    /* Alinha os painéis no topo, importante para o sticky funcionar bem */
+    /* Alinha os painéis no topo */
     align-items: flex-start;
 }
 
@@ -102,14 +102,17 @@ $csrf_token = $_SESSION['csrf_token'];
     width: var(--mockup-width);
     flex-shrink: 0; /* Impede que ele seja espremido */
     
-    position: sticky; /* A MÁGICA: "gruda" no topo quando a página rola */
+    position: fixed; /* FIXO! NÃO ROLA COM A PÁGINA */
     top: var(--layout-gap);
+    bottom: var(--layout-gap);
+    left: calc(var(--sidebar-width) + var(--layout-gap));
     
     height: var(--mockup-height); /* Usa a variável de altura */
     
     /* Limites para não ficar nem gigante nem minúsculo */
     max-width: 410px;
     max-height: 820px;
+    z-index: 10;
 }
 
 .mobile-mockup-wrapper {
