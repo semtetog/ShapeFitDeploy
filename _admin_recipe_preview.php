@@ -847,10 +847,26 @@ const updateInstructions = (text) => {
             const stepDiv = document.createElement('div'); 
             stepDiv.className = 'instruction-step';
             const stepNumber = index + 1;
-            stepDiv.innerHTML = `
-                <span class="step-number">${stepNumber}</span>
-                <p>${stepText.replace(/^\d+[\.\)]\s*/, '')}</p>
-            `; 
+            const stepNumberSpan = document.createElement('span');
+            stepNumberSpan.className = 'step-number';
+            stepNumberSpan.textContent = stepNumber;
+            
+            const textContent = document.createElement('p');
+            textContent.className = 'instruction-text-content';
+            textContent.contentEditable = 'true';
+            textContent.textContent = stepText.replace(/^\d+[\.\)]\s*/, '');
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn-remove-instruction-inline';
+            removeBtn.title = 'Remover';
+            removeBtn.innerHTML = '×';
+            removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: auto; margin-right: 0; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
+            
+            stepDiv.appendChild(stepNumberSpan);
+            stepDiv.appendChild(textContent);
+            stepDiv.appendChild(removeBtn);
+            
             list.appendChild(stepDiv);
         });
     } else {
@@ -981,14 +997,134 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Instruções editáveis
-    const instructionsElement = document.getElementById('instructions-list');
-    if (instructionsElement) {
-        instructionsElement.addEventListener('input', function() {
-            // Extrair texto puro de todas as instruções
-            const steps = Array.from(this.querySelectorAll('.instruction-step p')).map(p => p.textContent.trim()).filter(t => t);
-            syncToParent('instructions', steps.join('\n'));
+    // Configurar edição de instruções
+    setupInstructionListeners();
+    
+    // Botão de adicionar passo
+    const btnAddInstruction = document.getElementById('btn-add-instruction-preview');
+    if (btnAddInstruction) {
+        btnAddInstruction.addEventListener('click', function() {
+            const instructionsList = document.getElementById('instructions-list');
+            if (!instructionsList) return;
+            
+            const steps = instructionsList.querySelectorAll('.instruction-step');
+            const stepNumber = steps.length + 1;
+            
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'instruction-step';
+            
+            const stepNumberSpan = document.createElement('span');
+            stepNumberSpan.className = 'step-number';
+            stepNumberSpan.textContent = stepNumber;
+            
+            const textContent = document.createElement('p');
+            textContent.className = 'instruction-text-content';
+            textContent.contentEditable = 'true';
+            textContent.textContent = '';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn-remove-instruction-inline';
+            removeBtn.title = 'Remover';
+            removeBtn.innerHTML = '×';
+            removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: auto; margin-right: 0; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
+            
+            stepDiv.appendChild(stepNumberSpan);
+            stepDiv.appendChild(textContent);
+            stepDiv.appendChild(removeBtn);
+            
+            instructionsList.appendChild(stepDiv);
+            
+            // Configurar listeners para o novo passo
+            setupInstructionListeners();
+            
+            // Focar no novo passo
+            textContent.focus();
         });
+    }
+    
+    function setupInstructionListeners() {
+        const instructionsList = document.getElementById('instructions-list');
+        if (!instructionsList) return;
+        
+        // Remover listeners anteriores
+        const steps = instructionsList.querySelectorAll('.instruction-step');
+        steps.forEach(step => {
+            const newStep = step.cloneNode(true);
+            step.parentNode.replaceChild(newStep, step);
+            
+            // Configurar listeners para o texto
+            const textContent = newStep.querySelector('.instruction-text-content');
+            if (textContent) {
+                textContent.contentEditable = 'true';
+                
+                // Adicionar classe editing quando focar
+                textContent.addEventListener('focus', function() {
+                    newStep.classList.add('editing');
+                });
+                
+                // Remover classe editing quando perder foco
+                textContent.addEventListener('blur', function() {
+                    newStep.classList.remove('editing');
+                });
+                
+                // Sincronizar quando editar
+                textContent.addEventListener('input', function() {
+                    syncInstructionsToParent();
+                    updateStepNumbers();
+                });
+            }
+            
+            // Configurar botão de remover
+            const removeBtn = newStep.querySelector('.btn-remove-instruction-inline');
+            if (removeBtn) {
+                removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: auto; margin-right: 0; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
+                removeBtn.addEventListener('mouseenter', function() {
+                    this.style.opacity = '1';
+                });
+                removeBtn.addEventListener('mouseleave', function() {
+                    this.style.opacity = '0.5';
+                });
+                removeBtn.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const textContent = newStep.querySelector('.instruction-text-content');
+                    if (textContent) {
+                        textContent.blur();
+                    }
+                    setTimeout(() => {
+                        newStep.remove();
+                        updateStepNumbers();
+                        syncInstructionsToParent();
+                    }, 0);
+                    return false;
+                });
+            }
+        });
+    }
+    
+    function updateStepNumbers() {
+        const instructionsList = document.getElementById('instructions-list');
+        if (!instructionsList) return;
+        
+        const steps = instructionsList.querySelectorAll('.instruction-step');
+        steps.forEach((step, index) => {
+            const stepNumber = step.querySelector('.step-number');
+            if (stepNumber) {
+                stepNumber.textContent = index + 1;
+            }
+        });
+    }
+    
+    function syncInstructionsToParent() {
+        const instructionsList = document.getElementById('instructions-list');
+        if (!instructionsList) return;
+        
+        const steps = Array.from(instructionsList.querySelectorAll('.instruction-step .instruction-text-content'))
+            .map(p => p.textContent.trim())
+            .filter(t => t);
+        
+        syncToParent('instructions', steps.join('\n'));
     }
     
     // Estilos para contenteditable
