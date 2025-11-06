@@ -84,7 +84,7 @@ $csrf_token = $_SESSION['csrf_token'];
     --layout-gap: 2rem;
     
     /* A MÁGICA FINAL: Tamanho baseado na ALTURA da tela */
-    --mockup-height: calc(100vh - var(--layout-gap) - 1rem); /* Reduz margem embaixo */
+    --mockup-height: calc(100vh - (var(--layout-gap) * 2));
     --mockup-width: calc(var(--mockup-height) / 2); /* Força a proporção 2:1 */
 }
 
@@ -99,8 +99,8 @@ $csrf_token = $_SESSION['csrf_token'];
 /* PAINEL DO CELULAR (ESQUERDA) */
 .mobile-mockup-panel {
     position: fixed; /* FIXO! NÃO ROLA COM A PÁGINA */
-    top: var(--layout-gap);
-    bottom: 1rem; /* Margem menor embaixo */
+    top: 50%;
+    transform: translateY(-50%); /* Centraliza verticalmente */
     left: calc(var(--sidebar-width) + var(--layout-gap)); /* Logo após o sidebar com gap pequeno */
     
     width: var(--mockup-width);
