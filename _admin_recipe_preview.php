@@ -560,8 +560,58 @@ const updateDescription = (value) => {
     document.getElementById('recipe-description').innerHTML = value.replace(/\n/g, '<br>'); 
 };
 
-const updateImage = (value) => { 
-    document.getElementById('recipe-image').src = value; 
+const updateImage = (value) => {
+    const imageElement = document.getElementById('recipe-image');
+    const placeholderElement = document.getElementById('recipe-image-placeholder');
+    
+    if (value) {
+        // Se há imagem, mostrar imagem e esconder placeholder
+        if (placeholderElement) {
+            placeholderElement.style.display = 'none';
+        }
+        
+        if (imageElement) {
+            imageElement.src = value;
+            imageElement.style.display = 'block';
+            imageElement.dataset.hasImage = 'true';
+        } else {
+            // Criar elemento de imagem se não existir
+            const container = document.querySelector('.app-container');
+            const img = document.createElement('img');
+            img.id = 'recipe-image';
+            img.className = 'recipe-detail-image';
+            img.src = value;
+            img.dataset.hasImage = 'true';
+            img.alt = 'Imagem da receita';
+            if (placeholderElement) {
+                placeholderElement.parentNode.replaceChild(img, placeholderElement);
+            } else if (container) {
+                container.insertBefore(img, container.firstChild);
+            }
+        }
+    } else {
+        // Se não há imagem, mostrar placeholder e esconder imagem
+        if (imageElement) {
+            imageElement.style.display = 'none';
+        }
+        
+        if (placeholderElement) {
+            placeholderElement.style.display = 'flex';
+        } else {
+            // Criar placeholder se não existir
+            const container = document.querySelector('.app-container');
+            const placeholder = document.createElement('div');
+            placeholder.id = 'recipe-image-placeholder';
+            placeholder.className = 'recipe-image-placeholder';
+            placeholder.dataset.hasImage = 'false';
+            placeholder.innerHTML = '<i class="fas fa-image"></i><span>Clique para adicionar imagem</span>';
+            if (imageElement) {
+                imageElement.parentNode.replaceChild(placeholder, imageElement);
+            } else if (container) {
+                container.insertBefore(placeholder, container.firstChild);
+            }
+        }
+    }
 };
 
 const updateIngredients = (ingredients) => {

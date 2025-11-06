@@ -889,14 +889,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const popupContent = document.createElement('div');
             popupContent.style.cssText = `
-                background: rgba(18, 18, 18, 0.85);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.15);
+                background: rgba(18, 18, 18, 0.5);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 16px;
                 padding: 0;
                 min-width: 200px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
                 transform: scale(0.95) translateY(-5px);
                 transition: transform 0.2s ease, opacity 0.2s ease;
                 opacity: 0;
@@ -1025,15 +1025,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Fechar ao clicar fora
+            // Fechar ao clicar fora (qualquer lugar - celular ou fora)
             const closeOnClickOutside = (e) => {
-                if (!popup.contains(e.target) && e.target !== iframe) {
+                // Verificar se o clique foi fora do popup
+                if (!popup.contains(e.target)) {
                     closeImageModal();
                     document.removeEventListener('click', closeOnClickOutside);
+                    document.removeEventListener('touchstart', closeOnClickOutside);
                 }
             };
+            
+            // Adicionar listeners para mouse e touch
             setTimeout(() => {
-                document.addEventListener('click', closeOnClickOutside);
+                document.addEventListener('click', closeOnClickOutside, true);
+                document.addEventListener('touchstart', closeOnClickOutside, true);
             }, 100);
             
             // Fechar com ESC
