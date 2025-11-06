@@ -82,31 +82,31 @@ $csrf_token = $_SESSION['csrf_token'];
     
     --sidebar-width: 256px;
     --layout-gap: 2rem;
-    --mockup-base-width: 375px; /* Tamanho base do celular em 100% zoom */
+    --mockup-width: 375px;
 }
 
-/* 1. CONTAINER PRINCIPAL */
+/* 1. O CONTAINER PRINCIPAL */
 .edit-recipe-container {
-    padding-left: calc(var(--sidebar-width) + var(--mockup-base-width) + (var(--layout-gap) * 2)) !important;
+    padding-left: calc(var(--sidebar-width) + var(--mockup-width) + (var(--layout-gap) * 2)) !important;
     padding-right: var(--layout-gap) !important;
-    padding-top: 2rem !important;
-    padding-bottom: 2rem !important;
+    padding-top: var(--layout-gap) !important;
+    padding-bottom: var(--layout-gap) !important;
     width: 100% !important;
     box-sizing: border-box !important;
 }
 
-/* 2. PAINEL DO CELULAR - AGORA CONTROlADO VIA JS */
+/* 2. O PAINEL DO CELULAR - A MÁGICA FINAL */
 .mobile-mockup-panel {
     position: fixed !important;
-    top: 50% !important; /* Posição inicial para o cálculo JS */
+    
+    /* Centraliza na vertical com espaços iguais */
+    top: var(--layout-gap) !important;
+    bottom: var(--layout-gap) !important;
+    
     left: calc(var(--sidebar-width) + var(--layout-gap)) !important;
+    width: var(--mockup-width) !important;
     
-    /* Tamanhos serão ajustados pelo JS */
-    width: var(--mockup-base-width) !important;
-    
-    transform-origin: top left !important; /* Ponto de referência para a escala */
     z-index: 10 !important;
-    transition: transform 0.1s ease-out !important; /* Suaviza o ajuste */
 }
 
 .mobile-mockup-wrapper {
@@ -1124,60 +1124,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// =========================================================================
-//       CONTROLE DO MOCKUP FIXO E À PROVA DE ZOOM
-// =========================================================================
-document.addEventListener('DOMContentLoaded', function() {
-    const mockupPanel = document.querySelector('.mobile-mockup-panel');
-    if (!mockupPanel) return;
-
-    function adjustMockupSizeAndPosition() {
-        // Detecta o zoom usando múltiplas técnicas para máxima compatibilidade
-        let zoomLevel = 1;
-        
-        // Técnica 1: Compara outerWidth com innerWidth (funciona na maioria dos navegadores)
-        if (window.outerWidth && window.innerWidth) {
-            const zoomByWidth = window.outerWidth / window.innerWidth;
-            if (!isNaN(zoomByWidth) && zoomByWidth > 0 && zoomByWidth < 10) {
-                zoomLevel = zoomByWidth;
-            }
-        }
-        
-        // Técnica 2: Usa devicePixelRatio como fallback (pode não refletir zoom do navegador)
-        // Mas é útil para detectar zoom do sistema operacional
-        if (zoomLevel === 1 && window.devicePixelRatio) {
-            zoomLevel = window.devicePixelRatio;
-        }
-
-        // Calcula a escala inversa para "cancelar" o zoom
-        // Se o zoom é 1.25 (125%), a escala será 1 / 1.25 = 0.8
-        const scale = 1 / zoomLevel;
-
-        // Espera um frame para garantir que o offsetHeight está correto
-        requestAnimationFrame(() => {
-            const mockupHeight = mockupPanel.offsetHeight || 750; // Fallback para 750px se não conseguir medir
-            const windowHeight = window.innerHeight;
-            const scaledHeight = mockupHeight * scale;
-            const topPosition = (windowHeight - scaledHeight) / 2;
-
-            // Aplica a transformação: move para a posição Y e aplica a escala inversa
-            // Usa translateY duplo para centralizar corretamente
-            mockupPanel.style.transform = `translateY(-${mockupHeight / 2}px) translateY(${topPosition / scale}px) scale(${scale})`;
-        });
-    }
-
-    // Chama a função uma vez no carregamento (com delay para garantir renderização)
-    setTimeout(adjustMockupSizeAndPosition, 100);
-
-    // E chama novamente sempre que a janela for redimensionada ou o zoom mudar
-    window.addEventListener('resize', adjustMockupSizeAndPosition);
-    
-    // Também escuta mudanças de zoom (alguns navegadores)
-    window.addEventListener('orientationchange', adjustMockupSizeAndPosition);
-    
-    // Recalcula periodicamente para capturar mudanças de zoom
-    setInterval(adjustMockupSizeAndPosition, 500);
-});
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
