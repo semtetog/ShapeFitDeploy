@@ -389,8 +389,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
          class="recipe-detail-image">
 
     <div class="recipe-main-info card-shadow-light">
-        <h1 id="recipe-name" class="recipe-name-main"><?php echo htmlspecialchars($recipe['name']); ?></h1>
-        <?php if (!empty($recipe['description'])): ?><p id="recipe-description" class="recipe-description-short"><?php echo nl2br(htmlspecialchars($recipe['description'])); ?></p><?php endif; ?>
+        <h1 id="recipe-name" class="recipe-name-main" contenteditable="true" data-placeholder="Nome da Receita"><?php echo htmlspecialchars($recipe['name']); ?></h1>
+        <p id="recipe-description" class="recipe-description-short" contenteditable="true" data-placeholder="Descreva brevemente a receita..."><?php echo !empty($recipe['description']) ? nl2br(htmlspecialchars($recipe['description'])) : ''; ?></p>
         <?php if (!empty($categories)): ?>
             <div class="category-tags-container">
                 <?php foreach ($categories as $category): ?><span class="category-tag"><?php echo htmlspecialchars($category['name']); ?></span><?php endforeach; ?>
@@ -441,23 +441,23 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     </div>
     <?php endif; ?>
 
-    <?php if (!empty($recipe['instructions'])): ?>
     <div class="recipe-section card-shadow-light">
         <h3 class="recipe-section-title">Modo de Preparo</h3>
-        <div id="instructions-list" class="recipe-instructions">
+        <div id="instructions-list" class="recipe-instructions" contenteditable="true" data-placeholder="1. Primeiro passo...&#10;2. Segundo passo...&#10;3. Terceiro passo...">
             <?php
-            $steps = explode("\n", trim($recipe['instructions']));
-            $step_number = 1;
-            foreach ($steps as $step_text) {
-                if ($step_text_trimmed = trim($step_text)) {
-                    $step_text_cleaned = preg_replace('/^\d+[\.\)]\s*/', '', $step_text_trimmed);
-                    echo '<div class="instruction-step"><span class="step-number">' . $step_number++ . '</span><p>' . nl2br(htmlspecialchars($step_text_cleaned)) . '</p></div>';
+            if (!empty($recipe['instructions'])) {
+                $steps = explode("\n", trim($recipe['instructions']));
+                $step_number = 1;
+                foreach ($steps as $step_text) {
+                    if ($step_text_trimmed = trim($step_text)) {
+                        $step_text_cleaned = preg_replace('/^\d+[\.\)]\s*/', '', $step_text_trimmed);
+                        echo '<div class="instruction-step"><span class="step-number">' . $step_number++ . '</span><p>' . nl2br(htmlspecialchars($step_text_cleaned)) . '</p></div>';
+                    }
                 }
             }
             ?>
         </div>
     </div>
-    <?php endif; ?>
 
     <?php if (!empty($recipe['notes'])): ?>
     <div class="recipe-section recipe-notes-card card-shadow-light">
@@ -581,6 +581,76 @@ window.addEventListener('message', function(event) {
     if (actions[type]) { 
         actions[type](value); 
     }
+});
+
+// =========================================================================
+//       EDIÇÃO INLINE - SINCRONIZAÇÃO BIDIRECIONAL COM O EDITOR
+// =========================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Sincronizar edições inline do preview com o editor pai
+    function syncToParent(type, value) {
+        if (window.parent && window.parent.postMessage) {
+            window.parent.postMessage({ type: 'previewChanged', field: type, value: value }, '*');
+        }
+    }
+    
+    // Nome editável
+    const nameElement = document.getElementById('recipe-name');
+    if (nameElement) {
+        nameElement.addEventListener('input', function() {
+            syncToParent('name', this.textContent.trim());
+        });
+        nameElement.addEventListener('blur', function() {
+            if (!this.textContent.trim()) {
+                this.textContent = this.dataset.placeholder || 'Nome da Receita';
+            }
+        });
+    }
+    
+    // Descrição editável
+    const descElement = document.getElementById('recipe-description');
+    if (descElement) {
+        descElement.addEventListener('input', function() {
+            syncToParent('description', this.textContent.trim());
+        });
+        descElement.addEventListener('blur', function() {
+            if (!this.textContent.trim()) {
+                this.textContent = this.dataset.placeholder || 'Descreva brevemente a receita...';
+            }
+        });
+    }
+    
+    // Instruções editáveis
+    const instructionsElement = document.getElementById('instructions-list');
+    if (instructionsElement) {
+        instructionsElement.addEventListener('input', function() {
+            // Extrair texto puro de todas as instruções
+            const steps = Array.from(this.querySelectorAll('.instruction-step p')).map(p => p.textContent.trim()).filter(t => t);
+            syncToParent('instructions', steps.join('\n'));
+        });
+    }
+    
+    // Estilos para contenteditable
+    const style = document.createElement('style');
+    style.textContent = `
+        [contenteditable="true"] {
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        [contenteditable="true"]:focus {
+            background: rgba(255, 107, 0, 0.05) !important;
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin: -0.5rem;
+        }
+        [contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+    `;
+    document.head.appendChild(style);
 });
 
 // Debug: Verificar se os números estão sendo renderizados

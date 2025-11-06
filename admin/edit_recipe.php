@@ -682,6 +682,11 @@ input[type=number] {
         <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe['id'] ?? ''); ?>">
         <input type="hidden" name="existing_image_filename" value="<?php echo htmlspecialchars($recipe['image_filename'] ?? ''); ?>">
         <input type="hidden" id="csrf-token" value="<?php echo $csrf_token; ?>">
+        
+        <!-- INPUTS OCULTOS PARA SINCRONIZAÇÃO COM PREVIEW -->
+        <input type="hidden" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>">
+        <input type="hidden" id="description" name="description" value="<?php echo htmlspecialchars($recipe['description'] ?? ''); ?>">
+        <input type="hidden" id="instructions" name="instructions" value="<?php echo htmlspecialchars($recipe['instructions'] ?? ''); ?>">
 
         <div class="live-editor-container">
             <!-- MOCKUP DE CELULAR À ESQUERDA -->
@@ -916,15 +921,40 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Mapear campos para atualizações em tempo real
-        const simpleMappings = { 
-            '#name': 'updateName', 
-            '#description': 'updateDescription', 
-            '#instructions': 'updateInstructions' 
-        };
+        // Listener para receber mudanças do preview (contenteditable)
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'previewChanged') {
+                const { field, value } = event.data;
+                const hiddenInput = document.getElementById(field);
+                if (hiddenInput) {
+                    hiddenInput.value = value;
+                }
+            }
+        });
         
-        // Adicionar listeners para campos principais (vindos do preview via contenteditable)
-        // Por enquanto, vamos usar inputs ocultos que sincronizam com o preview
+        // Sincronizar inputs ocultos com preview (bidirecional)
+        const nameInput = document.getElementById('name');
+        const descInput = document.getElementById('description');
+        const instructionsInput = document.getElementById('instructions');
+        
+        // Atualizar preview quando inputs ocultos mudarem (vindo de outras fontes)
+        if (nameInput) {
+            nameInput.addEventListener('input', function() {
+                updatePreview('updateName', this.value);
+            });
+        }
+        
+        if (descInput) {
+            descInput.addEventListener('input', function() {
+                updatePreview('updateDescription', this.value);
+            });
+        }
+        
+        if (instructionsInput) {
+            instructionsInput.addEventListener('input', function() {
+                updatePreview('updateInstructions', this.value);
+            });
+        }
         
         // Função para atualizar macros e tempo
         function sendMacroAndTimeUpdate() { 
