@@ -706,16 +706,19 @@ const updateIngredients = (ingredients) => {
             if (ingText.trim()) { 
                 const li = document.createElement('li');
                 li.className = 'ingredient-item-editable';
-                li.contentEditable = 'true';
                 li.dataset.ingredientText = ingText;
-                li.textContent = ingText;
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'ingredient-text-content';
+                textSpan.contentEditable = 'true';
+                textSpan.textContent = ingText;
                 
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'btn-remove-ingredient-inline';
                 removeBtn.title = 'Remover';
                 removeBtn.innerHTML = '×';
-                removeBtn.style.cssText = 'float: right; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 0; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1;';
+                removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;';
                 removeBtn.addEventListener('mouseenter', function() {
                     this.style.opacity = '1';
                 });
@@ -724,10 +727,12 @@ const updateIngredients = (ingredients) => {
                 });
                 removeBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
+                    e.preventDefault();
                     li.remove();
                     syncIngredientsToParent();
                 });
                 
+                li.appendChild(textSpan);
                 li.appendChild(removeBtn);
                 list.appendChild(li);
             }
