@@ -601,7 +601,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
         </div>
     </div>
 
-   <div class="recipe-macros-summary card-shadow-light">
+   <div class="recipe-macros-summary card-shadow-light" id="macros-summary-clickable" style="cursor: pointer;">
         <div class="macro-info-item"><span id="kcal-value" class="value"><?php echo round($recipe['kcal_per_serving'] ?? 0); ?></span><span class="label">Kcal</span></div>
         <div class="macro-info-item"><span id="carbs-value" class="value"><?php echo number_format($recipe['carbs_g_per_serving'] ?? 0, 1, ',', '.'); ?>g</span><span class="label">Carbo</span></div>
         <div class="macro-info-item"><span id="fat-value" class="value"><?php echo number_format($recipe['fat_g_per_serving'] ?? 0, 1, ',', '.'); ?>g</span><span class="label">Gordura</span></div>
@@ -613,7 +613,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
             $serving_info_text .= ' de ' . round($recipe['serving_size_g']) . 'g';
         }
         ?>
-        <p class="recipe-serving-info"><?php echo htmlspecialchars($serving_info_text); ?></p>
+        <p class="recipe-serving-info" id="serving-info-clickable" style="cursor: pointer;"><?php echo htmlspecialchars($serving_info_text); ?></p>
     </div>
 
     <?php 
@@ -1161,6 +1161,33 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.parent && window.parent.postMessage) {
                 window.parent.postMessage({ 
                     type: 'scrollToCategories' 
+                }, '*');
+            }
+        });
+    }
+    
+    // Scroll para Cálculo Nutricional ao clicar nas calorias/macros
+    const macrosSummary = document.getElementById('macros-summary-clickable');
+    if (macrosSummary) {
+        macrosSummary.addEventListener('click', function() {
+            // Enviar mensagem para o parent para rolar até o card de cálculo nutricional
+            if (window.parent && window.parent.postMessage) {
+                window.parent.postMessage({ 
+                    type: 'scrollToNutritional' 
+                }, '*');
+            }
+        });
+    }
+    
+    // Scroll para Cálculo Nutricional ao clicar nas porções
+    const servingInfo = document.getElementById('serving-info-clickable');
+    if (servingInfo) {
+        servingInfo.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevenir que o clique no macros também seja acionado
+            // Enviar mensagem para o parent para rolar até o card de cálculo nutricional
+            if (window.parent && window.parent.postMessage) {
+                window.parent.postMessage({ 
+                    type: 'scrollToNutritional' 
                 }, '*');
             }
         });

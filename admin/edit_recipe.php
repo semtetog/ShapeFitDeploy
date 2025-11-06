@@ -656,7 +656,7 @@ input[type=number] {
                 </div>
 
                 <!-- CARD: CÁLCULO NUTRICIONAL -->
-                <div class="dashboard-card">
+                <div class="dashboard-card" id="nutritional-card">
                     <div class="section-header">
                         <h4><i class="fas fa-calculator"></i> Cálculo Nutricional</h4>
                     </div>
@@ -1410,6 +1410,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 categoriesCard.style.transition = 'border 0.3s ease';
                 setTimeout(() => {
                     categoriesCard.style.border = '';
+                }, 2000);
+            }
+        }
+        
+        if (event.data.type === 'scrollToNutritional') {
+            const nutritionalCard = document.getElementById('nutritional-card');
+            if (nutritionalCard) {
+                nutritionalCard.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // Feedback visual - highlight do card
+                nutritionalCard.style.border = '2px solid var(--accent-orange)';
+                nutritionalCard.style.transition = 'border 0.3s ease';
+                setTimeout(() => {
+                    nutritionalCard.style.border = '';
                 }, 2000);
             }
         }
