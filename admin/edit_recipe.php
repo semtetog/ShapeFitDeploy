@@ -80,39 +80,42 @@ $csrf_token = $_SESSION['csrf_token'];
     --text-secondary: #A3A3A3;
     --glass-border: rgba(255, 255, 255, 0.1);
     
-    /* Variáveis baseadas na LARGURA DA JANELA (vw) para serem imunes ao zoom */
-    --sidebar-width: 256px; /* A sidebar principal parece ter largura fixa */
-    --layout-gap: 2vw;      /* Usamos vw para o espaçamento */
-    --mockup-width: 20vw;   /* O celular terá 20% da largura da tela */
-    --mockup-max-width: 375px; /* Mas não passará de 375px */
+    /* DEFINIÇÕES DO LAYOUT */
+    --sidebar-width: 256px;      /* Largura da sua sidebar principal */
+    --layout-gap: 2rem;          /* Espaçamento padrão */
+    --mockup-width: 375px;       /* LARGURA FIXA E CORRETA DO CELULAR */
 }
 
 /* 1. O CONTAINER PRINCIPAL */
-/* Removemos o padding daqui e o controlamos no painel de configurações */
 .edit-recipe-container {
+    /* Cria o espaço à esquerda para o celular fixo */
+    padding-left: calc(var(--sidebar-width) + var(--mockup-width) + (var(--layout-gap) * 2)) !important;
+    padding-right: var(--layout-gap) !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
 }
 
-/* 2. O PAINEL DO CELULAR (ESQUERDA) - FIXO E IMUNE AO ZOOM */
+/* 2. O PAINEL DO CELULAR (ESQUERDA) - FIXO E CENTRALIZADO */
 .mobile-mockup-panel {
     position: fixed !important;
-    top: 2rem !important;
-    bottom: 2rem !important; /* Usa top e bottom para centralizar e definir altura */
+    
+    /* Centralização vertical perfeita com espaços iguais em cima e embaixo */
+    top: var(--layout-gap) !important;
+    bottom: var(--layout-gap) !important;
+    
+    /* Posição horizontal fixa */
     left: calc(var(--sidebar-width) + var(--layout-gap)) !important;
     
-    width: var(--mockup-width) !important;
-    max-width: var(--mockup-max-width) !important;
+    width: var(--mockup-width) !important; /* LARGURA FIXA EM PIXELS */
     
     z-index: 10 !important;
-    display: flex !important; /* Para centralizar o wrapper interno */
-    align-items: center !important;
-    justify-content: center !important;
 }
 
 .mobile-mockup-wrapper {
     width: 100% !important;
-    height: 100% !important; /* Ocupa 100% da altura definida pelo top/bottom do pai */
+    height: 100% !important;
     padding: 12px !important;
     background: #1a1a1a !important;
     border-radius: 40px !important;
@@ -136,11 +139,10 @@ $csrf_token = $_SESSION['csrf_token'];
     display: block !important;
 }
 
-/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) - A PARTE QUE ROLA */
+/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) */
 .config-panel {
     /* Margem para não ficar atrás do celular */
-    margin-left: calc(var(--sidebar-width) + var(--mockup-width) + (var(--layout-gap) * 2)) !important;
-    padding: 2rem var(--layout-gap) !important; /* Espaçamento interno */
+    margin-left: calc(var(--mockup-width) + var(--layout-gap)) !important;
     
     display: flex !important;
     flex-direction: column !important;
@@ -523,6 +525,10 @@ input[type=number] {
     
     .edit-recipe-container {
         padding-left: var(--layout-gap) !important;
+    }
+    
+    .config-panel {
+        margin-left: 0 !important;
     }
 }
 </style>
