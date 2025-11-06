@@ -96,10 +96,11 @@ $csrf_token = $_SESSION['csrf_token'];
     /* Padding à esquerda para criar espaço onde o celular fixo fica */
     /* O main-content já tem margin-left: 256px (sidebar), então só precisamos: mockup-width + gap */
     padding-left: calc(var(--mockup-width) + var(--layout-gap));
-    padding-right: var(--layout-gap); /* Remove o espaço morto à direita */
-    max-width: 100%;
-    overflow-x: hidden;
+    padding-right: var(--layout-gap);
+    width: 100%;
+    max-width: 100vw;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 /* PAINEL DO CELULAR (ESQUERDA) */
@@ -148,10 +149,11 @@ $csrf_token = $_SESSION['csrf_token'];
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    flex: 1; /* Ocupa todo o espaço disponível */
-    width: 100%;
-    max-width: 100%;
-    min-width: 0; /* Permite que o flex funcione corretamente */
+    flex-grow: 1; /* Força ocupar todo espaço disponível */
+    flex-basis: 0; /* Permite crescer sem restrições */
+    width: auto; /* Em vez de width 100% */
+    max-width: calc(100vw - var(--sidebar-width) - var(--mockup-width) - (var(--layout-gap) * 2)); /* Limite exato */
+    min-width: 600px; /* Evita colapsar em telas menores */
     box-sizing: border-box;
 }
 
