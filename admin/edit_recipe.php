@@ -164,7 +164,7 @@ $csrf_token = $_SESSION['csrf_token'];
 
 /* Aplica gap diretamente aos dashboard-card dentro do config-panel */
 .config-panel .dashboard-card {
-    margin-bottom: 3rem !important; /* Espaçamento entre os cards */
+    margin-bottom: 2rem !important; /* Espaçamento entre os cards */
 }
 
 .config-panel .dashboard-card:last-child {
