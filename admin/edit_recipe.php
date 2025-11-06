@@ -97,8 +97,8 @@ $csrf_token = $_SESSION['csrf_token'];
     /* O main-content já tem margin-left: 256px (sidebar), então só precisamos: mockup-width + gap */
     padding-left: calc(var(--mockup-width) + var(--layout-gap));
     padding-right: var(--layout-gap);
-    width: 100%;
-    max-width: 100vw;
+    width: calc(100vw - var(--sidebar-width)); /* Ocupa toda largura disponível menos o sidebar */
+    max-width: none; /* Remove restrição e deixa expandir até a borda */
     box-sizing: border-box;
     overflow-x: hidden;
 }
