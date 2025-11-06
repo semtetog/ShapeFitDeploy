@@ -316,8 +316,9 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     grid-template-columns: 1fr auto;
     gap: 1.5rem;
     align-items: center;
-    transition: all 0.3s ease;
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    will-change: transform, opacity;
 }
 
 .unit-item:hover {
