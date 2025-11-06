@@ -96,22 +96,28 @@ include 'includes/header.php';
 
 <style>
 /* ========================================================================= */
-/*       FOOD CLASSIFICATION PAGE - ESTILO PROFISSIONAL                      */
+/*       FOOD CLASSIFICATION PAGE - DESIGN LIMPO E MODERNO                    */
 /* ========================================================================= */
 
-.foods-classification-container {
+.foods-classification-page {
     padding: 1.5rem 2rem !important;
     min-height: 100vh;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 2rem;
 }
 
-/* ===== LEGENDAS (LADO ESQUERDO) ===== */
-.categories-panel {
+/* ===== LAYOUT PRINCIPAL ===== */
+.foods-classification-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* ===== PAINEL DE CATEGORIAS (LADO ESQUERDO) ===== */
+.categories-sidebar {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
@@ -123,7 +129,7 @@ include 'includes/header.php';
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.categories-panel h2 {
+.categories-sidebar h3 {
     font-size: 1.25rem !important;
     font-weight: 700 !important;
     color: var(--text-primary) !important;
@@ -133,17 +139,17 @@ include 'includes/header.php';
     gap: 0.75rem;
 }
 
-.categories-panel h2 i {
+.categories-sidebar h3 i {
     color: var(--accent-orange) !important;
 }
 
-.categories-panel p {
+.categories-sidebar p {
     font-size: 0.875rem !important;
     color: var(--text-secondary) !important;
     margin: 0 0 1.5rem 0 !important;
 }
 
-.category-legend {
+.category-item {
     background: rgba(255, 255, 255, 0.03) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
@@ -153,87 +159,55 @@ include 'includes/header.php';
     transition: all 0.3s ease !important;
 }
 
-.category-legend:hover {
+.category-item:hover {
     background: rgba(255, 255, 255, 0.06) !important;
     border-color: var(--category-color) !important;
     transform: translateY(-2px);
 }
 
-.category-legend.selected {
-    border-color: var(--category-color) !important;
-    background: var(--category-bg) !important;
-}
-
-.category-legend-header {
+.category-item-header {
     display: flex !important;
     align-items: center !important;
     gap: 0.75rem !important;
     margin-bottom: 0.75rem !important;
 }
 
-.category-legend-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+.category-item-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--category-color);
     color: white;
     font-size: 0.875rem;
+    flex-shrink: 0;
 }
 
-.category-legend-name {
+.category-item-name {
     font-size: 0.95rem !important;
     font-weight: 600 !important;
     color: var(--category-color) !important;
     margin: 0 !important;
 }
 
-.category-legend-examples,
-.category-legend-units {
-    margin-top: 0.75rem !important;
-    padding-top: 0.75rem !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.examples-label,
-.units-label {
-    font-size: 0.7rem !important;
+.category-item-info {
+    font-size: 0.75rem !important;
     color: var(--text-secondary) !important;
-    margin-bottom: 0.5rem !important;
-    font-weight: 600 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.examples-list,
-.units-list {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 0.5rem !important;
-}
-
-.example-tag,
-.unit-tag {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: var(--text-primary) !important;
-    padding: 0.25rem 0.5rem !important;
-    border-radius: 6px !important;
-    font-size: 0.7rem !important;
-    font-weight: 500 !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    margin-top: 0.5rem !important;
+    line-height: 1.5 !important;
 }
 
 /* ===== CONTEÚDO PRINCIPAL (LADO DIREITO) ===== */
-.classifier-content {
+.foods-main-content {
     display: flex;
     flex-direction: column;
     gap: 2rem;
 }
 
 /* Header Card */
-.classifier-header-card {
+.foods-header-card {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
@@ -243,7 +217,7 @@ include 'includes/header.php';
     position: relative;
 }
 
-.classifier-header-card::before {
+.foods-header-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -254,7 +228,11 @@ include 'includes/header.php';
     border-radius: 20px 20px 0 0;
 }
 
-.header-title h2 {
+.foods-header-title {
+    margin-bottom: 1.5rem !important;
+}
+
+.foods-header-title h2 {
     font-size: 1.75rem !important;
     font-weight: 700 !important;
     color: var(--text-primary) !important;
@@ -264,25 +242,24 @@ include 'includes/header.php';
     gap: 0.75rem;
 }
 
-.header-title h2 i {
+.foods-header-title h2 i {
     color: var(--accent-orange) !important;
 }
 
-.header-title p {
+.foods-header-title p {
     color: var(--text-secondary) !important;
     font-size: 0.95rem !important;
     margin: 0 !important;
 }
 
 /* Stats Grid */
-.stats-grid {
+.foods-stats-grid {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 1rem !important;
-    margin-bottom: 0 !important;
 }
 
-.stats-card {
+.foods-stat-card {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
@@ -292,21 +269,22 @@ include 'includes/header.php';
     transition: all 0.3s ease !important;
 }
 
-.stats-card:hover {
+.foods-stat-card:hover {
     background: rgba(255, 255, 255, 0.08) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
     border-color: var(--accent-orange) !important;
 }
 
-.stats-card .stat-number {
+.foods-stat-number {
     font-size: 2rem !important;
     font-weight: 700 !important;
     color: var(--accent-orange) !important;
     margin-bottom: 0.5rem !important;
+    line-height: 1;
 }
 
-.stats-card .stat-label {
+.foods-stat-label {
     font-size: 0.875rem !important;
     color: var(--text-secondary) !important;
     text-transform: uppercase !important;
@@ -314,8 +292,8 @@ include 'includes/header.php';
     font-weight: 600 !important;
 }
 
-/* Filter Form */
-.filters-section {
+/* Filter Card */
+.foods-filter-card {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
@@ -324,7 +302,7 @@ include 'includes/header.php';
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.filters-title {
+.foods-filter-title {
     font-size: 1rem !important;
     font-weight: 600 !important;
     color: var(--text-primary) !important;
@@ -334,33 +312,20 @@ include 'includes/header.php';
     gap: 0.5rem;
 }
 
-.filters-title i {
+.foods-filter-title i {
     color: var(--accent-orange) !important;
 }
 
-.filter-row {
+.foods-filter-row {
     display: flex !important;
     align-items: center !important;
     gap: 1rem !important;
     flex-wrap: wrap !important;
 }
 
-.filter-row .form-group {
-    margin: 0 !important;
-    padding: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-}
-
-.filter-row .form-group label {
-    display: none !important;
-}
-
-.food-search-input {
+.foods-search-input {
     flex: 1 !important;
-    min-width: 200px !important;
-    max-width: 400px !important;
+    min-width: 250px !important;
     padding: 0.875rem 1.25rem !important;
     font-size: 0.95rem !important;
     color: var(--text-primary) !important;
@@ -373,19 +338,19 @@ include 'includes/header.php';
     font-family: 'Montserrat', sans-serif !important;
 }
 
-.food-search-input:focus {
+.foods-search-input:focus {
     background: rgba(255, 255, 255, 0.08) !important;
     border-color: var(--accent-orange) !important;
     box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
 }
 
-.food-search-input::placeholder {
+.foods-search-input::placeholder {
     color: var(--text-secondary) !important;
     opacity: 0.7 !important;
 }
 
-.category-select {
-    min-width: 200px !important;
+.foods-category-select {
+    min-width: 220px !important;
     padding: 0.875rem 1.25rem !important;
     font-size: 0.95rem !important;
     color: var(--text-primary) !important;
@@ -399,14 +364,14 @@ include 'includes/header.php';
     cursor: pointer;
 }
 
-.category-select:focus {
+.foods-category-select:focus {
     background: rgba(255, 255, 255, 0.08) !important;
     border-color: var(--accent-orange) !important;
     box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
 }
 
-.filter-btn,
-.clear-btn {
+.foods-filter-btn,
+.foods-clear-btn {
     padding: 0.875rem 1.5rem !important;
     border-radius: 12px !important;
     font-size: 0.95rem !important;
@@ -421,31 +386,31 @@ include 'includes/header.php';
     font-family: 'Montserrat', sans-serif !important;
 }
 
-.filter-btn {
+.foods-filter-btn {
     background: var(--accent-orange) !important;
     color: #FFFFFF !important;
 }
 
-.filter-btn:hover {
+.foods-filter-btn:hover {
     background: #e65c00 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4) !important;
 }
 
-.clear-btn {
+.foods-clear-btn {
     background: rgba(255, 255, 255, 0.05) !important;
     color: var(--text-primary) !important;
     border: 1px solid var(--glass-border) !important;
 }
 
-.clear-btn:hover {
+.foods-clear-btn:hover {
     background: rgba(255, 255, 255, 0.1) !important;
     border-color: var(--accent-orange) !important;
     color: var(--accent-orange) !important;
 }
 
-/* Bulk Actions */
-.bulk-actions {
+/* Bulk Actions Card */
+.foods-bulk-card {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
@@ -454,7 +419,7 @@ include 'includes/header.php';
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.bulk-title {
+.foods-bulk-title {
     font-size: 1rem !important;
     font-weight: 600 !important;
     color: var(--text-primary) !important;
@@ -464,20 +429,20 @@ include 'includes/header.php';
     gap: 0.5rem;
 }
 
-.bulk-title i {
+.foods-bulk-title i {
     color: var(--accent-orange) !important;
 }
 
-.bulk-controls {
+.foods-bulk-controls {
     display: flex !important;
     align-items: center !important;
     gap: 1rem !important;
     flex-wrap: wrap !important;
 }
 
-.bulk-select {
+.foods-bulk-select {
     flex: 1 !important;
-    min-width: 200px !important;
+    min-width: 220px !important;
     padding: 0.875rem 1.25rem !important;
     font-size: 0.95rem !important;
     color: var(--text-primary) !important;
@@ -491,13 +456,13 @@ include 'includes/header.php';
     cursor: pointer;
 }
 
-.bulk-select:focus {
+.foods-bulk-select:focus {
     background: rgba(255, 255, 255, 0.08) !important;
     border-color: var(--accent-orange) !important;
     box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
 }
 
-.bulk-btn {
+.foods-bulk-btn {
     padding: 0.875rem 1.5rem !important;
     background: var(--accent-orange) !important;
     border: none !important;
@@ -508,45 +473,49 @@ include 'includes/header.php';
     font-size: 0.95rem !important;
     transition: all 0.3s ease !important;
     font-family: 'Montserrat', sans-serif !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.bulk-btn:hover:not(:disabled) {
+.foods-bulk-btn:hover:not(:disabled) {
     background: #e65c00 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4) !important;
 }
 
-.bulk-btn:disabled {
+.foods-bulk-btn:disabled {
     background: rgba(255, 255, 255, 0.05) !important;
     color: var(--text-secondary) !important;
     cursor: not-allowed !important;
     opacity: 0.6 !important;
 }
 
-.bulk-checkbox {
+.foods-select-all {
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
     color: var(--text-secondary) !important;
     font-size: 0.95rem !important;
     cursor: pointer;
+    user-select: none;
 }
 
-.bulk-checkbox input[type="checkbox"] {
+.foods-select-all input[type="checkbox"] {
     transform: scale(1.1) !important;
     accent-color: var(--accent-orange) !important;
     cursor: pointer;
 }
 
-/* Foods Grid */
+/* ===== GRID DE ALIMENTOS ===== */
 .foods-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
     gap: 1.5rem !important;
-    margin-bottom: 2rem !important;
 }
 
-.food-card {
+/* Card do Alimento - ESTRUTURA LIMPA */
+.food-item-card {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
@@ -554,81 +523,117 @@ include 'includes/header.php';
     padding: 1.5rem !important;
     transition: all 0.3s ease !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    position: relative;
+    cursor: pointer;
 }
 
-.food-card:hover {
+.food-item-card:hover {
     background: rgba(255, 255, 255, 0.08) !important;
     border-color: var(--accent-orange) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
 }
 
-.food-card.classified {
-    background: rgba(16, 185, 129, 0.08) !important;
-    border-color: #10B981 !important;
+.food-item-card.classified {
+    border-left: 4px solid #10B981 !important;
 }
 
-.food-card.unclassified {
-    background: rgba(239, 68, 68, 0.08) !important;
-    border-color: #EF4444 !important;
+.food-item-card.unclassified {
+    border-left: 4px solid #EF4444 !important;
 }
 
-.food-header {
-    display: flex !important;
-    align-items: flex-start !important;
-    gap: 1rem !important;
-    margin-bottom: 1rem !important;
-}
-
-.food-checkbox {
-    margin-top: 0.25rem !important;
-    transform: scale(1.1) !important;
-    accent-color: var(--accent-orange) !important;
+/* Checkbox invisível - apenas para seleção em lote */
+.food-item-checkbox {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 20px;
+    height: 20px;
+    opacity: 0;
     cursor: pointer;
+    z-index: 10;
 }
 
-.food-info {
-    flex-grow: 1 !important;
+.food-item-card:hover .food-item-checkbox {
+    opacity: 1;
 }
 
-.food-name {
+.food-item-checkbox:checked {
+    opacity: 1;
+}
+
+.food-item-checkbox:checked + .food-item-checkbox-indicator {
+    display: flex;
+}
+
+.food-item-checkbox-indicator {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 24px;
+    height: 24px;
+    background: var(--accent-orange);
+    border-radius: 6px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+    z-index: 9;
+    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4);
+}
+
+.food-item-checkbox:checked ~ .food-item-content {
+    opacity: 0.7;
+}
+
+/* Conteúdo do Card */
+.food-item-content {
+    transition: opacity 0.2s ease;
+}
+
+.food-item-name {
     font-size: 1.125rem !important;
     font-weight: 600 !important;
     color: var(--text-primary) !important;
-    margin-bottom: 0.75rem !important;
+    margin: 0 0 0.75rem 0 !important;
     line-height: 1.4 !important;
+    padding-right: 2rem;
 }
 
-.food-brand {
+.food-item-brand {
     font-size: 0.875rem !important;
     color: var(--text-secondary) !important;
-    margin-top: 0.25rem !important;
+    margin-bottom: 1rem !important;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.food-brand i {
+.food-item-brand i {
     color: var(--accent-orange) !important;
     font-size: 0.75rem !important;
 }
 
-.food-macros {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
+/* Macros em linha horizontal */
+.food-item-macros {
+    display: flex !important;
     gap: 0.75rem !important;
     margin-bottom: 1rem !important;
+    flex-wrap: wrap;
 }
 
-.macro-item {
+.food-item-macro {
+    flex: 1;
+    min-width: 70px;
     background: rgba(255, 255, 255, 0.03) !important;
     border-radius: 8px !important;
-    padding: 0.75rem !important;
+    padding: 0.5rem !important;
     text-align: center !important;
 }
 
-.macro-label {
-    font-size: 0.7rem !important;
+.food-item-macro-label {
+    font-size: 0.65rem !important;
     color: var(--text-secondary) !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
@@ -636,20 +641,22 @@ include 'includes/header.php';
     font-weight: 600 !important;
 }
 
-.macro-value {
-    font-size: 1rem !important;
+.food-item-macro-value {
+    font-size: 0.9rem !important;
     font-weight: 700 !important;
     color: var(--text-primary) !important;
 }
 
-.food-current-category {
+/* Categorias atuais */
+.food-item-categories {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 0.5rem !important;
     margin-bottom: 1rem !important;
+    min-height: 32px;
 }
 
-.category-tag {
+.food-category-badge {
     display: inline-flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
@@ -658,14 +665,13 @@ include 'includes/header.php';
     font-size: 0.75rem !important;
     font-weight: 600 !important;
     white-space: nowrap !important;
-    transition: all 0.2s ease !important;
 }
 
-.category-tag i {
+.food-category-badge i {
     font-size: 0.7rem !important;
 }
 
-.unclassified-tag {
+.food-unclassified-badge {
     display: inline-flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
@@ -678,20 +684,21 @@ include 'includes/header.php';
     border: 1px solid rgba(239, 68, 68, 0.4) !important;
 }
 
-.food-actions {
+/* Botões de categoria - Grid compacto */
+.food-item-actions {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 0.5rem !important;
     margin-bottom: 0.75rem !important;
 }
 
-.category-btn {
+.food-category-btn {
     background: var(--category-bg) !important;
     border: 1px solid var(--category-color) !important;
     border-radius: 8px !important;
-    padding: 0.625rem 0.75rem !important;
+    padding: 0.5rem 0.75rem !important;
     color: var(--category-color) !important;
-    font-size: 0.75rem !important;
+    font-size: 0.7rem !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
@@ -699,27 +706,38 @@ include 'includes/header.php';
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.5rem !important;
+    gap: 0.4rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.category-btn i {
-    font-size: 0.7rem !important;
+.food-category-btn i {
+    font-size: 0.65rem !important;
+    flex-shrink: 0;
 }
 
-.category-btn:hover {
+.food-category-btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.food-category-btn:hover {
     background: var(--category-color) !important;
     color: white !important;
     transform: translateY(-1px) !important;
 }
 
-.category-btn.selected {
+.food-category-btn.selected {
     background: var(--category-color) !important;
     color: white !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
 }
 
-.units-btn {
-    grid-column: 1 / -1 !important;
+/* Botão de unidades */
+.food-units-btn {
+    width: 100% !important;
     background: rgba(59, 130, 246, 0.1) !important;
     color: #3B82F6 !important;
     border: 1px solid #3B82F6 !important;
@@ -733,16 +751,15 @@ include 'includes/header.php';
     align-items: center !important;
     justify-content: center !important;
     gap: 0.5rem !important;
-    margin-top: 0.5rem !important;
 }
 
-.units-btn:hover:not(.disabled) {
+.food-units-btn:hover:not(.disabled) {
     background: #3B82F6 !important;
     color: white !important;
     transform: translateY(-1px) !important;
 }
 
-.units-btn.disabled {
+.food-units-btn.disabled {
     background: rgba(255, 255, 255, 0.05) !important;
     color: var(--text-secondary) !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
@@ -750,45 +767,31 @@ include 'includes/header.php';
     opacity: 0.6 !important;
 }
 
-.units-hint {
-    display: block !important;
-    font-size: 0.65rem !important;
-    color: var(--text-secondary) !important;
-    margin-top: 0.25rem !important;
-    font-style: italic !important;
-}
-
 /* Empty State */
-.empty-state-card {
+.foods-empty-state {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 20px !important;
-    padding: 3rem 2rem !important;
+    padding: 4rem 2rem !important;
     text-align: center !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.empty-state-content {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 1.5rem !important;
-}
-
-.empty-state-content i {
+.foods-empty-state i {
     font-size: 4rem !important;
     color: var(--text-secondary) !important;
     opacity: 0.5 !important;
+    margin-bottom: 1.5rem !important;
 }
 
-.empty-state-content p {
+.foods-empty-state p {
     font-size: 1.125rem !important;
     color: var(--text-secondary) !important;
-    margin: 0 !important;
+    margin: 0 0 1.5rem 0 !important;
 }
 
-.empty-state-content .btn-primary {
+.foods-empty-state .btn-primary {
     padding: 0.875rem 2rem !important;
     background: var(--accent-orange) !important;
     border: none !important;
@@ -805,14 +808,14 @@ include 'includes/header.php';
     font-family: 'Montserrat', sans-serif !important;
 }
 
-.empty-state-content .btn-primary:hover {
+.foods-empty-state .btn-primary:hover {
     background: #e65c00 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4) !important;
 }
 
 /* Pagination */
-.pagination-card {
+.foods-pagination {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
@@ -826,18 +829,18 @@ include 'includes/header.php';
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.pagination-info {
+.foods-pagination-info {
     color: var(--text-secondary) !important;
     font-size: 0.95rem !important;
 }
 
-.pagination-controls {
+.foods-pagination-controls {
     display: flex !important;
     align-items: center !important;
     gap: 0.75rem !important;
 }
 
-.pagination-btn {
+.foods-pagination-btn {
     padding: 0.625rem 1.25rem !important;
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid var(--glass-border) !important;
@@ -853,19 +856,19 @@ include 'includes/header.php';
     font-family: 'Montserrat', sans-serif !important;
 }
 
-.pagination-btn:hover {
+.foods-pagination-btn:hover {
     background: rgba(255, 255, 255, 0.1) !important;
     border-color: var(--accent-orange) !important;
     color: var(--accent-orange) !important;
 }
 
-.pagination-numbers {
+.foods-pagination-numbers {
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
 }
 
-.pagination-number {
+.foods-pagination-number {
     min-width: 40px !important;
     height: 40px !important;
     display: flex !important;
@@ -881,19 +884,19 @@ include 'includes/header.php';
     transition: all 0.3s ease !important;
 }
 
-.pagination-number:hover {
+.foods-pagination-number:hover {
     background: rgba(255, 107, 0, 0.1) !important;
     border-color: var(--accent-orange) !important;
     color: var(--accent-orange) !important;
 }
 
-.pagination-number.current {
+.foods-pagination-number.current {
     background: var(--accent-orange) !important;
     border-color: var(--accent-orange) !important;
     color: #FFFFFF !important;
 }
 
-.pagination-ellipsis {
+.foods-pagination-ellipsis {
     color: var(--text-secondary) !important;
     padding: 0 0.5rem !important;
 }
@@ -981,27 +984,27 @@ include 'includes/header.php';
 
 /* Responsive */
 @media (max-width: 1200px) {
-    .foods-classification-container {
+    .foods-classification-layout {
         grid-template-columns: 1fr !important;
         gap: 1.5rem !important;
     }
     
-    .categories-panel {
+    .categories-sidebar {
         position: static !important;
         order: 2 !important;
     }
     
-    .classifier-content {
+    .foods-main-content {
         order: 1 !important;
     }
 }
 
 @media (max-width: 768px) {
-    .foods-classification-container {
+    .foods-classification-page {
         padding: 1rem !important;
     }
     
-    .filter-row {
+    .foods-filter-row {
         flex-direction: column !important;
         align-items: stretch !important;
     }
@@ -1010,229 +1013,214 @@ include 'includes/header.php';
         grid-template-columns: 1fr !important;
     }
     
-    .stats-grid {
+    .foods-stats-grid {
         grid-template-columns: repeat(2, 1fr) !important;
     }
     
-    .bulk-controls {
+    .foods-bulk-controls {
         flex-direction: column !important;
         align-items: stretch !important;
+    }
+    
+    .food-item-actions {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 </style>
 
-<div class="foods-classification-container">
-    <!-- CATEGORIAS (LADO ESQUERDO) -->
-    <div class="dashboard-card categories-panel">
-        <h2><i class="fas fa-tags"></i> Categorias</h2>
-        <p>Clique para classificar</p>
-        
-        <?php 
-        // Definir unidades e exemplos para cada categoria
-        $category_units = [
-            'líquido' => ['ml', 'l', 'cs', 'cc', 'xc'],
-            'semi_liquido' => ['g', 'ml', 'cs', 'cc', 'xc'],
-            'granular' => ['g', 'kg', 'cs', 'cc', 'xc'],
-            'unidade_inteira' => ['un', 'g', 'kg'],
-            'fatias_pedacos' => ['fat', 'g', 'kg'],
-            'corte_porcao' => ['g', 'kg', 'un'],
-            'colher_cremoso' => ['cs', 'cc', 'g'],
-            'condimentos' => ['cc', 'cs', 'g'],
-            'oleos_gorduras' => ['cs', 'cc', 'ml', 'l'],
-            'preparacoes_compostas' => ['g', 'kg', 'un']
-        ];
-        
-        $category_examples = [
-            'líquido' => ['Água', 'Suco', 'Leite', 'Refrigerante', 'Café'],
-            'semi_liquido' => ['Iogurte', 'Pudim', 'Mingau', 'Vitamina', 'Abacate'],
-            'granular' => ['Arroz', 'Feijão', 'Açúcar', 'Sal', 'Farinha'],
-            'unidade_inteira' => ['Maçã', 'Banana', 'Ovo', 'Pão', 'Biscoito'],
-            'fatias_pedacos' => ['Queijo', 'Presunto', 'Tomate', 'Cenoura', 'Batata'],
-            'corte_porcao' => ['Carne', 'Frango', 'Peixe', 'Lasanha', 'Pizza'],
-            'colher_cremoso' => ['Manteiga', 'Cream Cheese', 'Doce de Leite', 'Maionese'],
-            'condimentos' => ['Sal', 'Pimenta', 'Açúcar', 'Canela', 'Orégano'],
-            'oleos_gorduras' => ['Azeite', 'Óleo', 'Manteiga', 'Margarina', 'Banha'],
-            'preparacoes_compostas' => ['Lasanha', 'Pizza', 'Bolo', 'Torta', 'Sopa']
-        ];
-        
-        // Nomes das unidades
-        $unit_names = [
-            'ml' => 'Mililitro',
-            'l' => 'Litro', 
-            'cs' => 'Colher de Sopa',
-            'cc' => 'Colher de Chá',
-            'xc' => 'Xícara',
-            'g' => 'Grama',
-            'kg' => 'Quilograma',
-            'un' => 'Unidade',
-            'fat' => 'Fatia'
-        ];
-        
-        foreach ($categories as $key => $cat): 
-            $units = $category_units[$key] ?? [];
-            $examples = $category_examples[$key] ?? [];
-        ?>
-            <div class="category-legend" data-category="<?= $key ?>" style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
-                <div class="category-legend-header">
-                    <div class="category-legend-icon">
-                        <i class="fas <?= $cat['icon'] ?>"></i>
+<div class="foods-classification-page">
+    <div class="foods-classification-layout">
+        <!-- CATEGORIAS (LADO ESQUERDO) -->
+        <div class="dashboard-card categories-sidebar">
+            <h3><i class="fas fa-tags"></i> Categorias</h3>
+            <p>Clique para classificar</p>
+            
+            <?php 
+            // Definir unidades e exemplos para cada categoria
+            $category_units = [
+                'líquido' => ['ml', 'l', 'cs', 'cc', 'xc'],
+                'semi_liquido' => ['g', 'ml', 'cs', 'cc', 'xc'],
+                'granular' => ['g', 'kg', 'cs', 'cc', 'xc'],
+                'unidade_inteira' => ['un', 'g', 'kg'],
+                'fatias_pedacos' => ['fat', 'g', 'kg'],
+                'corte_porcao' => ['g', 'kg', 'un'],
+                'colher_cremoso' => ['cs', 'cc', 'g'],
+                'condimentos' => ['cc', 'cs', 'g'],
+                'oleos_gorduras' => ['cs', 'cc', 'ml', 'l'],
+                'preparacoes_compostas' => ['g', 'kg', 'un']
+            ];
+            
+            $category_examples = [
+                'líquido' => ['Água', 'Suco', 'Leite', 'Refrigerante', 'Café'],
+                'semi_liquido' => ['Iogurte', 'Pudim', 'Mingau', 'Vitamina', 'Abacate'],
+                'granular' => ['Arroz', 'Feijão', 'Açúcar', 'Sal', 'Farinha'],
+                'unidade_inteira' => ['Maçã', 'Banana', 'Ovo', 'Pão', 'Biscoito'],
+                'fatias_pedacos' => ['Queijo', 'Presunto', 'Tomate', 'Cenoura', 'Batata'],
+                'corte_porcao' => ['Carne', 'Frango', 'Peixe', 'Lasanha', 'Pizza'],
+                'colher_cremoso' => ['Manteiga', 'Cream Cheese', 'Doce de Leite', 'Maionese'],
+                'condimentos' => ['Sal', 'Pimenta', 'Açúcar', 'Canela', 'Orégano'],
+                'oleos_gorduras' => ['Azeite', 'Óleo', 'Manteiga', 'Margarina', 'Banha'],
+                'preparacoes_compostas' => ['Lasanha', 'Pizza', 'Bolo', 'Torta', 'Sopa']
+            ];
+            
+            // Nomes das unidades
+            $unit_names = [
+                'ml' => 'Mililitro',
+                'l' => 'Litro', 
+                'cs' => 'Colher de Sopa',
+                'cc' => 'Colher de Chá',
+                'xc' => 'Xícara',
+                'g' => 'Grama',
+                'kg' => 'Quilograma',
+                'un' => 'Unidade',
+                'fat' => 'Fatia'
+            ];
+            
+            foreach ($categories as $key => $cat): 
+                $units = $category_units[$key] ?? [];
+                $examples = $category_examples[$key] ?? [];
+            ?>
+                <div class="category-item" data-category="<?= $key ?>" style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
+                    <div class="category-item-header">
+                        <div class="category-item-icon">
+                            <i class="fas <?= $cat['icon'] ?>"></i>
+                        </div>
+                        <h4 class="category-item-name"><?= $cat['name'] ?></h4>
                     </div>
-                    <h3 class="category-legend-name"><?= $cat['name'] ?></h3>
-                </div>
-                
-                <div class="category-legend-examples">
-                    <div class="examples-label">Exemplos:</div>
-                    <div class="examples-list">
-                        <?php foreach ($examples as $example): ?>
-                            <span class="example-tag"><?= $example ?></span>
-                        <?php endforeach; ?>
+                    <div class="category-item-info">
+                        <strong>Exemplos:</strong> <?= implode(', ', array_slice($examples, 0, 3)) ?><?= count($examples) > 3 ? '...' : '' ?><br>
+                        <strong>Unidades:</strong> <?= implode(', ', array_map(fn($u) => $unit_names[$u] ?? $u, array_slice($units, 0, 3))) ?><?= count($units) > 3 ? '...' : '' ?>
                     </div>
                 </div>
-                
-                <div class="category-legend-units">
-                    <div class="units-label">Unidades:</div>
-                    <div class="units-list">
-                        <?php foreach ($units as $unit): ?>
-                            <span class="unit-tag"><?= $unit_names[$unit] ?? $unit ?></span>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-
-    <!-- CONTEÚDO PRINCIPAL (LADO DIREITO) -->
-    <div class="classifier-content">
-        <!-- Header Card -->
-        <div class="dashboard-card classifier-header-card">
-            <div class="header-title">
-                <h2><i class="fas fa-apple-alt"></i> Alimentos</h2>
-                <p>Gerencie e classifique todos os alimentos do sistema</p>
-            </div>
-
-            <!-- Estatísticas -->
-            <div class="stats-grid">
-                <div class="stats-card">
-                    <div class="stat-number"><?= $total_items ?></div>
-                    <div class="stat-label">Total</div>
-                </div>
-                <div class="stats-card">
-                    <div class="stat-number" id="classified-count"><?= $classified_count ?></div>
-                    <div class="stat-label">Classificados</div>
-                </div>
-                <div class="stats-card">
-                    <div class="stat-number" id="remaining-count"><?= $total_items - $classified_count ?></div>
-                    <div class="stat-label">Restantes</div>
-                </div>
-                <div class="stats-card">
-                    <div class="stat-number" id="session-count">0</div>
-                    <div class="stat-label">Nesta Sessão</div>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
 
-        <!-- Filtros -->
-        <div class="dashboard-card filters-section">
-            <h3 class="filters-title"><i class="fas fa-search"></i> Buscar</h3>
-            <form method="GET" class="filter-row">
-                <div class="form-group">
+        <!-- CONTEÚDO PRINCIPAL (LADO DIREITO) -->
+        <div class="foods-main-content">
+            <!-- Header Card -->
+            <div class="dashboard-card foods-header-card">
+                <div class="foods-header-title">
+                    <h2><i class="fas fa-apple-alt"></i> Alimentos</h2>
+                    <p>Gerencie e classifique todos os alimentos do sistema</p>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="foods-stats-grid">
+                    <div class="foods-stat-card">
+                        <div class="foods-stat-number"><?= $total_items ?></div>
+                        <div class="foods-stat-label">Total</div>
+                    </div>
+                    <div class="foods-stat-card">
+                        <div class="foods-stat-number" id="classified-count"><?= $classified_count ?></div>
+                        <div class="foods-stat-label">Classificados</div>
+                    </div>
+                    <div class="foods-stat-card">
+                        <div class="foods-stat-number" id="remaining-count"><?= $total_items - $classified_count ?></div>
+                        <div class="foods-stat-label">Restantes</div>
+                    </div>
+                    <div class="foods-stat-card">
+                        <div class="foods-stat-number" id="session-count">0</div>
+                        <div class="foods-stat-label">Nesta Sessão</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="dashboard-card foods-filter-card">
+                <h3 class="foods-filter-title"><i class="fas fa-search"></i> Buscar</h3>
+                <form method="GET" class="foods-filter-row">
                     <input type="text" 
-                           class="form-control food-search-input" 
+                           class="foods-search-input" 
                            name="search" 
                            value="<?= htmlspecialchars($search) ?>" 
                            placeholder="Nome do alimento...">
-                </div>
-                <div class="form-group">
-                    <select class="category-select" name="category">
+                    <select class="foods-category-select" name="category">
                         <option value="">Todas as categorias</option>
                         <?php foreach ($categories as $key => $cat): ?>
                             <option value="<?= $key ?>" <?= $category_filter === $key ? 'selected' : '' ?>>
-                                <i class="fas <?= $cat['icon'] ?>"></i> <?= $cat['name'] ?>
+                                <?= $cat['name'] ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="filter-btn">
+                    <button type="submit" class="foods-filter-btn">
                         <i class="fas fa-search"></i> Buscar
                     </button>
-                </div>
-                <?php if (!empty($search) || !empty($category_filter)): ?>
-                <div class="form-group">
-                    <a href="food_classification.php" class="clear-btn">
+                    <?php if (!empty($search) || !empty($category_filter)): ?>
+                    <a href="food_classification.php" class="foods-clear-btn">
                         <i class="fas fa-times"></i> Limpar
                     </a>
-                </div>
-                <?php endif; ?>
-            </form>
-        </div>
-
-        <!-- Ações em Lote -->
-        <div class="dashboard-card bulk-actions">
-            <h3 class="bulk-title"><i class="fas fa-bolt"></i> Ações em Lote</h3>
-            <div class="bulk-controls">
-                <select class="bulk-select" id="bulk-category">
-                    <option value="">Selecione uma categoria</option>
-                    <?php foreach ($categories as $key => $cat): ?>
-                        <option value="<?= $key ?>"><i class="fas <?= $cat['icon'] ?>"></i> <?= $cat['name'] ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <button class="bulk-btn" onclick="applyBulkClassification()" id="bulk-btn" disabled>
-                    <i class="fas fa-check"></i> Aplicar aos Selecionados
-                </button>
-                <label class="bulk-checkbox">
-                    <input type="checkbox" id="select-all">
-                    Selecionar Todos
-                </label>
+                    <?php endif; ?>
+                </form>
             </div>
-        </div>
 
-        <!-- Lista de Alimentos -->
-        <?php if (empty($foods)): ?>
-            <div class="dashboard-card empty-state-card">
-                <div class="empty-state-content">
+            <!-- Ações em Lote -->
+            <div class="dashboard-card foods-bulk-card">
+                <h3 class="foods-bulk-title"><i class="fas fa-bolt"></i> Ações em Lote</h3>
+                <div class="foods-bulk-controls">
+                    <select class="foods-bulk-select" id="bulk-category">
+                        <option value="">Selecione uma categoria</option>
+                        <?php foreach ($categories as $key => $cat): ?>
+                            <option value="<?= $key ?>"><?= $cat['name'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button class="foods-bulk-btn" onclick="applyBulkClassification()" id="bulk-btn" disabled>
+                        <i class="fas fa-check"></i> Aplicar aos Selecionados
+                    </button>
+                    <label class="foods-select-all">
+                        <input type="checkbox" id="select-all">
+                        Selecionar Todos
+                    </label>
+                </div>
+            </div>
+
+            <!-- Grid de Alimentos -->
+            <?php if (empty($foods)): ?>
+                <div class="dashboard-card foods-empty-state">
                     <i class="fas fa-apple-alt"></i>
                     <p>Nenhum alimento encontrado.</p>
                     <?php if (!empty($search) || !empty($category_filter)): ?>
                         <a href="food_classification.php" class="btn-primary">Ver Todos os Alimentos</a>
                     <?php endif; ?>
                 </div>
-            </div>
-        <?php else: ?>
-            <div class="foods-grid" id="foods-list">
-                <?php foreach ($foods as $food): ?>
-                    <div class="food-card <?= !empty($food['categories']) ? 'classified' : 'unclassified' ?>" data-food-id="<?= $food['id'] ?>">
-                        <div class="food-header">
-                            <input class="food-checkbox" type="checkbox" value="<?= $food['id'] ?>">
-                            <div class="food-info">
-                                <div class="food-name">
-                                    <?= htmlspecialchars($food['name_pt']) ?>
-                                </div>
+            <?php else: ?>
+                <div class="foods-grid" id="foods-list">
+                    <?php foreach ($foods as $food): ?>
+                        <div class="food-item-card <?= !empty($food['categories']) ? 'classified' : 'unclassified' ?>" data-food-id="<?= $food['id'] ?>">
+                            <input type="checkbox" class="food-item-checkbox" value="<?= $food['id'] ?>">
+                            <div class="food-item-checkbox-indicator">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            
+                            <div class="food-item-content">
+                                <h4 class="food-item-name"><?= htmlspecialchars($food['name_pt']) ?></h4>
+                                
                                 <?php if (!empty($food['brand']) && $food['brand'] !== 'TACO'): ?>
-                                    <div class="food-brand">
+                                    <div class="food-item-brand">
                                         <i class="fas fa-tag"></i>
                                         <?= htmlspecialchars($food['brand']) ?>
                                     </div>
                                 <?php endif; ?>
-                                <div class="food-macros">
-                                    <div class="macro-item">
-                                        <div class="macro-label">Calorias</div>
-                                        <div class="macro-value"><?= number_format($food['energy_kcal_100g'], 0) ?>kcal</div>
+                                
+                                <div class="food-item-macros">
+                                    <div class="food-item-macro">
+                                        <div class="food-item-macro-label">Calorias</div>
+                                        <div class="food-item-macro-value"><?= number_format($food['energy_kcal_100g'], 0) ?>kcal</div>
                                     </div>
-                                    <div class="macro-item">
-                                        <div class="macro-label">Proteína</div>
-                                        <div class="macro-value"><?= number_format($food['protein_g_100g'], 1) ?>g</div>
+                                    <div class="food-item-macro">
+                                        <div class="food-item-macro-label">Proteína</div>
+                                        <div class="food-item-macro-value"><?= number_format($food['protein_g_100g'], 1) ?>g</div>
                                     </div>
-                                    <div class="macro-item">
-                                        <div class="macro-label">Carboidratos</div>
-                                        <div class="macro-value"><?= number_format($food['carbohydrate_g_100g'], 1) ?>g</div>
+                                    <div class="food-item-macro">
+                                        <div class="food-item-macro-label">Carboidratos</div>
+                                        <div class="food-item-macro-value"><?= number_format($food['carbohydrate_g_100g'], 1) ?>g</div>
                                     </div>
-                                    <div class="macro-item">
-                                        <div class="macro-label">Gorduras</div>
-                                        <div class="macro-value"><?= number_format($food['fat_g_100g'], 1) ?>g</div>
+                                    <div class="food-item-macro">
+                                        <div class="food-item-macro-label">Gorduras</div>
+                                        <div class="food-item-macro-value"><?= number_format($food['fat_g_100g'], 1) ?>g</div>
                                     </div>
                                 </div>
-                                <div class="food-current-category" 
+                                
+                                <div class="food-item-categories" 
                                      id="category-display-<?= $food['id'] ?>" 
                                      data-categories="<?= htmlspecialchars($food['categories'] ?? '') ?>">
                                     <?php 
@@ -1243,20 +1231,21 @@ include 'includes/header.php';
                                             if (isset($categories[$cat_key])) {
                                                 $cat_info = $categories[$cat_key];
                                                 $tagsHtml .= sprintf(
-                                                    '<span class="category-tag" style="background: %s20; color: %s; border: 1px solid %s40;"><i class="fas %s"></i> %s</span>',
+                                                    '<span class="food-category-badge" style="background: %s20; color: %s; border: 1px solid %s40;"><i class="fas %s"></i> %s</span>',
                                                     $cat_info['color'], $cat_info['color'], $cat_info['color'], $cat_info['icon'], $cat_info['name']
                                                 );
                                             }
                                         }
                                         echo $tagsHtml;
                                     } else {
-                                        echo '<span class="unclassified-tag"><i class="fas fa-exclamation-circle"></i> Não classificado</span>';
+                                        echo '<span class="food-unclassified-badge"><i class="fas fa-exclamation-circle"></i> Não classificado</span>';
                                     }
                                     ?>
                                 </div>
-                                <div class="food-actions">
+                                
+                                <div class="food-item-actions">
                                     <?php foreach ($categories as $key => $cat): ?>
-                                        <button class="category-btn" 
+                                        <button class="food-category-btn" 
                                                 data-food-id="<?= $food['id'] ?>"
                                                 data-category="<?= $key ?>"
                                                 style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
@@ -1264,79 +1253,75 @@ include 'includes/header.php';
                                             <span><?= $cat['name'] ?></span>
                                         </button>
                                     <?php endforeach; ?>
-                                    
-                                    <!-- Botão para editar unidades -->
-                                    <button class="units-btn <?= empty($food['categories']) ? 'disabled' : '' ?>" 
-                                            data-food-id="<?= $food['id'] ?>"
-                                            onclick="openUnitsEditor(<?= $food['id'] ?>, '<?= htmlspecialchars($food['name_pt']) ?>', getFoodCategories(<?= $food['id'] ?>))">
-                                        <i class="fas fa-ruler"></i>
-                                        <span>Unidades</span>
-                                        <?php if (empty($food['categories'])): ?>
-                                            <small class="units-hint">Salve a classificação primeiro</small>
-                                        <?php endif; ?>
-                                    </button>
                                 </div>
+                                
+                                <button class="food-units-btn <?= empty($food['categories']) ? 'disabled' : '' ?>" 
+                                        data-food-id="<?= $food['id'] ?>"
+                                        onclick="openUnitsEditor(<?= $food['id'] ?>, '<?= htmlspecialchars($food['name_pt']) ?>', getFoodCategories(<?= $food['id'] ?>))">
+                                    <i class="fas fa-ruler"></i>
+                                    <span>Unidades</span>
+                                </button>
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+                    <?php endforeach; ?>
+                </div>
 
-            <!-- Paginação -->
-            <?php if ($total_pages > 1): ?>
-                <div class="dashboard-card pagination-card">
-                    <div class="pagination-info">
-                        Mostrando <?= ($offset + 1) ?> - <?= min($offset + $per_page, $total_items) ?> de <?= number_format($total_items) ?> alimentos
-                    </div>
-                    <div class="pagination-controls">
-                        <?php if ($page > 1): ?>
-                            <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
-                               class="pagination-btn">
-                                <i class="fas fa-chevron-left"></i> Anterior
-                            </a>
-                        <?php endif; ?>
-                        
-                        <div class="pagination-numbers">
-                            <?php
-                            $start_page = max(1, $page - 2);
-                            $end_page = min($total_pages, $page + 2);
-                            
-                            if ($start_page > 1): ?>
-                                <a href="?page=1&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
-                                   class="pagination-number">1</a>
-                                <?php if ($start_page > 2): ?>
-                                    <span class="pagination-ellipsis">...</span>
-                                <?php endif; ?>
+                <!-- Paginação -->
+                <?php if ($total_pages > 1): ?>
+                    <div class="dashboard-card foods-pagination">
+                        <div class="foods-pagination-info">
+                            Mostrando <?= ($offset + 1) ?> - <?= min($offset + $per_page, $total_items) ?> de <?= number_format($total_items) ?> alimentos
+                        </div>
+                        <div class="foods-pagination-controls">
+                            <?php if ($page > 1): ?>
+                                <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                   class="foods-pagination-btn">
+                                    <i class="fas fa-chevron-left"></i> Anterior
+                                </a>
                             <?php endif; ?>
                             
-                            <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                                <?php if ($i == $page): ?>
-                                    <span class="pagination-number current"><?= $i ?></span>
-                                <?php else: ?>
-                                    <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
-                                       class="pagination-number"><?= $i ?></a>
+                            <div class="foods-pagination-numbers">
+                                <?php
+                                $start_page = max(1, $page - 2);
+                                $end_page = min($total_pages, $page + 2);
+                                
+                                if ($start_page > 1): ?>
+                                    <a href="?page=1&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                       class="foods-pagination-number">1</a>
+                                    <?php if ($start_page > 2): ?>
+                                        <span class="foods-pagination-ellipsis">...</span>
+                                    <?php endif; ?>
                                 <?php endif; ?>
-                            <?php endfor; ?>
+                                
+                                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                    <?php if ($i == $page): ?>
+                                        <span class="foods-pagination-number current"><?= $i ?></span>
+                                    <?php else: ?>
+                                        <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                           class="foods-pagination-number"><?= $i ?></a>
+                                    <?php endif; ?>
+                                <?php endfor; ?>
+                                
+                                <?php if ($end_page < $total_pages): ?>
+                                    <?php if ($end_page < $total_pages - 1): ?>
+                                        <span class="foods-pagination-ellipsis">...</span>
+                                    <?php endif; ?>
+                                    <a href="?page=<?= $total_pages ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                       class="foods-pagination-number"><?= $total_pages ?></a>
+                                <?php endif; ?>
+                            </div>
                             
-                            <?php if ($end_page < $total_pages): ?>
-                                <?php if ($end_page < $total_pages - 1): ?>
-                                    <span class="pagination-ellipsis">...</span>
-                                <?php endif; ?>
-                                <a href="?page=<?= $total_pages ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
-                                   class="pagination-number"><?= $total_pages ?></a>
+                            <?php if ($page < $total_pages): ?>
+                                <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                   class="foods-pagination-btn">
+                                    Próxima <i class="fas fa-chevron-right"></i>
+                                </a>
                             <?php endif; ?>
                         </div>
-                        
-                        <?php if ($page < $total_pages): ?>
-                            <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
-                               class="pagination-btn">
-                                Próxima <i class="fas fa-chevron-right"></i>
-                            </a>
-                        <?php endif; ?>
                     </div>
-                </div>
+                <?php endif; ?>
             <?php endif; ?>
-        <?php endif; ?>
+        </div>
     </div>
 </div>
 
@@ -1389,9 +1374,9 @@ let sessionClassifiedCount = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
     // 1. Carregar o estado inicial das classificações a partir do HTML
-    document.querySelectorAll('.food-card').forEach(card => {
+    document.querySelectorAll('.food-item-card').forEach(card => {
         const foodId = card.dataset.foodId;
-        const existingCategories = card.querySelector('.food-current-category').dataset.categories;
+        const existingCategories = card.querySelector('.food-item-categories').dataset.categories;
         if (existingCategories) {
             classifications[foodId] = existingCategories.split(',');
         } else {
@@ -1402,8 +1387,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 2. Adicionar listener de clique para TODOS os botões de categoria
     document.getElementById('foods-list').addEventListener('click', function(e) {
-        if (e.target.closest('.category-btn')) {
-            const btn = e.target.closest('.category-btn');
+        if (e.target.closest('.food-category-btn')) {
+            const btn = e.target.closest('.food-category-btn');
             const foodId = btn.dataset.foodId;
             const category = btn.dataset.category;
             toggleCategory(foodId, category);
@@ -1414,15 +1399,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectAllCheckbox = document.getElementById('select-all');
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.food-checkbox');
-            checkboxes.forEach(cb => cb.checked = this.checked);
+            const checkboxes = document.querySelectorAll('.food-item-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = this.checked;
+                updateCheckboxVisual(cb);
+            });
             updateBulkButton();
         });
     }
     
     // 4. Atualizar botão bulk quando checkboxes mudarem
-    document.querySelectorAll('.food-checkbox').forEach(cb => {
-        cb.addEventListener('change', updateBulkButton);
+    document.querySelectorAll('.food-item-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            updateCheckboxVisual(this);
+            updateBulkButton();
+        });
     });
     
     // 5. Bulk category select
@@ -1430,10 +1421,29 @@ document.addEventListener('DOMContentLoaded', function() {
     if (bulkCategorySelect) {
         bulkCategorySelect.addEventListener('change', updateBulkButton);
     }
+    
+    // 6. Atualizar visual dos checkboxes ao carregar
+    document.querySelectorAll('.food-item-checkbox').forEach(cb => {
+        updateCheckboxVisual(cb);
+    });
 });
 
+function updateCheckboxVisual(checkbox) {
+    const card = checkbox.closest('.food-item-card');
+    const indicator = card.querySelector('.food-item-checkbox-indicator');
+    const content = card.querySelector('.food-item-content');
+    
+    if (checkbox.checked) {
+        indicator.style.display = 'flex';
+        if (content) content.style.opacity = '0.7';
+    } else {
+        indicator.style.display = 'none';
+        if (content) content.style.opacity = '1';
+    }
+}
+
 function updateBulkButton() {
-    const selected = document.querySelectorAll('.food-checkbox:checked');
+    const selected = document.querySelectorAll('.food-item-checkbox:checked');
     const bulkCategory = document.getElementById('bulk-category').value;
     const bulkBtn = document.getElementById('bulk-btn');
     
@@ -1443,7 +1453,7 @@ function updateBulkButton() {
 }
 
 function applyBulkClassification() {
-    const selected = document.querySelectorAll('.food-checkbox:checked');
+    const selected = document.querySelectorAll('.food-item-checkbox:checked');
     const bulkCategory = document.getElementById('bulk-category').value;
     
     if (selected.length === 0 || !bulkCategory) return;
@@ -1462,7 +1472,10 @@ function applyBulkClassification() {
     
     // Limpa seleção
     document.getElementById('select-all').checked = false;
-    document.querySelectorAll('.food-checkbox').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.food-item-checkbox').forEach(cb => {
+        cb.checked = false;
+        updateCheckboxVisual(cb);
+    });
     updateBulkButton();
 }
 
@@ -1486,40 +1499,40 @@ function toggleCategory(foodId, category) {
 
 // Atualiza a aparência de um card de alimento com base nas categorias selecionadas
 function updateFoodVisual(foodId) {
-    const foodCard = document.querySelector(`.food-card[data-food-id="${foodId}"]`);
+    const foodCard = document.querySelector(`.food-item-card[data-food-id="${foodId}"]`);
     if (!foodCard) return;
 
     const currentCategories = classifications[foodId] || [];
     
     // Atualiza os botões (adicionando/removendo a classe 'selected')
-    foodCard.querySelectorAll('.category-btn').forEach(btn => {
+    foodCard.querySelectorAll('.food-category-btn').forEach(btn => {
         btn.classList.toggle('selected', currentCategories.includes(btn.dataset.category));
     });
 
     // Atualiza o display de texto/tags
-    const categoryDisplay = foodCard.querySelector('.food-current-category');
+    const categoryDisplay = foodCard.querySelector('.food-item-categories');
     if (currentCategories.length > 0) {
         const tagsHtml = currentCategories.map(catKey => {
             const catInfo = window.categories[catKey];
             if (!catInfo) return ''; // Segurança caso a categoria não exista
-            return `<span class="category-tag" style="background: ${catInfo.color}20; color: ${catInfo.color}; border: 1px solid ${catInfo.color}40;"><i class="fas ${catInfo.icon}"></i> ${catInfo.name}</span>`;
+            return `<span class="food-category-badge" style="background: ${catInfo.color}20; color: ${catInfo.color}; border: 1px solid ${catInfo.color}40;"><i class="fas ${catInfo.icon}"></i> ${catInfo.name}</span>`;
         }).join('');
         categoryDisplay.innerHTML = tagsHtml;
         foodCard.classList.add('classified');
         foodCard.classList.remove('unclassified');
         
         // Habilita botão de unidades
-        const unitsBtn = foodCard.querySelector('.units-btn');
+        const unitsBtn = foodCard.querySelector('.food-units-btn');
         if (unitsBtn) {
             unitsBtn.classList.remove('disabled');
         }
     } else {
-        categoryDisplay.innerHTML = '<span class="unclassified-tag"><i class="fas fa-exclamation-circle"></i> Não classificado</span>';
+        categoryDisplay.innerHTML = '<span class="food-unclassified-badge"><i class="fas fa-exclamation-circle"></i> Não classificado</span>';
         foodCard.classList.remove('classified');
         foodCard.classList.add('unclassified');
         
         // Desabilita botão de unidades
-        const unitsBtn = foodCard.querySelector('.units-btn');
+        const unitsBtn = foodCard.querySelector('.food-units-btn');
         if (unitsBtn) {
             unitsBtn.classList.add('disabled');
         }
