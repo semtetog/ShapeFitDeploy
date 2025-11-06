@@ -141,11 +141,11 @@ $csrf_token = $_SESSION['csrf_token'];
 
 /* PAINEL DE CONFIGURAÇÕES (DIREITA) */
 .config-panel {
-    flex-grow: 1; /* Ocupa todo o resto do espaço */
-    min-width: 0; /* Previne que os inputs quebrem o layout */
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    width: 100%;
+    max-width: 100%;
 }
 
 /* ===== ESTILOS INTERNOS (COPIADOS, SEM GRANDES MUDANÇAS) ===== */
