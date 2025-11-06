@@ -583,7 +583,9 @@ const updateImage = (value) => {
             imageElement.style.display = 'block';
             imageElement.dataset.hasImage = 'true';
             // Garantir que o listener está configurado
-            setupImageClick(imageElement);
+            if (window.setupImageClick) {
+                window.setupImageClick(imageElement);
+            }
         } else {
             // Criar elemento de imagem se não existir
             const container = document.querySelector('.app-container');
@@ -599,7 +601,9 @@ const updateImage = (value) => {
                 container.insertBefore(img, container.firstChild);
             }
             // Configurar listener imediatamente após criar
-            setupImageClick(img);
+            if (window.setupImageClick) {
+                window.setupImageClick(img);
+            }
         }
     } else {
         // Se não há imagem, mostrar placeholder e esconder imagem
@@ -610,7 +614,9 @@ const updateImage = (value) => {
         if (placeholderElement) {
             placeholderElement.style.display = 'flex';
             // Garantir que o listener está configurado
-            setupImageClick(placeholderElement);
+            if (window.setupImageClick) {
+                window.setupImageClick(placeholderElement);
+            }
         } else {
             // Criar placeholder se não existir
             const container = document.querySelector('.app-container');
@@ -625,7 +631,9 @@ const updateImage = (value) => {
                 container.insertBefore(placeholder, container.firstChild);
             }
             // Configurar listener imediatamente após criar
-            setupImageClick(placeholder);
+            if (window.setupImageClick) {
+                window.setupImageClick(placeholder);
+            }
         }
     }
 };
