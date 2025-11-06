@@ -357,7 +357,8 @@ input[type=number] {
 .checkbox-grid {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
-    gap: 0.75rem !important;
+    gap: 1rem !important; /* Aumenta gap entre checkboxes */
+    margin-bottom: 2rem !important; /* Espaço antes do formulário de adicionar */
 }
 
 .checkbox-item {
@@ -414,9 +415,10 @@ input[type=number] {
 .add-category-form {
     display: flex !important;
     gap: 0.75rem !important;
-    margin-top: 1.5rem !important;
+    margin-top: 0 !important; /* Remove margin-top pois já tem margin-bottom no checkbox-grid */
     border-top: 1px solid var(--glass-border) !important;
     padding-top: 1.5rem !important;
+    padding-bottom: 0.5rem !important; /* Adiciona padding-bottom */
 }
 
 .btn-delete-category {
@@ -505,10 +507,17 @@ input[type=number] {
 }
 
 .field-help {
-    font-size: 0.75rem !important;
+    font-size: 0.875rem !important;
     color: var(--text-secondary) !important;
-    margin-top: 0.5rem !important;
+    margin-top: 1rem !important;
+    margin-bottom: 1.5rem !important;
     display: block !important;
+    line-height: 1.5 !important;
+}
+
+.categories-help {
+    margin-top: 1.5rem !important; /* Mais espaço após o header */
+    margin-bottom: 2rem !important; /* Mais espaço antes do grid */
 }
 
 /* ===== ESTILOS INTERNOS (SIMPLIFICADOS) ===== */
@@ -770,7 +779,7 @@ input[type=number] {
                 <div class="dashboard-card">
                     <div class="section-header">
                         <h4><i class="fas fa-tags"></i> Categorias</h4>
-            </div>
+                    </div>
                     <p class="field-help categories-help">Selecione todas as categorias que se aplicam.</p>
                     <div class="checkbox-grid" id="categories-grid-container">
                         <?php foreach($all_categories as $category): ?>
