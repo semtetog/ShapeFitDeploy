@@ -873,131 +873,61 @@ document.addEventListener('DOMContentLoaded', function() {
         const imageInput = document.getElementById('image');
         let imageModal = null;
 
-        // Criar popup de imagem com glassmorphism
+        // Criar popup de imagem com glassmorphism (sobre a imagem)
         function createImageModal() {
             if (imageModal) return imageModal;
 
-            const modal = document.createElement('div');
-            modal.id = 'image-management-modal';
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.4);
-                backdrop-filter: blur(8px);
-                -webkit-backdrop-filter: blur(8px);
+            const popup = document.createElement('div');
+            popup.id = 'image-management-popup';
+            popup.style.cssText = `
+                position: absolute;
                 display: none;
-                align-items: center;
-                justify-content: center;
                 z-index: 10000;
                 opacity: 0;
-                transition: opacity 0.2s ease;
+                transition: opacity 0.2s ease, transform 0.2s ease;
             `;
 
-            const modalContent = document.createElement('div');
-            modalContent.style.cssText = `
-                background: rgba(18, 18, 18, 0.7);
+            const popupContent = document.createElement('div');
+            popupContent.style.cssText = `
+                background: rgba(18, 18, 18, 0.85);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 24px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
                 padding: 0;
-                max-width: 420px;
-                width: 90%;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-                transform: scale(0.95) translateY(10px);
+                min-width: 200px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+                transform: scale(0.95) translateY(-5px);
                 transition: transform 0.2s ease, opacity 0.2s ease;
                 opacity: 0;
                 overflow: hidden;
             `;
 
-            const header = document.createElement('div');
-            header.style.cssText = `
-                padding: 1.5rem 2rem;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            `;
-
-            const title = document.createElement('h3');
-            title.style.cssText = `
-                color: var(--text-primary);
-                margin: 0;
-                font-size: 1.25rem;
-                font-weight: 600;
-                font-family: 'Montserrat', sans-serif;
-                display: flex;
-                align-items: center;
-                gap: 0.75rem;
-            `;
-
-            const titleIcon = document.createElement('i');
-            titleIcon.className = 'fas fa-image';
-            titleIcon.style.cssText = `
-                color: var(--accent-orange);
-                font-size: 1.1rem;
-            `;
-            title.appendChild(titleIcon);
-            title.appendChild(document.createTextNode(' Gerenciar Imagem'));
-
-            const closeButton = document.createElement('button');
-            closeButton.innerHTML = '<i class="fas fa-times"></i>';
-            closeButton.style.cssText = `
-                background: transparent;
-                border: none;
-                color: var(--text-secondary);
-                font-size: 1.1rem;
-                cursor: pointer;
-                padding: 0.5rem;
-                border-radius: 8px;
-                transition: all 0.2s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 32px;
-                height: 32px;
-            `;
-            closeButton.onmouseenter = () => {
-                closeButton.style.background = 'rgba(255, 255, 255, 0.05)';
-                closeButton.style.color = 'var(--text-primary)';
-            };
-            closeButton.onmouseleave = () => {
-                closeButton.style.background = 'transparent';
-                closeButton.style.color = 'var(--text-secondary)';
-            };
-            closeButton.onclick = closeImageModal;
-
-            header.appendChild(title);
-            header.appendChild(closeButton);
-
             const buttonsContainer = document.createElement('div');
             buttonsContainer.style.cssText = `
                 display: flex;
                 flex-direction: column;
-                gap: 0.75rem;
-                padding: 1.5rem 2rem;
+                gap: 0.5rem;
+                padding: 0.75rem;
             `;
 
             const changeButton = document.createElement('button');
-            changeButton.innerHTML = '<i class="fas fa-exchange-alt"></i> Trocar Imagem';
+            changeButton.innerHTML = '<i class="fas fa-exchange-alt"></i> Trocar';
             changeButton.style.cssText = `
                 width: 100%;
-                padding: 0.875rem 1.5rem;
-                border-radius: 12px;
-                font-size: 0.95rem;
+                padding: 0.625rem 1rem;
+                border-radius: 10px;
+                font-size: 0.875rem;
                 font-weight: 600;
                 cursor: pointer;
-                background: rgba(255, 107, 0, 0.08);
-                border: 1px solid rgba(255, 107, 0, 0.2);
+                background: rgba(255, 107, 0, 0.1);
+                border: 1px solid rgba(255, 107, 0, 0.25);
                 color: var(--accent-orange);
                 transition: all 0.2s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 0.75rem;
+                gap: 0.5rem;
                 font-family: 'Montserrat', sans-serif;
             `;
             changeButton.onmouseenter = () => {
@@ -1016,22 +946,22 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             const deleteButton = document.createElement('button');
-            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i> Excluir Imagem';
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i> Excluir';
             deleteButton.style.cssText = `
                 width: 100%;
-                padding: 0.875rem 1.5rem;
-                border-radius: 12px;
-                font-size: 0.95rem;
+                padding: 0.625rem 1rem;
+                border-radius: 10px;
+                font-size: 0.875rem;
                 font-weight: 600;
                 cursor: pointer;
-                background: rgba(244, 67, 54, 0.08);
-                border: 1px solid rgba(244, 67, 54, 0.2);
+                background: rgba(244, 67, 54, 0.1);
+                border: 1px solid rgba(244, 67, 54, 0.25);
                 color: #F44336;
                 transition: all 0.2s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 0.75rem;
+                gap: 0.5rem;
                 font-family: 'Montserrat', sans-serif;
             `;
             deleteButton.onmouseenter = () => {
@@ -1051,40 +981,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
             buttonsContainer.appendChild(changeButton);
             buttonsContainer.appendChild(deleteButton);
-            modalContent.appendChild(header);
-            modalContent.appendChild(buttonsContainer);
-            modal.appendChild(modalContent);
+            popupContent.appendChild(buttonsContainer);
+            popup.appendChild(popupContent);
 
-            // Fechar ao clicar fora
-            modal.onclick = (e) => {
-                if (e.target === modal) {
-                    closeImageModal();
-                }
-            };
-
-            // Fechar com ESC
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && modal.style.display === 'flex') {
-                    closeImageModal();
-                }
-            });
-
-            document.body.appendChild(modal);
-            imageModal = modal;
-            return modal;
+            // Adicionar ao body
+            document.body.appendChild(popup);
+            imageModal = popup;
+            return popup;
         }
 
         function openImageModal() {
-            const modal = createImageModal();
-            const content = modal.querySelector('div');
-            modal.style.display = 'flex';
+            const popup = createImageModal();
+            const content = popup.querySelector('div');
             
-            // Trigger animation
+            // Obter posição da imagem no iframe
+            if (iframe && iframe.contentWindow) {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const imageElement = iframeDoc.getElementById('recipe-image') || iframeDoc.getElementById('recipe-image-placeholder');
+                
+                if (imageElement) {
+                    const iframeRect = iframe.getBoundingClientRect();
+                    const imageRect = imageElement.getBoundingClientRect();
+                    
+                    // Calcular posição relativa ao viewport
+                    const popupX = iframeRect.left + imageRect.left + (imageRect.width / 2);
+                    const popupY = iframeRect.top + imageRect.top + (imageRect.height / 2);
+                    
+                    // Posicionar popup centralizado sobre a imagem
+                    popup.style.left = popupX + 'px';
+                    popup.style.top = popupY + 'px';
+                    popup.style.transform = 'translate(-50%, -50%)';
+                    
+                    popup.style.display = 'block';
+                    
+                    // Trigger animation
+                    setTimeout(() => {
+                        popup.style.opacity = '1';
+                        if (content) {
+                            content.style.opacity = '1';
+                            content.style.transform = 'scale(1) translateY(0)';
+                        }
+                    }, 10);
+                }
+            }
+            
+            // Fechar ao clicar fora
+            const closeOnClickOutside = (e) => {
+                if (!popup.contains(e.target) && e.target !== iframe) {
+                    closeImageModal();
+                    document.removeEventListener('click', closeOnClickOutside);
+                }
+            };
             setTimeout(() => {
-                modal.style.opacity = '1';
-                content.style.opacity = '1';
-                content.style.transform = 'scale(1) translateY(0)';
-            }, 10);
+                document.addEventListener('click', closeOnClickOutside);
+            }, 100);
+            
+            // Fechar com ESC
+            const closeOnEsc = (e) => {
+                if (e.key === 'Escape') {
+                    closeImageModal();
+                    document.removeEventListener('keydown', closeOnEsc);
+                }
+            };
+            document.addEventListener('keydown', closeOnEsc);
         }
 
         function closeImageModal() {
@@ -1093,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 imageModal.style.opacity = '0';
                 if (content) {
                     content.style.opacity = '0';
-                    content.style.transform = 'scale(0.95) translateY(10px)';
+                    content.style.transform = 'scale(0.95) translateY(-5px)';
                 }
                 
                 setTimeout(() => {
