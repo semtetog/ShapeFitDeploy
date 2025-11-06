@@ -147,25 +147,21 @@ $csrf_token = $_SESSION['csrf_token'];
     gap: 2rem !important;
 }
 
-/* ===== HEADER COM AÇÕES ===== */
-.edit-recipe-container .config-header {
+/* ===== ESTILOS INTERNOS (COPIADOS, SEM GRANDES MUDANÇAS) ===== */
+.config-header {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    margin-bottom: 1rem !important;
-    padding-bottom: 1rem !important;
-    border-bottom: 1px solid var(--glass-border) !important;
 }
 
-.edit-recipe-container .config-header h3 {
+.config-header h3 {
     font-size: 1.5rem !important;
-    font-weight: 700 !important;
     color: #FFFFFF !important;
     margin: 0 !important;
     font-family: 'Montserrat', sans-serif !important;
 }
 
-.edit-recipe-container .header-buttons {
+.header-buttons {
     display: flex !important;
     gap: 0.75rem !important;
 }
