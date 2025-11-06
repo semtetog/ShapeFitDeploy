@@ -26,6 +26,7 @@ $suggestion_options = [
 $page_slug = 'recipes';
 $page_title = 'Nova Receita';
 $recipe_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$status = filter_input(INPUT_GET, 'status', FILTER_SANITIZE_STRING);
 $recipe = []; 
 $ingredients = []; 
 $selected_category_ids = []; 
@@ -678,6 +679,23 @@ input[type=number] {
         <input type="hidden" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>" required>
         <input type="hidden" id="description" name="description" value="<?php echo htmlspecialchars($recipe['description'] ?? ''); ?>">
         <input type="hidden" id="instructions" name="instructions" value="<?php echo htmlspecialchars($recipe['instructions'] ?? ''); ?>">
+        
+        <!-- Mensagem de sucesso quando salvar -->
+        <?php if ($status === 'saved'): ?>
+        <div id="save-success-message" style="position: fixed; top: 20px; right: 20px; background: rgba(76, 175, 80, 0.9); color: white; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; display: flex; align-items: center; gap: 0.75rem; transition: opacity 0.3s ease;">
+            <i class="fas fa-check-circle"></i>
+            <span>Receita salva com sucesso!</span>
+        </div>
+        <script>
+            setTimeout(() => {
+                const msg = document.getElementById('save-success-message');
+                if (msg) {
+                    msg.style.opacity = '0';
+                    setTimeout(() => msg.remove(), 300);
+                }
+            }, 3000);
+        </script>
+        <?php endif; ?>
 
         <div class="live-editor-container">
             <!-- MOCKUP DE CELULAR À ESQUERDA -->
@@ -1132,6 +1150,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 categoryItem.remove();
                 showFeedback(`Categoria "${categoryName}" excluída.`, 'success');
+                
+                // Atualizar preview removendo a categoria
+                const iframe = document.getElementById('recipe-preview-frame');
+                if (iframe && iframe.contentWindow) {
+                    const selectedCategories = Array.from(gridContainer.querySelectorAll('input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim());
+                    iframe.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
+                }
             } else { 
                 showFeedback(data.message || 'Ocorreu um erro.'); 
             }
@@ -1150,11 +1176,25 @@ document.addEventListener('DOMContentLoaded', function() {
         } 
     });
 
-    if(gridContainer) gridContainer.addEventListener('click', function(event) {
-        if (event.target && event.target.classList.contains('btn-delete-category')) {
-            deleteCategory(event.target);
-        }
-    });
+    if(gridContainer) {
+        gridContainer.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('btn-delete-category')) {
+                deleteCategory(event.target);
+            }
+        });
+        
+        // Atualizar preview quando categorias são selecionadas/desselecionadas
+        gridContainer.addEventListener('change', function(event) {
+            if (event.target && event.target.type === 'checkbox' && event.target.name === 'categories[]') {
+                const iframe = document.getElementById('recipe-preview-frame');
+                if (iframe && iframe.contentWindow) {
+                    const selectedCategories = Array.from(gridContainer.querySelectorAll('input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim());
+                    iframe.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
+                }
+            }
+        });
+    }
 });
 
 // =========================================================================
