@@ -408,17 +408,14 @@ include 'includes/header.php';
 }
 
 .custom-select-options {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 0;
-    right: 0;
+    position: fixed;
     background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 10000 !important;
+    z-index: 999999 !important;
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -428,6 +425,7 @@ include 'includes/header.php';
     transition: all 0.3s ease;
     pointer-events: none;
     -webkit-overflow-scrolling: touch;
+    min-width: 200px;
 }
 
 .custom-select.active .custom-select-options {
