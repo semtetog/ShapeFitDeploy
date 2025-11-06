@@ -369,18 +369,19 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     line-height: 1.4;
     position: relative;
     padding-left: 20px;
-    padding-right: 40px;
+    padding-right: 0;
     min-height: 24px;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
 }
 
 .recipe-ingredient-list li .ingredient-text-content {
     flex: 1;
     min-width: 0;
-    padding-right: 8px;
+    padding-right: 0;
     cursor: text;
     outline: none;
 }
@@ -396,9 +397,11 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 .recipe-ingredient-list li .btn-remove-ingredient-inline {
     flex-shrink: 0;
     margin-left: auto;
+    margin-right: 0;
     z-index: 10;
     position: relative;
     pointer-events: auto;
+    align-self: flex-end;
 }
 
 .recipe-ingredient-list li[contenteditable="true"]:focus {
