@@ -302,6 +302,10 @@ include 'includes/header.php';
     z-index: 1;
 }
 
+.foods-filter-card.dropdown-active {
+    z-index: 9998 !important;
+}
+
 .foods-filter-title {
     font-size: 1rem !important;
     font-weight: 600 !important;
@@ -348,6 +352,12 @@ include 'includes/header.php';
     min-width: 200px;
     max-width: 300px;
     flex: 1;
+    z-index: 1;
+}
+
+.custom-select-wrapper.active {
+    z-index: 9999 !important;
+    position: relative;
 }
 
 .custom-select {
@@ -396,8 +406,8 @@ include 'includes/header.php';
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    z-index: 1000;
-    background: rgba(35, 35, 35, 0.9);
+    z-index: 9999 !important;
+    background: rgba(35, 35, 35, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
@@ -405,6 +415,7 @@ include 'includes/header.php';
     max-height: 250px;
     overflow-y: auto;
     box-sizing: border-box;
+    pointer-events: auto;
 }
 
 .custom-select.active .custom-select-options {
@@ -507,6 +518,15 @@ include 'includes/header.php';
     overflow: visible !important;
     position: relative;
     z-index: 1;
+}
+
+.foods-bulk-card.dropdown-active {
+    z-index: 9998 !important;
+}
+
+/* Garante que os cards de alimentos não interceptem cliques quando dropdown está aberto */
+.foods-main-content.dropdown-open .food-item-card {
+    pointer-events: none;
 }
 
 .foods-bulk-title {
@@ -1568,6 +1588,7 @@ function initCustomSelect(selectId, inputId, submitForm) {
     const hiddenInput = document.getElementById(inputId);
     if (!hiddenInput) return;
     
+    const wrapper = customSelect.closest('.custom-select-wrapper');
     const trigger = customSelect.querySelector('.custom-select-trigger');
     const options = customSelect.querySelectorAll('.custom-select-option');
     const valueDisplay = customSelect.querySelector('.custom-select-value');
@@ -1575,7 +1596,35 @@ function initCustomSelect(selectId, inputId, submitForm) {
     // Abre/fecha o dropdown
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
+        const isOpening = !customSelect.classList.contains('active');
         customSelect.classList.toggle('active');
+        if (wrapper) {
+            if (isOpening) {
+                wrapper.classList.add('active');
+                // Adiciona classe no card pai para aumentar z-index
+                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                if (card) {
+                    card.classList.add('dropdown-active');
+                }
+                // Adiciona classe no container principal para desabilitar cliques nos cards
+                const mainContent = document.querySelector('.foods-main-content');
+                if (mainContent) {
+                    mainContent.classList.add('dropdown-open');
+                }
+            } else {
+                wrapper.classList.remove('active');
+                // Remove classe do card pai
+                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                if (card) {
+                    card.classList.remove('dropdown-active');
+                }
+                // Remove classe do container principal
+                const mainContent = document.querySelector('.foods-main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('dropdown-open');
+                }
+            }
+        }
     });
     
     // Seleciona uma opção
@@ -1597,6 +1646,19 @@ function initCustomSelect(selectId, inputId, submitForm) {
             
             // Fecha o dropdown
             customSelect.classList.remove('active');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+                // Remove classe do card pai
+                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                if (card) {
+                    card.classList.remove('dropdown-active');
+                }
+                // Remove classe do container principal
+                const mainContent = document.querySelector('.foods-main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('dropdown-open');
+                }
+            }
             
             // Se for o filtro de categoria, submete o formulário
             if (submitForm) {
@@ -1615,6 +1677,19 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('click', function(e) {
         if (!customSelect.contains(e.target)) {
             customSelect.classList.remove('active');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+                // Remove classe do card pai
+                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                if (card) {
+                    card.classList.remove('dropdown-active');
+                }
+                // Remove classe do container principal
+                const mainContent = document.querySelector('.foods-main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('dropdown-open');
+                }
+            }
         }
     });
     
@@ -1622,6 +1697,19 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             customSelect.classList.remove('active');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+                // Remove classe do card pai
+                const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                if (card) {
+                    card.classList.remove('dropdown-active');
+                }
+                // Remove classe do container principal
+                const mainContent = document.querySelector('.foods-main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('dropdown-open');
+                }
+            }
         }
     });
 }
