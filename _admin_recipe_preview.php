@@ -548,10 +548,10 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     <?php endif; ?>
 
     <div class="recipe-section card-shadow-light">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h3 class="recipe-section-title" style="margin: 0;">Ingredientes</h3>
-            <button type="button" id="btn-add-ingredient-preview" class="btn-add-ingredient-inline" title="Adicionar Ingrediente" style="background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 14px; transition: all 0.2s ease;">
-                <i class="fas fa-plus"></i> Adicionar
+            <button type="button" id="btn-add-ingredient-preview" class="btn-add-ingredient-inline" title="Adicionar Ingrediente" style="background: transparent; border: none; color: var(--accent-orange); cursor: pointer; font-size: 18px; padding: 4px 8px; opacity: 0.7; transition: opacity 0.2s ease;">
+                <i class="fas fa-plus"></i>
             </button>
         </div>
         <ul id="ingredient-list" class="recipe-ingredient-list">
@@ -559,7 +559,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
                 <?php foreach($ingredients as $ingredient): ?>
                 <li class="ingredient-item-editable" contenteditable="true" data-ingredient-text="<?php echo htmlspecialchars($ingredient); ?>">
                     <?php echo htmlspecialchars($ingredient); ?>
-                    <button type="button" class="btn-remove-ingredient-inline" title="Remover" style="float: right; background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); color: #F44336; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; margin-left: 8px;">×</button>
+                    <button type="button" class="btn-remove-ingredient-inline" title="Remover" style="float: right; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 0; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1;">×</button>
                 </li>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -696,7 +696,13 @@ const updateIngredients = (ingredients) => {
                 removeBtn.className = 'btn-remove-ingredient-inline';
                 removeBtn.title = 'Remover';
                 removeBtn.innerHTML = '×';
-                removeBtn.style.cssText = 'float: right; background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); color: #F44336; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; margin-left: 8px;';
+                removeBtn.style.cssText = 'float: right; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 0; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1;';
+                removeBtn.addEventListener('mouseenter', function() {
+                    this.style.opacity = '1';
+                });
+                removeBtn.addEventListener('mouseleave', function() {
+                    this.style.opacity = '0.5';
+                });
                 removeBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     li.remove();
@@ -1079,7 +1085,13 @@ document.addEventListener('DOMContentLoaded', function() {
             removeBtn.className = 'btn-remove-ingredient-inline';
             removeBtn.title = 'Remover';
             removeBtn.innerHTML = '×';
-            removeBtn.style.cssText = 'float: right; background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); color: #F44336; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; margin-left: 8px;';
+            removeBtn.style.cssText = 'float: right; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 0; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1;';
+            removeBtn.addEventListener('mouseenter', function() {
+                this.style.opacity = '1';
+            });
+            removeBtn.addEventListener('mouseleave', function() {
+                this.style.opacity = '0.5';
+            });
             removeBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 li.remove();
