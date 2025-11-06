@@ -409,7 +409,7 @@ include 'includes/header.php';
     left: 0 !important;
     right: 0 !important;
     z-index: 9999 !important;
-    background: #FF0000 !important; /* TESTE: Background VERMELHO BRILHANTE para testar commits */
+    background: #232323 !important; /* Background sólido e opaco - SEM rgba */
     border: 1px solid var(--glass-border) !important;
     border-radius: 8px !important;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
@@ -1676,43 +1676,47 @@ function initCustomSelect(selectId, inputId, submitForm) {
             });
             closeAllDropdowns();
             
-            // FORÇA REFLOW para garantir que o fechamento foi renderizado
-            void document.body.offsetHeight;
-            
-            // AGORA aplica todas as classes do novo dropdown
-            customSelect.classList.add('active');
-            let card = null;
-            if (wrapper) {
-                wrapper.classList.add('active');
-                card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
-                if (card) {
-                    card.classList.add('dropdown-active');
+            // USA requestAnimationFrame para garantir que o fechamento foi RENDERIZADO
+            // antes de abrir o novo dropdown - isso elimina o "piscar"
+            requestAnimationFrame(() => {
+                // Força reflow para garantir que o fechamento foi renderizado
+                void document.body.offsetHeight;
+                
+                // AGORA aplica todas as classes do novo dropdown
+                customSelect.classList.add('active');
+                let card = null;
+                if (wrapper) {
+                    wrapper.classList.add('active');
+                    card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
+                    if (card) {
+                        card.classList.add('dropdown-active');
+                    }
+                    const mainContent = document.querySelector('.foods-main-content');
+                    if (mainContent) {
+                        mainContent.classList.add('dropdown-open');
+                    }
                 }
-                const mainContent = document.querySelector('.foods-main-content');
-                if (mainContent) {
-                    mainContent.classList.add('dropdown-open');
+                
+                // Aplica estilos inline ANTES de tornar visível
+                const optionsContainer = customSelect.querySelector('.custom-select-options');
+                if (optionsContainer) {
+                    // Aplica background PRIMEIRO (antes de tornar visível)
+                    optionsContainer.style.background = '#232323';
+                    optionsContainer.style.backgroundColor = '#232323';
+                    
+                    // Força reflow para garantir que o background foi renderizado
+                    void optionsContainer.offsetHeight;
+                    void optionsContainer.offsetWidth;
+                    
+                    // USA OUTRO requestAnimationFrame para garantir que background foi renderizado
+                    requestAnimationFrame(() => {
+                        // AGORA torna visível (background já está renderizado)
+                        optionsContainer.style.visibility = 'visible';
+                        optionsContainer.style.opacity = '1';
+                        optionsContainer.style.pointerEvents = 'auto';
+                    });
                 }
-            }
-            
-            // Aplica estilos inline ANTES de tornar visível
-            const optionsContainer = customSelect.querySelector('.custom-select-options');
-            if (optionsContainer) {
-                // Aplica background PRIMEIRO (antes de tornar visível)
-                optionsContainer.style.background = '#FF0000'; // TESTE: VERMELHO BRILHANTE
-                optionsContainer.style.backgroundColor = '#FF0000'; // TESTE: VERMELHO BRILHANTE
-                
-                // Força reflow para garantir que o background foi renderizado
-                void optionsContainer.offsetHeight;
-                void optionsContainer.offsetWidth;
-                
-                // AGORA torna visível (background já está renderizado)
-                optionsContainer.style.visibility = 'visible';
-                optionsContainer.style.opacity = '1';
-                optionsContainer.style.pointerEvents = 'auto';
-                
-                // Força outro reflow para garantir que visibility foi aplicada
-                void optionsContainer.offsetHeight;
-            }
+            });
         } else {
             // Fechando o dropdown - remove estilos inline primeiro
             const optionsContainer = customSelect.querySelector('.custom-select-options');
