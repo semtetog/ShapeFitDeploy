@@ -134,6 +134,7 @@ try {
     die("Erro ao salvar a receita: " . $e->getMessage());
 }
 
-header("Location: recipes.php?status=success");
+// Redirecionar de volta para a página de edição, não para recipes.php
+header("Location: edit_recipe.php?id=" . $recipe_id . "&status=saved");
 exit();
 ?>

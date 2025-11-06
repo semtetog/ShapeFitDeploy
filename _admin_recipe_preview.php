@@ -540,6 +540,23 @@ const updateInstructions = (text) => {
     }
 };
 
+const updateCategories = (categories) => {
+    const container = document.querySelector('.category-tags-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    if (categories && categories.length > 0) {
+        categories.forEach(categoryName => {
+            if (categoryName && categoryName.trim()) {
+                const tag = document.createElement('span');
+                tag.className = 'category-tag';
+                tag.textContent = categoryName.trim();
+                container.appendChild(tag);
+            }
+        });
+    }
+};
+
 const updateMacrosAndTime = (data) => {
     if (!data) return;
     const prep = parseInt(data.prep) || 0; 
@@ -598,7 +615,8 @@ window.addEventListener('message', function(event) {
         'updateImage': updateImage, 
         'updateInstructions': updateInstructions, 
         'updateIngredients': updateIngredients, 
-        'updateMacrosAndTime': updateMacrosAndTime
+        'updateMacrosAndTime': updateMacrosAndTime,
+        'updateCategories': updateCategories
     };
     
     if (actions[type]) { 

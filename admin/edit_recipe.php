@@ -1097,6 +1097,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 gridContainer.appendChild(newItem);
                 newCategoryInput.value = '';
                 showFeedback('Categoria criada e selecionada!', 'success');
+                
+                // Atualizar preview com a nova categoria
+                if (iframe && iframe.contentWindow) {
+                    const selectedCategories = Array.from(document.querySelectorAll('#categories-grid-container input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim());
+                    iframe.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
+                }
             } else { 
                 showFeedback(data.message || 'Ocorreu um erro.'); 
             }
