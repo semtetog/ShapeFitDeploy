@@ -390,7 +390,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     background: rgba(255, 255, 255, 0.02);
     border-radius: 4px;
     padding: 2px 4px;
-    margin: -2px -4px;
+    margin: 0;
 }
 
 .recipe-ingredient-list li .btn-remove-ingredient-inline {
@@ -402,17 +402,16 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 }
 
 .recipe-ingredient-list li[contenteditable="true"]:focus {
-    outline: 2px solid rgba(255, 107, 0, 0.3);
-    outline-offset: 2px;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 4px;
+    outline: none;
+    background: transparent;
+    border-radius: 0;
 }
 
 .recipe-ingredient-list li[contenteditable="true"]:focus .ingredient-text-content {
     background: rgba(255, 255, 255, 0.02);
     border-radius: 4px;
-    padding: 4px;
-    margin: -4px;
+    padding: 2px 4px;
+    margin: 0;
 }
 
 .recipe-ingredient-list li[contenteditable="true"]:empty:before {
