@@ -703,18 +703,17 @@ input[type=number] {
         </script>
         <?php endif; ?>
 
-        <div class="live-editor-container">
-            <!-- PAINEL DO CELULAR (ESQUERDA) -->
-            <div class="mobile-mockup-panel">
-                <div class="mobile-mockup-wrapper">
-                    <div class="mobile-screen">
-                        <iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe>
-                    </div>
+        <!-- PAINEL DO CELULAR (ESQUERDA) -->
+        <div class="mobile-mockup-panel">
+            <div class="mobile-mockup-wrapper">
+                <div class="mobile-screen">
+                    <iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe>
                 </div>
             </div>
+        </div>
 
-            <!-- PAINEL DE CONFIGURAÇÕES (DIREITA) -->
-            <div class="config-panel">
+        <!-- PAINEL DE CONFIGURAÇÕES (DIREITA) -->
+        <div class="config-panel">
                 <!-- HEADER COM AÇÕES -->
                 <div class="config-header">
                     <h3><?php echo $page_title; ?></h3>
