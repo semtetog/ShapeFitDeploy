@@ -162,8 +162,13 @@ $csrf_token = $_SESSION['csrf_token'];
     margin-bottom: 0 !important; /* Remove margin-bottom que pode estar conflitando */
 }
 
-.config-panel > *:not(:last-child) {
-    margin-bottom: 0 !important; /* Garante que o gap do flex funcione */
+/* Aplica gap diretamente aos dashboard-card dentro do config-panel */
+.config-panel .dashboard-card {
+    margin-bottom: 3rem !important; /* Espaçamento entre os cards */
+}
+
+.config-panel .dashboard-card:last-child {
+    margin-bottom: 0 !important; /* Remove margin do último card */
 }
 
 /* ===== ESTILOS INTERNOS (COPIADOS, SEM GRANDES MUDANÇAS) ===== */
