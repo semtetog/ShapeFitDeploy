@@ -1580,9 +1580,14 @@ function updateBulkButton() {
     }
 }
 
-// Função para fechar todos os dropdowns
-function closeAllDropdowns() {
+// Função para fechar todos os dropdowns (exceto o que está sendo aberto)
+function closeAllDropdowns(excludeSelect = null) {
     document.querySelectorAll('.custom-select.active').forEach(select => {
+        // Não fecha o dropdown que está sendo aberto
+        if (select === excludeSelect) {
+            return;
+        }
+        
         select.classList.remove('active');
         const wrapper = select.closest('.custom-select-wrapper');
         if (wrapper) {
@@ -1595,10 +1600,14 @@ function closeAllDropdowns() {
         }
     });
     
-    // Remove classe do container principal
-    const mainContent = document.querySelector('.foods-main-content');
-    if (mainContent) {
-        mainContent.classList.remove('dropdown-open');
+    // Remove classe do container principal apenas se não houver nenhum dropdown aberto
+    // (exceto o que está sendo aberto)
+    const hasOtherActive = document.querySelectorAll('.custom-select.active').length > (excludeSelect ? 1 : 0);
+    if (!hasOtherActive && !excludeSelect) {
+        const mainContent = document.querySelector('.foods-main-content');
+        if (mainContent) {
+            mainContent.classList.remove('dropdown-open');
+        }
     }
 }
 
@@ -1620,14 +1629,11 @@ function initCustomSelect(selectId, inputId, submitForm) {
         e.stopPropagation();
         const isOpening = !customSelect.classList.contains('active');
         
-        // Se estiver abrindo, fecha todos os outros dropdowns primeiro
         if (isOpening) {
-            closeAllDropdowns();
-        }
-        
-        customSelect.classList.toggle('active');
-        if (wrapper) {
-            if (isOpening) {
+            // Aplica z-index do novo dropdown PRIMEIRO (antes de fechar os outros)
+            // Isso evita o "piscar" visual porque o z-index já está aplicado
+            customSelect.classList.add('active');
+            if (wrapper) {
                 wrapper.classList.add('active');
                 // Adiciona classe no card pai para aumentar z-index
                 const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
@@ -1639,7 +1645,13 @@ function initCustomSelect(selectId, inputId, submitForm) {
                 if (mainContent) {
                     mainContent.classList.add('dropdown-open');
                 }
-            } else {
+            }
+            // Agora fecha todos os outros dropdowns (o novo já está com z-index alto)
+            closeAllDropdowns(customSelect);
+        } else {
+            // Fechando o dropdown
+            customSelect.classList.remove('active');
+            if (wrapper) {
                 wrapper.classList.remove('active');
                 // Remove classe do card pai
                 const card = wrapper.closest('.foods-filter-card, .foods-bulk-card');
