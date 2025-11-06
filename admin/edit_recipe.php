@@ -684,7 +684,7 @@ input[type=number] {
         <input type="hidden" id="csrf-token" value="<?php echo $csrf_token; ?>">
         
         <!-- INPUTS OCULTOS PARA SINCRONIZAÇÃO COM PREVIEW -->
-        <input type="hidden" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>">
+        <input type="hidden" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>" required>
         <input type="hidden" id="description" name="description" value="<?php echo htmlspecialchars($recipe['description'] ?? ''); ?>">
         <input type="hidden" id="instructions" name="instructions" value="<?php echo htmlspecialchars($recipe['instructions'] ?? ''); ?>">
 
