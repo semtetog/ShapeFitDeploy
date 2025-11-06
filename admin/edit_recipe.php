@@ -1,5 +1,5 @@
 <?php
-// admin/edit_recipe.php - REFATORADO PARA EDIÇÃO INLINE COM PREVIEW EM TEMPO REAL
+// admin/edit_recipe.php - REFATORAÇÃO COMPLETA: EDIÇÃO INLINE NO CELULAR + CONFIGURAÇÕES À DIREITA
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -70,8 +70,7 @@ $csrf_token = $_SESSION['csrf_token'];
 
 <style>
 /* ========================================================================= */
-/*       REFATORAÇÃO COMPLETA - EDIÇÃO INLINE COM PREVIEW EM TEMPO REAL    */
-/*       USANDO !important PARA SOBRESCREVER CSS GLOBAL                     */
+/*       REFATORAÇÃO COMPLETA - EDIÇÃO INLINE NO CELULAR + CONFIGURAÇÕES    */
 /* ========================================================================= */
 
 :root {
@@ -86,42 +85,106 @@ $csrf_token = $_SESSION['csrf_token'];
 /* ===== CONTAINER PRINCIPAL ===== */
 .edit-recipe-container {
     max-width: 100% !important;
-    padding: 0 !important;
+    padding: 2rem !important;
     width: 100% !important;
     overflow: visible !important;
 }
 
-/* FORÇAR LAYOUT DE 2 COLUNAS - SOBRESCREVER QUALQUER CSS GLOBAL */
-.content-wrapper .edit-recipe-container,
-.main-content .edit-recipe-container,
-.admin-wrapper .edit-recipe-container {
-    max-width: 100% !important;
-    width: 100% !important;
-}
-
-/* ===== LAYOUT DE 2 COLUNAS ===== */
+/* ===== LAYOUT DE 2 COLUNAS: CELULAR À ESQUERDA, CONFIGURAÇÕES À DIREITA ===== */
 .edit-recipe-container .live-editor-container {
     display: grid !important;
-    grid-template-columns: 1fr 400px !important;
-    gap: 2rem !important;
+    grid-template-columns: 420px 1fr !important;
+    gap: 3rem !important;
     align-items: flex-start !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 
-.edit-recipe-container .editor-panel {
+/* ===== MOCKUP DE CELULAR À ESQUERDA ===== */
+.edit-recipe-container .mobile-mockup-wrapper {
+    position: sticky !important;
+    top: 2rem !important;
+    width: 420px !important;
+    height: 850px !important;
+    padding: 20px !important;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+    border-radius: 50px !important;
+    box-shadow: 
+        0 0 0 8px rgba(0, 0, 0, 0.3),
+        0 0 0 16px rgba(255, 255, 255, 0.05),
+        0 20px 60px rgba(0, 0, 0, 0.8),
+        inset 0 0 40px rgba(0, 0, 0, 0.3) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+}
+
+/* Notch do iPhone */
+.edit-recipe-container .mobile-mockup-wrapper::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 150px !important;
+    height: 25px !important;
+    background: #000 !important;
+    border-radius: 0 0 20px 20px !important;
+    z-index: 10 !important;
+}
+
+/* Tela do celular */
+.edit-recipe-container .mobile-screen {
+    width: 100% !important;
+    height: 100% !important;
+    background: #000 !important;
+    border-radius: 35px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+.edit-recipe-container #recipe-preview-frame {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    background: #121212 !important;
+    display: block !important;
+    transform: scale(1) !important;
+    transform-origin: top left !important;
+}
+
+/* ===== PAINEL DE CONFIGURAÇÕES À DIREITA ===== */
+.edit-recipe-container .config-panel {
     display: flex !important;
     flex-direction: column !important;
     gap: 2rem !important;
     width: 100% !important;
 }
 
-.edit-recipe-container .preview-panel {
-    position: sticky !important;
-    top: 20px !important;
-    width: 400px !important;
-    flex-shrink: 0 !important;
+/* ===== HEADER COM AÇÕES ===== */
+.edit-recipe-container .config-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 1rem !important;
+    padding-bottom: 1rem !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+}
+
+.edit-recipe-container .config-header h3 {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    margin: 0 !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.edit-recipe-container .header-buttons {
+    display: flex !important;
+    gap: 0.75rem !important;
 }
 
 /* ===== CARDS (PADRÃO VIEW_USER) ===== */
@@ -141,31 +204,7 @@ $csrf_token = $_SESSION['csrf_token'];
     border-color: var(--accent-orange) !important;
 }
 
-/* ===== HEADER COM AÇÕES ===== */
-.edit-recipe-container .card-header-actions {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    margin-bottom: 1.5rem !important;
-    padding-bottom: 1rem !important;
-    border-bottom: 1px solid var(--glass-border) !important;
-}
-
-.edit-recipe-container .card-header-actions h3 {
-    font-size: 1.25rem !important;
-    font-weight: 700 !important;
-    color: #FFFFFF !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    font-family: 'Montserrat', sans-serif !important;
-}
-
-.edit-recipe-container .header-buttons {
-    display: flex !important;
-    gap: 0.75rem !important;
-}
-
-/* ===== SECTION HEADER (PADRÃO VIEW_USER) ===== */
+/* ===== SECTION HEADER ===== */
 .edit-recipe-container .section-header {
     display: flex !important;
     justify-content: space-between !important;
@@ -194,7 +233,7 @@ $csrf_token = $_SESSION['csrf_token'];
     font-size: 1rem !important;
 }
 
-/* ===== FORM CONTROLS (PADRÃO VIEW_USER) ===== */
+/* ===== FORM CONTROLS ===== */
 .edit-recipe-container .form-group {
     margin-bottom: 1.5rem !important;
 }
@@ -467,7 +506,7 @@ input[type=number] {
     border-color: #F44336 !important;
 }
 
-/* ===== BUTTONS (PADRÃO VIEW_USER) - SOBRESCREVENDO CSS GLOBAL ===== */
+/* ===== BUTTONS ===== */
 .edit-recipe-container .btn,
 .edit-recipe-container button.btn,
 .edit-recipe-container a.btn {
@@ -520,12 +559,7 @@ input[type=number] {
     transform: translateY(-1px) !important;
 }
 
-.edit-recipe-container .btn-sm {
-    padding: 0.5rem 1rem !important;
-    font-size: 0.875rem !important;
-}
-
-/* ===== BOTÃO CIRCULAR (ESTILO VIEW_USER_ROUTINE) ===== */
+/* ===== BOTÃO CIRCULAR ===== */
 .edit-recipe-container .btn-add-circular {
     width: 64px !important;
     height: 64px !important;
@@ -555,11 +589,6 @@ input[type=number] {
 }
 
 /* ===== SECTION STYLES ===== */
-.edit-recipe-container .ingredients-section,
-.edit-recipe-container .nutrition-section {
-    margin-bottom: 2rem !important;
-}
-
 .edit-recipe-container .section-subtitle {
     color: var(--text-primary) !important;
     margin-bottom: 1rem !important;
@@ -571,10 +600,6 @@ input[type=number] {
     border: none !important;
     border-top: 1px solid var(--glass-border) !important;
     margin: 1.5rem 0 !important;
-}
-
-.edit-recipe-container .btn-add-ingredient {
-    margin-top: 1rem !important;
 }
 
 /* ===== CALCULATION TOOL ===== */
@@ -625,28 +650,30 @@ input[type=number] {
     margin-bottom: 1rem !important;
 }
 
-/* ===== PREVIEW MOBILE (IDÊNTICO AO VIEW_RECIPE.PHP) ===== */
-.edit-recipe-container .mobile-preview-wrapper {
-    width: 380px !important;
-    height: 750px !important;
-    padding: 12px !important;
-    background: rgba(28, 28, 28, 0.8) !important;
-    border-radius: 40px !important;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5) !important;
-    border: 1px solid var(--glass-border) !important;
-    position: relative !important;
-    display: block !important;
-    visibility: visible !important;
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 1400px) {
+    .edit-recipe-container .live-editor-container {
+        grid-template-columns: 380px 1fr !important;
+        gap: 2rem !important;
+    }
+    
+    .edit-recipe-container .mobile-mockup-wrapper {
+        width: 380px !important;
+        height: 750px !important;
+    }
 }
 
-.edit-recipe-container #recipe-preview-frame {
-    width: 100% !important;
-    height: 100% !important;
-    border-radius: 28px !important;
-    border: none !important;
-    background: #222 !important;
-    display: block !important;
-    visibility: visible !important;
+@media (max-width: 1200px) {
+    .edit-recipe-container .live-editor-container {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+    
+    .edit-recipe-container .mobile-mockup-wrapper {
+        position: relative !important;
+        top: 0 !important;
+        margin: 0 auto !important;
+    }
 }
 </style>
 
@@ -657,53 +684,87 @@ input[type=number] {
         <input type="hidden" id="csrf-token" value="<?php echo $csrf_token; ?>">
 
         <div class="live-editor-container">
-            <!-- EDITOR PANEL (ESQUERDA) - CAMPOS INLINE -->
-            <div class="editor-panel">
+            <!-- MOCKUP DE CELULAR À ESQUERDA -->
+            <div class="mobile-mockup-wrapper">
+                <div class="mobile-screen">
+                    <iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe>
+                </div>
+            </div>
+
+            <!-- PAINEL DE CONFIGURAÇÕES À DIREITA -->
+            <div class="config-panel">
                 <!-- HEADER COM AÇÕES -->
+                <div class="config-header">
+                    <h3><?php echo $page_title; ?></h3>
+                    <div class="header-buttons">
+                        <a href="recipes.php" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CARD: CÁLCULO NUTRICIONAL -->
                 <div class="dashboard-card">
-                    <div class="card-header-actions">
-                        <h3>Editar Receita</h3>
-                        <div class="header-buttons">
-                            <a href="recipes.php" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Salvar
-                            </button>
+                    <div class="section-header">
+                        <h4><i class="fas fa-calculator"></i> Cálculo Nutricional</h4>
+                    </div>
+                    
+                    <div class="calculation-tool">
+                        <label class="calculation-label">1. Preencha os dados da sua receita pronta:</label>
+                        <div class="form-group-grid-2">
+                            <div class="form-group">
+                                <label for="helper_total_weight">Peso Total da Receita (g)</label>
+                                <input type="number" id="helper_total_weight" class="form-control" placeholder="Ex: 1200">
+                            </div>
+                            <div class="form-group">
+                                <label for="servings">Rendimento (Nº de Porções)</label>
+                                <input type="number" id="servings" name="servings" class="form-control" value="<?php echo htmlspecialchars($recipe['servings'] ?? '1'); ?>" step="1" min="1" placeholder="Ex: 4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="serving_size_g">2. Peso Final por Porção (calculado)</label>
+                        <input type="number" id="serving_size_g" name="serving_size_g" class="form-control form-control-readonly" 
+                               value="<?php echo htmlspecialchars($recipe['serving_size_g'] ?? ''); ?>" 
+                               step="0.01" readonly>
+                        <small class="field-help">Este valor é calculado automaticamente a partir do Peso Total e do Rendimento.</small>
+                    </div>
+                    
+                    <hr class="section-divider">
+
+                    <div class="form-group-grid-2">
+                        <div class="form-group">
+                            <label>Calorias (kcal)</label>
+                            <input type="text" id="kcal_per_serving" name="kcal_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['kcal_per_serving'] ?? ''); ?>" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Carboidratos (g)</label>
+                            <input type="text" id="carbs_g_per_serving" name="carbs_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['carbs_g_per_serving'] ?? ''); ?>" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Gorduras (g)</label>
+                            <input type="text" id="fat_g_per_serving" name="fat_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['fat_g_per_serving'] ?? ''); ?>" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Proteínas (g)</label>
+                            <input type="text" id="protein_g_per_serving" name="protein_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['protein_g_per_serving'] ?? ''); ?>" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-group-grid-2">
+                        <div class="form-group">
+                            <label>Preparo (min)</label>
+                            <input type="number" id="prep_time_minutes" name="prep_time_minutes" class="form-control" value="<?php echo htmlspecialchars($recipe['prep_time_minutes'] ?? ''); ?>" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Cozimento (min)</label>
+                            <input type="number" id="cook_time_minutes" name="cook_time_minutes" class="form-control" value="<?php echo htmlspecialchars($recipe['cook_time_minutes'] ?? ''); ?>" placeholder="0">
                         </div>
                     </div>
                 </div>
 
-                <!-- CARD DE CONTEÚDO PRINCIPAL (INLINE) -->
-                <div class="dashboard-card">
-                    <div class="section-header">
-                        <h4><i class="fas fa-edit"></i> Conteúdo Principal</h4>
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Nome da Receita</label>
-                        <input type="text" id="name" name="name" class="form-control" 
-                               value="<?php echo htmlspecialchars($recipe['name'] ?? ''); ?>" 
-                               placeholder="Ex: Bolo de Chocolate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Descrição Curta</label>
-                        <textarea id="description" name="description" class="form-control" rows="3" 
-                                  placeholder="Descreva brevemente a receita..."><?php echo htmlspecialchars($recipe['description'] ?? ''); ?></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="instructions">Modo de Preparo (um passo por linha)</label>
-                        <textarea id="instructions" name="instructions" class="form-control" rows="7" 
-                                  placeholder="1. Primeiro passo...&#10;2. Segundo passo...&#10;3. Terceiro passo..."><?php echo htmlspecialchars($recipe['instructions'] ?? ''); ?></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="image">Imagem da Receita</label>
-                        <label for="image" class="custom-file-input-wrapper">
-                            <span class="file-input-label" id="file-label-text">Escolher arquivo</span>
-                            <span class="file-input-filename" id="file-name-display"><?php echo !empty($recipe['image_filename']) ? htmlspecialchars($recipe['image_filename']) : 'Nenhum arquivo escolhido'; ?></span>
-                        </label>
-                        <input type="file" id="image" name="image" class="form-control" accept="image/jpeg, image/png, image/webp">
-                    </div>
-                </div>
-
-                <!-- CARD DE INGREDIENTES (INLINE) -->
+                <!-- CARD: INGREDIENTES -->
                 <div class="dashboard-card">
                     <div class="section-header">
                         <h4><i class="fas fa-utensils"></i> Ingredientes</h4>
@@ -748,69 +809,22 @@ input[type=number] {
                     </div>
                 </div>
 
-                <!-- CARD DE INFORMAÇÕES NUTRICIONAIS (INLINE) -->
+                <!-- CARD: IMAGEM -->
                 <div class="dashboard-card">
                     <div class="section-header">
-                        <h4><i class="fas fa-chart-pie"></i> Informações Nutricionais</h4>
+                        <h4><i class="fas fa-image"></i> Imagem da Receita</h4>
                     </div>
-                    
-                    <!-- FERRAMENTA DE CÁLCULO -->
-                    <div class="calculation-tool">
-                        <label class="calculation-label">1. Preencha os dados da sua receita pronta:</label>
-                        <div class="form-group-grid-2">
-                            <div class="form-group">
-                                <label for="helper_total_weight">Peso Total da Receita (g)</label>
-                                <input type="number" id="helper_total_weight" class="form-control" placeholder="Ex: 1200">
-                            </div>
-                            <div class="form-group">
-                                <label for="servings">Rendimento (Nº de Porções)</label>
-                                <input type="number" id="servings" name="servings" class="form-control" value="<?php echo htmlspecialchars($recipe['servings'] ?? '1'); ?>" step="1" min="1" placeholder="Ex: 4">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CAMPO DE RESULTADO -->
                     <div class="form-group">
-                        <label for="serving_size_g">2. Peso Final por Porção (calculado)</label>
-                        <input type="number" id="serving_size_g" name="serving_size_g" class="form-control form-control-readonly" 
-                               value="<?php echo htmlspecialchars($recipe['serving_size_g'] ?? ''); ?>" 
-                               step="0.01" readonly>
-                        <small class="field-help">Este valor é calculado automaticamente a partir do Peso Total e do Rendimento. É este valor que será salvo.</small>
-                    </div>
-                    
-                    <hr class="section-divider">
-
-                    <div class="form-group-grid-2">
-                        <div class="form-group">
-                            <label>Calorias (kcal)</label>
-                            <input type="text" id="kcal_per_serving" name="kcal_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['kcal_per_serving'] ?? ''); ?>" placeholder="0">
-                        </div>
-                        <div class="form-group">
-                            <label>Carboidratos (g)</label>
-                            <input type="text" id="carbs_g_per_serving" name="carbs_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['carbs_g_per_serving'] ?? ''); ?>" placeholder="0">
-                        </div>
-                        <div class="form-group">
-                            <label>Gorduras (g)</label>
-                            <input type="text" id="fat_g_per_serving" name="fat_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['fat_g_per_serving'] ?? ''); ?>" placeholder="0">
-                        </div>
-                        <div class="form-group">
-                            <label>Proteínas (g)</label>
-                            <input type="text" id="protein_g_per_serving" name="protein_g_per_serving" class="form-control" value="<?php echo format_decimal_for_input($recipe['protein_g_per_serving'] ?? ''); ?>" placeholder="0">
-                        </div>
-                    </div>
-                    <div class="form-group-grid-2">
-                        <div class="form-group">
-                            <label>Preparo (min)</label>
-                            <input type="number" id="prep_time_minutes" name="prep_time_minutes" class="form-control" value="<?php echo htmlspecialchars($recipe['prep_time_minutes'] ?? ''); ?>" placeholder="0">
-                        </div>
-                        <div class="form-group">
-                            <label>Cozimento (min)</label>
-                            <input type="number" id="cook_time_minutes" name="cook_time_minutes" class="form-control" value="<?php echo htmlspecialchars($recipe['cook_time_minutes'] ?? ''); ?>" placeholder="0">
-                        </div>
+                        <label for="image">Escolher Imagem</label>
+                        <label for="image" class="custom-file-input-wrapper">
+                            <span class="file-input-label" id="file-label-text">Escolher arquivo</span>
+                            <span class="file-input-filename" id="file-name-display"><?php echo !empty($recipe['image_filename']) ? htmlspecialchars($recipe['image_filename']) : 'Nenhum arquivo escolhido'; ?></span>
+                        </label>
+                        <input type="file" id="image" name="image" class="form-control" accept="image/jpeg, image/png, image/webp">
                     </div>
                 </div>
 
-                <!-- CARD DE CONFIGURAÇÕES (NÃO APARECE NA TELA) -->
+                <!-- CARD: CONFIGURAÇÕES -->
                 <div class="dashboard-card">
                     <div class="section-header">
                         <h4><i class="fas fa-cog"></i> Configurações</h4>
@@ -826,7 +840,7 @@ input[type=number] {
                     </div>
                 </div>
 
-                <!-- CARD DE SUGESTÕES (NÃO APARECE NA TELA) -->
+                <!-- CARD: SUGESTÕES -->
                 <div class="dashboard-card">
                     <div class="section-header">
                         <h4><i class="fas fa-clock"></i> Sugestões para o Dashboard (por Horário)</h4>
@@ -841,7 +855,7 @@ input[type=number] {
                     </div>
                 </div>
 
-                <!-- CARD DE CATEGORIAS (NÃO APARECE NA TELA) -->
+                <!-- CARD: CATEGORIAS -->
                 <div class="dashboard-card">
                     <div class="section-header">
                         <h4><i class="fas fa-tags"></i> Categorias</h4>
@@ -863,13 +877,6 @@ input[type=number] {
                         </button>
                     </div>
                     <span id="add-category-feedback" class="add-category-feedback"></span>
-                </div>
-            </div>
-
-            <!-- PREVIEW PANEL (DIREITA) - MOCKUP MOBILE IDÊNTICO AO VIEW_RECIPE.PHP -->
-            <div class="preview-panel">
-                <div class="mobile-preview-wrapper">
-                    <iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe>
                 </div>
             </div>
         </div>
@@ -916,15 +923,8 @@ document.addEventListener('DOMContentLoaded', function() {
             '#instructions': 'updateInstructions' 
         };
         
-        // Adicionar listeners para campos principais
-        for (const selector in simpleMappings) { 
-            const element = document.querySelector(selector);
-            if (element) {
-                element.addEventListener('input', (e) => {
-                    updatePreview(simpleMappings[selector], e.target.value);
-                });
-            }
-        }
+        // Adicionar listeners para campos principais (vindos do preview via contenteditable)
+        // Por enquanto, vamos usar inputs ocultos que sincronizam com o preview
         
         // Função para atualizar macros e tempo
         function sendMacroAndTimeUpdate() { 
