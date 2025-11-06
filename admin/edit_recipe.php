@@ -83,6 +83,13 @@ $csrf_token = $_SESSION['csrf_token'];
     --surface-color: #1E1E1E;
 }
 
+/* CONTAINER PRINCIPAL */
+.edit-recipe-container {
+    padding: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
 /* 1. O PAINEL DO CELULAR (ESQUERDA) - A CHAVE DA SOLUÇÃO */
 .mobile-mockup-panel {
     position: fixed !important; /* FIXO NA TELA, NÃO ROLA */
