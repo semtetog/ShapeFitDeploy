@@ -133,6 +133,7 @@ include 'includes/header.php';
     position: sticky;
     top: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    z-index: 1;
 }
 
 .categories-sidebar h3 {
@@ -156,6 +157,8 @@ include 'includes/header.php';
     margin-bottom: 0.75rem !important;
     cursor: pointer;
     transition: all 0.3s ease !important;
+    position: relative;
+    z-index: 1;
 }
 
 .category-item:hover {
@@ -198,6 +201,7 @@ include 'includes/header.php';
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     position: relative;
     overflow: visible !important;
+    z-index: 1;
 }
 
 
@@ -294,6 +298,8 @@ include 'includes/header.php';
     padding: 1.5rem !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     overflow: visible !important;
+    position: relative;
+    z-index: 1;
 }
 
 .foods-filter-title {
@@ -345,7 +351,8 @@ include 'includes/header.php';
 }
 
 .custom-select-wrapper.active {
-    z-index: 9999;
+    z-index: 99999 !important;
+    position: relative;
 }
 
 .custom-select {
@@ -531,6 +538,8 @@ include 'includes/header.php';
     padding: 1.5rem !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     overflow: visible !important;
+    position: relative;
+    z-index: 1;
 }
 
 .foods-bulk-title {
