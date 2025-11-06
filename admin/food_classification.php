@@ -485,6 +485,7 @@ include 'includes/header.php';
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
     gap: 1.5rem !important;
+    align-items: stretch;
 }
 
 /* Card do Alimento - ESTRUTURA LIMPA */
@@ -497,6 +498,9 @@ include 'includes/header.php';
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
     position: relative;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
 }
 
 .food-item-card:hover {
@@ -580,6 +584,10 @@ include 'includes/header.php';
 /* Conteúdo do Card */
 .food-item-content {
     transition: opacity 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
 }
 
 .food-item-name {
@@ -589,15 +597,18 @@ include 'includes/header.php';
     margin: 0 0 0.75rem 0 !important;
     line-height: 1.4 !important;
     padding-right: 2rem;
+    min-height: 3rem;
+    display: flex;
+    align-items: flex-start;
 }
 
 .food-item-brand {
     font-size: 0.875rem !important;
     color: var(--text-secondary) !important;
-    margin-bottom: 1rem !important;
+    margin: 0 0 1rem 0 !important;
+    min-height: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
 }
 
 
@@ -640,7 +651,8 @@ include 'includes/header.php';
     flex-wrap: wrap !important;
     gap: 0.5rem !important;
     margin-bottom: 1rem !important;
-    min-height: 32px;
+    min-height: 2.5rem;
+    align-items: flex-start;
 }
 
 .food-category-badge {
@@ -677,6 +689,8 @@ include 'includes/header.php';
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 0.5rem !important;
     margin-bottom: 0.75rem !important;
+    min-height: 6rem;
+    align-items: start;
 }
 
 .food-category-btn {
@@ -732,6 +746,8 @@ include 'includes/header.php';
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    margin-top: auto;
+    flex-shrink: 0;
 }
 
 .food-units-btn:hover:not(.disabled) {
@@ -1171,11 +1187,11 @@ include 'includes/header.php';
                             <div class="food-item-content">
                                 <h4 class="food-item-name"><?= htmlspecialchars($food['name_pt']) ?></h4>
                                 
-                                <?php if (!empty($food['brand']) && $food['brand'] !== 'TACO'): ?>
-                                    <div class="food-item-brand">
+                                <div class="food-item-brand">
+                                    <?php if (!empty($food['brand']) && $food['brand'] !== 'TACO'): ?>
                                         <?= htmlspecialchars($food['brand']) ?>
-                                    </div>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
                                 
                                 <div class="food-item-macros">
                                     <div class="food-item-macro">
