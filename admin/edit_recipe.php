@@ -80,16 +80,14 @@ $csrf_token = $_SESSION['csrf_token'];
     --text-secondary: #A3A3A3;
     --glass-border: rgba(255, 255, 255, 0.1);
     
-    /* DEFINIÇÕES DO LAYOUT */
-    --sidebar-width: 256px;      /* Largura da sua sidebar principal */
-    --layout-gap: 2rem;          /* Espaçamento padrão */
-    --mockup-width: 375px;       /* LARGURA FIXA E CORRETA DO CELULAR */
+    --sidebar-width: 256px;
+    --layout-gap: 2rem;
+    --mockup-base-width: 375px; /* Tamanho base do celular em 100% zoom */
 }
 
-/* 1. O CONTAINER PRINCIPAL */
+/* 1. CONTAINER PRINCIPAL */
 .edit-recipe-container {
-    /* Cria o espaço à esquerda para o celular fixo */
-    padding-left: calc(var(--sidebar-width) + var(--mockup-width) + (var(--layout-gap) * 2)) !important;
+    padding-left: calc(var(--sidebar-width) + var(--mockup-base-width) + (var(--layout-gap) * 2)) !important;
     padding-right: var(--layout-gap) !important;
     padding-top: 2rem !important;
     padding-bottom: 2rem !important;
@@ -97,20 +95,18 @@ $csrf_token = $_SESSION['csrf_token'];
     box-sizing: border-box !important;
 }
 
-/* 2. O PAINEL DO CELULAR (ESQUERDA) - FIXO E CENTRALIZADO */
+/* 2. PAINEL DO CELULAR - AGORA CONTROlADO VIA JS */
 .mobile-mockup-panel {
     position: fixed !important;
-    
-    /* Centralização vertical perfeita com espaços iguais em cima e embaixo */
-    top: var(--layout-gap) !important;
-    bottom: var(--layout-gap) !important;
-    
-    /* Posição horizontal fixa */
+    top: 50% !important; /* Posição inicial para o cálculo JS */
     left: calc(var(--sidebar-width) + var(--layout-gap)) !important;
     
-    width: var(--mockup-width) !important; /* LARGURA FIXA EM PIXELS */
+    /* Tamanhos serão ajustados pelo JS */
+    width: var(--mockup-base-width) !important;
     
+    transform-origin: top left !important; /* Ponto de referência para a escala */
     z-index: 10 !important;
+    transition: transform 0.1s ease-out !important; /* Suaviza o ajuste */
 }
 
 .mobile-mockup-wrapper {
@@ -139,11 +135,8 @@ $csrf_token = $_SESSION['csrf_token'];
     display: block !important;
 }
 
-/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) */
+/* 3. PAINEL DE CONFIGURAÇÕES */
 .config-panel {
-    /* Margem para não ficar atrás do celular */
-    margin-left: calc(var(--mockup-width) + var(--layout-gap)) !important;
-    
     display: flex !important;
     flex-direction: column !important;
     gap: 2rem !important;
@@ -1129,6 +1122,48 @@ document.addEventListener('DOMContentLoaded', function() {
             element.addEventListener('input', sendServingInfoUpdate);
         }
     });
+});
+
+// =========================================================================
+//       CONTROLE DO MOCKUP FIXO E À PROVA DE ZOOM
+// =========================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const mockupPanel = document.querySelector('.mobile-mockup-panel');
+    if (!mockupPanel) return;
+
+    function adjustMockupSizeAndPosition() {
+        // Pega o nível de zoom do navegador usando uma técnica mais confiável
+        // Calcula o zoom baseado na diferença entre innerWidth e outerWidth
+        const zoomLevel = window.outerWidth / window.innerWidth;
+        
+        // Se não conseguir calcular, usa devicePixelRatio como fallback
+        const effectiveZoom = zoomLevel && !isNaN(zoomLevel) && zoomLevel > 0 ? zoomLevel : (window.devicePixelRatio || 1);
+
+        // Calcula a escala inversa para "cancelar" o zoom
+        // Se o zoom é 1.25 (125%), a escala será 1 / 1.25 = 0.8
+        const scale = 1 / effectiveZoom;
+
+        // Calcula a posição Y para centralizar verticalmente, considerando a nova escala
+        const mockupHeight = mockupPanel.offsetHeight;
+        const windowHeight = window.innerHeight;
+        const scaledHeight = mockupHeight * scale;
+        const topPosition = (windowHeight - scaledHeight) / 2;
+
+        // Aplica a transformação: move para a posição Y e aplica a escala inversa
+        mockupPanel.style.transform = `translateY(-${mockupHeight / 2}px) translateY(${topPosition / scale}px) scale(${scale})`;
+    }
+
+    // Chama a função uma vez no carregamento
+    adjustMockupSizeAndPosition();
+
+    // E chama novamente sempre que a janela for redimensionada ou o zoom mudar
+    window.addEventListener('resize', adjustMockupSizeAndPosition);
+    
+    // Também escuta mudanças de zoom (alguns navegadores)
+    window.addEventListener('orientationchange', adjustMockupSizeAndPosition);
+    
+    // Recalcula periodicamente para capturar mudanças de zoom
+    setInterval(adjustMockupSizeAndPosition, 500);
 });
 </script>
 
