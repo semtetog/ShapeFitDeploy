@@ -90,10 +90,16 @@ $csrf_token = $_SESSION['csrf_token'];
 
 /* O CONTAINER PRINCIPAL */
 .edit-recipe-container {
+    display: flex;
+    gap: var(--layout-gap);
     padding: var(--layout-gap);
     /* Padding à esquerda para criar espaço onde o celular fixo fica */
     /* O main-content já tem margin-left: 256px (sidebar), então só precisamos: mockup-width + gap */
     padding-left: calc(var(--mockup-width) + var(--layout-gap));
+    padding-right: var(--layout-gap); /* Remove o espaço morto à direita */
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 /* PAINEL DO CELULAR (ESQUERDA) */
@@ -142,8 +148,11 @@ $csrf_token = $_SESSION['csrf_token'];
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    flex: 1; /* Ocupa todo o espaço disponível */
     width: 100%;
     max-width: 100%;
+    min-width: 0; /* Permite que o flex funcione corretamente */
+    box-sizing: border-box;
 }
 
 /* ===== ESTILOS INTERNOS (COPIADOS, SEM GRANDES MUDANÇAS) ===== */
