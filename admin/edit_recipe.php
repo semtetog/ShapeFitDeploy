@@ -129,6 +129,7 @@ $csrf_token = $_SESSION['csrf_token'];
     position: relative !important;
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    min-height: 800px !important;
 }
 
 .edit-recipe-container #recipe-preview-frame {
@@ -140,6 +141,10 @@ $csrf_token = $_SESSION['csrf_token'];
     transform: scale(1) !important;
     transform-origin: top left !important;
     overflow: auto !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1 !important;
 }
 
 /* ===== PAINEL DE CONFIGURAÇÕES À DIREITA ===== */
