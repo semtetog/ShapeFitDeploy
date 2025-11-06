@@ -410,8 +410,7 @@ include 'includes/header.php';
     right: 0;
     z-index: 9999 !important;
     background: rgba(35, 35, 35, 1) !important; /* Totalmente opaco desde o início */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    /* backdrop-filter removido para evitar delay na renderização */
     border: 1px solid var(--glass-border);
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
