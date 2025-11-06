@@ -99,8 +99,9 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 /* === CONTAINER === */
 /* Garantir que app-container tenha padding igual ao view_recipe.php */
 .app-container {
-    padding: 20px 24px calc(60px + 20px + env(safe-area-inset-bottom)) 24px !important;
+    padding: 20px 24px 20px 24px !important;
     padding-top: 20px !important;
+    padding-bottom: 20px !important;
     width: 100% !important;
     max-width: 480px !important;
     height: 100% !important;
@@ -368,10 +369,9 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 }
 
 /* Remover margin-bottom do último elemento para evitar espaço extra */
-.recipe-section:last-child,
-.recipe-notes-card:last-child {
+.app-container > .recipe-section:last-child,
+.app-container > .recipe-notes-card:last-child {
     margin-bottom: 0 !important;
-    padding-bottom: 20px !important;
 }
 
 
