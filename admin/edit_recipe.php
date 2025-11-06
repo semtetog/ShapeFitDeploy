@@ -649,27 +649,42 @@ input[type=number] {
 
 /* ===== RESPONSIVIDADE ===== */
 @media (max-width: 1400px) {
-    .edit-recipe-container .live-editor-container {
-        grid-template-columns: 380px 1fr !important;
-        gap: 2rem !important;
+    .edit-recipe-container .mobile-mockup-wrapper {
+        width: 280px !important;
+        height: 580px !important;
+        left: 1rem !important;
     }
     
-    .edit-recipe-container .mobile-mockup-wrapper {
-        width: 380px !important;
-        height: 750px !important;
+    .edit-recipe-container .config-panel {
+        margin-left: 320px !important;
     }
 }
 
 @media (max-width: 1200px) {
-    .edit-recipe-container .live-editor-container {
-        grid-template-columns: 1fr !important;
-        gap: 2rem !important;
+    .edit-recipe-container .mobile-mockup-wrapper {
+        width: 260px !important;
+        height: 540px !important;
+        left: 0.5rem !important;
     }
     
+    .edit-recipe-container .config-panel {
+        margin-left: 300px !important;
+    }
+}
+
+@media (max-width: 992px) {
     .edit-recipe-container .mobile-mockup-wrapper {
         position: relative !important;
         top: 0 !important;
-        margin: 0 auto !important;
+        left: 0 !important;
+        transform: none !important;
+        margin: 0 auto 2rem auto !important;
+        width: 320px !important;
+        height: 650px !important;
+    }
+    
+    .edit-recipe-container .config-panel {
+        margin-left: 0 !important;
     }
 }
 </style>
