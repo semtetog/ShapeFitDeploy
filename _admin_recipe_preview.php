@@ -109,11 +109,10 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
 /* === IMAGEM === */
 .recipe-detail-image {
     width: 100%;
-    height: 250px;
+    height: 280px;
     object-fit: cover;
     border-radius: 20px;
-    margin-bottom: 15px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
 }
 
 /* === INFORMAÇÕES PRINCIPAIS === */
@@ -122,7 +121,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 20px;
     padding: 24px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     transition: all 0.2s ease;
 }
 
@@ -172,7 +171,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 20px;
     padding: 24px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
@@ -217,7 +216,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 20px;
     padding: 20px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -247,7 +246,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 20px;
     padding: 24px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     transition: all 0.2s ease;
 }
 
@@ -260,21 +259,17 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     font-weight: 600;
     color: var(--text-primary);
     margin: 0 0 16px 0;
-    padding: 0;
-    display: block;
-    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .recipe-section-title::before {
     content: '';
     width: 4px;
     height: 20px;
-    background: #ff6b00;
+    background: var(--accent-orange);
     border-radius: 2px;
-    position: absolute;
-    left: -12px;
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 /* === INGREDIENTES === */

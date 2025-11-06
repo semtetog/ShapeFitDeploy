@@ -101,49 +101,32 @@ $csrf_token = $_SESSION['csrf_token'];
     padding: 0 !important;
 }
 
-/* ===== MOCKUP DE CELULAR À ESQUERDA ===== */
+/* ===== MOCKUP DE CELULAR À ESQUERDA (SIMPLIFICADO) ===== */
 .edit-recipe-container .mobile-mockup-wrapper {
     position: sticky !important;
     top: 2rem !important;
     width: 420px !important;
     height: 850px !important;
-    padding: 20px !important;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
-    border-radius: 50px !important;
-    box-shadow: 
-        0 0 0 8px rgba(0, 0, 0, 0.3),
-        0 0 0 16px rgba(255, 255, 255, 0.05),
-        0 20px 60px rgba(0, 0, 0, 0.8),
-        inset 0 0 40px rgba(0, 0, 0, 0.3) !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-start !important;
 }
 
-/* Notch do iPhone */
-.edit-recipe-container .mobile-mockup-wrapper::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 150px !important;
-    height: 25px !important;
-    background: #000 !important;
-    border-radius: 0 0 20px 20px !important;
-    z-index: 10 !important;
-}
-
-/* Tela do celular */
+/* Tela do celular (sem bordas, sem notch) */
 .edit-recipe-container .mobile-screen {
     width: 100% !important;
     height: 100% !important;
-    background: #000 !important;
-    border-radius: 35px !important;
+    background: #121212 !important;
+    border-radius: 0 !important;
     overflow: hidden !important;
     position: relative !important;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 
 .edit-recipe-container #recipe-preview-frame {
@@ -154,6 +137,7 @@ $csrf_token = $_SESSION['csrf_token'];
     display: block !important;
     transform: scale(1) !important;
     transform-origin: top left !important;
+    overflow: auto !important;
 }
 
 /* ===== PAINEL DE CONFIGURAÇÕES À DIREITA ===== */
