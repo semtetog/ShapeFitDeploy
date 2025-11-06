@@ -340,12 +340,18 @@ include 'includes/header.php';
     position: relative;
     min-width: 220px !important;
     flex: 1;
-    z-index: 100;
+    z-index: 1;
+    isolation: isolate;
+}
+
+.custom-select-wrapper.active {
+    z-index: 10001 !important;
 }
 
 .custom-select {
     position: relative;
-    z-index: 100;
+    width: 100%;
+    z-index: inherit;
 }
 
 .custom-select-trigger {
@@ -398,7 +404,7 @@ include 'includes/header.php';
     left: 0;
     right: 0;
     z-index: 10000 !important;
-    background: rgba(26, 26, 26, 0.95) !important;
+    background: rgba(26, 26, 26, 0.98) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
@@ -410,35 +416,46 @@ include 'includes/header.php';
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
     pointer-events: none;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
+    will-change: opacity, transform;
 }
 
 .custom-select.active .custom-select-options {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    pointer-events: auto;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
 }
 
 .custom-select-option {
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     font-family: 'Montserrat', sans-serif;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+.custom-select-option:first-child {
+    border-radius: 12px 12px 0 0;
 }
 
 .custom-select-option:last-child {
     border-bottom: none;
+    border-radius: 0 0 12px 12px;
 }
 
 .custom-select-option:hover {
-    background: rgba(255, 107, 0, 0.1);
-    color: var(--accent-orange);
+    background: rgba(255, 107, 0, 0.15) !important;
+    color: var(--accent-orange) !important;
 }
 
 .custom-select-option.selected {
@@ -1568,7 +1585,11 @@ function initCustomSelect(selectId, inputId, submitForm) {
     // Abre/fecha o dropdown
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
+        const wrapper = customSelect.closest('.custom-select-wrapper');
         customSelect.classList.toggle('active');
+        if (wrapper) {
+            wrapper.classList.toggle('active');
+        }
     });
     
     // Seleciona uma opção
