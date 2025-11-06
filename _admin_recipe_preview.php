@@ -455,14 +455,21 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     padding: 16px;
     background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.instruction-step:focus-within,
+.instruction-step.editing {
     border-left: 3px solid #ff6b00;
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .step-number {
     width: 28px !important;
     height: 28px !important;
-    background: #ff6b00 !important;
-    color: #fff !important;
+    background: rgba(255, 107, 0, 0.2) !important;
+    color: var(--text-secondary) !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
@@ -470,6 +477,13 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     font-weight: 600 !important;
     font-size: 14px !important;
     flex-shrink: 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.instruction-step:focus-within .step-number,
+.instruction-step.editing .step-number {
+    background: #ff6b00 !important;
+    color: #fff !important;
 }
 
 .instruction-step p {
