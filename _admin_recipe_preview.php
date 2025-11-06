@@ -1028,6 +1028,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (textContent) {
                 textContent.contentEditable = 'true';
                 
+                // Prevenir que o clique no botão X abra a edição
+                textContent.addEventListener('click', function(e) {
+                    // Se o clique foi no botão X, não fazer nada (deixar o botão tratar)
+                    if (e.target.closest('.btn-remove-ingredient-inline')) {
+                        return;
+                    }
+                });
+                
                 textContent.addEventListener('input', function() {
                     syncIngredientsToParent();
                 });
