@@ -87,29 +87,37 @@ $csrf_token = $_SESSION['csrf_token'];
 .edit-recipe-container {
     max-width: 100% !important;
     padding: 2rem !important;
+    padding-right: 2rem !important;
     width: 100% !important;
-    overflow: visible !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
 }
 
 /* ===== LAYOUT DE 2 COLUNAS: CELULAR À ESQUERDA (FIXED), CONFIGURAÇÕES À DIREITA ===== */
 .edit-recipe-container .live-editor-container {
     display: block !important;
     width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     position: relative !important;
+    box-sizing: border-box !important;
 }
 
-/* Espaçamento à esquerda para o mockup fixed */
+/* Espaçamento à esquerda para o mockup fixed (sidebar 256px + mockup 320px + gap 2rem) */
 .edit-recipe-container .config-panel {
-    margin-left: 360px !important;
+    margin-left: 608px !important; /* 256px (sidebar) + 320px (mockup) + 32px (gap) */
+    max-width: calc(100vw - 608px - 4rem) !important; /* 100vw - margin-left - padding */
+    padding-right: 2rem !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
 }
 
 /* ===== MOCKUP DE CELULAR À ESQUERDA (FIXED - SEMPRE VISÍVEL) ===== */
 .edit-recipe-container .mobile-mockup-wrapper {
     position: fixed !important;
     top: 50% !important;
-    left: 2rem !important;
+    left: 288px !important; /* 256px (sidebar) + 32px (gap) */
     transform: translateY(-50%) !important;
     width: 320px !important;
     height: 650px !important;
@@ -652,11 +660,12 @@ input[type=number] {
     .edit-recipe-container .mobile-mockup-wrapper {
         width: 280px !important;
         height: 580px !important;
-        left: 1rem !important;
+        left: 272px !important; /* 256px (sidebar) + 16px (gap menor) */
     }
     
     .edit-recipe-container .config-panel {
-        margin-left: 320px !important;
+        margin-left: 568px !important; /* 256px + 280px + 32px */
+        max-width: calc(100vw - 568px - 4rem) !important;
     }
 }
 
@@ -664,11 +673,12 @@ input[type=number] {
     .edit-recipe-container .mobile-mockup-wrapper {
         width: 260px !important;
         height: 540px !important;
-        left: 0.5rem !important;
+        left: 272px !important; /* Mantém mesmo gap */
     }
     
     .edit-recipe-container .config-panel {
-        margin-left: 300px !important;
+        margin-left: 548px !important; /* 256px + 260px + 32px */
+        max-width: calc(100vw - 548px - 4rem) !important;
     }
 }
 
@@ -685,6 +695,7 @@ input[type=number] {
     
     .edit-recipe-container .config-panel {
         margin-left: 0 !important;
+        max-width: 100% !important;
     }
 }
 </style>
