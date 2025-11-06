@@ -71,7 +71,7 @@ $csrf_token = $_SESSION['csrf_token'];
 
 <style>
 /* ========================================================================= */
-/*       REFATORAÇÃO COMPLETA - EDIÇÃO INLINE NO CELULAR + CONFIGURAÇÕES    */
+/*       REFATORAÇÃO COMPLETA - LAYOUT FLEXBOX ROBUSTO                     */
 /* ========================================================================= */
 
 :root {
@@ -83,90 +83,63 @@ $csrf_token = $_SESSION['csrf_token'];
     --surface-color: #1E1E1E;
 }
 
-/* ===== CONTAINER PRINCIPAL ===== */
+/* 1. O CONTAINER PRINCIPAL USA FLEXBOX */
 .edit-recipe-container {
-    max-width: 100% !important;
     padding: 2rem !important;
-    padding-right: 2rem !important;
     width: 100% !important;
-    overflow-x: hidden !important;
     box-sizing: border-box !important;
 }
 
-/* ===== LAYOUT DE 2 COLUNAS: CELULAR À ESQUERDA (FIXED), CONFIGURAÇÕES À DIREITA ===== */
 .edit-recipe-container .live-editor-container {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    position: relative !important;
-    box-sizing: border-box !important;
-}
-
-/* Espaçamento à esquerda para o mockup fixed (sidebar 256px + mockup 320px + gap 2rem) */
-.edit-recipe-container .config-panel {
-    margin-left: 608px !important; /* 256px (sidebar) + 320px (mockup) + 32px (gap) */
-    max-width: calc(100vw - 608px - 4rem) !important; /* 100vw - margin-left - padding */
-    padding-right: 2rem !important;
-    box-sizing: border-box !important;
-    overflow-x: hidden !important;
-}
-
-/* ===== MOCKUP DE CELULAR À ESQUERDA (FIXED - SEMPRE VISÍVEL) ===== */
-.edit-recipe-container .mobile-mockup-wrapper {
-    position: fixed !important;
-    top: 50% !important;
-    left: 288px !important; /* 256px (sidebar) + 32px (gap) */
-    transform: translateY(-50%) !important;
-    width: 320px !important;
-    height: 650px !important;
-    padding: 10px !important;
-    background: #1a1a1a !important;
-    border-radius: 30px !important;
-    box-shadow: 
-        0 0 0 4px rgba(0, 0, 0, 0.2),
-        0 20px 60px rgba(0, 0, 0, 0.6) !important;
     display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    z-index: 100 !important;
+    gap: 2rem !important; /* Espaço entre o celular e as configurações */
+    align-items: flex-start !important; /* Alinha os itens no topo */
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* Tela do celular */
-.edit-recipe-container .mobile-screen {
+/* 2. O PAINEL DO CELULAR (ESQUERDA) */
+.mobile-mockup-panel {
+    position: sticky !important; /* Fica fixo durante o scroll */
+    top: 2rem !important; /* Distância do topo */
+    width: 375px !important; /* Largura fixa para o mockup */
+    flex-shrink: 0 !important; /* Impede que o mockup encolha */
+    height: fit-content !important;
+}
+
+.mobile-mockup-wrapper {
+    width: 100% !important;
+    height: 750px !important;
+    padding: 12px !important;
+    background: #1a1a1a !important;
+    border-radius: 40px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+    border: 1px solid var(--glass-border) !important;
+}
+
+.mobile-screen {
     width: 100% !important;
     height: 100% !important;
     background: #121212 !important;
-    border-radius: 24px !important;
+    border-radius: 28px !important;
     overflow: hidden !important;
     position: relative !important;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
-.edit-recipe-container #recipe-preview-frame {
+#recipe-preview-frame {
     width: 100% !important;
     height: 100% !important;
     border: none !important;
-    background: #121212 !important;
     display: block !important;
-    transform: scale(1) !important;
-    transform-origin: top left !important;
-    overflow: auto !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    z-index: 1 !important;
 }
 
-/* ===== PAINEL DE CONFIGURAÇÕES À DIREITA ===== */
-.edit-recipe-container .config-panel {
+/* 3. O PAINEL DE CONFIGURAÇÕES (DIREITA) */
+.config-panel {
+    flex-grow: 1 !important; /* Ocupa todo o espaço restante */
     display: flex !important;
     flex-direction: column !important;
     gap: 2rem !important;
-    width: 100% !important;
+    min-width: 0 !important; /* Correção de bug de overflow do flexbox */
 }
 
 /* ===== HEADER COM AÇÕES ===== */
@@ -655,47 +628,60 @@ input[type=number] {
     margin-bottom: 1rem !important;
 }
 
+/* ===== ESTILOS INTERNOS (MANTIDOS) ===== */
+.edit-recipe-container .config-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 1rem !important;
+    padding-bottom: 1rem !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+}
+
+.edit-recipe-container .config-header h3 {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    margin: 0 !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.edit-recipe-container .header-buttons {
+    display: flex !important;
+    gap: 0.75rem !important;
+}
+
+.edit-recipe-container .dashboard-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 1.5rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.edit-recipe-container .dashboard-card:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
+    border-color: var(--accent-orange) !important;
+}
+
 /* ===== RESPONSIVIDADE ===== */
-@media (max-width: 1400px) {
-    .edit-recipe-container .mobile-mockup-wrapper {
-        width: 280px !important;
-        height: 580px !important;
-        left: 272px !important; /* 256px (sidebar) + 16px (gap menor) */
-    }
-    
-    .edit-recipe-container .config-panel {
-        margin-left: 568px !important; /* 256px + 280px + 32px */
-        max-width: calc(100vw - 568px - 4rem) !important;
-    }
-}
-
-@media (max-width: 1200px) {
-    .edit-recipe-container .mobile-mockup-wrapper {
-        width: 260px !important;
-        height: 540px !important;
-        left: 272px !important; /* Mantém mesmo gap */
-    }
-    
-    .edit-recipe-container .config-panel {
-        margin-left: 548px !important; /* 256px + 260px + 32px */
-        max-width: calc(100vw - 548px - 4rem) !important;
-    }
-}
-
 @media (max-width: 992px) {
-    .edit-recipe-container .mobile-mockup-wrapper {
-        position: relative !important;
-        top: 0 !important;
-        left: 0 !important;
-        transform: none !important;
-        margin: 0 auto 2rem auto !important;
-        width: 320px !important;
-        height: 650px !important;
+    .edit-recipe-container .live-editor-container {
+        flex-direction: column !important;
     }
     
-    .edit-recipe-container .config-panel {
-        margin-left: 0 !important;
-        max-width: 100% !important;
+    .mobile-mockup-panel {
+        position: static !important;
+        width: 100% !important;
+        max-width: 375px !important;
+        margin: 0 auto 2rem auto !important;
+    }
+    
+    .mobile-mockup-wrapper {
+        height: 750px !important;
     }
 }
 </style>
@@ -729,14 +715,16 @@ input[type=number] {
         <?php endif; ?>
 
         <div class="live-editor-container">
-            <!-- MOCKUP DE CELULAR À ESQUERDA -->
-            <div class="mobile-mockup-wrapper">
-                <div class="mobile-screen">
-                    <iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe>
+            <!-- PAINEL DO CELULAR (ESQUERDA) -->
+            <div class="mobile-mockup-panel">
+                <div class="mobile-mockup-wrapper">
+                    <div class="mobile-screen">
+                        <iframe id="recipe-preview-frame" src="../_admin_recipe_preview.php?id=<?php echo htmlspecialchars($recipe_id ?? ''); ?>"></iframe>
+                    </div>
                 </div>
             </div>
 
-            <!-- PAINEL DE CONFIGURAÇÕES À DIREITA -->
+            <!-- PAINEL DE CONFIGURAÇÕES (DIREITA) -->
             <div class="config-panel">
                 <!-- HEADER COM AÇÕES -->
                 <div class="config-header">
