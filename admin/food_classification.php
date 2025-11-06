@@ -1668,10 +1668,18 @@ function initCustomSelect(selectId, inputId, submitForm) {
         const isOpening = !customSelect.classList.contains('active');
         
         if (isOpening) {
-            // Fecha todos os outros dropdowns PRIMEIRO
-            closeAllDropdowns(customSelect);
+            // Fecha TODOS os dropdowns primeiro (incluindo este se estiver aberto)
+            document.querySelectorAll('.custom-select-options').forEach(optionsContainer => {
+                optionsContainer.style.visibility = 'hidden';
+                optionsContainer.style.opacity = '0';
+                optionsContainer.style.pointerEvents = 'none';
+            });
+            closeAllDropdowns();
             
-            // Aplica todas as classes de uma vez
+            // FORÇA REFLOW para garantir que o fechamento foi renderizado
+            void document.body.offsetHeight;
+            
+            // AGORA aplica todas as classes do novo dropdown
             customSelect.classList.add('active');
             let card = null;
             if (wrapper) {
@@ -1686,16 +1694,23 @@ function initCustomSelect(selectId, inputId, submitForm) {
                 }
             }
             
-            // FORÇA RENDERIZAÇÃO IMEDIATA - aplica estilos diretamente no elemento
+            // Aplica estilos inline ANTES de tornar visível
             const optionsContainer = customSelect.querySelector('.custom-select-options');
             if (optionsContainer) {
-                // Aplica estilos diretamente para garantir renderização imediata
+                // Aplica background PRIMEIRO (antes de tornar visível)
+                optionsContainer.style.background = '#232323';
+                optionsContainer.style.backgroundColor = '#232323';
+                
+                // Força reflow para garantir que o background foi renderizado
+                void optionsContainer.offsetHeight;
+                void optionsContainer.offsetWidth;
+                
+                // AGORA torna visível (background já está renderizado)
                 optionsContainer.style.visibility = 'visible';
                 optionsContainer.style.opacity = '1';
                 optionsContainer.style.pointerEvents = 'auto';
-                optionsContainer.style.background = '#232323'; // Background sólido
                 
-                // Força reflow para garantir que o background seja renderizado
+                // Força outro reflow para garantir que visibility foi aplicada
                 void optionsContainer.offsetHeight;
             }
         } else {
