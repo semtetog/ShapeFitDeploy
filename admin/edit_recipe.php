@@ -148,13 +148,22 @@ $csrf_token = $_SESSION['csrf_token'];
 .config-panel {
     display: flex;
     flex-direction: column;
-    gap: 3rem; /* Aumenta espaçamento entre os cards */
+    gap: 3rem !important; /* Aumenta espaçamento entre os cards - FORÇA COM !important */
     flex-grow: 1; /* Força ocupar todo espaço disponível */
     flex-basis: 0; /* Permite crescer sem restrições */
     width: auto; /* Em vez de width 100% */
     max-width: calc(100vw - var(--sidebar-width) - var(--mockup-width) - (var(--layout-gap) * 2)); /* Limite exato */
     min-width: 600px; /* Evita colapsar em telas menores */
     box-sizing: border-box;
+}
+
+/* Garante que os cards dentro do config-panel tenham espaçamento */
+.config-panel > * {
+    margin-bottom: 0 !important; /* Remove margin-bottom que pode estar conflitando */
+}
+
+.config-panel > *:not(:last-child) {
+    margin-bottom: 0 !important; /* Garante que o gap do flex funcione */
 }
 
 /* ===== ESTILOS INTERNOS (COPIADOS, SEM GRANDES MUDANÇAS) ===== */
@@ -181,6 +190,8 @@ $csrf_token = $_SESSION['csrf_token'];
     border: 1px solid var(--glass-border) !important;
     border-radius: 20px !important;
     padding: 1.5rem !important;
+    margin-bottom: 0 !important; /* Remove margin que pode estar conflitando com o gap */
+    margin-top: 0 !important;
 }
 
 .section-header {
