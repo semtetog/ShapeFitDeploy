@@ -706,6 +706,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     `;
     document.head.appendChild(style);
+    
+    // Configurar click listener para rolar até o card de categorias
+    const categoryContainer = document.getElementById('category-tags-clickable');
+    if (categoryContainer) {
+        categoryContainer.addEventListener('click', function() {
+            // Enviar mensagem para o parent para rolar até o card de categorias
+            if (window.parent && window.parent.postMessage) {
+                window.parent.postMessage({ 
+                    type: 'scrollToCategories' 
+                }, '*');
+            }
+        });
+    }
 });
 
 // Debug: Verificar se os números estão sendo renderizados
