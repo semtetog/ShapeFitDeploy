@@ -1176,20 +1176,25 @@ document.addEventListener('DOMContentLoaded', function() {
             removeBtn.className = 'btn-remove-ingredient-inline';
             removeBtn.title = 'Remover';
             removeBtn.innerHTML = '×';
-            removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;';
+            removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
             removeBtn.addEventListener('mouseenter', function() {
                 this.style.opacity = '1';
             });
             removeBtn.addEventListener('mouseleave', function() {
                 this.style.opacity = '0.5';
             });
-            removeBtn.addEventListener('click', function(e) {
+            // Usar mousedown ao invés de click para capturar antes do focus
+            removeBtn.addEventListener('mousedown', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 // Prevenir que o blur do contenteditable seja acionado
                 textSpan.blur();
-                li.remove();
-                syncIngredientsToParent();
+                // Usar setTimeout para garantir que o blur aconteceu
+                setTimeout(() => {
+                    li.remove();
+                    syncIngredientsToParent();
+                }, 0);
+                return false;
             });
             
             li.appendChild(textSpan);
