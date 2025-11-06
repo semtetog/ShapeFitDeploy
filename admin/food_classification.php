@@ -335,60 +335,57 @@ include 'includes/header.php';
     opacity: 0.7 !important;
 }
 
-/* Custom Select - Estilo igual ao recipes.php */
+/* Custom Select - Estilo IDÊNTICO ao recipes.php */
 .custom-select-wrapper {
     position: relative;
-    min-width: 220px !important;
+    min-width: 200px;
+    max-width: 300px;
     flex: 1;
-    z-index: 1;
-    isolation: isolate;
-}
-
-.custom-select-wrapper.active {
-    z-index: 10001 !important;
 }
 
 .custom-select {
     position: relative;
     width: 100%;
-    z-index: inherit;
 }
 
 .custom-select-trigger {
-    width: 100%;
-    padding: 0.75rem 1rem !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 8px !important;
-    color: var(--text-primary) !important;
-    font-size: 0.95rem !important;
-    cursor: pointer !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    transition: all 0.3s ease !important;
-    font-family: 'Montserrat', sans-serif !important;
-    box-sizing: border-box !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    user-select: none;
 }
 
 .custom-select-trigger:hover {
-    border-color: var(--accent-orange) !important;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .custom-select.active .custom-select-trigger {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-color: var(--accent-orange) !important;
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.custom-select-trigger i {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+    margin-left: 0.75rem;
 }
 
 .custom-select.active .custom-select-trigger i {
     transform: rotate(180deg);
-}
-
-.custom-select-trigger i {
-    transition: transform 0.3s ease;
-    color: var(--text-secondary);
-    margin-left: 0.5rem;
+    color: var(--accent-orange);
 }
 
 .custom-select-value {
@@ -403,31 +400,29 @@ include 'includes/header.php';
     top: calc(100% + 0.5rem);
     left: 0;
     right: 0;
-    z-index: 10000 !important;
-    background: rgba(26, 26, 26, 0.98) !important;
+    background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
-    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    transition: all 0.3s ease;
     pointer-events: none;
-    box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
-    will-change: opacity, transform;
 }
 
 .custom-select.active .custom-select-options {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-    pointer-events: auto !important;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .custom-select-option {
@@ -436,12 +431,8 @@ include 'includes/header.php';
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     font-family: 'Montserrat', sans-serif;
-    pointer-events: auto;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .custom-select-option:first-child {
@@ -454,14 +445,32 @@ include 'includes/header.php';
 }
 
 .custom-select-option:hover {
-    background: rgba(255, 107, 0, 0.15) !important;
-    color: var(--accent-orange) !important;
+    background: rgba(255, 107, 0, 0.15);
+    color: var(--accent-orange);
 }
 
 .custom-select-option.selected {
-    background: rgba(255, 107, 0, 0.15);
+    background: rgba(255, 107, 0, 0.2);
     color: var(--accent-orange);
     font-weight: 600;
+}
+
+.custom-select-options::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-select-options::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 0, 0.3);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 0, 0.5);
 }
 
 .btn-filter-circular {
@@ -1569,7 +1578,7 @@ function updateBulkButton() {
     }
 }
 
-// Função para inicializar custom select
+// Função para inicializar custom select - VERSÃO SIMPLIFICADA (igual recipes.php)
 function initCustomSelect(selectId, inputId, submitForm) {
     const customSelect = document.getElementById(selectId);
     if (!customSelect) return;
@@ -1585,11 +1594,7 @@ function initCustomSelect(selectId, inputId, submitForm) {
     // Abre/fecha o dropdown
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
-        const wrapper = customSelect.closest('.custom-select-wrapper');
         customSelect.classList.toggle('active');
-        if (wrapper) {
-            wrapper.classList.toggle('active');
-        }
     });
     
     // Seleciona uma opção
@@ -1611,10 +1616,6 @@ function initCustomSelect(selectId, inputId, submitForm) {
             
             // Fecha o dropdown
             customSelect.classList.remove('active');
-            const wrapper = customSelect.closest('.custom-select-wrapper');
-            if (wrapper) {
-                wrapper.classList.remove('active');
-            }
             
             // Se for o filtro de categoria, submete o formulário
             if (submitForm) {
@@ -1633,21 +1634,13 @@ function initCustomSelect(selectId, inputId, submitForm) {
     document.addEventListener('click', function(e) {
         if (!customSelect.contains(e.target)) {
             customSelect.classList.remove('active');
-            const wrapper = customSelect.closest('.custom-select-wrapper');
-            if (wrapper) {
-                wrapper.classList.remove('active');
-            }
         }
     });
     
     // Fecha com a tecla Esc
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && customSelect.classList.contains('active')) {
+        if (e.key === 'Escape') {
             customSelect.classList.remove('active');
-            const wrapper = customSelect.closest('.custom-select-wrapper');
-            if (wrapper) {
-                wrapper.classList.remove('active');
-            }
         }
     });
 }
