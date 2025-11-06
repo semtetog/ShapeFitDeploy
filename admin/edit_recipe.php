@@ -715,10 +715,10 @@ input[type=number] {
                     </div>
                 </div>
 
-                <!-- CARD: INGREDIENTES -->
-                <div class="dashboard-card">
-                    <div class="section-header">
-                        <h4><i class="fas fa-utensils"></i> Ingredientes</h4>
+                <!-- INGREDIENTES INLINE (sem card) -->
+                    <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="margin: 0; color: var(--text-primary); font-size: 1.125rem;"><i class="fas fa-utensils"></i> Ingredientes</h4>
                         <button type="button" id="btn-add-ingredient" class="btn-add-circular" title="Adicionar Ingrediente">
                             <i class="fas fa-plus"></i>
                         </button>

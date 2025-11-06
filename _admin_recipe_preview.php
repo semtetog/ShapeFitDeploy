@@ -211,6 +211,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header_preview.php';
     word-break: break-word !important;
     max-width: 100% !important;
     overflow: hidden !important;
+    text-align: left !important;
 }
 
 .recipe-description-short {
