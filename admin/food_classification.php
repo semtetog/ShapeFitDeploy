@@ -1,5 +1,5 @@
 <?php
-// admin/food_classification.php - Sistema ULTRA SIMPLES de classificação
+// admin/food_classification.php - Sistema de Classificação de Alimentos
 
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/includes/auth_admin.php';
@@ -10,18 +10,18 @@ requireAdminLogin();
 $page_slug = 'food_classification';
 $page_title = 'Alimentos';
 
-// Categorias SIMPLIFICADAS
+// Categorias
 $categories = [
-    'líquido' => ['name' => 'Líquido', 'color' => '#3B82F6', 'icon' => '💧'],
-    'semi_liquido' => ['name' => 'Semi-líquido', 'color' => '#8B5CF6', 'icon' => '🥄'],
-    'granular' => ['name' => 'Granular', 'color' => '#F59E0B', 'icon' => '🌾'],
-    'unidade_inteira' => ['name' => 'Unidade Inteira', 'color' => '#10B981', 'icon' => '🍎'],
-    'fatias_pedacos' => ['name' => 'Fatias/Pedaços', 'color' => '#EF4444', 'icon' => '🧀'],
-    'corte_porcao' => ['name' => 'Corte/Porção', 'color' => '#F97316', 'icon' => '🥩'],
-    'colher_cremoso' => ['name' => 'Colher Cremoso', 'color' => '#EC4899', 'icon' => '🍦'],
-    'condimentos' => ['name' => 'Condimentos', 'color' => '#6B7280', 'icon' => '🧂'],
-    'oleos_gorduras' => ['name' => 'Óleos/Gorduras', 'color' => '#FCD34D', 'icon' => '🫒'],
-    'preparacoes_compostas' => ['name' => 'Preparações Compostas', 'color' => '#8B5A2B', 'icon' => '🍽️']
+    'líquido' => ['name' => 'Líquido', 'color' => '#3B82F6', 'icon' => 'fa-tint'],
+    'semi_liquido' => ['name' => 'Semi-líquido', 'color' => '#8B5CF6', 'icon' => 'fa-spoon'],
+    'granular' => ['name' => 'Granular', 'color' => '#F59E0B', 'icon' => 'fa-seedling'],
+    'unidade_inteira' => ['name' => 'Unidade Inteira', 'color' => '#10B981', 'icon' => 'fa-apple-alt'],
+    'fatias_pedacos' => ['name' => 'Fatias/Pedaços', 'color' => '#EF4444', 'icon' => 'fa-cheese'],
+    'corte_porcao' => ['name' => 'Corte/Porção', 'color' => '#F97316', 'icon' => 'fa-drumstick-bite'],
+    'colher_cremoso' => ['name' => 'Colher Cremoso', 'color' => '#EC4899', 'icon' => 'fa-ice-cream'],
+    'condimentos' => ['name' => 'Condimentos', 'color' => '#6B7280', 'icon' => 'fa-pepper-hot'],
+    'oleos_gorduras' => ['name' => 'Óleos/Gorduras', 'color' => '#FCD34D', 'icon' => 'fa-oil-can'],
+    'preparacoes_compostas' => ['name' => 'Preparações Compostas', 'color' => '#8B5A2B', 'icon' => 'fa-utensils']
 ];
 
 // Buscar alimentos
@@ -96,688 +96,882 @@ include 'includes/header.php';
 
 <style>
 /* ========================================================================= */
-/*          SISTEMA ULTRA SIMPLES - DESIGN MINIMALISTA                      */
+/*       FOOD CLASSIFICATION PAGE - ESTILO PROFISSIONAL                      */
 /* ========================================================================= */
 
-.classification-container {
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 1.5rem 2rem;
+.foods-classification-container {
+    padding: 1.5rem 2rem !important;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     display: grid;
     grid-template-columns: 320px 1fr;
     gap: 2rem;
-    min-height: calc(100vh - 200px);
 }
 
-/* ===== LEGENDAS SIMPLES (LADO ESQUERDO) ===== */
-.legends-panel {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 1.5rem;
+/* ===== LEGENDAS (LADO ESQUERDO) ===== */
+.categories-panel {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 1.5rem !important;
     height: fit-content;
     position: sticky;
     top: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.legends-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--primary-text-color);
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.legends-subtitle {
-    font-size: 0.85rem;
-    color: var(--secondary-text-color);
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.category-legend {
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 12px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.category-legend:hover {
-    border-color: var(--category-color);
-    background: var(--category-bg);
-}
-
-.category-legend.selected {
-    border-color: var(--category-color);
-    background: var(--category-bg);
-}
-
-.category-legend-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.category-legend-icon {
-    font-size: 1rem;
-}
-
-.category-legend-name {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--category-color);
-    margin: 0;
-}
-
-.category-legend-examples {
-    margin-top: 8px;
-    margin-bottom: 8px;
-}
-
-.examples-label {
-    font-size: 0.7rem;
-    color: var(--secondary-text-color);
-    margin-bottom: 4px;
-    font-weight: 500;
-}
-
-.examples-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-}
-
-.example-tag {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 0.65rem;
-    font-weight: 500;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.category-legend-units {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.units-label {
-    font-size: 0.7rem;
-    color: var(--secondary-text-color);
-    margin-bottom: 4px;
-    font-weight: 500;
-}
-
-.units-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-}
-
-.unit-tag {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 0.65rem;
-    font-weight: 500;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* ===== CLASSIFICADOR (LADO DIREITO) ===== */
-.classifier-panel {
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    padding: 0;
-}
-
-.classifier-header {
-    text-align: left;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.classifier-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
+.categories-panel h2 {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    margin: 0 0 1rem 0 !important;
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
-.classifier-title i {
-    color: var(--accent-orange);
+.categories-panel h2 i {
+    color: var(--accent-orange) !important;
 }
 
-.classifier-subtitle {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    margin: 0;
+.categories-panel p {
+    font-size: 0.875rem !important;
+    color: var(--text-secondary) !important;
+    margin: 0 0 1.5rem 0 !important;
 }
 
-/* Estatísticas simples */
-.stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
+.category-legend {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    padding: 1rem !important;
+    margin-bottom: 0.75rem !important;
+    cursor: pointer;
+    transition: all 0.3s ease !important;
 }
 
-.stat-item {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.stat-item:hover {
-    background: rgba(255, 255, 255, 0.08);
+.category-legend:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: var(--category-color) !important;
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-.stat-number {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--accent-orange);
-    margin-bottom: 2px;
+.category-legend.selected {
+    border-color: var(--category-color) !important;
+    background: var(--category-bg) !important;
 }
 
-.stat-label {
-    font-size: 0.75rem;
-    color: var(--secondary-text-color);
-    font-weight: 500;
+.category-legend-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
 }
 
-/* Filtros simples */
+.category-legend-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--category-color);
+    color: white;
+    font-size: 0.875rem;
+}
+
+.category-legend-name {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: var(--category-color) !important;
+    margin: 0 !important;
+}
+
+.category-legend-examples,
+.category-legend-units {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.examples-label,
+.units-label {
+    font-size: 0.7rem !important;
+    color: var(--text-secondary) !important;
+    margin-bottom: 0.5rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.examples-list,
+.units-list {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+}
+
+.example-tag,
+.unit-tag {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-primary) !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 6px !important;
+    font-size: 0.7rem !important;
+    font-weight: 500 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ===== CONTEÚDO PRINCIPAL (LADO DIREITO) ===== */
+.classifier-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Header Card */
+.classifier-header-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 2rem !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    position: relative;
+}
+
+.classifier-header-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-orange), #FFA500);
+    border-radius: 20px 20px 0 0;
+}
+
+.header-title h2 {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    margin: 0 0 0.5rem 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.header-title h2 i {
+    color: var(--accent-orange) !important;
+}
+
+.header-title p {
+    color: var(--text-secondary) !important;
+    font-size: 0.95rem !important;
+    margin: 0 !important;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1rem !important;
+    margin-bottom: 0 !important;
+}
+
+.stats-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+}
+
+.stats-card:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+    border-color: var(--accent-orange) !important;
+}
+
+.stats-card .stat-number {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: var(--accent-orange) !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.stats-card .stat-label {
+    font-size: 0.875rem !important;
+    color: var(--text-secondary) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    font-weight: 600 !important;
+}
+
+/* Filter Form */
 .filters-section {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
-
 
 .filters-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--primary-text-color);
-    margin-bottom: 10px;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin: 0 0 1rem 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.filters-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr auto auto;
-    gap: 10px;
-    align-items: end;
+.filters-title i {
+    color: var(--accent-orange) !important;
 }
 
-.search-input, .category-select {
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 8px 10px;
-    color: var(--primary-text-color);
-    font-size: 0.85rem;
+.filter-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    flex-wrap: wrap !important;
 }
 
-.search-input:focus, .category-select:focus {
-    outline: none;
-    border-color: var(--accent-orange);
+.filter-row .form-group {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
 }
 
-.filter-btn, .clear-btn {
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 500;
+.filter-row .form-group label {
+    display: none !important;
+}
+
+.food-search-input {
+    flex: 1 !important;
+    min-width: 200px !important;
+    max-width: 400px !important;
+    padding: 0.875rem 1.25rem !important;
+    font-size: 0.95rem !important;
+    color: var(--text-primary) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(5px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    outline: none !important;
+    transition: all 0.3s ease !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.food-search-input:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
+}
+
+.food-search-input::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 0.7 !important;
+}
+
+.category-select {
+    min-width: 200px !important;
+    padding: 0.875rem 1.25rem !important;
+    font-size: 0.95rem !important;
+    color: var(--text-primary) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(5px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    outline: none !important;
+    transition: all 0.3s ease !important;
+    font-family: 'Montserrat', sans-serif !important;
     cursor: pointer;
-    border: none;
+}
+
+.category-select:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
+}
+
+.filter-btn,
+.clear-btn {
+    padding: 0.875rem 1.5rem !important;
+    border-radius: 12px !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-family: 'Montserrat', sans-serif !important;
 }
 
 .filter-btn {
-    background: var(--accent-orange);
-    color: white;
+    background: var(--accent-orange) !important;
+    color: #FFFFFF !important;
 }
 
 .filter-btn:hover {
-    background: var(--accent-orange-hover);
+    background: #e65c00 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4) !important;
 }
 
 .clear-btn {
-    background: var(--surface-color);
-    color: var(--secondary-text-color);
-    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--glass-border) !important;
 }
 
 .clear-btn:hover {
-    background: var(--border-color);
-    color: var(--primary-text-color);
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--accent-orange) !important;
+    color: var(--accent-orange) !important;
 }
 
-/* Ações em lote simples */
+/* Bulk Actions */
 .bulk-actions {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
 .bulk-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--primary-text-color);
-    margin-bottom: 10px;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin: 0 0 1rem 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bulk-title i {
+    color: var(--accent-orange) !important;
 }
 
 .bulk-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    flex-wrap: wrap !important;
 }
 
 .bulk-select {
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 8px 10px;
-    color: var(--primary-text-color);
-    font-size: 0.85rem;
-    min-width: 180px;
+    flex: 1 !important;
+    min-width: 200px !important;
+    padding: 0.875rem 1.25rem !important;
+    font-size: 0.95rem !important;
+    color: var(--text-primary) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(5px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    outline: none !important;
+    transition: all 0.3s ease !important;
+    font-family: 'Montserrat', sans-serif !important;
+    cursor: pointer;
+}
+
+.bulk-select:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
 }
 
 .bulk-btn {
-    background: var(--accent-orange);
-    border: none;
-    border-radius: 4px;
-    padding: 8px 12px;
-    color: white;
-    font-weight: 500;
-    cursor: pointer;
-    font-size: 0.85rem;
+    padding: 0.875rem 1.5rem !important;
+    background: var(--accent-orange) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s ease !important;
+    font-family: 'Montserrat', sans-serif !important;
 }
 
-.bulk-btn:hover {
-    background: var(--accent-orange-hover);
+.bulk-btn:hover:not(:disabled) {
+    background: #e65c00 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4) !important;
 }
 
 .bulk-btn:disabled {
-    background: var(--border-color);
-    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-secondary) !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
 }
 
 .bulk-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--secondary-text-color);
-    font-size: 0.85rem;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.95rem !important;
+    cursor: pointer;
 }
 
-/* Lista de alimentos simples */
+.bulk-checkbox input[type="checkbox"] {
+    transform: scale(1.1) !important;
+    accent-color: var(--accent-orange) !important;
+    cursor: pointer;
+}
+
+/* Foods Grid */
 .foods-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 12px;
-    margin-bottom: 25px;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    gap: 1.5rem !important;
+    margin-bottom: 2rem !important;
 }
 
 .food-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
 }
 
 .food-card:hover {
-    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent-orange) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Estados visuais dos cards */
 .food-card.classified {
-    background: rgba(16, 185, 129, 0.05);
-    border-color: #10B981;
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.08) !important;
+    border-color: #10B981 !important;
 }
 
 .food-card.unclassified {
-    background: rgba(239, 68, 68, 0.05);
-    border-color: #EF4444;
-    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-color: #EF4444 !important;
 }
 
 .food-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 12px;
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    margin-bottom: 1rem !important;
 }
 
 .food-checkbox {
-    margin-top: 2px;
-    transform: scale(1.1);
-    accent-color: var(--accent-orange);
+    margin-top: 0.25rem !important;
+    transform: scale(1.1) !important;
+    accent-color: var(--accent-orange) !important;
+    cursor: pointer;
 }
 
 .food-info {
-    flex-grow: 1;
+    flex-grow: 1 !important;
 }
 
 .food-name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--primary-text-color);
-    margin-bottom: 6px;
-    line-height: 1.3;
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin-bottom: 0.75rem !important;
+    line-height: 1.4 !important;
+}
+
+.food-brand {
+    font-size: 0.875rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 0.25rem !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.food-brand i {
+    color: var(--accent-orange) !important;
+    font-size: 0.75rem !important;
 }
 
 .food-macros {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-    margin-bottom: 10px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1rem !important;
 }
 
 .macro-item {
-    background: var(--surface-color);
-    border-radius: 3px;
-    padding: 4px 6px;
-    text-align: center;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 8px !important;
+    padding: 0.75rem !important;
+    text-align: center !important;
 }
 
 .macro-label {
-    font-size: 0.65rem;
-    color: var(--secondary-text-color);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-bottom: 1px;
+    font-size: 0.7rem !important;
+    color: var(--text-secondary) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 0.25rem !important;
+    font-weight: 600 !important;
 }
 
 .macro-value {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--primary-text-color);
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
 }
 
 .food-current-category {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-bottom: 10px;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    margin-bottom: 1rem !important;
 }
 
 .category-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    white-space: nowrap;
-    transition: all 0.2s ease;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 8px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
 }
 
-.category-tag:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+.category-tag i {
+    font-size: 0.7rem !important;
 }
 
 .unclassified-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    background: #ef444420;
-    color: #ef4444;
-    border: 1px solid #ef444440;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 8px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #EF4444 !important;
+    border: 1px solid rgba(239, 68, 68, 0.4) !important;
 }
 
 .food-actions {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
 }
 
 .category-btn {
-    background: var(--category-bg);
-    border: 1px solid var(--category-color);
-    border-radius: 4px;
-    padding: 6px 8px;
-    color: var(--category-color);
-    font-size: 0.7rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-    opacity: 0.7;
+    background: var(--category-bg) !important;
+    border: 1px solid var(--category-color) !important;
+    border-radius: 8px !important;
+    padding: 0.625rem 0.75rem !important;
+    color: var(--category-color) !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+}
+
+.category-btn i {
+    font-size: 0.7rem !important;
 }
 
 .category-btn:hover {
-    background: var(--category-color);
-    color: white;
-    opacity: 1;
-    transform: translateY(-1px);
+    background: var(--category-color) !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
 }
 
 .category-btn.selected {
     background: var(--category-color) !important;
     color: white !important;
-    opacity: 1;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
 }
 
 .units-btn {
-    background: rgba(59, 130, 246, 0.1);
-    color: #3B82F6;
-    border: 1px solid #3B82F6;
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 0.7rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 2px;
-    margin-top: 8px;
-    width: 100%;
-    justify-content: center;
+    grid-column: 1 / -1 !important;
+    background: rgba(59, 130, 246, 0.1) !important;
+    color: #3B82F6 !important;
+    border: 1px solid #3B82F6 !important;
+    border-radius: 8px !important;
+    padding: 0.75rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    margin-top: 0.5rem !important;
 }
 
 .units-btn:hover:not(.disabled) {
-    background: #3B82F6;
-    color: white;
-    transform: translateY(-1px);
+    background: #3B82F6 !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
 }
 
 .units-btn.disabled {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
-    border-color: rgba(255, 255, 255, 0.1);
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-.units-btn.disabled:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
-    transform: none;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-secondary) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
 }
 
 .units-hint {
-    display: block;
-    font-size: 0.6rem;
-    color: var(--text-secondary);
-    margin-top: 2px;
-    font-style: italic;
+    display: block !important;
+    font-size: 0.65rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 0.25rem !important;
+    font-style: italic !important;
 }
 
-/* Indicador de classificado */
-.classified-indicator {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: #10B981;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
-    animation: slideIn 0.3s ease;
+/* Empty State */
+.empty-state-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 3rem 2rem !important;
+    text-align: center !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-.classified-indicator i {
-    font-size: 0.6rem;
+.empty-state-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1.5rem !important;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+.empty-state-content i {
+    font-size: 4rem !important;
+    color: var(--text-secondary) !important;
+    opacity: 0.5 !important;
 }
 
-/* Paginação simples */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    margin-top: 25px;
+.empty-state-content p {
+    font-size: 1.125rem !important;
+    color: var(--text-secondary) !important;
+    margin: 0 !important;
 }
 
-.pagination a, .pagination span {
-    padding: 6px 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 3px;
-    text-decoration: none;
-    color: var(--secondary-text-color);
-    font-weight: 500;
-    font-size: 0.85rem;
-    transition: all 0.2s ease;
+.empty-state-content .btn-primary {
+    padding: 0.875rem 2rem !important;
+    background: var(--accent-orange) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    color: #FFFFFF !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    font-family: 'Montserrat', sans-serif !important;
 }
 
-.pagination a:hover {
-    background: var(--surface-color);
-    color: var(--primary-text-color);
-    border-color: var(--accent-orange);
+.empty-state-content .btn-primary:hover {
+    background: #e65c00 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4) !important;
 }
 
-.pagination .current {
-    background: var(--accent-orange);
-    color: white;
-    border-color: var(--accent-orange);
+/* Pagination */
+.pagination-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    flex-wrap: wrap !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
+.pagination-info {
+    color: var(--text-secondary) !important;
+    font-size: 0.95rem !important;
+}
+
+.pagination-controls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+}
+
+.pagination-btn {
+    padding: 0.625rem 1.25rem !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 10px !important;
+    color: var(--text-primary) !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.pagination-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--accent-orange) !important;
+    color: var(--accent-orange) !important;
+}
+
+.pagination-numbers {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.pagination-number {
+    min-width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 10px !important;
+    color: var(--text-primary) !important;
+    text-decoration: none !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.pagination-number:hover {
+    background: rgba(255, 107, 0, 0.1) !important;
+    border-color: var(--accent-orange) !important;
+    color: var(--accent-orange) !important;
+}
+
+.pagination-number.current {
+    background: var(--accent-orange) !important;
+    border-color: var(--accent-orange) !important;
+    color: #FFFFFF !important;
+}
+
+.pagination-ellipsis {
+    color: var(--text-secondary) !important;
+    padding: 0 0.5rem !important;
+}
 
 /* Auto-save indicator */
 .auto-save-indicator {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--success-green);
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    z-index: 1000;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: all 0.3s ease;
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    background: #10B981 !important;
+    color: white !important;
+    padding: 0.75rem 1.25rem !important;
+    border-radius: 12px !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    z-index: 1000 !important;
+    opacity: 0 !important;
+    transform: translateY(-20px) !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
 }
 
 .auto-save-indicator.show {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: 1 !important;
+    transform: translateY(0) !important;
 }
 
 /* Loading overlay */
 .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0,0,0,0.6) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 9999 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s ease !important;
 }
 
 .loading-overlay.show {
-    opacity: 1;
-    visibility: visible;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .loading-content {
-    text-align: center;
-    color: var(--text-primary);
+    text-align: center !important;
+    color: var(--text-primary) !important;
 }
 
 .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    border-top: 3px solid var(--accent-orange);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 15px;
+    width: 40px !important;
+    height: 40px !important;
+    border: 3px solid rgba(255, 255, 255, 0.2) !important;
+    border-top: 3px solid var(--accent-orange) !important;
+    border-radius: 50% !important;
+    animation: spin 1s linear infinite !important;
+    margin-bottom: 15px !important;
 }
 
 .loading-text {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 5px;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin-bottom: 5px !important;
 }
 
 .loading-subtext {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
 }
 
 @keyframes spin {
@@ -787,47 +981,51 @@ include 'includes/header.php';
 
 /* Responsive */
 @media (max-width: 1200px) {
-    .classification-container {
-        grid-template-columns: 1fr;
-        gap: 15px;
+    .foods-classification-container {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
     }
     
-    .legends-panel {
-        position: static;
-        order: 2;
+    .categories-panel {
+        position: static !important;
+        order: 2 !important;
     }
     
-    .classifier-panel {
-        order: 1;
+    .classifier-content {
+        order: 1 !important;
     }
 }
 
 @media (max-width: 768px) {
-    .filters-grid {
-        grid-template-columns: 1fr;
+    .foods-classification-container {
+        padding: 1rem !important;
+    }
+    
+    .filter-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
     }
     
     .foods-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
     }
     
-    .stats-row {
-        grid-template-columns: repeat(2, 1fr);
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
     
     .bulk-controls {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: column !important;
+        align-items: stretch !important;
     }
 }
-
 </style>
 
-<div class="classification-container">
-    <!-- LEGENDAS SIMPLES (LADO ESQUERDO) -->
-    <div class="legends-panel">
-        <h2 class="legends-title">📋 Categorias</h2>
-        <p class="legends-subtitle">Clique para classificar</p>
+<div class="foods-classification-container">
+    <!-- CATEGORIAS (LADO ESQUERDO) -->
+    <div class="dashboard-card categories-panel">
+        <h2><i class="fas fa-tags"></i> Categorias</h2>
+        <p>Clique para classificar</p>
         
         <?php 
         // Definir unidades e exemplos para cada categoria
@@ -876,7 +1074,9 @@ include 'includes/header.php';
         ?>
             <div class="category-legend" data-category="<?= $key ?>" style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
                 <div class="category-legend-header">
-                    <span class="category-legend-icon"><?= $cat['icon'] ?></span>
+                    <div class="category-legend-icon">
+                        <i class="fas <?= $cat['icon'] ?>"></i>
+                    </div>
                     <h3 class="category-legend-name"><?= $cat['name'] ?></h3>
                 </div>
                 
@@ -901,175 +1101,248 @@ include 'includes/header.php';
         <?php endforeach; ?>
     </div>
 
-    <!-- CLASSIFICADOR (LADO DIREITO) -->
-    <div class="classifier-panel">
-        <div class="classifier-header">
-            <h1 class="classifier-title"><i class="fas fa-apple-alt"></i> Alimentos</h1>
-            <p class="classifier-subtitle">Gerencie e classifique todos os alimentos do sistema</p>
-        </div>
+    <!-- CONTEÚDO PRINCIPAL (LADO DIREITO) -->
+    <div class="classifier-content">
+        <!-- Header Card -->
+        <div class="dashboard-card classifier-header-card">
+            <div class="header-title">
+                <h2><i class="fas fa-apple-alt"></i> Alimentos</h2>
+                <p>Gerencie e classifique todos os alimentos do sistema</p>
+            </div>
 
-        <!-- Estatísticas -->
-        <div class="stats-row">
-            <div class="stat-item">
-                <div class="stat-number"><?= $total_items ?></div>
-                <div class="stat-label">Total</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="classified-count"><?= $classified_count ?></div>
-                <div class="stat-label">Classificados</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="remaining-count"><?= $total_items - $classified_count ?></div>
-                <div class="stat-label">Restantes</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="session-count">0</div>
-                <div class="stat-label">Nesta Sessão</div>
+            <!-- Estatísticas -->
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <div class="stat-number"><?= $total_items ?></div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stat-number" id="classified-count"><?= $classified_count ?></div>
+                    <div class="stat-label">Classificados</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stat-number" id="remaining-count"><?= $total_items - $classified_count ?></div>
+                    <div class="stat-label">Restantes</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stat-number" id="session-count">0</div>
+                    <div class="stat-label">Nesta Sessão</div>
+                </div>
             </div>
         </div>
 
         <!-- Filtros -->
-        <div class="filters-section">
-            <h3 class="filters-title">🔍 Buscar</h3>
-            <form method="GET" class="filters-grid">
-                <input type="text" class="search-input" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Nome do alimento...">
-                <select class="category-select" name="category">
-                    <option value="">Todas as categorias</option>
-                    <?php foreach ($categories as $key => $cat): ?>
-                        <option value="<?= $key ?>" <?= $category_filter === $key ? 'selected' : '' ?>>
-                            <?= $cat['icon'] ?> <?= $cat['name'] ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="submit" class="filter-btn">Buscar</button>
-                <a href="food_classification.php" class="clear-btn">Limpar</a>
+        <div class="dashboard-card filters-section">
+            <h3 class="filters-title"><i class="fas fa-search"></i> Buscar</h3>
+            <form method="GET" class="filter-row">
+                <div class="form-group">
+                    <input type="text" 
+                           class="form-control food-search-input" 
+                           name="search" 
+                           value="<?= htmlspecialchars($search) ?>" 
+                           placeholder="Nome do alimento...">
+                </div>
+                <div class="form-group">
+                    <select class="category-select" name="category">
+                        <option value="">Todas as categorias</option>
+                        <?php foreach ($categories as $key => $cat): ?>
+                            <option value="<?= $key ?>" <?= $category_filter === $key ? 'selected' : '' ?>>
+                                <i class="fas <?= $cat['icon'] ?>"></i> <?= $cat['name'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="filter-btn">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+                <?php if (!empty($search) || !empty($category_filter)): ?>
+                <div class="form-group">
+                    <a href="food_classification.php" class="clear-btn">
+                        <i class="fas fa-times"></i> Limpar
+                    </a>
+                </div>
+                <?php endif; ?>
             </form>
         </div>
 
         <!-- Ações em Lote -->
-        <div class="bulk-actions">
-            <h3 class="bulk-title">⚡ Ações em Lote</h3>
+        <div class="dashboard-card bulk-actions">
+            <h3 class="bulk-title"><i class="fas fa-bolt"></i> Ações em Lote</h3>
             <div class="bulk-controls">
                 <select class="bulk-select" id="bulk-category">
                     <option value="">Selecione uma categoria</option>
                     <?php foreach ($categories as $key => $cat): ?>
-                        <option value="<?= $key ?>"><?= $cat['icon'] ?> <?= $cat['name'] ?></option>
+                        <option value="<?= $key ?>"><i class="fas <?= $cat['icon'] ?>"></i> <?= $cat['name'] ?></option>
                     <?php endforeach; ?>
                 </select>
                 <button class="bulk-btn" onclick="applyBulkClassification()" id="bulk-btn" disabled>
-                    Aplicar aos Selecionados
+                    <i class="fas fa-check"></i> Aplicar aos Selecionados
                 </button>
                 <label class="bulk-checkbox">
-                    <input type="checkbox" id="select-all" style="transform: scale(1.1); accent-color: var(--accent-orange);">
+                    <input type="checkbox" id="select-all">
                     Selecionar Todos
                 </label>
             </div>
         </div>
 
         <!-- Lista de Alimentos -->
-        <div class="foods-grid" id="foods-list">
-            <?php foreach ($foods as $food): ?>
-                <div class="food-card" data-food-id="<?= $food['id'] ?>">
-                    <div class="food-header">
-                        <input class="food-checkbox" type="checkbox" value="<?= $food['id'] ?>">
-                        <div class="food-info">
-                            <div class="food-name">
-                                <?= htmlspecialchars($food['name_pt']) ?>
+        <?php if (empty($foods)): ?>
+            <div class="dashboard-card empty-state-card">
+                <div class="empty-state-content">
+                    <i class="fas fa-apple-alt"></i>
+                    <p>Nenhum alimento encontrado.</p>
+                    <?php if (!empty($search) || !empty($category_filter)): ?>
+                        <a href="food_classification.php" class="btn-primary">Ver Todos os Alimentos</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="foods-grid" id="foods-list">
+                <?php foreach ($foods as $food): ?>
+                    <div class="food-card <?= !empty($food['categories']) ? 'classified' : 'unclassified' ?>" data-food-id="<?= $food['id'] ?>">
+                        <div class="food-header">
+                            <input class="food-checkbox" type="checkbox" value="<?= $food['id'] ?>">
+                            <div class="food-info">
+                                <div class="food-name">
+                                    <?= htmlspecialchars($food['name_pt']) ?>
+                                </div>
                                 <?php if (!empty($food['brand']) && $food['brand'] !== 'TACO'): ?>
-                                    <br><small style="color: #6b7280; font-size: 0.85em;">🏷️ <?= htmlspecialchars($food['brand']) ?></small>
+                                    <div class="food-brand">
+                                        <i class="fas fa-tag"></i>
+                                        <?= htmlspecialchars($food['brand']) ?>
+                                    </div>
                                 <?php endif; ?>
-                            </div>
-                            <div class="food-macros">
-                                <div class="macro-item">
-                                    <div class="macro-label">Calorias</div>
-                                    <div class="macro-value"><?= $food['energy_kcal_100g'] ?>kcal</div>
+                                <div class="food-macros">
+                                    <div class="macro-item">
+                                        <div class="macro-label">Calorias</div>
+                                        <div class="macro-value"><?= number_format($food['energy_kcal_100g'], 0) ?>kcal</div>
+                                    </div>
+                                    <div class="macro-item">
+                                        <div class="macro-label">Proteína</div>
+                                        <div class="macro-value"><?= number_format($food['protein_g_100g'], 1) ?>g</div>
+                                    </div>
+                                    <div class="macro-item">
+                                        <div class="macro-label">Carboidratos</div>
+                                        <div class="macro-value"><?= number_format($food['carbohydrate_g_100g'], 1) ?>g</div>
+                                    </div>
+                                    <div class="macro-item">
+                                        <div class="macro-label">Gorduras</div>
+                                        <div class="macro-value"><?= number_format($food['fat_g_100g'], 1) ?>g</div>
+                                    </div>
                                 </div>
-                                <div class="macro-item">
-                                    <div class="macro-label">Proteína</div>
-                                    <div class="macro-value"><?= $food['protein_g_100g'] ?>g</div>
-                                </div>
-                                <div class="macro-item">
-                                    <div class="macro-label">Carboidratos</div>
-                                    <div class="macro-value"><?= $food['carbohydrate_g_100g'] ?>g</div>
-                                </div>
-                                <div class="macro-item">
-                                    <div class="macro-label">Gorduras</div>
-                                    <div class="macro-value"><?= $food['fat_g_100g'] ?>g</div>
-                                </div>
-                            </div>
-                            <div class="food-current-category" 
-                                 id="category-display-<?= $food['id'] ?>" 
-                                 data-categories="<?= htmlspecialchars($food['categories'] ?? '') ?>">
-                                <?php 
-                                if (!empty($food['categories'])) {
-                                    $food_categories = explode(',', $food['categories']);
-                                    $tagsHtml = '';
-                                    foreach ($food_categories as $cat_key) {
-                                        if (isset($categories[$cat_key])) {
-                                            $cat_info = $categories[$cat_key];
-                                            $tagsHtml .= sprintf(
-                                                '<span class="category-tag" style="background: %s20; color: %s; border: 1px solid %s40;">%s %s</span>',
-                                                $cat_info['color'], $cat_info['color'], $cat_info['color'], $cat_info['icon'], $cat_info['name']
-                                            );
+                                <div class="food-current-category" 
+                                     id="category-display-<?= $food['id'] ?>" 
+                                     data-categories="<?= htmlspecialchars($food['categories'] ?? '') ?>">
+                                    <?php 
+                                    if (!empty($food['categories'])) {
+                                        $food_categories = explode(',', $food['categories']);
+                                        $tagsHtml = '';
+                                        foreach ($food_categories as $cat_key) {
+                                            if (isset($categories[$cat_key])) {
+                                                $cat_info = $categories[$cat_key];
+                                                $tagsHtml .= sprintf(
+                                                    '<span class="category-tag" style="background: %s20; color: %s; border: 1px solid %s40;"><i class="fas %s"></i> %s</span>',
+                                                    $cat_info['color'], $cat_info['color'], $cat_info['color'], $cat_info['icon'], $cat_info['name']
+                                                );
+                                            }
                                         }
+                                        echo $tagsHtml;
+                                    } else {
+                                        echo '<span class="unclassified-tag"><i class="fas fa-exclamation-circle"></i> Não classificado</span>';
                                     }
-                                    echo $tagsHtml;
-                                } else {
-                                    echo '<span class="unclassified-tag">Não classificado</span>';
-                                }
-                                ?>
-                            </div>
-                            <div class="food-actions">
-                                <?php foreach ($categories as $key => $cat): ?>
-                                    <button class="category-btn" 
+                                    ?>
+                                </div>
+                                <div class="food-actions">
+                                    <?php foreach ($categories as $key => $cat): ?>
+                                        <button class="category-btn" 
+                                                data-food-id="<?= $food['id'] ?>"
+                                                data-category="<?= $key ?>"
+                                                style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
+                                            <i class="fas <?= $cat['icon'] ?>"></i>
+                                            <span><?= $cat['name'] ?></span>
+                                        </button>
+                                    <?php endforeach; ?>
+                                    
+                                    <!-- Botão para editar unidades -->
+                                    <button class="units-btn <?= empty($food['categories']) ? 'disabled' : '' ?>" 
                                             data-food-id="<?= $food['id'] ?>"
-                                            data-category="<?= $key ?>"
-                                            style="--category-color: <?= $cat['color'] ?>; --category-bg: <?= $cat['color'] ?>20;">
-                                        <?= $cat['icon'] ?> <?= $cat['name'] ?>
+                                            onclick="openUnitsEditor(<?= $food['id'] ?>, '<?= htmlspecialchars($food['name_pt']) ?>', getFoodCategories(<?= $food['id'] ?>))">
+                                        <i class="fas fa-ruler"></i>
+                                        <span>Unidades</span>
+                                        <?php if (empty($food['categories'])): ?>
+                                            <small class="units-hint">Salve a classificação primeiro</small>
+                                        <?php endif; ?>
                                     </button>
-                                <?php endforeach; ?>
-                                
-                                <!-- Botão para editar unidades -->
-                                <button class="units-btn" 
-                                        data-food-id="<?= $food['id'] ?>"
-                                        onclick="openUnitsEditor(<?= $food['id'] ?>, '<?= htmlspecialchars($food['name_pt']) ?>', getFoodCategories(<?= $food['id'] ?>))">
-                                    <i class="fas fa-ruler"></i>
-                                    <span>Unidades</span>
-                                    <small class="units-hint">Salve a classificação primeiro</small>
-                                </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-
-        <!-- Paginação -->
-        <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <?php if ($page > 1): ?>
-                    <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>">« Anterior</a>
-                <?php endif; ?>
-                
-                <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
-                    <?php if ($i == $page): ?>
-                        <span class="current"><?= $i ?></span>
-                    <?php else: ?>
-                        <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>"><?= $i ?></a>
-                    <?php endif; ?>
-                <?php endfor; ?>
-                
-                <?php if ($page < $total_pages): ?>
-                    <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>">Próximo »</a>
-                <?php endif; ?>
+                <?php endforeach; ?>
             </div>
+
+            <!-- Paginação -->
+            <?php if ($total_pages > 1): ?>
+                <div class="dashboard-card pagination-card">
+                    <div class="pagination-info">
+                        Mostrando <?= ($offset + 1) ?> - <?= min($offset + $per_page, $total_items) ?> de <?= number_format($total_items) ?> alimentos
+                    </div>
+                    <div class="pagination-controls">
+                        <?php if ($page > 1): ?>
+                            <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                               class="pagination-btn">
+                                <i class="fas fa-chevron-left"></i> Anterior
+                            </a>
+                        <?php endif; ?>
+                        
+                        <div class="pagination-numbers">
+                            <?php
+                            $start_page = max(1, $page - 2);
+                            $end_page = min($total_pages, $page + 2);
+                            
+                            if ($start_page > 1): ?>
+                                <a href="?page=1&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                   class="pagination-number">1</a>
+                                <?php if ($start_page > 2): ?>
+                                    <span class="pagination-ellipsis">...</span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            
+                            <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                <?php if ($i == $page): ?>
+                                    <span class="pagination-number current"><?= $i ?></span>
+                                <?php else: ?>
+                                    <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                       class="pagination-number"><?= $i ?></a>
+                                <?php endif; ?>
+                            <?php endfor; ?>
+                            
+                            <?php if ($end_page < $total_pages): ?>
+                                <?php if ($end_page < $total_pages - 1): ?>
+                                    <span class="pagination-ellipsis">...</span>
+                                <?php endif; ?>
+                                <a href="?page=<?= $total_pages ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                   class="pagination-number"><?= $total_pages ?></a>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <?php if ($page < $total_pages): ?>
+                            <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                               class="pagination-btn">
+                                Próxima <i class="fas fa-chevron-right"></i>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>
 
 <!-- Auto-save indicator -->
 <div class="auto-save-indicator" id="auto-save-indicator">
-    💾 Salvo!
+    <i class="fas fa-save"></i> Salvo!
 </div>
 
 <!-- Loading overlay -->
@@ -1080,7 +1353,6 @@ include 'includes/header.php';
         <div class="loading-subtext">Aguarde um momento</div>
     </div>
 </div>
-
 
 <script>
 // Definir categorias globalmente para acesso no JS
@@ -1130,15 +1402,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 2. Adicionar listener de clique para TODOS os botões de categoria
     document.getElementById('foods-list').addEventListener('click', function(e) {
-        if (e.target.classList.contains('category-btn')) {
-            const foodId = e.target.dataset.foodId;
-            const category = e.target.dataset.category;
+        if (e.target.closest('.category-btn')) {
+            const btn = e.target.closest('.category-btn');
+            const foodId = btn.dataset.foodId;
+            const category = btn.dataset.category;
             toggleCategory(foodId, category);
         }
     });
     
-    // ... (listeners de ações em lote, se mantidos) ...
+    // 3. Selecionar todos
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.food-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateBulkButton();
+        });
+    }
+    
+    // 4. Atualizar botão bulk quando checkboxes mudarem
+    document.querySelectorAll('.food-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateBulkButton);
+    });
+    
+    // 5. Bulk category select
+    const bulkCategorySelect = document.getElementById('bulk-category');
+    if (bulkCategorySelect) {
+        bulkCategorySelect.addEventListener('change', updateBulkButton);
+    }
 });
+
+function updateBulkButton() {
+    const selected = document.querySelectorAll('.food-checkbox:checked');
+    const bulkCategory = document.getElementById('bulk-category').value;
+    const bulkBtn = document.getElementById('bulk-btn');
+    
+    if (bulkBtn) {
+        bulkBtn.disabled = selected.length === 0 || !bulkCategory;
+    }
+}
+
+function applyBulkClassification() {
+    const selected = document.querySelectorAll('.food-checkbox:checked');
+    const bulkCategory = document.getElementById('bulk-category').value;
+    
+    if (selected.length === 0 || !bulkCategory) return;
+    
+    selected.forEach(checkbox => {
+        const foodId = checkbox.value;
+        // Adiciona a categoria se não existir
+        const currentCategories = classifications[foodId] || [];
+        if (!currentCategories.includes(bulkCategory)) {
+            currentCategories.push(bulkCategory);
+            classifications[foodId] = currentCategories;
+            updateFoodVisual(foodId);
+            saveClassification(foodId);
+        }
+    });
+    
+    // Limpa seleção
+    document.getElementById('select-all').checked = false;
+    document.querySelectorAll('.food-checkbox').forEach(cb => cb.checked = false);
+    updateBulkButton();
+}
 
 // Lida com a lógica de adicionar/remover uma categoria
 function toggleCategory(foodId, category) {
@@ -1176,15 +1502,45 @@ function updateFoodVisual(foodId) {
         const tagsHtml = currentCategories.map(catKey => {
             const catInfo = window.categories[catKey];
             if (!catInfo) return ''; // Segurança caso a categoria não exista
-            return `<span class="category-tag" style="background: ${catInfo.color}20; color: ${catInfo.color}; border: 1px solid ${catInfo.color}40;">${catInfo.icon} ${catInfo.name}</span>`;
+            return `<span class="category-tag" style="background: ${catInfo.color}20; color: ${catInfo.color}; border: 1px solid ${catInfo.color}40;"><i class="fas ${catInfo.icon}"></i> ${catInfo.name}</span>`;
         }).join('');
         categoryDisplay.innerHTML = tagsHtml;
         foodCard.classList.add('classified');
         foodCard.classList.remove('unclassified');
+        
+        // Habilita botão de unidades
+        const unitsBtn = foodCard.querySelector('.units-btn');
+        if (unitsBtn) {
+            unitsBtn.classList.remove('disabled');
+        }
     } else {
-        categoryDisplay.innerHTML = '<span class="unclassified-tag">Não classificado</span>';
+        categoryDisplay.innerHTML = '<span class="unclassified-tag"><i class="fas fa-exclamation-circle"></i> Não classificado</span>';
         foodCard.classList.remove('classified');
         foodCard.classList.add('unclassified');
+        
+        // Desabilita botão de unidades
+        const unitsBtn = foodCard.querySelector('.units-btn');
+        if (unitsBtn) {
+            unitsBtn.classList.add('disabled');
+        }
+    }
+    
+    // Atualiza contadores
+    updateCounters();
+}
+
+// Atualiza contadores
+function updateCounters() {
+    const totalClassified = Object.values(classifications).filter(cats => cats.length > 0).length;
+    const classifiedCountEl = document.getElementById('classified-count');
+    const remainingCountEl = document.getElementById('remaining-count');
+    
+    if (classifiedCountEl) {
+        classifiedCountEl.textContent = totalClassified;
+    }
+    if (remainingCountEl) {
+        const totalItems = <?= (int)$total_items ?>;
+        remainingCountEl.textContent = totalItems - totalClassified;
     }
 }
 
@@ -1207,11 +1563,9 @@ function saveClassification(foodId) {
         hideLoading();
         if (data.success) {
             showAutoSaveIndicator();
-            // Atualiza contadores (opcional, pode ser feito de forma mais robusta)
+            updateCounters();
         } else {
             alert('Erro ao salvar: ' + (data.message || 'Erro desconhecido.'));
-            // Reverter a mudança visual em caso de erro
-            // (implementação mais complexa, omitida por simplicidade agora)
         }
     })
     .catch(error => {
@@ -1220,6 +1574,7 @@ function saveClassification(foodId) {
         console.error('Save Error:', error);
     });
 }
+
 // Função para obter as categorias de um alimento
 function getFoodCategories(foodId) {
     return classifications[foodId] || [];
