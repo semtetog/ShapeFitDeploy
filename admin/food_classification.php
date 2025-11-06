@@ -200,16 +200,6 @@ include 'includes/header.php';
     overflow: visible !important;
 }
 
-.foods-header-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent-orange), #FFA500);
-    border-radius: 20px 20px 0 0;
-}
 
 .foods-header-title {
     margin-bottom: 1.5rem !important;
@@ -403,24 +393,34 @@ include 'includes/header.php';
 }
 
 .custom-select-options {
-    display: none;
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 0.5rem);
     left: 0;
     right: 0;
     z-index: 10000 !important;
-    background: rgba(35, 35, 35, 0.95) !important;
-    backdrop-filter: blur(10px);
+    background: rgba(26, 26, 26, 0.95) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
-    max-height: 250px;
+    max-height: 300px;
     overflow-y: auto;
+    overflow-x: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
     box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
 }
 
 .custom-select.active .custom-select-options {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .custom-select-option {
@@ -1254,7 +1254,9 @@ include 'includes/header.php';
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="foods-filter-btn">Buscar</button>
+                    <button type="submit" class="btn-filter-circular" title="Filtrar">
+                        <i class="fas fa-search"></i>
+                    </button>
                     <?php if (!empty($search) || !empty($category_filter)): ?>
                     <a href="food_classification.php" class="foods-clear-btn">Limpar</a>
                     <?php endif; ?>
