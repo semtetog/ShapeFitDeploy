@@ -88,15 +88,12 @@ $csrf_token = $_SESSION['csrf_token'];
     --mockup-width: calc(var(--mockup-height) / 2); /* Força a proporção 2:1 */
 }
 
-/* O CONTAINER PRINCIPAL USA FLEXBOX */
+/* O CONTAINER PRINCIPAL */
 .edit-recipe-container {
-    display: flex;
-    gap: var(--layout-gap);
     padding: var(--layout-gap);
     /* Padding à esquerda para criar espaço onde o celular fixo fica */
+    /* Celular está em: left = sidebar + gap, então container precisa começar em: sidebar + celular + gap */
     padding-left: calc(var(--sidebar-width) + var(--mockup-width) + var(--layout-gap));
-    /* Alinha os painéis no topo */
-    align-items: flex-start;
 }
 
 /* PAINEL DO CELULAR (ESQUERDA) */
