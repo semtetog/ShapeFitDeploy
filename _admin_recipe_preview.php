@@ -733,7 +733,7 @@ const updateIngredients = (ingredients) => {
                 removeBtn.className = 'btn-remove-ingredient-inline';
                 removeBtn.title = 'Remover';
                 removeBtn.innerHTML = '×';
-                removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
+                removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: auto; margin-right: 0; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
                 removeBtn.addEventListener('mouseenter', function() {
                     this.style.opacity = '1';
                 });
@@ -1094,7 +1094,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reconfigurar botão de remover - usar mousedown para capturar antes do focus
             const removeBtn = newItem.querySelector('.btn-remove-ingredient-inline');
             if (removeBtn) {
-                removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
+                removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: auto; margin-right: 0; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
                 removeBtn.addEventListener('mouseenter', function() {
                     this.style.opacity = '1';
                 });
@@ -1178,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', function() {
             removeBtn.className = 'btn-remove-ingredient-inline';
             removeBtn.title = 'Remover';
             removeBtn.innerHTML = '×';
-            removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
+            removeBtn.style.cssText = 'background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; margin-left: auto; margin-right: 0; opacity: 0.5; transition: opacity 0.2s ease; line-height: 1; min-width: 24px; min-height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 10; position: relative;';
             removeBtn.addEventListener('mouseenter', function() {
                 this.style.opacity = '1';
             });
