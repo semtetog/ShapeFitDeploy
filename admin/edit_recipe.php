@@ -1116,12 +1116,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 newCategoryInput.value = '';
                 showFeedback('Categoria criada e selecionada!', 'success');
                 
-                // Atualizar preview com a nova categoria
-                if (iframe && iframe.contentWindow) {
-                    const selectedCategories = Array.from(document.querySelectorAll('#categories-grid-container input[type="checkbox"]:checked'))
-                        .map(cb => cb.nextElementSibling.textContent.trim());
-                    iframe.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
-                }
+                // Atualizar preview com a nova categoria imediatamente
+                setTimeout(() => {
+                    const iframe = document.getElementById('recipe-preview-frame');
+                    if (iframe && iframe.contentWindow) {
+                        const selectedCategories = Array.from(gridContainer.querySelectorAll('input[type="checkbox"]:checked'))
+                            .map(cb => {
+                                const label = cb.nextElementSibling;
+                                return label ? label.textContent.trim() : '';
+                            })
+                            .filter(name => name);
+                        iframe.contentWindow.postMessage({ type: 'updateCategories', value: selectedCategories }, '*');
+                    }
+                }, 100);
             } else { 
                 showFeedback(data.message || 'Ocorreu um erro.'); 
             }
