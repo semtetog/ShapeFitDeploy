@@ -87,25 +87,32 @@ $csrf_token = $_SESSION['csrf_token'];
 .edit-recipe-container {
     max-width: 100% !important;
     padding: 0 !important;
+    width: 100% !important;
 }
 
 /* ===== LAYOUT DE 2 COLUNAS ===== */
-.live-editor-container {
+.edit-recipe-container .live-editor-container {
     display: grid !important;
     grid-template-columns: 1fr 400px !important;
     gap: 2rem !important;
     align-items: flex-start !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.editor-panel {
+.edit-recipe-container .editor-panel {
     display: flex !important;
     flex-direction: column !important;
     gap: 2rem !important;
+    width: 100% !important;
 }
 
-.preview-panel {
+.edit-recipe-container .preview-panel {
     position: sticky !important;
     top: 20px !important;
+    width: 400px !important;
+    flex-shrink: 0 !important;
 }
 
 /* ===== CARDS (PADRÃO VIEW_USER) ===== */
