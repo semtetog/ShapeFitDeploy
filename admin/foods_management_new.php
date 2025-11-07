@@ -1226,7 +1226,7 @@ require_once __DIR__ . '/includes/header.php';
                                         </div>
                                     <?php endif; ?>
                                 </td>
-                                <td style="text-align: left; vertical-align: middle; width: 200px; min-width: 200px; max-width: 200px; overflow: hidden;">
+                                <td style="text-align: left; vertical-align: middle; width: 180px; min-width: 180px; max-width: 180px; overflow: hidden; padding-right: 1rem;">
                                     <?php 
                                     $source = $food['source_table'];
                                     $badgeClass = '';
@@ -1271,12 +1271,16 @@ require_once __DIR__ . '/includes/header.php';
                                         <?php echo $badgeText; ?>
                                     </span>
                                 </td>
-                                <td style="text-align: right; vertical-align: middle; width: 280px; min-width: 280px; max-width: 280px; padding-left: 1rem;">
+                                <td style="text-align: right; vertical-align: middle; width: 220px; min-width: 220px; max-width: 220px; padding-left: 1.5rem;">
                                     <div class="actions" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex-wrap: nowrap;">
                                         <?php if (!empty($food['added_by_user_id'])): ?>
                                             <!-- Botão Aprovar para alimentos criados por usuários -->
-                                            <button type="button" onclick="approveFood(<?php echo $food['id']; ?>)" class="btn-action approve" style="white-space: nowrap; flex-shrink: 0;">
-                                                <i class="fas fa-check"></i> Aprovar
+                                            <button type="button" 
+                                                    onclick="approveFood(<?php echo $food['id']; ?>)" 
+                                                    class="btn-action approve btn-icon-only" 
+                                                    title="Adicionar ao banco de dados global"
+                                                    style="white-space: nowrap; flex-shrink: 0; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-plus"></i>
                                             </button>
                                         <?php endif; ?>
                                         <button type="button" onclick="openEditFoodModal(<?php echo $food['id']; ?>)" class="btn-action edit" style="white-space: nowrap; flex-shrink: 0;">
@@ -2174,16 +2178,16 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .data-table th:nth-child(2) {
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
 }
 
 .data-table th:last-child {
     text-align: right;
-    width: 280px;
-    min-width: 280px;
-    max-width: 280px;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
 }
 
 .data-table td {
@@ -2210,23 +2214,24 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .data-table td:nth-child(2) {
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
     text-align: left;
     white-space: normal;
     overflow: hidden;
     word-wrap: break-word;
+    padding-right: 1rem;
 }
 
 .data-table td:last-child {
     text-align: right;
-    width: 280px;
-    min-width: 280px;
-    max-width: 280px;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
     white-space: nowrap;
     overflow: visible;
-    padding-left: 1rem;
+    padding-left: 1.5rem;
 }
 
 /* Actions - Alinhamento Perfeito */
@@ -2296,6 +2301,22 @@ document.addEventListener('DOMContentLoaded', function() {
     border-color: #22C55E;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-action.approve.btn-icon-only {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.btn-action.approve.btn-icon-only i {
+    font-size: 0.875rem;
+    margin: 0;
 }
 </style>
 
