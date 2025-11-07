@@ -1831,6 +1831,29 @@ function initFlatpickr() {
         endDateInput._flatpickr.destroy();
     }
     
+    // Função para remover seta do calendário
+    function removeCalendarArrow(picker) {
+        if (picker && picker.calendarContainer) {
+            const calendar = picker.calendarContainer;
+            calendar.classList.remove('arrowTop', 'arrowBottom');
+            
+            // Remover setas via CSS (pseudo-elements)
+            const style = document.createElement('style');
+            style.textContent = `
+                .flatpickr-calendar.arrowTop::before,
+                .flatpickr-calendar.arrowTop::after,
+                .flatpickr-calendar.arrowBottom::before,
+                .flatpickr-calendar.arrowBottom::after {
+                    display: none !important;
+                }
+            `;
+            if (!document.head.querySelector('style[data-flatpickr-arrow-remover]')) {
+                style.setAttribute('data-flatpickr-arrow-remover', 'true');
+                document.head.appendChild(style);
+            }
+        }
+    }
+    
     // Inicializar para data de início
     if (startDateInput) {
         const startPicker = flatpickr(startDateInput, {
@@ -1845,37 +1868,27 @@ function initFlatpickr() {
                         endDatePicker.set('minDate', nextDay);
                     }
                 }
+            },
+            onReady: function(selectedDates, dateStr, instance) {
+                removeCalendarArrow(instance);
+            },
+            onOpen: function(selectedDates, dateStr, instance) {
+                setTimeout(() => removeCalendarArrow(instance), 50);
             }
         });
-        
-        // Remover classes de seta após inicialização e sempre que o calendário for aberto
-        if (startPicker) {
-            startPicker.config.onOpen.push(function() {
-                setTimeout(() => {
-                    const calendar = this.calendarContainer;
-                    if (calendar) {
-                        calendar.classList.remove('arrowTop', 'arrowBottom');
-                    }
-                }, 10);
-            });
-        }
     }
     
     // Inicializar para data de fim
     if (endDateInput) {
-        const endPicker = flatpickr(endDateInput, flatpickrOptions);
-        
-        // Remover classes de seta após inicialização e sempre que o calendário for aberto
-        if (endPicker) {
-            endPicker.config.onOpen.push(function() {
-                setTimeout(() => {
-                    const calendar = this.calendarContainer;
-                    if (calendar) {
-                        calendar.classList.remove('arrowTop', 'arrowBottom');
-                    }
-                }, 10);
-            });
-        }
+        const endPicker = flatpickr(endDateInput, {
+            ...flatpickrOptions,
+            onReady: function(selectedDates, dateStr, instance) {
+                removeCalendarArrow(instance);
+            },
+            onOpen: function(selectedDates, dateStr, instance) {
+                setTimeout(() => removeCalendarArrow(instance), 50);
+            }
+        });
     }
 }
 
