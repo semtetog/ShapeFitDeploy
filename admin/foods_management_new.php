@@ -20,21 +20,26 @@ $offset = ($page - 1) * $per_page;
 // --- Estatísticas gerais ---
 $stats = [];
 
-// Total de alimentos (excluindo USER_OFF - alimentos bugados)
-$stats['total'] = $conn->query("SELECT COUNT(*) as count FROM sf_food_items WHERE source_table != 'USER_OFF' AND source_table != 'user_off' AND source_table != 'user-off'")->fetch_assoc()['count'];
+// Total de alimentos globais (excluindo USER_OFF e alimentos criados por usuários)
+$stats['total'] = $conn->query("SELECT COUNT(*) as count FROM sf_food_items WHERE source_table != 'USER_OFF' AND source_table != 'user_off' AND source_table != 'user-off' AND added_by_user_id IS NULL")->fetch_assoc()['count'];
 
-// Por fonte (excluindo USER_OFF)
+// Por fonte (excluindo USER_OFF e alimentos criados por usuários para contagem geral)
 $stats_query = "SELECT source_table, COUNT(*) as count 
                 FROM sf_food_items 
                 WHERE source_table != 'USER_OFF' 
                   AND source_table != 'user_off' 
                   AND source_table != 'user-off'
+                  AND added_by_user_id IS NULL
                 GROUP BY source_table 
                 ORDER BY count DESC";
 $stats_result = $conn->query($stats_query);
 while ($row = $stats_result->fetch_assoc()) {
     $stats['by_source'][$row['source_table']] = $row['count'];
 }
+
+// Contagem separada para alimentos criados por usuários (para exibição no card)
+$user_created_count = $conn->query("SELECT COUNT(*) as count FROM sf_food_items WHERE source_table = 'user_created' AND added_by_user_id IS NOT NULL")->fetch_assoc()['count'];
+$stats['by_source']['user_created'] = $user_created_count;
 
 // --- Construir query de busca ---
 $sql = "SELECT * FROM sf_food_items";
@@ -52,9 +57,20 @@ if (!empty($search_term)) {
 }
 
 if (!empty($source_filter)) {
-    $conditions[] = "source_table = ?";
-    $params[] = $source_filter;
-    $types .= 's';
+    if ($source_filter === 'user_created') {
+        // Para "Criados por Usuário", mostrar apenas alimentos com added_by_user_id IS NOT NULL
+        $conditions[] = "source_table = ? AND added_by_user_id IS NOT NULL";
+        $params[] = $source_filter;
+        $types .= 's';
+    } else {
+        // Para outras fontes, mostrar apenas alimentos globais (added_by_user_id IS NULL)
+        $conditions[] = "source_table = ? AND added_by_user_id IS NULL";
+        $params[] = $source_filter;
+        $types .= 's';
+    }
+} else {
+    // Se não há filtro, mostrar apenas alimentos globais (não mostrar alimentos criados por usuários)
+    $conditions[] = "added_by_user_id IS NULL";
 }
 
 if (!empty($conditions)) {
@@ -93,9 +109,20 @@ if (!empty($search_term)) {
 }
 
 if (!empty($source_filter)) {
-    $count_conditions[] = "source_table = ?";
-    $count_params[] = $source_filter;
-    $count_types .= 's';
+    if ($source_filter === 'user_created') {
+        // Para "Criados por Usuário", mostrar apenas alimentos com added_by_user_id IS NOT NULL
+        $count_conditions[] = "source_table = ? AND added_by_user_id IS NOT NULL";
+        $count_params[] = $source_filter;
+        $count_types .= 's';
+    } else {
+        // Para outras fontes, mostrar apenas alimentos globais (added_by_user_id IS NULL)
+        $count_conditions[] = "source_table = ? AND added_by_user_id IS NULL";
+        $count_params[] = $source_filter;
+        $count_types .= 's';
+    }
+} else {
+    // Se não há filtro, mostrar apenas alimentos globais (não mostrar alimentos criados por usuários)
+    $count_conditions[] = "added_by_user_id IS NULL";
 }
 
 if (!empty($count_conditions)) {
@@ -788,6 +815,19 @@ require_once __DIR__ . '/includes/header.php';
     box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
 }
 
+.btn-action.approve {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22C55E;
+}
+
+.btn-action.approve:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22C55E;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
 /* Empty State - usando estilo dashboard-card */
 .empty-state-card {
     background: rgba(255, 255, 255, 0.05);
@@ -1231,6 +1271,12 @@ require_once __DIR__ . '/includes/header.php';
                                 </td>
                                 <td style="text-align: right; vertical-align: middle;">
                                     <div class="actions" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem;">
+                                        <?php if (!empty($food['added_by_user_id'])): ?>
+                                            <!-- Botão Aprovar para alimentos criados por usuários -->
+                                            <button type="button" onclick="approveFood(<?php echo $food['id']; ?>)" class="btn-action approve">
+                                                <i class="fas fa-check"></i> Aprovar
+                                            </button>
+                                        <?php endif; ?>
                                         <button type="button" onclick="openEditFoodModal(<?php echo $food['id']; ?>)" class="btn-action edit">
                                             <i class="fas fa-edit"></i> Editar
                                         </button>
@@ -1599,6 +1645,37 @@ function deleteFood() {
     .catch(error => {
         console.error('Erro:', error);
         alert('Erro ao excluir alimento: ' + error.message);
+    });
+}
+
+function approveFood(foodId) {
+    if (!confirm('Tem certeza que deseja APROVAR este alimento?\n\nO alimento ficará disponível para todos os usuários.')) {
+        return;
+    }
+    const formData = new FormData();
+    formData.append('action', 'approve');
+    formData.append('id', foodId);
+    fetch('process_food.php?ajax=1', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro na resposta do servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Mantém os parâmetros da URL atual (filtros, página, etc)
+            window.location.href = window.location.pathname + window.location.search;
+        } else {
+            alert('Erro ao aprovar: ' + (data.message || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao aprovar alimento: ' + error.message);
     });
 }
 
@@ -2202,6 +2279,19 @@ document.addEventListener('DOMContentLoaded', function() {
     border-color: #F44336;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.btn-action.approve {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22C55E;
+}
+
+.btn-action.approve:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22C55E;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 </style>
 

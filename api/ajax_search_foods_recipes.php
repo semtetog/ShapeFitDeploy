@@ -76,6 +76,9 @@ try {
 
     // Buscar alimentos se solicitado
     if ($type === 'all' || $type === 'foods') {
+        $user_id = $_SESSION['user_id'];
+        
+        // Filtrar alimentos: mostrar apenas globais (added_by_user_id IS NULL) ou do próprio usuário
         $sql_foods = "SELECT 
             id, 
             name_pt as name,
@@ -87,6 +90,8 @@ try {
             'sf_food_items' as source_table
         FROM sf_food_items 
         WHERE name_pt LIKE ? 
+        AND (added_by_user_id IS NULL OR added_by_user_id = ?)
+        AND source_table != 'USER_OFF'
         ORDER BY 
             CASE WHEN name_pt LIKE ? THEN 1 ELSE 2 END,
             name_pt ASC
@@ -97,7 +102,7 @@ try {
             returnError('Erro na consulta de alimentos.');
         }
         
-        $stmt_foods->bind_param("ss", $local_term, $start_term);
+        $stmt_foods->bind_param("sis", $local_term, $user_id, $start_term);
         $stmt_foods->execute();
         $result_foods = $stmt_foods->get_result();
         

@@ -32,6 +32,12 @@ try {
             $response['message'] = 'Alimento excluído com sucesso!';
             break;
             
+        case 'approve':
+            processApproveFood();
+            $response['success'] = true;
+            $response['message'] = 'Alimento aprovado e disponibilizado globalmente!';
+            break;
+            
         default:
             throw new Exception('Ação inválida');
     }
@@ -207,6 +213,42 @@ function processDeleteFood() {
     
     if (!$stmt->execute()) {
         throw new Exception('Erro ao excluir alimento: ' . $stmt->error);
+    }
+    
+    $stmt->close();
+}
+
+function processApproveFood() {
+    global $conn;
+    
+    $id = (int)($_POST['id'] ?? 0);
+    
+    if ($id <= 0) {
+        throw new Exception('ID inválido');
+    }
+    
+    // Verificar se existe e se foi criado por usuário
+    $stmt_check = $conn->prepare("SELECT id, added_by_user_id FROM sf_food_items WHERE id = ?");
+    $stmt_check->bind_param("i", $id);
+    $stmt_check->execute();
+    $result = $stmt_check->get_result();
+    if ($result->num_rows === 0) {
+        $stmt_check->close();
+        throw new Exception('Alimento não encontrado');
+    }
+    $food = $result->fetch_assoc();
+    $stmt_check->close();
+    
+    if ($food['added_by_user_id'] === null) {
+        throw new Exception('Este alimento já é global');
+    }
+    
+    // Aprovar: remover added_by_user_id (tornar global)
+    $stmt = $conn->prepare("UPDATE sf_food_items SET added_by_user_id = NULL WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    
+    if (!$stmt->execute()) {
+        throw new Exception('Erro ao aprovar alimento: ' . $stmt->error);
     }
     
     $stmt->close();
