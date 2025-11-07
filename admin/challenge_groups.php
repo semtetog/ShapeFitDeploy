@@ -738,59 +738,71 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
 }
 
-/* Esconder completamente o ícone de calendário nativo */
-.challenge-form-input[type="date"] {
+/* Input de data moderno - calendário nativo estilizado */
+.date-input-modern {
     position: relative;
     color-scheme: dark;
+    padding-right: 3rem !important;
 }
 
-.challenge-form-input[type="date"]::-webkit-calendar-picker-indicator {
-    display: none;
-}
-
-.challenge-form-input[type="date"]::-webkit-inner-spin-button,
-.challenge-form-input[type="date"]::-webkit-outer-spin-button {
-    display: none;
-}
-
-/* Input de data customizado com botão */
-.date-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.date-input-wrapper .challenge-form-input[type="date"] {
-    flex: 1;
-}
-
-.date-picker-btn {
-    padding: 0 0.875rem;
+/* Ícone de calendário - círculo moderno */
+.date-input-modern::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    position: absolute;
+    right: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+    border-radius: 50%;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 10px;
-    color: var(--accent-orange);
-    cursor: pointer;
+    padding: 0.5rem;
     transition: all 0.3s ease;
-    font-size: 0.875rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 44px;
-    flex-shrink: 0;
-    height: 100%;
+    opacity: 1;
+    filter: invert(0.6) sepia(1) saturate(5) hue-rotate(0deg) brightness(1.2);
 }
 
-.date-picker-btn:hover {
+.date-input-modern::-webkit-calendar-picker-indicator:hover {
     background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
-    transform: translateY(-1px);
+    transform: scale(1.05);
 }
 
-.date-picker-btn i {
-    font-size: 0.875rem;
+.date-input-modern::-webkit-calendar-picker-indicator:active {
+    transform: scale(0.95);
+}
+
+/* Para Firefox */
+.date-input-modern::-moz-calendar-picker-indicator {
+    cursor: pointer;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    padding: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    transition: all 0.3s ease;
+}
+
+.date-input-modern::-moz-calendar-picker-indicator:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
+}
+
+/* Remover setas de spin */
+.date-input-modern::-webkit-inner-spin-button,
+.date-input-modern::-webkit-outer-spin-button {
+    display: none;
+}
+
+/* Calendário nativo estilizado (quando aberto) */
+.date-input-modern:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
 .challenge-form-textarea {
