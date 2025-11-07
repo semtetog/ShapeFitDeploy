@@ -570,15 +570,16 @@
 /* Quando há muitas barras (mais de 7), permitir wrap em múltiplas fileiras */
 #exercise-bars.many-bars,
 #sleep-bars.many-bars {
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
 }
 
 #exercise-bars.many-bars .improved-bar-container,
 #sleep-bars.many-bars .improved-bar-container {
-    flex: 0 0 calc((100% - (6 * 1rem)) / 7);
-    max-width: calc((100% - (6 * 1rem)) / 7);
-    min-width: 60px;
+    flex: 0 0 calc((100% - (6 * 1rem)) / 7) !important;
+    max-width: calc((100% - (6 * 1rem)) / 7) !important;
+    min-width: 60px !important;
+    width: calc((100% - (6 * 1rem)) / 7) !important;
 }
 
 
@@ -2535,6 +2536,60 @@ function renderExerciseChart(data) {
     });
     
     chartContainer.innerHTML = chartHTML;
+}
+
+// Renderizar gráfico de sono (igual hidratação)
+function renderSleepChart(data) {
+    const chartContainer = document.getElementById('sleep-bars');
+    if (!chartContainer || !data || data.length === 0) {
+        chartContainer.innerHTML = `
+            <div class="empty-chart">
+                <i class="fas fa-bed"></i>
+                <p>Nenhum registro encontrado</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let chartHTML = '';
+    data.forEach(day => {
+        const hours = parseFloat(day.hours || 0);
+        const percentage = day.percentage || 0;
+        const limitedPercentage = Math.min(percentage, 120);
+        let barHeight = 0;
+        if (limitedPercentage === 0) {
+            barHeight = 0;
+        } else if (limitedPercentage >= 100) {
+            barHeight = 160;
+        } else {
+            barHeight = (limitedPercentage / 100) * 160;
+        }
+        
+        const status = day.status || 'empty';
+        
+        chartHTML += `
+            <div class="improved-bar-container">
+                <div class="improved-bar-wrapper">
+                    <div class="improved-bar ${status}" style="height: ${barHeight}px"></div>
+                    ${hours > 0 ? `<div class="bar-percentage-text">${Math.round(limitedPercentage)}%</div>` : ''}
+                    <div class="improved-goal-line"></div>
+                </div>
+                <div class="improved-bar-info">
+                    <span class="improved-date">${new Date(day.date + 'T00:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</span>
+                    ${hours > 0 ? `<span class="improved-ml">${hours.toFixed(1)}h</span>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    chartContainer.innerHTML = chartHTML;
+    
+    // Adicionar classe 'many-bars' quando houver mais de 7 barras
+    if (data.length > 7) {
+        chartContainer.classList.add('many-bars');
+    } else {
+        chartContainer.classList.remove('many-bars');
+    }
 }
 
 // Renderizar gráfico de sono (igual hidratação)
