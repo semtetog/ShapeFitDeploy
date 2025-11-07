@@ -1283,7 +1283,7 @@ include 'includes/header.php';
                                 <i class="fas fa-chevron-down"></i>
             </div>
                             <div class="custom-select-options">
-                                <div class="custom-select-option" data-value="">Todas as categorias</div>
+                                <div class="custom-select-option <?= empty($category_filter) ? 'selected' : '' ?>" data-value="">Todas as categorias</div>
                     <?php foreach ($categories as $key => $cat): ?>
                                     <div class="custom-select-option <?= $category_filter === $key ? 'selected' : '' ?>" data-value="<?= $key ?>">
                                         <?= htmlspecialchars($cat['name']) ?>
@@ -1701,9 +1701,10 @@ function initCustomSelect(selectId, inputId, submitForm) {
             e.stopPropagation();
             
             const value = this.getAttribute('data-value');
-            if (!value) return;
+            // Aceita string vazia como valor válido (para "Todas as categorias")
+            if (value === null) return;
             
-            hiddenInput.value = value;
+            hiddenInput.value = value || '';
             if (valueDisplay) {
                 valueDisplay.textContent = this.textContent;
             }
