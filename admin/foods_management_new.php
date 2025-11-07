@@ -1546,7 +1546,12 @@ function saveFood() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro na resposta do servidor');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             window.location.reload();
@@ -1558,7 +1563,7 @@ function saveFood() {
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao salvar alimento');
+        alert('Erro ao salvar alimento: ' + error.message);
         saveBtn.innerHTML = originalText;
         saveBtn.disabled = false;
     });
@@ -1576,7 +1581,12 @@ function deleteFood() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro na resposta do servidor');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             window.location.reload();
@@ -1586,7 +1596,7 @@ function deleteFood() {
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao excluir alimento');
+        alert('Erro ao excluir alimento: ' + error.message);
     });
 }
 

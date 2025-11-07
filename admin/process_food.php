@@ -7,33 +7,53 @@ require_once __DIR__ . '/../includes/db.php';
 
 requireAdminLogin();
 
+$isAjax = isset($_GET['ajax']) && $_GET['ajax'] == '1';
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
+
+$response = ['success' => false, 'message' => ''];
 
 try {
     switch ($action) {
         case 'add':
             processAddFood();
+            $response['success'] = true;
+            $response['message'] = 'Alimento adicionado com sucesso!';
             break;
             
         case 'edit':
             processEditFood();
+            $response['success'] = true;
+            $response['message'] = 'Alimento atualizado com sucesso!';
             break;
             
         case 'delete':
             processDeleteFood();
+            $response['success'] = true;
+            $response['message'] = 'Alimento excluído com sucesso!';
             break;
             
         default:
             throw new Exception('Ação inválida');
     }
 } catch (Exception $e) {
-    $_SESSION['admin_alert'] = [
-        'type' => 'danger',
-        'message' => 'Erro: ' . $e->getMessage()
-    ];
+    $response['success'] = false;
+    $response['message'] = $e->getMessage();
+    
+    if (!$isAjax) {
+        $_SESSION['admin_alert'] = [
+            'type' => 'danger',
+            'message' => 'Erro: ' . $e->getMessage()
+        ];
+    }
 }
 
-header('Location: foods_management.php');
+if ($isAjax) {
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+
+header('Location: foods_management_new.php');
 exit;
 
 function processAddFood() {
@@ -78,12 +98,7 @@ function processAddFood() {
     
     $stmt->bind_param("sdddds", $name_pt, $energy_kcal_100g, $protein_g_100g, $carbohydrate_g_100g, $fat_g_100g, $source_table);
     
-    if ($stmt->execute()) {
-        $_SESSION['admin_alert'] = [
-            'type' => 'success',
-            'message' => 'Alimento adicionado com sucesso!'
-        ];
-    } else {
+    if (!$stmt->execute()) {
         throw new Exception('Erro ao adicionar alimento: ' . $stmt->error);
     }
     
@@ -148,12 +163,7 @@ function processEditFood() {
     
     $stmt->bind_param("sddddsi", $name_pt, $energy_kcal_100g, $protein_g_100g, $carbohydrate_g_100g, $fat_g_100g, $source_table, $id);
     
-    if ($stmt->execute()) {
-        $_SESSION['admin_alert'] = [
-            'type' => 'success',
-            'message' => 'Alimento atualizado com sucesso!'
-        ];
-    } else {
+    if (!$stmt->execute()) {
         throw new Exception('Erro ao atualizar alimento: ' . $stmt->error);
     }
     
@@ -163,7 +173,7 @@ function processEditFood() {
 function processDeleteFood() {
     global $conn;
     
-    $id = (int)($_GET['id'] ?? 0);
+    $id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
     
     if ($id <= 0) {
         throw new Exception('ID inválido');
@@ -195,12 +205,7 @@ function processDeleteFood() {
     $stmt = $conn->prepare("DELETE FROM sf_food_items WHERE id = ?");
     $stmt->bind_param("i", $id);
     
-    if ($stmt->execute()) {
-        $_SESSION['admin_alert'] = [
-            'type' => 'success',
-            'message' => 'Alimento excluído com sucesso!'
-        ];
-    } else {
+    if (!$stmt->execute()) {
         throw new Exception('Erro ao excluir alimento: ' . $stmt->error);
     }
     
