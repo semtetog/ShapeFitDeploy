@@ -113,11 +113,11 @@ if ($count_stmt) {
 
 $total_pages = ceil($total_items / $per_page);
 
-// Buscar usuários para o modal
+// Buscar usuários para o modal (apenas usuários que completaram onboarding)
 $users_query = "SELECT u.id, u.name, u.email, up.profile_image_filename 
                 FROM sf_users u 
                 LEFT JOIN sf_user_profiles up ON u.id = up.user_id 
-                WHERE u.status = 'active'
+                WHERE u.onboarding_complete = 1
                 ORDER BY u.name";
 $users_result = $conn->query($users_query);
 $users = $users_result->fetch_all(MYSQLI_ASSOC);
