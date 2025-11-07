@@ -538,37 +538,33 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Garantir que as improved bars fiquem contidas dentro do card e em fileira horizontal */
+/* Garantir que as improved bars usem exatamente o mesmo CSS da hidratação */
 .exercise-chart-improved .improved-chart,
 .sleep-chart-improved .improved-chart {
-    overflow-x: auto;
-    overflow-y: visible;
-    padding: 1rem 0;
+    /* CSS padrão já aplicado em view_user_addon.css */
 }
 
 #exercise-bars,
 #sleep-bars {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: flex-start !important;
-    align-items: flex-end !important;
-    gap: 1rem !important;
-    min-width: min-content !important;
-    min-height: 240px !important;
-    padding: 1rem 0.5rem 0.5rem !important;
-    position: relative !important;
+    /* Usar CSS padrão - apenas garantir que não quebre */
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    gap: 1rem;
+    min-height: 240px;
+    padding: 1rem 0.5rem 0.5rem;
+    position: relative;
 }
 
 #exercise-bars .improved-bar-container,
 #sleep-bars .improved-bar-container {
-    flex: 0 0 auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    min-width: 60px !important;
-    max-width: 100px !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 60px;
+    max-width: 100px;
 }
 
 
