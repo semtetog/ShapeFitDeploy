@@ -69,6 +69,165 @@
             </div>
         </div>
 
+        <!-- SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO E SONO -->
+        <div class="exercise-sleep-tracking-section">
+            
+            <!-- Card de Exercício Físico -->
+            <div class="exercise-tracking-card">
+                <div class="tracking-card-header">
+                    <div class="tracking-card-title">
+                        <div class="tracking-icon exercise-icon">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <div class="tracking-title-content">
+                            <h3>Exercício Físico</h3>
+                            <p>
+                                <?php 
+                                $exercise_freq_names = [
+                                    '1_2x_week' => '1 a 2x/semana',
+                                    '3_4x_week' => '3 a 4x/semana',
+                                    '5_6x_week' => '5 a 6x/semana',
+                                    '6_7x_week' => '6 a 7x/semana',
+                                    '7plus_week' => '+ de 7x/semana',
+                                    'sedentary' => 'Sedentário'
+                                ];
+                                $exercise_freq = $user_data['exercise_frequency'] ?? 'sedentary';
+                                $exercise_type = $user_data['exercise_type'] ?? 'Não informado';
+                                echo htmlspecialchars($exercise_type) . ' - ' . ($exercise_freq_names[$exercise_freq] ?? 'Não informado');
+                                ?>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="period-selector">
+                        <button class="period-btn active" data-period="7" onclick="changeExerciseSleepPeriod(7)">
+                            7 dias
+                        </button>
+                        <button class="period-btn" data-period="15" onclick="changeExerciseSleepPeriod(15)">
+                            15 dias
+                        </button>
+                        <button class="period-btn" data-period="30" onclick="changeExerciseSleepPeriod(30)">
+                            30 dias
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tracking-stats-grid">
+                    <?php
+                    // Calcular estatísticas dos últimos 7 dias
+                    $exercise_7_days = array_filter($routine_exercise_data, function($item) {
+                        $itemDate = new DateTime($item['date']);
+                        $now = new DateTime();
+                        $diff = $now->diff($itemDate)->days;
+                        return $diff < 7;
+                    });
+                    $exercise_total_minutes_7 = array_sum(array_column($exercise_7_days, 'total_minutes'));
+                    $exercise_days_with_data_7 = count($exercise_7_days);
+                    $exercise_avg_daily_7 = $exercise_days_with_data_7 > 0 ? round($exercise_total_minutes_7 / 7, 1) : 0;
+                    $exercise_goal_reached_7 = $exercise_goal_daily_minutes > 0 ? round(($exercise_avg_daily_7 / $exercise_goal_daily_minutes) * 100, 0) : 0;
+                    if ($exercise_goal_reached_7 > 100) $exercise_goal_reached_7 = 100;
+                    ?>
+                    <div class="tracking-stat">
+                        <div class="stat-value" id="exerciseAvgDaily"><?php echo $exercise_avg_daily_7; ?> min</div>
+                        <div class="stat-label">Média Diária</div>
+                        <div class="stat-description" id="exercisePeriodDesc">Últimos 7 dias</div>
+                    </div>
+                    <div class="tracking-stat">
+                        <div class="stat-value"><?php echo $exercise_goal_daily_minutes > 0 ? round($exercise_goal_daily_minutes, 0) : '0'; ?> min</div>
+                        <div class="stat-label">Meta Diária</div>
+                        <div class="stat-description">
+                            <?php echo $exercise_goal_weekly_hours > 0 ? round($exercise_goal_weekly_hours, 1) . 'h/semana' : 'Sem meta'; ?>
+                        </div>
+                    </div>
+                    <div class="tracking-stat">
+                        <div class="stat-value <?php echo $exercise_days_with_data_7 >= 3 ? 'text-success' : ($exercise_days_with_data_7 > 0 ? 'text-warning' : 'text-danger'); ?>" id="exerciseDaysWithData">
+                            <?php echo $exercise_days_with_data_7; ?>/7
+                        </div>
+                        <div class="stat-label">Dias com Exercício</div>
+                        <div class="stat-description" id="exerciseGoalReached">
+                            <?php echo $exercise_goal_daily_minutes > 0 ? $exercise_goal_reached_7 . '% da meta' : 'Sem meta definida'; ?>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tracking-chart-container">
+                    <canvas id="exerciseChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Card de Sono -->
+            <div class="sleep-tracking-card">
+                <div class="tracking-card-header">
+                    <div class="tracking-card-title">
+                        <div class="tracking-icon sleep-icon">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <div class="tracking-title-content">
+                            <h3>Sono</h3>
+                            <p>Meta: 7-8 horas por dia (ideal: 7.5h)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tracking-stats-grid" id="sleepStatsGrid">
+                    <?php
+                    // Calcular estatísticas dos últimos 7 dias
+                    $sleep_7_days = array_filter($routine_sleep_data, function($item) {
+                        $itemDate = new DateTime($item['date']);
+                        $now = new DateTime();
+                        $diff = $now->diff($itemDate)->days;
+                        return $diff < 7;
+                    });
+                    $sleep_total_hours_7 = array_sum(array_column($sleep_7_days, 'sleep_hours'));
+                    $sleep_days_with_data_7 = count($sleep_7_days);
+                    $sleep_avg_daily_7 = $sleep_days_with_data_7 > 0 ? round($sleep_total_hours_7 / 7, 1) : 0;
+                    $sleep_goal_reached_7 = $sleep_goal_hours > 0 ? round(($sleep_avg_daily_7 / $sleep_goal_hours) * 100, 0) : 0;
+                    if ($sleep_goal_reached_7 > 100) $sleep_goal_reached_7 = 100;
+                    
+                    // Determinar status
+                    $sleep_status = 'poor';
+                    $sleep_status_text = 'Abaixo da meta';
+                    if ($sleep_avg_daily_7 >= 7 && $sleep_avg_daily_7 <= 8) {
+                        $sleep_status = 'excellent';
+                        $sleep_status_text = 'Ideal';
+                    } elseif ($sleep_avg_daily_7 >= 6.5 && $sleep_avg_daily_7 < 7) {
+                        $sleep_status = 'good';
+                        $sleep_status_text = 'Bom';
+                    } elseif ($sleep_avg_daily_7 >= 6 && $sleep_avg_daily_7 < 6.5) {
+                        $sleep_status = 'fair';
+                        $sleep_status_text = 'Regular';
+                    } elseif ($sleep_avg_daily_7 >= 5 && $sleep_avg_daily_7 < 6) {
+                        $sleep_status = 'poor';
+                        $sleep_status_text = 'Abaixo da meta';
+                    } else {
+                        $sleep_status = 'critical';
+                        $sleep_status_text = 'Crítico';
+                    }
+                    ?>
+                    <div class="tracking-stat">
+                        <div class="stat-value" id="sleepAvgDaily"><?php echo $sleep_avg_daily_7; ?>h</div>
+                        <div class="stat-label">Média Diária</div>
+                        <div class="stat-description" id="sleepPeriodDesc">Últimos 7 dias</div>
+                    </div>
+                    <div class="tracking-stat">
+                        <div class="stat-value">7.5h</div>
+                        <div class="stat-label">Meta Diária</div>
+                        <div class="stat-description">Ideal (7-8h)</div>
+                    </div>
+                    <div class="tracking-stat">
+                        <div class="stat-value status-<?php echo $sleep_status; ?>" id="sleepDaysWithData">
+                            <?php echo $sleep_days_with_data_7; ?>/7
+                        </div>
+                        <div class="stat-label">Dias Registrados</div>
+                        <div class="stat-description" id="sleepStatusDesc"><?php echo $sleep_status_text; ?> - <?php echo $sleep_goal_reached_7; ?>% da meta</div>
+                    </div>
+                </div>
+                
+                <div class="tracking-chart-container">
+                    <canvas id="sleepChart"></canvas>
+                </div>
+            </div>
+            
+        </div>
 
         <!-- 2. CARD DE GERENCIAMENTO DE MISSÕES -->
         <div class="routine-missions-card">
@@ -378,6 +537,200 @@
     }
     
     .routine-missions-card .missions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* === SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO E SONO === */
+.exercise-sleep-tracking-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.exercise-tracking-card,
+.sleep-tracking-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.tracking-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tracking-card-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.tracking-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tracking-icon.exercise-icon {
+    background: rgba(255, 152, 0, 0.1);
+    border: 1px solid rgba(255, 152, 0, 0.2);
+    color: #FF9800;
+}
+
+.tracking-icon.sleep-icon {
+    background: rgba(156, 39, 176, 0.1);
+    border: 1px solid rgba(156, 39, 176, 0.2);
+    color: #9C27B0;
+}
+
+.tracking-icon i {
+    font-size: 1.5rem;
+}
+
+.tracking-title-content h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.tracking-title-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.period-selector {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.period-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.period-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 107, 0, 0.3);
+    color: var(--text-primary);
+}
+
+.period-btn.active {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+.tracking-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tracking-stat {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tracking-stat .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.tracking-stat .stat-value.text-success {
+    color: #4CAF50;
+}
+
+.tracking-stat .stat-value.text-warning {
+    color: #FF9800;
+}
+
+.tracking-stat .stat-value.text-danger {
+    color: #F44336;
+}
+
+.tracking-stat .stat-value.status-excellent {
+    color: #4CAF50;
+}
+
+.tracking-stat .stat-value.status-good {
+    color: #8BC34A;
+}
+
+.tracking-stat .stat-value.status-fair {
+    color: #FF9800;
+}
+
+.tracking-stat .stat-value.status-poor {
+    color: #FF5722;
+}
+
+.tracking-stat .stat-value.status-critical {
+    color: #F44336;
+}
+
+.tracking-stat .stat-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.tracking-stat .stat-description {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.tracking-chart-container {
+    height: 250px;
+    position: relative;
+}
+
+@media (max-width: 1024px) {
+    .exercise-sleep-tracking-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .tracking-card-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .period-selector {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .tracking-stats-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -2062,6 +2415,415 @@ function goToRoutineDate(dateStr) {
 window.openRoutineCalendar = openRoutineCalendar;
 window.closeRoutineCalendar = closeRoutineCalendar;
 window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
+
+// ============ ACOMPANHAMENTO DE EXERCÍCIO E SONO ============
+let exerciseChartInstance = null;
+let sleepChartInstance = null;
+let currentPeriod = 7;
+
+// Dados do PHP
+const exerciseData = <?php echo json_encode($routine_exercise_data); ?>;
+const sleepData = <?php echo json_encode($routine_sleep_data); ?>;
+const exerciseGoalDailyMinutes = <?php echo isset($exercise_goal_daily_minutes) ? $exercise_goal_daily_minutes : 0; ?>;
+const sleepGoalHours = <?php echo isset($sleep_goal_hours) ? $sleep_goal_hours : 7.5; ?>;
+
+// Função para mudar período
+function changeExerciseSleepPeriod(period) {
+    currentPeriod = period;
+    
+    // Atualizar botões ativos
+    document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (parseInt(btn.dataset.period) === period) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Atualizar estatísticas e gráficos
+    updateExerciseStats();
+    updateSleepStats();
+    updateExerciseChart();
+    updateSleepChart();
+}
+
+// Função para atualizar estatísticas de exercício
+function updateExerciseStats() {
+    const now = new Date();
+    const filteredData = exerciseData.filter(item => {
+        const itemDate = new Date(item.date);
+        const diffTime = Math.abs(now - itemDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= currentPeriod;
+    });
+    
+    const totalMinutes = filteredData.reduce((sum, item) => sum + (parseFloat(item.total_minutes) || 0), 0);
+    const daysWithData = filteredData.length;
+    const avgDaily = daysWithData > 0 ? Math.round((totalMinutes / currentPeriod) * 10) / 10 : 0;
+    const goalReached = exerciseGoalDailyMinutes > 0 ? Math.round((avgDaily / exerciseGoalDailyMinutes) * 100) : 0;
+    
+    // Atualizar DOM
+    const avgDailyEl = document.getElementById('exerciseAvgDaily');
+    const periodDescEl = document.getElementById('exercisePeriodDesc');
+    const daysWithDataEl = document.getElementById('exerciseDaysWithData');
+    const goalReachedEl = document.getElementById('exerciseGoalReached');
+    
+    if (avgDailyEl) avgDailyEl.textContent = avgDaily + ' min';
+    if (periodDescEl) periodDescEl.textContent = 'Últimos ' + currentPeriod + ' dias';
+    if (daysWithDataEl) {
+        daysWithDataEl.textContent = daysWithData + '/' + currentPeriod;
+        // Atualizar classe de cor
+        daysWithDataEl.className = 'stat-value';
+        if (daysWithData >= Math.ceil(currentPeriod * 0.4)) {
+            daysWithDataEl.classList.add('text-success');
+        } else if (daysWithData > 0) {
+            daysWithDataEl.classList.add('text-warning');
+        } else {
+            daysWithDataEl.classList.add('text-danger');
+        }
+    }
+    if (goalReachedEl) {
+        goalReachedEl.textContent = exerciseGoalDailyMinutes > 0 ? goalReached + '% da meta' : 'Sem meta definida';
+    }
+}
+
+// Função para atualizar estatísticas de sono
+function updateSleepStats() {
+    const now = new Date();
+    const filteredData = sleepData.filter(item => {
+        const itemDate = new Date(item.date);
+        const diffTime = Math.abs(now - itemDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= currentPeriod;
+    });
+    
+    const totalHours = filteredData.reduce((sum, item) => sum + (parseFloat(item.sleep_hours) || 0), 0);
+    const daysWithData = filteredData.length;
+    const avgDaily = daysWithData > 0 ? Math.round((totalHours / currentPeriod) * 10) / 10 : 0;
+    const goalReached = sleepGoalHours > 0 ? Math.round((avgDaily / sleepGoalHours) * 100) : 0;
+    
+    // Determinar status
+    let status = 'poor';
+    let statusText = 'Abaixo da meta';
+    if (avgDaily >= 7 && avgDaily <= 8) {
+        status = 'excellent';
+        statusText = 'Ideal';
+    } else if (avgDaily >= 6.5 && avgDaily < 7) {
+        status = 'good';
+        statusText = 'Bom';
+    } else if (avgDaily >= 6 && avgDaily < 6.5) {
+        status = 'fair';
+        statusText = 'Regular';
+    } else if (avgDaily >= 5 && avgDaily < 6) {
+        status = 'poor';
+        statusText = 'Abaixo da meta';
+    } else if (avgDaily > 0) {
+        status = 'critical';
+        statusText = 'Crítico';
+    }
+    
+    // Atualizar DOM
+    const avgDailyEl = document.getElementById('sleepAvgDaily');
+    const periodDescEl = document.getElementById('sleepPeriodDesc');
+    const daysWithDataEl = document.getElementById('sleepDaysWithData');
+    const statusDescEl = document.getElementById('sleepStatusDesc');
+    
+    if (avgDailyEl) avgDailyEl.textContent = avgDaily + 'h';
+    if (periodDescEl) periodDescEl.textContent = 'Últimos ' + currentPeriod + ' dias';
+    if (daysWithDataEl) {
+        daysWithDataEl.textContent = daysWithData + '/' + currentPeriod;
+        // Atualizar classe de status
+        daysWithDataEl.className = 'stat-value status-' + status;
+    }
+    if (statusDescEl) statusDescEl.textContent = statusText + ' - ' + goalReached + '% da meta';
+}
+
+// Função para atualizar gráfico de exercício
+function updateExerciseChart() {
+    const ctx = document.getElementById('exerciseChart');
+    if (!ctx) return;
+    
+    // Filtrar dados pelo período
+    const now = new Date();
+    const filteredData = exerciseData.filter(item => {
+        const itemDate = new Date(item.date);
+        const diffTime = Math.abs(now - itemDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= currentPeriod;
+    });
+    
+    // Criar array de datas para o período (preencher dias sem dados com 0)
+    const dates = [];
+    const dataMap = {};
+    
+    for (let i = currentPeriod - 1; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        date.setHours(0, 0, 0, 0);
+        const dateStr = date.toISOString().split('T')[0];
+        dates.push(dateStr);
+        dataMap[dateStr] = 0;
+    }
+    
+    // Preencher com dados reais
+    filteredData.forEach(item => {
+        const itemDate = new Date(item.date);
+        itemDate.setHours(0, 0, 0, 0);
+        const dateStr = itemDate.toISOString().split('T')[0];
+        if (dataMap.hasOwnProperty(dateStr)) {
+            dataMap[dateStr] = parseFloat(item.total_minutes) || 0;
+        }
+    });
+    
+    // Preparar labels e dados
+    const labels = dates.map(date => {
+        const d = new Date(date);
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    });
+    const data = dates.map(date => dataMap[date]);
+    
+    // Destruir gráfico anterior se existir
+    if (exerciseChartInstance) {
+        exerciseChartInstance.destroy();
+    }
+    
+    // Criar novo gráfico
+    exerciseChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Minutos de Exercício',
+                data: data,
+                backgroundColor: data.map(value => {
+                    if (value === 0) return 'rgba(255, 255, 255, 0.05)';
+                    if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes) return 'rgba(76, 175, 80, 0.8)';
+                    if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes * 0.7) return 'rgba(255, 152, 0, 0.8)';
+                    return 'rgba(244, 67, 54, 0.8)';
+                }),
+                borderColor: data.map(value => {
+                    if (value === 0) return 'rgba(255, 255, 255, 0.1)';
+                    if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes) return 'rgba(76, 175, 80, 1)';
+                    if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes * 0.7) return 'rgba(255, 152, 0, 1)';
+                    return 'rgba(244, 67, 54, 1)';
+                }),
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.parsed.y;
+                            if (value === 0) {
+                                return 'Sem exercício registrado';
+                            }
+                            const hours = Math.floor(value / 60);
+                            const minutes = value % 60;
+                            let label = value + ' min';
+                            if (hours > 0) {
+                                label = hours + 'h ' + minutes + 'min';
+                            }
+                            if (exerciseGoalDailyMinutes > 0) {
+                                const percentage = Math.round((value / exerciseGoalDailyMinutes) * 100);
+                                label += ' (' + percentage + '% da meta)';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: exerciseGoalDailyMinutes > 0 ? Math.max(...data, exerciseGoalDailyMinutes * 1.2) : Math.max(...data, 60),
+                    ticks: {
+                        color: '#b0b0b0',
+                        callback: function(value) {
+                            return value + ' min';
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#b0b0b0'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Função para atualizar gráfico de sono
+function updateSleepChart() {
+    const ctx = document.getElementById('sleepChart');
+    if (!ctx) return;
+    
+    // Filtrar dados pelo período
+    const now = new Date();
+    const filteredData = sleepData.filter(item => {
+        const itemDate = new Date(item.date);
+        const diffTime = Math.abs(now - itemDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= currentPeriod;
+    });
+    
+    // Criar array de datas para o período (preencher dias sem dados com null)
+    const dates = [];
+    const dataMap = {};
+    
+    for (let i = currentPeriod - 1; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        date.setHours(0, 0, 0, 0);
+        const dateStr = date.toISOString().split('T')[0];
+        dates.push(dateStr);
+        dataMap[dateStr] = null;
+    }
+    
+    // Preencher com dados reais
+    filteredData.forEach(item => {
+        const itemDate = new Date(item.date);
+        itemDate.setHours(0, 0, 0, 0);
+        const dateStr = itemDate.toISOString().split('T')[0];
+        if (dataMap.hasOwnProperty(dateStr)) {
+            dataMap[dateStr] = parseFloat(item.sleep_hours) || 0;
+        }
+    });
+    
+    // Preparar labels e dados
+    const labels = dates.map(date => {
+        const d = new Date(date);
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    });
+    const data = dates.map(date => dataMap[date]);
+    
+    // Destruir gráfico anterior se existir
+    if (sleepChartInstance) {
+        sleepChartInstance.destroy();
+    }
+    
+    // Criar novo gráfico
+    sleepChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Horas de Sono',
+                data: data,
+                backgroundColor: data.map(value => {
+                    if (value === null || value === 0) return 'rgba(255, 255, 255, 0.05)';
+                    if (value >= 7 && value <= 8) return 'rgba(76, 175, 80, 0.8)';
+                    if (value >= 6.5 && value < 7) return 'rgba(139, 195, 74, 0.8)';
+                    if (value >= 6 && value < 6.5) return 'rgba(255, 152, 0, 0.8)';
+                    if (value >= 5 && value < 6) return 'rgba(255, 87, 34, 0.8)';
+                    return 'rgba(244, 67, 54, 0.8)';
+                }),
+                borderColor: data.map(value => {
+                    if (value === null || value === 0) return 'rgba(255, 255, 255, 0.1)';
+                    if (value >= 7 && value <= 8) return 'rgba(76, 175, 80, 1)';
+                    if (value >= 6.5 && value < 7) return 'rgba(139, 195, 74, 1)';
+                    if (value >= 6 && value < 6.5) return 'rgba(255, 152, 0, 1)';
+                    if (value >= 5 && value < 6) return 'rgba(255, 87, 34, 1)';
+                    return 'rgba(244, 67, 54, 1)';
+                }),
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.parsed.y;
+                            if (value === null || value === 0) {
+                                return 'Sem registro de sono';
+                            }
+                            const hours = Math.floor(value);
+                            const minutes = Math.round((value - hours) * 60);
+                            let label = hours + 'h';
+                            if (minutes > 0) {
+                                label += ' ' + minutes + 'min';
+                            }
+                            if (sleepGoalHours > 0) {
+                                const percentage = Math.round((value / sleepGoalHours) * 100);
+                                label += ' (' + percentage + '% da meta)';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 12,
+                    ticks: {
+                        color: '#b0b0b0',
+                        callback: function(value) {
+                            return value + 'h';
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#b0b0b0'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Inicializar gráficos quando a aba for ativada
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar listener para mudança de abas
+    document.querySelectorAll('.tab-link').forEach(tab => {
+        tab.addEventListener('click', function() {
+            if (this.dataset.tab === 'routine') {
+                setTimeout(() => {
+                    updateExerciseChart();
+                    updateSleepChart();
+                }, 100);
+            }
+        });
+    });
+    
+    // Inicializar se já estiver na aba routine
+    if (document.getElementById('tab-routine') && document.getElementById('tab-routine').classList.contains('active')) {
+        setTimeout(() => {
+            updateExerciseChart();
+            updateSleepChart();
+        }, 300);
+    }
+});
+
+// Expor função
+window.changeExerciseSleepPeriod = changeExerciseSleepPeriod;
 </script>
 
 <style>

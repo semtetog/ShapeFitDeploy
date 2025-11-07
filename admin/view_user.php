@@ -638,12 +638,12 @@ while ($row = $routine_steps_result->fetch_assoc()) {
 }
 $stmt_routine_steps->close();
 
-// Dados de sono dos últimos 30 dias
+// Dados de sono dos últimos 90 dias (para melhor análise)
 $routine_sleep_data = [];
 $stmt_routine_sleep = $conn->prepare("
     SELECT date, sleep_hours 
     FROM sf_user_daily_tracking 
-    WHERE user_id = ? AND date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    WHERE user_id = ? AND date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
     ORDER BY date DESC
 ");
 $stmt_routine_sleep->bind_param("i", $user_id);
@@ -654,14 +654,15 @@ while ($row = $routine_sleep_result->fetch_assoc()) {
 }
 $stmt_routine_sleep->close();
 
-// Dados de exercícios (simples, sem JOIN)
+// Dados de exercícios agrupados por data (últimos 90 dias para melhor análise)
 $routine_exercise_data = [];
 $stmt_routine_exercise = $conn->prepare("
-    SELECT exercise_name, duration_minutes, updated_at
+    SELECT DATE(updated_at) as date, SUM(duration_minutes) as total_minutes, COUNT(*) as exercise_count
     FROM sf_user_exercise_durations 
     WHERE user_id = ? 
-        AND updated_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-    ORDER BY updated_at DESC
+        AND updated_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+    GROUP BY DATE(updated_at)
+    ORDER BY date DESC
 ");
 $stmt_routine_exercise->bind_param("i", $user_id);
 $stmt_routine_exercise->execute();
@@ -670,6 +671,35 @@ while ($row = $routine_exercise_result->fetch_assoc()) {
     $routine_exercise_data[] = $row;
 }
 $stmt_routine_exercise->close();
+
+// Calcular metas de exercício baseado na frequência
+$exercise_goal_weekly_hours = 0;
+$exercise_goal_daily_minutes = 0;
+switch ($exercise_frequency) {
+    case '1_2x_week':
+        $exercise_goal_weekly_hours = 2.0;
+        break;
+    case '3_4x_week':
+        $exercise_goal_weekly_hours = 4.0;
+        break;
+    case '5_6x_week':
+        $exercise_goal_weekly_hours = 6.0;
+        break;
+    case '6_7x_week':
+        $exercise_goal_weekly_hours = 8.0;
+        break;
+    case '7plus_week':
+        $exercise_goal_weekly_hours = 10.0;
+        break;
+    case 'sedentary':
+    default:
+        $exercise_goal_weekly_hours = 0;
+        break;
+}
+$exercise_goal_daily_minutes = ($exercise_goal_weekly_hours * 60) / 7; // Média diária
+
+// Meta de sono (7-8 horas, usar 7.5 como média ideal)
+$sleep_goal_hours = 7.5;
 
 // --- PREPARAÇÃO DE DADOS PARA EXIBIÇÃO ---
 $page_slug = 'users';
