@@ -570,7 +570,7 @@
 /* Quando há muitas barras (mais de 7), permitir wrap em múltiplas fileiras */
 #exercise-bars.many-bars,
 #sleep-bars.many-bars {
-    justify-content: flex-start !important;
+    justify-content: center !important;
     flex-wrap: wrap !important;
     overflow-x: visible !important;
 }
