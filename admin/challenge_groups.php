@@ -872,9 +872,6 @@ require_once __DIR__ . '/includes/header.php';
     flex: 1 !important;
     position: relative !important;
     min-width: 0 !important;
-    padding-left: 3rem !important;
-    padding-right: 3rem !important;
-    box-sizing: border-box !important;
 }
 
 /* Centraliza corretamente o container de MÊS + ANO */
@@ -907,25 +904,16 @@ require_once __DIR__ . '/includes/header.php';
     line-height: 1.2 !important;
 }
 
-/* Mês alinhado ao centro */
-.flatpickr-current-month .flatpickr-monthDropdown-months {
+/* Mês alinhado ao centro (modo static - texto, não dropdown) */
+.flatpickr-current-month .cur-month {
     font-size: 1rem !important;
     font-weight: 700 !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important;
     color: var(--text-primary) !important;
     font-family: 'Montserrat', sans-serif !important;
-    padding: 0.25rem 0.5rem !important;
-    cursor: pointer !important;
     margin: 0 !important;
-    display: inline-block !important;
+    padding: 0 !important;
     text-align: center !important;
-}
-
-.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-color: var(--accent-orange) !important;
+    display: block !important;
 }
 
 /* Garantir centralização absoluta entre as setas */
@@ -1892,7 +1880,7 @@ function initFlatpickr() {
         allowInput: false,
         clickOpens: true,
         animate: true,
-        // monthSelectorType: 'dropdown' é o padrão - permite reorganizar DOM
+        monthSelectorType: 'static', // Mês como texto, não dropdown
         defaultDate: null,
         static: false, // Não usar posicionamento estático
         appendTo: document.body, // Anexar ao body para melhor controle de posição
@@ -1918,8 +1906,9 @@ function initFlatpickr() {
         if (!monthContainer) return;
         
         // Garantir ordem correta: ano em cima, mês embaixo
+        // No modo static, o mês é .cur-month (texto), não .flatpickr-monthDropdown-months
         const year = monthContainer.querySelector('.cur-year');
-        const month = monthContainer.querySelector('.flatpickr-monthDropdown-months');
+        const month = monthContainer.querySelector('.cur-month');
         
         if (year && month) {
             // Limpar container e reorganizar: ano primeiro, mês depois
