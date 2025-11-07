@@ -850,6 +850,7 @@ require_once __DIR__ . '/includes/header.php';
     margin-bottom: 0 !important;
 }
 
+/* Garante que o título (mês/ano) fique SEMPRE centralizado */
 .flatpickr-months {
     background: transparent !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -857,7 +858,7 @@ require_once __DIR__ . '/includes/header.php';
     margin-bottom: 1rem !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
+    justify-content: center !important;
     position: relative !important;
     width: 100% !important;
 }
@@ -880,13 +881,14 @@ require_once __DIR__ . '/includes/header.php';
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 100% !important;
+    width: auto !important;
     padding: 0 !important;
     margin: 0 !important;
     color: var(--text-primary) !important;
     font-family: 'Montserrat', sans-serif !important;
     text-align: center !important;
     position: relative !important;
+    z-index: 5 !important;
     gap: 0.25rem !important;
 }
 
@@ -976,6 +978,21 @@ require_once __DIR__ . '/includes/header.php';
 .flatpickr-next-month:hover {
     background: rgba(255, 107, 0, 0.1) !important;
     transform: translateY(-50%) scale(1.1) !important;
+}
+
+/* Seta do mês anterior desativada quando estiver no mês atual */
+.flatpickr-prev-month.flatpickr-disabled {
+    color: rgba(255, 255, 255, 0.25) !important;
+    fill: rgba(255, 255, 255, 0.25) !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    background: transparent !important;
+    transform: translateY(-50%) !important; /* evita zoom */
+}
+
+.flatpickr-prev-month.flatpickr-disabled:hover {
+    background: transparent !important;
+    transform: translateY(-50%) !important; /* mantém sem zoom */
 }
 
 .flatpickr-weekdays {
