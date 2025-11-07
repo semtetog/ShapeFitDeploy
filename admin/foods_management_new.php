@@ -1039,13 +1039,9 @@ require_once __DIR__ . '/includes/header.php';
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Nome</th>
-                            <th>Calorias</th>
-                            <th>Proteína</th>
-                            <th>Carboidratos</th>
-                            <th>Gordura</th>
-                            <th>Fonte</th>
-                            <th>Ações</th>
+                            <th style="min-width: 250px;">Nome</th>
+                            <th style="min-width: 120px;">Fonte</th>
+                            <th style="min-width: 150px; text-align: right;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1061,22 +1057,6 @@ require_once __DIR__ . '/includes/header.php';
                                             <?php echo htmlspecialchars($food['brand']); ?>
                                         </div>
                                     <?php endif; ?>
-                                </td>
-                                <td>
-                                    <span class="macro-value"><?php echo number_format($food['energy_kcal_100g'], 0); ?></span>
-                                    <span style="color: var(--text-secondary); font-size: 0.875rem;"> kcal</span>
-                                </td>
-                                <td>
-                                    <span class="macro-value"><?php echo number_format($food['protein_g_100g'], 1); ?></span>
-                                    <span style="color: var(--text-secondary); font-size: 0.875rem;">g</span>
-                                </td>
-                                <td>
-                                    <span class="macro-value"><?php echo number_format($food['carbohydrate_g_100g'], 1); ?></span>
-                                    <span style="color: var(--text-secondary); font-size: 0.875rem;">g</span>
-                                </td>
-                                <td>
-                                    <span class="macro-value"><?php echo number_format($food['fat_g_100g'], 1); ?></span>
-                                    <span style="color: var(--text-secondary); font-size: 0.875rem;">g</span>
                                 </td>
                                 <td>
                                     <?php 
@@ -1126,11 +1106,11 @@ require_once __DIR__ . '/includes/header.php';
                                         <?php echo $badgeText; ?>
                                     </span>
                                 </td>
-                                <td>
+                                <td style="text-align: right;">
                                     <div class="actions">
-                                        <a href="edit_food_new.php?id=<?php echo $food['id']; ?>" class="btn-action edit">
+                                        <button type="button" onclick="openEditFoodModal(<?php echo $food['id']; ?>)" class="btn-action edit">
                                             <i class="fas fa-edit"></i> Editar
-                                        </a>
+                                        </button>
                                         <a href="process_food.php?action=delete&id=<?php echo $food['id']; ?>" 
                                            class="btn-action delete" 
                                            onclick="return confirm('Tem certeza que deseja excluir este alimento? Esta ação não pode ser desfeita.');">
@@ -1235,6 +1215,434 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Modal de Edição de Alimento
+let currentEditingFoodId = null;
+
+function openEditFoodModal(foodId) {
+    currentEditingFoodId = foodId;
+    fetch(`ajax_get_food.php?id=${foodId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.food) {
+                const food = data.food;
+                document.getElementById('food-edit-title').textContent = 'Editar Alimento';
+                document.getElementById('food-edit-action').value = 'edit';
+                document.getElementById('food-edit-id').value = food.id;
+                document.getElementById('food-name-pt').value = food.name_pt || '';
+                document.getElementById('food-energy').value = food.energy_kcal_100g || 0;
+                document.getElementById('food-protein').value = food.protein_g_100g || 0;
+                document.getElementById('food-carbs').value = food.carbohydrate_g_100g || 0;
+                document.getElementById('food-fat').value = food.fat_g_100g || 0;
+                document.getElementById('food-source').value = food.source_table || 'Manual';
+                document.getElementById('food-delete-btn').style.display = 'flex';
+                updateCalculations();
+                document.getElementById('food-edit-modal').classList.add('visible');
+                document.body.style.overflow = 'hidden';
+            } else {
+                alert('Erro ao carregar dados do alimento');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao carregar dados do alimento');
+        });
+}
+
+function closeFoodEditModal() {
+    document.getElementById('food-edit-modal').classList.remove('visible');
+    document.body.style.overflow = '';
+    currentEditingFoodId = null;
+}
+
+function updateCalculations() {
+    const protein = parseFloat(document.getElementById('food-protein').value) || 0;
+    const carbs = parseFloat(document.getElementById('food-carbs').value) || 0;
+    const fat = parseFloat(document.getElementById('food-fat').value) || 0;
+    const total = protein + carbs + fat;
+    const calories = (protein * 4) + (carbs * 4) + (fat * 9);
+    
+    document.getElementById('calc-total').textContent = total.toFixed(1) + 'g';
+    document.getElementById('calc-calories').textContent = calories.toFixed(1) + ' kcal';
+    document.getElementById('food-calculations').style.display = 'block';
+}
+
+function saveFood() {
+    const form = document.getElementById('food-edit-form');
+    const formData = new FormData(form);
+    const name = formData.get('name_pt').trim();
+    if (!name) {
+        alert('Nome do alimento é obrigatório');
+        return;
+    }
+    const saveBtn = document.querySelector('.food-edit-footer .btn-save');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    saveBtn.disabled = true;
+    fetch('process_food.php?ajax=1', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Erro ao salvar: ' + (data.message || 'Erro desconhecido'));
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao salvar alimento');
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    });
+}
+
+function deleteFood() {
+    if (!currentEditingFoodId) return;
+    if (!confirm('Tem certeza que deseja EXCLUIR este alimento?\n\nEsta ação não pode ser desfeita!')) {
+        return;
+    }
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('id', currentEditingFoodId);
+    fetch('process_food.php?ajax=1', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Erro ao excluir: ' + (data.message || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao excluir alimento');
+    });
+}
+
+// Adicionar listeners para cálculos em tempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = ['food-protein', 'food-carbs', 'food-fat'];
+    inputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', updateCalculations);
+        }
+    });
+});
 </script>
+
+<!-- Modal Adicionar/Editar Alimento -->
+<div class="food-edit-modal" id="food-edit-modal">
+    <div class="food-edit-overlay" onclick="closeFoodEditModal()"></div>
+    <div class="food-edit-content">
+        <button class="sleep-modal-close" onclick="closeFoodEditModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="food-edit-header">
+            <h3 id="food-edit-title">Editar Alimento</h3>
+        </div>
+        
+        <div class="food-edit-body">
+            <form id="food-edit-form">
+                <input type="hidden" id="food-edit-id" name="id" value="">
+                <input type="hidden" name="action" id="food-edit-action" value="edit">
+                
+                <div class="form-group">
+                    <label for="food-name-pt">Nome do Alimento *</label>
+                    <input type="text" id="food-name-pt" name="name_pt" class="form-control" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="food-energy">Calorias (por 100g) *</label>
+                        <input type="number" id="food-energy" name="energy_kcal_100g" class="form-control" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="food-protein">Proteína (por 100g) *</label>
+                        <input type="number" id="food-protein" name="protein_g_100g" class="form-control" step="0.01" min="0" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="food-carbs">Carboidratos (por 100g) *</label>
+                        <input type="number" id="food-carbs" name="carbohydrate_g_100g" class="form-control" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="food-fat">Gordura (por 100g) *</label>
+                        <input type="number" id="food-fat" name="fat_g_100g" class="form-control" step="0.01" min="0" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="food-source">Fonte</label>
+                    <select id="food-source" name="source_table" class="form-control">
+                        <option value="Manual">Manual</option>
+                        <option value="TACO">TACO</option>
+                        <option value="Sonia Tucunduva">Sonia Tucunduva</option>
+                        <option value="Sonia Tucunduva (Prioridade)">Sonia Tucunduva (Prioridade)</option>
+                        <option value="USDA">USDA</option>
+                        <option value="FatSecret">FatSecret</option>
+                        <option value="user_created">Criado por Usuário</option>
+                    </select>
+                </div>
+                
+                <div id="food-calculations" class="food-calculations" style="display: none;">
+                    <div class="calculation-item">
+                        <span class="calc-label">Total Macronutrientes:</span>
+                        <span class="calc-value" id="calc-total">0g</span>
+                    </div>
+                    <div class="calculation-item">
+                        <span class="calc-label">Calorias Calculadas:</span>
+                        <span class="calc-value" id="calc-calories">0 kcal</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="food-edit-footer">
+            <button type="button" class="btn-cancel" onclick="closeFoodEditModal()">Cancelar</button>
+            <button type="button" class="btn-save" onclick="saveFood()">
+                <i class="fas fa-save"></i> Salvar
+            </button>
+            <button type="button" id="food-delete-btn" class="btn-delete" onclick="deleteFood()" style="display: none;">
+                <i class="fas fa-trash"></i> Excluir
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Modal de Edição de Alimento */
+.food-edit-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+}
+
+.food-edit-modal.visible {
+    display: flex;
+}
+
+.food-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.food-edit-content {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 10001;
+}
+
+.sleep-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10002;
+}
+
+.sleep-modal-close:hover {
+    background: rgba(255, 102, 0, 0.2);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+.food-edit-header {
+    margin-bottom: 1.5rem;
+}
+
+.food-edit-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.food-edit-body {
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group .form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.form-group .form-control:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.food-calculations {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.calculation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.calculation-item:last-child {
+    margin-bottom: 0;
+}
+
+.calc-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.calc-value {
+    font-size: 1rem;
+    color: var(--accent-orange);
+    font-weight: 700;
+}
+
+.food-edit-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-cancel,
+.btn-save,
+.btn-delete {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #FF6600, #FF8533);
+    color: #FFFFFF;
+}
+
+.btn-save:hover {
+    background: linear-gradient(135deg, #FF8533, #FF6600);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #EF4444, #F87171);
+    color: #FFFFFF;
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #F87171, #EF4444);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Ajustar alinhamento da tabela */
+.data-table th,
+.data-table td {
+    white-space: nowrap;
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+    white-space: normal;
+}
+</style>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
