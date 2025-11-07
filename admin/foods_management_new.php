@@ -215,6 +215,12 @@ require_once __DIR__ . '/includes/header.php';
     z-index: 2;
 }
 
+/* Quando dropdown está ativo, desabilitar interação com cards */
+.foods-header-card:has(.custom-select.active) ~ .stats-grid .stat-card {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
 .stat-number {
     font-size: 1.5rem;
     font-weight: 700;
@@ -351,22 +357,32 @@ require_once __DIR__ . '/includes/header.php';
     top: calc(100% + 0.5rem);
     left: 0;
     right: 0;
-    background: rgba(26, 26, 26, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgb(20, 20, 20);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    z-index: 99999;
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
+    pointer-events: auto;
 }
 
 .custom-select.active .custom-select-options {
     display: block;
+}
+
+/* Garantir que o dropdown intercepte todos os eventos quando ativo */
+.custom-select.active {
+    z-index: 99999;
+    position: relative;
+}
+
+.custom-select-wrapper:has(.custom-select.active) {
+    z-index: 99999;
+    position: relative;
 }
 
 .custom-select-option {
@@ -1309,7 +1325,20 @@ require_once __DIR__ . '/includes/header.php';
     // Abre/fecha o dropdown
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
+        const isOpening = !customSelect.classList.contains('active');
         customSelect.classList.toggle('active');
+        
+        // Desabilita/habilita interação com cards quando dropdown abre/fecha
+        const statsGrid = document.querySelector('.stats-grid');
+        if (statsGrid) {
+            if (isOpening) {
+                statsGrid.style.pointerEvents = 'none';
+                statsGrid.style.opacity = '0.6';
+            } else {
+                statsGrid.style.pointerEvents = '';
+                statsGrid.style.opacity = '';
+            }
+        }
     });
 
     // Seleciona uma opção
@@ -1329,6 +1358,13 @@ require_once __DIR__ . '/includes/header.php';
             // Fecha o dropdown
             customSelect.classList.remove('active');
             
+            // Reabilita interação com cards
+            const statsGrid = document.querySelector('.stats-grid');
+            if (statsGrid) {
+                statsGrid.style.pointerEvents = '';
+                statsGrid.style.opacity = '';
+            }
+            
             // Submete o formulário
             const form = customSelect.closest('form');
             if (form) {
@@ -1337,17 +1373,27 @@ require_once __DIR__ . '/includes/header.php';
         });
     });
 
+    // Função para fechar dropdown e reabilitar cards
+    function closeDropdown() {
+        customSelect.classList.remove('active');
+        const statsGrid = document.querySelector('.stats-grid');
+        if (statsGrid) {
+            statsGrid.style.pointerEvents = '';
+            statsGrid.style.opacity = '';
+        }
+    }
+
     // Fecha o dropdown se clicar fora
     document.addEventListener('click', function(e) {
         if (!customSelect.contains(e.target)) {
-            customSelect.classList.remove('active');
+            closeDropdown();
         }
     });
 
     // Fecha com a tecla Esc
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            customSelect.classList.remove('active');
+            closeDropdown();
         }
     });
 })();
