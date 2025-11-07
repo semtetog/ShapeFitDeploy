@@ -898,6 +898,77 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.875rem;
 }
 
+/* Status Tags - Estilo igual goal-tags */
+.challenge-status-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.status-tag {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    padding: 0.625rem 1rem;
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 0.7;
+}
+
+.status-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.status-tag.active {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    opacity: 1;
+    font-weight: 700;
+}
+
+/* Cores específicas para cada status quando ativo */
+.status-tag.active.scheduled {
+    background: rgba(251, 191, 36, 0.15) !important;
+    border-color: rgba(251, 191, 36, 0.4) !important;
+    color: #FBBF24 !important;
+}
+
+.status-tag.active.active {
+    background: rgba(34, 197, 94, 0.15) !important;
+    border-color: rgba(34, 197, 94, 0.4) !important;
+    color: #22C55E !important;
+}
+
+.status-tag.active.inactive {
+    background: rgba(107, 114, 128, 0.15) !important;
+    border-color: rgba(107, 114, 128, 0.4) !important;
+    color: #6B7280 !important;
+}
+
+.status-tag.active.completed {
+    background: rgba(59, 130, 246, 0.15) !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+    color: #3B82F6 !important;
+}
+
+.status-tag i {
+    font-size: 0.875rem;
+}
+
 /* Goal Inputs Container */
 .challenge-goals-inputs {
     margin-top: 1rem;
@@ -964,26 +1035,8 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .participant-tag.selected {
-    background: rgba(255, 107, 0, 0.1);
-    border-color: rgba(255, 107, 0, 0.3);
-}
-
-.participant-tag.selected::after {
-    content: '✓';
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    width: 20px;
-    height: 20px;
-    background: var(--accent-orange);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 700;
-    line-height: 1;
+    background: rgba(255, 107, 0, 0.15);
+    border-color: rgba(255, 107, 0, 0.4);
 }
 
 .participant-avatar {
@@ -1316,12 +1369,25 @@ require_once __DIR__ . '/includes/header.php';
                 <!-- Status -->
                 <div class="challenge-form-group">
                     <label for="challengeStatus">Status</label>
-                    <select id="challengeStatus" name="status" class="challenge-form-select">
-                        <option value="scheduled">Agendado</option>
-                        <option value="active">Ativo</option>
-                        <option value="inactive">Inativo</option>
-                        <option value="completed">Concluído</option>
-                    </select>
+                    <input type="hidden" id="challengeStatus" name="status" value="scheduled">
+                    <div class="challenge-status-tags">
+                        <span class="status-tag scheduled active" data-status="scheduled">
+                            <i class="fas fa-clock"></i>
+                            <span>Agendado</span>
+                        </span>
+                        <span class="status-tag active" data-status="active">
+                            <i class="fas fa-play-circle"></i>
+                            <span>Ativo</span>
+                        </span>
+                        <span class="status-tag inactive" data-status="inactive">
+                            <i class="fas fa-pause-circle"></i>
+                            <span>Inativo</span>
+                        </span>
+                        <span class="status-tag completed" data-status="completed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Concluído</span>
+                        </span>
+                    </div>
                 </div>
                 
                 <!-- Metas do Desafio -->
@@ -1635,6 +1701,20 @@ function openCreateChallengeModal() {
             hiddenInput.name = '';
         }
     });
+    
+    // Reset status tags
+    document.querySelectorAll('.status-tag').forEach(tag => {
+        tag.classList.remove('active');
+    });
+    // Ativar "Agendado" por padrão
+    const scheduledTag = document.querySelector('.status-tag.scheduled');
+    if (scheduledTag) {
+        scheduledTag.classList.add('active');
+    }
+    const statusInput = document.getElementById('challengeStatus');
+    if (statusInput) {
+        statusInput.value = 'scheduled';
+    }
 }
 
 function closeChallengeModal() {
