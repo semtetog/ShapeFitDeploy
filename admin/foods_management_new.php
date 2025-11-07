@@ -117,27 +117,24 @@ require_once __DIR__ . '/includes/header.php';
     min-height: 100vh;
 }
 
-/* Header Card */
+/* Header Card - usando estilo dashboard-card */
 .foods-header-card {
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     padding: 2rem;
     margin-bottom: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
     position: relative;
+    overflow: hidden;
 }
 
-.foods-header-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent-orange), #FFA500);
-    border-radius: 20px 20px 0 0;
+.foods-header-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent-orange);
 }
 
 .card-header-section {
@@ -168,7 +165,7 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0;
 }
 
-/* Stats Grid */
+/* Stats Grid - usando estilo dashboard */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -178,18 +175,19 @@ require_once __DIR__ . '/includes/header.php';
 
 .stat-card {
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 1.5rem;
     text-align: center;
     transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .stat-card:hover {
     background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent-orange);
 }
 
 .stat-number {
@@ -223,16 +221,16 @@ require_once __DIR__ . '/includes/header.php';
     flex: 1;
     min-width: 200px;
     max-width: 400px;
-    padding: 0.875rem 1.25rem;
+    padding: 0.75rem 1rem;
     font-size: 0.95rem;
     color: var(--text-primary);
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
     outline: none;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
 }
 
 .food-search-input:focus {
@@ -258,11 +256,10 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .custom-select-trigger {
-    padding: 0.875rem 1.25rem;
+    padding: 0.75rem 1rem;
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
     color: var(--text-primary);
     cursor: pointer;
     display: flex;
@@ -270,6 +267,7 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: space-between;
     transition: all 0.3s ease;
     font-size: 0.95rem;
+    font-weight: 600;
 }
 
 .custom-select-trigger:hover {
@@ -292,7 +290,6 @@ require_once __DIR__ . '/includes/header.php';
     left: 0;
     right: 0;
     background: rgba(26, 26, 26, 0.98);
-    backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -387,36 +384,42 @@ require_once __DIR__ . '/includes/header.php';
 
 .btn-secondary {
     padding: 0.75rem 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
-    color: var(--text-primary);
+    color: #FFFFFF;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent-orange);
-    color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
 }
 
-/* Data Table */
+/* Data Table - usando estilo dashboard-card */
 .foods-table-container {
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     padding: 0;
     margin-bottom: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.foods-table-container:hover {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent-orange);
 }
 
 .table-header {
@@ -570,15 +573,22 @@ require_once __DIR__ . '/includes/header.php';
     box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
 }
 
-/* Empty State */
+/* Empty State - usando estilo dashboard-card */
 .empty-state-card {
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     padding: 4rem 2rem;
     text-align: center;
     margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.empty-state-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent-orange);
 }
 
 .empty-state-content i {
@@ -596,7 +606,7 @@ require_once __DIR__ . '/includes/header.php';
 
 .btn-primary {
     padding: 0.875rem 2rem;
-    background: var(--accent-orange);
+    background: linear-gradient(135deg, #FF6600, #FF8533);
     border: none;
     border-radius: 12px;
     color: #FFFFFF;
@@ -611,23 +621,30 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .btn-primary:hover {
-    background: #e65c00;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4);
+    background: linear-gradient(135deg, #FF8533, #FF6600);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
 }
 
-/* Pagination */
+/* Pagination - usando estilo dashboard-card */
 .pagination-card {
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.pagination-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent-orange);
 }
 
 .pagination-info {
@@ -643,23 +660,23 @@ require_once __DIR__ . '/includes/header.php';
 
 .pagination-btn {
     padding: 0.625rem 1.25rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    color: var(--text-primary);
+    color: #FFFFFF;
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .pagination-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent-orange);
-    color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
 }
 
 .pagination-numbers {
@@ -674,25 +691,25 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    color: var(--text-primary);
+    color: #FFFFFF;
     text-decoration: none;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .pagination-number:hover {
-    background: rgba(255, 107, 0, 0.1);
-    border-color: var(--accent-orange);
-    color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
 }
 
 .pagination-number.current {
-    background: var(--accent-orange);
-    border-color: var(--accent-orange);
+    background: linear-gradient(135deg, #FF6600, #FF8533);
+    border-color: transparent;
     color: #FFFFFF;
 }
 
