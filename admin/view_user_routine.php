@@ -537,24 +537,29 @@
     padding: 1rem 0;
 }
 
-.exercise-chart-improved .improved-bars,
-.sleep-chart-improved .improved-bars {
+#exercise-bars,
+#sleep-bars {
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     justify-content: flex-start !important;
     align-items: flex-end !important;
     gap: 1rem !important;
-    min-width: min-content;
-    flex-wrap: nowrap !important;
-    min-height: 240px;
+    min-width: min-content !important;
+    min-height: 240px !important;
     padding: 1rem 0.5rem 0.5rem !important;
+    position: relative !important;
 }
 
-.exercise-chart-improved .improved-bar-container,
-.sleep-chart-improved .improved-bar-container {
+#exercise-bars .improved-bar-container,
+#sleep-bars .improved-bar-container {
     flex: 0 0 auto !important;
-    min-width: 60px;
-    max-width: 100px;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    min-width: 60px !important;
+    max-width: 100px !important;
 }
 
 
