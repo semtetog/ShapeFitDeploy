@@ -1445,26 +1445,28 @@ function openEditFoodModal(foodId) {
                 document.getElementById('food-carbs').value = food.carbohydrate_g_100g || 0;
                 document.getElementById('food-fat').value = food.fat_g_100g || 0;
                 
-                // Atualizar select customizado
+                // Atualizar tags de fonte
                 const sourceValue = food.source_table || 'Manual';
                 const sourceInput = document.getElementById('food-source');
-                const sourceSelect = document.getElementById('food-source-select');
-                const sourceValueDisplay = sourceSelect.querySelector('.custom-select-value');
-                const sourceOptions = sourceSelect.querySelectorAll('.custom-select-option');
+                if (sourceInput) {
+                    sourceInput.value = sourceValue;
+                }
                 
-                sourceInput.value = sourceValue;
-                sourceOptions.forEach(opt => {
-                    opt.classList.remove('selected');
-                    if (opt.dataset.value === sourceValue) {
-                        opt.classList.add('selected');
-                        sourceValueDisplay.textContent = opt.textContent;
-                    }
-                });
-                
+                // Aguarda o modal abrir para atualizar as tags
                 document.getElementById('food-delete-btn').style.display = food.id ? 'flex' : 'none';
-                updateCalculations();
                 document.getElementById('food-edit-modal').classList.add('active');
                 document.body.style.overflow = 'hidden';
+                
+                // Atualiza tags após o modal estar visível
+                setTimeout(() => {
+                    const sourceTags = document.querySelectorAll('.source-tag');
+                    sourceTags.forEach(tag => {
+                        tag.classList.remove('active');
+                        if (tag.dataset.value === sourceValue) {
+                            tag.classList.add('active');
+                        }
+                    });
+                }, 100);
             } else {
                 alert('Erro ao carregar dados do alimento');
             }
@@ -1484,17 +1486,7 @@ function closeFoodEditModal() {
     currentEditingFoodId = null;
 }
 
-function updateCalculations() {
-    const protein = parseFloat(document.getElementById('food-protein').value) || 0;
-    const carbs = parseFloat(document.getElementById('food-carbs').value) || 0;
-    const fat = parseFloat(document.getElementById('food-fat').value) || 0;
-    const total = protein + carbs + fat;
-    const calories = (protein * 4) + (carbs * 4) + (fat * 9);
-    
-    document.getElementById('calc-total').textContent = total.toFixed(1) + 'g';
-    document.getElementById('calc-calories').textContent = calories.toFixed(1) + ' kcal';
-    document.getElementById('food-calculations').style.display = 'block';
-}
+// Removido: função updateCalculations (card de cálculos removido)
 
 function saveFood() {
     const form = document.getElementById('food-edit-form');
@@ -1560,76 +1552,26 @@ function deleteFood() {
     });
 }
 
-// Adicionar listeners para cálculos em tempo real
+// Inicializar tags de fonte no modal
 document.addEventListener('DOMContentLoaded', function() {
-    const inputs = ['food-protein', 'food-carbs', 'food-fat'];
-    inputs.forEach(id => {
-        const input = document.getElementById(id);
-        if (input) {
-            input.addEventListener('input', updateCalculations);
-        }
-    });
+    const sourceTags = document.querySelectorAll('.source-tag');
+    const sourceInput = document.getElementById('food-source');
     
-    // Inicializar custom select de fonte no modal - SIMPLES E FUNCIONAL
-    (function() {
-        const sourceSelect = document.getElementById('food-source-select');
-        const sourceWrapper = document.getElementById('food-source-wrapper');
-        if (!sourceSelect || !sourceWrapper) return;
-        
-        const trigger = sourceSelect.querySelector('.custom-select-trigger');
-        const options = sourceSelect.querySelectorAll('.custom-select-option');
-        const sourceInput = document.getElementById('food-source');
-        const valueDisplay = sourceSelect.querySelector('.custom-select-value');
-        const optionsContainer = sourceSelect.querySelector('.custom-select-options');
-        
-        if (!trigger || !optionsContainer) return;
-        
-        trigger.addEventListener('click', function(e) {
-            e.stopPropagation();
-            
-            const wasActive = sourceSelect.classList.contains('active');
-            
-            if (wasActive) {
-                sourceSelect.classList.remove('active');
-                sourceWrapper.classList.remove('active');
-            } else {
-                sourceWrapper.classList.add('active');
-                sourceSelect.classList.add('active');
-            }
-        });
-        
-        options.forEach(option => {
-            option.addEventListener('click', function(e) {
-                e.stopPropagation();
+    if (sourceTags.length > 0 && sourceInput) {
+        sourceTags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                // Remove active de todas as tags
+                sourceTags.forEach(t => t.classList.remove('active'));
                 
+                // Adiciona active na tag clicada
+                this.classList.add('active');
+                
+                // Atualiza o input hidden
                 const value = this.dataset.value || '';
                 sourceInput.value = value;
-                valueDisplay.textContent = this.textContent;
-                
-                options.forEach(opt => opt.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                sourceSelect.classList.remove('active');
-                sourceWrapper.classList.remove('active');
             });
         });
-        
-        // Fecha ao clicar fora
-        document.addEventListener('click', function(e) {
-            if (!sourceSelect.contains(e.target) && !sourceWrapper.contains(e.target)) {
-                sourceSelect.classList.remove('active');
-                sourceWrapper.classList.remove('active');
-            }
-        });
-        
-        // Fecha com ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && sourceSelect.classList.contains('active')) {
-                sourceSelect.classList.remove('active');
-                sourceWrapper.classList.remove('active');
-            }
-        });
-    })();
+    }
 });
 </script>
 
@@ -1687,34 +1629,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 <div class="food-form-group">
                     <label for="food-source">Fonte</label>
-                    <div class="custom-select-wrapper food-select-wrapper" id="food-source-wrapper">
-                        <input type="hidden" id="food-source" name="source_table" value="Manual">
-                        <div class="custom-select" id="food-source-select">
-                            <div class="custom-select-trigger">
-                                <span class="custom-select-value">Manual</span>
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                            <div class="custom-select-options">
-                                <div class="custom-select-option selected" data-value="Manual">Manual</div>
-                                <div class="custom-select-option" data-value="TACO">TACO</div>
-                                <div class="custom-select-option" data-value="Sonia Tucunduva">Sonia Tucunduva</div>
-                                <div class="custom-select-option" data-value="Sonia Tucunduva (Prioridade)">Sonia (Atualizado)</div>
-                                <div class="custom-select-option" data-value="USDA">USDA</div>
-                                <div class="custom-select-option" data-value="FatSecret">FatSecret</div>
-                                <div class="custom-select-option" data-value="user_created">Criado por Usuário</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="food-calculations" class="food-calculations" style="display: none;">
-                    <div class="calc-item">
-                        <span class="calc-label">Total:</span>
-                        <span class="calc-value" id="calc-total">0g</span>
-                    </div>
-                    <div class="calc-item">
-                        <span class="calc-label">Calculado:</span>
-                        <span class="calc-value" id="calc-calories">0 kcal</span>
+                    <input type="hidden" id="food-source" name="source_table" value="Manual">
+                    <div class="food-source-tags">
+                        <span class="source-badge source-tag manual active" data-value="Manual">Manual</span>
+                        <span class="source-badge source-tag taco" data-value="TACO">TACO</span>
+                        <span class="source-badge source-tag sonia" data-value="Sonia Tucunduva">Sonia</span>
+                        <span class="source-badge source-tag sonia-updated" data-value="Sonia Tucunduva (Prioridade)">Sonia (Atualizado)</span>
+                        <span class="source-badge source-tag usda" data-value="USDA">USDA</span>
+                        <span class="source-badge source-tag fatsecret" data-value="FatSecret">FatSecret</span>
+                        <span class="source-badge source-tag user-created" data-value="user_created">Criado por Usuário</span>
                     </div>
                 </div>
             </form>
@@ -1929,140 +1852,32 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-bottom: 0;
 }
 
-/* Custom Select dentro do modal */
-.food-select-wrapper {
-    position: relative;
-    width: 100%;
-    z-index: 1;
-}
-
-.food-select-wrapper.active {
-    z-index: 1000;
-    position: relative;
-}
-
-.food-select-wrapper .custom-select {
-    position: relative;
-    width: 100%;
-}
-
-.food-select-wrapper .custom-select-trigger {
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    cursor: pointer;
+/* Container de tags de fonte */
+.food-source-tags {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Tags clicáveis */
+.source-tag {
+    cursor: pointer;
     transition: all 0.3s ease;
-    font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
+    user-select: none;
 }
 
-.food-select-wrapper .custom-select-trigger:hover {
-    border-color: var(--accent-orange);
+.source-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
 }
 
-.food-select-wrapper .custom-select-trigger i {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    transition: transform 0.3s ease;
-}
-
-.food-select-wrapper .custom-select.active .custom-select-trigger i {
-    transform: rotate(180deg);
-    color: var(--accent-orange);
-}
-
-.food-select-wrapper .custom-select-value {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.food-select-wrapper .custom-select-options {
-    display: none;
-    position: absolute;
-    bottom: calc(100% + 8px);
-    top: auto;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: rgb(28, 28, 28);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-    max-height: 200px;
-    overflow-y: auto;
-    box-sizing: border-box;
-}
-
-.food-select-wrapper .custom-select.active .custom-select-options {
-    display: block;
-}
-
-.food-select-wrapper .custom-select-option {
-    padding: 0.875rem 1rem;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 0.95rem;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.food-select-wrapper .custom-select-option:last-child {
-    border-bottom: none;
-}
-
-.food-select-wrapper .custom-select-option:hover {
-    background: rgba(255, 107, 0, 0.15);
-    color: var(--accent-orange);
-}
-
-.food-select-wrapper .custom-select-option.selected {
-    background: rgba(255, 107, 0, 0.2);
-    color: var(--accent-orange);
-    font-weight: 600;
-}
-
-/* Cálculos */
-.food-calculations {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    padding: 0.75rem;
-    margin-top: 0.75rem;
-}
-
-.calc-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.375rem;
-}
-
-.calc-item:last-child {
-    margin-bottom: 0;
-}
-
-.calc-label {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.calc-value {
-    font-size: 0.875rem;
-    color: var(--accent-orange);
+.source-tag.active {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    opacity: 1;
     font-weight: 700;
-    font-family: 'Montserrat', sans-serif;
 }
 
 /* Footer */
@@ -2290,3 +2105,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </style>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+
