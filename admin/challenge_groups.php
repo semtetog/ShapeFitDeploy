@@ -972,12 +972,13 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.75rem !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
-    flex: 1 1 calc((100% - 1rem) / 7) !important;
+    flex: 1 1 calc((100% - 0.875rem) / 7) !important;
     text-align: center !important;
     padding: 0 !important;
     min-width: 0 !important;
-    max-width: calc((100% - 1rem) / 7) !important;
+    max-width: calc((100% - 0.875rem) / 7) !important;
     box-sizing: border-box !important;
+    margin: 0 0.0625rem !important;
 }
 
 .flatpickr-days {
