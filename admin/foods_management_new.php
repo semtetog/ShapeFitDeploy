@@ -830,6 +830,22 @@ require_once __DIR__ . '/includes/header.php';
     box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
+.btn-action.approve.btn-icon-only {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.btn-action.approve.btn-icon-only i {
+    font-size: 0.875rem;
+    margin: 0;
+}
+
 /* Empty State - usando estilo dashboard-card */
 .empty-state-card {
     background: rgba(255, 255, 255, 0.05);
