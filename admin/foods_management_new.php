@@ -683,9 +683,11 @@ require_once __DIR__ . '/includes/header.php';
     max-width: 100%;
     box-sizing: border-box;
     word-wrap: break-word;
-    white-space: normal;
+    white-space: nowrap;
     line-height: 1.3;
     text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .source-badge.taco {
@@ -1224,7 +1226,7 @@ require_once __DIR__ . '/includes/header.php';
                                         </div>
                                     <?php endif; ?>
                                 </td>
-                                <td style="text-align: left; vertical-align: middle;">
+                                <td style="text-align: left; vertical-align: middle; width: 200px; min-width: 200px; max-width: 200px; overflow: hidden;">
                                     <?php 
                                     $source = $food['source_table'];
                                     $badgeClass = '';
@@ -1265,23 +1267,24 @@ require_once __DIR__ . '/includes/header.php';
                                             $badgeText = htmlspecialchars($source);
                                     }
                                     ?>
-                                    <span class="source-badge <?php echo $badgeClass; ?>">
+                                    <span class="source-badge <?php echo $badgeClass; ?>" style="display: inline-block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         <?php echo $badgeText; ?>
                                     </span>
                                 </td>
-                                <td style="text-align: right; vertical-align: middle;">
-                                    <div class="actions" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem;">
+                                <td style="text-align: right; vertical-align: middle; width: 280px; min-width: 280px; max-width: 280px; padding-left: 1rem;">
+                                    <div class="actions" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex-wrap: nowrap;">
                                         <?php if (!empty($food['added_by_user_id'])): ?>
                                             <!-- Botão Aprovar para alimentos criados por usuários -->
-                                            <button type="button" onclick="approveFood(<?php echo $food['id']; ?>)" class="btn-action approve">
+                                            <button type="button" onclick="approveFood(<?php echo $food['id']; ?>)" class="btn-action approve" style="white-space: nowrap; flex-shrink: 0;">
                                                 <i class="fas fa-check"></i> Aprovar
                                             </button>
                                         <?php endif; ?>
-                                        <button type="button" onclick="openEditFoodModal(<?php echo $food['id']; ?>)" class="btn-action edit">
+                                        <button type="button" onclick="openEditFoodModal(<?php echo $food['id']; ?>)" class="btn-action edit" style="white-space: nowrap; flex-shrink: 0;">
                                             <i class="fas fa-edit"></i> Editar
                                         </button>
                                         <a href="process_food.php?action=delete&id=<?php echo $food['id']; ?>" 
                                            class="btn-action delete" 
+                                           style="white-space: nowrap; flex-shrink: 0;"
                                            onclick="return confirm('Tem certeza que deseja excluir este alimento? Esta ação não pode ser desfeita.');">
                                             <i class="fas fa-trash"></i> Excluir
                                         </a>
@@ -2171,16 +2174,16 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .data-table th:nth-child(2) {
-    width: 220px;
-    min-width: 220px;
-    max-width: 220px;
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
 }
 
 .data-table th:last-child {
     text-align: right;
-    width: 240px;
-    min-width: 240px;
-    max-width: 240px;
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
 }
 
 .data-table td {
@@ -2207,22 +2210,23 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .data-table td:nth-child(2) {
-    width: 220px;
-    min-width: 220px;
-    max-width: 220px;
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
     text-align: left;
     white-space: normal;
-    overflow: visible;
+    overflow: hidden;
     word-wrap: break-word;
 }
 
 .data-table td:last-child {
     text-align: right;
-    width: 240px;
-    min-width: 240px;
-    max-width: 240px;
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
     white-space: nowrap;
     overflow: visible;
+    padding-left: 1rem;
 }
 
 /* Actions - Alinhamento Perfeito */
