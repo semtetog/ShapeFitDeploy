@@ -830,19 +830,36 @@ require_once __DIR__ . '/includes/header.php';
     box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
-.btn-action.approve.btn-icon-only {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    padding: 0;
+/* Botão circular de aprovar - estilo igual ao botão de criar */
+.btn-approve-circular {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22C55E;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    flex-shrink: 0;
 }
 
-.btn-action.approve.btn-icon-only i {
-    font-size: 0.875rem;
+.btn-approve-circular:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22C55E;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-approve-circular i {
+    font-size: 1rem;
     margin: 0;
 }
 
@@ -1287,15 +1304,14 @@ require_once __DIR__ . '/includes/header.php';
                                         <?php echo $badgeText; ?>
                                     </span>
                                 </td>
-                                <td style="text-align: right; vertical-align: middle; width: 220px; min-width: 220px; max-width: 220px; padding-left: 1.5rem;">
-                                    <div class="actions" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex-wrap: nowrap;">
+                                <td style="text-align: right; vertical-align: middle; width: 240px; min-width: 240px; max-width: 240px; padding-left: 1.5rem;">
+                                    <div class="actions" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; flex-wrap: nowrap;">
                                         <?php if (!empty($food['added_by_user_id'])): ?>
                                             <!-- Botão Aprovar para alimentos criados por usuários -->
                                             <button type="button" 
                                                     onclick="approveFood(<?php echo $food['id']; ?>)" 
-                                                    class="btn-action approve btn-icon-only" 
-                                                    title="Adicionar ao banco de dados global"
-                                                    style="white-space: nowrap; flex-shrink: 0; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                                    class="btn-approve-circular" 
+                                                    title="Adicionar ao banco de dados global">
                                                 <i class="fas fa-plus"></i>
                                             </button>
                                         <?php endif; ?>
@@ -2201,9 +2217,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .data-table th:last-child {
     text-align: right;
-    width: 220px;
-    min-width: 220px;
-    max-width: 220px;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
 }
 
 .data-table td {
@@ -2242,9 +2258,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .data-table td:last-child {
     text-align: right;
-    width: 220px;
-    min-width: 220px;
-    max-width: 220px;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
     white-space: nowrap;
     overflow: visible;
     padding-left: 1.5rem;
@@ -2319,19 +2335,36 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
-.btn-action.approve.btn-icon-only {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    padding: 0;
+/* Botão circular de aprovar - estilo igual ao botão de criar */
+.btn-approve-circular {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22C55E;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    flex-shrink: 0;
 }
 
-.btn-action.approve.btn-icon-only i {
-    font-size: 0.875rem;
+.btn-approve-circular:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22C55E;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-approve-circular i {
+    font-size: 1rem;
     margin: 0;
 }
 </style>
