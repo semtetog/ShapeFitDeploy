@@ -1439,7 +1439,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="custom-select" id="food-source-select">
                             <div class="custom-select-trigger">
                                 <span class="custom-select-value">Manual</span>
-                                <i class="fas fa-chevron-down"></i>
                             </div>
                             <div class="custom-select-options">
                                 <div class="custom-select-option" data-value="Manual">Manual</div>
@@ -1481,9 +1480,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 /* Custom Select - estilo do recipes.php */
-.custom-select-wrapper {
+.custom-modal-body .custom-select-wrapper {
     position: relative;
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .custom-select {
@@ -1500,7 +1501,7 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.95rem;
     cursor: pointer;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     transition: all 0.3s ease;
     box-sizing: border-box;
@@ -1509,15 +1510,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .custom-select-trigger:hover {
     border-color: var(--accent-orange);
-}
-
-.custom-select.active .custom-select-trigger i {
-    transform: rotate(180deg);
-}
-
-.custom-select-trigger i {
-    transition: transform 0.3s ease;
-    color: var(--text-secondary);
 }
 
 .custom-select-value {
@@ -1573,6 +1565,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .custom-modal-body .form-group {
     margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
 }
 
 .custom-modal-body .form-group label {
@@ -1596,6 +1590,7 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 600;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
 }
 
 .custom-modal-body .form-group .form-control:focus {
@@ -1609,6 +1604,11 @@ document.addEventListener('DOMContentLoaded', function() {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+    align-items: start;
+}
+
+.form-row .form-group {
+    margin-bottom: 0;
 }
 
 .food-calculations {
@@ -1643,6 +1643,17 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .btn-modal-danger {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    font-family: 'Montserrat', sans-serif;
     background: var(--danger-red);
     color: white;
     border: 1px solid var(--danger-red);
