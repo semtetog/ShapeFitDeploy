@@ -143,8 +143,7 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    padding: 1.5rem;
     margin-bottom: 2rem;
 }
 
@@ -182,13 +181,12 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 16px;
-    padding: 1.25rem 1rem;
+    padding: 1rem 0.75rem;
     text-align: center;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     cursor: pointer;
     aspect-ratio: 1.4;
-    min-height: 110px;
+    min-height: 90px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -223,9 +221,8 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
-    padding: 1.5rem;
+    padding: 1.25rem;
     margin-bottom: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .filter-row {
@@ -252,7 +249,6 @@ require_once __DIR__ . '/includes/header.php';
 .search-input:focus {
     background: rgba(255, 255, 255, 0.08);
     border-color: var(--accent-orange);
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
 /* Custom Select (mesmo estilo do foods_management_new.php) */
@@ -287,7 +283,6 @@ require_once __DIR__ . '/includes/header.php';
 
 .custom-select.active .custom-select-trigger {
     border-color: var(--accent-orange);
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
 .custom-select-options {
@@ -300,7 +295,6 @@ require_once __DIR__ . '/includes/header.php';
     background: rgb(28, 28, 28);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
     max-height: 300px;
     overflow-y: auto;
 }
@@ -367,20 +361,17 @@ require_once __DIR__ . '/includes/header.php';
 .challenge-group-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 1.5rem;
+    border-radius: 16px;
+    padding: 1.25rem;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .challenge-group-card:hover {
     background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
     border-color: var(--accent-orange);
 }
 
@@ -392,7 +383,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .group-name {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
@@ -511,26 +502,26 @@ require_once __DIR__ . '/includes/header.php';
 /* Empty State */
 .empty-state {
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 3rem 2rem;
     color: var(--text-secondary);
 }
 
 .empty-state i {
-    font-size: 4rem;
+    font-size: 3rem;
     color: var(--text-secondary);
     opacity: 0.5;
     margin-bottom: 1rem;
 }
 
 .empty-state h3 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: var(--text-primary);
     margin: 0 0 0.5rem 0;
 }
 
 .empty-state p {
-    font-size: 1rem;
-    margin: 0 0 2rem 0;
+    font-size: 0.95rem;
+    margin: 0;
 }
 
 /* Modal Styles */
@@ -565,7 +556,6 @@ require_once __DIR__ . '/includes/header.php';
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
 .modal-header {
@@ -649,7 +639,6 @@ require_once __DIR__ . '/includes/header.php';
 .form-group textarea:focus {
     background: rgba(255, 255, 255, 0.08);
     border-color: var(--accent-orange);
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
 .form-group textarea {
@@ -810,8 +799,6 @@ require_once __DIR__ . '/includes/header.php';
 
 .btn-primary:hover {
     background: #e65c00;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
 }
 
 .btn-secondary {
