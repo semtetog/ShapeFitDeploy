@@ -1426,24 +1426,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="form-row">
                     <div class="form-group">
                         <label for="food-energy">Calorias (por 100g) *</label>
-                        <input type="number" id="food-energy" name="energy_kcal_100g" class="form-control" step="0.01" min="0" required>
+                        <input type="text" id="food-energy" name="energy_kcal_100g" class="form-control" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="food-protein">Proteína (por 100g) *</label>
-                        <input type="number" id="food-protein" name="protein_g_100g" class="form-control" step="0.01" min="0" required>
+                        <input type="text" id="food-protein" name="protein_g_100g" class="form-control" required>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="food-carbs">Carboidratos (por 100g) *</label>
-                        <input type="number" id="food-carbs" name="carbohydrate_g_100g" class="form-control" step="0.01" min="0" required>
+                        <input type="text" id="food-carbs" name="carbohydrate_g_100g" class="form-control" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="food-fat">Gordura (por 100g) *</label>
-                        <input type="number" id="food-fat" name="fat_g_100g" class="form-control" step="0.01" min="0" required>
+                        <input type="text" id="food-fat" name="fat_g_100g" class="form-control" required>
                     </div>
                 </div>
                 
@@ -1495,6 +1495,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 /* ========== MODAL - REFATORADO DO ZERO ========== */
+
 /* Custom Select - estilo do recipes.php */
 .custom-modal-body .custom-select-wrapper {
     position: relative;
@@ -1578,12 +1579,13 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 600;
 }
 
-/* Form Groups - Alinhamento Perfeito */
+/* Form Groups - Alinhamento Perfeito e Simétrico */
 .custom-modal-body .form-group {
     margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .custom-modal-body .form-group:last-child {
@@ -1599,6 +1601,7 @@ document.addEventListener('DOMContentLoaded', function() {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .custom-modal-body .form-group .form-control {
@@ -1614,6 +1617,14 @@ document.addEventListener('DOMContentLoaded', function() {
     font-family: 'Montserrat', sans-serif;
     box-sizing: border-box;
     margin: 0;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.custom-modal-body .form-group .form-control::-webkit-outer-spin-button,
+.custom-modal-body .form-group .form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .custom-modal-body .form-group .form-control:focus {
@@ -1623,18 +1634,20 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
-/* Form Row - Alinhamento Simétrico */
+/* Form Row - Alinhamento Simétrico Perfeito */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
     align-items: start;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .form-row .form-group {
     margin-bottom: 0;
     width: 100%;
+    box-sizing: border-box;
 }
 
 /* Food Calculations */
@@ -1654,6 +1667,7 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     margin-bottom: 0.5rem;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .calculation-item:last-child {
@@ -1672,7 +1686,9 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 700;
 }
 
-/* Botão Excluir - Estilo Correto */
+/* Botões - Estilo da view_user */
+.btn-modal-cancel,
+.btn-modal-confirm,
 .btn-modal-danger {
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
@@ -1680,17 +1696,43 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
     border: none;
     font-family: 'Montserrat', sans-serif;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-modal-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-modal-cancel:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.btn-modal-confirm {
+    background: var(--accent-orange);
+    color: white;
+    border: 1px solid var(--accent-orange);
+}
+
+.btn-modal-confirm:hover {
+    background: #ff8533;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+}
+
+.btn-modal-danger {
     background: var(--danger-red);
     color: white;
     border: 1px solid var(--danger-red);
-    height: auto;
-    min-height: auto;
 }
 
 .btn-modal-danger:hover {
@@ -1708,11 +1750,7 @@ document.addEventListener('DOMContentLoaded', function() {
     padding: 1.5rem 2rem;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     flex-wrap: wrap;
-}
-
-.custom-modal-footer button {
-    flex-shrink: 0;
-    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 /* ========== TABELA - ALINHAMENTO PERFEITO ========== */
