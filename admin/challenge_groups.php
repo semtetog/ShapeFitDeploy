@@ -840,6 +840,7 @@ require_once __DIR__ . '/includes/header.php';
     width: 100% !important;
     max-width: 320px !important;
     overflow: visible !important;
+    box-sizing: border-box !important;
 }
 
 /* Remover qualquer indicador de seta do Flatpickr */
@@ -878,10 +879,20 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 1rem !important;
     padding: 0.5rem 0 !important;
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.5rem !important;
+    gap: 0.25rem !important;
     width: 100% !important;
+}
+
+.flatpickr-current-month .cur-year {
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    color: var(--text-secondary) !important;
+    opacity: 0.8 !important;
+    order: -1 !important;
+    margin-bottom: 0.125rem !important;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months {
@@ -890,9 +901,11 @@ require_once __DIR__ . '/includes/header.php';
     border-radius: 8px !important;
     color: var(--text-primary) !important;
     font-family: 'Montserrat', sans-serif !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
     padding: 0.25rem 0.5rem !important;
     cursor: pointer !important;
+    order: 0 !important;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
@@ -945,6 +958,8 @@ require_once __DIR__ . '/includes/header.php';
     border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     padding-bottom: 0.5rem !important;
     margin-bottom: 0.5rem !important;
+    display: flex !important;
+    width: 100% !important;
 }
 
 .flatpickr-weekday {
@@ -954,10 +969,25 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.75rem !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
+    flex: 1 !important;
+    text-align: center !important;
+    padding: 0 !important;
+    min-width: 0 !important;
 }
 
 .flatpickr-days {
     padding: 0.5rem 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.dayContainer {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
 }
 
 .flatpickr-day {
@@ -972,12 +1002,15 @@ require_once __DIR__ . '/includes/header.php';
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 2.5rem !important;
+    flex: 1 1 calc((100% - 1rem) / 7) !important;
+    min-width: 0 !important;
+    max-width: calc((100% - 1rem) / 7) !important;
     height: 2.5rem !important;
     line-height: 1 !important;
     overflow: visible !important;
     text-align: center !important;
     padding: 0 !important;
+    box-sizing: border-box !important;
 }
 
 .flatpickr-day:hover {
