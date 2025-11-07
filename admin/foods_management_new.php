@@ -290,12 +290,7 @@ require_once __DIR__ . '/includes/header.php';
     position: relative;
     min-width: 180px;
     max-width: 250px;
-    z-index: 1;
-}
-
-.custom-select-wrapper.active {
-    z-index: 10000 !important;
-    position: relative;
+    width: 100%;
 }
 
 .custom-select {
@@ -351,6 +346,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .custom-select-options {
+    display: none;
     position: absolute;
     top: calc(100% + 0.5rem);
     left: 0;
@@ -361,25 +357,16 @@ require_once __DIR__ . '/includes/header.php';
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 10000;
+    z-index: 1000;
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
-    pointer-events: none;
+    box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
 }
 
 .custom-select.active .custom-select-options {
-    position: fixed;
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    pointer-events: auto;
-    z-index: 99999;
+    display: block;
 }
 
 .custom-select-option {
@@ -1307,148 +1294,63 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-// Custom Select Functionality - Copiado do recipes.php
-document.addEventListener('DOMContentLoaded', function() {
-    const sourceSelect = document.getElementById('source_select');
-    const sourceInput = document.getElementById('source_input');
-    const sourceWrapper = document.getElementById('source_select_wrapper');
+// Custom Select Dropdown Functionality - VERSÃO SIMPLIFICADA (CSS FAZ O TRABALHO)
+// Copiado exatamente do recipes.php
+(function() {
+    const customSelect = document.getElementById('source_select');
+    if (!customSelect) return;
     
-    if (sourceSelect && sourceWrapper) {
-        const trigger = sourceSelect.querySelector('.custom-select-trigger');
-        const optionElements = sourceSelect.querySelectorAll('.custom-select-option');
-        const optionsContainer = sourceSelect.querySelector('.custom-select-options');
-        
-        trigger.addEventListener('click', function(e) {
+    const hiddenInput = document.getElementById('source_input');
+    const trigger = customSelect.querySelector('.custom-select-trigger');
+    const optionsContainer = customSelect.querySelector('.custom-select-options');
+    const options = customSelect.querySelectorAll('.custom-select-option');
+    const valueDisplay = customSelect.querySelector('.custom-select-value');
+
+    // Abre/fecha o dropdown
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        customSelect.classList.toggle('active');
+    });
+
+    // Seleciona uma opção
+    options.forEach(option => {
+        option.addEventListener('click', function(e) {
             e.stopPropagation();
-            const isOpening = !sourceSelect.classList.contains('active');
             
-            // Fecha outros selects abertos
-            document.querySelectorAll('.custom-select.active').forEach(select => {
-                if (select !== sourceSelect) {
-                    select.classList.remove('active');
-                    const otherWrapper = select.closest('.custom-select-wrapper');
-                    if (otherWrapper) {
-                        otherWrapper.classList.remove('active');
-                    }
-                    const otherOptions = select.querySelector('.custom-select-options');
-                    if (otherOptions) {
-                        otherOptions.style.position = 'absolute';
-                        otherOptions.style.top = '';
-                        otherOptions.style.left = '';
-                        otherOptions.style.right = '';
-                        otherOptions.style.width = '';
-                    }
-                }
-            });
+            // Atualiza o valor do input escondido
+            hiddenInput.value = this.getAttribute('data-value') || '';
+            // Atualiza o texto visível
+            valueDisplay.textContent = this.textContent;
             
-            // Abre/fecha este select
-            if (isOpening) {
-                // Calcula posição antes de mudar para fixed
-                const rect = trigger.getBoundingClientRect();
-                const wrapperRect = sourceWrapper.getBoundingClientRect();
-                
-                sourceSelect.classList.add('active');
-                sourceWrapper.classList.add('active');
-                
-                // Aplica posição fixed com coordenadas calculadas
-                setTimeout(() => {
-                    if (optionsContainer) {
-                        optionsContainer.style.position = 'fixed';
-                        optionsContainer.style.top = (rect.bottom + window.scrollY + 8) + 'px';
-                        optionsContainer.style.left = wrapperRect.left + 'px';
-                        optionsContainer.style.right = 'auto';
-                        optionsContainer.style.width = wrapperRect.width + 'px';
-                    }
-                }, 0);
-            } else {
-                sourceSelect.classList.remove('active');
-                sourceWrapper.classList.remove('active');
-                
-                // Restaura posição absolute
-                if (optionsContainer) {
-                    optionsContainer.style.position = 'absolute';
-                    optionsContainer.style.top = '';
-                    optionsContainer.style.left = '';
-                    optionsContainer.style.right = '';
-                    optionsContainer.style.width = '';
-                }
+            // Remove a classe 'selected' de todos e adiciona na clicada
+            options.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+
+            // Fecha o dropdown
+            customSelect.classList.remove('active');
+            
+            // Submete o formulário
+            const form = customSelect.closest('form');
+            if (form) {
+                form.submit();
             }
         });
-        
-        optionElements.forEach(option => {
-            option.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const value = this.dataset.value;
-                sourceInput.value = value || '';
-                trigger.querySelector('.custom-select-value').textContent = this.textContent;
-                sourceSelect.querySelectorAll('.custom-select-option').forEach(opt => opt.classList.remove('selected'));
-                this.classList.add('selected');
-                sourceSelect.classList.remove('active');
-                sourceWrapper.classList.remove('active');
-                
-                // Restaura posição absolute
-                const optionsEl = sourceSelect.querySelector('.custom-select-options');
-                if (optionsEl) {
-                    optionsEl.style.position = 'absolute';
-                    optionsEl.style.top = '';
-                    optionsEl.style.left = '';
-                    optionsEl.style.right = '';
-                    optionsEl.style.width = '';
-                }
-            });
-        });
-        
-        // Fecha ao clicar fora
-        document.addEventListener('click', function(e) {
-            if (!sourceSelect.contains(e.target) && !sourceWrapper.contains(e.target)) {
-                sourceSelect.classList.remove('active');
-                sourceWrapper.classList.remove('active');
-                
-                // Restaura posição absolute
-                const optionsEl = sourceSelect.querySelector('.custom-select-options');
-                if (optionsEl) {
-                    optionsEl.style.position = 'absolute';
-                    optionsEl.style.top = '';
-                    optionsEl.style.left = '';
-                    optionsEl.style.right = '';
-                    optionsEl.style.width = '';
-                }
-            }
-        });
-        
-        // Fecha com ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                sourceSelect.classList.remove('active');
-                sourceWrapper.classList.remove('active');
-                
-                // Restaura posição absolute
-                const optionsEl = sourceSelect.querySelector('.custom-select-options');
-                if (optionsEl) {
-                    optionsEl.style.position = 'absolute';
-                    optionsEl.style.top = '';
-                    optionsEl.style.left = '';
-                    optionsEl.style.right = '';
-                    optionsEl.style.width = '';
-                }
-            }
-        });
-        
-        // Ajusta posição no scroll
-        window.addEventListener('scroll', function() {
-            if (sourceSelect.classList.contains('active')) {
-                const optionsEl = sourceSelect.querySelector('.custom-select-options');
-                const rect = trigger.getBoundingClientRect();
-                const wrapperRect = sourceWrapper.getBoundingClientRect();
-                
-                if (optionsEl && optionsEl.style.position === 'fixed') {
-                    optionsEl.style.top = (rect.bottom + window.scrollY + 8) + 'px';
-                    optionsEl.style.left = wrapperRect.left + 'px';
-                }
-            }
-        });
-    }
-});
+    });
+
+    // Fecha o dropdown se clicar fora
+    document.addEventListener('click', function(e) {
+        if (!customSelect.contains(e.target)) {
+            customSelect.classList.remove('active');
+        }
+    });
+
+    // Fecha com a tecla Esc
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            customSelect.classList.remove('active');
+        }
+    });
+})();
 
 // Modal de Edição de Alimento
 let currentEditingFoodId = null;
