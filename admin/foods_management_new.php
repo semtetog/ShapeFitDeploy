@@ -1988,7 +1988,8 @@ document.addEventListener('DOMContentLoaded', function() {
 .food-select-wrapper .custom-select-options {
     display: none;
     position: absolute;
-    top: calc(100% + 8px);
+    bottom: calc(100% + 8px);
+    top: auto;
     left: 0;
     right: 0;
     z-index: 1000;
