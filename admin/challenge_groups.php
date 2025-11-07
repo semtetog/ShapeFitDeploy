@@ -742,31 +742,35 @@ require_once __DIR__ . '/includes/header.php';
 .date-input-modern {
     position: relative;
     color-scheme: dark;
-    padding-right: 3rem !important;
+    padding-right: 2.5rem !important;
 }
 
-/* Ícone de calendário - círculo moderno */
+/* Ícone de calendário - círculo laranja pequeno */
 .date-input-modern::-webkit-calendar-picker-indicator {
     cursor: pointer;
     position: absolute;
     right: 0.5rem;
-    width: 2rem;
-    height: 2rem;
-    min-width: 2rem;
-    min-height: 2rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
     border-radius: 50%;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    padding: 0.5rem;
+    background: rgba(255, 107, 0, 0.15);
+    border: 1px solid var(--accent-orange);
+    padding: 0.25rem;
     transition: all 0.3s ease;
     opacity: 1;
-    filter: invert(0.6) sepia(1) saturate(5) hue-rotate(0deg) brightness(1.2);
+    filter: invert(0.4) sepia(1) saturate(5) hue-rotate(0deg) brightness(1.3);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF6B00'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z'/%3E%3C/svg%3E");
+    background-size: 60% 60%;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .date-input-modern::-webkit-calendar-picker-indicator:hover {
-    background: rgba(255, 107, 0, 0.15);
-    border-color: var(--accent-orange);
-    transform: scale(1.05);
+    background-color: rgba(255, 107, 0, 0.25);
+    border-color: #FF8533;
+    transform: scale(1.1);
 }
 
 .date-input-modern::-webkit-calendar-picker-indicator:active {
@@ -777,18 +781,18 @@ require_once __DIR__ . '/includes/header.php';
 .date-input-modern::-moz-calendar-picker-indicator {
     cursor: pointer;
     border-radius: 50%;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    padding: 0.5rem;
-    width: 2rem;
-    height: 2rem;
+    background: rgba(255, 107, 0, 0.15);
+    border: 1px solid var(--accent-orange);
+    padding: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
     transition: all 0.3s ease;
 }
 
 .date-input-modern::-moz-calendar-picker-indicator:hover {
-    background: rgba(255, 107, 0, 0.15);
-    border-color: var(--accent-orange);
-    transform: scale(1.05);
+    background-color: rgba(255, 107, 0, 0.25);
+    border-color: #FF8533;
+    transform: scale(1.1);
 }
 
 /* Remover setas de spin */
