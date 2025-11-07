@@ -292,6 +292,13 @@ require_once __DIR__ . '/includes/header.php';
     min-width: 180px;
     max-width: 250px;
     width: 100%;
+    z-index: 1;
+}
+
+.custom-select-wrapper.active {
+    z-index: 9999 !important;
+    position: relative;
+    will-change: z-index;
 }
 
 .custom-select {
@@ -352,32 +359,22 @@ require_once __DIR__ . '/includes/header.php';
     top: calc(100% + 0.5rem);
     left: 0;
     right: 0;
-    background: rgb(20, 20, 20);
+    z-index: 9999 !important;
+    background: rgba(35, 35, 35, 0.98);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-    z-index: 99999;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
-    pointer-events: auto;
 }
 
 .custom-select.active .custom-select-options {
     display: block;
-}
-
-/* Garantir que o dropdown intercepte todos os eventos quando ativo */
-.custom-select.active {
-    z-index: 99999;
-    position: relative;
-}
-
-.custom-select-wrapper:has(.custom-select.active) {
-    z-index: 99999;
-    position: relative;
 }
 
 .custom-select-option {
@@ -1317,10 +1314,38 @@ require_once __DIR__ . '/includes/header.php';
     const options = customSelect.querySelectorAll('.custom-select-option');
     const valueDisplay = customSelect.querySelector('.custom-select-value');
 
-    // Abre/fecha o dropdown
+    // Abre/fecha o dropdown - COPIADO DO food_classification.php
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
-        customSelect.classList.toggle('active');
+        const isOpening = !customSelect.classList.contains('active');
+        
+        // Se estiver abrindo, fecha todos os outros primeiro
+        if (isOpening) {
+            document.querySelectorAll('.custom-select.active').forEach(select => {
+                if (select !== customSelect) {
+                    select.classList.remove('active');
+                    const otherWrapper = select.closest('.custom-select-wrapper');
+                    if (otherWrapper) {
+                        otherWrapper.classList.remove('active');
+                    }
+                }
+            });
+            
+            // Aplica classes do novo dropdown - wrapper primeiro para garantir z-index
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.add('active');
+            }
+            // Adiciona active DEPOIS do wrapper para garantir z-index
+            customSelect.classList.add('active');
+        } else {
+            // Fechando
+            customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
+        }
     });
 
     // Seleciona uma opção
@@ -1339,6 +1364,10 @@ require_once __DIR__ . '/includes/header.php';
 
             // Fecha o dropdown
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
             
             // Submete o formulário
             const form = customSelect.closest('form');
@@ -1351,6 +1380,10 @@ require_once __DIR__ . '/includes/header.php';
     // Função para fechar dropdown
     function closeDropdown() {
         customSelect.classList.remove('active');
+        const wrapper = customSelect.closest('.custom-select-wrapper');
+        if (wrapper) {
+            wrapper.classList.remove('active');
+        }
     }
 
     // Fecha o dropdown se clicar fora
