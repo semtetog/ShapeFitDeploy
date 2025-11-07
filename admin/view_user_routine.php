@@ -149,8 +149,115 @@
                     </div>
                 </div>
                 
-                <div class="tracking-chart-container">
-                    <canvas id="exerciseChart"></canvas>
+                <div class="improved-chart" id="exercise-chart-container">
+                    <?php
+                    // Preparar dados dos últimos 7 dias para exibição inicial
+                    $exercise_7_days = array_filter($routine_exercise_data, function($item) {
+                        $itemDate = new DateTime($item['date']);
+                        $now = new DateTime();
+                        $diff = $now->diff($itemDate)->days;
+                        return $diff < 7;
+                    });
+                    
+                    // Criar array de datas para os últimos 7 dias
+                    $exercise_chart_data = [];
+                    for ($i = 6; $i >= 0; $i--) {
+                        $date = new DateTime();
+                        $date->modify("-{$i} days");
+                        $dateStr = $date->format('Y-m-d');
+                        
+                        $found = false;
+                        foreach ($exercise_7_days as $exercise_day) {
+                            if ($exercise_day['date'] === $dateStr) {
+                                $minutes = (float)($exercise_day['total_minutes'] ?? 0);
+                                $percentage = $exercise_goal_daily_minutes > 0 ? min(($minutes / $exercise_goal_daily_minutes) * 100, 150) : 0;
+                                $status = 'empty';
+                                if ($minutes > 0) {
+                                    if ($exercise_goal_daily_minutes > 0 && $minutes >= $exercise_goal_daily_minutes) {
+                                        $status = 'excellent';
+                                    } elseif ($exercise_goal_daily_minutes > 0 && $minutes >= $exercise_goal_daily_minutes * 0.7) {
+                                        $status = 'good';
+                                    } else {
+                                        $status = 'poor';
+                                    }
+                                }
+                                $exercise_chart_data[] = [
+                                    'date' => $dateStr,
+                                    'minutes' => $minutes,
+                                    'percentage' => $percentage,
+                                    'status' => $status
+                                ];
+                                $found = true;
+                                break;
+                            }
+                        }
+                        if (!$found) {
+                            $exercise_chart_data[] = [
+                                'date' => $dateStr,
+                                'minutes' => 0,
+                                'percentage' => 0,
+                                'status' => 'empty'
+                            ];
+                        }
+                    }
+                    ?>
+                    <?php if (empty($exercise_chart_data)): ?>
+                        <div class="empty-chart">
+                            <i class="fas fa-dumbbell"></i>
+                            <p>Nenhum registro encontrado</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="improved-bars" id="exercise-bars" data-period="7">
+                            <?php foreach ($exercise_chart_data as $day): 
+                                $limitedPercentage = min($day['percentage'], 150);
+                                $barHeight = 0;
+                                if ($limitedPercentage === 0) {
+                                    $barHeight = 0;
+                                } else if ($limitedPercentage >= 100) {
+                                    $barHeight = 160;
+                                } else {
+                                    $barHeight = ($limitedPercentage / 100) * 160;
+                                }
+                            ?>
+                                <div class="improved-bar-container">
+                                    <div class="improved-bar-wrapper">
+                                        <div class="improved-bar <?php echo $day['status']; ?>" style="height: <?php echo $barHeight; ?>px"></div>
+                                        <?php if ($day['minutes'] > 0): ?>
+                                            <div class="bar-value-text">
+                                                <?php 
+                                                $hours = floor($day['minutes'] / 60);
+                                                $mins = $day['minutes'] % 60;
+                                                if ($hours > 0) {
+                                                    echo $hours . 'h' . ($mins > 0 ? ' ' . $mins . 'm' : '');
+                                                } else {
+                                                    echo $mins . 'min';
+                                                }
+                                                ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="bar-value-text empty">-</div>
+                                        <?php endif; ?>
+                                        <?php if ($exercise_goal_daily_minutes > 0): 
+                                            // Calcular posição da linha de meta (meta em relação ao máximo do gráfico)
+                                            $maxMinutes = $exercise_goal_daily_minutes * 1.5; // Máximo do gráfico
+                                            $goalPercentage = ($exercise_goal_daily_minutes / $maxMinutes) * 100;
+                                            $goalLineBottom = (100 - $goalPercentage) * 1.6; // Converter para pixels (160px é 100%)
+                                        ?>
+                                            <div class="improved-goal-line" style="bottom: <?php echo $goalLineBottom; ?>px;"></div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="improved-bar-info">
+                                        <span class="improved-date"><?php echo date('d/m', strtotime($day['date'])); ?></span>
+                                        <?php if ($day['minutes'] > 0 && $exercise_goal_daily_minutes > 0): ?>
+                                            <span class="improved-value"><?php echo round($day['percentage'], 0); ?>%</span>
+                                        <?php else: ?>
+                                            <span class="improved-value empty">-</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
             
@@ -222,8 +329,108 @@
                     </div>
                 </div>
                 
-                <div class="tracking-chart-container">
-                    <canvas id="sleepChart"></canvas>
+                <div class="improved-chart" id="sleep-chart-container">
+                    <?php
+                    // Preparar dados dos últimos 7 dias para exibição inicial
+                    $sleep_7_days = array_filter($routine_sleep_data, function($item) {
+                        $itemDate = new DateTime($item['date']);
+                        $now = new DateTime();
+                        $diff = $now->diff($itemDate)->days;
+                        return $diff < 7;
+                    });
+                    
+                    // Criar array de datas para os últimos 7 dias
+                    $sleep_chart_data = [];
+                    for ($i = 6; $i >= 0; $i--) {
+                        $date = new DateTime();
+                        $date->modify("-{$i} days");
+                        $dateStr = $date->format('Y-m-d');
+                        
+                        $found = false;
+                        foreach ($sleep_7_days as $sleep_day) {
+                            if ($sleep_day['date'] === $dateStr) {
+                                $hours = (float)($sleep_day['sleep_hours'] ?? 0);
+                                $percentage = $sleep_goal_hours > 0 ? ($hours / $sleep_goal_hours) * 100 : 0;
+                                $status = 'empty';
+                                if ($hours > 0) {
+                                    if ($hours >= 7 && $hours <= 8) {
+                                        $status = 'excellent';
+                                    } elseif ($hours >= 6.5 && $hours < 7) {
+                                        $status = 'good';
+                                    } elseif ($hours >= 6 && $hours < 6.5) {
+                                        $status = 'fair';
+                                    } elseif ($hours >= 5 && $hours < 6) {
+                                        $status = 'poor';
+                                    } else {
+                                        $status = 'critical';
+                                    }
+                                }
+                                $sleep_chart_data[] = [
+                                    'date' => $dateStr,
+                                    'hours' => $hours,
+                                    'percentage' => min($percentage, 120),
+                                    'status' => $status
+                                ];
+                                $found = true;
+                                break;
+                            }
+                        }
+                        if (!$found) {
+                            $sleep_chart_data[] = [
+                                'date' => $dateStr,
+                                'hours' => 0,
+                                'percentage' => 0,
+                                'status' => 'empty'
+                            ];
+                        }
+                    }
+                    ?>
+                    <?php if (empty($sleep_chart_data)): ?>
+                        <div class="empty-chart">
+                            <i class="fas fa-bed"></i>
+                            <p>Nenhum registro encontrado</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="improved-bars" id="sleep-bars" data-period="7">
+                            <?php foreach ($sleep_chart_data as $day): 
+                                $limitedPercentage = min($day['percentage'], 120);
+                                $barHeight = 0;
+                                if ($limitedPercentage === 0) {
+                                    $barHeight = 0;
+                                } else if ($limitedPercentage >= 100) {
+                                    $barHeight = 160;
+                                } else {
+                                    $barHeight = ($limitedPercentage / 100) * 160;
+                                }
+                            ?>
+                                <div class="improved-bar-container">
+                                    <div class="improved-bar-wrapper">
+                                        <div class="improved-bar <?php echo $day['status']; ?>" style="height: <?php echo $barHeight; ?>px"></div>
+                                        <?php if ($day['hours'] > 0): ?>
+                                            <div class="bar-value-text">
+                                                <?php 
+                                                $hours = floor($day['hours']);
+                                                $mins = round(($day['hours'] - $hours) * 60);
+                                                echo $hours . 'h' . ($mins > 0 ? ' ' . $mins . 'm' : '');
+                                                ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="bar-value-text empty">-</div>
+                                        <?php endif; ?>
+                                        <div class="improved-goal-line" style="bottom: <?php echo (7.5 / 12) * 160; ?>px;"></div>
+                                    </div>
+                                    <div class="improved-bar-info">
+                                        <span class="improved-date"><?php echo date('d/m', strtotime($day['date'])); ?></span>
+                                        <?php if ($day['hours'] > 0): ?>
+                                            <span class="improved-value"><?php echo round($day['percentage'], 0); ?>%</span>
+                                        <?php else: ?>
+                                            <span class="improved-value empty">-</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
             
@@ -711,6 +918,40 @@
 .tracking-chart-container {
     height: 250px;
     position: relative;
+}
+
+/* Estilos para barras vazias */
+.improved-bar.empty {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.bar-value-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.bar-value-text.empty {
+    color: rgba(255, 255, 255, 0.3);
+    text-shadow: none;
+}
+
+.improved-value {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.improved-value.empty {
+    color: rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 1024px) {
@@ -2417,8 +2658,6 @@ window.closeRoutineCalendar = closeRoutineCalendar;
 window.changeRoutineCalendarMonth = changeRoutineCalendarMonth;
 
 // ============ ACOMPANHAMENTO DE EXERCÍCIO E SONO ============
-let exerciseChartInstance = null;
-let sleepChartInstance = null;
 let currentPeriod = 7;
 
 // Dados do PHP
@@ -2442,8 +2681,8 @@ function changeExerciseSleepPeriod(period) {
     // Atualizar estatísticas e gráficos
     updateExerciseStats();
     updateSleepStats();
-    updateExerciseChart();
-    updateSleepChart();
+    updateExerciseBars();
+    updateSleepBars();
 }
 
 // Função para atualizar estatísticas de exercício
@@ -2537,10 +2776,10 @@ function updateSleepStats() {
     if (statusDescEl) statusDescEl.textContent = statusText + ' - ' + goalReached + '% da meta';
 }
 
-// Função para atualizar gráfico de exercício
-function updateExerciseChart() {
-    const ctx = document.getElementById('exerciseChart');
-    if (!ctx) return;
+// Função para atualizar barras de exercício
+function updateExerciseBars() {
+    const container = document.getElementById('exercise-bars');
+    if (!container) return;
     
     // Filtrar dados pelo período
     const now = new Date();
@@ -2551,161 +2790,105 @@ function updateExerciseChart() {
         return diffDays <= currentPeriod;
     });
     
-    // Criar array de datas para o período (preencher dias sem dados com 0)
-    const dates = [];
-    const dataMap = {};
-    
+    // Criar array de datas para o período
+    const chartData = [];
     for (let i = currentPeriod - 1; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
         date.setHours(0, 0, 0, 0);
         const dateStr = date.toISOString().split('T')[0];
-        dates.push(dateStr);
-        dataMap[dateStr] = 0;
-    }
-    
-    // Preencher com dados reais
-    filteredData.forEach(item => {
-        const itemDate = new Date(item.date);
-        itemDate.setHours(0, 0, 0, 0);
-        const dateStr = itemDate.toISOString().split('T')[0];
-        if (dataMap.hasOwnProperty(dateStr)) {
-            dataMap[dateStr] = parseFloat(item.total_minutes) || 0;
+        
+        // Buscar dados deste dia
+        const dayData = filteredData.find(item => {
+            const itemDate = new Date(item.date);
+            itemDate.setHours(0, 0, 0, 0);
+            return itemDate.toISOString().split('T')[0] === dateStr;
+        });
+        
+        const minutes = dayData ? parseFloat(dayData.total_minutes || 0) : 0;
+        let percentage = 0;
+        let status = 'empty';
+        
+        if (minutes > 0) {
+            if (exerciseGoalDailyMinutes > 0) {
+                percentage = Math.min((minutes / exerciseGoalDailyMinutes) * 100, 150);
+            } else {
+                percentage = 50; // Valor padrão quando não há meta
+            }
+            
+            if (exerciseGoalDailyMinutes > 0 && minutes >= exerciseGoalDailyMinutes) {
+                status = 'excellent';
+            } else if (exerciseGoalDailyMinutes > 0 && minutes >= exerciseGoalDailyMinutes * 0.7) {
+                status = 'good';
+            } else {
+                status = 'poor';
+            }
         }
-    });
-    
-    // Preparar labels e dados
-    const labels = dates.map(date => {
-        const d = new Date(date);
-        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    });
-    const data = dates.map(date => dataMap[date]);
-    
-    // Destruir gráfico anterior se existir
-    if (exerciseChartInstance) {
-        exerciseChartInstance.destroy();
-    }
-    
-    // Preparar datasets
-    const datasets = [{
-        label: 'Minutos de Exercício',
-        data: data,
-        backgroundColor: data.map(value => {
-            if (value === 0) return 'rgba(255, 255, 255, 0.05)';
-            if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes) return 'rgba(76, 175, 80, 0.8)';
-            if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes * 0.7) return 'rgba(255, 152, 0, 0.8)';
-            return 'rgba(244, 67, 54, 0.8)';
-        }),
-        borderColor: data.map(value => {
-            if (value === 0) return 'rgba(255, 255, 255, 0.1)';
-            if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes) return 'rgba(76, 175, 80, 1)';
-            if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes * 0.7) return 'rgba(255, 152, 0, 1)';
-            return 'rgba(244, 67, 54, 1)';
-        }),
-        borderWidth: 1,
-        borderRadius: 4
-    }];
-    
-    // Adicionar linha de meta se houver meta definida
-    if (exerciseGoalDailyMinutes > 0) {
-        datasets.push({
-            label: 'Meta Diária',
-            data: data.map(() => exerciseGoalDailyMinutes),
-            type: 'line',
-            borderColor: 'rgba(255, 107, 0, 0.6)',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            borderDash: [5, 5],
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            fill: false,
-            order: 0
+        
+        chartData.push({
+            date: dateStr,
+            minutes: minutes,
+            percentage: percentage,
+            status: status
         });
     }
     
-    // Criar novo gráfico
-    exerciseChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: exerciseGoalDailyMinutes > 0,
-                    labels: {
-                        color: '#b0b0b0',
-                        filter: (item) => {
-                            return item.text === 'Meta Diária';
-                        }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            // Ignorar tooltip da linha de meta
-                            if (context.dataset.label === 'Meta Diária') {
-                                return null;
-                            }
-                            const value = context.parsed.y;
-                            if (value === 0) {
-                                return 'Sem exercício registrado';
-                            }
-                            const hours = Math.floor(value / 60);
-                            const minutes = value % 60;
-                            let label = value + ' min';
-                            if (hours > 0) {
-                                label = hours + 'h ' + minutes + 'min';
-                            }
-                            if (exerciseGoalDailyMinutes > 0) {
-                                const percentage = Math.round((value / exerciseGoalDailyMinutes) * 100);
-                                label += ' (' + percentage + '% da meta)';
-                            }
-                            return label;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: (() => {
-                        const maxData = data.length > 0 ? Math.max(...data) : 0;
-                        if (exerciseGoalDailyMinutes > 0) {
-                            return Math.max(maxData, exerciseGoalDailyMinutes * 1.2, 30);
-                        }
-                        return Math.max(maxData, 60);
-                    })(),
-                    ticks: {
-                        color: '#b0b0b0',
-                        callback: function(value) {
-                            return value + ' min';
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#b0b0b0'
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
+    // Calcular altura das barras (usar máximo baseado na meta ou nos dados)
+    const maxMinutes = exerciseGoalDailyMinutes > 0 ? exerciseGoalDailyMinutes * 1.5 : Math.max(...chartData.map(d => d.minutes), 60);
+    const maxHeight = 160;
+    
+    // Gerar HTML das barras
+    let barsHTML = '';
+    chartData.forEach(day => {
+        let barHeight = 0;
+        if (day.minutes === 0) {
+            barHeight = 0;
+        } else {
+            barHeight = Math.min((day.minutes / maxMinutes) * maxHeight, maxHeight);
+        }
+        
+        // Formatar valor
+        let valueText = '-';
+        if (day.minutes > 0) {
+            const hours = Math.floor(day.minutes / 60);
+            const mins = Math.round(day.minutes % 60);
+            if (hours > 0) {
+                valueText = hours + 'h' + (mins > 0 ? ' ' + mins + 'm' : '');
+            } else {
+                valueText = mins + 'min';
             }
         }
+        
+        // Calcular posição da linha de meta
+        let goalLineStyle = '';
+        if (exerciseGoalDailyMinutes > 0) {
+            const goalLineBottom = ((maxMinutes - exerciseGoalDailyMinutes) / maxMinutes) * maxHeight;
+            goalLineStyle = `style="bottom: ${goalLineBottom}px;"`;
+        }
+        
+        barsHTML += `
+            <div class="improved-bar-container">
+                <div class="improved-bar-wrapper">
+                    <div class="improved-bar ${day.status}" style="height: ${barHeight}px"></div>
+                    <div class="bar-value-text ${day.minutes === 0 ? 'empty' : ''}">${valueText}</div>
+                    ${exerciseGoalDailyMinutes > 0 ? `<div class="improved-goal-line" ${goalLineStyle}></div>` : ''}
+                </div>
+                <div class="improved-bar-info">
+                    <span class="improved-date">${new Date(day.date + 'T00:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</span>
+                    ${day.minutes > 0 && exerciseGoalDailyMinutes > 0 ? `<span class="improved-value">${Math.round(day.percentage)}%</span>` : '<span class="improved-value empty">-</span>'}
+                </div>
+            </div>
+        `;
     });
+    
+    container.innerHTML = barsHTML;
+    container.setAttribute('data-period', currentPeriod);
 }
 
-// Função para atualizar gráfico de sono
-function updateSleepChart() {
-    const ctx = document.getElementById('sleepChart');
-    if (!ctx) return;
+// Função para atualizar barras de sono
+function updateSleepBars() {
+    const container = document.getElementById('sleep-bars');
+    if (!container) return;
     
     // Filtrar dados pelo período
     const now = new Date();
@@ -2716,151 +2899,93 @@ function updateSleepChart() {
         return diffDays <= currentPeriod;
     });
     
-    // Criar array de datas para o período (preencher dias sem dados com null)
-    const dates = [];
-    const dataMap = {};
-    
+    // Criar array de datas para o período
+    const chartData = [];
     for (let i = currentPeriod - 1; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
         date.setHours(0, 0, 0, 0);
         const dateStr = date.toISOString().split('T')[0];
-        dates.push(dateStr);
-        dataMap[dateStr] = null;
-    }
-    
-    // Preencher com dados reais
-    filteredData.forEach(item => {
-        const itemDate = new Date(item.date);
-        itemDate.setHours(0, 0, 0, 0);
-        const dateStr = itemDate.toISOString().split('T')[0];
-        if (dataMap.hasOwnProperty(dateStr)) {
-            dataMap[dateStr] = parseFloat(item.sleep_hours) || 0;
-        }
-    });
-    
-    // Preparar labels e dados
-    const labels = dates.map(date => {
-        const d = new Date(date);
-        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    });
-    const data = dates.map(date => dataMap[date]);
-    
-    // Destruir gráfico anterior se existir
-    if (sleepChartInstance) {
-        sleepChartInstance.destroy();
-    }
-    
-    // Preparar datasets
-    const sleepDatasets = [{
-        label: 'Horas de Sono',
-        data: data,
-        backgroundColor: data.map(value => {
-            if (value === null || value === 0) return 'rgba(255, 255, 255, 0.05)';
-            if (value >= 7 && value <= 8) return 'rgba(76, 175, 80, 0.8)';
-            if (value >= 6.5 && value < 7) return 'rgba(139, 195, 74, 0.8)';
-            if (value >= 6 && value < 6.5) return 'rgba(255, 152, 0, 0.8)';
-            if (value >= 5 && value < 6) return 'rgba(255, 87, 34, 0.8)';
-            return 'rgba(244, 67, 54, 0.8)';
-        }),
-        borderColor: data.map(value => {
-            if (value === null || value === 0) return 'rgba(255, 255, 255, 0.1)';
-            if (value >= 7 && value <= 8) return 'rgba(76, 175, 80, 1)';
-            if (value >= 6.5 && value < 7) return 'rgba(139, 195, 74, 1)';
-            if (value >= 6 && value < 6.5) return 'rgba(255, 152, 0, 1)';
-            if (value >= 5 && value < 6) return 'rgba(255, 87, 34, 1)';
-            return 'rgba(244, 67, 54, 1)';
-        }),
-        borderWidth: 1,
-        borderRadius: 4
-    }];
-    
-    // Adicionar linha de meta (7.5h)
-    sleepDatasets.push({
-        label: 'Meta Diária (7.5h)',
-        data: data.map(() => sleepGoalHours),
-        type: 'line',
-        borderColor: 'rgba(255, 107, 0, 0.6)',
-        backgroundColor: 'transparent',
-        borderWidth: 2,
-        borderDash: [5, 5],
-        pointRadius: 0,
-        pointHoverRadius: 0,
-        fill: false,
-        order: 0
-    });
-    
-    // Criar novo gráfico
-    sleepChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: sleepDatasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: {
-                        color: '#b0b0b0',
-                        filter: (item) => {
-                            return item.text === 'Meta Diária (7.5h)';
-                        }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            // Ignorar tooltip da linha de meta
-                            if (context.dataset.label === 'Meta Diária (7.5h)') {
-                                return null;
-                            }
-                            const value = context.parsed.y;
-                            if (value === null || value === 0) {
-                                return 'Sem registro de sono';
-                            }
-                            const hours = Math.floor(value);
-                            const minutes = Math.round((value - hours) * 60);
-                            let label = hours + 'h';
-                            if (minutes > 0) {
-                                label += ' ' + minutes + 'min';
-                            }
-                            if (sleepGoalHours > 0) {
-                                const percentage = Math.round((value / sleepGoalHours) * 100);
-                                label += ' (' + percentage + '% da meta)';
-                            }
-                            return label;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 12,
-                    ticks: {
-                        color: '#b0b0b0',
-                        callback: function(value) {
-                            return value + 'h';
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#b0b0b0'
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
+        
+        // Buscar dados deste dia
+        const dayData = filteredData.find(item => {
+            const itemDate = new Date(item.date);
+            itemDate.setHours(0, 0, 0, 0);
+            return itemDate.toISOString().split('T')[0] === dateStr;
+        });
+        
+        const hours = dayData ? parseFloat(dayData.sleep_hours || 0) : 0;
+        let percentage = 0;
+        let status = 'empty';
+        
+        if (hours > 0) {
+            percentage = Math.min((hours / sleepGoalHours) * 100, 120);
+            
+            if (hours >= 7 && hours <= 8) {
+                status = 'excellent';
+            } else if (hours >= 6.5 && hours < 7) {
+                status = 'good';
+            } else if (hours >= 6 && hours < 6.5) {
+                status = 'fair';
+            } else if (hours >= 5 && hours < 6) {
+                status = 'poor';
+            } else {
+                status = 'critical';
             }
         }
+        
+        chartData.push({
+            date: dateStr,
+            hours: hours,
+            percentage: percentage,
+            status: status
+        });
+    }
+    
+    // Calcular altura das barras (baseado em 12h máximo = 160px)
+    const maxHours = 12;
+    const maxHeight = 160;
+    
+    // Gerar HTML das barras
+    let barsHTML = '';
+    chartData.forEach(day => {
+        let barHeight = 0;
+        if (day.percentage === 0) {
+            barHeight = 0;
+        } else if (day.percentage >= 100) {
+            barHeight = maxHeight;
+        } else {
+            barHeight = (day.hours / maxHours) * maxHeight;
+        }
+        
+        // Formatar valor
+        let valueText = '-';
+        if (day.hours > 0) {
+            const hours = Math.floor(day.hours);
+            const mins = Math.round((day.hours - hours) * 60);
+            valueText = hours + 'h' + (mins > 0 ? ' ' + mins + 'm' : '');
+        }
+        
+        // Calcular posição da linha de meta (7.5h de 12h máximo)
+        const goalLineBottom = ((maxHours - sleepGoalHours) / maxHours) * maxHeight;
+        
+        barsHTML += `
+            <div class="improved-bar-container">
+                <div class="improved-bar-wrapper">
+                    <div class="improved-bar ${day.status}" style="height: ${barHeight}px"></div>
+                    <div class="bar-value-text ${day.hours === 0 ? 'empty' : ''}">${valueText}</div>
+                    <div class="improved-goal-line" style="bottom: ${goalLineBottom}px;"></div>
+                </div>
+                <div class="improved-bar-info">
+                    <span class="improved-date">${new Date(day.date + 'T00:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</span>
+                    ${day.hours > 0 ? `<span class="improved-value">${Math.round(day.percentage)}%</span>` : '<span class="improved-value empty">-</span>'}
+                </div>
+            </div>
+        `;
     });
+    
+    container.innerHTML = barsHTML;
+    container.setAttribute('data-period', currentPeriod);
 }
 
 // Inicializar gráficos quando a aba for ativada
@@ -2870,8 +2995,8 @@ document.addEventListener('DOMContentLoaded', function() {
         tab.addEventListener('click', function() {
             if (this.dataset.tab === 'routine') {
                 setTimeout(() => {
-                    updateExerciseChart();
-                    updateSleepChart();
+                    updateExerciseBars();
+                    updateSleepBars();
                 }, 100);
             }
         });
@@ -2880,8 +3005,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar se já estiver na aba routine
     if (document.getElementById('tab-routine') && document.getElementById('tab-routine').classList.contains('active')) {
         setTimeout(() => {
-            updateExerciseChart();
-            updateSleepChart();
+            updateExerciseBars();
+            updateSleepBars();
         }, 300);
     }
 });
