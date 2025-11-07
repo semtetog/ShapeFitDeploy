@@ -2532,7 +2532,7 @@ function renderExerciseChart(data) {
             <div class="improved-bar-container">
                 <div class="improved-bar-wrapper">
                     <div class="improved-bar ${status}" style="height: ${barHeight}px"></div>
-                    ${minutes > 0 ? `<div class="bar-percentage-text">${Math.round(limitedPercentage)}%</div>` : ''}
+                    <div class="bar-percentage-text">${Math.round(limitedPercentage)}%</div>
                     ${exerciseGoalDailyMinutes > 0 ? '<div class="improved-goal-line"></div>' : ''}
                 </div>
                 <div class="improved-bar-info">
@@ -2586,7 +2586,7 @@ function renderSleepChart(data) {
             <div class="improved-bar-container">
                 <div class="improved-bar-wrapper">
                     <div class="improved-bar ${status}" style="height: ${barHeight}px"></div>
-                    ${hours > 0 ? `<div class="bar-percentage-text">${Math.round(limitedPercentage)}%</div>` : ''}
+                    <div class="bar-percentage-text">${Math.round(limitedPercentage)}%</div>
                     <div class="improved-goal-line"></div>
                 </div>
                 <div class="improved-bar-info">
