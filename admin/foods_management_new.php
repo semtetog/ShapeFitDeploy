@@ -1461,7 +1461,7 @@ function openEditFoodModal(foodId) {
                     }
                 });
                 
-                document.getElementById('food-delete-btn').style.display = 'flex';
+                document.getElementById('food-delete-btn').style.display = food.id ? 'flex' : 'none';
                 updateCalculations();
                 document.getElementById('food-edit-modal').classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -1476,7 +1476,10 @@ function openEditFoodModal(foodId) {
 }
 
 function closeFoodEditModal() {
-    document.getElementById('food-edit-modal').classList.remove('active');
+    const modal = document.getElementById('food-edit-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
     document.body.style.overflow = '';
     currentEditingFoodId = null;
 }
@@ -1501,7 +1504,11 @@ function saveFood() {
         alert('Nome do alimento é obrigatório');
         return;
     }
-    const saveBtn = document.querySelector('.custom-modal-footer .btn-modal-confirm');
+    const saveBtn = document.querySelector('.food-edit-footer .btn-save');
+    if (!saveBtn) {
+        alert('Erro: botão de salvar não encontrado');
+        return;
+    }
     const originalText = saveBtn.innerHTML;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
     saveBtn.disabled = true;
@@ -1563,9 +1570,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Inicializar custom select de fonte
+    // Inicializar custom select de fonte no modal
     const sourceSelect = document.getElementById('food-source-select');
-    if (sourceSelect) {
+    const sourceWrapper = document.getElementById('food-source-wrapper');
+    if (sourceSelect && sourceWrapper) {
         const trigger = sourceSelect.querySelector('.custom-select-trigger');
         const options = sourceSelect.querySelectorAll('.custom-select-option');
         const sourceInput = document.getElementById('food-source');
@@ -1573,88 +1581,97 @@ document.addEventListener('DOMContentLoaded', function() {
         
         trigger.addEventListener('click', function(e) {
             e.stopPropagation();
-            sourceSelect.classList.toggle('active');
+            const isOpening = !sourceSelect.classList.contains('active');
+            
+            if (isOpening) {
+                sourceWrapper.classList.add('active');
+                sourceSelect.classList.add('active');
+            } else {
+                sourceSelect.classList.remove('active');
+                sourceWrapper.classList.remove('active');
+            }
         });
         
         options.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation();
                 const value = this.dataset.value;
-                sourceInput.value = value;
+                sourceInput.value = value || '';
                 valueDisplay.textContent = this.textContent;
                 options.forEach(opt => opt.classList.remove('selected'));
                 this.classList.add('selected');
                 sourceSelect.classList.remove('active');
+                sourceWrapper.classList.remove('active');
             });
         });
         
         document.addEventListener('click', function(e) {
             if (!sourceSelect.contains(e.target)) {
                 sourceSelect.classList.remove('active');
+                sourceWrapper.classList.remove('active');
             }
         });
     }
 });
 </script>
 
-<!-- Modal Adicionar/Editar Alimento -->
-<div id="food-edit-modal" class="custom-modal">
-    <div class="custom-modal-overlay" onclick="closeFoodEditModal()"></div>
-    <div class="custom-modal-content">
+<!-- Modal Adicionar/Editar Alimento - Estilo view_user -->
+<div id="food-edit-modal" class="food-edit-modal">
+    <div class="food-edit-overlay" onclick="closeFoodEditModal()"></div>
+    <div class="food-edit-content">
         <button class="sleep-modal-close" onclick="closeFoodEditModal()" type="button">
             <i class="fas fa-times"></i>
         </button>
-        <div class="custom-modal-header">
-            <i class="fas fa-apple-alt"></i>
+        <div class="food-edit-header">
             <h3 id="food-edit-title">Editar Alimento</h3>
         </div>
         
-        <div class="custom-modal-body">
+        <div class="food-edit-body">
             <form id="food-edit-form">
                 <input type="hidden" id="food-edit-id" name="id" value="">
                 <input type="hidden" name="action" id="food-edit-action" value="edit">
                 
-                <div class="form-group">
-                    <label for="food-name-pt">Nome do Alimento *</label>
-                    <input type="text" id="food-name-pt" name="name_pt" class="form-control" required>
+                <div class="food-form-group">
+                    <label for="food-name-pt">Nome *</label>
+                    <input type="text" id="food-name-pt" name="name_pt" class="food-form-input" required placeholder="Nome do alimento">
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="food-energy">Calorias (por 100g) *</label>
-                        <input type="text" id="food-energy" name="energy_kcal_100g" class="form-control" required>
+                <div class="food-macros-grid">
+                    <div class="food-form-group">
+                        <label for="food-energy">kcal</label>
+                        <input type="number" step="0.1" id="food-energy" name="energy_kcal_100g" class="food-form-input" required placeholder="0">
                     </div>
                     
-                    <div class="form-group">
-                        <label for="food-protein">Proteína (por 100g) *</label>
-                        <input type="text" id="food-protein" name="protein_g_100g" class="form-control" required>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="food-carbs">Carboidratos (por 100g) *</label>
-                        <input type="text" id="food-carbs" name="carbohydrate_g_100g" class="form-control" required>
+                    <div class="food-form-group">
+                        <label for="food-protein">prot</label>
+                        <input type="number" step="0.1" id="food-protein" name="protein_g_100g" class="food-form-input" required placeholder="0">
                     </div>
                     
-                    <div class="form-group">
-                        <label for="food-fat">Gordura (por 100g) *</label>
-                        <input type="text" id="food-fat" name="fat_g_100g" class="form-control" required>
+                    <div class="food-form-group">
+                        <label for="food-carbs">carb</label>
+                        <input type="number" step="0.1" id="food-carbs" name="carbohydrate_g_100g" class="food-form-input" required placeholder="0">
+                    </div>
+                    
+                    <div class="food-form-group">
+                        <label for="food-fat">gord</label>
+                        <input type="number" step="0.1" id="food-fat" name="fat_g_100g" class="food-form-input" required placeholder="0">
                     </div>
                 </div>
                 
-                <div class="form-group">
+                <div class="food-form-group">
                     <label for="food-source">Fonte</label>
-                    <div class="custom-select-wrapper" id="food-source-wrapper">
+                    <div class="custom-select-wrapper food-select-wrapper" id="food-source-wrapper">
                         <input type="hidden" id="food-source" name="source_table" value="Manual">
                         <div class="custom-select" id="food-source-select">
                             <div class="custom-select-trigger">
                                 <span class="custom-select-value">Manual</span>
+                                <i class="fas fa-chevron-down"></i>
                             </div>
                             <div class="custom-select-options">
-                                <div class="custom-select-option" data-value="Manual">Manual</div>
+                                <div class="custom-select-option selected" data-value="Manual">Manual</div>
                                 <div class="custom-select-option" data-value="TACO">TACO</div>
                                 <div class="custom-select-option" data-value="Sonia Tucunduva">Sonia Tucunduva</div>
-                                <div class="custom-select-option" data-value="Sonia Tucunduva (Prioridade)">Sonia Tucunduva (Prioridade)</div>
+                                <div class="custom-select-option" data-value="Sonia Tucunduva (Prioridade)">Sonia (Atualizado)</div>
                                 <div class="custom-select-option" data-value="USDA">USDA</div>
                                 <div class="custom-select-option" data-value="FatSecret">FatSecret</div>
                                 <div class="custom-select-option" data-value="user_created">Criado por Usuário</div>
@@ -1664,24 +1681,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 
                 <div id="food-calculations" class="food-calculations" style="display: none;">
-                    <div class="calculation-item">
-                        <span class="calc-label">Total Macronutrientes:</span>
+                    <div class="calc-item">
+                        <span class="calc-label">Total:</span>
                         <span class="calc-value" id="calc-total">0g</span>
                     </div>
-                    <div class="calculation-item">
-                        <span class="calc-label">Calorias Calculadas:</span>
+                    <div class="calc-item">
+                        <span class="calc-label">Calculado:</span>
                         <span class="calc-value" id="calc-calories">0 kcal</span>
                     </div>
                 </div>
             </form>
         </div>
         
-        <div class="custom-modal-footer">
-            <button type="button" class="btn-modal-cancel" onclick="closeFoodEditModal()">Cancelar</button>
-            <button type="button" id="food-delete-btn" class="btn-modal-danger" onclick="deleteFood()" style="display: none;">
+        <div class="food-edit-footer">
+            <button type="button" class="btn-cancel" onclick="closeFoodEditModal()">Cancelar</button>
+            <button type="button" id="food-delete-btn" class="btn-delete" onclick="deleteFood()" style="display: none;">
                 <i class="fas fa-trash"></i> Excluir
             </button>
-            <button type="button" class="btn-modal-confirm" onclick="saveFood()">
+            <button type="button" class="btn-save" onclick="saveFood()">
                 <i class="fas fa-save"></i> Salvar
             </button>
         </div>
@@ -1689,183 +1706,292 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <style>
-/* ========== MODAL - REFATORADO DO ZERO ========== */
+/* ========================================================================= */
+/*       FOOD EDIT MODAL - ESTILO VIEW_USER MODERNO                          */
+/* ========================================================================= */
 
-/* Custom Select - estilo do recipes.php */
-.custom-modal-body .custom-select-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.custom-modal-body .custom-select {
-    position: relative;
-    width: 100%;
-}
-
-.custom-modal-body .custom-select-trigger {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    cursor: pointer;
+/* Modal principal - estilo view_user */
+.food-edit-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
     display: flex;
     align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
+}
+
+.food-edit-modal.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Overlay separado - igual view_user para blur mais rápido */
+.food-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: none !important;
+}
+
+.food-edit-content {
+    position: relative;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.food-edit-modal.active .food-edit-content {
+    transform: scale(1);
+}
+
+/* Botão X - copiado do sleep-modal-close do view_user */
+.sleep-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.3s ease;
-    box-sizing: border-box;
-    font-weight: 600;
+    z-index: 10;
+}
+
+.sleep-modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent-orange);
+}
+
+.food-edit-header {
+    padding: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.food-edit-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
     font-family: 'Montserrat', sans-serif;
 }
 
-.custom-modal-body .custom-select-trigger:hover {
-    border-color: var(--accent-orange);
-}
-
-.custom-modal-body .custom-select-value {
+.food-edit-body {
+    padding: 2rem;
     flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.custom-modal-body .custom-select-options {
-    display: none;
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: rgba(35, 35, 35, 0.9);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    max-height: 250px;
     overflow-y: auto;
-    box-sizing: border-box;
 }
 
-.custom-modal-body .custom-select.active .custom-select-options {
-    display: block;
-}
-
-.custom-modal-body .custom-select-option {
-    padding: 0.75rem 1rem;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.custom-modal-body .custom-select-option:last-child {
-    border-bottom: none;
-}
-
-.custom-modal-body .custom-select-option:hover {
-    background: rgba(255, 107, 0, 0.1);
-    color: var(--accent-orange);
-}
-
-.custom-modal-body .custom-select-option.selected {
-    background: rgba(255, 107, 0, 0.15);
-    color: var(--accent-orange);
-    font-weight: 600;
-}
-
-/* Form Groups - Alinhamento Perfeito e Simétrico */
-.custom-modal-body .form-group {
+/* Form Groups */
+.food-form-group {
     margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    box-sizing: border-box;
 }
 
-.custom-modal-body .form-group:last-child {
+.food-form-group:last-child {
     margin-bottom: 0;
 }
 
-.custom-modal-body .form-group label {
+.food-form-group label {
     display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 700;
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    width: 100%;
-    box-sizing: border-box;
+    letter-spacing: 1px;
+    font-family: 'Montserrat', sans-serif;
 }
 
-.custom-modal-body .form-group .form-control {
+.food-form-input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    border-radius: 12px;
     color: var(--text-primary);
     font-size: 0.95rem;
     font-weight: 600;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
     box-sizing: border-box;
-    margin: 0;
     -moz-appearance: textfield;
-    appearance: textfield;
 }
 
-.custom-modal-body .form-group .form-control::-webkit-outer-spin-button,
-.custom-modal-body .form-group .form-control::-webkit-inner-spin-button {
+.food-form-input::-webkit-outer-spin-button,
+.food-form-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-.custom-modal-body .form-group .form-control:focus {
+.food-form-input:focus {
     outline: none;
     border-color: var(--accent-orange);
     background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
-/* Form Row - Alinhamento Simétrico Perfeito */
-.form-row {
+.food-form-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+/* Grid de Macros - 4 colunas alinhadas */
+.food-macros-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
-    align-items: start;
-    width: 100%;
-    box-sizing: border-box;
+    margin-bottom: 1.5rem;
 }
 
-.form-row .form-group {
+.food-macros-grid .food-form-group {
     margin-bottom: 0;
+}
+
+/* Custom Select dentro do modal */
+.food-select-wrapper {
+    position: relative;
     width: 100%;
+    z-index: 1;
+}
+
+.food-select-wrapper.active {
+    z-index: 1000;
+    position: relative;
+}
+
+.food-select-wrapper .custom-select {
+    position: relative;
+    width: 100%;
+}
+
+.food-select-wrapper .custom-select-trigger {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.food-select-wrapper .custom-select-trigger:hover {
+    border-color: var(--accent-orange);
+}
+
+.food-select-wrapper .custom-select-trigger i {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+}
+
+.food-select-wrapper .custom-select.active .custom-select-trigger i {
+    transform: rotate(180deg);
+    color: var(--accent-orange);
+}
+
+.food-select-wrapper .custom-select-value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.food-select-wrapper .custom-select-options {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgb(28, 28, 28);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    max-height: 250px;
+    overflow-y: auto;
     box-sizing: border-box;
 }
 
-/* Food Calculations */
+.food-select-wrapper .custom-select.active .custom-select-options {
+    display: block;
+}
+
+.food-select-wrapper .custom-select-option {
+    padding: 0.875rem 1rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.95rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.food-select-wrapper .custom-select-option:last-child {
+    border-bottom: none;
+}
+
+.food-select-wrapper .custom-select-option:hover {
+    background: rgba(255, 107, 0, 0.15);
+    color: var(--accent-orange);
+}
+
+.food-select-wrapper .custom-select-option.selected {
+    background: rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    font-weight: 600;
+}
+
+/* Cálculos */
 .food-calculations {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 1rem;
     margin-top: 1rem;
-    width: 100%;
-    box-sizing: border-box;
 }
 
-.calculation-item {
+.calc-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
-    width: 100%;
-    box-sizing: border-box;
 }
 
-.calculation-item:last-child {
+.calc-item:last-child {
     margin-bottom: 0;
 }
 
@@ -1873,79 +1999,100 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.875rem;
     color: var(--text-secondary);
     font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .calc-value {
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: var(--accent-orange);
     font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
 }
 
-/* Botões - Estilo da view_user */
-.btn-modal-cancel,
-.btn-modal-confirm,
-.btn-modal-danger {
+/* Footer */
+.food-edit-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Botões - Estilo view_user */
+.btn-cancel,
+.btn-save,
+.btn-delete {
     padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
     border: none;
     font-family: 'Montserrat', sans-serif;
-    white-space: nowrap;
-    flex-shrink: 0;
 }
 
-.btn-modal-cancel {
+.btn-cancel {
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-secondary);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn-modal-cancel:hover {
+.btn-cancel:hover {
     background: rgba(255, 255, 255, 0.08);
     color: var(--text-primary);
 }
 
-.btn-modal-confirm {
-    background: var(--accent-orange);
+.btn-save {
+    background: linear-gradient(135deg, #FF6600, #FF8533);
     color: white;
-    border: 1px solid var(--accent-orange);
 }
 
-.btn-modal-confirm:hover {
-    background: #ff8533;
+.btn-save:hover {
+    background: linear-gradient(135deg, #FF8533, #FF6600);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+    box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
 }
 
-.btn-modal-danger {
-    background: var(--danger-red);
-    color: white;
-    border: 1px solid var(--danger-red);
+.btn-delete {
+    background: rgba(244, 67, 54, 0.15);
+    color: var(--danger-red);
+    border: 1px solid rgba(244, 67, 54, 0.4);
 }
 
-.btn-modal-danger:hover {
-    background: #d32f2f;
+.btn-delete:hover {
+    background: rgba(244, 67, 54, 0.25);
+    border-color: var(--danger-red);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
 }
 
-/* Footer do Modal - Alinhamento Perfeito */
-.custom-modal-footer {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 1.5rem 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    flex-wrap: wrap;
-    box-sizing: border-box;
+/* Responsividade */
+@media (max-width: 768px) {
+    .food-edit-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .food-edit-body {
+        padding: 1.5rem;
+    }
+    
+    .food-macros-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .food-edit-footer {
+        flex-direction: column;
+    }
+    
+    .food-edit-footer button {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* ========== TABELA - ALINHAMENTO PERFEITO ========== */
