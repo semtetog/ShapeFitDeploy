@@ -960,6 +960,9 @@ require_once __DIR__ . '/includes/header.php';
     margin-bottom: 0.5rem !important;
     display: flex !important;
     width: 100% !important;
+    box-sizing: border-box !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 .flatpickr-weekday {
@@ -969,10 +972,12 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.75rem !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
-    flex: 1 !important;
+    flex: 1 1 calc((100% - 1rem) / 7) !important;
     text-align: center !important;
     padding: 0 !important;
     min-width: 0 !important;
+    max-width: calc((100% - 1rem) / 7) !important;
+    box-sizing: border-box !important;
 }
 
 .flatpickr-days {
@@ -987,7 +992,9 @@ require_once __DIR__ . '/includes/header.php';
     display: flex !important;
     flex-wrap: wrap !important;
     padding: 0 !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
+    gap: 0 !important;
 }
 
 .flatpickr-day {
@@ -998,16 +1005,17 @@ require_once __DIR__ . '/includes/header.php';
     border-radius: 8px !important;
     border: 1px solid transparent !important;
     transition: all 0.3s ease !important;
-    margin: 0.125rem !important;
+    margin: 0.0625rem !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    flex: 1 1 calc((100% - 1rem) / 7) !important;
+    flex: 1 1 calc((100% - 0.875rem) / 7) !important;
     min-width: 0 !important;
-    max-width: calc((100% - 1rem) / 7) !important;
+    max-width: calc((100% - 0.875rem) / 7) !important;
     height: 2.5rem !important;
     line-height: 1 !important;
-    overflow: visible !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     text-align: center !important;
     padding: 0 !important;
     box-sizing: border-box !important;
