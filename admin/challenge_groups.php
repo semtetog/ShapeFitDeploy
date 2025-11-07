@@ -187,60 +187,82 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0.5rem 0 0 0;
 }
 
-/* Stats Grid */
+/* Stats Grid - Estilo igual foods_management_new.php */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
     margin-top: 1.5rem;
+    width: 100%;
     max-width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
+    position: relative;
 }
 
 .stat-card {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid var(--glass-border) !important;
-    border-radius: 12px !important;
-    padding: 0.625rem 0.5rem !important;
+    border-radius: 16px !important;
+    padding: 1.25rem 1rem !important;
     text-align: center !important;
     transition: all 0.3s ease !important;
     cursor: pointer !important;
-    aspect-ratio: 1.6 !important;
-    min-height: 60px !important;
-    max-height: 70px !important;
+    aspect-ratio: 1.4 !important;
+    min-height: 110px !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    position: relative !important;
+    overflow: visible !important;
+    z-index: 1 !important;
+    gap: 0 !important;
     box-shadow: none !important;
     filter: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    width: 100% !important;
 }
 
 .stat-card:hover {
     background: rgba(255, 255, 255, 0.08) !important;
     border-color: var(--accent-orange) !important;
-    transform: none !important;
+    transform: translateY(-2px) !important;
+    z-index: 2 !important;
     box-shadow: none !important;
 }
 
 .stat-number {
-    font-size: 1.1rem !important;
+    font-size: 1.5rem !important;
     font-weight: 700 !important;
     color: var(--accent-orange) !important;
     margin: 0 !important;
-    line-height: 1 !important;
+    padding: 0 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
+    flex-shrink: 0 !important;
 }
 
 .stat-label {
-    font-size: 0.65rem !important;
+    font-size: 0.75rem !important;
     color: var(--text-secondary) !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     font-weight: 600 !important;
-    margin-top: 0.25rem !important;
-    line-height: 1.2 !important;
+    line-height: 1.4 !important;
+    margin: 0.5rem 0 0 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+    flex-shrink: 0 !important;
 }
 
 /* Filter Card */
