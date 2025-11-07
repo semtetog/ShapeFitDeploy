@@ -1570,7 +1570,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Inicializar custom select de fonte no modal - VERSÃO SIMPLIFICADA E FUNCIONAL
+    // Inicializar custom select de fonte no modal - SIMPLES E FUNCIONAL
     (function() {
         const sourceSelect = document.getElementById('food-source-select');
         const sourceWrapper = document.getElementById('food-source-wrapper');
@@ -1584,49 +1584,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!trigger || !optionsContainer) return;
         
-        let dropdownTimeout = null;
-        
         trigger.addEventListener('click', function(e) {
             e.stopPropagation();
             
             const wasActive = sourceSelect.classList.contains('active');
             
-            // Fecha todos os outros dropdowns primeiro
-            document.querySelectorAll('.custom-select.active').forEach(sel => {
-                if (sel !== sourceSelect) {
-                    sel.classList.remove('active');
-                    const wrapper = sel.closest('.food-select-wrapper');
-                    if (wrapper) wrapper.classList.remove('active');
-                }
-            });
-            
             if (wasActive) {
-                // Fechando
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
-                if (optionsContainer) {
-                    optionsContainer.style.position = '';
-                    optionsContainer.style.top = '';
-                    optionsContainer.style.left = '';
-                    optionsContainer.style.width = '';
-                }
             } else {
-                // Abrindo
                 sourceWrapper.classList.add('active');
                 sourceSelect.classList.add('active');
-                
-                // Calcula e aplica posição fixed
-                setTimeout(() => {
-                    const rect = trigger.getBoundingClientRect();
-                    const wrapperRect = sourceWrapper.getBoundingClientRect();
-                    
-                    if (optionsContainer && sourceSelect.classList.contains('active')) {
-                        optionsContainer.style.position = 'fixed';
-                        optionsContainer.style.top = (rect.bottom + 8) + 'px';
-                        optionsContainer.style.left = wrapperRect.left + 'px';
-                        optionsContainer.style.width = wrapperRect.width + 'px';
-                    }
-                }, 10);
             }
         });
         
@@ -1641,41 +1609,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 options.forEach(opt => opt.classList.remove('selected'));
                 this.classList.add('selected');
                 
-                // Fecha dropdown
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
-                if (optionsContainer) {
-                    optionsContainer.style.position = '';
-                    optionsContainer.style.top = '';
-                    optionsContainer.style.left = '';
-                    optionsContainer.style.width = '';
-                }
             });
         });
         
-        // Fecha ao clicar fora - com delay para não fechar quando está abrindo
+        // Fecha ao clicar fora
         document.addEventListener('click', function(e) {
-            // Não processa se estiver dentro do dropdown
-            if (sourceSelect.contains(e.target) || 
-                sourceWrapper.contains(e.target) || 
-                (optionsContainer && optionsContainer.contains(e.target))) {
-                return;
+            if (!sourceSelect.contains(e.target) && !sourceWrapper.contains(e.target)) {
+                sourceSelect.classList.remove('active');
+                sourceWrapper.classList.remove('active');
             }
-            
-            // Delay pequeno para não fechar imediatamente
-            clearTimeout(dropdownTimeout);
-            dropdownTimeout = setTimeout(() => {
-                if (sourceSelect.classList.contains('active')) {
-                    sourceSelect.classList.remove('active');
-                    sourceWrapper.classList.remove('active');
-                    if (optionsContainer) {
-                        optionsContainer.style.position = '';
-                        optionsContainer.style.top = '';
-                        optionsContainer.style.left = '';
-                        optionsContainer.style.width = '';
-                    }
-                }
-            }, 50);
         });
         
         // Fecha com ESC
@@ -1683,12 +1627,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.key === 'Escape' && sourceSelect.classList.contains('active')) {
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
-                if (optionsContainer) {
-                    optionsContainer.style.position = '';
-                    optionsContainer.style.top = '';
-                    optionsContainer.style.left = '';
-                    optionsContainer.style.width = '';
-                }
             }
         });
     })();
@@ -1849,11 +1787,6 @@ document.addEventListener('DOMContentLoaded', function() {
     transition: transform 0.3s ease;
 }
 
-/* Quando dropdown está ativo, permite overflow para dropdown aparecer */
-.food-edit-content:has(.food-select-wrapper.active) {
-    overflow: visible;
-}
-
 .food-edit-modal.active .food-edit-content {
     transform: scale(1);
 }
@@ -1903,11 +1836,6 @@ document.addEventListener('DOMContentLoaded', function() {
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-}
-
-/* Quando dropdown está ativo, permite overflow para dropdown aparecer */
-.food-edit-body:has(.food-select-wrapper.active) {
-    overflow: visible;
 }
 
 /* Form Groups */
@@ -2009,9 +1937,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .food-select-wrapper.active {
-    z-index: 10001 !important;
+    z-index: 1000;
     position: relative;
-    will-change: z-index;
 }
 
 .food-select-wrapper .custom-select {
@@ -2064,12 +1991,12 @@ document.addEventListener('DOMContentLoaded', function() {
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    z-index: 10001 !important;
+    z-index: 1000;
     background: rgb(28, 28, 28);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-    max-height: 250px;
+    max-height: 200px;
     overflow-y: auto;
     box-sizing: border-box;
 }
