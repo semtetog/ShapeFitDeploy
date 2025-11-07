@@ -994,7 +994,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="stats-grid">
         <div class="stat-card" onclick="window.location.href='foods_management_new.php'">
             <div class="stat-number"><?php echo number_format($stats['total']); ?></div>
-            <div class="stat-label">Total de Alimentos</div>
+            <div class="stat-label">Total</div>
         </div>
         
         <?php foreach ($stats['by_source'] as $source => $count): 
