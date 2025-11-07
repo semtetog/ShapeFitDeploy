@@ -1656,6 +1656,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Status tags click handlers
+    const statusTags = document.querySelectorAll('.status-tag');
+    const statusInput = document.getElementById('challengeStatus');
+    if (statusTags.length > 0 && statusInput) {
+        statusTags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                const status = this.dataset.status;
+                
+                // Remove active de todas as tags
+                statusTags.forEach(t => t.classList.remove('active'));
+                
+                // Adiciona active na tag clicada
+                this.classList.add('active');
+                
+                // Atualiza o input hidden
+                statusInput.value = status;
+            });
+        });
+    }
 });
 
 // Close select when clicking outside
