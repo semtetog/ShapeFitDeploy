@@ -1638,22 +1638,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 <div class="food-macros-grid">
                     <div class="food-form-group">
-                        <label for="food-energy">kcal</label>
+                        <label for="food-energy">kcal <span class="label-unit">/100g</span></label>
                         <input type="number" step="0.1" id="food-energy" name="energy_kcal_100g" class="food-form-input" required placeholder="0">
                     </div>
                     
                     <div class="food-form-group">
-                        <label for="food-protein">prot</label>
+                        <label for="food-protein">prot <span class="label-unit">(g/100g)</span></label>
                         <input type="number" step="0.1" id="food-protein" name="protein_g_100g" class="food-form-input" required placeholder="0">
                     </div>
                     
                     <div class="food-form-group">
-                        <label for="food-carbs">carb</label>
+                        <label for="food-carbs">carb <span class="label-unit">(g/100g)</span></label>
                         <input type="number" step="0.1" id="food-carbs" name="carbohydrate_g_100g" class="food-form-input" required placeholder="0">
                     </div>
                     
                     <div class="food-form-group">
-                        <label for="food-fat">gord</label>
+                        <label for="food-fat">gord <span class="label-unit">(g/100g)</span></label>
                         <input type="number" step="0.1" id="food-fat" name="fat_g_100g" class="food-form-input" required placeholder="0">
                     </div>
                 </div>
@@ -1827,6 +1827,16 @@ document.addEventListener('DOMContentLoaded', function() {
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: 'Montserrat', sans-serif;
+}
+
+.food-form-group label .label-unit {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: 0.25rem;
 }
 
 .food-form-input {
