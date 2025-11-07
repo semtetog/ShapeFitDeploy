@@ -529,6 +529,19 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Garantir que as improved bars fiquem contidas dentro do card */
+.exercise-chart-improved .improved-chart,
+.sleep-chart-improved .improved-chart {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.exercise-chart-improved .improved-bars,
+.sleep-chart-improved .improved-bars {
+    min-width: min-content;
+    flex-wrap: nowrap;
+}
+
 
 .tracking-stats-grid {
     display: grid;
