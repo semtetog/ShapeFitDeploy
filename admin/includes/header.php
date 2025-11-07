@@ -68,9 +68,6 @@ if (!defined('BASE_ADMIN_URL')) {
         <li class="<?php echo ($page_slug ?? '') === 'diet_plans' ? 'active' : ''; ?>">
             <a href="<?php echo BASE_ADMIN_URL; ?>/diet_plans.php"><i class="fas fa-clipboard-list"></i> Planos Alimentares</a>
         </li>
-        <li class="<?php echo ($page_slug ?? '') === 'studio_desafios' ? 'active' : ''; ?>">
-            <a href="<?php echo BASE_ADMIN_URL; ?>/studio_desafios.php"><i class="fas fa-dumbbell"></i> Estúdio de Desafios</a>
-        </li>
         <li class="<?php echo ($page_slug ?? '') === 'challenge_groups' ? 'active' : ''; ?>">
             <a href="<?php echo BASE_ADMIN_URL; ?>/challenge_groups.php"><i class="fas fa-users"></i> Grupos de Desafio</a>
         </li>
