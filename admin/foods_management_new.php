@@ -140,7 +140,7 @@ require_once __DIR__ . '/includes/header.php';
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .foods-header-card:hover {
@@ -290,6 +290,12 @@ require_once __DIR__ . '/includes/header.php';
     position: relative;
     min-width: 180px;
     max-width: 250px;
+    z-index: 1;
+}
+
+.custom-select-wrapper.active {
+    z-index: 10000 !important;
+    position: relative;
 }
 
 .custom-select {
@@ -298,32 +304,50 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .custom-select-trigger {
-    padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    color: var(--text-primary);
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: all 0.3s ease;
+    padding: 0.875rem 1.25rem;
     font-size: 0.95rem;
-    font-weight: 600;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    user-select: none;
 }
 
 .custom-select-trigger:hover {
     background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.custom-select.active .custom-select-trigger {
+    background: rgba(255, 255, 255, 0.08);
     border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
 .custom-select-trigger i {
+    font-size: 0.875rem;
     color: var(--text-secondary);
     transition: transform 0.3s ease;
+    margin-left: 0.75rem;
 }
 
 .custom-select.active .custom-select-trigger i {
     transform: rotate(180deg);
+    color: var(--accent-orange);
+}
+
+.custom-select-value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .custom-select-options {
@@ -331,36 +355,77 @@ require_once __DIR__ . '/includes/header.php';
     top: calc(100% + 0.5rem);
     left: 0;
     right: 0;
-    background: rgba(26, 26, 26, 0.98);
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    z-index: 10000;
     max-height: 300px;
     overflow-y: auto;
-    display: none;
+    overflow-x: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 .custom-select.active .custom-select-options {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .custom-select-option {
     padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 0.95rem;
+    font-family: 'Montserrat', sans-serif;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-select-option:first-child {
+    border-radius: 12px 12px 0 0;
+}
+
+.custom-select-option:last-child {
+    border-bottom: none;
+    border-radius: 0 0 12px 12px;
 }
 
 .custom-select-option:hover {
-    background: rgba(255, 107, 0, 0.1);
+    background: rgba(255, 107, 0, 0.15);
     color: var(--accent-orange);
 }
 
 .custom-select-option.selected {
-    background: rgba(255, 107, 0, 0.15);
+    background: rgba(255, 107, 0, 0.2);
     color: var(--accent-orange);
+    font-weight: 600;
+}
+
+.custom-select-options::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-select-options::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 0, 0.3);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 0, 0.5);
 }
 
 /* Buttons */
@@ -1240,34 +1305,67 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-// Custom Select Functionality
+// Custom Select Functionality - Copiado do recipes.php
 document.addEventListener('DOMContentLoaded', function() {
     const sourceSelect = document.getElementById('source_select');
     const sourceInput = document.getElementById('source_input');
+    const sourceWrapper = document.getElementById('source_select_wrapper');
     
-    if (sourceSelect) {
+    if (sourceSelect && sourceWrapper) {
         const trigger = sourceSelect.querySelector('.custom-select-trigger');
         const options = sourceSelect.querySelectorAll('.custom-select-option');
         
         trigger.addEventListener('click', function(e) {
             e.stopPropagation();
-            sourceSelect.classList.toggle('active');
+            const isOpening = !sourceSelect.classList.contains('active');
+            
+            // Fecha outros selects abertos
+            document.querySelectorAll('.custom-select.active').forEach(select => {
+                if (select !== sourceSelect) {
+                    select.classList.remove('active');
+                    const otherWrapper = select.closest('.custom-select-wrapper');
+                    if (otherWrapper) {
+                        otherWrapper.classList.remove('active');
+                    }
+                }
+            });
+            
+            // Abre/fecha este select
+            if (isOpening) {
+                sourceSelect.classList.add('active');
+                sourceWrapper.classList.add('active');
+            } else {
+                sourceSelect.classList.remove('active');
+                sourceWrapper.classList.remove('active');
+            }
         });
         
         options.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation();
                 const value = this.dataset.value;
-                sourceInput.value = value;
+                sourceInput.value = value || '';
                 trigger.querySelector('.custom-select-value').textContent = this.textContent;
                 sourceSelect.querySelectorAll('.custom-select-option').forEach(opt => opt.classList.remove('selected'));
                 this.classList.add('selected');
                 sourceSelect.classList.remove('active');
+                sourceWrapper.classList.remove('active');
             });
         });
         
+        // Fecha ao clicar fora
         document.addEventListener('click', function(e) {
-            if (!sourceSelect.contains(e.target)) {
+            if (!sourceSelect.contains(e.target) && !sourceWrapper.contains(e.target)) {
                 sourceSelect.classList.remove('active');
+                sourceWrapper.classList.remove('active');
+            }
+        });
+        
+        // Fecha com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                sourceSelect.classList.remove('active');
+                sourceWrapper.classList.remove('active');
             }
         });
     }
