@@ -445,6 +445,7 @@ require_once __DIR__ . '/includes/header.php';
     -webkit-backdrop-filter: none !important;
     box-shadow: none !important;
     filter: none !important;
+    table-layout: fixed;
 }
 
 .data-table thead {
@@ -1044,9 +1045,9 @@ require_once __DIR__ . '/includes/header.php';
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="min-width: 250px; text-align: left;">Nome</th>
-                            <th style="min-width: 120px; text-align: left;">Fonte</th>
-                            <th style="min-width: 150px; text-align: right;">Ações</th>
+                            <th style="width: auto; text-align: left;">Nome</th>
+                            <th style="width: 180px; text-align: left;">Fonte</th>
+                            <th style="width: 200px; text-align: right;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1722,10 +1723,26 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: none !important;
     filter: none !important;
     vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.data-table th:first-child {
+    width: auto;
+    white-space: normal;
+}
+
+.data-table th:nth-child(2) {
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
 }
 
 .data-table th:last-child {
     text-align: right;
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
 }
 
 .data-table td {
@@ -1740,16 +1757,33 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: none !important;
     filter: none !important;
     text-align: left;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
+.data-table td:first-child {
+    white-space: normal;
+    text-align: left;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.data-table td:nth-child(2) {
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .data-table td:last-child {
     text-align: right;
-}
-
-.data-table th:first-child,
-.data-table td:first-child {
-    white-space: normal;
-    text-align: left;
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+    white-space: nowrap;
 }
 
 /* Actions - Alinhamento Perfeito */
