@@ -24,6 +24,9 @@ switch ($action) {
     case 'bulk_classify':
         bulkClassify();
         break;
+    case 'get_classification_stats':
+        getClassificationStats();
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Ação inválida']);
 }
@@ -171,11 +174,27 @@ function saveClassifications() {
             $messages[] = $declassification_result['message'];
         }
         
+        // Buscar estatísticas atualizadas após salvar
+        $total_sql = "SELECT COUNT(*) as total FROM sf_food_items";
+        $total_result = $conn->query($total_sql);
+        $total_items = $total_result->fetch_assoc()['total'];
+        
+        $classified_sql = "SELECT COUNT(DISTINCT sfi.id) as classified_count 
+                           FROM sf_food_items sfi 
+                           INNER JOIN sf_food_categories sfc ON sfi.id = sfc.food_id";
+        $classified_result = $conn->query($classified_sql);
+        $classified_count = $classified_result->fetch_assoc()['classified_count'];
+        
         echo json_encode([
             'success' => true,
             'saved' => $total_saved,
             'errors' => $total_errors,
-            'message' => implode(' | ', $messages)
+            'message' => implode(' | ', $messages),
+            'stats' => [
+                'total_items' => (int)$total_items,
+                'classified_count' => (int)$classified_count,
+                'remaining_count' => (int)$total_items - (int)$classified_count
+            ]
         ]);
         
     } catch (Exception $e) {
@@ -226,11 +245,27 @@ function processDeclassification($food_ids, $echo_response = true) {
         
         $conn->commit();
         
+        // Buscar estatísticas atualizadas após desclassificar
+        $total_sql = "SELECT COUNT(*) as total FROM sf_food_items";
+        $total_result = $conn->query($total_sql);
+        $total_items = $total_result->fetch_assoc()['total'];
+        
+        $classified_sql = "SELECT COUNT(DISTINCT sfi.id) as classified_count 
+                           FROM sf_food_items sfi 
+                           INNER JOIN sf_food_categories sfc ON sfi.id = sfc.food_id";
+        $classified_result = $conn->query($classified_sql);
+        $classified_count = $classified_result->fetch_assoc()['classified_count'];
+        
         $result = [
             'success' => true,
             'saved' => $saved,
             'errors' => $errors,
-            'message' => "{$saved} alimentos desclassificados com sucesso!"
+            'message' => "{$saved} alimentos desclassificados com sucesso!",
+            'stats' => [
+                'total_items' => (int)$total_items,
+                'classified_count' => (int)$classified_count,
+                'remaining_count' => (int)$total_items - (int)$classified_count
+            ]
         ];
         
         if ($echo_response) {
@@ -343,6 +378,29 @@ function bulkClassify() {
             'message' => 'Erro no banco de dados: ' . $e->getMessage()
         ]);
     }
+}
+
+function getClassificationStats() {
+    global $conn;
+    
+    // Contar total de alimentos
+    $total_sql = "SELECT COUNT(*) as total FROM sf_food_items";
+    $total_result = $conn->query($total_sql);
+    $total_items = $total_result->fetch_assoc()['total'];
+    
+    // Contar alimentos realmente classificados (que têm pelo menos uma categoria)
+    $classified_sql = "SELECT COUNT(DISTINCT sfi.id) as classified_count 
+                       FROM sf_food_items sfi 
+                       INNER JOIN sf_food_categories sfc ON sfi.id = sfc.food_id";
+    $classified_result = $conn->query($classified_sql);
+    $classified_count = $classified_result->fetch_assoc()['classified_count'];
+    
+    echo json_encode([
+        'success' => true,
+        'total_items' => (int)$total_items,
+        'classified_count' => (int)$classified_count,
+        'remaining_count' => (int)$total_items - (int)$classified_count
+    ]);
 }
 
 function applyUnitsToClassifiedFoods($classifications) {

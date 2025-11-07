@@ -1865,22 +1865,48 @@ function updateFoodVisual(foodId) {
         }
     }
     
-    // Atualiza contadores
-    updateCounters();
+    // NÃO atualiza contadores aqui - será atualizado pela resposta AJAX com dados reais do banco
 }
 
-// Atualiza contadores
-function updateCounters() {
-    const totalClassified = Object.values(classifications).filter(cats => cats.length > 0).length;
-    const classifiedCountEl = document.getElementById('classified-count');
-    const remainingCountEl = document.getElementById('remaining-count');
-    
-    if (classifiedCountEl) {
-        classifiedCountEl.textContent = totalClassified;
-    }
-    if (remainingCountEl) {
-        const totalItems = <?= (int)$total_items ?>;
-        remainingCountEl.textContent = totalItems - totalClassified;
+// Atualiza contadores - busca do banco de dados ao invés de contar apenas da página atual
+function updateCounters(stats = null) {
+    if (stats) {
+        // Usar estatísticas fornecidas (da resposta AJAX)
+        const classifiedCountEl = document.getElementById('classified-count');
+        const remainingCountEl = document.getElementById('remaining-count');
+        
+        if (classifiedCountEl) {
+            classifiedCountEl.textContent = stats.classified_count;
+        }
+        if (remainingCountEl) {
+            remainingCountEl.textContent = stats.remaining_count;
+        }
+    } else {
+        // Buscar estatísticas do banco de dados
+        const formData = new FormData();
+        formData.append('action', 'get_classification_stats');
+        
+        fetch('ajax_food_classification.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const classifiedCountEl = document.getElementById('classified-count');
+                const remainingCountEl = document.getElementById('remaining-count');
+                
+                if (classifiedCountEl) {
+                    classifiedCountEl.textContent = data.classified_count;
+                }
+                if (remainingCountEl) {
+                    remainingCountEl.textContent = data.remaining_count;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao buscar estatísticas:', error);
+        });
     }
 }
 
@@ -1903,7 +1929,13 @@ function saveClassification(foodId) {
         hideLoading();
         if (data.success) {
             showAutoSaveIndicator();
-            updateCounters();
+            // Atualizar contadores com as estatísticas retornadas do banco de dados
+            if (data.stats) {
+                updateCounters(data.stats);
+            } else {
+                // Fallback: buscar estatísticas se não vierem na resposta
+                updateCounters();
+            }
         } else {
             alert('Erro ao salvar: ' + (data.message || 'Erro desconhecido.'));
         }
