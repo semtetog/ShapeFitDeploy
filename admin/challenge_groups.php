@@ -1833,7 +1833,7 @@ function initFlatpickr() {
     
     // Inicializar para data de início
     if (startDateInput) {
-        flatpickr(startDateInput, {
+        const startPicker = flatpickr(startDateInput, {
             ...flatpickrOptions,
             onChange: function(selectedDates, dateStr) {
                 // Atualizar minDate do endDate para ser após startDate
@@ -1847,11 +1847,35 @@ function initFlatpickr() {
                 }
             }
         });
+        
+        // Remover classes de seta após inicialização e sempre que o calendário for aberto
+        if (startPicker) {
+            startPicker.config.onOpen.push(function() {
+                setTimeout(() => {
+                    const calendar = this.calendarContainer;
+                    if (calendar) {
+                        calendar.classList.remove('arrowTop', 'arrowBottom');
+                    }
+                }, 10);
+            });
+        }
     }
     
     // Inicializar para data de fim
     if (endDateInput) {
-        flatpickr(endDateInput, flatpickrOptions);
+        const endPicker = flatpickr(endDateInput, flatpickrOptions);
+        
+        // Remover classes de seta após inicialização e sempre que o calendário for aberto
+        if (endPicker) {
+            endPicker.config.onOpen.push(function() {
+                setTimeout(() => {
+                    const calendar = this.calendarContainer;
+                    if (calendar) {
+                        calendar.classList.remove('arrowTop', 'arrowBottom');
+                    }
+                }, 10);
+            });
+        }
     }
 }
 
