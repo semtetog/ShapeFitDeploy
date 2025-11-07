@@ -707,16 +707,26 @@ function openUnitsEditor(foodId, foodName, categories) {
     
     // Resetar botão de salvar
     const saveBtn = document.querySelector('.btn-save');
-    saveBtn.innerHTML = 'Salvar Alterações';
-    saveBtn.style.background = '';
-    saveBtn.disabled = false;
+    if (saveBtn) {
+        saveBtn.innerHTML = 'Salvar Alterações';
+        saveBtn.style.background = '';
+        saveBtn.disabled = false;
+    }
     
     loadFoodUnits();
-    document.getElementById('units-editor-modal').classList.add('visible');
+    const modalEl = document.getElementById('units-editor-modal');
+    if (modalEl) {
+        modalEl.classList.add('visible');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closeUnitsEditor() {
-    document.getElementById('units-editor-modal').classList.remove('visible');
+    const modalEl = document.getElementById('units-editor-modal');
+    if (modalEl) {
+        modalEl.classList.remove('visible');
+        document.body.style.overflow = '';
+    }
     currentFoodId = null;
     currentUnits = [];
     currentCategories = [];
@@ -811,7 +821,7 @@ function renderUnitsList() {
     }
     
     container.innerHTML = currentUnits.map((unit, index) => `
-        <div class="unit-item" style="opacity: 0; transform: translateY(10px);">
+        <div class="unit-item">
             <div class="unit-info">
                 <div class="unit-name">
                     ${unit.name} (${unit.abbreviation})
@@ -831,35 +841,27 @@ function renderUnitsList() {
             </div>
         </div>
     `).join('');
-    
-    // Anima os cards de forma escalonada e suave usando requestAnimationFrame
-    const items = container.querySelectorAll('.unit-item');
-    items.forEach((item, index) => {
-        // Usa requestAnimationFrame para garantir renderização suave
-        requestAnimationFrame(() => {
-            // Força reflow antes de aplicar a transição
-            void item.offsetHeight;
-            // Aplica animação com delay escalonado
-            setTimeout(() => {
-                item.style.transition = 'opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
-                // Força outro reflow antes de mudar as propriedades para animação mais suave
-                requestAnimationFrame(() => {
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                });
-            }, index * 20); // Delay de 20ms entre cada card (mais rápido e fluido)
-        });
-    });
 }
 
 function addNewUnit() {
     editingUnitIndex = -1;
-    document.getElementById('unit-edit-title').textContent = 'Adicionar Unidade';
-    document.getElementById('unit-name').value = '';
-    document.getElementById('unit-abbreviation').value = '';
-    document.getElementById('unit-conversion').value = '';
-    document.getElementById('unit-is-default').checked = false;
-    document.getElementById('unit-edit-modal').classList.add('visible');
+    const titleEl = document.getElementById('unit-edit-title');
+    const nameEl = document.getElementById('unit-name');
+    const abbrEl = document.getElementById('unit-abbreviation');
+    const convEl = document.getElementById('unit-conversion');
+    const modalEl = document.getElementById('unit-edit-modal');
+    
+    if (!titleEl || !nameEl || !abbrEl || !convEl || !modalEl) {
+        console.error('Erro: elementos do modal não encontrados');
+        return;
+    }
+    
+    titleEl.textContent = 'Adicionar Unidade';
+    nameEl.value = '';
+    abbrEl.value = '';
+    convEl.value = '';
+    modalEl.classList.add('visible');
+    document.body.style.overflow = 'hidden';
     
     // Atualizar display do nome da unidade
     updateUnitNameDisplay();
@@ -894,7 +896,11 @@ function editUnit(index) {
 }
 
 function closeUnitEdit() {
-    document.getElementById('unit-edit-modal').classList.remove('visible');
+    const modalEl = document.getElementById('unit-edit-modal');
+    if (modalEl) {
+        modalEl.classList.remove('visible');
+        document.body.style.overflow = '';
+    }
     editingUnitIndex = -1;
 }
 
