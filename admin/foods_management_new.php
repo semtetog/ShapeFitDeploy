@@ -127,6 +127,7 @@ require_once __DIR__ . '/includes/header.php';
 .foods-page-container {
     padding: 1.5rem 2rem;
     min-height: 100vh;
+    overflow: visible;
 }
 
 /* Header Card - usando estilo dashboard-card */
@@ -172,41 +173,15 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Stats Grid - cards responsivos, mesma fileira, mesmo tamanho, alinhados com header/lista */
 .stats-grid {
-    display: flex;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 107, 0, 0.3) transparent;
-    -webkit-overflow-scrolling: touch;
-}
-
-.stats-grid::-webkit-scrollbar {
-    height: 6px;
-}
-
-.stats-grid::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.stats-grid::-webkit-scrollbar-thumb {
-    background: rgba(255, 107, 0, 0.3);
-    border-radius: 3px;
-}
-
-.stats-grid::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 107, 0, 0.5);
-}
-
-/* Garantir que os cards mantenham tamanho razoável em telas muito grandes */
-@media (min-width: 1600px) {
-    .stats-grid {
-        justify-content: center;
-    }
+    overflow: visible;
+    position: relative;
 }
 
 .stat-card {
@@ -220,21 +195,23 @@ require_once __DIR__ . '/includes/header.php';
     cursor: pointer;
     aspect-ratio: 1.4;
     min-height: 110px;
-    min-width: 160px;
-    max-width: 200px;
-    flex: 1 1 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
+    width: 100%;
+    position: relative;
+    overflow: visible;
+    z-index: 1;
 }
 
 .stat-card:hover {
     background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
     border-color: var(--accent-orange);
+    z-index: 2;
 }
 
 .stat-number {
@@ -895,16 +872,12 @@ require_once __DIR__ . '/includes/header.php';
     }
     
     .stats-grid {
-        flex-wrap: wrap;
-        justify-content: center;
+        grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
     }
     
     .stat-card {
         min-height: 100px;
-        min-width: calc(50% - 0.375rem);
-        max-width: calc(50% - 0.375rem);
-        flex: 1 1 calc(50% - 0.375rem);
         padding: 1rem 0.75rem;
     }
     
