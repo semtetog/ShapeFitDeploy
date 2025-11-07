@@ -547,15 +547,17 @@ require_once __DIR__ . '/includes/header.php';
     display: inline-block;
     padding: 0.375rem 0.75rem;
     border-radius: 8px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     border: 1px solid;
     max-width: 100%;
     box-sizing: border-box;
     word-wrap: break-word;
     white-space: normal;
+    line-height: 1.3;
+    text-align: center;
 }
 
 .source-badge.taco {
@@ -598,6 +600,9 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(251, 191, 36, 0.15);
     border-color: rgba(251, 191, 36, 0.4);
     color: #FBBF24;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.65rem;
+    line-height: 1.4;
 }
 
 .source-badge.user-off {
