@@ -572,6 +572,7 @@
 #sleep-bars.many-bars {
     justify-content: flex-start !important;
     flex-wrap: wrap !important;
+    overflow-x: visible !important;
 }
 
 #exercise-bars.many-bars .improved-bar-container,
@@ -580,6 +581,13 @@
     max-width: calc((100% - (6 * 1rem)) / 7) !important;
     min-width: 60px !important;
     width: calc((100% - (6 * 1rem)) / 7) !important;
+}
+
+/* Garantir que o container do chart permita wrap */
+.exercise-chart-improved .improved-chart,
+.sleep-chart-improved .improved-chart {
+    overflow-x: visible !important;
+    overflow-y: visible !important;
 }
 
 
