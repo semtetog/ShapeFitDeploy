@@ -70,7 +70,7 @@
         </div>
 
         <!-- SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO -->
-        <div class="chart-section">
+        <div class="chart-section" style="margin-top: 2rem;">
             <div class="exercise-chart-improved">
                 <div class="chart-header">
                     <h4><i class="fas fa-dumbbell"></i> Exercício Físico</h4>
@@ -544,6 +544,7 @@
     /* CSS padrão já aplicado em view_user_addon.css */
 }
 
+/* Comportamento padrão para 7 dias (igual hidratação) */
 #exercise-bars,
 #sleep-bars {
     display: flex;
@@ -553,7 +554,6 @@
     min-height: 240px;
     padding: 1rem 0.5rem 0.5rem;
     position: relative;
-    flex-wrap: wrap;
 }
 
 #exercise-bars .improved-bar-container,
@@ -565,6 +565,20 @@
     gap: 0.5rem;
     min-width: 60px;
     max-width: 100px;
+}
+
+/* Quando há muitas barras (mais de 7), permitir wrap em múltiplas fileiras */
+#exercise-bars.many-bars,
+#sleep-bars.many-bars {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+#exercise-bars.many-bars .improved-bar-container,
+#sleep-bars.many-bars .improved-bar-container {
+    flex: 0 0 calc((100% - (6 * 1rem)) / 7);
+    max-width: calc((100% - (6 * 1rem)) / 7);
+    min-width: 60px;
 }
 
 
@@ -2568,6 +2582,13 @@ function renderSleepChart(data) {
     });
     
     chartContainer.innerHTML = chartHTML;
+    
+    // Adicionar classe 'many-bars' quando houver mais de 7 barras
+    if (data.length > 7) {
+        chartContainer.classList.add('many-bars');
+    } else {
+        chartContainer.classList.remove('many-bars');
+    }
 }
 
 // Atualizar estatísticas de exercício
