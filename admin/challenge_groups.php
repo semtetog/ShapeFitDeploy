@@ -884,6 +884,7 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center !important;
     gap: 0.25rem !important;
     width: 100% !important;
+    text-align: center !important;
 }
 
 .flatpickr-current-month .cur-year {
@@ -892,7 +893,12 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-secondary) !important;
     opacity: 0.8 !important;
     order: -1 !important;
-    margin-bottom: 0.125rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+    display: block !important;
+    line-height: 1.2 !important;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months {
@@ -906,11 +912,27 @@ require_once __DIR__ . '/includes/header.php';
     padding: 0.25rem 0.5rem !important;
     cursor: pointer !important;
     order: 0 !important;
+    margin: 0 auto !important;
+    display: inline-block !important;
+    text-align: center !important;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
     background: rgba(255, 255, 255, 0.08) !important;
     border-color: var(--accent-orange) !important;
+}
+
+/* Garantir que o input do ano também fique centralizado */
+.flatpickr-current-month .flatpickr-yearDropdown {
+    display: none !important;
+}
+
+/* Estilizar o ano quando for um input ou span */
+.flatpickr-current-month input.cur-year,
+.flatpickr-current-month span.cur-year {
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
 }
 
 .flatpickr-prev-month,
