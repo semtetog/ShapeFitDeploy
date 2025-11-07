@@ -991,7 +991,7 @@ require_once __DIR__ . '/includes/header.php';
                 <h2>Gerenciar Alimentos</h2>
                 <p>Gerencie todos os alimentos cadastrados no sistema</p>
             </div>
-            <a href="edit_food_new.php" class="btn-add-recipe-circular" title="Novo Alimento">
+            <a href="#" onclick="openAddFoodModal(); return false;" class="btn-add-recipe-circular" title="Novo Alimento">
                 <i class="fas fa-plus"></i>
             </a>
         </div>
@@ -1144,7 +1144,7 @@ require_once __DIR__ . '/includes/header.php';
                 <?php if (!empty($search_term) || !empty($source_filter)): ?>
                     <a href="foods_management_new.php" class="btn-primary">Ver Todos os Alimentos</a>
                 <?php else: ?>
-                    <a href="edit_food_new.php" class="btn-primary">Adicionar Primeiro Alimento</a>
+                    <a href="#" onclick="openAddFoodModal(); return false;" class="btn-primary">Adicionar Primeiro Alimento</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -1428,6 +1428,44 @@ require_once __DIR__ . '/includes/header.php';
 
 // Modal de Edição de Alimento
 let currentEditingFoodId = null;
+
+function openAddFoodModal() {
+    currentEditingFoodId = null;
+    
+    // Limpar formulário
+    document.getElementById('food-edit-title').textContent = 'Novo Alimento';
+    document.getElementById('food-edit-action').value = 'add';
+    document.getElementById('food-edit-id').value = '';
+    document.getElementById('food-name-pt').value = '';
+    document.getElementById('food-energy').value = '';
+    document.getElementById('food-protein').value = '';
+    document.getElementById('food-carbs').value = '';
+    document.getElementById('food-fat').value = '';
+    
+    // Definir fonte padrão como Manual
+    const sourceInput = document.getElementById('food-source');
+    if (sourceInput) {
+        sourceInput.value = 'Manual';
+    }
+    
+    // Ocultar botão de excluir
+    document.getElementById('food-delete-btn').style.display = 'none';
+    
+    // Abrir modal
+    document.getElementById('food-edit-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Selecionar tag Manual
+    setTimeout(() => {
+        const sourceTags = document.querySelectorAll('.source-tag');
+        sourceTags.forEach(tag => {
+            tag.classList.remove('active');
+            if (tag.dataset.value === 'Manual') {
+                tag.classList.add('active');
+            }
+        });
+    }, 50);
+}
 
 function openEditFoodModal(foodId) {
     currentEditingFoodId = foodId;
