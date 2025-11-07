@@ -2635,11 +2635,21 @@ function updateExerciseChart() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false
+                    display: exerciseGoalDailyMinutes > 0,
+                    labels: {
+                        color: '#b0b0b0',
+                        filter: (item) => {
+                            return item.text === 'Meta Diária';
+                        }
+                    }
                 },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
+                            // Ignorar tooltip da linha de meta
+                            if (context.dataset.label === 'Meta Diária') {
+                                return null;
+                            }
                             const value = context.parsed.y;
                             if (value === 0) {
                                 return 'Sem exercício registrado';
@@ -2792,11 +2802,21 @@ function updateSleepChart() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false
+                    display: true,
+                    labels: {
+                        color: '#b0b0b0',
+                        filter: (item) => {
+                            return item.text === 'Meta Diária (7.5h)';
+                        }
+                    }
                 },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
+                            // Ignorar tooltip da linha de meta
+                            if (context.dataset.label === 'Meta Diária (7.5h)') {
+                                return null;
+                            }
                             const value = context.parsed.y;
                             if (value === null || value === 0) {
                                 return 'Sem registro de sono';
