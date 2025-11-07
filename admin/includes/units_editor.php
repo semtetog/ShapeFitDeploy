@@ -318,7 +318,6 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     align-items: center;
     transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    will-change: transform, opacity;
 }
 
 .unit-item:hover {
@@ -631,25 +630,6 @@ require_once __DIR__ . '/../../includes/units_manager.php';
     font-family: 'Montserrat', sans-serif;
 }
 
-/* Animações - otimizadas para performance */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.unit-item {
-    will-change: transform, opacity;
-}
-
-.unit-item.animate-in {
-    animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
 
 /* Responsividade */
 @media (max-width: 768px) {
