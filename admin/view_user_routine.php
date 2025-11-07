@@ -70,55 +70,48 @@
         </div>
 
         <!-- SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO -->
+        <!-- Card de resumo (igual hidratação) -->
+        <div class="hydration-summary-card" style="margin-bottom: 1.5rem;">
+            <div class="summary-main">
+                <div class="summary-icon">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <div class="summary-info">
+                    <h3>Exercício Físico</h3>
+                    <div class="summary-meta">Meta diária: <strong id="exerciseGoalDisplay"><?php echo $exercise_goal_daily_minutes > 0 ? round($exercise_goal_daily_minutes, 0) . ' min' : 'Sem meta'; ?></strong></div>
+                    <div class="summary-description">Baseado nos registros de exercício do paciente no aplicativo</div>
+                </div>
+            </div>
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <div class="stat-value" id="exerciseAvgDaily"><?php echo $exercise_avg_daily_7 ?? 0; ?> min</div>
+                    <div class="stat-label">Média Diária</div>
+                    <div class="stat-description" id="exercisePeriodDesc">Últimos 7 dias</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" id="exerciseGoalReached"><?php echo $exercise_goal_reached_7 ?? 0; ?>%</div>
+                    <div class="stat-label">Aderência Geral</div>
+                    <div class="stat-description">Meta de exercício atingida</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" id="exerciseDaysWithData"><?php echo $exercise_days_with_data_7 ?? 0; ?>/7</div>
+                    <div class="stat-label">Dias com Exercício</div>
+                    <div class="stat-description"><?php echo $exercise_days_with_data_7 ?? 0; ?>% de aderência</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráfico (igual hidratação) -->
         <div class="chart-section">
             <div class="exercise-chart-improved">
                 <div class="chart-header">
-                    <h4><i class="fas fa-dumbbell"></i> Exercício Físico</h4>
+                    <h4><i class="fas fa-dumbbell"></i> Progresso de Exercício</h4>
                     <div class="period-buttons">
                         <button class="period-btn active" onclick="showExerciseCalendar()" id="exercise-period-btn" title="Selecionar período">
                             <i class="fas fa-calendar-alt"></i> Últimos 7 dias
                         </button>
                     </div>
                 </div>
-                
-                <div class="tracking-stats-grid" style="margin-bottom: 1.5rem;">
-                    <?php
-                    // Calcular estatísticas dos últimos 7 dias
-                    $exercise_7_days = array_filter($routine_exercise_data, function($item) {
-                        $itemDate = new DateTime($item['date']);
-                        $now = new DateTime();
-                        $diff = $now->diff($itemDate)->days;
-                        return $diff < 7;
-                    });
-                    $exercise_total_minutes_7 = array_sum(array_column($exercise_7_days, 'total_minutes'));
-                    $exercise_days_with_data_7 = count($exercise_7_days);
-                    $exercise_avg_daily_7 = $exercise_days_with_data_7 > 0 ? round($exercise_total_minutes_7 / 7, 1) : 0;
-                    $exercise_goal_reached_7 = $exercise_goal_daily_minutes > 0 ? round(($exercise_avg_daily_7 / $exercise_goal_daily_minutes) * 100, 0) : 0;
-                    if ($exercise_goal_reached_7 > 100) $exercise_goal_reached_7 = 100;
-                    ?>
-                    <div class="tracking-stat">
-                        <div class="stat-value" id="exerciseAvgDaily"><?php echo $exercise_avg_daily_7; ?> min</div>
-                        <div class="stat-label">Média Diária</div>
-                        <div class="stat-description" id="exercisePeriodDesc">Últimos 7 dias</div>
-                    </div>
-                    <div class="tracking-stat">
-                        <div class="stat-value"><?php echo $exercise_goal_daily_minutes > 0 ? round($exercise_goal_daily_minutes, 0) : '0'; ?> min</div>
-                        <div class="stat-label">Meta Diária</div>
-                        <div class="stat-description">
-                            <?php echo $exercise_goal_weekly_hours > 0 ? round($exercise_goal_weekly_hours, 1) . 'h/semana' : 'Sem meta'; ?>
-                        </div>
-                    </div>
-                    <div class="tracking-stat">
-                        <div class="stat-value <?php echo $exercise_days_with_data_7 >= 3 ? 'text-success' : ($exercise_days_with_data_7 > 0 ? 'text-warning' : 'text-danger'); ?>" id="exerciseDaysWithData">
-                            <?php echo $exercise_days_with_data_7; ?>/7
-                        </div>
-                        <div class="stat-label">Dias com Exercício</div>
-                        <div class="stat-description" id="exerciseGoalReached">
-                            <?php echo $exercise_goal_daily_minutes > 0 ? $exercise_goal_reached_7 . '% da meta' : 'Sem meta definida'; ?>
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="improved-chart" id="exercise-chart">
                     <div class="improved-bars" id="exercise-bars">
                         <div class="empty-chart">
@@ -131,71 +124,63 @@
         </div>
         
         <!-- SEÇÃO DE ACOMPANHAMENTO: SONO -->
+        <?php
+        // Calcular estatísticas dos últimos 7 dias
+        $sleep_7_days = array_filter($routine_sleep_data, function($item) {
+            $itemDate = new DateTime($item['date']);
+            $now = new DateTime();
+            $diff = $now->diff($itemDate)->days;
+            return $diff < 7;
+        });
+        $sleep_total_hours_7 = array_sum(array_column($sleep_7_days, 'sleep_hours'));
+        $sleep_days_with_data_7 = count($sleep_7_days);
+        $sleep_avg_daily_7 = $sleep_days_with_data_7 > 0 ? round($sleep_total_hours_7 / 7, 1) : 0;
+        $sleep_goal_reached_7 = $sleep_goal_hours > 0 ? round(($sleep_avg_daily_7 / $sleep_goal_hours) * 100, 0) : 0;
+        if ($sleep_goal_reached_7 > 100) $sleep_goal_reached_7 = 100;
+        $sleep_adherence_percentage = round(($sleep_days_with_data_7 / 7) * 100, 0);
+        ?>
+        <!-- Card de resumo (igual hidratação) -->
+        <div class="hydration-summary-card" id="sleepSummaryCard">
+            <div class="summary-main">
+                <div class="summary-icon">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <div class="summary-info">
+                    <h3>Sono</h3>
+                    <div class="summary-meta">Meta diária: <strong>7.5h (ideal: 7-8h)</strong></div>
+                    <div class="summary-description">Baseado nos registros de sono do paciente no aplicativo</div>
+                </div>
+            </div>
+            <div class="summary-stats" id="sleepStatsGrid">
+                <div class="summary-stat">
+                    <div class="stat-value" id="sleepAvgDaily"><?php echo $sleep_avg_daily_7; ?>h</div>
+                    <div class="stat-label">Média Diária</div>
+                    <div class="stat-description" id="sleepPeriodDesc">Últimos 7 dias</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" id="sleepGoalReached"><?php echo $sleep_goal_reached_7; ?>%</div>
+                    <div class="stat-label">Aderência Geral</div>
+                    <div class="stat-description">Meta de sono atingida</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" id="sleepDaysWithData"><?php echo $sleep_days_with_data_7; ?>/7</div>
+                    <div class="stat-label">Dias Registrados</div>
+                    <div class="stat-description" id="sleepStatusDesc"><?php echo $sleep_adherence_percentage; ?>% de aderência</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráfico (igual hidratação) -->
         <div class="chart-section">
             <div class="sleep-chart-improved">
                 <div class="chart-header">
-                    <h4><i class="fas fa-bed"></i> Sono</h4>
+                    <h4><i class="fas fa-bed"></i> Progresso de Sono</h4>
                     <div class="period-buttons">
                         <button class="period-btn active" onclick="showSleepCalendar()" id="sleep-period-btn" title="Selecionar período">
                             <i class="fas fa-calendar-alt"></i> Últimos 7 dias
                         </button>
                     </div>
                 </div>
-                
-                <div class="tracking-stats-grid" style="margin-bottom: 1.5rem;" id="sleepStatsGrid">
-                    <?php
-                    // Calcular estatísticas dos últimos 7 dias
-                    $sleep_7_days = array_filter($routine_sleep_data, function($item) {
-                        $itemDate = new DateTime($item['date']);
-                        $now = new DateTime();
-                        $diff = $now->diff($itemDate)->days;
-                        return $diff < 7;
-                    });
-                    $sleep_total_hours_7 = array_sum(array_column($sleep_7_days, 'sleep_hours'));
-                    $sleep_days_with_data_7 = count($sleep_7_days);
-                    $sleep_avg_daily_7 = $sleep_days_with_data_7 > 0 ? round($sleep_total_hours_7 / 7, 1) : 0;
-                    $sleep_goal_reached_7 = $sleep_goal_hours > 0 ? round(($sleep_avg_daily_7 / $sleep_goal_hours) * 100, 0) : 0;
-                    if ($sleep_goal_reached_7 > 100) $sleep_goal_reached_7 = 100;
-                    
-                    // Determinar status
-                    $sleep_status = 'poor';
-                    $sleep_status_text = 'Abaixo da meta';
-                    if ($sleep_avg_daily_7 >= 7 && $sleep_avg_daily_7 <= 8) {
-                        $sleep_status = 'excellent';
-                        $sleep_status_text = 'Ideal';
-                    } elseif ($sleep_avg_daily_7 >= 6.5 && $sleep_avg_daily_7 < 7) {
-                        $sleep_status = 'good';
-                        $sleep_status_text = 'Bom';
-                    } elseif ($sleep_avg_daily_7 >= 6 && $sleep_avg_daily_7 < 6.5) {
-                        $sleep_status = 'fair';
-                        $sleep_status_text = 'Regular';
-                    } elseif ($sleep_avg_daily_7 >= 5 && $sleep_avg_daily_7 < 6) {
-                        $sleep_status = 'poor';
-                        $sleep_status_text = 'Abaixo da meta';
-                    } else {
-                        $sleep_status = 'critical';
-                        $sleep_status_text = 'Crítico';
-                    }
-                    ?>
-                    <div class="tracking-stat">
-                        <div class="stat-value" id="sleepAvgDaily"><?php echo $sleep_avg_daily_7; ?>h</div>
-                        <div class="stat-label">Média Diária</div>
-                        <div class="stat-description" id="sleepPeriodDesc">Últimos 7 dias</div>
-                    </div>
-                    <div class="tracking-stat">
-                        <div class="stat-value">7.5h</div>
-                        <div class="stat-label">Meta Diária</div>
-                        <div class="stat-description">Ideal (7-8h)</div>
-                    </div>
-                    <div class="tracking-stat">
-                        <div class="stat-value status-<?php echo $sleep_status; ?>" id="sleepDaysWithData">
-                            <?php echo $sleep_days_with_data_7; ?>/7
-                        </div>
-                        <div class="stat-label">Dias Registrados</div>
-                        <div class="stat-description" id="sleepStatusDesc"><?php echo $sleep_status_text; ?> - <?php echo $sleep_goal_reached_7; ?>% da meta</div>
-                    </div>
-                </div>
-                
                 <div class="improved-chart" id="sleep-chart">
                     <div class="improved-bars" id="sleep-bars">
                         <div class="empty-chart">
@@ -520,55 +505,10 @@
 }
 
 /* === SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO E SONO === */
-/* Espaçamento entre chart-sections (igual hidratação/nutrientes) */
-.routine-container .chart-section {
-    margin-bottom: 2rem;
-}
-
-.routine-container .chart-section:first-of-type {
-    margin-top: 2rem;
-}
-
+/* Usar exatamente o mesmo CSS da hidratação - sem sobrescrever */
 .exercise-chart-improved,
 .sleep-chart-improved {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Garantir que as improved bars fiquem contidas dentro do card e em fileira horizontal */
-.exercise-chart-improved .improved-chart,
-.sleep-chart-improved .improved-chart {
-    overflow-x: auto;
-    overflow-y: visible;
-    padding: 1rem 0;
-}
-
-#exercise-bars,
-#sleep-bars {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: flex-start !important;
-    align-items: flex-end !important;
-    gap: 1rem !important;
-    min-width: min-content !important;
-    min-height: 240px !important;
-    padding: 1rem 0.5rem 0.5rem !important;
-    position: relative !important;
-}
-
-#exercise-bars .improved-bar-container,
-#sleep-bars .improved-bar-container {
-    flex: 0 0 auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    min-width: 60px !important;
-    max-width: 100px !important;
+    /* CSS já definido em view_user_addon.css para hydration-chart-improved */
 }
 
 
