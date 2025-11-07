@@ -27,6 +27,7 @@ $categories = [
 // Buscar alimentos
 $search = $_GET['search'] ?? '';
 $category_filter = $_GET['category'] ?? '';
+$unclassified_filter = isset($_GET['unclassified']) && $_GET['unclassified'] == '1';
 $page = (int)($_GET['page'] ?? 1);
 $per_page = 20;
 $offset = ($page - 1) * $per_page;
@@ -34,23 +35,42 @@ $offset = ($page - 1) * $per_page;
 $where_conditions = [];
 $params = [];
 $param_types = '';
+$having_conditions = [];
 
 if (!empty($search)) {
-    $where_conditions[] = "name_pt LIKE ?";
+    $where_conditions[] = "sfi.name_pt LIKE ?";
     $params[] = "%{$search}%";
     $param_types .= 's';
 }
 
 if (!empty($category_filter)) {
-    $where_conditions[] = "food_type = ?";
+    $where_conditions[] = "sfi.food_type = ?";
     $params[] = $category_filter;
     $param_types .= 's';
 }
 
 $where_sql = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
 
-// Contar total
-$count_sql = "SELECT COUNT(*) as total FROM sf_food_items {$where_sql}";
+// Se filtro de não classificados estiver ativo, filtrar apenas alimentos sem categorias
+if ($unclassified_filter) {
+    $having_conditions[] = "categories IS NULL OR categories = ''";
+}
+
+$having_sql = !empty($having_conditions) ? 'HAVING ' . implode(' AND ', $having_conditions) : '';
+
+// Contar total - precisa usar subquery ou COUNT com HAVING
+if ($unclassified_filter) {
+    // Contar apenas alimentos que NÃO têm nenhuma categoria
+    $unclassified_condition = empty($where_sql) ? "WHERE sfc.food_id IS NULL" : "AND sfc.food_id IS NULL";
+    $count_sql = "SELECT COUNT(DISTINCT sfi.id) as total 
+                  FROM sf_food_items sfi
+                  LEFT JOIN sf_food_categories sfc ON sfi.id = sfc.food_id
+                  $where_sql
+                  $unclassified_condition";
+} else {
+    $count_sql = "SELECT COUNT(*) as total FROM sf_food_items sfi $where_sql";
+}
+
 $count_stmt = $conn->prepare($count_sql);
 if (!empty($params)) {
     $count_stmt->bind_param($param_types, ...$params);
@@ -67,6 +87,7 @@ $sql = "SELECT
     LEFT JOIN sf_food_categories sfc ON sfi.id = sfc.food_id
     $where_sql
     GROUP BY sfi.id
+    $having_sql
     ORDER BY sfi.name_pt
     LIMIT ? OFFSET ?";
 $param_types .= 'ii';
@@ -248,6 +269,24 @@ include 'includes/header.php';
     font-size: 1.25rem !important;
     font-weight: 700 !important;
     color: var(--accent-orange) !important;
+}
+
+.foods-stat-item.clickable {
+    cursor: pointer;
+    transition: all 0.3s ease !important;
+}
+
+.foods-stat-item.clickable:hover {
+    transform: translateY(-2px);
+}
+
+.foods-stat-item.clickable:hover .foods-stat-number {
+    color: #FF8C42 !important;
+}
+
+.foods-stat-item.active .foods-stat-number {
+    color: #10B981 !important;
+    text-decoration: underline;
 }
 
 /* Legenda */
@@ -1225,8 +1264,8 @@ include 'includes/header.php';
             <!-- Header Card -->
             <div class="dashboard-card foods-header-card">
                 <div class="foods-header-title">
-                    <h2>Alimentos</h2>
-                    <p>Gerencie e classifique todos os alimentos do sistema</p>
+                    <h2>Alimentos<?= $unclassified_filter ? ' <span style="color: #EF4444; font-size: 0.8em;">(Apenas Não Classificados)</span>' : '' ?></h2>
+                    <p><?= $unclassified_filter ? 'Mostrando apenas alimentos que ainda não foram classificados' : 'Gerencie e classifique todos os alimentos do sistema' ?></p>
                 </div>
                 
                 <!-- Estatísticas Simplificadas -->
@@ -1239,9 +1278,9 @@ include 'includes/header.php';
                         <span class="foods-stat-label">Classificados:</span>
                         <span class="foods-stat-number" id="classified-count"><?= $classified_count ?></span>
                 </div>
-                    <div class="foods-stat-item">
+                    <div class="foods-stat-item <?= $unclassified_filter ? 'active' : 'clickable' ?>" id="remaining-stat-item" onclick="filterUnclassified()">
                         <span class="foods-stat-label">Restantes:</span>
-                        <span class="foods-stat-number" id="remaining-count"><?= $total_items - $classified_count ?></span>
+                        <span class="foods-stat-number" id="remaining-count"><?= $unclassified_filter ? $total_items : ($total_items - $classified_count) ?></span>
             </div>
     </div>
 
@@ -1295,7 +1334,7 @@ include 'includes/header.php';
                     <button type="submit" class="btn-filter-circular" title="Filtrar">
                         <i class="fas fa-search"></i>
                     </button>
-                    <?php if (!empty($search) || !empty($category_filter)): ?>
+                    <?php if (!empty($search) || !empty($category_filter) || $unclassified_filter): ?>
                     <a href="food_classification.php" class="foods-clear-btn">Limpar</a>
                     <?php endif; ?>
             </form>
@@ -1336,7 +1375,7 @@ include 'includes/header.php';
             <?php if (empty($foods)): ?>
                 <div class="dashboard-card foods-empty-state">
                     <p>Nenhum alimento encontrado.</p>
-                    <?php if (!empty($search) || !empty($category_filter)): ?>
+                    <?php if (!empty($search) || !empty($category_filter) || $unclassified_filter): ?>
                         <a href="food_classification.php" class="btn-primary">Ver Todos os Alimentos</a>
                     <?php endif; ?>
                 </div>
@@ -1426,7 +1465,7 @@ include 'includes/header.php';
                         </div>
                         <div class="foods-pagination-controls">
                 <?php if ($page > 1): ?>
-                                <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>&unclassified=<?= $unclassified_filter ? '1' : '0' ?>" 
                                    class="foods-pagination-btn">
                                     Anterior
                                 </a>
@@ -1438,7 +1477,7 @@ include 'includes/header.php';
                                 $end_page = min($total_pages, $page + 2);
                                 
                                 if ($start_page > 1): ?>
-                                    <a href="?page=1&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                    <a href="?page=1&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>&unclassified=<?= $unclassified_filter ? '1' : '0' ?>" 
                                        class="foods-pagination-number">1</a>
                                     <?php if ($start_page > 2): ?>
                                         <span class="foods-pagination-ellipsis">...</span>
@@ -1449,7 +1488,7 @@ include 'includes/header.php';
                     <?php if ($i == $page): ?>
                                         <span class="foods-pagination-number current"><?= $i ?></span>
                     <?php else: ?>
-                                        <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                        <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>&unclassified=<?= $unclassified_filter ? '1' : '0' ?>" 
                                            class="foods-pagination-number"><?= $i ?></a>
                     <?php endif; ?>
                 <?php endfor; ?>
@@ -1458,13 +1497,13 @@ include 'includes/header.php';
                                     <?php if ($end_page < $total_pages - 1): ?>
                                         <span class="foods-pagination-ellipsis">...</span>
                 <?php endif; ?>
-                                    <a href="?page=<?= $total_pages ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                    <a href="?page=<?= $total_pages ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>&unclassified=<?= $unclassified_filter ? '1' : '0' ?>" 
                                        class="foods-pagination-number"><?= $total_pages ?></a>
         <?php endif; ?>
 </div>
 
                             <?php if ($page < $total_pages): ?>
-                                <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>" 
+                                <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&category=<?= urlencode($category_filter) ?>&unclassified=<?= $unclassified_filter ? '1' : '0' ?>" 
                                    class="foods-pagination-btn">
                                     Próxima
                                 </a>
@@ -1975,6 +2014,24 @@ function showAutoSaveIndicator() {
             indicator.classList.remove('show');
         }, 2000);
     }
+}
+
+// Filtra apenas alimentos não classificados
+function filterUnclassified() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentUnclassified = urlParams.get('unclassified');
+    
+    // Se já está filtrando, remove o filtro. Caso contrário, ativa o filtro
+    if (currentUnclassified === '1') {
+        urlParams.delete('unclassified');
+    } else {
+        urlParams.set('unclassified', '1');
+    }
+    
+    // Resetar para página 1 quando aplicar filtro
+    urlParams.set('page', '1');
+    
+    window.location.href = 'food_classification.php?' + urlParams.toString();
 }
 </script>
 
