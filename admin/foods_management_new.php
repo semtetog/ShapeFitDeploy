@@ -1234,10 +1234,26 @@ function openEditFoodModal(foodId) {
                 document.getElementById('food-protein').value = food.protein_g_100g || 0;
                 document.getElementById('food-carbs').value = food.carbohydrate_g_100g || 0;
                 document.getElementById('food-fat').value = food.fat_g_100g || 0;
-                document.getElementById('food-source').value = food.source_table || 'Manual';
+                
+                // Atualizar select customizado
+                const sourceValue = food.source_table || 'Manual';
+                const sourceInput = document.getElementById('food-source');
+                const sourceSelect = document.getElementById('food-source-select');
+                const sourceValueDisplay = sourceSelect.querySelector('.custom-select-value');
+                const sourceOptions = sourceSelect.querySelectorAll('.custom-select-option');
+                
+                sourceInput.value = sourceValue;
+                sourceOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.dataset.value === sourceValue) {
+                        opt.classList.add('selected');
+                        sourceValueDisplay.textContent = opt.textContent;
+                    }
+                });
+                
                 document.getElementById('food-delete-btn').style.display = 'flex';
                 updateCalculations();
-                document.getElementById('food-edit-modal').classList.add('visible');
+                document.getElementById('food-edit-modal').classList.add('active');
                 document.body.style.overflow = 'hidden';
             } else {
                 alert('Erro ao carregar dados do alimento');
@@ -1250,7 +1266,7 @@ function openEditFoodModal(foodId) {
 }
 
 function closeFoodEditModal() {
-    document.getElementById('food-edit-modal').classList.remove('visible');
+    document.getElementById('food-edit-modal').classList.remove('active');
     document.body.style.overflow = '';
     currentEditingFoodId = null;
 }
@@ -1275,7 +1291,7 @@ function saveFood() {
         alert('Nome do alimento é obrigatório');
         return;
     }
-    const saveBtn = document.querySelector('.food-edit-footer .btn-save');
+    const saveBtn = document.querySelector('.custom-modal-footer .btn-modal-confirm');
     const originalText = saveBtn.innerHTML;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
     saveBtn.disabled = true;
@@ -1336,21 +1352,53 @@ document.addEventListener('DOMContentLoaded', function() {
             input.addEventListener('input', updateCalculations);
         }
     });
+    
+    // Inicializar custom select de fonte
+    const sourceSelect = document.getElementById('food-source-select');
+    if (sourceSelect) {
+        const trigger = sourceSelect.querySelector('.custom-select-trigger');
+        const options = sourceSelect.querySelectorAll('.custom-select-option');
+        const sourceInput = document.getElementById('food-source');
+        const valueDisplay = sourceSelect.querySelector('.custom-select-value');
+        
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sourceSelect.classList.toggle('active');
+        });
+        
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.dataset.value;
+                sourceInput.value = value;
+                valueDisplay.textContent = this.textContent;
+                options.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                sourceSelect.classList.remove('active');
+            });
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!sourceSelect.contains(e.target)) {
+                sourceSelect.classList.remove('active');
+            }
+        });
+    }
 });
 </script>
 
 <!-- Modal Adicionar/Editar Alimento -->
-<div class="food-edit-modal" id="food-edit-modal">
-    <div class="food-edit-overlay" onclick="closeFoodEditModal()"></div>
-    <div class="food-edit-content">
+<div id="food-edit-modal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeFoodEditModal()"></div>
+    <div class="custom-modal-content">
         <button class="sleep-modal-close" onclick="closeFoodEditModal()" type="button">
             <i class="fas fa-times"></i>
         </button>
-        <div class="food-edit-header">
+        <div class="custom-modal-header">
+            <i class="fas fa-apple-alt"></i>
             <h3 id="food-edit-title">Editar Alimento</h3>
         </div>
         
-        <div class="food-edit-body">
+        <div class="custom-modal-body">
             <form id="food-edit-form">
                 <input type="hidden" id="food-edit-id" name="id" value="">
                 <input type="hidden" name="action" id="food-edit-action" value="edit">
@@ -1386,15 +1434,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 <div class="form-group">
                     <label for="food-source">Fonte</label>
-                    <select id="food-source" name="source_table" class="form-control">
-                        <option value="Manual">Manual</option>
-                        <option value="TACO">TACO</option>
-                        <option value="Sonia Tucunduva">Sonia Tucunduva</option>
-                        <option value="Sonia Tucunduva (Prioridade)">Sonia Tucunduva (Prioridade)</option>
-                        <option value="USDA">USDA</option>
-                        <option value="FatSecret">FatSecret</option>
-                        <option value="user_created">Criado por Usuário</option>
-                    </select>
+                    <div class="custom-select-wrapper" id="food-source-wrapper">
+                        <input type="hidden" id="food-source" name="source_table" value="Manual">
+                        <div class="custom-select" id="food-source-select">
+                            <div class="custom-select-trigger">
+                                <span class="custom-select-value">Manual</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="custom-select-options">
+                                <div class="custom-select-option" data-value="Manual">Manual</div>
+                                <div class="custom-select-option" data-value="TACO">TACO</div>
+                                <div class="custom-select-option" data-value="Sonia Tucunduva">Sonia Tucunduva</div>
+                                <div class="custom-select-option" data-value="Sonia Tucunduva (Prioridade)">Sonia Tucunduva (Prioridade)</div>
+                                <div class="custom-select-option" data-value="USDA">USDA</div>
+                                <div class="custom-select-option" data-value="FatSecret">FatSecret</div>
+                                <div class="custom-select-option" data-value="user_created">Criado por Usuário</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="food-calculations" class="food-calculations" style="display: none;">
@@ -1410,108 +1467,117 @@ document.addEventListener('DOMContentLoaded', function() {
             </form>
         </div>
         
-        <div class="food-edit-footer">
-            <button type="button" class="btn-cancel" onclick="closeFoodEditModal()">Cancelar</button>
-            <button type="button" class="btn-save" onclick="saveFood()">
-                <i class="fas fa-save"></i> Salvar
-            </button>
-            <button type="button" id="food-delete-btn" class="btn-delete" onclick="deleteFood()" style="display: none;">
+        <div class="custom-modal-footer">
+            <button type="button" class="btn-modal-cancel" onclick="closeFoodEditModal()">Cancelar</button>
+            <button type="button" id="food-delete-btn" class="btn-modal-danger" onclick="deleteFood()" style="display: none;">
                 <i class="fas fa-trash"></i> Excluir
+            </button>
+            <button type="button" class="btn-modal-confirm" onclick="saveFood()">
+                <i class="fas fa-save"></i> Salvar
             </button>
         </div>
     </div>
 </div>
 
 <style>
-/* Modal de Edição de Alimento */
-.food-edit-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 10000;
-    align-items: center;
-    justify-content: center;
-}
-
-.food-edit-modal.visible {
-    display: flex;
-}
-
-.food-edit-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-}
-
-.food-edit-content {
+/* Custom Select - estilo do recipes.php */
+.custom-select-wrapper {
     position: relative;
+    width: 100%;
+}
+
+.custom-select {
+    position: relative;
+}
+
+.custom-select-trigger {
+    width: 100%;
+    padding: 0.75rem 1rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 2rem;
-    max-width: 600px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    z-index: 10001;
-}
-
-.sleep-modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #FFFFFF;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
     transition: all 0.3s ease;
-    z-index: 10002;
+    box-sizing: border-box;
+    font-weight: 600;
 }
 
-.sleep-modal-close:hover {
-    background: rgba(255, 102, 0, 0.2);
+.custom-select-trigger:hover {
     border-color: var(--accent-orange);
+}
+
+.custom-select.active .custom-select-trigger i {
+    transform: rotate(180deg);
+}
+
+.custom-select-trigger i {
+    transition: transform 0.3s ease;
+    color: var(--text-secondary);
+}
+
+.custom-select-value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-select-options {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(35, 35, 35, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    max-height: 250px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.custom-select.active .custom-select-options {
+    display: block;
+}
+
+.custom-select-option {
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-select-option:last-child {
+    border-bottom: none;
+}
+
+.custom-select-option:hover {
+    background: rgba(255, 107, 0, 0.1);
     color: var(--accent-orange);
 }
 
-.food-edit-header {
+.custom-select-option.selected {
+    background: rgba(255, 107, 0, 0.15);
+    color: var(--accent-orange);
+    font-weight: 600;
+}
+
+.custom-modal-body .form-group {
     margin-bottom: 1.5rem;
 }
 
-.food-edit-header h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #FFFFFF;
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.food-edit-body {
-    margin-bottom: 1.5rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
+.custom-modal-body .form-group label {
     display: block;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
@@ -1519,7 +1585,7 @@ document.addEventListener('DOMContentLoaded', function() {
     letter-spacing: 0.5px;
 }
 
-.form-group .form-control {
+.custom-modal-body .form-group .form-control {
     width: 100%;
     padding: 0.75rem 1rem;
     background: rgba(255, 255, 255, 0.05);
@@ -1532,7 +1598,7 @@ document.addEventListener('DOMContentLoaded', function() {
     font-family: 'Montserrat', sans-serif;
 }
 
-.form-group .form-control:focus {
+.custom-modal-body .form-group .form-control:focus {
     outline: none;
     border-color: var(--accent-orange);
     background: rgba(255, 255, 255, 0.08);
@@ -1576,61 +1642,16 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 700;
 }
 
-.food-edit-footer {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+.btn-modal-danger {
+    background: var(--danger-red);
+    color: white;
+    border: 1px solid var(--danger-red);
 }
 
-.btn-cancel,
-.btn-save,
-.btn-delete {
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.btn-cancel {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #FFFFFF;
-}
-
-.btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.btn-save {
-    background: linear-gradient(135deg, #FF6600, #FF8533);
-    color: #FFFFFF;
-}
-
-.btn-save:hover {
-    background: linear-gradient(135deg, #FF8533, #FF6600);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
-}
-
-.btn-delete {
-    background: linear-gradient(135deg, #EF4444, #F87171);
-    color: #FFFFFF;
-}
-
-.btn-delete:hover {
-    background: linear-gradient(135deg, #F87171, #EF4444);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+.btn-modal-danger:hover {
+    background: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
 }
 
 /* Ajustar alinhamento da tabela */
