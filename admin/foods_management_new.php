@@ -165,11 +165,11 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0;
 }
 
-/* Stats Grid - usando estilo dashboard */
+/* Stats Grid - cards menores e mesmo tamanho */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
     margin-bottom: 2rem;
 }
 
@@ -177,10 +177,15 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
-    padding: 1.5rem;
+    padding: 1rem;
     text-align: center;
     transition: all 0.3s ease;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .stat-card:hover {
@@ -191,17 +196,19 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .stat-number {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--accent-orange);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
 }
 
 .stat-label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
 /* Filter Form */
@@ -426,6 +433,7 @@ require_once __DIR__ . '/includes/header.php';
     padding: 1.5rem 2rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.02);
+    border-radius: 0;
 }
 
 .table-title {
@@ -512,17 +520,97 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--accent-orange);
 }
 
+/* Source Badges - cores diferentes para cada fonte */
 .source-badge {
     display: inline-block;
     padding: 0.375rem 0.75rem;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
     border-radius: 8px;
-    color: var(--accent-orange);
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    border: 1px solid;
+}
+
+.source-badge.taco {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #22C55E;
+}
+
+.source-badge.sonia {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #3B82F6;
+}
+
+.source-badge.sonia-updated {
+    background: rgba(147, 51, 234, 0.15);
+    border-color: rgba(147, 51, 234, 0.4);
+    color: #9333EA;
+}
+
+.source-badge.usda {
+    background: rgba(236, 72, 153, 0.15);
+    border-color: rgba(236, 72, 153, 0.4);
+    color: #EC4899;
+}
+
+.source-badge.fatsecret {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: rgba(255, 107, 0, 0.4);
+    color: #FF6B00;
+}
+
+.source-badge.manual {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.4);
+    color: #A855F7;
+}
+
+.source-badge.user-created {
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.4);
+    color: #FBBF24;
+}
+
+.source-badge.user-off {
+    background: rgba(107, 114, 128, 0.15);
+    border-color: rgba(107, 114, 128, 0.4);
+    color: #6B7280;
+}
+
+/* Legenda de Fontes */
+.source-legend {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.source-legend-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.source-legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.source-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
 }
 
 /* Action Buttons */
@@ -828,28 +916,81 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Estatísticas -->
     <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" onclick="window.location.href='foods_management_new.php'">
             <div class="stat-number"><?php echo number_format($stats['total']); ?></div>
             <div class="stat-label">Total de Alimentos</div>
         </div>
         
-        <?php foreach ($stats['by_source'] as $source => $count): ?>
-            <div class="stat-card">
+        <?php foreach ($stats['by_source'] as $source => $count): 
+            $sourceParam = urlencode($source);
+            $labelText = '';
+            switch ($source) {
+                case 'TACO': 
+                    $labelText = 'TACO'; 
+                    break;
+                case 'Sonia Tucunduva': 
+                    $labelText = 'Sonia'; 
+                    break;
+                case 'Sonia Tucunduva (Prioridade)': 
+                    $labelText = 'Sonia (Atualizado)'; 
+                    break;
+                case 'USDA': 
+                    $labelText = 'USDA'; 
+                    break;
+                case 'FatSecret': 
+                    $labelText = 'FatSecret'; 
+                    break;
+                case 'Manual': 
+                    $labelText = 'Manual'; 
+                    break;
+                case 'user_created': 
+                    $labelText = 'Criado por Usuário'; 
+                    break;
+                case 'user_off': 
+                    $labelText = 'Desativado'; 
+                    break;
+                default: 
+                    $labelText = htmlspecialchars($source);
+            }
+        ?>
+            <div class="stat-card" onclick="window.location.href='foods_management_new.php?source=<?php echo $sourceParam; ?>'">
                 <div class="stat-number"><?php echo number_format($count); ?></div>
-                <div class="stat-label">
-                    <?php 
-                    switch ($source) {
-                        case 'TACO': echo 'TACO'; break;
-                        case 'Sonia Tucunduva': echo 'Sonia'; break;
-                        case 'Sonia Tucunduva (Prioridade)': echo 'Sonia (Atualizado)'; break;
-                        case 'USDA': echo 'USDA'; break;
-                        case 'FatSecret': echo 'FatSecret'; break;
-                        default: echo htmlspecialchars($source);
-                    }
-                    ?>
-                </div>
+                <div class="stat-label"><?php echo $labelText; ?></div>
             </div>
         <?php endforeach; ?>
+    </div>
+
+    <!-- Legenda de Fontes -->
+    <div class="source-legend">
+        <div class="source-legend-title">
+            <i class="fas fa-info-circle"></i> Legenda de Fontes
+        </div>
+        <div class="source-legend-items">
+            <div class="source-legend-item">
+                <span class="source-badge taco">TACO</span>
+            </div>
+            <div class="source-legend-item">
+                <span class="source-badge sonia">Sonia</span>
+            </div>
+            <div class="source-legend-item">
+                <span class="source-badge sonia-updated">Sonia (Atualizado)</span>
+            </div>
+            <div class="source-legend-item">
+                <span class="source-badge usda">USDA</span>
+            </div>
+            <div class="source-legend-item">
+                <span class="source-badge fatsecret">FatSecret</span>
+            </div>
+            <div class="source-legend-item">
+                <span class="source-badge manual">Manual</span>
+            </div>
+            <div class="source-legend-item">
+                <span class="source-badge user-created">Criado por Usuário</span>
+            </div>
+            <div class="source-legend-item">
+                <span class="source-badge user-off">Desativado</span>
+            </div>
+        </div>
     </div>
 
     <!-- Tabela de Alimentos -->
@@ -924,14 +1065,51 @@ require_once __DIR__ . '/includes/header.php';
                                     <span style="color: var(--text-secondary); font-size: 0.875rem;">g</span>
                                 </td>
                                 <td>
-                                    <span class="source-badge">
-                                        <?php 
-                                        $source = $food['source_table'];
-                                        switch ($source) {
-                                            case 'Sonia Tucunduva (Prioridade)': echo 'Sonia (Atualizado)'; break;
-                                            default: echo htmlspecialchars($source);
-                                        }
-                                        ?>
+                                    <?php 
+                                    $source = $food['source_table'];
+                                    $badgeClass = '';
+                                    $badgeText = '';
+                                    
+                                    switch ($source) {
+                                        case 'TACO':
+                                            $badgeClass = 'taco';
+                                            $badgeText = 'TACO';
+                                            break;
+                                        case 'Sonia Tucunduva':
+                                            $badgeClass = 'sonia';
+                                            $badgeText = 'Sonia';
+                                            break;
+                                        case 'Sonia Tucunduva (Prioridade)':
+                                            $badgeClass = 'sonia-updated';
+                                            $badgeText = 'Sonia (Atualizado)';
+                                            break;
+                                        case 'USDA':
+                                            $badgeClass = 'usda';
+                                            $badgeText = 'USDA';
+                                            break;
+                                        case 'FatSecret':
+                                            $badgeClass = 'fatsecret';
+                                            $badgeText = 'FatSecret';
+                                            break;
+                                        case 'Manual':
+                                            $badgeClass = 'manual';
+                                            $badgeText = 'Manual';
+                                            break;
+                                        case 'user_created':
+                                            $badgeClass = 'user-created';
+                                            $badgeText = 'Criado por Usuário';
+                                            break;
+                                        case 'user_off':
+                                            $badgeClass = 'user-off';
+                                            $badgeText = 'Desativado';
+                                            break;
+                                        default:
+                                            $badgeClass = 'manual';
+                                            $badgeText = htmlspecialchars($source);
+                                    }
+                                    ?>
+                                    <span class="source-badge <?php echo $badgeClass; ?>">
+                                        <?php echo $badgeText; ?>
                                     </span>
                                 </td>
                                 <td>
