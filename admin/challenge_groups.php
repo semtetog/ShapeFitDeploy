@@ -1391,57 +1391,59 @@ require_once __DIR__ . '/includes/header.php';
                                  data-user-id="<?php echo $user['id']; ?>"
                                  data-name="<?php echo strtolower(htmlspecialchars($user['name'])); ?>"
                                  data-email="<?php echo strtolower(htmlspecialchars($user['email'])); ?>">
-                                <div class="participant-avatar">
-                                    <?php
-                                    $has_photo = false;
-                                    $avatar_url = '';
+                                <?php
+                                $has_photo = false;
+                                $avatar_url = '';
+                                $bgColor = 'rgba(255, 107, 0, 0.1)'; // Cor padrão
 
-                                    if (!empty($user['profile_image_filename'])) {
-                                        // Verificar primeiro a imagem original (prioridade)
-                                        $original_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'];
-                                        if (file_exists($original_path_on_server)) {
-                                            $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']);
+                                if (!empty($user['profile_image_filename'])) {
+                                    // Verificar primeiro a imagem original (prioridade)
+                                    $original_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'];
+                                    if (file_exists($original_path_on_server)) {
+                                        $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']);
+                                        $has_photo = true;
+                                    } else {
+                                        // Fallback: verificar thumbnail
+                                        $thumb_filename = 'thumb_' . $user['profile_image_filename'];
+                                        $thumb_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+                                        if (file_exists($thumb_path_on_server)) {
+                                            $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
                                             $has_photo = true;
-                                        } else {
-                                            // Fallback: verificar thumbnail
-                                            $thumb_filename = 'thumb_' . $user['profile_image_filename'];
-                                            $thumb_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
-                                            if (file_exists($thumb_path_on_server)) {
-                                                $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
-                                                $has_photo = true;
-                                            }
                                         }
                                     }
+                                }
 
-                                    if ($has_photo):
-                                    ?>
+                                // SE NÃO TEM FOTO, GERA AS INICIAIS E COR
+                                if (!$has_photo) {
+                                    $name_parts = explode(' ', trim($user['name']));
+                                    $initials = '';
+                                    if (count($name_parts) > 1) {
+                                        $initials = strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1));
+                                    } elseif (!empty($name_parts[0])) {
+                                        $initials = strtoupper(substr($name_parts[0], 0, 2));
+                                    } else {
+                                        $initials = '??';
+                                    }
+                                    // Gerar cor escura para bom contraste com texto branco
+                                    $hash = md5($user['name']);
+                                    $r = hexdec(substr($hash, 0, 2)) % 156 + 50;  // 50-205
+                                    $g = hexdec(substr($hash, 2, 2)) % 156 + 50;  // 50-205
+                                    $b = hexdec(substr($hash, 4, 2)) % 156 + 50;  // 50-205
+                                    // Garantir que pelo menos um canal seja escuro
+                                    $max = max($r, $g, $b);
+                                    if ($max > 180) {
+                                        $r = (int)($r * 0.7);
+                                        $g = (int)($g * 0.7);
+                                        $b = (int)($b * 0.7);
+                                    }
+                                    $bgColor = sprintf('#%02x%02x%02x', $r, $g, $b);
+                                }
+                                ?>
+                                <div class="participant-avatar" style="background-color: <?php echo $has_photo ? 'transparent' : $bgColor; ?>; color: <?php echo $has_photo ? 'var(--accent-orange)' : 'white'; ?>;">
+                                    <?php if ($has_photo): ?>
                                         <img src="<?php echo $avatar_url; ?>" alt="Foto de <?php echo htmlspecialchars($user['name']); ?>">
-                                    <?php else:
-                                        // SE NÃO TEM FOTO, GERA AS INICIAIS
-                                        $name_parts = explode(' ', trim($user['name']));
-                                        $initials = '';
-                                        if (count($name_parts) > 1) {
-                                            $initials = strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1));
-                                        } elseif (!empty($name_parts[0])) {
-                                            $initials = strtoupper(substr($name_parts[0], 0, 2));
-                                        } else {
-                                            $initials = '??';
-                                        }
-                                        // Gerar cor escura para bom contraste com texto branco
-                                        $hash = md5($user['name']);
-                                        $r = hexdec(substr($hash, 0, 2)) % 156 + 50;  // 50-205
-                                        $g = hexdec(substr($hash, 2, 2)) % 156 + 50;  // 50-205
-                                        $b = hexdec(substr($hash, 4, 2)) % 156 + 50;  // 50-205
-                                        // Garantir que pelo menos um canal seja escuro
-                                        $max = max($r, $g, $b);
-                                        if ($max > 180) {
-                                            $r = (int)($r * 0.7);
-                                            $g = (int)($g * 0.7);
-                                            $b = (int)($b * 0.7);
-                                        }
-                                        $bgColor = sprintf('#%02x%02x%02x', $r, $g, $b);
-                                    ?>
-                                        <span style="background-color: <?php echo $bgColor; ?>; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%;"><?php echo $initials; ?></span>
+                                    <?php else: ?>
+                                        <?php echo $initials; ?>
                                     <?php endif; ?>
                                 </div>
                                 <div class="participant-info">
