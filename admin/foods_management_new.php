@@ -1691,13 +1691,35 @@ function deleteFood() {
     });
 }
 
+let currentFoodIdToApprove = null;
+
 function approveFood(foodId) {
-    if (!confirm('Tem certeza que deseja APROVAR este alimento?\n\nO alimento ficará disponível para todos os usuários.')) {
+    currentFoodIdToApprove = foodId;
+    const modal = document.getElementById('approveFoodModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeApproveFoodModal() {
+    const modal = document.getElementById('approveFoodModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    document.body.style.overflow = '';
+    currentFoodIdToApprove = null;
+}
+
+function confirmApproveFood() {
+    if (!currentFoodIdToApprove) {
         return;
     }
+    
     const formData = new FormData();
     formData.append('action', 'approve');
-    formData.append('id', foodId);
+    formData.append('id', currentFoodIdToApprove);
+    
     fetch('process_food.php?ajax=1', {
         method: 'POST',
         body: formData
@@ -1709,6 +1731,7 @@ function approveFood(foodId) {
         return response.json();
     })
     .then(data => {
+        closeApproveFoodModal();
         if (data.success) {
             // Mantém os parâmetros da URL atual (filtros, página, etc)
             window.location.href = window.location.pathname + window.location.search;
@@ -1718,6 +1741,7 @@ function approveFood(foodId) {
     })
     .catch(error => {
         console.error('Erro:', error);
+        closeApproveFoodModal();
         alert('Erro ao aprovar alimento: ' + error.message);
     });
 }
@@ -1825,7 +1849,205 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+<!-- Modal de Confirmação de Aprovação -->
+<div id="approveFoodModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeApproveFoodModal()"></div>
+    <div class="custom-modal-content">
+        <div class="custom-modal-header" style="color: #22C55E;">
+            <i class="fas fa-check-circle"></i>
+            <h3>Adicionar ao Banco de Dados Global</h3>
+        </div>
+        <div class="custom-modal-body">
+            <p>Tem certeza que deseja adicionar este alimento ao banco de dados global?</p>
+            <p class="modal-warning">O alimento ficará disponível para todos os usuários do sistema.</p>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-cancel" onclick="closeApproveFoodModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="btn-modal-confirm btn-approve-confirm" onclick="confirmApproveFood()">
+                <i class="fas fa-check"></i> Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
 <style>
+/* ========================================================================= */
+/*       MODAL CUSTOMIZADO - ESTILO VIEW_USER                                */
+/* ========================================================================= */
+.custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
+}
+
+.custom-modal.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.custom-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: none !important;
+}
+
+.custom-modal-content {
+    position: relative;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.custom-modal.active .custom-modal-content {
+    transform: scale(1);
+}
+
+.custom-modal-content.custom-modal-small {
+    max-width: 400px;
+}
+
+.custom-modal-header {
+    padding: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--accent-orange);
+}
+
+.custom-modal-header i {
+    font-size: 1.75rem;
+}
+
+.custom-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.custom-modal-body {
+    padding: 2rem;
+}
+
+.custom-modal-body p {
+    margin: 0 0 1rem 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.custom-modal-body p:last-child {
+    margin-bottom: 0;
+}
+
+.custom-modal-body p strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.modal-warning {
+    color: var(--text-secondary) !important;
+    font-size: 0.9rem;
+    padding: 1rem;
+    background: rgba(255, 107, 0, 0.08);
+    border-left: 3px solid var(--accent-orange);
+    border-radius: 8px;
+}
+
+.custom-modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-modal-cancel,
+.btn-modal-confirm,
+.btn-modal-primary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.btn-modal-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-modal-cancel:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.btn-modal-confirm {
+    background: var(--accent-orange);
+    color: white;
+    border: 1px solid var(--accent-orange);
+}
+
+.btn-modal-confirm:hover {
+    background: #ff8533;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+}
+
+.btn-modal-primary {
+    background: var(--accent-orange);
+    color: white;
+    border: 1px solid var(--accent-orange);
+}
+
+.btn-modal-primary:hover {
+    background: #ff8533;
+    opacity: 0.9;
+}
+
+/* Botão de confirmar aprovação - verde */
+.btn-approve-confirm {
+    background: #22C55E !important;
+    border-color: #22C55E !important;
+}
+
+.btn-approve-confirm:hover {
+    background: #16a34a !important;
+    border-color: #16a34a !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
 /* ========================================================================= */
 /*       FOOD EDIT MODAL - ESTILO VIEW_USER MODERNO                          */
 /* ========================================================================= */
