@@ -947,7 +947,7 @@ require_once __DIR__ . '/includes/header.php';
     color: #FBBF24 !important;
 }
 
-.status-tag.active.active {
+.status-tag.active[data-status="active"] {
     background: rgba(34, 197, 94, 0.15) !important;
     border-color: rgba(34, 197, 94, 0.4) !important;
     color: #22C55E !important;
