@@ -738,63 +738,71 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
 }
 
-/* Input de data moderno - calendário nativo estilizado */
+/* Wrapper para input de data com ícone customizado */
+.date-input-wrapper-modern {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .date-input-modern {
     position: relative;
     color-scheme: dark;
-    padding-right: 2.5rem !important;
+    padding-right: 2.75rem !important;
+    flex: 1;
 }
 
-/* Ícone de calendário - círculo laranja pequeno */
+/* Esconder ícone nativo do calendário */
 .date-input-modern::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    position: absolute;
-    right: 0.5rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    min-width: 1.5rem;
-    min-height: 1.5rem;
-    border-radius: 50%;
-    background-color: rgba(255, 107, 0, 0.15);
-    border: 1px solid var(--accent-orange);
-    padding: 0.25rem;
-    transition: all 0.3s ease;
-    opacity: 1;
-    filter: invert(0.35) sepia(1) saturate(8) hue-rotate(0deg) brightness(1.4);
+    display: none;
 }
 
-.date-input-modern::-webkit-calendar-picker-indicator:hover {
-    background-color: rgba(255, 107, 0, 0.25);
-    border-color: #FF8533;
-    transform: scale(1.1);
-}
-
-.date-input-modern::-webkit-calendar-picker-indicator:active {
-    transform: scale(0.95);
-}
-
-/* Para Firefox */
 .date-input-modern::-moz-calendar-picker-indicator {
-    cursor: pointer;
-    border-radius: 50%;
-    background: rgba(255, 107, 0, 0.15);
-    border: 1px solid var(--accent-orange);
-    padding: 0.25rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.date-input-modern::-moz-calendar-picker-indicator:hover {
-    background-color: rgba(255, 107, 0, 0.25);
-    border-color: #FF8533;
-    transform: scale(1.1);
+    display: none;
 }
 
 /* Remover setas de spin */
 .date-input-modern::-webkit-inner-spin-button,
 .date-input-modern::-webkit-outer-spin-button {
     display: none;
+}
+
+/* Botão de ícone de calendário - círculo laranja pequeno */
+.date-icon-btn {
+    position: absolute;
+    right: 0.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    min-width: 1.75rem;
+    min-height: 1.75rem;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.15);
+    border: 1px solid var(--accent-orange);
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    transition: all 0.3s ease;
+    font-size: 0.75rem;
+}
+
+.date-icon-btn:hover {
+    background: rgba(255, 107, 0, 0.25);
+    border-color: #FF8533;
+    transform: scale(1.1);
+    color: #FF8533;
+}
+
+.date-icon-btn:active {
+    transform: scale(0.95);
+}
+
+.date-icon-btn i {
+    margin: 0;
+    line-height: 1;
 }
 
 /* Calendário nativo estilizado (quando aberto) */
@@ -1327,11 +1335,21 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="challenge-form-row">
                     <div class="challenge-form-group">
                         <label for="startDate">Data de Início</label>
-                        <input type="date" id="startDate" name="start_date" class="challenge-form-input date-input-modern" required>
+                        <div class="date-input-wrapper-modern">
+                            <input type="date" id="startDate" name="start_date" class="challenge-form-input date-input-modern" required>
+                            <button type="button" class="date-icon-btn" onclick="document.getElementById('startDate').showPicker ? document.getElementById('startDate').showPicker() : document.getElementById('startDate').focus();">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="challenge-form-group">
                         <label for="endDate">Data de Fim</label>
-                        <input type="date" id="endDate" name="end_date" class="challenge-form-input date-input-modern" required>
+                        <div class="date-input-wrapper-modern">
+                            <input type="date" id="endDate" name="end_date" class="challenge-form-input date-input-modern" required>
+                            <button type="button" class="date-icon-btn" onclick="document.getElementById('endDate').showPicker ? document.getElementById('endDate').showPicker() : document.getElementById('endDate').focus();">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
