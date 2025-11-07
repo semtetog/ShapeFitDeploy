@@ -929,9 +929,6 @@ require_once __DIR__ . '/includes/header.php';
             <i class="fas fa-trophy"></i>
             <h3>Nenhum desafio encontrado</h3>
             <p>Crie seu primeiro grupo de desafio para começar a motivar seus pacientes</p>
-            <button class="btn-primary" onclick="openCreateChallengeModal()">
-                <i class="fas fa-plus"></i> Criar Primeiro Desafio
-            </button>
         </div>
     <?php else: ?>
         <div class="challenge-groups-grid">
