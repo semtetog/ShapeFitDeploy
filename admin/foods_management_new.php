@@ -440,12 +440,19 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     border-collapse: collapse;
     margin: 0;
-    background: transparent;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    filter: none !important;
 }
 
 .data-table thead {
-    background: transparent;
+    background: transparent !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
 }
 
 .data-table th {
@@ -458,7 +465,11 @@ require_once __DIR__ . '/includes/header.php';
     letter-spacing: 0.5px;
     white-space: nowrap;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: transparent;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    filter: none !important;
 }
 
 .data-table td {
@@ -467,16 +478,34 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-primary);
     font-size: 0.95rem;
     vertical-align: middle;
-    background: transparent;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+.data-table tbody {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 .data-table tbody tr {
-    background: transparent;
+    background: transparent !important;
     transition: background-color 0.2s ease;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    filter: none !important;
 }
 
 .data-table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    filter: none !important;
 }
 
 .data-table tbody tr:last-child td {
