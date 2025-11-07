@@ -70,7 +70,7 @@
         </div>
 
         <!-- SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO -->
-        <div class="chart-section">
+        <div class="chart-section" style="margin-top: 2rem;">
             <div class="exercise-chart-improved">
                 <div class="chart-header">
                     <h4><i class="fas fa-dumbbell"></i> Exercício Físico</h4>
@@ -529,17 +529,32 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Garantir que as improved bars fiquem contidas dentro do card */
+/* Garantir que as improved bars fiquem contidas dentro do card e em fileira horizontal */
 .exercise-chart-improved .improved-chart,
 .sleep-chart-improved .improved-chart {
     overflow-x: auto;
     overflow-y: visible;
+    padding: 1rem 0;
 }
 
 .exercise-chart-improved .improved-bars,
 .sleep-chart-improved .improved-bars {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    align-items: flex-end !important;
+    gap: 1rem !important;
     min-width: min-content;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap !important;
+    min-height: 240px;
+    padding: 1rem 0.5rem 0.5rem !important;
+}
+
+.exercise-chart-improved .improved-bar-container,
+.sleep-chart-improved .improved-bar-container {
+    flex: 0 0 auto !important;
+    min-width: 60px;
+    max-width: 100px;
 }
 
 
