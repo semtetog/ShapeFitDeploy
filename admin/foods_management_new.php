@@ -848,7 +848,10 @@ require_once __DIR__ . '/includes/header.php';
     cursor: pointer;
     transition: all 0.3s ease;
     padding: 0;
+    margin: 0;
     flex-shrink: 0;
+    position: relative;
+    vertical-align: middle;
 }
 
 .btn-approve-circular:hover {
@@ -861,6 +864,7 @@ require_once __DIR__ . '/includes/header.php';
 .btn-approve-circular i {
     font-size: 1rem;
     margin: 0;
+    line-height: 1;
 }
 
 /* Empty State - usando estilo dashboard-card */
@@ -2353,7 +2357,10 @@ document.addEventListener('DOMContentLoaded', function() {
     cursor: pointer;
     transition: all 0.3s ease;
     padding: 0;
+    margin: 0;
     flex-shrink: 0;
+    position: relative;
+    vertical-align: middle;
 }
 
 .btn-approve-circular:hover {
@@ -2366,6 +2373,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .btn-approve-circular i {
     font-size: 1rem;
     margin: 0;
+    line-height: 1;
 }
 </style>
 
