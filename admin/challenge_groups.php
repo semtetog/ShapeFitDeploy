@@ -1939,7 +1939,7 @@ function initFlatpickr() {
         monthContainer.style.flexDirection = "column";
         monthContainer.style.alignItems = "center";
         monthContainer.style.justifyContent = "center";
-        monthContainer.style.width = "100%";
+        monthContainer.style.width = "auto";
         monthContainer.style.gap = "0.25rem";
         
         // Remover setas do calendário
@@ -1961,6 +1961,26 @@ function initFlatpickr() {
         }
     }
     
+    // Função para desativar seta do mês anterior quando estiver no mês atual
+    function disablePastMonth(instance) {
+        const prevBtn = instance.calendarContainer.querySelector(".flatpickr-prev-month");
+        
+        if (!prevBtn) return;
+        
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        
+        const selectedMonth = instance.currentMonth;
+        const selectedYear = instance.currentYear;
+        
+        if (selectedYear === currentYear && selectedMonth === currentMonth) {
+            prevBtn.classList.add("flatpickr-disabled");
+        } else {
+            prevBtn.classList.remove("flatpickr-disabled");
+        }
+    }
+    
     // Inicializar para data de início
     if (startDateInput) {
         const startPicker = flatpickr(startDateInput, {
@@ -1978,9 +1998,19 @@ function initFlatpickr() {
             },
             onReady: function(_, __, instance) {
                 fixHeader(instance);
+                disablePastMonth(instance);
             },
             onOpen: function(_, __, instance) {
-                setTimeout(() => fixHeader(instance), 50);
+                setTimeout(() => {
+                    fixHeader(instance);
+                    disablePastMonth(instance);
+                }, 50);
+            },
+            onMonthChange: function(_, __, instance) {
+                setTimeout(() => {
+                    fixHeader(instance);
+                    disablePastMonth(instance);
+                }, 10);
             }
         });
     }
@@ -1991,9 +2021,19 @@ function initFlatpickr() {
             ...flatpickrOptions,
             onReady: function(_, __, instance) {
                 fixHeader(instance);
+                disablePastMonth(instance);
             },
             onOpen: function(_, __, instance) {
-                setTimeout(() => fixHeader(instance), 50);
+                setTimeout(() => {
+                    fixHeader(instance);
+                    disablePastMonth(instance);
+                }, 50);
+            },
+            onMonthChange: function(_, __, instance) {
+                setTimeout(() => {
+                    fixHeader(instance);
+                    disablePastMonth(instance);
+                }, 10);
             }
         });
     }
