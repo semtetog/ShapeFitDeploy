@@ -768,7 +768,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .date-picker-btn {
-    padding: 0.625rem 0.875rem;
+    padding: 0 0.875rem;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.3);
     border-radius: 10px;
@@ -781,6 +781,7 @@ require_once __DIR__ . '/includes/header.php';
     align-items: center;
     justify-content: center;
     min-width: 44px;
+    flex-shrink: 0;
     height: 100%;
 }
 
@@ -788,6 +789,10 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
     transform: translateY(-1px);
+}
+
+.date-picker-btn i {
+    font-size: 0.875rem;
 }
 
 .challenge-form-textarea {
@@ -1474,6 +1479,26 @@ require_once __DIR__ . '/includes/header.php';
             <button type="button" class="btn-save" onclick="saveChallenge()">
                 <i class="fas fa-save"></i> Salvar Desafio
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Calendário Customizado -->
+<div id="datePickerModal" class="challenge-edit-modal">
+    <div class="challenge-edit-overlay" onclick="closeDatePicker()"></div>
+    <div class="challenge-edit-content" style="max-width: 400px;">
+        <button class="sleep-modal-close" onclick="closeDatePicker()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="challenge-edit-header">
+            <h3 id="datePickerTitle">Selecionar Data</h3>
+        </div>
+        <div class="challenge-edit-body">
+            <div id="datePickerCalendar" style="padding: 1rem 0;"></div>
+        </div>
+        <div class="challenge-edit-footer">
+            <button type="button" class="btn-cancel" onclick="closeDatePicker()">Cancelar</button>
+            <button type="button" class="btn-save" onclick="confirmDatePicker()">Confirmar</button>
         </div>
     </div>
 </div>
