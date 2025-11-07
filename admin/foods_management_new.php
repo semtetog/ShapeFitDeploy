@@ -978,7 +978,7 @@ require_once __DIR__ . '/includes/header.php';
                     $labelText = 'Criado por Usuário'; 
                     break;
                 case 'user_off': 
-                    $labelText = 'Desativado'; 
+                    $labelText = 'Desativado pelo Usuário'; 
                     break;
                 default: 
                     $labelText = htmlspecialchars($source);
@@ -1019,7 +1019,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span class="source-badge user-created">Criado por Usuário</span>
             </div>
             <div class="source-legend-item">
-                <span class="source-badge user-off">Desativado</span>
+                <span class="source-badge user-off">Desativado pelo Usuário</span>
             </div>
         </div>
     </div>
@@ -1110,7 +1110,7 @@ require_once __DIR__ . '/includes/header.php';
                                             break;
                                         case 'user_off':
                                             $badgeClass = 'user-off';
-                                            $badgeText = 'Desativado';
+                                            $badgeText = 'Desativado pelo Usuário';
                                             break;
                                         default:
                                             $badgeClass = 'manual';
