@@ -715,6 +715,15 @@ require_once __DIR__ . '/includes/header.php';
     font-family: 'Montserrat', sans-serif;
 }
 
+/* Asteriscos laranja apenas para campos obrigatórios */
+.challenge-form-group label:has(+ input[required])::after,
+.challenge-form-group label:has(+ textarea[required])::after,
+.challenge-form-group label:has(+ select[required])::after {
+    content: ' *';
+    color: var(--accent-orange);
+    margin-left: 0.25rem;
+}
+
 .challenge-form-input,
 .challenge-form-textarea,
 .challenge-form-select {
@@ -729,6 +738,27 @@ require_once __DIR__ . '/includes/header.php';
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
     box-sizing: border-box;
+}
+
+/* Estilizar inputs de data - remover ícone padrão e usar estilo moderno */
+.challenge-form-input[type="date"] {
+    position: relative;
+    color-scheme: dark;
+}
+
+.challenge-form-input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.challenge-form-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+.challenge-form-input[type="date"]::-webkit-calendar-picker-indicator:active {
+    opacity: 0.5;
 }
 
 .challenge-form-textarea {
@@ -970,12 +1000,14 @@ require_once __DIR__ . '/includes/header.php';
     font-weight: 600;
     font-size: 0.875rem;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .participant-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
 }
 
 .participant-info {
@@ -1200,7 +1232,6 @@ require_once __DIR__ . '/includes/header.php';
                             <span><?php echo count($goals); ?> metas</span>
                         </div>
                         <div class="group-info-item">
-                            <i class="fas fa-calendar"></i>
                             <span><?php echo $start_date->format('d/m/Y'); ?> - <?php echo $end_date->format('d/m/Y'); ?></span>
                         </div>
                     </div>
@@ -1260,7 +1291,7 @@ require_once __DIR__ . '/includes/header.php';
                 
                 <!-- Nome do Desafio -->
                 <div class="challenge-form-group">
-                    <label for="challengeName">Nome do Desafio *</label>
+                    <label for="challengeName">Nome do Desafio</label>
                     <input type="text" id="challengeName" name="name" class="challenge-form-input" required 
                            placeholder="Ex: Desafio de Verão 2025">
                 </div>
@@ -1275,11 +1306,11 @@ require_once __DIR__ . '/includes/header.php';
                 <!-- Datas -->
                 <div class="challenge-form-row">
                     <div class="challenge-form-group">
-                        <label for="startDate">Data de Início *</label>
+                        <label for="startDate">Data de Início</label>
                         <input type="date" id="startDate" name="start_date" class="challenge-form-input" required>
                     </div>
                     <div class="challenge-form-group">
-                        <label for="endDate">Data de Fim *</label>
+                        <label for="endDate">Data de Fim</label>
                         <input type="date" id="endDate" name="end_date" class="challenge-form-input" required>
                     </div>
                 </div>
@@ -1317,10 +1348,6 @@ require_once __DIR__ . '/includes/header.php';
                             <i class="fas fa-bed"></i>
                             <span>Sono</span>
                         </span>
-                        <span class="goal-tag steps" data-goal="steps">
-                            <i class="fas fa-walking"></i>
-                            <span>Passos</span>
-                        </span>
                     </div>
                     
                     <!-- Inputs de valores das metas -->
@@ -1345,11 +1372,6 @@ require_once __DIR__ . '/includes/header.php';
                             <input type="number" id="goal_sleep_value" name="goal_sleep_value" 
                                    class="challenge-form-input" min="0" max="24" step="0.5" placeholder="Ex: 8">
                         </div>
-                        <div class="goal-input-wrapper" id="goal_steps_input" style="display: none;">
-                            <label>Passos (passos/dia)</label>
-                            <input type="number" id="goal_steps_value" name="goal_steps_value" 
-                                   class="challenge-form-input" min="0" step="100" placeholder="Ex: 10000">
-                        </div>
                     </div>
                 </div>
                 
@@ -1370,13 +1392,57 @@ require_once __DIR__ . '/includes/header.php';
                                  data-name="<?php echo strtolower(htmlspecialchars($user['name'])); ?>"
                                  data-email="<?php echo strtolower(htmlspecialchars($user['email'])); ?>">
                                 <div class="participant-avatar">
-                                    <?php 
+                                    <?php
+                                    $has_photo = false;
+                                    $avatar_url = '';
+
                                     if (!empty($user['profile_image_filename'])) {
-                                        echo '<img src="' . BASE_ASSET_URL . '/uploads/profiles/' . htmlspecialchars($user['profile_image_filename']) . '" alt="">';
-                                    } else {
-                                        echo strtoupper(substr($user['name'], 0, 1));
+                                        // Verificar primeiro a imagem original (prioridade)
+                                        $original_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'];
+                                        if (file_exists($original_path_on_server)) {
+                                            $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']);
+                                            $has_photo = true;
+                                        } else {
+                                            // Fallback: verificar thumbnail
+                                            $thumb_filename = 'thumb_' . $user['profile_image_filename'];
+                                            $thumb_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+                                            if (file_exists($thumb_path_on_server)) {
+                                                $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                                                $has_photo = true;
+                                            }
+                                        }
                                     }
+
+                                    if ($has_photo):
                                     ?>
+                                        <img src="<?php echo $avatar_url; ?>" alt="Foto de <?php echo htmlspecialchars($user['name']); ?>">
+                                    <?php else:
+                                        // SE NÃO TEM FOTO, GERA AS INICIAIS
+                                        $name_parts = explode(' ', trim($user['name']));
+                                        $initials = '';
+                                        if (count($name_parts) > 1) {
+                                            $initials = strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1));
+                                        } elseif (!empty($name_parts[0])) {
+                                            $initials = strtoupper(substr($name_parts[0], 0, 2));
+                                        } else {
+                                            $initials = '??';
+                                        }
+                                        // Gerar cor escura para bom contraste com texto branco
+                                        $hash = md5($user['name']);
+                                        $r = hexdec(substr($hash, 0, 2)) % 156 + 50;  // 50-205
+                                        $g = hexdec(substr($hash, 2, 2)) % 156 + 50;  // 50-205
+                                        $b = hexdec(substr($hash, 4, 2)) % 156 + 50;  // 50-205
+                                        // Garantir que pelo menos um canal seja escuro
+                                        $max = max($r, $g, $b);
+                                        if ($max > 180) {
+                                            $r = (int)($r * 0.7);
+                                            $g = (int)($g * 0.7);
+                                            $b = (int)($b * 0.7);
+                                        }
+                                        $bgColor = sprintf('#%02x%02x%02x', $r, $g, $b);
+                                    ?>
+                                        <span style="background-color: <?php echo $bgColor; ?>; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%;"><?php echo $initials; ?></span>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="participant-info">
                                     <div class="participant-name"><?php echo htmlspecialchars($user['name']); ?></div>
