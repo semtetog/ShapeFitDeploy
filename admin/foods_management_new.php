@@ -150,13 +150,6 @@ require_once __DIR__ . '/includes/header.php';
     font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 0.5rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.header-title h2 i {
-    color: var(--accent-orange);
 }
 
 .header-title p {
@@ -764,6 +757,7 @@ require_once __DIR__ . '/includes/header.php';
     flex-wrap: wrap;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
+    margin-top: 2rem;
 }
 
 .pagination-card:hover {
@@ -889,7 +883,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="dashboard-card foods-header-card">
         <div class="card-header-section">
             <div class="header-title">
-                <h2><i class="fas fa-apple-alt"></i> Gerenciar Alimentos</h2>
+                <h2>Gerenciar Alimentos</h2>
                 <p>Gerencie todos os alimentos cadastrados no sistema</p>
             </div>
             <a href="edit_food_new.php" class="btn-add-recipe-circular" title="Novo Alimento">
@@ -1007,7 +1001,7 @@ require_once __DIR__ . '/includes/header.php';
     <!-- Legenda de Fontes -->
     <div class="source-legend">
         <div class="source-legend-title">
-            <i class="fas fa-info-circle"></i> Legenda de Fontes
+            Legenda de Fontes
         </div>
         <div class="source-legend-items">
             <div class="source-legend-item">
