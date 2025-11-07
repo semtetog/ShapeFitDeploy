@@ -1779,7 +1779,7 @@ document.addEventListener('DOMContentLoaded', function() {
     width: 90%;
     max-width: 480px;
     max-height: 90vh;
-    overflow: hidden;
+    overflow: visible;
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
@@ -1833,7 +1833,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .food-edit-body {
     padding: 1.25rem;
     flex: 1;
-    overflow-y: auto;
+    overflow-y: visible;
     overflow-x: hidden;
     position: relative;
 }
