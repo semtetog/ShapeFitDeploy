@@ -1528,24 +1528,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // 1. Carregar o estado inicial das classificações a partir do HTML
     document.querySelectorAll('.food-item-card').forEach(card => {
         const foodId = card.dataset.foodId;
-        const existingCategories = card.querySelector('.food-item-categories').dataset.categories;
-        if (existingCategories) {
-            classifications[foodId] = existingCategories.split(',');
-        } else {
-            classifications[foodId] = [];
+        const categoriesEl = card.querySelector('.food-item-categories');
+        if (categoriesEl) {
+            const existingCategories = categoriesEl.dataset.categories;
+            if (existingCategories) {
+                classifications[foodId] = existingCategories.split(',');
+            } else {
+                classifications[foodId] = [];
+            }
+            updateFoodVisual(foodId); // Atualiza o visual para refletir o estado carregado
         }
-        updateFoodVisual(foodId); // Atualiza o visual para refletir o estado carregado
     });
 
     // 2. Adicionar listener de clique para TODOS os botões de categoria
-    document.getElementById('foods-list').addEventListener('click', function(e) {
-        if (e.target.closest('.food-category-btn')) {
-            const btn = e.target.closest('.food-category-btn');
-            const foodId = btn.dataset.foodId;
-            const category = btn.dataset.category;
-            toggleCategory(foodId, category);
-        }
-    });
+    const foodsList = document.getElementById('foods-list');
+    if (foodsList) {
+        foodsList.addEventListener('click', function(e) {
+            if (e.target.closest('.food-category-btn')) {
+                const btn = e.target.closest('.food-category-btn');
+                const foodId = btn.dataset.foodId;
+                const category = btn.dataset.category;
+                if (foodId && category) {
+                    toggleCategory(foodId, category);
+                }
+            }
+        });
+    }
     
     // 3. Selecionar todos
     const selectAllCheckbox = document.getElementById('select-all');
@@ -1566,11 +1574,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // 5. Custom Select para filtro de categoria
-    initCustomSelect('category_filter_select', 'category_filter_input', true);
+    // 5. Custom Select para filtro de categoria - SEMPRE inicializa, mesmo sem resultados
+    try {
+        initCustomSelect('category_filter_select', 'category_filter_input', true);
+    } catch (e) {
+        console.error('Erro ao inicializar filtro de categoria:', e);
+    }
     
-    // 6. Custom Select para bulk category
-    initCustomSelect('bulk_category_select', 'bulk-category', false);
+    // 6. Custom Select para bulk category - só inicializa se o elemento existir
+    const bulkSelect = document.getElementById('bulk_category_select');
+    if (bulkSelect) {
+        try {
+            initCustomSelect('bulk_category_select', 'bulk-category', false);
+        } catch (e) {
+            console.error('Erro ao inicializar bulk category:', e);
+        }
+    }
 });
 
 function updateBulkButton() {
