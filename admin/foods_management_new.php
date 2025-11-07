@@ -440,6 +440,7 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     border-collapse: collapse;
     margin: 0;
+    background: transparent;
 }
 
 .data-table thead {
@@ -457,6 +458,7 @@ require_once __DIR__ . '/includes/header.php';
     letter-spacing: 0.5px;
     white-space: nowrap;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
 }
 
 .data-table td {
@@ -465,14 +467,16 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-primary);
     font-size: 0.95rem;
     vertical-align: middle;
+    background: transparent;
 }
 
 .data-table tbody tr {
+    background: transparent;
     transition: background-color 0.2s ease;
 }
 
 .data-table tbody tr:hover {
-    background-color: rgba(255, 107, 0, 0.08);
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .data-table tbody tr:last-child td {
