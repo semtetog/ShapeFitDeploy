@@ -1814,7 +1814,10 @@ function initFlatpickr() {
         clickOpens: true,
         animate: true,
         monthSelectorType: 'static',
-        defaultDate: null
+        defaultDate: null,
+        static: false, // Não usar posicionamento estático
+        appendTo: document.body, // Anexar ao body para melhor controle de posição
+        positionElement: null // Não usar elemento de posicionamento para evitar seta
     };
     
     // Remover instâncias existentes
