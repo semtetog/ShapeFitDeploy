@@ -872,6 +872,9 @@ require_once __DIR__ . '/includes/header.php';
     flex: 1 !important;
     position: relative !important;
     min-width: 0 !important;
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+    box-sizing: border-box !important;
 }
 
 .flatpickr-current-month {
