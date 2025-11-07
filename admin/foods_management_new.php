@@ -1665,6 +1665,11 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
 }
 
+/* Alinhamento do footer do modal */
+.custom-modal-footer {
+    align-items: center;
+}
+
 /* Ajustar alinhamento da tabela */
 .data-table th,
 .data-table td {
