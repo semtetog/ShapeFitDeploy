@@ -546,25 +546,41 @@
 
 #exercise-bars,
 #sleep-bars {
-    /* Usar CSS padrão - apenas garantir que não quebre */
     display: flex;
-    justify-content: space-around;
+    justify-content: flex-start;
     align-items: flex-end;
     gap: 1rem;
     min-height: 240px;
     padding: 1rem 0.5rem 0.5rem;
     position: relative;
+    flex-wrap: wrap;
 }
 
 #exercise-bars .improved-bar-container,
 #sleep-bars .improved-bar-container {
-    flex: 1;
+    flex: 0 0 calc((100% - (6 * 1rem)) / 7);
+    max-width: calc((100% - (6 * 1rem)) / 7);
+    min-width: 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    min-width: 60px;
-    max-width: 100px;
+}
+
+/* Quando há mais de 7 barras, permitir wrap para múltiplas fileiras */
+@media (min-width: 768px) {
+    #exercise-bars .improved-bar-container,
+    #sleep-bars .improved-bar-container {
+        flex: 0 0 calc((100% - (6 * 1rem)) / 7);
+        max-width: calc((100% - (6 * 1rem)) / 7);
+    }
+}
+
+/* Em telas menores ou quando há muitos dias, permitir mais barras por linha */
+#exercise-bars:has(.improved-bar-container:nth-child(8)) .improved-bar-container,
+#sleep-bars:has(.improved-bar-container:nth-child(8)) .improved-bar-container {
+    flex: 0 0 calc((100% - (10 * 1rem)) / 11);
+    max-width: calc((100% - (10 * 1rem)) / 11);
 }
 
 
