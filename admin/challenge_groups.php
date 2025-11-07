@@ -859,6 +859,7 @@ require_once __DIR__ . '/includes/header.php';
     align-items: center !important;
     justify-content: space-between !important;
     position: relative !important;
+    width: 100% !important;
 }
 
 .flatpickr-month {
@@ -870,6 +871,7 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center !important;
     flex: 1 !important;
     position: relative !important;
+    min-width: 0 !important;
 }
 
 .flatpickr-current-month {
@@ -877,30 +879,35 @@ require_once __DIR__ . '/includes/header.php';
     font-family: 'Montserrat', sans-serif !important;
     font-weight: 700 !important;
     font-size: 1rem !important;
-    padding: 0.5rem 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: column-reverse !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 0.25rem !important;
     width: 100% !important;
     text-align: center !important;
+    position: relative !important;
+    order: 0 !important;
 }
 
+/* Ano - deve aparecer em cima */
 .flatpickr-current-month .cur-year {
     font-size: 0.875rem !important;
     font-weight: 600 !important;
     color: var(--text-secondary) !important;
     opacity: 0.8 !important;
-    order: -1 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
     text-align: center !important;
     display: block !important;
     line-height: 1.2 !important;
+    order: 1 !important;
 }
 
+/* Mês - deve aparecer embaixo do ano */
 .flatpickr-current-month .flatpickr-monthDropdown-months {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -911,10 +918,10 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 1rem !important;
     padding: 0.25rem 0.5rem !important;
     cursor: pointer !important;
-    order: 0 !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
     display: inline-block !important;
     text-align: center !important;
+    order: 2 !important;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
@@ -922,17 +929,34 @@ require_once __DIR__ . '/includes/header.php';
     border-color: var(--accent-orange) !important;
 }
 
-/* Garantir que o input do ano também fique centralizado */
-.flatpickr-current-month .flatpickr-yearDropdown {
+/* Input do ano - esconder se for um input separado */
+.flatpickr-current-month input.flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
     display: none !important;
 }
 
-/* Estilizar o ano quando for um input ou span */
-.flatpickr-current-month input.cur-year,
+/* Garantir que span do ano apareça */
 .flatpickr-current-month span.cur-year {
+    display: block !important;
     text-align: center !important;
     width: 100% !important;
-    display: block !important;
+}
+
+/* Garantir centralização absoluta entre as setas */
+.flatpickr-prev-month {
+    left: 0 !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10 !important;
+}
+
+.flatpickr-next-month {
+    right: 0 !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10 !important;
 }
 
 .flatpickr-prev-month,
@@ -944,7 +968,6 @@ require_once __DIR__ . '/includes/header.php';
     transition: all 0.3s ease !important;
     position: absolute !important;
     top: 50% !important;
-    transform: translateY(-50%) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -956,10 +979,12 @@ require_once __DIR__ . '/includes/header.php';
 
 .flatpickr-prev-month {
     left: 0 !important;
+    transform: translateY(-50%) !important;
 }
 
 .flatpickr-next-month {
     right: 0 !important;
+    transform: translateY(-50%) !important;
 }
 
 .flatpickr-prev-month svg,
@@ -969,7 +994,11 @@ require_once __DIR__ . '/includes/header.php';
     display: block !important;
 }
 
-.flatpickr-prev-month:hover,
+.flatpickr-prev-month:hover {
+    background: rgba(255, 107, 0, 0.1) !important;
+    transform: translateY(-50%) scale(1.1) !important;
+}
+
 .flatpickr-next-month:hover {
     background: rgba(255, 107, 0, 0.1) !important;
     transform: translateY(-50%) scale(1.1) !important;
