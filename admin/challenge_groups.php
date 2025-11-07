@@ -120,8 +120,18 @@ $users_query = "SELECT u.id, u.name, u.email, up.profile_image_filename
 $users_result = $conn->query($users_query);
 $users = $users_result->fetch_all(MYSQLI_ASSOC);
 
+// Adicionar Flatpickr CSS e JS para esta página
+$extra_css = $extra_css ?? [];
+$extra_js = $extra_js ?? [];
+
 require_once __DIR__ . '/includes/header.php';
 ?>
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- Flatpickr Locale Português -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 
 <style>
 /* ========================================================================= */
@@ -738,79 +748,193 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
 }
 
-/* Wrapper para input de data com ícone customizado */
-.date-input-wrapper-modern {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.date-input-modern {
-    position: relative;
-    color-scheme: dark;
-    padding-right: 2.75rem !important;
-    flex: 1;
-}
-
-/* Esconder ícone nativo do calendário */
-.date-input-modern::-webkit-calendar-picker-indicator {
-    display: none;
-}
-
-.date-input-modern::-moz-calendar-picker-indicator {
-    display: none;
-}
-
-/* Remover setas de spin */
-.date-input-modern::-webkit-inner-spin-button,
-.date-input-modern::-webkit-outer-spin-button {
-    display: none;
-}
-
-/* Botão de ícone de calendário - círculo laranja pequeno */
-.date-icon-btn {
-    position: absolute;
-    right: 0.5rem;
-    width: 1.75rem;
-    height: 1.75rem;
-    min-width: 1.75rem;
-    min-height: 1.75rem;
-    border-radius: 50%;
-    background: rgba(255, 107, 0, 0.15);
-    border: 1px solid var(--accent-orange);
-    color: var(--accent-orange);
+/* Input de data customizado */
+.custom-datepicker {
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-    transition: all 0.3s ease;
-    font-size: 0.75rem;
+    position: relative;
 }
 
-.date-icon-btn:hover {
-    background: rgba(255, 107, 0, 0.25);
-    border-color: #FF8533;
-    transform: scale(1.1);
-    color: #FF8533;
-}
-
-.date-icon-btn:active {
-    transform: scale(0.95);
-}
-
-.date-icon-btn i {
-    margin: 0;
-    line-height: 1;
-}
-
-/* Calendário nativo estilizado (quando aberto) */
-.date-input-modern:focus {
+.custom-datepicker:focus {
     outline: none;
     border-color: var(--accent-orange);
     background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+/* ========================================================================= */
+/*       FLATPICKR - GLASSMORPHISM TEMA DARK + LARANJA                       */
+/* ========================================================================= */
+
+.flatpickr-calendar {
+    background: rgba(20, 20, 20, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+    font-family: 'Montserrat', sans-serif !important;
+    padding: 1rem !important;
+    width: 100% !important;
+    max-width: 320px !important;
+}
+
+.flatpickr-months {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding-bottom: 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.flatpickr-month {
+    color: var(--text-primary) !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 600 !important;
+}
+
+.flatpickr-current-month {
+    color: var(--text-primary) !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    padding: 0.5rem 0 !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    color: var(--text-primary) !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 600 !important;
+    padding: 0.25rem 0.5rem !important;
+}
+
+.flatpickr-prev-month,
+.flatpickr-next-month {
+    color: var(--accent-orange) !important;
+    fill: var(--accent-orange) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+    background: rgba(255, 107, 0, 0.1) !important;
+    transform: scale(1.1) !important;
+}
+
+.flatpickr-weekdays {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.flatpickr-weekday {
+    color: var(--text-secondary) !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.flatpickr-days {
+    padding: 0.5rem 0 !important;
+}
+
+.flatpickr-day {
+    color: var(--text-primary) !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    border-radius: 8px !important;
+    border: 1px solid transparent !important;
+    transition: all 0.3s ease !important;
+    margin: 0.125rem !important;
+}
+
+.flatpickr-day:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.05) !important;
+}
+
+.flatpickr-day.today {
+    border-color: var(--accent-orange) !important;
+    background: rgba(255, 107, 0, 0.15) !important;
+    color: var(--accent-orange) !important;
+    font-weight: 700 !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: var(--accent-orange) !important;
+    border-color: var(--accent-orange) !important;
+    color: white !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4) !important;
+}
+
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover {
+    background: #FF8533 !important;
+    border-color: #FF8533 !important;
+    transform: scale(1.05) !important;
+}
+
+.flatpickr-day.inRange {
+    background: rgba(255, 107, 0, 0.2) !important;
+    border-color: rgba(255, 107, 0, 0.3) !important;
+    color: var(--text-primary) !important;
+}
+
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+    color: rgba(255, 255, 255, 0.2) !important;
+    opacity: 0.4 !important;
+}
+
+.flatpickr-day.flatpickr-disabled:hover {
+    background: transparent !important;
+    border-color: transparent !important;
+    transform: none !important;
+    cursor: not-allowed !important;
+}
+
+.flatpickr-time {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding-top: 1rem !important;
+    margin-top: 1rem !important;
+}
+
+.flatpickr-time input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    color: var(--text-primary) !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 600 !important;
+}
+
+.flatpickr-time input:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent-orange) !important;
+}
+
+.flatpickr-time .flatpickr-am-pm {
+    color: var(--text-primary) !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 600 !important;
+}
+
+.flatpickr-time .flatpickr-am-pm:hover {
+    background: rgba(255, 107, 0, 0.1) !important;
+    color: var(--accent-orange) !important;
 }
 
 .challenge-form-textarea {
@@ -1335,21 +1459,11 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="challenge-form-row">
                     <div class="challenge-form-group">
                         <label for="startDate">Data de Início</label>
-                        <div class="date-input-wrapper-modern">
-                            <input type="date" id="startDate" name="start_date" class="challenge-form-input date-input-modern" required>
-                            <button type="button" class="date-icon-btn" onclick="document.getElementById('startDate').showPicker ? document.getElementById('startDate').showPicker() : document.getElementById('startDate').focus();">
-                                <i class="fas fa-calendar-alt"></i>
-                            </button>
-                        </div>
+                        <input type="text" id="startDate" name="start_date" class="challenge-form-input custom-datepicker" placeholder="Selecione a data" required readonly>
                     </div>
                     <div class="challenge-form-group">
                         <label for="endDate">Data de Fim</label>
-                        <div class="date-input-wrapper-modern">
-                            <input type="date" id="endDate" name="end_date" class="challenge-form-input date-input-modern" required>
-                            <button type="button" class="date-icon-btn" onclick="document.getElementById('endDate').showPicker ? document.getElementById('endDate').showPicker() : document.getElementById('endDate').focus();">
-                                <i class="fas fa-calendar-alt"></i>
-                            </button>
-                        </div>
+                        <input type="text" id="endDate" name="end_date" class="challenge-form-input custom-datepicker" placeholder="Selecione a data" required readonly>
                     </div>
                 </div>
                 
@@ -1710,8 +1824,14 @@ function saveChallenge() {
     
     // Validar campos obrigatórios
     const name = formData.get('name');
-    const startDate = formData.get('start_date');
-    const endDate = formData.get('end_date');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const startDate = startDateInput ? (startDateInput._flatpickr ? startDateInput._flatpickr.input.value : startDateInput.value) : '';
+    const endDate = endDateInput ? (endDateInput._flatpickr ? endDateInput._flatpickr.input.value : endDateInput.value) : '';
+    
+    // Atualizar valores no formData
+    formData.set('start_date', startDate);
+    formData.set('end_date', endDate);
     
     if (!name || !startDate || !endDate) {
         alert('Por favor, preencha todos os campos obrigatórios');
