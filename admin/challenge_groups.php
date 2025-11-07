@@ -1315,21 +1315,11 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="challenge-form-row">
                     <div class="challenge-form-group">
                         <label for="startDate">Data de Início</label>
-                        <div class="date-input-wrapper">
-                            <input type="date" id="startDate" name="start_date" class="challenge-form-input" required>
-                            <button type="button" class="date-picker-btn" onclick="openDatePicker('startDate')" title="Selecionar data">
-                                <i class="fas fa-calendar-alt"></i>
-                            </button>
-                        </div>
+                        <input type="date" id="startDate" name="start_date" class="challenge-form-input date-input-modern" required>
                     </div>
                     <div class="challenge-form-group">
                         <label for="endDate">Data de Fim</label>
-                        <div class="date-input-wrapper">
-                            <input type="date" id="endDate" name="end_date" class="challenge-form-input" required>
-                            <button type="button" class="date-picker-btn" onclick="openDatePicker('endDate')" title="Selecionar data">
-                                <i class="fas fa-calendar-alt"></i>
-                            </button>
-                        </div>
+                        <input type="date" id="endDate" name="end_date" class="challenge-form-input date-input-modern" required>
                     </div>
                 </div>
                 
@@ -1473,26 +1463,6 @@ require_once __DIR__ . '/includes/header.php';
             <button type="button" class="btn-save" onclick="saveChallenge()">
                 <i class="fas fa-save"></i> Salvar Desafio
             </button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Calendário Customizado -->
-<div id="datePickerModal" class="challenge-edit-modal">
-    <div class="challenge-edit-overlay" onclick="closeDatePicker()"></div>
-    <div class="challenge-edit-content" style="max-width: 400px;">
-        <button class="sleep-modal-close" onclick="closeDatePicker()" type="button">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="challenge-edit-header">
-            <h3 id="datePickerTitle">Selecionar Data</h3>
-        </div>
-        <div class="challenge-edit-body">
-            <div id="datePickerCalendar" style="padding: 1rem 0;"></div>
-        </div>
-        <div class="challenge-edit-footer">
-            <button type="button" class="btn-cancel" onclick="closeDatePicker()">Cancelar</button>
-            <button type="button" class="btn-save" onclick="confirmDatePicker()">Confirmar</button>
         </div>
     </div>
 </div>
@@ -1696,151 +1666,6 @@ function deleteChallenge(id) {
 function viewChallenge(id) {
     // TODO: Implement view functionality
     alert('Ver desafio: ' + id);
-}
-
-// Variáveis globais para o date picker
-let currentDatePickerInput = null;
-let currentDatePickerDate = new Date();
-let selectedDatePickerDate = null;
-
-// Abrir date picker
-function openDatePicker(inputId) {
-    currentDatePickerInput = inputId;
-    const input = document.getElementById(inputId);
-    if (input && input.value) {
-        currentDatePickerDate = new Date(input.value + 'T00:00:00');
-        selectedDatePickerDate = input.value;
-    } else {
-        currentDatePickerDate = new Date();
-        selectedDatePickerDate = null;
-    }
-    
-    const title = document.getElementById('datePickerTitle');
-    if (title) {
-        title.textContent = inputId === 'startDate' ? 'Selecionar Data de Início' : 'Selecionar Data de Fim';
-    }
-    
-    renderDatePicker();
-    
-    const modal = document.getElementById('datePickerModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-// Fechar date picker
-function closeDatePicker() {
-    const modal = document.getElementById('datePickerModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-    document.body.style.overflow = '';
-    currentDatePickerInput = null;
-    selectedDatePickerDate = null;
-}
-
-// Renderizar calendário
-function renderDatePicker() {
-    const container = document.getElementById('datePickerCalendar');
-    if (!container) return;
-    
-    const year = currentDatePickerDate.getFullYear();
-    const month = currentDatePickerDate.getMonth();
-    
-    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startDay = firstDay.getDay();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    let html = `
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-                <button type="button" onclick="changeDatePickerMonth(-1)" style="background: none; border: none; color: var(--accent-orange); cursor: pointer; padding: 0.5rem; font-size: 1.2rem;">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
-                    ${monthNames[month]} ${year}
-                </h4>
-                <button type="button" onclick="changeDatePickerMonth(1)" style="background: none; border: none; color: var(--accent-orange); cursor: pointer; padding: 0.5rem; font-size: 1.2rem;">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-bottom: 0.5rem;">
-    `;
-    
-    // Dias da semana
-    dayNames.forEach(day => {
-        html += `<div style="text-align: center; font-weight: 600; color: var(--text-secondary); font-size: 0.75rem; padding: 0.5rem;">${day}</div>`;
-    });
-    
-    html += `</div><div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem;">`;
-    
-    // Dias vazios no início
-    for (let i = 0; i < startDay; i++) {
-        html += `<div></div>`;
-    }
-    
-    // Dias do mês
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-        const date = new Date(year, month, day);
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const isToday = date.getTime() === today.getTime();
-        const isSelected = selectedDatePickerDate === dateStr;
-        const isFuture = date > today;
-        
-        let dayClass = 'calendar-day-simple';
-        let style = 'padding: 0.75rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; ';
-        
-        if (isFuture) {
-            style += 'opacity: 0.3; cursor: not-allowed; pointer-events: none; ';
-        } else if (isSelected) {
-            style += 'background: var(--accent-orange); color: white; ';
-        } else if (isToday) {
-            style += 'background: rgba(255, 107, 0, 0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); ';
-        } else {
-            style += 'background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.1); ';
-        }
-        
-        html += `<div class="${dayClass}" data-date="${dateStr}" onclick="selectDatePickerDate('${dateStr}')" style="${style}">${day}</div>`;
-    }
-    
-    html += `</div></div>`;
-    container.innerHTML = html;
-}
-
-// Mudar mês
-function changeDatePickerMonth(direction) {
-    currentDatePickerDate.setMonth(currentDatePickerDate.getMonth() + direction);
-    renderDatePicker();
-}
-
-// Selecionar data
-function selectDatePickerDate(dateStr) {
-    const date = new Date(dateStr + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (date > today) return;
-    
-    selectedDatePickerDate = dateStr;
-    renderDatePicker();
-}
-
-// Confirmar seleção
-function confirmDatePicker() {
-    if (selectedDatePickerDate && currentDatePickerInput) {
-        const input = document.getElementById(currentDatePickerInput);
-        if (input) {
-            input.value = selectedDatePickerDate;
-        }
-    }
-    closeDatePicker();
 }
 
 // Salvar desafio
