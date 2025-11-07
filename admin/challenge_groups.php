@@ -380,8 +380,8 @@ require_once __DIR__ . '/includes/header.php';
 /* Groups Grid */
 .challenge-groups-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
     margin-bottom: 2rem;
 }
 
@@ -895,7 +895,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <button class="btn-create-challenge" onclick="openCreateChallengeModal()" title="Criar Novo Desafio">
                 <i class="fas fa-plus"></i>
-            </button>
+                </button>
         </div>
 
         <!-- Stats -->
@@ -938,7 +938,7 @@ require_once __DIR__ . '/includes/header.php';
                                 ($status_filter === 'inactive' ? 'Inativos' : 'Todos os Status'))); 
                         ?></span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+            </div>
                     <div class="custom-select-options">
                         <div class="custom-select-option <?php echo $status_filter === '' ? 'selected' : ''; ?>" 
                              onclick="selectStatus('')">Todos os Status</div>
@@ -950,20 +950,20 @@ require_once __DIR__ . '/includes/header.php';
                              onclick="selectStatus('completed')">Concluídos</div>
                         <div class="custom-select-option <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>" 
                              onclick="selectStatus('inactive')">Inativos</div>
-                    </div>
+                </div>
+                </div>
                 </div>
             </div>
         </div>
-    </div>
 
     <!-- Groups Grid -->
     <?php if (empty($challenge_groups)): ?>
-        <div class="empty-state">
-            <i class="fas fa-trophy"></i>
+                <div class="empty-state">
+                        <i class="fas fa-trophy"></i>
             <h3>Nenhum desafio encontrado</h3>
             <p>Crie seu primeiro grupo de desafio para começar a motivar seus pacientes</p>
-        </div>
-    <?php else: ?>
+                </div>
+            <?php else: ?>
         <div class="challenge-groups-grid">
             <?php foreach ($challenge_groups as $group): ?>
                 <?php
@@ -991,8 +991,8 @@ require_once __DIR__ . '/includes/header.php';
                                 ($status_class === 'completed' ? 'Concluído' : 
                                 ($status_class === 'scheduled' ? 'Agendado' : 'Inativo')); 
                             ?>
-                        </span>
-                    </div>
+                                </span>
+                            </div>
                     
                     <?php if (!empty($group['description'])): ?>
                         <p class="group-description"><?php echo htmlspecialchars($group['description']); ?></p>
@@ -1020,9 +1020,9 @@ require_once __DIR__ . '/includes/header.php';
                         <button class="btn-action btn-delete" onclick="deleteChallenge(<?php echo $group['id']; ?>)">
                             <i class="fas fa-trash"></i> Excluir
                         </button>
+                        </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
         </div>
 
         <!-- Pagination -->
@@ -1046,7 +1046,7 @@ require_once __DIR__ . '/includes/header.php';
                         Próxima <i class="fas fa-chevron-right"></i>
                     </a>
                 <?php endif; ?>
-            </div>
+    </div>
         <?php endif; ?>
     <?php endif; ?>
 </div>
