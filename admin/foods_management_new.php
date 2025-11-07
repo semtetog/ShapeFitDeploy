@@ -374,10 +374,12 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .custom-select.active .custom-select-options {
+    position: fixed;
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     pointer-events: auto;
+    z-index: 99999;
 }
 
 .custom-select-option {
@@ -1313,7 +1315,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (sourceSelect && sourceWrapper) {
         const trigger = sourceSelect.querySelector('.custom-select-trigger');
-        const options = sourceSelect.querySelectorAll('.custom-select-option');
+        const optionElements = sourceSelect.querySelectorAll('.custom-select-option');
+        const optionsContainer = sourceSelect.querySelector('.custom-select-options');
         
         trigger.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -1327,20 +1330,52 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (otherWrapper) {
                         otherWrapper.classList.remove('active');
                     }
+                    const otherOptions = select.querySelector('.custom-select-options');
+                    if (otherOptions) {
+                        otherOptions.style.position = 'absolute';
+                        otherOptions.style.top = '';
+                        otherOptions.style.left = '';
+                        otherOptions.style.right = '';
+                        otherOptions.style.width = '';
+                    }
                 }
             });
             
             // Abre/fecha este select
             if (isOpening) {
+                // Calcula posição antes de mudar para fixed
+                const rect = trigger.getBoundingClientRect();
+                const wrapperRect = sourceWrapper.getBoundingClientRect();
+                
                 sourceSelect.classList.add('active');
                 sourceWrapper.classList.add('active');
+                
+                // Aplica posição fixed com coordenadas calculadas
+                setTimeout(() => {
+                    if (optionsContainer) {
+                        optionsContainer.style.position = 'fixed';
+                        optionsContainer.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                        optionsContainer.style.left = wrapperRect.left + 'px';
+                        optionsContainer.style.right = 'auto';
+                        optionsContainer.style.width = wrapperRect.width + 'px';
+                    }
+                }, 0);
             } else {
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
+                
+                // Restaura posição absolute
+                if (optionsContainer) {
+                    optionsContainer.style.position = 'absolute';
+                    optionsContainer.style.top = '';
+                    optionsContainer.style.left = '';
+                    optionsContainer.style.right = '';
+                    optionsContainer.style.width = '';
+                }
             }
         });
         
-        options.forEach(option => {
+        optionElements.forEach(option => {
             option.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const value = this.dataset.value;
@@ -1350,6 +1385,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('selected');
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
+                
+                // Restaura posição absolute
+                const optionsEl = sourceSelect.querySelector('.custom-select-options');
+                if (optionsEl) {
+                    optionsEl.style.position = 'absolute';
+                    optionsEl.style.top = '';
+                    optionsEl.style.left = '';
+                    optionsEl.style.right = '';
+                    optionsEl.style.width = '';
+                }
             });
         });
         
@@ -1358,6 +1403,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!sourceSelect.contains(e.target) && !sourceWrapper.contains(e.target)) {
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
+                
+                // Restaura posição absolute
+                const optionsEl = sourceSelect.querySelector('.custom-select-options');
+                if (optionsEl) {
+                    optionsEl.style.position = 'absolute';
+                    optionsEl.style.top = '';
+                    optionsEl.style.left = '';
+                    optionsEl.style.right = '';
+                    optionsEl.style.width = '';
+                }
             }
         });
         
@@ -1366,6 +1421,30 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.key === 'Escape') {
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
+                
+                // Restaura posição absolute
+                const optionsEl = sourceSelect.querySelector('.custom-select-options');
+                if (optionsEl) {
+                    optionsEl.style.position = 'absolute';
+                    optionsEl.style.top = '';
+                    optionsEl.style.left = '';
+                    optionsEl.style.right = '';
+                    optionsEl.style.width = '';
+                }
+            }
+        });
+        
+        // Ajusta posição no scroll
+        window.addEventListener('scroll', function() {
+            if (sourceSelect.classList.contains('active')) {
+                const optionsEl = sourceSelect.querySelector('.custom-select-options');
+                const rect = trigger.getBoundingClientRect();
+                const wrapperRect = sourceWrapper.getBoundingClientRect();
+                
+                if (optionsEl && optionsEl.style.position === 'fixed') {
+                    optionsEl.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                    optionsEl.style.left = wrapperRect.left + 'px';
+                }
             }
         });
     }
