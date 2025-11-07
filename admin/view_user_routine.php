@@ -2586,29 +2586,49 @@ function updateExerciseChart() {
         exerciseChartInstance.destroy();
     }
     
+    // Preparar datasets
+    const datasets = [{
+        label: 'Minutos de Exercício',
+        data: data,
+        backgroundColor: data.map(value => {
+            if (value === 0) return 'rgba(255, 255, 255, 0.05)';
+            if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes) return 'rgba(76, 175, 80, 0.8)';
+            if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes * 0.7) return 'rgba(255, 152, 0, 0.8)';
+            return 'rgba(244, 67, 54, 0.8)';
+        }),
+        borderColor: data.map(value => {
+            if (value === 0) return 'rgba(255, 255, 255, 0.1)';
+            if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes) return 'rgba(76, 175, 80, 1)';
+            if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes * 0.7) return 'rgba(255, 152, 0, 1)';
+            return 'rgba(244, 67, 54, 1)';
+        }),
+        borderWidth: 1,
+        borderRadius: 4
+    }];
+    
+    // Adicionar linha de meta se houver meta definida
+    if (exerciseGoalDailyMinutes > 0) {
+        datasets.push({
+            label: 'Meta Diária',
+            data: data.map(() => exerciseGoalDailyMinutes),
+            type: 'line',
+            borderColor: 'rgba(255, 107, 0, 0.6)',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            fill: false,
+            order: 0
+        });
+    }
+    
     // Criar novo gráfico
     exerciseChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
-                label: 'Minutos de Exercício',
-                data: data,
-                backgroundColor: data.map(value => {
-                    if (value === 0) return 'rgba(255, 255, 255, 0.05)';
-                    if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes) return 'rgba(76, 175, 80, 0.8)';
-                    if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes * 0.7) return 'rgba(255, 152, 0, 0.8)';
-                    return 'rgba(244, 67, 54, 0.8)';
-                }),
-                borderColor: data.map(value => {
-                    if (value === 0) return 'rgba(255, 255, 255, 0.1)';
-                    if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes) return 'rgba(76, 175, 80, 1)';
-                    if (exerciseGoalDailyMinutes > 0 && value >= exerciseGoalDailyMinutes * 0.7) return 'rgba(255, 152, 0, 1)';
-                    return 'rgba(244, 67, 54, 1)';
-                }),
-                borderWidth: 1,
-                borderRadius: 4
-            }]
+            datasets: datasets
         },
         options: {
             responsive: true,
@@ -2642,7 +2662,13 @@ function updateExerciseChart() {
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: exerciseGoalDailyMinutes > 0 ? Math.max(...data, exerciseGoalDailyMinutes * 1.2) : Math.max(...data, 60),
+                    max: (() => {
+                        const maxData = data.length > 0 ? Math.max(...data) : 0;
+                        if (exerciseGoalDailyMinutes > 0) {
+                            return Math.max(maxData, exerciseGoalDailyMinutes * 1.2, 30);
+                        }
+                        return Math.max(maxData, 60);
+                    })(),
                     ticks: {
                         color: '#b0b0b0',
                         callback: function(value) {
@@ -2715,33 +2741,51 @@ function updateSleepChart() {
         sleepChartInstance.destroy();
     }
     
+    // Preparar datasets
+    const sleepDatasets = [{
+        label: 'Horas de Sono',
+        data: data,
+        backgroundColor: data.map(value => {
+            if (value === null || value === 0) return 'rgba(255, 255, 255, 0.05)';
+            if (value >= 7 && value <= 8) return 'rgba(76, 175, 80, 0.8)';
+            if (value >= 6.5 && value < 7) return 'rgba(139, 195, 74, 0.8)';
+            if (value >= 6 && value < 6.5) return 'rgba(255, 152, 0, 0.8)';
+            if (value >= 5 && value < 6) return 'rgba(255, 87, 34, 0.8)';
+            return 'rgba(244, 67, 54, 0.8)';
+        }),
+        borderColor: data.map(value => {
+            if (value === null || value === 0) return 'rgba(255, 255, 255, 0.1)';
+            if (value >= 7 && value <= 8) return 'rgba(76, 175, 80, 1)';
+            if (value >= 6.5 && value < 7) return 'rgba(139, 195, 74, 1)';
+            if (value >= 6 && value < 6.5) return 'rgba(255, 152, 0, 1)';
+            if (value >= 5 && value < 6) return 'rgba(255, 87, 34, 1)';
+            return 'rgba(244, 67, 54, 1)';
+        }),
+        borderWidth: 1,
+        borderRadius: 4
+    }];
+    
+    // Adicionar linha de meta (7.5h)
+    sleepDatasets.push({
+        label: 'Meta Diária (7.5h)',
+        data: data.map(() => sleepGoalHours),
+        type: 'line',
+        borderColor: 'rgba(255, 107, 0, 0.6)',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [5, 5],
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+        order: 0
+    });
+    
     // Criar novo gráfico
     sleepChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
-                label: 'Horas de Sono',
-                data: data,
-                backgroundColor: data.map(value => {
-                    if (value === null || value === 0) return 'rgba(255, 255, 255, 0.05)';
-                    if (value >= 7 && value <= 8) return 'rgba(76, 175, 80, 0.8)';
-                    if (value >= 6.5 && value < 7) return 'rgba(139, 195, 74, 0.8)';
-                    if (value >= 6 && value < 6.5) return 'rgba(255, 152, 0, 0.8)';
-                    if (value >= 5 && value < 6) return 'rgba(255, 87, 34, 0.8)';
-                    return 'rgba(244, 67, 54, 0.8)';
-                }),
-                borderColor: data.map(value => {
-                    if (value === null || value === 0) return 'rgba(255, 255, 255, 0.1)';
-                    if (value >= 7 && value <= 8) return 'rgba(76, 175, 80, 1)';
-                    if (value >= 6.5 && value < 7) return 'rgba(139, 195, 74, 1)';
-                    if (value >= 6 && value < 6.5) return 'rgba(255, 152, 0, 1)';
-                    if (value >= 5 && value < 6) return 'rgba(255, 87, 34, 1)';
-                    return 'rgba(244, 67, 54, 1)';
-                }),
-                borderWidth: 1,
-                borderRadius: 4
-            }]
+            datasets: sleepDatasets
         },
         options: {
             responsive: true,
