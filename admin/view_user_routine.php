@@ -70,7 +70,7 @@
         </div>
 
         <!-- SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO -->
-        <div class="chart-section" style="margin-top: 2rem;">
+        <div class="chart-section">
             <div class="exercise-chart-improved">
                 <div class="chart-header">
                     <h4><i class="fas fa-dumbbell"></i> Exercício Físico</h4>
@@ -520,6 +520,15 @@
 }
 
 /* === SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO E SONO === */
+/* Espaçamento entre chart-sections (igual hidratação/nutrientes) */
+.routine-container .chart-section {
+    margin-bottom: 2rem;
+}
+
+.routine-container .chart-section:first-of-type {
+    margin-top: 2rem;
+}
+
 .exercise-chart-improved,
 .sleep-chart-improved {
     background: rgba(255, 255, 255, 0.05);
