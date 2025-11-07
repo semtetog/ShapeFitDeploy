@@ -556,7 +556,7 @@ require_once __DIR__ . '/includes/header.php';
 .btn-action.edit:hover {
     background: rgba(255, 107, 0, 0.2);
     border-color: var(--accent-orange);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
 }
 
@@ -569,7 +569,7 @@ require_once __DIR__ . '/includes/header.php';
 .btn-action.delete:hover {
     background: rgba(244, 67, 54, 0.2);
     border-color: #F44336;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
 }
 
