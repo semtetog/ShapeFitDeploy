@@ -1646,44 +1646,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="food-macros-section">
                     <div class="food-macros-grid">
                         <div class="food-form-group">
-                            <label for="food-energy">
-                                <span class="label-main">Calorias</span>
-                                <span class="label-unit">kcal/100g</span>
-                            </label>
+                            <label for="food-energy">Calorias</label>
                             <input type="number" step="0.1" id="food-energy" name="energy_kcal_100g" class="food-form-input" required placeholder="0.0">
                         </div>
                         
                         <div class="food-form-group">
-                            <label for="food-protein">
-                                <span class="label-main">Proteína</span>
-                                <span class="label-unit">g/100g</span>
-                            </label>
+                            <label for="food-protein">Proteína</label>
                             <input type="number" step="0.1" id="food-protein" name="protein_g_100g" class="food-form-input" required placeholder="0.0">
                         </div>
                         
                         <div class="food-form-group">
-                            <label for="food-carbs">
-                                <span class="label-main">Carboidratos</span>
-                                <span class="label-unit">g/100g</span>
-                            </label>
+                            <label for="food-carbs">Carboidratos</label>
                             <input type="number" step="0.1" id="food-carbs" name="carbohydrate_g_100g" class="food-form-input" required placeholder="0.0">
                         </div>
                         
                         <div class="food-form-group">
-                            <label for="food-fat">
-                                <span class="label-main">Gorduras</span>
-                                <span class="label-unit">g/100g</span>
-                            </label>
+                            <label for="food-fat">Gorduras</label>
                             <input type="number" step="0.1" id="food-fat" name="fat_g_100g" class="food-form-input" required placeholder="0.0">
                         </div>
                     </div>
                 </div>
                 
                 <div class="food-form-group">
-                    <label for="food-source">
-                        <span class="label-main">Fonte dos Dados</span>
-                        <span class="label-unit">Origem da informação nutricional</span>
-                    </label>
+                    <label for="food-source">Fonte</label>
                     <div class="custom-select-wrapper food-select-wrapper" id="food-source-wrapper">
                         <input type="hidden" id="food-source" name="source_table" value="Manual">
                         <div class="custom-select" id="food-source-select">
@@ -1772,10 +1757,10 @@ document.addEventListener('DOMContentLoaded', function() {
     position: relative;
     background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+    border-radius: 16px;
     width: 90%;
-    max-width: 500px;
-    max-height: 85vh;
+    max-width: 480px;
+    max-height: 90vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1815,27 +1800,27 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .food-edit-header {
-    padding: 2rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .food-edit-header h3 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text-primary);
     font-family: 'Montserrat', sans-serif;
 }
 
 .food-edit-body {
-    padding: 2rem;
+    padding: 1.25rem;
     flex: 1;
     overflow-y: auto;
 }
 
 /* Form Groups */
 .food-form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .food-form-group:last-child {
@@ -1843,63 +1828,50 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .food-form-group label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    margin-bottom: 0.75rem;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.food-form-group label .label-main {
-    font-size: 0.875rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-primary);
-    line-height: 1.4;
-}
-
-.food-form-group label .label-unit {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    opacity: 0.8;
+    font-family: 'Montserrat', sans-serif;
 }
 
 /* Info Section */
 .food-info-section {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .food-info-badge {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 0.875rem;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.2);
-    border-radius: 12px;
+    border-radius: 10px;
     color: var(--accent-orange);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     font-family: 'Montserrat', sans-serif;
 }
 
 .food-info-badge i {
-    font-size: 1rem;
+    font-size: 0.875rem;
 }
 
 /* Macros Section */
 .food-macros-section {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .food-form-input {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: 0.625rem 0.875rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    border-radius: 10px;
     color: var(--text-primary);
-    font-size: 0.95rem;
+    font-size: 0.875rem;
     font-weight: 600;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
@@ -1929,8 +1901,8 @@ document.addEventListener('DOMContentLoaded', function() {
 .food-macros-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+    margin-bottom: 0;
 }
 
 .food-macros-grid .food-form-group {
@@ -1956,12 +1928,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .food-select-wrapper .custom-select-trigger {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: 0.625rem 0.875rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    border-radius: 10px;
     color: var(--text-primary);
-    font-size: 0.95rem;
+    font-size: 0.875rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -2042,16 +2014,16 @@ document.addEventListener('DOMContentLoaded', function() {
 .food-calculations {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 1rem;
-    margin-top: 1rem;
+    border-radius: 10px;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
 }
 
 .calc-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
 }
 
 .calc-item:last-child {
@@ -2059,14 +2031,14 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .calc-label {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
     font-weight: 600;
     font-family: 'Montserrat', sans-serif;
 }
 
 .calc-value {
-    font-size: 0.95rem;
+    font-size: 0.875rem;
     color: var(--accent-orange);
     font-weight: 700;
     font-family: 'Montserrat', sans-serif;
@@ -2074,10 +2046,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Footer */
 .food-edit-footer {
-    padding: 1.5rem 2rem;
+    padding: 1rem 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     justify-content: flex-end;
     flex-wrap: wrap;
 }
@@ -2086,9 +2058,9 @@ document.addEventListener('DOMContentLoaded', function() {
 .btn-cancel,
 .btn-save,
 .btn-delete {
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    font-size: 0.95rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
