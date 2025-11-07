@@ -653,20 +653,13 @@
 }
 
 /* === SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO E SONO === */
-.exercise-sleep-tracking-section {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-.exercise-tracking-card,
-.sleep-tracking-card {
+.exercise-chart-improved,
+.sleep-chart-improved {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .tracking-card-header {
@@ -858,36 +851,6 @@
     color: rgba(255, 255, 255, 0.3);
 }
 
-/* Corrigir corte das barras quando há muitos dias */
-#exercise-chart-container .improved-chart,
-#sleep-chart-container .improved-chart {
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    -webkit-overflow-scrolling: touch;
-}
-
-#exercise-bars,
-#sleep-bars {
-    min-width: min-content !important;
-    width: 100% !important;
-    display: flex !important;
-    justify-content: flex-start !important;
-    gap: 0.75rem !important;
-    padding: 1rem 0.5rem 0.5rem !important;
-    flex-wrap: nowrap !important;
-}
-
-#exercise-bars .improved-bar-container,
-#sleep-bars .improved-bar-container {
-    flex-shrink: 0 !important;
-    min-width: 60px !important;
-    max-width: 100px !important;
-}
-
-@media (max-width: 1024px) {
-    .exercise-sleep-tracking-section {
-        grid-template-columns: 1fr;
-    }
     
     .tracking-card-header {
         flex-direction: column;
@@ -2645,15 +2608,18 @@ window.showSleepCalendar = showSleepCalendar;
 
 // Carregar dados de exercício por período
 async function loadExerciseData(startDate, endDate, periodLabel) {
-    const chartContainer = document.getElementById('exercise-bars');
-    if (!chartContainer) return;
+    const chartSection = document.getElementById('exercise-chart');
+    if (!chartSection) return;
     
-    chartContainer.innerHTML = `
-        <div class="empty-chart">
-            <div class="loading-spinner"></div>
-            <p>Carregando dados...</p>
-        </div>
-    `;
+    const chartContainer = document.getElementById('exercise-bars');
+    if (chartContainer) {
+        chartContainer.innerHTML = `
+            <div class="empty-chart">
+                <div class="loading-spinner"></div>
+                <p>Carregando dados...</p>
+            </div>
+        `;
+    }
     
     try {
         const response = await fetch(`ajax_get_chart_data.php?user_id=${userIdExerciseSleep}&type=exercise&start_date=${startDate}&end_date=${endDate}`);
@@ -2667,6 +2633,18 @@ async function loadExerciseData(startDate, endDate, periodLabel) {
             currentExerciseStartDate = startDate;
             currentExerciseEndDate = endDate;
         } else {
+            if (chartContainer) {
+                chartContainer.innerHTML = `
+                    <div class="empty-chart">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erro ao carregar dados</p>
+                    </div>
+                `;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao carregar dados de exercício:', error);
+        if (chartContainer) {
             chartContainer.innerHTML = `
                 <div class="empty-chart">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -2674,28 +2652,23 @@ async function loadExerciseData(startDate, endDate, periodLabel) {
                 </div>
             `;
         }
-    } catch (error) {
-        console.error('Erro ao carregar dados de exercício:', error);
-        chartContainer.innerHTML = `
-            <div class="empty-chart">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Erro ao carregar dados</p>
-            </div>
-        `;
     }
 }
 
 // Carregar dados de sono por período
 async function loadSleepData(startDate, endDate, periodLabel) {
-    const chartContainer = document.getElementById('sleep-bars');
-    if (!chartContainer) return;
+    const chartSection = document.getElementById('sleep-chart');
+    if (!chartSection) return;
     
-    chartContainer.innerHTML = `
-        <div class="empty-chart">
-            <div class="loading-spinner"></div>
-            <p>Carregando dados...</p>
-        </div>
-    `;
+    const chartContainer = document.getElementById('sleep-bars');
+    if (chartContainer) {
+        chartContainer.innerHTML = `
+            <div class="empty-chart">
+                <div class="loading-spinner"></div>
+                <p>Carregando dados...</p>
+            </div>
+        `;
+    }
     
     try {
         const response = await fetch(`ajax_get_chart_data.php?user_id=${userIdExerciseSleep}&type=sleep&start_date=${startDate}&end_date=${endDate}`);
@@ -2709,6 +2682,18 @@ async function loadSleepData(startDate, endDate, periodLabel) {
             currentSleepStartDate = startDate;
             currentSleepEndDate = endDate;
         } else {
+            if (chartContainer) {
+                chartContainer.innerHTML = `
+                    <div class="empty-chart">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erro ao carregar dados</p>
+                    </div>
+                `;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao carregar dados de sono:', error);
+        if (chartContainer) {
             chartContainer.innerHTML = `
                 <div class="empty-chart">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -2716,18 +2701,10 @@ async function loadSleepData(startDate, endDate, periodLabel) {
                 </div>
             `;
         }
-    } catch (error) {
-        console.error('Erro ao carregar dados de sono:', error);
-        chartContainer.innerHTML = `
-            <div class="empty-chart">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Erro ao carregar dados</p>
-            </div>
-        `;
     }
 }
 
-// Renderizar gráfico de exercício
+// Renderizar gráfico de exercício (igual hidratação)
 function renderExerciseChart(data) {
     const chartContainer = document.getElementById('exercise-bars');
     if (!chartContainer || !data || data.length === 0) {
@@ -2740,34 +2717,18 @@ function renderExerciseChart(data) {
         return;
     }
     
-    const maxMinutes = exerciseGoalDailyMinutes > 0 ? exerciseGoalDailyMinutes * 1.5 : Math.max(...data.map(d => d.minutes || 0), 60);
-    const maxHeight = 160;
-    
     let chartHTML = '';
     data.forEach(day => {
         const minutes = parseFloat(day.minutes || 0);
+        const percentage = day.percentage || 0;
+        const limitedPercentage = Math.min(percentage, 150);
         let barHeight = 0;
-        if (minutes === 0) {
+        if (limitedPercentage === 0) {
             barHeight = 0;
+        } else if (limitedPercentage >= 100) {
+            barHeight = 160;
         } else {
-            barHeight = Math.min((minutes / maxMinutes) * maxHeight, maxHeight);
-        }
-        
-        let valueText = '-';
-        if (minutes > 0) {
-            const hours = Math.floor(minutes / 60);
-            const mins = Math.round(minutes % 60);
-            if (hours > 0) {
-                valueText = hours + 'h' + (mins > 0 ? ' ' + mins + 'm' : '');
-            } else {
-                valueText = mins + 'min';
-            }
-        }
-        
-        let goalLineStyle = '';
-        if (exerciseGoalDailyMinutes > 0) {
-            const goalLineBottom = ((maxMinutes - exerciseGoalDailyMinutes) / maxMinutes) * maxHeight;
-            goalLineStyle = `style="bottom: ${goalLineBottom}px;"`;
+            barHeight = (limitedPercentage / 100) * 160;
         }
         
         const status = day.status || 'empty';
@@ -2776,22 +2737,21 @@ function renderExerciseChart(data) {
             <div class="improved-bar-container">
                 <div class="improved-bar-wrapper">
                     <div class="improved-bar ${status}" style="height: ${barHeight}px"></div>
-                    <div class="bar-value-text ${minutes === 0 ? 'empty' : ''}">${valueText}</div>
-                    ${exerciseGoalDailyMinutes > 0 ? `<div class="improved-goal-line" ${goalLineStyle}></div>` : ''}
+                    ${minutes > 0 ? `<div class="bar-percentage-text">${Math.round(limitedPercentage)}%</div>` : ''}
+                    ${exerciseGoalDailyMinutes > 0 ? '<div class="improved-goal-line"></div>' : ''}
                 </div>
                 <div class="improved-bar-info">
                     <span class="improved-date">${new Date(day.date + 'T00:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</span>
-                    ${minutes > 0 && exerciseGoalDailyMinutes > 0 ? `<span class="improved-value">${Math.round(day.percentage || 0)}%</span>` : '<span class="improved-value empty">-</span>'}
+                    ${minutes > 0 ? `<span class="improved-ml">${minutes} min</span>` : '<span class="improved-ml">-</span>'}
                 </div>
             </div>
         `;
     });
     
     chartContainer.innerHTML = chartHTML;
-    chartContainer.setAttribute('data-period', data.length);
 }
 
-// Renderizar gráfico de sono
+// Renderizar gráfico de sono (igual hidratação)
 function renderSleepChart(data) {
     const chartContainer = document.getElementById('sleep-bars');
     if (!chartContainer || !data || data.length === 0) {
@@ -2804,48 +2764,38 @@ function renderSleepChart(data) {
         return;
     }
     
-    const maxHours = 12;
-    const maxHeight = 160;
-    
     let chartHTML = '';
     data.forEach(day => {
         const hours = parseFloat(day.hours || 0);
+        const percentage = day.percentage || 0;
+        const limitedPercentage = Math.min(percentage, 120);
         let barHeight = 0;
-        if (hours === 0) {
+        if (limitedPercentage === 0) {
             barHeight = 0;
-        } else if ((hours / sleepGoalHours) * 100 >= 100) {
-            barHeight = maxHeight;
+        } else if (limitedPercentage >= 100) {
+            barHeight = 160;
         } else {
-            barHeight = (hours / maxHours) * maxHeight;
+            barHeight = (limitedPercentage / 100) * 160;
         }
         
-        let valueText = '-';
-        if (hours > 0) {
-            const h = Math.floor(hours);
-            const mins = Math.round((hours - h) * 60);
-            valueText = h + 'h' + (mins > 0 ? ' ' + mins + 'm' : '');
-        }
-        
-        const goalLineBottom = ((maxHours - sleepGoalHours) / maxHours) * maxHeight;
         const status = day.status || 'empty';
         
         chartHTML += `
             <div class="improved-bar-container">
                 <div class="improved-bar-wrapper">
                     <div class="improved-bar ${status}" style="height: ${barHeight}px"></div>
-                    <div class="bar-value-text ${hours === 0 ? 'empty' : ''}">${valueText}</div>
-                    <div class="improved-goal-line" style="bottom: ${goalLineBottom}px;"></div>
+                    ${hours > 0 ? `<div class="bar-percentage-text">${Math.round(limitedPercentage)}%</div>` : ''}
+                    <div class="improved-goal-line"></div>
                 </div>
                 <div class="improved-bar-info">
                     <span class="improved-date">${new Date(day.date + 'T00:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</span>
-                    ${hours > 0 ? `<span class="improved-value">${Math.round(day.percentage || 0)}%</span>` : '<span class="improved-value empty">-</span>'}
+                    ${hours > 0 ? `<span class="improved-ml">${hours.toFixed(1)}h</span>` : '<span class="improved-ml">-</span>'}
                 </div>
             </div>
         `;
     });
     
     chartContainer.innerHTML = chartHTML;
-    chartContainer.setAttribute('data-period', data.length);
 }
 
 // Atualizar estatísticas de exercício
