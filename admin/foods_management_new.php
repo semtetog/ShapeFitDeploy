@@ -1554,7 +1554,8 @@ function saveFood() {
     })
     .then(data => {
         if (data.success) {
-            window.location.reload();
+            // Mantém os parâmetros da URL atual (filtros, página, etc)
+            window.location.href = window.location.pathname + window.location.search;
         } else {
             alert('Erro ao salvar: ' + (data.message || 'Erro desconhecido'));
             saveBtn.innerHTML = originalText;
@@ -1589,7 +1590,8 @@ function deleteFood() {
     })
     .then(data => {
         if (data.success) {
-            window.location.reload();
+            // Mantém os parâmetros da URL atual (filtros, página, etc)
+            window.location.href = window.location.pathname + window.location.search;
         } else {
             alert('Erro ao excluir: ' + (data.message || 'Erro desconhecido'));
         }
