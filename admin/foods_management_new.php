@@ -215,11 +215,6 @@ require_once __DIR__ . '/includes/header.php';
     z-index: 2;
 }
 
-/* Quando dropdown está ativo, desabilitar interação com cards */
-.foods-header-card:has(.custom-select.active) ~ .stats-grid .stat-card {
-    pointer-events: none;
-    opacity: 0.6;
-}
 
 .stat-number {
     font-size: 1.5rem;
@@ -1325,20 +1320,7 @@ require_once __DIR__ . '/includes/header.php';
     // Abre/fecha o dropdown
     trigger.addEventListener('click', function(e) {
         e.stopPropagation();
-        const isOpening = !customSelect.classList.contains('active');
         customSelect.classList.toggle('active');
-        
-        // Desabilita/habilita interação com cards quando dropdown abre/fecha
-        const statsGrid = document.querySelector('.stats-grid');
-        if (statsGrid) {
-            if (isOpening) {
-                statsGrid.style.pointerEvents = 'none';
-                statsGrid.style.opacity = '0.6';
-            } else {
-                statsGrid.style.pointerEvents = '';
-                statsGrid.style.opacity = '';
-            }
-        }
     });
 
     // Seleciona uma opção
@@ -1358,13 +1340,6 @@ require_once __DIR__ . '/includes/header.php';
             // Fecha o dropdown
             customSelect.classList.remove('active');
             
-            // Reabilita interação com cards
-            const statsGrid = document.querySelector('.stats-grid');
-            if (statsGrid) {
-                statsGrid.style.pointerEvents = '';
-                statsGrid.style.opacity = '';
-            }
-            
             // Submete o formulário
             const form = customSelect.closest('form');
             if (form) {
@@ -1373,14 +1348,9 @@ require_once __DIR__ . '/includes/header.php';
         });
     });
 
-    // Função para fechar dropdown e reabilitar cards
+    // Função para fechar dropdown
     function closeDropdown() {
         customSelect.classList.remove('active');
-        const statsGrid = document.querySelector('.stats-grid');
-        if (statsGrid) {
-            statsGrid.style.pointerEvents = '';
-            statsGrid.style.opacity = '';
-        }
     }
 
     // Fecha o dropdown se clicar fora
