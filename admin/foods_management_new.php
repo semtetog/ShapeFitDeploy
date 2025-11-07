@@ -1632,34 +1632,58 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="hidden" name="action" id="food-edit-action" value="edit">
                 
                 <div class="food-form-group">
-                    <label for="food-name-pt">Nome *</label>
-                    <input type="text" id="food-name-pt" name="name_pt" class="food-form-input" required placeholder="Nome do alimento">
+                    <label for="food-name-pt">Nome do Alimento *</label>
+                    <input type="text" id="food-name-pt" name="name_pt" class="food-form-input" required placeholder="Digite o nome do alimento">
                 </div>
                 
-                <div class="food-macros-grid">
-                    <div class="food-form-group">
-                        <label for="food-energy">kcal <span class="label-unit">/100g</span></label>
-                        <input type="number" step="0.1" id="food-energy" name="energy_kcal_100g" class="food-form-input" required placeholder="0">
+                <div class="food-info-section">
+                    <div class="food-info-badge">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Valores nutricionais por 100 gramas</span>
                     </div>
-                    
-                    <div class="food-form-group">
-                        <label for="food-protein">prot <span class="label-unit">(g/100g)</span></label>
-                        <input type="number" step="0.1" id="food-protein" name="protein_g_100g" class="food-form-input" required placeholder="0">
-                    </div>
-                    
-                    <div class="food-form-group">
-                        <label for="food-carbs">carb <span class="label-unit">(g/100g)</span></label>
-                        <input type="number" step="0.1" id="food-carbs" name="carbohydrate_g_100g" class="food-form-input" required placeholder="0">
-                    </div>
-                    
-                    <div class="food-form-group">
-                        <label for="food-fat">gord <span class="label-unit">(g/100g)</span></label>
-                        <input type="number" step="0.1" id="food-fat" name="fat_g_100g" class="food-form-input" required placeholder="0">
+                </div>
+                
+                <div class="food-macros-section">
+                    <div class="food-macros-grid">
+                        <div class="food-form-group">
+                            <label for="food-energy">
+                                <span class="label-main">Calorias</span>
+                                <span class="label-unit">kcal/100g</span>
+                            </label>
+                            <input type="number" step="0.1" id="food-energy" name="energy_kcal_100g" class="food-form-input" required placeholder="0.0">
+                        </div>
+                        
+                        <div class="food-form-group">
+                            <label for="food-protein">
+                                <span class="label-main">Proteína</span>
+                                <span class="label-unit">g/100g</span>
+                            </label>
+                            <input type="number" step="0.1" id="food-protein" name="protein_g_100g" class="food-form-input" required placeholder="0.0">
+                        </div>
+                        
+                        <div class="food-form-group">
+                            <label for="food-carbs">
+                                <span class="label-main">Carboidratos</span>
+                                <span class="label-unit">g/100g</span>
+                            </label>
+                            <input type="number" step="0.1" id="food-carbs" name="carbohydrate_g_100g" class="food-form-input" required placeholder="0.0">
+                        </div>
+                        
+                        <div class="food-form-group">
+                            <label for="food-fat">
+                                <span class="label-main">Gorduras</span>
+                                <span class="label-unit">g/100g</span>
+                            </label>
+                            <input type="number" step="0.1" id="food-fat" name="fat_g_100g" class="food-form-input" required placeholder="0.0">
+                        </div>
                     </div>
                 </div>
                 
                 <div class="food-form-group">
-                    <label for="food-source">Fonte</label>
+                    <label for="food-source">
+                        <span class="label-main">Fonte dos Dados</span>
+                        <span class="label-unit">Origem da informação nutricional</span>
+                    </label>
                     <div class="custom-select-wrapper food-select-wrapper" id="food-source-wrapper">
                         <input type="hidden" id="food-source" name="source_table" value="Manual">
                         <div class="custom-select" id="food-source-select">
@@ -1819,24 +1843,53 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .food-form-group label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
     font-family: 'Montserrat', sans-serif;
 }
 
+.food-form-group label .label-main {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
 .food-form-group label .label-unit {
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 500;
     color: var(--text-secondary);
-    opacity: 0.7;
-    text-transform: none;
-    letter-spacing: 0;
-    margin-left: 0.25rem;
+    opacity: 0.8;
+}
+
+/* Info Section */
+.food-info-section {
+    margin-bottom: 1.5rem;
+}
+
+.food-info-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    border-radius: 12px;
+    color: var(--accent-orange);
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.food-info-badge i {
+    font-size: 1rem;
+}
+
+/* Macros Section */
+.food-macros-section {
+    margin-bottom: 1.5rem;
 }
 
 .food-form-input {
