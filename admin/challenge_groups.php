@@ -138,6 +138,20 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
 }
 
+/* Forçar remoção de sombras e efeitos de todos os cards */
+.challenge-groups-page * {
+    box-shadow: none !important;
+}
+
+.challenge-groups-page .dashboard-card,
+.challenge-groups-page .content-card,
+.challenge-groups-page [class*="card"] {
+    box-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
 /* Header Card */
 .header-card {
     background: rgba(255, 255, 255, 0.05) !important;
