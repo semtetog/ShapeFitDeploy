@@ -168,9 +168,10 @@ require_once __DIR__ . '/includes/header.php';
 /* Stats Grid - cards menores e mesmo tamanho */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
     gap: 1rem;
     margin-bottom: 2rem;
+    justify-content: start;
 }
 
 .stat-card {
