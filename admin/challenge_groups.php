@@ -755,16 +755,12 @@ require_once __DIR__ . '/includes/header.php';
     min-width: 1.5rem;
     min-height: 1.5rem;
     border-radius: 50%;
-    background: rgba(255, 107, 0, 0.15);
+    background-color: rgba(255, 107, 0, 0.15);
     border: 1px solid var(--accent-orange);
     padding: 0.25rem;
     transition: all 0.3s ease;
     opacity: 1;
-    filter: invert(0.4) sepia(1) saturate(5) hue-rotate(0deg) brightness(1.3);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF6B00'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z'/%3E%3C/svg%3E");
-    background-size: 60% 60%;
-    background-position: center;
-    background-repeat: no-repeat;
+    filter: invert(0.35) sepia(1) saturate(8) hue-rotate(0deg) brightness(1.4);
 }
 
 .date-input-modern::-webkit-calendar-picker-indicator:hover {
