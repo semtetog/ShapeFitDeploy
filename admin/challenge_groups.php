@@ -1892,7 +1892,7 @@ function initFlatpickr() {
         allowInput: false,
         clickOpens: true,
         animate: true,
-        monthSelectorType: 'static',
+        // monthSelectorType: 'dropdown' é o padrão - permite reorganizar DOM
         defaultDate: null,
         static: false, // Não usar posicionamento estático
         appendTo: document.body, // Anexar ao body para melhor controle de posição
