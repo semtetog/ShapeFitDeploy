@@ -32,6 +32,11 @@ $page = (int)($_GET['page'] ?? 1);
 $per_page = 20;
 $offset = ($page - 1) * $per_page;
 
+// Buscar total real de alimentos (sem filtros) para mostrar no contador
+$total_all_sql = "SELECT COUNT(*) as total FROM sf_food_items";
+$total_all_result = $conn->query($total_all_sql);
+$total_all_items = $total_all_result->fetch_assoc()['total'];
+
 $where_conditions = [];
 $params = [];
 $param_types = '';
@@ -287,6 +292,11 @@ include 'includes/header.php';
 .foods-stat-item.active .foods-stat-number {
     color: #10B981 !important;
     text-decoration: underline;
+}
+
+.foods-back-btn:hover {
+    background: rgba(255, 107, 0, 0.2) !important;
+    transform: translateX(-3px);
 }
 
 /* Legenda */
@@ -1272,7 +1282,7 @@ include 'includes/header.php';
                 <div class="foods-stats-simple">
                     <div class="foods-stat-item">
                         <span class="foods-stat-label">Total:</span>
-                        <span class="foods-stat-number"><?= $total_items ?></span>
+                        <span class="foods-stat-number"><?= $total_all_items ?></span>
                     </div>
                     <div class="foods-stat-item">
                         <span class="foods-stat-label">Classificados:</span>
@@ -1280,9 +1290,18 @@ include 'includes/header.php';
                 </div>
                     <div class="foods-stat-item <?= $unclassified_filter ? 'active' : 'clickable' ?>" id="remaining-stat-item" onclick="filterUnclassified()">
                         <span class="foods-stat-label">Restantes:</span>
-                        <span class="foods-stat-number" id="remaining-count"><?= $unclassified_filter ? $total_items : ($total_items - $classified_count) ?></span>
+                        <span class="foods-stat-number" id="remaining-count"><?= $total_all_items - $classified_count ?></span>
             </div>
     </div>
+                    
+                    <?php if ($unclassified_filter): ?>
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border);">
+                        <a href="food_classification.php" class="foods-back-btn" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: rgba(255, 107, 0, 0.1); border: 1px solid var(--accent-orange); border-radius: 12px; color: var(--accent-orange); text-decoration: none; font-weight: 600; transition: all 0.3s ease;">
+                            <i class="fas fa-arrow-left"></i>
+                            Voltar para Todos os Alimentos
+                        </a>
+                    </div>
+                    <?php endif; ?>
 
                 <!-- Legenda -->
                 <div class="foods-legend">
@@ -2037,3 +2056,4 @@ function filterUnclassified() {
 
 <?php require_once __DIR__ . '/includes/units_editor.php'; ?>
 <?php include 'includes/footer.php'; ?>
+
