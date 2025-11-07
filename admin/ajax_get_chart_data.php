@@ -11,7 +11,7 @@ requireAdminLogin();
 header('Content-Type: application/json');
 
 $user_id = filter_input(INPUT_GET, 'user_id', FILTER_VALIDATE_INT);
-$type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING); // 'hydration' ou 'nutrients'
+$type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING); // 'hydration', 'nutrients', 'exercise' ou 'sleep'
 $start_date = filter_input(INPUT_GET, 'start_date', FILTER_SANITIZE_STRING);
 $end_date = filter_input(INPUT_GET, 'end_date', FILTER_SANITIZE_STRING);
 $list_dates_only = filter_input(INPUT_GET, 'list_dates_only', FILTER_VALIDATE_INT); // 1 para apenas listar datas
@@ -247,6 +247,183 @@ try {
             'success' => true,
             'data' => $daily_data
         ]);
+        
+    } elseif ($type === 'exercise') {
+        // Buscar meta de exercício do usuário
+        $stmt = $conn->prepare("SELECT exercise_frequency FROM sf_user_profiles WHERE user_id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        
+        $exercise_frequency = $result['exercise_frequency'] ?? 'sedentary';
+        $exercise_goal_weekly_hours = 0;
+        switch ($exercise_frequency) {
+            case '1_2x_week': $exercise_goal_weekly_hours = 2.0; break;
+            case '3_4x_week': $exercise_goal_weekly_hours = 4.0; break;
+            case '5_6x_week': $exercise_goal_weekly_hours = 6.0; break;
+            case '6_7x_week': $exercise_goal_weekly_hours = 8.0; break;
+            case '7plus_week': $exercise_goal_weekly_hours = 10.0; break;
+            default: $exercise_goal_weekly_hours = 0; break;
+        }
+        $exercise_goal_daily_minutes = ($exercise_goal_weekly_hours * 60) / 7;
+        
+        // Buscar dados de exercício
+        $stmt = $conn->prepare("
+            SELECT 
+                DATE(updated_at) AS dia,
+                SUM(duration_minutes) AS total_minutes,
+                COUNT(*) AS exercise_count
+            FROM sf_user_exercise_durations
+            WHERE user_id = ? 
+              AND DATE(updated_at) BETWEEN ? AND ?
+            GROUP BY DATE(updated_at)
+            ORDER BY dia ASC
+        ");
+        $stmt->bind_param("iss", $user_id, $start_date, $end_date);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        // Gerar calendário completo do período
+        $start = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        $datas = [];
+        
+        $current = clone $start;
+        while ($current <= $end) {
+            $dataStr = $current->format('Y-m-d');
+            $datas[$dataStr] = [
+                'date' => $dataStr,
+                'minutes' => 0,
+                'percentage' => 0,
+                'status' => 'empty'
+            ];
+            $current->modify('+1 day');
+        }
+        
+        // Preencher com dados reais
+        while ($row = $result->fetch_assoc()) {
+            $data = $row['dia'];
+            $minutes = (float)($row['total_minutes'] ?? 0);
+            $percentage = $exercise_goal_daily_minutes > 0 ? min(($minutes / $exercise_goal_daily_minutes) * 100, 150) : 0;
+            $status = 'empty';
+            
+            if ($minutes > 0) {
+                if ($exercise_goal_daily_minutes > 0 && $minutes >= $exercise_goal_daily_minutes) {
+                    $status = 'excellent';
+                } elseif ($exercise_goal_daily_minutes > 0 && $minutes >= $exercise_goal_daily_minutes * 0.7) {
+                    $status = 'good';
+                } else {
+                    $status = 'poor';
+                }
+            }
+            
+            if (isset($datas[$data])) {
+                $datas[$data]['minutes'] = $minutes;
+                $datas[$data]['percentage'] = $percentage;
+                $datas[$data]['status'] = $status;
+            }
+        }
+        
+        $stmt->close();
+        
+        if ($list_dates_only) {
+            $dates = [];
+            foreach ($datas as $date => $data) {
+                if ($data['minutes'] > 0) {
+                    $dates[] = $date;
+                }
+            }
+            echo json_encode(['success' => true, 'dates' => $dates]);
+            exit;
+        }
+        
+        ksort($datas);
+        $daily_data = array_values($datas);
+        
+        echo json_encode(['success' => true, 'data' => $daily_data]);
+        
+    } elseif ($type === 'sleep') {
+        $sleep_goal_hours = 7.5;
+        
+        // Buscar dados de sono
+        $stmt = $conn->prepare("
+            SELECT 
+                DATE(date) AS dia,
+                sleep_hours
+            FROM sf_user_daily_tracking
+            WHERE user_id = ? 
+              AND DATE(date) BETWEEN ? AND ?
+              AND sleep_hours IS NOT NULL
+            ORDER BY dia ASC
+        ");
+        $stmt->bind_param("iss", $user_id, $start_date, $end_date);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        // Gerar calendário completo do período
+        $start = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        $datas = [];
+        
+        $current = clone $start;
+        while ($current <= $end) {
+            $dataStr = $current->format('Y-m-d');
+            $datas[$dataStr] = [
+                'date' => $dataStr,
+                'hours' => 0,
+                'percentage' => 0,
+                'status' => 'empty'
+            ];
+            $current->modify('+1 day');
+        }
+        
+        // Preencher com dados reais
+        while ($row = $result->fetch_assoc()) {
+            $data = $row['dia'];
+            $hours = (float)($row['sleep_hours'] ?? 0);
+            $percentage = $sleep_goal_hours > 0 ? min(($hours / $sleep_goal_hours) * 100, 120) : 0;
+            $status = 'empty';
+            
+            if ($hours > 0) {
+                if ($hours >= 7 && $hours <= 8) {
+                    $status = 'excellent';
+                } elseif ($hours >= 6.5 && $hours < 7) {
+                    $status = 'good';
+                } elseif ($hours >= 6 && $hours < 6.5) {
+                    $status = 'fair';
+                } elseif ($hours >= 5 && $hours < 6) {
+                    $status = 'poor';
+                } else {
+                    $status = 'critical';
+                }
+            }
+            
+            if (isset($datas[$data])) {
+                $datas[$data]['hours'] = $hours;
+                $datas[$data]['percentage'] = $percentage;
+                $datas[$data]['status'] = $status;
+            }
+        }
+        
+        $stmt->close();
+        
+        if ($list_dates_only) {
+            $dates = [];
+            foreach ($datas as $date => $data) {
+                if ($data['hours'] > 0) {
+                    $dates[] = $date;
+                }
+            }
+            echo json_encode(['success' => true, 'dates' => $dates]);
+            exit;
+        }
+        
+        ksort($datas);
+        $daily_data = array_values($datas);
+        
+        echo json_encode(['success' => true, 'data' => $daily_data]);
+        
     } else {
         echo json_encode(['success' => false, 'message' => 'Tipo inválido']);
     }

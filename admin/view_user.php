@@ -2507,6 +2507,14 @@ function applyChartPeriodSelection() {
         if (typeof loadHydrationData === 'function') {
             loadHydrationData(startStr, endStr, periodLabel);
         }
+    } else if (currentChartType === 'exercise') {
+        if (typeof loadExerciseData === 'function') {
+            loadExerciseData(startStr, endStr, periodLabel);
+        }
+    } else if (currentChartType === 'sleep') {
+        if (typeof loadSleepData === 'function') {
+            loadSleepData(startStr, endStr, periodLabel);
+        }
     }
     
     closeChartCalendar();
