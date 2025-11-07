@@ -204,6 +204,7 @@ require_once __DIR__ . '/includes/header.php';
     position: relative;
     overflow: visible;
     z-index: 1;
+    gap: 0;
 }
 
 .stat-card:hover {
@@ -218,9 +219,14 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--accent-orange);
-    margin-bottom: 0.5rem;
+    margin: 0;
+    padding: 0;
     line-height: 1.2;
     white-space: nowrap;
+    text-align: center;
+    width: 100%;
+    display: block;
+    flex-shrink: 0;
 }
 
 .stat-label {
@@ -230,8 +236,14 @@ require_once __DIR__ . '/includes/header.php';
     letter-spacing: 0.5px;
     font-weight: 600;
     line-height: 1.4;
+    margin: 0.5rem 0 0 0;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    display: block;
     word-break: break-word;
     hyphens: auto;
+    flex-shrink: 0;
 }
 
 /* Filter Form */
