@@ -71,6 +71,9 @@ function saveChallenge($data) {
         throw new Exception('Data de início deve ser anterior à data de fim');
     }
     
+    // Preparar metas JSON
+    $goals_json = json_encode($goals);
+    
     // Iniciar transação
     $conn->begin_transaction();
     
@@ -79,34 +82,26 @@ function saveChallenge($data) {
             // Atualizar desafio existente
             $stmt = $conn->prepare("
                 UPDATE sf_challenge_groups 
-                SET name = ?, description = ?, start_date = ?, end_date = ?, status = ?, updated_at = NOW()
+                SET name = ?, description = ?, start_date = ?, end_date = ?, status = ?, goals = ?, updated_at = NOW()
                 WHERE id = ? AND created_by = ?
             ");
-            $stmt->bind_param("sssssii", $name, $description, $start_date, $end_date, $status, $challenge_id, $admin_id);
+            $stmt->bind_param("ssssssii", $name, $description, $start_date, $end_date, $status, $goals_json, $challenge_id, $admin_id);
             $stmt->execute();
+            if ($stmt->affected_rows === 0) {
+                throw new Exception('Desafio não encontrado ou sem permissão para editar');
+            }
             $stmt->close();
         } else {
             // Criar novo desafio
             $stmt = $conn->prepare("
-                INSERT INTO sf_challenge_groups (name, description, start_date, end_date, status, created_by, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+                INSERT INTO sf_challenge_groups (name, description, start_date, end_date, status, goals, created_by, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ");
-            $stmt->bind_param("sssssi", $name, $description, $start_date, $end_date, $status, $admin_id);
+            $stmt->bind_param("ssssssi", $name, $description, $start_date, $end_date, $status, $goals_json, $admin_id);
             $stmt->execute();
             $challenge_id = $conn->insert_id;
             $stmt->close();
         }
-        
-        // Salvar metas (JSON no campo goals)
-        $goals_json = json_encode($goals);
-        $stmt = $conn->prepare("
-            UPDATE sf_challenge_groups 
-            SET goals = ? 
-            WHERE id = ?
-        ");
-        $stmt->bind_param("si", $goals_json, $challenge_id);
-        $stmt->execute();
-        $stmt->close();
         
         // Remover participantes existentes
         $stmt = $conn->prepare("DELETE FROM sf_challenge_group_members WHERE group_id = ?");
@@ -133,9 +128,11 @@ function saveChallenge($data) {
         // Confirmar transação
         $conn->commit();
         
+        $was_edit = isset($data['challenge_id']) && !empty($data['challenge_id']);
+        
         echo json_encode([
             'success' => true,
-            'message' => $challenge_id ? 'Desafio atualizado com sucesso!' : 'Desafio criado com sucesso!',
+            'message' => $was_edit ? 'Desafio atualizado com sucesso!' : 'Desafio criado com sucesso!',
             'challenge_id' => $challenge_id
         ]);
         
