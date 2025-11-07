@@ -1260,7 +1260,7 @@ require_once __DIR__ . '/includes/header.php';
                                             break;
                                         case 'user_created':
                                             $badgeClass = 'user-created';
-                                            $badgeText = 'Criado por Usuário';
+                                            $badgeText = 'Por Usuário';
                                             break;
                                         default:
                                             $badgeClass = 'manual';
