@@ -140,11 +140,15 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Header Card */
 .header-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 2rem !important;
+    box-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 .header-title {
@@ -172,57 +176,66 @@ require_once __DIR__ . '/includes/header.php';
 /* Stats Grid */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
     margin-top: 1.5rem;
 }
 
 .stat-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 1rem 0.75rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    aspect-ratio: 1.4;
-    min-height: 90px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    padding: 0.75rem 0.5rem !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    aspect-ratio: 1.4 !important;
+    min-height: 70px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    box-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 .stat-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
-    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent-orange) !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .stat-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--accent-orange);
-    margin: 0;
-    line-height: 1.2;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: var(--accent-orange) !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
 }
 
 .stat-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-    margin-top: 0.5rem;
+    font-size: 0.7rem !important;
+    color: var(--text-secondary) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    font-weight: 600 !important;
+    margin-top: 0.375rem !important;
 }
 
 /* Filter Card */
 .filter-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 1.25rem;
-    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 1.25rem !important;
+    margin-bottom: 2rem !important;
+    box-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 .filter-row {
@@ -359,20 +372,26 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .challenge-group-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 1.25rem;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    padding: 1rem !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    box-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 .challenge-group-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent-orange) !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .group-card-header {
