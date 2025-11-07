@@ -158,32 +158,41 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0;
 }
 
-/* Stats Grid - cards menores, mesma fileira, centralizados e mesmo tamanho */
+/* Stats Grid - cards responsivos, mesma fileira, mesmo tamanho, alinhados com header/lista */
 .stats-grid {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
-    flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Garantir que os cards mantenham tamanho razoável em telas muito grandes */
+@media (min-width: 1600px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
 }
 
 .stat-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 16px;
-    padding: 0.875rem 1rem;
+    padding: 1.25rem 1rem;
     text-align: center;
     transition: all 0.3s ease;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     cursor: pointer;
-    min-height: 90px;
-    width: 140px;
-    max-width: 140px;
+    aspect-ratio: 1.4;
+    min-height: 110px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    flex-shrink: 0;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .stat-card:hover {
@@ -194,20 +203,23 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .stat-number {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--accent-orange);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
     line-height: 1.2;
+    white-space: nowrap;
 }
 
 .stat-label {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
-    line-height: 1.3;
+    line-height: 1.4;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 /* Filter Form */
@@ -853,13 +865,21 @@ require_once __DIR__ . '/includes/header.php';
     }
     
     .stats-grid {
-        justify-content: flex-start;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
     }
     
     .stat-card {
-        width: calc(50% - 0.5rem);
-        min-width: 140px;
-        max-width: none;
+        min-height: 100px;
+        padding: 1rem 0.75rem;
+    }
+    
+    .stat-number {
+        font-size: 1.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
     }
     
     .data-table {
