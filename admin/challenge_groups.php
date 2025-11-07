@@ -748,10 +748,18 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
 }
 
-/* Input de data customizado */
+/* Wrapper para input de data com ícone customizado */
+.date-input-wrapper-modern {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .custom-datepicker {
     cursor: pointer;
     position: relative;
+    padding-right: 2.75rem !important;
+    flex: 1;
 }
 
 .custom-datepicker:focus {
@@ -761,9 +769,54 @@ require_once __DIR__ . '/includes/header.php';
     box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
+/* Botão de ícone de calendário - círculo laranja pequeno */
+.date-icon-btn {
+    position: absolute;
+    right: 0.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    min-width: 1.75rem;
+    min-height: 1.75rem;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.15);
+    border: 1px solid var(--accent-orange);
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    transition: all 0.3s ease;
+    font-size: 0.75rem;
+    z-index: 10;
+}
+
+.date-icon-btn:hover {
+    background: rgba(255, 107, 0, 0.25);
+    border-color: #FF8533;
+    transform: scale(1.1);
+    color: #FF8533;
+}
+
+.date-icon-btn:active {
+    transform: scale(0.95);
+}
+
+.date-icon-btn i {
+    margin: 0;
+    line-height: 1;
+}
+
 /* ========================================================================= */
 /*       FLATPICKR - GLASSMORPHISM TEMA DARK + LARANJA                       */
 /* ========================================================================= */
+
+/* Esconder seta que aponta para o input */
+.flatpickr-calendar::before,
+.flatpickr-calendar::after {
+    display: none !important;
+}
 
 .flatpickr-calendar {
     background: rgba(20, 20, 20, 0.95) !important;
@@ -776,6 +829,14 @@ require_once __DIR__ . '/includes/header.php';
     padding: 1rem !important;
     width: 100% !important;
     max-width: 320px !important;
+    overflow: visible !important;
+}
+
+.flatpickr-calendar.arrowTop::before,
+.flatpickr-calendar.arrowTop::after,
+.flatpickr-calendar.arrowBottom::before,
+.flatpickr-calendar.arrowBottom::after {
+    display: none !important;
 }
 
 .flatpickr-months {
@@ -783,12 +844,21 @@ require_once __DIR__ . '/includes/header.php';
     border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     padding-bottom: 1rem !important;
     margin-bottom: 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    position: relative !important;
 }
 
 .flatpickr-month {
     color: var(--text-primary) !important;
     font-family: 'Montserrat', sans-serif !important;
     font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 !important;
+    position: relative !important;
 }
 
 .flatpickr-current-month {
@@ -797,6 +867,11 @@ require_once __DIR__ . '/includes/header.php';
     font-weight: 700 !important;
     font-size: 1rem !important;
     padding: 0.5rem 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months {
@@ -807,6 +882,12 @@ require_once __DIR__ . '/includes/header.php';
     font-family: 'Montserrat', sans-serif !important;
     font-weight: 600 !important;
     padding: 0.25rem 0.5rem !important;
+    cursor: pointer !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent-orange) !important;
 }
 
 .flatpickr-prev-month,
@@ -816,12 +897,37 @@ require_once __DIR__ . '/includes/header.php';
     border-radius: 8px !important;
     padding: 0.5rem !important;
     transition: all 0.3s ease !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+}
+
+.flatpickr-prev-month {
+    left: 0 !important;
+}
+
+.flatpickr-next-month {
+    right: 0 !important;
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    display: block !important;
 }
 
 .flatpickr-prev-month:hover,
 .flatpickr-next-month:hover {
     background: rgba(255, 107, 0, 0.1) !important;
-    transform: scale(1.1) !important;
+    transform: translateY(-50%) scale(1.1) !important;
 }
 
 .flatpickr-weekdays {
@@ -853,6 +959,15 @@ require_once __DIR__ . '/includes/header.php';
     border: 1px solid transparent !important;
     transition: all 0.3s ease !important;
     margin: 0.125rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    line-height: 1 !important;
+    overflow: visible !important;
+    text-align: center !important;
+    padding: 0 !important;
 }
 
 .flatpickr-day:hover {
@@ -1459,11 +1574,21 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="challenge-form-row">
                     <div class="challenge-form-group">
                         <label for="startDate">Data de Início</label>
-                        <input type="text" id="startDate" name="start_date" class="challenge-form-input custom-datepicker" placeholder="Selecione a data" required readonly>
+                        <div class="date-input-wrapper-modern">
+                            <input type="text" id="startDate" name="start_date" class="challenge-form-input custom-datepicker" placeholder="Selecione a data" required readonly>
+                            <button type="button" class="date-icon-btn" onclick="document.getElementById('startDate')._flatpickr?.open();">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="challenge-form-group">
                         <label for="endDate">Data de Fim</label>
-                        <input type="text" id="endDate" name="end_date" class="challenge-form-input custom-datepicker" placeholder="Selecione a data" required readonly>
+                        <div class="date-input-wrapper-modern">
+                            <input type="text" id="endDate" name="end_date" class="challenge-form-input custom-datepicker" placeholder="Selecione a data" required readonly>
+                            <button type="button" class="date-icon-btn" onclick="document.getElementById('endDate')._flatpickr?.open();">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
