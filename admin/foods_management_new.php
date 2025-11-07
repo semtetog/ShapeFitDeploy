@@ -1582,13 +1582,38 @@ document.addEventListener('DOMContentLoaded', function() {
         trigger.addEventListener('click', function(e) {
             e.stopPropagation();
             const isOpening = !sourceSelect.classList.contains('active');
+            const optionsEl = sourceSelect.querySelector('.custom-select-options');
             
             if (isOpening) {
+                // Calcula posição antes de mudar para fixed
+                const rect = trigger.getBoundingClientRect();
+                const wrapperRect = sourceWrapper.getBoundingClientRect();
+                
                 sourceWrapper.classList.add('active');
                 sourceSelect.classList.add('active');
+                
+                // Aplica posição fixed com coordenadas calculadas
+                setTimeout(() => {
+                    if (optionsEl) {
+                        optionsEl.style.position = 'fixed';
+                        optionsEl.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                        optionsEl.style.left = wrapperRect.left + 'px';
+                        optionsEl.style.right = 'auto';
+                        optionsEl.style.width = wrapperRect.width + 'px';
+                    }
+                }, 0);
             } else {
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
+                
+                // Restaura posição absolute
+                if (optionsEl) {
+                    optionsEl.style.position = 'absolute';
+                    optionsEl.style.top = '';
+                    optionsEl.style.left = '';
+                    optionsEl.style.right = '';
+                    optionsEl.style.width = '';
+                }
             }
         });
         
@@ -1602,6 +1627,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('selected');
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
+                
+                // Restaura posição absolute
+                const optionsEl = sourceSelect.querySelector('.custom-select-options');
+                if (optionsEl) {
+                    optionsEl.style.position = 'absolute';
+                    optionsEl.style.top = '';
+                    optionsEl.style.left = '';
+                    optionsEl.style.right = '';
+                    optionsEl.style.width = '';
+                }
             });
         });
         
@@ -1609,8 +1644,35 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!sourceSelect.contains(e.target)) {
                 sourceSelect.classList.remove('active');
                 sourceWrapper.classList.remove('active');
+                
+                // Restaura posição absolute
+                const optionsEl = sourceSelect.querySelector('.custom-select-options');
+                if (optionsEl) {
+                    optionsEl.style.position = 'absolute';
+                    optionsEl.style.top = '';
+                    optionsEl.style.left = '';
+                    optionsEl.style.right = '';
+                    optionsEl.style.width = '';
+                }
             }
         });
+        
+        // Ajusta posição no scroll do modal
+        const modalBody = document.querySelector('.food-edit-body');
+        if (modalBody) {
+            modalBody.addEventListener('scroll', function() {
+                if (sourceSelect.classList.contains('active')) {
+                    const optionsEl = sourceSelect.querySelector('.custom-select-options');
+                    const rect = trigger.getBoundingClientRect();
+                    const wrapperRect = sourceWrapper.getBoundingClientRect();
+                    
+                    if (optionsEl && optionsEl.style.position === 'fixed') {
+                        optionsEl.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                        optionsEl.style.left = wrapperRect.left + 'px';
+                    }
+                }
+            });
+        }
     }
 });
 </script>
@@ -1761,7 +1823,7 @@ document.addEventListener('DOMContentLoaded', function() {
     width: 90%;
     max-width: 480px;
     max-height: 90vh;
-    overflow: hidden;
+    overflow: visible;
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
@@ -1816,6 +1878,8 @@ document.addEventListener('DOMContentLoaded', function() {
     padding: 1.25rem;
     flex: 1;
     overflow-y: auto;
+    overflow-x: visible;
+    position: relative;
 }
 
 /* Form Groups */
@@ -1917,8 +1981,9 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .food-select-wrapper.active {
-    z-index: 1000;
+    z-index: 10001 !important;
     position: relative;
+    will-change: z-index;
 }
 
 .food-select-wrapper .custom-select {
@@ -1967,11 +2032,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .food-select-wrapper .custom-select-options {
     display: none;
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    right: 0;
-    z-index: 1000;
+    position: fixed;
+    z-index: 10001 !important;
     background: rgb(28, 28, 28);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
@@ -1979,6 +2041,7 @@ document.addEventListener('DOMContentLoaded', function() {
     max-height: 250px;
     overflow-y: auto;
     box-sizing: border-box;
+    min-width: 200px;
 }
 
 .food-select-wrapper .custom-select.active .custom-select-options {
