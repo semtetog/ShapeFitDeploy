@@ -877,72 +877,55 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box !important;
 }
 
+/* Centraliza corretamente o container de MÊS + ANO */
 .flatpickr-current-month {
-    color: var(--text-primary) !important;
-    font-family: 'Montserrat', sans-serif !important;
-    font-weight: 700 !important;
-    font-size: 1rem !important;
-    padding: 0 !important;
-    margin: 0 !important;
     display: flex !important;
-    flex-direction: column-reverse !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.25rem !important;
     width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: var(--text-primary) !important;
+    font-family: 'Montserrat', sans-serif !important;
     text-align: center !important;
     position: relative !important;
-    order: 0 !important;
+    gap: 0.25rem !important;
 }
 
-/* Ano - deve aparecer em cima */
+/* Ano menor */
 .flatpickr-current-month .cur-year {
-    font-size: 0.875rem !important;
+    font-size: 0.75rem !important;
     font-weight: 600 !important;
+    opacity: 0.6 !important;
     color: var(--text-secondary) !important;
-    opacity: 0.8 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
     text-align: center !important;
     display: block !important;
     line-height: 1.2 !important;
-    order: 1 !important;
 }
 
-/* Mês - deve aparecer embaixo do ano */
+/* Mês alinhado ao centro */
 .flatpickr-current-month .flatpickr-monthDropdown-months {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
     font-family: 'Montserrat', sans-serif !important;
-    font-weight: 700 !important;
-    font-size: 1rem !important;
     padding: 0.25rem 0.5rem !important;
     cursor: pointer !important;
     margin: 0 !important;
     display: inline-block !important;
     text-align: center !important;
-    order: 2 !important;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
     background: rgba(255, 255, 255, 0.08) !important;
     border-color: var(--accent-orange) !important;
-}
-
-/* Input do ano - esconder se for um input separado */
-.flatpickr-current-month input.flatpickr-monthDropdown-months,
-.flatpickr-current-month input.cur-year {
-    display: none !important;
-}
-
-/* Garantir que span do ano apareça */
-.flatpickr-current-month span.cur-year {
-    display: block !important;
-    text-align: center !important;
-    width: 100% !important;
 }
 
 /* Garantir centralização absoluta entre as setas */
@@ -1927,65 +1910,48 @@ function initFlatpickr() {
         endDateInput._flatpickr.destroy();
     }
     
-    // Função para remover seta do calendário e reorganizar ano/mês
-    function removeCalendarArrow(picker) {
-        if (picker && picker.calendarContainer) {
-            const calendar = picker.calendarContainer;
-            calendar.classList.remove('arrowTop', 'arrowBottom');
-            
-            // Reorganizar ano e mês para garantir ordem correta
-            const currentMonth = calendar.querySelector('.flatpickr-current-month');
-            if (currentMonth) {
-                const year = currentMonth.querySelector('.cur-year');
-                const month = currentMonth.querySelector('.flatpickr-monthDropdown-months');
-                
-                if (year && month) {
-                    // Garantir que ano apareça primeiro (em cima) no DOM
-                    // Com flex-direction: column-reverse, o último elemento aparece primeiro
-                    // Então colocamos o mês primeiro no DOM para que apareça embaixo
-                    // E o ano depois no DOM para que apareça em cima
-                    const parent = year.parentNode;
-                    if (parent) {
-                        // Remover ambos
-                        parent.removeChild(year);
-                        parent.removeChild(month);
-                        // Inserir mês primeiro (aparecerá embaixo com column-reverse)
-                        parent.insertBefore(month, parent.firstChild);
-                        // Inserir ano depois (aparecerá em cima com column-reverse)
-                        parent.appendChild(year);
-                    }
-                    
-                    // Forçar estilos
-                    currentMonth.style.display = 'flex';
-                    currentMonth.style.flexDirection = 'column-reverse';
-                    currentMonth.style.alignItems = 'center';
-                    currentMonth.style.justifyContent = 'center';
-                    currentMonth.style.textAlign = 'center';
-                    currentMonth.style.width = '100%';
-                    currentMonth.style.gap = '0.25rem';
-                    
-                    year.style.display = 'block';
-                    year.style.width = '100%';
-                    year.style.textAlign = 'center';
-                    year.style.margin = '0';
-                    year.style.padding = '0';
-                }
+    // Função para corrigir o header do calendário (ano em cima, mês embaixo)
+    function fixHeader(instance) {
+        const calendar = instance.calendarContainer;
+        const monthContainer = calendar.querySelector('.flatpickr-current-month');
+        
+        if (!monthContainer) return;
+        
+        // Garantir ordem correta: ano em cima, mês embaixo
+        const year = monthContainer.querySelector('.cur-year');
+        const month = monthContainer.querySelector('.flatpickr-monthDropdown-months');
+        
+        if (year && month) {
+            // Limpar container e reorganizar: ano primeiro, mês depois
+            monthContainer.innerHTML = "";
+            monthContainer.appendChild(year);  // ano primeiro (vai ficar em cima)
+            monthContainer.appendChild(month); // mês depois (fica embaixo)
+        }
+        
+        // Aplicar estilos flexbox
+        monthContainer.style.display = "flex";
+        monthContainer.style.flexDirection = "column";
+        monthContainer.style.alignItems = "center";
+        monthContainer.style.justifyContent = "center";
+        monthContainer.style.width = "100%";
+        monthContainer.style.gap = "0.25rem";
+        
+        // Remover setas do calendário
+        calendar.classList.remove('arrowTop', 'arrowBottom');
+        
+        // Remover setas via CSS (pseudo-elements)
+        const style = document.createElement('style');
+        style.textContent = `
+            .flatpickr-calendar.arrowTop::before,
+            .flatpickr-calendar.arrowTop::after,
+            .flatpickr-calendar.arrowBottom::before,
+            .flatpickr-calendar.arrowBottom::after {
+                display: none !important;
             }
-            
-            // Remover setas via CSS (pseudo-elements)
-            const style = document.createElement('style');
-            style.textContent = `
-                .flatpickr-calendar.arrowTop::before,
-                .flatpickr-calendar.arrowTop::after,
-                .flatpickr-calendar.arrowBottom::before,
-                .flatpickr-calendar.arrowBottom::after {
-                    display: none !important;
-                }
-            `;
-            if (!document.head.querySelector('style[data-flatpickr-arrow-remover]')) {
-                style.setAttribute('data-flatpickr-arrow-remover', 'true');
-                document.head.appendChild(style);
-            }
+        `;
+        if (!document.head.querySelector('style[data-flatpickr-arrow-remover]')) {
+            style.setAttribute('data-flatpickr-arrow-remover', 'true');
+            document.head.appendChild(style);
         }
     }
     
@@ -2004,11 +1970,11 @@ function initFlatpickr() {
                     }
                 }
             },
-            onReady: function(selectedDates, dateStr, instance) {
-                removeCalendarArrow(instance);
+            onReady: function(_, __, instance) {
+                fixHeader(instance);
             },
-            onOpen: function(selectedDates, dateStr, instance) {
-                setTimeout(() => removeCalendarArrow(instance), 50);
+            onOpen: function(_, __, instance) {
+                setTimeout(() => fixHeader(instance), 50);
             }
         });
     }
@@ -2017,11 +1983,11 @@ function initFlatpickr() {
     if (endDateInput) {
         const endPicker = flatpickr(endDateInput, {
             ...flatpickrOptions,
-            onReady: function(selectedDates, dateStr, instance) {
-                removeCalendarArrow(instance);
+            onReady: function(_, __, instance) {
+                fixHeader(instance);
             },
-            onOpen: function(selectedDates, dateStr, instance) {
-                setTimeout(() => removeCalendarArrow(instance), 50);
+            onOpen: function(_, __, instance) {
+                setTimeout(() => fixHeader(instance), 50);
             }
         });
     }
