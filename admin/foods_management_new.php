@@ -20,11 +20,17 @@ $offset = ($page - 1) * $per_page;
 // --- Estatísticas gerais ---
 $stats = [];
 
-// Total de alimentos
-$stats['total'] = $conn->query("SELECT COUNT(*) as count FROM sf_food_items")->fetch_assoc()['count'];
+// Total de alimentos (excluindo USER_OFF - alimentos bugados)
+$stats['total'] = $conn->query("SELECT COUNT(*) as count FROM sf_food_items WHERE source_table != 'USER_OFF' AND source_table != 'user_off' AND source_table != 'user-off'")->fetch_assoc()['count'];
 
-// Por fonte
-$stats_query = "SELECT source_table, COUNT(*) as count FROM sf_food_items GROUP BY source_table ORDER BY count DESC";
+// Por fonte (excluindo USER_OFF)
+$stats_query = "SELECT source_table, COUNT(*) as count 
+                FROM sf_food_items 
+                WHERE source_table != 'USER_OFF' 
+                  AND source_table != 'user_off' 
+                  AND source_table != 'user-off'
+                GROUP BY source_table 
+                ORDER BY count DESC";
 $stats_result = $conn->query($stats_query);
 while ($row = $stats_result->fetch_assoc()) {
     $stats['by_source'][$row['source_table']] = $row['count'];
@@ -35,6 +41,9 @@ $sql = "SELECT * FROM sf_food_items";
 $conditions = [];
 $params = [];
 $types = '';
+
+// Sempre excluir USER_OFF (alimentos bugados)
+$conditions[] = "source_table != 'USER_OFF' AND source_table != 'user_off' AND source_table != 'user-off'";
 
 if (!empty($search_term)) {
     $conditions[] = "name_pt LIKE ?";
@@ -68,11 +77,14 @@ if ($stmt) {
     $foods = [];
 }
 
-// Contar total para paginação
+// Contar total para paginação (excluindo USER_OFF)
 $count_sql = "SELECT COUNT(*) as count FROM sf_food_items";
 $count_conditions = [];
 $count_params = [];
 $count_types = '';
+
+// Sempre excluir USER_OFF (alimentos bugados)
+$count_conditions[] = "source_table != 'USER_OFF' AND source_table != 'user_off' AND source_table != 'user-off'";
 
 if (!empty($search_term)) {
     $count_conditions[] = "name_pt LIKE ?";
@@ -639,11 +651,6 @@ require_once __DIR__ . '/includes/header.php';
     line-height: 1.4;
 }
 
-.source-badge.user-off {
-    background: rgba(107, 114, 128, 0.15);
-    border-color: rgba(107, 114, 128, 0.4);
-    color: #6B7280;
-}
 
 /* Legenda de Fontes */
 .source-legend {
@@ -1006,9 +1013,14 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         
         <?php foreach ($stats['by_source'] as $source => $count): 
+            // Pular user_off - alimentos bugados que serão removidos
+            $sourceLower = strtolower($source);
+            if ($sourceLower === 'user_off' || $sourceLower === 'user-off') {
+                continue;
+            }
+            
             $sourceParam = urlencode($source);
             $labelText = '';
-            $sourceLower = strtolower($source);
             switch ($sourceLower) {
                 case 'taco': 
                     $labelText = 'TACO'; 
@@ -1030,9 +1042,6 @@ require_once __DIR__ . '/includes/header.php';
                     break;
                 case 'user_created': 
                     $labelText = 'Criado por Usuário'; 
-                    break;
-                case 'user_off': 
-                    $labelText = 'Desativado pelo Usuário'; 
                     break;
                 default: 
                     $labelText = htmlspecialchars($source);
@@ -1071,9 +1080,6 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <div class="source-legend-item">
                 <span class="source-badge user-created">Criado por Usuário</span>
-            </div>
-            <div class="source-legend-item">
-                <span class="source-badge user-off">Desativado pelo Usuário</span>
             </div>
         </div>
     </div>
@@ -1162,10 +1168,6 @@ require_once __DIR__ . '/includes/header.php';
                                         case 'user_created':
                                             $badgeClass = 'user-created';
                                             $badgeText = 'Criado por Usuário';
-                                            break;
-                                        case 'user_off':
-                                            $badgeClass = 'user-off';
-                                            $badgeText = 'Desativado pelo Usuário';
                                             break;
                                         default:
                                             $badgeClass = 'manual';
