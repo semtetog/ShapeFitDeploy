@@ -552,6 +552,10 @@ require_once __DIR__ . '/includes/header.php';
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border: 1px solid;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    white-space: normal;
 }
 
 .source-badge.taco {
@@ -1046,8 +1050,8 @@ require_once __DIR__ . '/includes/header.php';
                     <thead>
                         <tr>
                             <th style="width: auto; text-align: left;">Nome</th>
-                            <th style="width: 180px; text-align: left;">Fonte</th>
-                            <th style="width: 200px; text-align: right;">Ações</th>
+                            <th style="width: 220px; text-align: left;">Fonte</th>
+                            <th style="width: 240px; text-align: right;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1733,16 +1737,16 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .data-table th:nth-child(2) {
-    width: 180px;
-    min-width: 180px;
-    max-width: 180px;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
 }
 
 .data-table th:last-child {
     text-align: right;
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
 }
 
 .data-table td {
@@ -1769,21 +1773,22 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .data-table td:nth-child(2) {
-    width: 180px;
-    min-width: 180px;
-    max-width: 180px;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
     text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    word-wrap: break-word;
 }
 
 .data-table td:last-child {
     text-align: right;
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
     white-space: nowrap;
+    overflow: visible;
 }
 
 /* Actions - Alinhamento Perfeito */
@@ -1793,6 +1798,8 @@ document.addEventListener('DOMContentLoaded', function() {
     justify-content: flex-end;
     gap: 0.75rem;
     flex-wrap: nowrap;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .btn-action {
