@@ -1099,6 +1099,7 @@ require_once __DIR__ . '/includes/header.php';
                                             case 'Sonia Tucunduva (Prioridade)': echo 'Sonia (Atualizado)'; break;
                                             case 'USDA': echo 'USDA'; break;
                                             case 'FatSecret': echo 'FatSecret'; break;
+                                            case 'user_created': echo 'Criado por Usuário'; break;
                                             default: echo htmlspecialchars($source_filter);
                                         }
                                     } else {
@@ -1115,6 +1116,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <div class="custom-select-option <?php echo $source_filter === 'Sonia Tucunduva (Prioridade)' ? 'selected' : ''; ?>" data-value="Sonia Tucunduva (Prioridade)">Sonia (Atualizado)</div>
                                 <div class="custom-select-option <?php echo $source_filter === 'USDA' ? 'selected' : ''; ?>" data-value="USDA">USDA</div>
                                 <div class="custom-select-option <?php echo $source_filter === 'FatSecret' ? 'selected' : ''; ?>" data-value="FatSecret">FatSecret</div>
+                                <div class="custom-select-option <?php echo $source_filter === 'user_created' ? 'selected' : ''; ?>" data-value="user_created">Criado por Usuário</div>
                             </div>
                         </div>
                     </div>
