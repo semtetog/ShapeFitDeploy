@@ -583,241 +583,384 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0;
 }
 
-/* Modal Styles */
-.modal {
-    display: none;
+/* ========================================================================= */
+/*       CHALLENGE MODAL - ESTILO FOODS_MANAGEMENT_NEW.PHP                  */
+/* ========================================================================= */
+
+/* Modal principal - estilo food-edit-modal */
+.challenge-edit-modal {
     position: fixed;
-    z-index: 10000;
-    left: 0;
     top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
+}
+
+.challenge-edit-modal.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Overlay separado - igual foods_management_new para blur mais rápido */
+.challenge-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    box-sizing: border-box;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: none !important;
 }
 
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
+.challenge-edit-content {
+    position: relative;
     background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 0;
-    max-width: 800px;
-    width: 100%;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 700px;
     max-height: 90vh;
-    overflow: hidden;
+    overflow: visible;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
 }
 
-.modal-header {
-    padding: 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.challenge-edit-modal.active .challenge-edit-content {
+    transform: scale(1);
 }
 
-.modal-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.modal-close {
+/* Botão X - copiado do sleep-modal-close do foods_management_new */
+.sleep-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
     background: none;
     border: none;
     color: var(--text-secondary);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    padding: 0;
-    width: 32px;
-    height: 32px;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
     transition: all 0.3s ease;
+    z-index: 10;
 }
 
-.modal-close:hover {
+.sleep-modal-close:hover {
     background: rgba(255, 255, 255, 0.1);
+    color: var(--accent-orange);
+}
+
+.challenge-edit-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.challenge-edit-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
 }
 
-.modal-body {
-    padding: 2rem;
-    overflow-y: auto;
+.challenge-edit-body {
+    padding: 1.25rem;
     flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
 }
 
-.modal-footer {
-    padding: 1.5rem 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+.challenge-edit-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
+    gap: 0.75rem;
     justify-content: flex-end;
-    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-.form-group {
-    margin-bottom: 1.5rem;
+/* Form Groups */
+.challenge-form-group {
+    margin-bottom: 1rem;
 }
 
-.form-group label {
+.challenge-form-group:last-child {
+    margin-bottom: 0;
+}
+
+.challenge-form-group label {
     display: block;
-    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
 }
 
-.form-group input,
-.form-group textarea {
+.challenge-form-input,
+.challenge-form-textarea,
+.challenge-form-select {
     width: 100%;
-    padding: 0.875rem 1.25rem;
-    font-size: 0.95rem;
-    color: var(--text-primary);
+    padding: 0.625rem 0.875rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    outline: none;
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
     box-sizing: border-box;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--accent-orange);
-}
-
-.form-group textarea {
+.challenge-form-textarea {
     resize: vertical;
-    min-height: 100px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.goals-section {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.goals-section h3 {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 1rem 0;
-}
-
-.goals-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.goal-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.goal-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: var(--accent-orange);
-}
-
-.goal-item input[type="checkbox"] {
-    width: auto;
-    margin: 0;
-    cursor: pointer;
-}
-
-.goal-item input[type="number"] {
-    width: 100px;
-    margin-left: auto;
-    display: none;
-}
-
-.goal-item.active input[type="number"] {
-    display: block;
-}
-
-.goal-item label {
-    margin: 0;
-    cursor: pointer;
-    flex: 1;
+    min-height: 80px;
     font-weight: 500;
 }
 
-.participants-section {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+.challenge-form-select {
+    cursor: pointer;
 }
 
-.participants-section h3 {
-    font-size: 1.125rem;
+.challenge-form-input:focus,
+.challenge-form-textarea:focus,
+.challenge-form-select:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.challenge-form-input::placeholder,
+.challenge-form-textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+.challenge-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+/* Sections */
+.challenge-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.challenge-section:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.challenge-section-title {
+    font-size: 0.9375rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 1rem 0;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
+.challenge-section-title i {
+    font-size: 1rem;
+    color: var(--accent-orange);
+}
+
+/* Goals Tags - Estilo igual source-tags */
+.challenge-goals-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.goal-tag {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    padding: 0.625rem 1rem;
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 0.7;
+}
+
+.goal-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.goal-tag.active {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    opacity: 1;
+    font-weight: 700;
+}
+
+/* Cores específicas para cada meta quando ativa */
+.goal-tag.active.calories {
+    background: rgba(255, 107, 0, 0.15) !important;
+    border-color: rgba(255, 107, 0, 0.4) !important;
+    color: #FF6B00 !important;
+}
+
+.goal-tag.active.water {
+    background: rgba(59, 130, 246, 0.15) !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+    color: #3B82F6 !important;
+}
+
+.goal-tag.active.exercise {
+    background: rgba(34, 197, 94, 0.15) !important;
+    border-color: rgba(34, 197, 94, 0.4) !important;
+    color: #22C55E !important;
+}
+
+.goal-tag.active.sleep {
+    background: rgba(168, 85, 247, 0.15) !important;
+    border-color: rgba(168, 85, 247, 0.4) !important;
+    color: #A855F7 !important;
+}
+
+.goal-tag.active.steps {
+    background: rgba(236, 72, 153, 0.15) !important;
+    border-color: rgba(236, 72, 153, 0.4) !important;
+    color: #EC4899 !important;
+}
+
+.goal-tag i {
+    font-size: 0.875rem;
+}
+
+/* Goal Inputs Container */
+.challenge-goals-inputs {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.goal-input-wrapper {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.goal-input-wrapper[style*="flex"],
+.goal-input-wrapper.active {
+    display: flex !important;
+}
+
+.goal-input-wrapper label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.goal-input-wrapper input {
+    width: 100%;
+}
+
+/* Participants Section */
 .participants-search {
     margin-bottom: 1rem;
 }
 
 .participants-list {
-    max-height: 300px;
+    max-height: 250px;
     overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
 }
 
-.participant-item {
+.participant-tag {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     padding: 0.75rem;
-    border-radius: 8px;
+    border-radius: 10px;
     transition: all 0.3s ease;
     cursor: pointer;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
 }
 
-.participant-item:hover {
-    background: rgba(255, 255, 255, 0.05);
+.participant-tag:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
-.participant-item input[type="checkbox"] {
-    width: auto;
-    margin: 0;
-    cursor: pointer;
+.participant-tag.selected {
+    background: rgba(255, 107, 0, 0.1);
+    border-color: rgba(255, 107, 0, 0.3);
+}
+
+.participant-tag.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 20px;
+    height: 20px;
+    background: var(--accent-orange);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
 }
 
 .participant-avatar {
     width: 40px;
     height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     border-radius: 50%;
     background: rgba(255, 107, 0, 0.1);
     display: flex;
@@ -825,56 +968,79 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center;
     color: var(--accent-orange);
     font-weight: 600;
-    flex-shrink: 0;
+    font-size: 0.875rem;
+    overflow: hidden;
+}
+
+.participant-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .participant-info {
     flex: 1;
+    min-width: 0;
 }
 
 .participant-name {
     font-weight: 600;
     color: var(--text-primary);
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .participant-email {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.btn-primary {
-    padding: 0.875rem 1.5rem;
-    background: var(--accent-orange);
+.participant-tag input[type="hidden"] {
+    display: none;
+}
+
+/* Botões - Estilo view_user */
+.btn-cancel,
+.btn-save {
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     border: none;
-    border-radius: 12px;
-    color: #FFFFFF;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
 }
 
-.btn-primary:hover {
-    background: #e65c00;
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn-secondary {
-    padding: 0.875rem 1.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.08);
     color: var(--text-primary);
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Montserrat', sans-serif;
 }
 
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
+.btn-save {
+    background: linear-gradient(135deg, #FF6600, #FF8533);
+    color: white;
+}
+
+.btn-save:hover {
+    background: linear-gradient(135deg, #FF8533, #FF6600);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
 }
 
 /* Pagination */
@@ -1077,43 +1243,51 @@ require_once __DIR__ . '/includes/header.php';
     <?php endif; ?>
 </div>
 
-<!-- Modal Create/Edit Challenge -->
-<div id="challengeModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="modalTitle">Criar Novo Desafio</h2>
-            <button class="modal-close" onclick="closeChallengeModal()">&times;</button>
+<!-- Modal Create/Edit Challenge - Estilo view_user -->
+<div id="challengeModal" class="challenge-edit-modal">
+    <div class="challenge-edit-overlay" onclick="closeChallengeModal()"></div>
+    <div class="challenge-edit-content">
+        <button class="sleep-modal-close" onclick="closeChallengeModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="challenge-edit-header">
+            <h3 id="modalTitle">Criar Novo Desafio</h3>
         </div>
-        <div class="modal-body">
+        
+        <div class="challenge-edit-body">
             <form id="challengeForm">
-                <input type="hidden" id="challengeId" name="challenge_id">
+                <input type="hidden" id="challengeId" name="challenge_id" value="">
                 
-                <div class="form-group">
+                <!-- Nome do Desafio -->
+                <div class="challenge-form-group">
                     <label for="challengeName">Nome do Desafio *</label>
-                    <input type="text" id="challengeName" name="name" required 
+                    <input type="text" id="challengeName" name="name" class="challenge-form-input" required 
                            placeholder="Ex: Desafio de Verão 2025">
                 </div>
                 
-                <div class="form-group">
+                <!-- Descrição -->
+                <div class="challenge-form-group">
                     <label for="challengeDescription">Descrição</label>
-                    <textarea id="challengeDescription" name="description" 
+                    <textarea id="challengeDescription" name="description" class="challenge-form-textarea" 
                               placeholder="Descreva o objetivo e regras do desafio"></textarea>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
+                <!-- Datas -->
+                <div class="challenge-form-row">
+                    <div class="challenge-form-group">
                         <label for="startDate">Data de Início *</label>
-                        <input type="date" id="startDate" name="start_date" required>
+                        <input type="date" id="startDate" name="start_date" class="challenge-form-input" required>
                     </div>
-                    <div class="form-group">
+                    <div class="challenge-form-group">
                         <label for="endDate">Data de Fim *</label>
-                        <input type="date" id="endDate" name="end_date" required>
+                        <input type="date" id="endDate" name="end_date" class="challenge-form-input" required>
                     </div>
                 </div>
                 
-                <div class="form-group">
+                <!-- Status -->
+                <div class="challenge-form-group">
                     <label for="challengeStatus">Status</label>
-                    <select id="challengeStatus" name="status" class="form-group input">
+                    <select id="challengeStatus" name="status" class="challenge-form-select">
                         <option value="scheduled">Agendado</option>
                         <option value="active">Ativo</option>
                         <option value="inactive">Inativo</option>
@@ -1121,69 +1295,80 @@ require_once __DIR__ . '/includes/header.php';
                     </select>
                 </div>
                 
-                <!-- Goals Section -->
-                <div class="goals-section">
-                    <h3><i class="fas fa-bullseye"></i> Metas do Desafio</h3>
-                    <div class="goals-grid">
-                        <div class="goal-item" data-goal="calories">
-                            <input type="checkbox" id="goal_calories" name="goals[]" value="calories">
+                <!-- Metas do Desafio -->
+                <div class="challenge-section">
+                    <h3 class="challenge-section-title">
+                        <i class="fas fa-bullseye"></i> Metas do Desafio
+                    </h3>
+                    <div class="challenge-goals-tags">
+                        <span class="goal-tag calories" data-goal="calories">
+                            <i class="fas fa-fire"></i>
+                            <span>Calorias</span>
+                        </span>
+                        <span class="goal-tag water" data-goal="water">
+                            <i class="fas fa-tint"></i>
+                            <span>Água</span>
+                        </span>
+                        <span class="goal-tag exercise" data-goal="exercise">
+                            <i class="fas fa-dumbbell"></i>
+                            <span>Exercício</span>
+                        </span>
+                        <span class="goal-tag sleep" data-goal="sleep">
+                            <i class="fas fa-bed"></i>
+                            <span>Sono</span>
+                        </span>
+                        <span class="goal-tag steps" data-goal="steps">
+                            <i class="fas fa-walking"></i>
+                            <span>Passos</span>
+                        </span>
+                    </div>
+                    
+                    <!-- Inputs de valores das metas -->
+                    <div class="challenge-goals-inputs">
+                        <div class="goal-input-wrapper" id="goal_calories_input" style="display: none;">
+                            <label>Calorias (kcal/dia)</label>
                             <input type="number" id="goal_calories_value" name="goal_calories_value" 
-                                   placeholder="kcal" min="0" step="1">
-                            <label for="goal_calories">
-                                <i class="fas fa-fire"></i> Calorias (kcal/dia)
-                            </label>
+                                   class="challenge-form-input" min="0" step="1" placeholder="Ex: 2000">
                         </div>
-                        <div class="goal-item" data-goal="water">
-                            <input type="checkbox" id="goal_water" name="goals[]" value="water">
+                        <div class="goal-input-wrapper" id="goal_water_input" style="display: none;">
+                            <label>Água (ml/dia)</label>
                             <input type="number" id="goal_water_value" name="goal_water_value" 
-                                   placeholder="ml" min="0" step="50">
-                            <label for="goal_water">
-                                <i class="fas fa-tint"></i> Água (ml/dia)
-                            </label>
+                                   class="challenge-form-input" min="0" step="50" placeholder="Ex: 2000">
                         </div>
-                        <div class="goal-item" data-goal="exercise">
-                            <input type="checkbox" id="goal_exercise" name="goals[]" value="exercise">
+                        <div class="goal-input-wrapper" id="goal_exercise_input" style="display: none;">
+                            <label>Exercício (min/dia)</label>
                             <input type="number" id="goal_exercise_value" name="goal_exercise_value" 
-                                   placeholder="min" min="0" step="5">
-                            <label for="goal_exercise">
-                                <i class="fas fa-dumbbell"></i> Exercício (min/dia)
-                            </label>
+                                   class="challenge-form-input" min="0" step="5" placeholder="Ex: 30">
                         </div>
-                        <div class="goal-item" data-goal="sleep">
-                            <input type="checkbox" id="goal_sleep" name="goals[]" value="sleep">
+                        <div class="goal-input-wrapper" id="goal_sleep_input" style="display: none;">
+                            <label>Sono (horas/dia)</label>
                             <input type="number" id="goal_sleep_value" name="goal_sleep_value" 
-                                   placeholder="horas" min="0" max="24" step="0.5">
-                            <label for="goal_sleep">
-                                <i class="fas fa-bed"></i> Sono (horas/dia)
-                            </label>
+                                   class="challenge-form-input" min="0" max="24" step="0.5" placeholder="Ex: 8">
                         </div>
-                        <div class="goal-item" data-goal="steps">
-                            <input type="checkbox" id="goal_steps" name="goals[]" value="steps">
+                        <div class="goal-input-wrapper" id="goal_steps_input" style="display: none;">
+                            <label>Passos (passos/dia)</label>
                             <input type="number" id="goal_steps_value" name="goal_steps_value" 
-                                   placeholder="passos" min="0" step="100">
-                            <label for="goal_steps">
-                                <i class="fas fa-walking"></i> Passos (passos/dia)
-                            </label>
+                                   class="challenge-form-input" min="0" step="100" placeholder="Ex: 10000">
                         </div>
                     </div>
                 </div>
                 
-                <!-- Participants Section -->
-                <div class="participants-section">
-                    <h3><i class="fas fa-users"></i> Participantes</h3>
+                <!-- Participantes -->
+                <div class="challenge-section">
+                    <h3 class="challenge-section-title">
+                        <i class="fas fa-users"></i> Participantes
+                    </h3>
                     <div class="participants-search">
-                        <input type="text" class="search-input" id="participantSearch" 
+                        <input type="text" class="challenge-form-input" id="participantSearch" 
                                placeholder="Buscar pacientes..." 
                                onkeyup="filterParticipants()">
                     </div>
                     <div class="participants-list" id="participantsList">
                         <?php foreach ($users as $user): ?>
-                            <div class="participant-item" 
+                            <div class="participant-tag" 
+                                 data-user-id="<?php echo $user['id']; ?>"
                                  data-name="<?php echo strtolower(htmlspecialchars($user['name'])); ?>"
                                  data-email="<?php echo strtolower(htmlspecialchars($user['email'])); ?>">
-                                <input type="checkbox" name="participants[]" 
-                                       value="<?php echo $user['id']; ?>" 
-                                       id="participant_<?php echo $user['id']; ?>">
                                 <div class="participant-avatar">
                                     <?php 
                                     if (!empty($user['profile_image_filename'])) {
@@ -1197,15 +1382,17 @@ require_once __DIR__ . '/includes/header.php';
                                     <div class="participant-name"><?php echo htmlspecialchars($user['name']); ?></div>
                                     <div class="participant-email"><?php echo htmlspecialchars($user['email']); ?></div>
                                 </div>
+                                <input type="hidden" name="participants[]" value="<?php echo $user['id']; ?>">
                             </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
             </form>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn-secondary" onclick="closeChallengeModal()">Cancelar</button>
-            <button type="button" class="btn-primary" onclick="saveChallenge()">
+        
+        <div class="challenge-edit-footer">
+            <button type="button" class="btn-cancel" onclick="closeChallengeModal()">Cancelar</button>
+            <button type="button" class="btn-save" onclick="saveChallenge()">
                 <i class="fas fa-save"></i> Salvar Desafio
             </button>
         </div>
@@ -1272,7 +1459,7 @@ function handleSearch(event) {
 // Filter participants
 function filterParticipants() {
     const searchTerm = document.getElementById('participantSearch').value.toLowerCase();
-    const items = document.querySelectorAll('.participant-item');
+    const items = document.querySelectorAll('.participant-tag');
     
     items.forEach(item => {
         const name = item.getAttribute('data-name');
@@ -1286,19 +1473,54 @@ function filterParticipants() {
     });
 }
 
-// Toggle goal input visibility
+// Toggle goal tags
 document.addEventListener('DOMContentLoaded', function() {
-    const goalItems = document.querySelectorAll('.goal-item');
-    goalItems.forEach(item => {
-        const checkbox = item.querySelector('input[type="checkbox"]');
-        checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                item.classList.add('active');
-                item.querySelector('input[type="number"]').required = true;
+    // Goal tags click handlers
+    const goalTags = document.querySelectorAll('.goal-tag');
+    goalTags.forEach(tag => {
+        tag.addEventListener('click', function() {
+            const goal = this.dataset.goal;
+            const inputWrapper = document.getElementById(`goal_${goal}_input`);
+            
+            // Toggle active class
+            this.classList.toggle('active');
+            
+            // Show/hide input
+            if (this.classList.contains('active')) {
+                if (inputWrapper) {
+                    inputWrapper.style.display = 'flex';
+                    const input = inputWrapper.querySelector('input');
+                    if (input) {
+                        input.required = true;
+                    }
+                }
             } else {
-                item.classList.remove('active');
-                item.querySelector('input[type="number"]').required = false;
-                item.querySelector('input[type="number"]').value = '';
+                if (inputWrapper) {
+                    inputWrapper.style.display = 'none';
+                    const input = inputWrapper.querySelector('input');
+                    if (input) {
+                        input.required = false;
+                        input.value = '';
+                    }
+                }
+            }
+        });
+    });
+    
+    // Participant tags click handlers
+    const participantTags = document.querySelectorAll('.participant-tag');
+    participantTags.forEach(tag => {
+        tag.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('selected');
+            
+            const hiddenInput = this.querySelector('input[type="hidden"]');
+            if (hiddenInput) {
+                if (this.classList.contains('selected')) {
+                    hiddenInput.name = 'participants[]';
+                } else {
+                    hiddenInput.name = '';
+                }
             }
         });
     });
@@ -1324,11 +1546,28 @@ function openCreateChallengeModal() {
     document.getElementById('challengeModal').classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    // Reset goals
-    document.querySelectorAll('.goal-item').forEach(item => {
-        item.classList.remove('active');
-        item.querySelector('input[type="checkbox"]').checked = false;
-        item.querySelector('input[type="number"]').value = '';
+    // Reset goal tags
+    document.querySelectorAll('.goal-tag').forEach(tag => {
+        tag.classList.remove('active');
+        const goal = tag.dataset.goal;
+        const inputWrapper = document.getElementById(`goal_${goal}_input`);
+        if (inputWrapper) {
+            inputWrapper.style.display = 'none';
+            const input = inputWrapper.querySelector('input');
+            if (input) {
+                input.required = false;
+                input.value = '';
+            }
+        }
+    });
+    
+    // Reset participant tags
+    document.querySelectorAll('.participant-tag').forEach(tag => {
+        tag.classList.remove('selected');
+        const hiddenInput = tag.querySelector('input[type="hidden"]');
+        if (hiddenInput) {
+            hiddenInput.name = '';
+        }
     });
 }
 
@@ -1362,12 +1601,8 @@ function saveChallenge() {
     alert('Salvar desafio');
 }
 
-// Close modal when clicking outside
-document.getElementById('challengeModal')?.addEventListener('click', function(event) {
-    if (event.target === this) {
-        closeChallengeModal();
-    }
-});
+// Close modal when clicking outside (via overlay)
+// Handled by onclick on overlay div
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
