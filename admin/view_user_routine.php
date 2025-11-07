@@ -577,10 +577,10 @@
 
 #exercise-bars.many-bars .improved-bar-container,
 #sleep-bars.many-bars .improved-bar-container {
-    flex: 0 0 calc((100% - (6 * 1rem)) / 7) !important;
-    max-width: calc((100% - (6 * 1rem)) / 7) !important;
+    flex: 0 0 auto !important;
+    max-width: 80px !important;
     min-width: 60px !important;
-    width: calc((100% - (6 * 1rem)) / 7) !important;
+    width: 70px !important;
 }
 
 /* Garantir que o container do chart permita wrap */
