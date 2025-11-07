@@ -470,10 +470,15 @@ require_once __DIR__ . '/includes/header.php';
     -webkit-backdrop-filter: none !important;
     box-shadow: none !important;
     filter: none !important;
+    vertical-align: middle;
+}
+
+.data-table th:last-child {
+    text-align: right;
 }
 
 .data-table td {
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
     font-size: 0.95rem;
@@ -1039,15 +1044,15 @@ require_once __DIR__ . '/includes/header.php';
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="min-width: 250px;">Nome</th>
-                            <th style="min-width: 120px;">Fonte</th>
+                            <th style="min-width: 250px; text-align: left;">Nome</th>
+                            <th style="min-width: 120px; text-align: left;">Fonte</th>
                             <th style="min-width: 150px; text-align: right;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($foods as $food): ?>
                             <tr>
-                                <td>
+                                <td style="text-align: left; vertical-align: top;">
                                     <div class="food-name-cell">
                                         <?php echo htmlspecialchars($food['name_pt']); ?>
                                     </div>
@@ -1058,7 +1063,7 @@ require_once __DIR__ . '/includes/header.php';
                                         </div>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td style="text-align: left; vertical-align: middle;">
                                     <?php 
                                     $source = $food['source_table'];
                                     $badgeClass = '';
@@ -1106,8 +1111,8 @@ require_once __DIR__ . '/includes/header.php';
                                         <?php echo $badgeText; ?>
                                     </span>
                                 </td>
-                                <td style="text-align: right;">
-                                    <div class="actions">
+                                <td style="text-align: right; vertical-align: middle;">
+                                    <div class="actions" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem;">
                                         <button type="button" onclick="openEditFoodModal(<?php echo $food['id']; ?>)" class="btn-action edit">
                                             <i class="fas fa-edit"></i> Editar
                                         </button>
@@ -1479,19 +1484,19 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <style>
+/* ========== MODAL - REFATORADO DO ZERO ========== */
 /* Custom Select - estilo do recipes.php */
 .custom-modal-body .custom-select-wrapper {
     position: relative;
     width: 100%;
-    display: flex;
-    flex-direction: column;
 }
 
-.custom-select {
+.custom-modal-body .custom-select {
     position: relative;
+    width: 100%;
 }
 
-.custom-select-trigger {
+.custom-modal-body .custom-select-trigger {
     width: 100%;
     padding: 0.75rem 1rem;
     background: rgba(255, 255, 255, 0.05);
@@ -1501,25 +1506,25 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.95rem;
     cursor: pointer;
     display: flex;
-    justify-content: flex-start;
     align-items: center;
     transition: all 0.3s ease;
     box-sizing: border-box;
     font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
 }
 
-.custom-select-trigger:hover {
+.custom-modal-body .custom-select-trigger:hover {
     border-color: var(--accent-orange);
 }
 
-.custom-select-value {
+.custom-modal-body .custom-select-value {
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.custom-select-options {
+.custom-modal-body .custom-select-options {
     display: none;
     position: absolute;
     top: calc(100% + 8px);
@@ -1536,11 +1541,11 @@ document.addEventListener('DOMContentLoaded', function() {
     box-sizing: border-box;
 }
 
-.custom-select.active .custom-select-options {
+.custom-modal-body .custom-select.active .custom-select-options {
     display: block;
 }
 
-.custom-select-option {
+.custom-modal-body .custom-select-option {
     padding: 0.75rem 1rem;
     color: var(--text-primary);
     cursor: pointer;
@@ -1548,25 +1553,31 @@ document.addEventListener('DOMContentLoaded', function() {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.custom-select-option:last-child {
+.custom-modal-body .custom-select-option:last-child {
     border-bottom: none;
 }
 
-.custom-select-option:hover {
+.custom-modal-body .custom-select-option:hover {
     background: rgba(255, 107, 0, 0.1);
     color: var(--accent-orange);
 }
 
-.custom-select-option.selected {
+.custom-modal-body .custom-select-option.selected {
     background: rgba(255, 107, 0, 0.15);
     color: var(--accent-orange);
     font-weight: 600;
 }
 
+/* Form Groups - Alinhamento Perfeito */
 .custom-modal-body .form-group {
     margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
+    width: 100%;
+}
+
+.custom-modal-body .form-group:last-child {
+    margin-bottom: 0;
 }
 
 .custom-modal-body .form-group label {
@@ -1577,6 +1588,7 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-bottom: 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    width: 100%;
 }
 
 .custom-modal-body .form-group .form-control {
@@ -1591,6 +1603,7 @@ document.addEventListener('DOMContentLoaded', function() {
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
     box-sizing: border-box;
+    margin: 0;
 }
 
 .custom-modal-body .form-group .form-control:focus {
@@ -1600,23 +1613,29 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
+/* Form Row - Alinhamento Simétrico */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
     align-items: start;
+    width: 100%;
 }
 
 .form-row .form-group {
     margin-bottom: 0;
+    width: 100%;
 }
 
+/* Food Calculations */
 .food-calculations {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 1rem;
     margin-top: 1rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .calculation-item {
@@ -1624,6 +1643,7 @@ document.addEventListener('DOMContentLoaded', function() {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
+    width: 100%;
 }
 
 .calculation-item:last-child {
@@ -1642,6 +1662,7 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 700;
 }
 
+/* Botão Excluir - Estilo Correto */
 .btn-modal-danger {
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
@@ -1649,14 +1670,17 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     border: none;
     font-family: 'Montserrat', sans-serif;
     background: var(--danger-red);
     color: white;
     border: 1px solid var(--danger-red);
+    height: auto;
+    min-height: auto;
 }
 
 .btn-modal-danger:hover {
@@ -1665,20 +1689,121 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
 }
 
-/* Alinhamento do footer do modal */
+/* Footer do Modal - Alinhamento Perfeito */
 .custom-modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
     align-items: center;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    flex-wrap: wrap;
 }
 
-/* Ajustar alinhamento da tabela */
-.data-table th,
-.data-table td {
+.custom-modal-footer button {
+    flex-shrink: 0;
     white-space: nowrap;
+}
+
+/* ========== TABELA - ALINHAMENTO PERFEITO ========== */
+.data-table th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    vertical-align: middle;
+}
+
+.data-table th:last-child {
+    text-align: right;
+}
+
+.data-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    vertical-align: middle;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    text-align: left;
+}
+
+.data-table td:last-child {
+    text-align: right;
 }
 
 .data-table th:first-child,
 .data-table td:first-child {
     white-space: normal;
+    text-align: left;
+}
+
+/* Actions - Alinhamento Perfeito */
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+}
+
+.btn-action {
+    padding: 0.625rem 1rem;
+    border-radius: 10px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    height: auto;
+    min-height: auto;
+}
+
+.btn-action.edit {
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    color: var(--accent-orange);
+}
+
+.btn-action.edit:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+}
+
+.btn-action.delete {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    color: #F44336;
+}
+
+.btn-action.delete:hover {
+    background: rgba(244, 67, 54, 0.2);
+    border-color: #F44336;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
 }
 </style>
 
