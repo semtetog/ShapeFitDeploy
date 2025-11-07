@@ -141,6 +141,12 @@ require_once __DIR__ . '/includes/header.php';
     transition: all 0.3s ease;
     position: relative;
     overflow: visible;
+    z-index: 1;
+}
+
+.foods-header-card.dropdown-active {
+    z-index: 9998 !important;
+    will-change: z-index;
 }
 
 .foods-header-card:hover {
@@ -360,12 +366,10 @@ require_once __DIR__ . '/includes/header.php';
     left: 0;
     right: 0;
     z-index: 9999 !important;
-    background: rgba(35, 35, 35, 0.98);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgb(28, 28, 28);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -1328,6 +1332,10 @@ require_once __DIR__ . '/includes/header.php';
                     if (otherWrapper) {
                         otherWrapper.classList.remove('active');
                     }
+                    const otherCard = otherWrapper ? otherWrapper.closest('.foods-header-card') : null;
+                    if (otherCard) {
+                        otherCard.classList.remove('dropdown-active');
+                    }
                 }
             });
             
@@ -1335,6 +1343,11 @@ require_once __DIR__ . '/includes/header.php';
             const wrapper = customSelect.closest('.custom-select-wrapper');
             if (wrapper) {
                 wrapper.classList.add('active');
+                // Adiciona classe no card também
+                const card = wrapper.closest('.foods-header-card');
+                if (card) {
+                    card.classList.add('dropdown-active');
+                }
             }
             // Adiciona active DEPOIS do wrapper para garantir z-index
             customSelect.classList.add('active');
@@ -1344,6 +1357,10 @@ require_once __DIR__ . '/includes/header.php';
             const wrapper = customSelect.closest('.custom-select-wrapper');
             if (wrapper) {
                 wrapper.classList.remove('active');
+                const card = wrapper.closest('.foods-header-card');
+                if (card) {
+                    card.classList.remove('dropdown-active');
+                }
             }
         }
     });
@@ -1367,6 +1384,10 @@ require_once __DIR__ . '/includes/header.php';
             const wrapper = customSelect.closest('.custom-select-wrapper');
             if (wrapper) {
                 wrapper.classList.remove('active');
+                const card = wrapper.closest('.foods-header-card');
+                if (card) {
+                    card.classList.remove('dropdown-active');
+                }
             }
             
             // Submete o formulário
@@ -1383,6 +1404,10 @@ require_once __DIR__ . '/includes/header.php';
         const wrapper = customSelect.closest('.custom-select-wrapper');
         if (wrapper) {
             wrapper.classList.remove('active');
+            const card = wrapper.closest('.foods-header-card');
+            if (card) {
+                card.classList.remove('dropdown-active');
+            }
         }
     }
 
