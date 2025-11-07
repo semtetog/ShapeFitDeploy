@@ -1607,14 +1607,30 @@ function updateBulkButton() {
 // Função para inicializar custom select - COPIADO EXATAMENTE DO recipes.php
 function initCustomSelect(selectId, inputId, submitForm) {
     const customSelect = document.getElementById(selectId);
-    if (!customSelect) return;
+    if (!customSelect) {
+        console.warn(`Elemento ${selectId} não encontrado`);
+        return;
+    }
     
     const hiddenInput = document.getElementById(inputId);
-    if (!hiddenInput) return;
+    if (!hiddenInput) {
+        console.warn(`Input ${inputId} não encontrado`);
+        return;
+    }
     
     const trigger = customSelect.querySelector('.custom-select-trigger');
     const options = customSelect.querySelectorAll('.custom-select-option');
     const valueDisplay = customSelect.querySelector('.custom-select-value');
+    
+    if (!trigger) {
+        console.warn(`Trigger não encontrado em ${selectId}`);
+        return;
+    }
+    
+    if (!valueDisplay) {
+        console.warn(`Value display não encontrado em ${selectId}`);
+        return;
+    }
     
     // Abre/fecha o dropdown - SIMPLES como recipes.php
     trigger.addEventListener('click', function(e) {
@@ -1685,8 +1701,12 @@ function initCustomSelect(selectId, inputId, submitForm) {
             e.stopPropagation();
             
             const value = this.getAttribute('data-value');
+            if (!value) return;
+            
             hiddenInput.value = value;
-            valueDisplay.textContent = this.textContent;
+            if (valueDisplay) {
+                valueDisplay.textContent = this.textContent;
+            }
             
             options.forEach(opt => opt.classList.remove('selected'));
             this.classList.add('selected');
@@ -1708,7 +1728,10 @@ function initCustomSelect(selectId, inputId, submitForm) {
             if (submitForm) {
                 const form = customSelect.closest('form');
                 if (form) {
-                    form.submit();
+                    // Pequeno delay para garantir que o valor foi setado
+                    setTimeout(() => {
+                        form.submit();
+                    }, 10);
                 }
             } else {
                 updateBulkButton();
