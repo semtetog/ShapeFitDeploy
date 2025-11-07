@@ -411,42 +411,24 @@ require_once __DIR__ . '/includes/header.php';
     transform: translateY(-1px);
 }
 
-/* Data Table - usando estilo dashboard-card */
+/* Data Table - usando estilo dashboard-card idêntico */
 .foods-table-container {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 0;
-    margin-bottom: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    transition: all 0.3s ease;
+    /* Herda todos os estilos de .dashboard-card do admin_novo_style.css */
+    /* padding: 2rem já vem do dashboard-card */
 }
 
-.foods-table-container:hover {
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-    border-color: var(--accent-orange);
-}
-
-.table-header {
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 0;
-}
-
-.table-title {
+.foods-table-container h3 {
     font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 0 0 1.5rem 0;
+    font-family: 'Montserrat', sans-serif;
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
-.table-title i {
+.foods-table-container h3 i {
     color: var(--accent-orange);
 }
 
@@ -461,19 +443,20 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .data-table thead {
-    background: rgba(255, 255, 255, 0.03);
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .data-table th {
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.5rem;
     text-align: left;
     font-size: 0.875rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #FFFFFF;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     white-space: nowrap;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .data-table td {
@@ -1008,18 +991,16 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     <?php else: ?>
         <div class="dashboard-card foods-table-container">
-            <div class="table-header">
-                <h3 class="table-title">
-                    <i class="fas fa-list"></i>
-                    Alimentos 
-                    <?php if (!empty($search_term) || !empty($source_filter)): ?>
-                        - Filtrados
-                    <?php endif; ?>
-                    <span style="color: var(--text-secondary); font-weight: 400; margin-left: 0.5rem;">
-                        (<?php echo number_format($total_items); ?> total)
-                    </span>
-                </h3>
-            </div>
+            <h3>
+                <i class="fas fa-list"></i>
+                Alimentos 
+                <?php if (!empty($search_term) || !empty($source_filter)): ?>
+                    - Filtrados
+                <?php endif; ?>
+                <span style="color: var(--text-secondary); font-weight: 400; margin-left: 0.5rem; font-size: 0.875rem;">
+                    (<?php echo number_format($total_items); ?> total)
+                </span>
+            </h3>
             
             <div class="table-content">
                 <table class="data-table">
