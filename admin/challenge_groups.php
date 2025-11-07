@@ -1668,6 +1668,61 @@ function handleSearch(event) {
     }
 }
 
+// Inicializar Flatpickr
+function initFlatpickr() {
+    // Configuração do Flatpickr
+    const flatpickrOptions = {
+        locale: 'pt',
+        dateFormat: 'Y-m-d',
+        minDate: 'today',
+        allowInput: false,
+        clickOpens: true,
+        animate: true,
+        monthSelectorType: 'static',
+        defaultDate: null
+    };
+    
+    // Remover instâncias existentes
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    
+    if (startDateInput && startDateInput._flatpickr) {
+        startDateInput._flatpickr.destroy();
+    }
+    if (endDateInput && endDateInput._flatpickr) {
+        endDateInput._flatpickr.destroy();
+    }
+    
+    // Inicializar para data de início
+    if (startDateInput) {
+        flatpickr(startDateInput, {
+            ...flatpickrOptions,
+            onChange: function(selectedDates, dateStr) {
+                // Atualizar minDate do endDate para ser após startDate
+                if (endDateInput && selectedDates.length > 0) {
+                    const endDatePicker = endDateInput._flatpickr;
+                    if (endDatePicker) {
+                        const nextDay = new Date(selectedDates[0]);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        endDatePicker.set('minDate', nextDay);
+                    }
+                }
+            }
+        });
+    }
+    
+    // Inicializar para data de fim
+    if (endDateInput) {
+        flatpickr(endDateInput, flatpickrOptions);
+    }
+}
+
+// Inicializar Flatpickr ao carregar a página
+document.addEventListener('DOMContentLoaded', function() {
+    // Aguardar um pouco para garantir que o DOM está totalmente carregado
+    setTimeout(initFlatpickr, 100);
+});
+
 // Filter participants
 function filterParticipants() {
     const searchTerm = document.getElementById('participantSearch').value.toLowerCase();
@@ -1758,6 +1813,9 @@ function openCreateChallengeModal() {
     document.getElementById('challengeId').value = '';
     document.getElementById('challengeModal').classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    // Reinicializar Flatpickr após abrir o modal
+    setTimeout(initFlatpickr, 100);
     
     // Reset goal tags
     document.querySelectorAll('.goal-tag').forEach(tag => {
