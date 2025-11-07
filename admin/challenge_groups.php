@@ -1924,11 +1924,50 @@ function initFlatpickr() {
         endDateInput._flatpickr.destroy();
     }
     
-    // Função para remover seta do calendário
+    // Função para remover seta do calendário e reorganizar ano/mês
     function removeCalendarArrow(picker) {
         if (picker && picker.calendarContainer) {
             const calendar = picker.calendarContainer;
             calendar.classList.remove('arrowTop', 'arrowBottom');
+            
+            // Reorganizar ano e mês para garantir ordem correta
+            const currentMonth = calendar.querySelector('.flatpickr-current-month');
+            if (currentMonth) {
+                const year = currentMonth.querySelector('.cur-year');
+                const month = currentMonth.querySelector('.flatpickr-monthDropdown-months');
+                
+                if (year && month) {
+                    // Garantir que ano apareça primeiro (em cima) no DOM
+                    // Com flex-direction: column-reverse, o último elemento aparece primeiro
+                    // Então colocamos o mês primeiro no DOM para que apareça embaixo
+                    // E o ano depois no DOM para que apareça em cima
+                    const parent = year.parentNode;
+                    if (parent) {
+                        // Remover ambos
+                        parent.removeChild(year);
+                        parent.removeChild(month);
+                        // Inserir mês primeiro (aparecerá embaixo com column-reverse)
+                        parent.insertBefore(month, parent.firstChild);
+                        // Inserir ano depois (aparecerá em cima com column-reverse)
+                        parent.appendChild(year);
+                    }
+                    
+                    // Forçar estilos
+                    currentMonth.style.display = 'flex';
+                    currentMonth.style.flexDirection = 'column-reverse';
+                    currentMonth.style.alignItems = 'center';
+                    currentMonth.style.justifyContent = 'center';
+                    currentMonth.style.textAlign = 'center';
+                    currentMonth.style.width = '100%';
+                    currentMonth.style.gap = '0.25rem';
+                    
+                    year.style.display = 'block';
+                    year.style.width = '100%';
+                    year.style.textAlign = 'center';
+                    year.style.margin = '0';
+                    year.style.padding = '0';
+                }
+            }
             
             // Remover setas via CSS (pseudo-elements)
             const style = document.createElement('style');
