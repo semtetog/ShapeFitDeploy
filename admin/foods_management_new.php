@@ -1860,24 +1860,75 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-top: 0.5rem;
 }
 
-/* Tags clicáveis */
+/* Tags clicáveis - Estado padrão (cinza/baixa saturação) */
 .source-tag {
     cursor: pointer;
     transition: all 0.3s ease;
     user-select: none;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 0.7;
 }
 
 .source-tag:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    opacity: 0.9;
+    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
 }
 
+/* Tags ativas - Estado colorido */
 .source-tag.active {
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     opacity: 1;
     font-weight: 700;
+}
+
+/* Cores específicas para cada tag quando ativa */
+.source-tag.active.taco {
+    background: rgba(34, 197, 94, 0.15) !important;
+    border-color: rgba(34, 197, 94, 0.4) !important;
+    color: #22C55E !important;
+}
+
+.source-tag.active.sonia {
+    background: rgba(59, 130, 246, 0.15) !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+    color: #3B82F6 !important;
+}
+
+.source-tag.active.sonia-updated {
+    background: rgba(147, 51, 234, 0.15) !important;
+    border-color: rgba(147, 51, 234, 0.4) !important;
+    color: #9333EA !important;
+}
+
+.source-tag.active.usda {
+    background: rgba(236, 72, 153, 0.15) !important;
+    border-color: rgba(236, 72, 153, 0.4) !important;
+    color: #EC4899 !important;
+}
+
+.source-tag.active.fatsecret {
+    background: rgba(255, 107, 0, 0.15) !important;
+    border-color: rgba(255, 107, 0, 0.4) !important;
+    color: #FF6B00 !important;
+}
+
+.source-tag.active.manual {
+    background: rgba(168, 85, 247, 0.15) !important;
+    border-color: rgba(168, 85, 247, 0.4) !important;
+    color: #A855F7 !important;
+}
+
+.source-tag.active.user-created {
+    background: rgba(251, 191, 36, 0.15) !important;
+    border-color: rgba(251, 191, 36, 0.4) !important;
+    color: #FBBF24 !important;
 }
 
 /* Footer */
