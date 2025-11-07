@@ -549,7 +549,7 @@
     display: flex;
     justify-content: flex-start;
     align-items: flex-end;
-    gap: 1rem;
+    gap: 0.75rem;
     min-height: 240px;
     padding: 1rem 0.5rem 0.5rem;
     position: relative;
@@ -558,29 +558,14 @@
 
 #exercise-bars .improved-bar-container,
 #sleep-bars .improved-bar-container {
-    flex: 0 0 calc((100% - (6 * 1rem)) / 7);
-    max-width: calc((100% - (6 * 1rem)) / 7);
-    min-width: 60px;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-}
-
-/* Quando há mais de 7 barras, permitir wrap para múltiplas fileiras */
-@media (min-width: 768px) {
-    #exercise-bars .improved-bar-container,
-    #sleep-bars .improved-bar-container {
-        flex: 0 0 calc((100% - (6 * 1rem)) / 7);
-        max-width: calc((100% - (6 * 1rem)) / 7);
-    }
-}
-
-/* Em telas menores ou quando há muitos dias, permitir mais barras por linha */
-#exercise-bars:has(.improved-bar-container:nth-child(8)) .improved-bar-container,
-#sleep-bars:has(.improved-bar-container:nth-child(8)) .improved-bar-container {
-    flex: 0 0 calc((100% - (10 * 1rem)) / 11);
-    max-width: calc((100% - (10 * 1rem)) / 11);
+    min-width: 50px;
+    max-width: 80px;
+    width: auto;
 }
 
 
