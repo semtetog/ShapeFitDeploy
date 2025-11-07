@@ -42,11 +42,9 @@ $stats['scheduled'] = $stats_by_status['scheduled'] ?? 0;
 // --- Construir query de busca ---
 $sql = "SELECT 
     cg.*,
-    COUNT(DISTINCT cgm.user_id) as member_count,
-    COUNT(DISTINCT cgo.id) as goals_count
+    COUNT(DISTINCT cgm.user_id) as member_count
     FROM sf_challenge_groups cg
     LEFT JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
-    LEFT JOIN sf_challenge_goals cgo ON cg.id = cgo.challenge_group_id
     WHERE cg.created_by = ?";
 $conditions = [];
 $params = [$admin_id];
@@ -1210,15 +1208,9 @@ require_once __DIR__ . '/includes/header.php';
                 $today = new DateTime();
                 $status_class = $group['status'];
                 
-                // Buscar metas do grupo
-                $goals_query = "SELECT goal_type, goal_value, goal_unit 
-                               FROM sf_challenge_goals 
-                               WHERE challenge_group_id = ?";
-                $goals_stmt = $conn->prepare($goals_query);
-                $goals_stmt->bind_param("i", $group['id']);
-                $goals_stmt->execute();
-                $goals = $goals_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                $goals_stmt->close();
+                // Buscar metas do grupo (do campo JSON)
+                $goals_json = $group['goals'] ?? '[]';
+                $goals = json_decode($goals_json, true) ?: [];
                 ?>
                 <div class="challenge-group-card" onclick="viewChallenge(<?php echo $group['id']; ?>)">
                     <div class="group-card-header">
@@ -1241,10 +1233,12 @@ require_once __DIR__ . '/includes/header.php';
                             <i class="fas fa-users"></i>
                             <span><?php echo $group['member_count']; ?> participantes</span>
                         </div>
+                        <?php if (!empty($goals)): ?>
                         <div class="group-info-item">
                             <i class="fas fa-bullseye"></i>
-                            <span><?php echo count($goals); ?> metas</span>
+                            <span><?php echo count($goals); ?> meta(s)</span>
                         </div>
+                        <?php endif; ?>
                         <div class="group-info-item">
                             <span><?php echo $start_date->format('d/m/Y'); ?> - <?php echo $end_date->format('d/m/Y'); ?></span>
                         </div>
