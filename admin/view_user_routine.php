@@ -69,35 +69,11 @@
             </div>
         </div>
 
-        <!-- SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO E SONO -->
-        <div class="exercise-sleep-tracking-section">
-            
-            <!-- Card de Exercício Físico -->
-            <div class="exercise-tracking-card">
-                <div class="tracking-card-header">
-                    <div class="tracking-card-title">
-                        <div class="tracking-icon exercise-icon">
-                            <i class="fas fa-dumbbell"></i>
-                        </div>
-                        <div class="tracking-title-content">
-                            <h3>Exercício Físico</h3>
-                            <p>
-                                <?php 
-                                $exercise_freq_names = [
-                                    '1_2x_week' => '1 a 2x/semana',
-                                    '3_4x_week' => '3 a 4x/semana',
-                                    '5_6x_week' => '5 a 6x/semana',
-                                    '6_7x_week' => '6 a 7x/semana',
-                                    '7plus_week' => '+ de 7x/semana',
-                                    'sedentary' => 'Sedentário'
-                                ];
-                                $exercise_freq = $user_data['exercise_frequency'] ?? 'sedentary';
-                                $exercise_type = $user_data['exercise_type'] ?? 'Não informado';
-                                echo htmlspecialchars($exercise_type) . ' - ' . ($exercise_freq_names[$exercise_freq] ?? 'Não informado');
-                                ?>
-                            </p>
-                        </div>
-                    </div>
+        <!-- SEÇÃO DE ACOMPANHAMENTO: EXERCÍCIO FÍSICO -->
+        <div class="chart-section">
+            <div class="exercise-chart-improved">
+                <div class="chart-header">
+                    <h4><i class="fas fa-dumbbell"></i> Exercício Físico</h4>
                     <div class="period-buttons">
                         <button class="period-btn active" onclick="showExerciseCalendar()" id="exercise-period-btn" title="Selecionar período">
                             <i class="fas fa-calendar-alt"></i> Últimos 7 dias
@@ -105,7 +81,7 @@
                     </div>
                 </div>
                 
-                <div class="tracking-stats-grid">
+                <div class="tracking-stats-grid" style="margin-bottom: 1.5rem;">
                     <?php
                     // Calcular estatísticas dos últimos 7 dias
                     $exercise_7_days = array_filter($routine_exercise_data, function($item) {
@@ -143,130 +119,22 @@
                     </div>
                 </div>
                 
-                <div class="improved-chart" id="exercise-chart-container">
-                    <?php
-                    // Preparar dados dos últimos 7 dias para exibição inicial
-                    $exercise_7_days = array_filter($routine_exercise_data, function($item) {
-                        $itemDate = new DateTime($item['date']);
-                        $now = new DateTime();
-                        $diff = $now->diff($itemDate)->days;
-                        return $diff < 7;
-                    });
-                    
-                    // Criar array de datas para os últimos 7 dias
-                    $exercise_chart_data = [];
-                    for ($i = 6; $i >= 0; $i--) {
-                        $date = new DateTime();
-                        $date->modify("-{$i} days");
-                        $dateStr = $date->format('Y-m-d');
-                        
-                        $found = false;
-                        foreach ($exercise_7_days as $exercise_day) {
-                            if ($exercise_day['date'] === $dateStr) {
-                                $minutes = (float)($exercise_day['total_minutes'] ?? 0);
-                                $percentage = $exercise_goal_daily_minutes > 0 ? min(($minutes / $exercise_goal_daily_minutes) * 100, 150) : 0;
-                                $status = 'empty';
-                                if ($minutes > 0) {
-                                    if ($exercise_goal_daily_minutes > 0 && $minutes >= $exercise_goal_daily_minutes) {
-                                        $status = 'excellent';
-                                    } elseif ($exercise_goal_daily_minutes > 0 && $minutes >= $exercise_goal_daily_minutes * 0.7) {
-                                        $status = 'good';
-                                    } else {
-                                        $status = 'poor';
-                                    }
-                                }
-                                $exercise_chart_data[] = [
-                                    'date' => $dateStr,
-                                    'minutes' => $minutes,
-                                    'percentage' => $percentage,
-                                    'status' => $status
-                                ];
-                                $found = true;
-                                break;
-                            }
-                        }
-                        if (!$found) {
-                            $exercise_chart_data[] = [
-                                'date' => $dateStr,
-                                'minutes' => 0,
-                                'percentage' => 0,
-                                'status' => 'empty'
-                            ];
-                        }
-                    }
-                    ?>
-                    <?php if (empty($exercise_chart_data)): ?>
+                <div class="improved-chart" id="exercise-chart">
+                    <div class="improved-bars" id="exercise-bars">
                         <div class="empty-chart">
-                            <i class="fas fa-dumbbell"></i>
-                            <p>Nenhum registro encontrado</p>
-                        </div>
-                    <?php else: ?>
-                        <div class="improved-bars" id="exercise-bars" data-period="7">
-                            <?php foreach ($exercise_chart_data as $day): 
-                                $limitedPercentage = min($day['percentage'], 150);
-                                $barHeight = 0;
-                                if ($limitedPercentage === 0) {
-                                    $barHeight = 0;
-                                } else if ($limitedPercentage >= 100) {
-                                    $barHeight = 160;
-                                } else {
-                                    $barHeight = ($limitedPercentage / 100) * 160;
-                                }
-                            ?>
-                                <div class="improved-bar-container">
-                                    <div class="improved-bar-wrapper">
-                                        <div class="improved-bar <?php echo $day['status']; ?>" style="height: <?php echo $barHeight; ?>px"></div>
-                                        <?php if ($day['minutes'] > 0): ?>
-                                            <div class="bar-value-text">
-                                                <?php 
-                                                $hours = floor($day['minutes'] / 60);
-                                                $mins = $day['minutes'] % 60;
-                                                if ($hours > 0) {
-                                                    echo $hours . 'h' . ($mins > 0 ? ' ' . $mins . 'm' : '');
-                                                } else {
-                                                    echo $mins . 'min';
-                                                }
-                                                ?>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="bar-value-text empty">-</div>
-                                        <?php endif; ?>
-                                        <?php if ($exercise_goal_daily_minutes > 0): 
-                                            // Calcular posição da linha de meta (meta em relação ao máximo do gráfico)
-                                            $maxMinutes = $exercise_goal_daily_minutes * 1.5; // Máximo do gráfico
-                                            $goalPercentage = ($exercise_goal_daily_minutes / $maxMinutes) * 100;
-                                            $goalLineBottom = (100 - $goalPercentage) * 1.6; // Converter para pixels (160px é 100%)
-                                        ?>
-                                            <div class="improved-goal-line" style="bottom: <?php echo $goalLineBottom; ?>px;"></div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="improved-bar-info">
-                                        <span class="improved-date"><?php echo date('d/m', strtotime($day['date'])); ?></span>
-                                        <?php if ($day['minutes'] > 0 && $exercise_goal_daily_minutes > 0): ?>
-                                            <span class="improved-value"><?php echo round($day['percentage'], 0); ?>%</span>
-                                        <?php else: ?>
-                                            <span class="improved-value empty">-</span>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-            
-            <!-- Card de Sono -->
-            <div class="sleep-tracking-card">
-                <div class="tracking-card-header">
-                    <div class="tracking-card-title">
-                        <div class="tracking-icon sleep-icon">
-                            <i class="fas fa-bed"></i>
-                        </div>
-                        <div class="tracking-title-content">
-                            <h3>Sono</h3>
-                            <p>Meta: 7-8 horas por dia (ideal: 7.5h)</p>
+                            <div class="loading-spinner"></div>
+                            <p>Carregando dados...</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SEÇÃO DE ACOMPANHAMENTO: SONO -->
+        <div class="chart-section">
+            <div class="sleep-chart-improved">
+                <div class="chart-header">
+                    <h4><i class="fas fa-bed"></i> Sono</h4>
                     <div class="period-buttons">
                         <button class="period-btn active" onclick="showSleepCalendar()" id="sleep-period-btn" title="Selecionar período">
                             <i class="fas fa-calendar-alt"></i> Últimos 7 dias
@@ -274,7 +142,7 @@
                     </div>
                 </div>
                 
-                <div class="tracking-stats-grid" id="sleepStatsGrid">
+                <div class="tracking-stats-grid" style="margin-bottom: 1.5rem;" id="sleepStatsGrid">
                     <?php
                     // Calcular estatísticas dos últimos 7 dias
                     $sleep_7_days = array_filter($routine_sleep_data, function($item) {
@@ -328,8 +196,8 @@
                     </div>
                 </div>
                 
-                <div class="improved-chart" id="sleep-chart-container">
-                    <div class="improved-bars" id="sleep-bars" data-period="7">
+                <div class="improved-chart" id="sleep-chart">
+                    <div class="improved-bars" id="sleep-bars">
                         <div class="empty-chart">
                             <div class="loading-spinner"></div>
                             <p>Carregando dados...</p>
@@ -337,7 +205,6 @@
                     </div>
                 </div>
             </div>
-            
         </div>
 
         <!-- 2. CARD DE GERENCIAMENTO DE MISSÕES -->
@@ -2609,7 +2476,7 @@ function renderExerciseChart(data) {
                 </div>
                 <div class="improved-bar-info">
                     <span class="improved-date">${new Date(day.date + 'T00:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</span>
-                    ${minutes > 0 ? `<span class="improved-ml">${minutes} min</span>` : '<span class="improved-ml">-</span>'}
+                    ${minutes > 0 ? `<span class="improved-ml">${minutes} min</span>` : ''}
                 </div>
             </div>
         `;
@@ -2656,7 +2523,7 @@ function renderSleepChart(data) {
                 </div>
                 <div class="improved-bar-info">
                     <span class="improved-date">${new Date(day.date + 'T00:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})}</span>
-                    ${hours > 0 ? `<span class="improved-ml">${hours.toFixed(1)}h</span>` : '<span class="improved-ml">-</span>'}
+                    ${hours > 0 ? `<span class="improved-ml">${hours.toFixed(1)}h</span>` : ''}
                 </div>
             </div>
         `;
