@@ -955,23 +955,24 @@ require_once __DIR__ . '/includes/header.php';
         <?php foreach ($stats['by_source'] as $source => $count): 
             $sourceParam = urlencode($source);
             $labelText = '';
-            switch ($source) {
-                case 'TACO': 
+            $sourceLower = strtolower($source);
+            switch ($sourceLower) {
+                case 'taco': 
                     $labelText = 'TACO'; 
                     break;
-                case 'Sonia Tucunduva': 
+                case 'sonia tucunduva': 
                     $labelText = 'Sonia'; 
                     break;
-                case 'Sonia Tucunduva (Prioridade)': 
+                case 'sonia tucunduva (prioridade)': 
                     $labelText = 'Sonia (Atualizado)'; 
                     break;
-                case 'USDA': 
+                case 'usda': 
                     $labelText = 'USDA'; 
                     break;
-                case 'FatSecret': 
+                case 'fatsecret': 
                     $labelText = 'FatSecret'; 
                     break;
-                case 'Manual': 
+                case 'manual': 
                     $labelText = 'Manual'; 
                     break;
                 case 'user_created': 
@@ -1078,29 +1079,30 @@ require_once __DIR__ . '/includes/header.php';
                                     $source = $food['source_table'];
                                     $badgeClass = '';
                                     $badgeText = '';
+                                    $sourceLower = strtolower($source);
                                     
-                                    switch ($source) {
-                                        case 'TACO':
+                                    switch ($sourceLower) {
+                                        case 'taco':
                                             $badgeClass = 'taco';
                                             $badgeText = 'TACO';
                                             break;
-                                        case 'Sonia Tucunduva':
+                                        case 'sonia tucunduva':
                                             $badgeClass = 'sonia';
                                             $badgeText = 'Sonia';
                                             break;
-                                        case 'Sonia Tucunduva (Prioridade)':
+                                        case 'sonia tucunduva (prioridade)':
                                             $badgeClass = 'sonia-updated';
                                             $badgeText = 'Sonia (Atualizado)';
                                             break;
-                                        case 'USDA':
+                                        case 'usda':
                                             $badgeClass = 'usda';
                                             $badgeText = 'USDA';
                                             break;
-                                        case 'FatSecret':
+                                        case 'fatsecret':
                                             $badgeClass = 'fatsecret';
                                             $badgeText = 'FatSecret';
                                             break;
-                                        case 'Manual':
+                                        case 'manual':
                                             $badgeClass = 'manual';
                                             $badgeText = 'Manual';
                                             break;
