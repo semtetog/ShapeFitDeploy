@@ -547,9 +547,9 @@
 #exercise-bars,
 #sleep-bars {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-around;
     align-items: flex-end;
-    gap: 0.75rem;
+    gap: 1rem;
     min-height: 240px;
     padding: 1rem 0.5rem 0.5rem;
     position: relative;
@@ -558,14 +558,13 @@
 
 #exercise-bars .improved-bar-container,
 #sleep-bars .improved-bar-container {
-    flex: 0 0 auto;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    min-width: 50px;
-    max-width: 80px;
-    width: auto;
+    min-width: 60px;
+    max-width: 100px;
 }
 
 
