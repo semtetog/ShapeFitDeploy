@@ -814,8 +814,18 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Esconder seta que aponta para o input */
 .flatpickr-calendar::before,
-.flatpickr-calendar::after {
+.flatpickr-calendar::after,
+.flatpickr-calendar.arrowTop::before,
+.flatpickr-calendar.arrowTop::after,
+.flatpickr-calendar.arrowBottom::before,
+.flatpickr-calendar.arrowBottom::after {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    border: none !important;
+    content: none !important;
 }
 
 .flatpickr-calendar {
@@ -832,11 +842,11 @@ require_once __DIR__ . '/includes/header.php';
     overflow: visible !important;
 }
 
-.flatpickr-calendar.arrowTop::before,
-.flatpickr-calendar.arrowTop::after,
-.flatpickr-calendar.arrowBottom::before,
-.flatpickr-calendar.arrowBottom::after {
-    display: none !important;
+/* Remover qualquer indicador de seta do Flatpickr */
+.flatpickr-calendar.arrowTop,
+.flatpickr-calendar.arrowBottom {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 .flatpickr-months {
