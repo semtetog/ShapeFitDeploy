@@ -963,6 +963,8 @@ require_once __DIR__ . '/includes/header.php';
     position: relative;
     width: 80px;
     height: 80px;
+    animation: spinner-rotate 1s linear infinite;
+    transform-origin: center center;
 }
 
 .spinner-dot {
@@ -971,56 +973,51 @@ require_once __DIR__ . '/includes/header.php';
     height: 10px;
     background: var(--accent-orange);
     border-radius: 50%;
-    top: 0;
+    top: 50%;
     left: 50%;
     margin-left: -5px;
-    transform-origin: 50% 40px;
+    margin-top: -5px;
 }
 
+/* Posicionar cada bolinha em um círculo perfeito */
 .spinner-dot:nth-child(1) {
-    transform: rotate(0deg);
+    transform: translate(0, -35px);
     opacity: 1;
 }
 
 .spinner-dot:nth-child(2) {
-    transform: rotate(45deg);
+    transform: translate(24.75px, -24.75px);
     opacity: 0.875;
 }
 
 .spinner-dot:nth-child(3) {
-    transform: rotate(90deg);
+    transform: translate(35px, 0);
     opacity: 0.75;
 }
 
 .spinner-dot:nth-child(4) {
-    transform: rotate(135deg);
+    transform: translate(24.75px, 24.75px);
     opacity: 0.625;
 }
 
 .spinner-dot:nth-child(5) {
-    transform: rotate(180deg);
+    transform: translate(0, 35px);
     opacity: 0.5;
 }
 
 .spinner-dot:nth-child(6) {
-    transform: rotate(225deg);
+    transform: translate(-24.75px, 24.75px);
     opacity: 0.375;
 }
 
 .spinner-dot:nth-child(7) {
-    transform: rotate(270deg);
+    transform: translate(-35px, 0);
     opacity: 0.25;
 }
 
 .spinner-dot:nth-child(8) {
-    transform: rotate(315deg);
+    transform: translate(-24.75px, -24.75px);
     opacity: 0.125;
-}
-
-/* Animação apenas no container - as bolinhas giram junto */
-.spinner-dots {
-    animation: spinner-rotate 1s linear infinite;
-    transform-origin: center center;
 }
 
 @keyframes spinner-rotate {
