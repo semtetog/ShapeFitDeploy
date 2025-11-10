@@ -727,6 +727,18 @@ require_once __DIR__ . '/includes/header.php';
     overflow-y: auto;
 }
 
+.progress-modal-content-simple {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .progress-modal-body {
     padding: 1.5rem;
     position: relative;
@@ -936,57 +948,88 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.7rem;
 }
 
-.loading-spinner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.loading-spinner-simple {
+    position: relative;
+    width: 80px;
+    height: 80px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: auto;
-    color: var(--text-secondary);
-    z-index: 10;
-    pointer-events: none;
 }
 
-.loading-spinner i {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-    color: var(--accent-orange);
-    display: inline-block;
-    width: 3rem;
-    height: 3rem;
-    line-height: 3rem;
-    text-align: center;
-    vertical-align: middle;
-    animation: spin-icon-only 1s linear infinite;
-    transform-origin: center center;
-    box-sizing: border-box;
+.spinner-dots {
+    position: relative;
+    width: 80px;
+    height: 80px;
 }
 
-.loading-spinner p {
-    margin: 0;
-    padding: 0;
-    font-size: 1rem;
-    color: var(--text-secondary);
-    text-align: center;
-    display: block;
-    white-space: nowrap;
-    width: 100%;
-    /* Garantir que o texto nunca gire */
-    transform: translateZ(0) !important;
-    animation: none !important;
-    will-change: auto !important;
+.spinner-dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--accent-orange);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    margin-left: -6px;
+    margin-top: -6px;
+    animation: spinner-dot-rotate 1.2s linear infinite;
 }
 
-@keyframes spin-icon-only {
-    from {
-        transform: rotate(0deg);
+.spinner-dot:nth-child(1) {
+    transform: rotate(0deg) translate(0, -30px);
+    animation-delay: 0s;
+    opacity: 1;
+}
+
+.spinner-dot:nth-child(2) {
+    transform: rotate(45deg) translate(0, -30px);
+    animation-delay: -0.15s;
+    opacity: 0.875;
+}
+
+.spinner-dot:nth-child(3) {
+    transform: rotate(90deg) translate(0, -30px);
+    animation-delay: -0.3s;
+    opacity: 0.75;
+}
+
+.spinner-dot:nth-child(4) {
+    transform: rotate(135deg) translate(0, -30px);
+    animation-delay: -0.45s;
+    opacity: 0.625;
+}
+
+.spinner-dot:nth-child(5) {
+    transform: rotate(180deg) translate(0, -30px);
+    animation-delay: -0.6s;
+    opacity: 0.5;
+}
+
+.spinner-dot:nth-child(6) {
+    transform: rotate(225deg) translate(0, -30px);
+    animation-delay: -0.75s;
+    opacity: 0.375;
+}
+
+.spinner-dot:nth-child(7) {
+    transform: rotate(270deg) translate(0, -30px);
+    animation-delay: -0.9s;
+    opacity: 0.25;
+}
+
+.spinner-dot:nth-child(8) {
+    transform: rotate(315deg) translate(0, -30px);
+    animation-delay: -1.05s;
+    opacity: 0.125;
+}
+
+@keyframes spinner-dot-rotate {
+    0% {
+        opacity: 1;
     }
-    to {
-        transform: rotate(360deg);
+    100% {
+        opacity: 0.1;
     }
 }
 
@@ -2302,17 +2345,17 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Modal de Progresso do Desafio -->
 <div id="progressModal" class="challenge-edit-modal">
     <div class="challenge-edit-overlay" onclick="closeProgressModal()"></div>
-    <div class="challenge-edit-content progress-modal-content">
-        <button class="sleep-modal-close" onclick="closeProgressModal()" type="button">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="challenge-edit-header">
-            <h3 id="progressModalTitle">Progresso do Desafio</h3>
-        </div>
-        <div class="progress-modal-body" id="progressModalBody">
-            <div class="loading-spinner">
-                <i class="fas fa-spinner"></i>
-                <p>Carregando progresso...</p>
+    <div class="progress-modal-content-simple" id="progressModalBody">
+        <div class="loading-spinner-simple">
+            <div class="spinner-dots">
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
             </div>
         </div>
     </div>
@@ -3043,10 +3086,24 @@ function viewChallengeProgress(challengeId) {
     // Abrir modal
     const modal = document.getElementById('progressModal');
     const modalBody = document.getElementById('progressModalBody');
-    const modalTitle = document.getElementById('progressModalTitle');
     
     modal.classList.add('active');
-    modalBody.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i><p>Carregando progresso...</p></div>';
+    
+    // Mostrar apenas o loading de bolinhas
+    modalBody.innerHTML = `
+        <div class="loading-spinner-simple">
+            <div class="spinner-dots">
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+            </div>
+        </div>
+    `;
     
     // Buscar progresso via AJAX
     fetch('ajax_challenge_groups.php', {
@@ -3063,7 +3120,6 @@ function viewChallengeProgress(challengeId) {
     .then(data => {
         if (data.success) {
             displayChallengeProgress(data);
-            modalTitle.textContent = `Progresso: ${data.challenge.name}`;
         } else {
             modalBody.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-circle"></i> ${data.message}</div>`;
         }
@@ -3225,7 +3281,7 @@ function displayChallengeProgress(data) {
         </div>
     `;
     
-    modalBody.innerHTML = html;
+    progressBody.innerHTML = html;
 }
 
 function closeProgressModal() {
