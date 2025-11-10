@@ -1027,9 +1027,28 @@ require_once __DIR__ . '/includes/header.php';
 @keyframes spinner-dot-rotate {
     0% {
         opacity: 1;
+        transform: rotate(0deg) translate(0, -30px) scale(1);
+    }
+    50% {
+        opacity: 0.3;
     }
     100% {
-        opacity: 0.1;
+        opacity: 1;
+        transform: rotate(360deg) translate(0, -30px) scale(1);
+    }
+}
+
+/* Garantir que as bolinhas fiquem no círculo */
+.spinner-dots {
+    animation: spinner-rotate 1.2s linear infinite;
+}
+
+@keyframes spinner-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
     }
 }
 
