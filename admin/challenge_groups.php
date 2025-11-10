@@ -2444,12 +2444,19 @@ function editChallenge(id) {
             // Selecionar participantes que estão no desafio
             document.querySelectorAll('.participant-tag').forEach(tag => {
                 const userId = tag.getAttribute('data-user-id');
+                const hiddenInput = tag.querySelector('input[type="hidden"]');
+                
                 if (userId && memberIdsNum.includes(String(userId))) {
+                    // Participante está no desafio - selecionar
                     tag.classList.add('selected');
-                    const hiddenInput = tag.querySelector('input[type="hidden"]');
                     if (hiddenInput) {
-                        // O value já está correto, só precisamos garantir que tem o name
                         hiddenInput.setAttribute('name', 'participants[]');
+                    }
+                } else {
+                    // Participante não está no desafio - não selecionar
+                    tag.classList.remove('selected');
+                    if (hiddenInput) {
+                        hiddenInput.removeAttribute('name');
                     }
                 }
             });
