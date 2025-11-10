@@ -2429,22 +2429,27 @@ function editChallenge(id) {
             
             // Preencher participantes
             const memberIds = challenge.member_ids || [];
+            // Converter para números para comparar corretamente
+            const memberIdsNum = memberIds.map(id => String(id));
+            
             document.querySelectorAll('.participant-tag').forEach(tag => {
                 tag.classList.remove('selected');
                 const hiddenInput = tag.querySelector('input[type="hidden"]');
                 if (hiddenInput) {
+                    // Remover name para que não seja enviado se não estiver selecionado
                     hiddenInput.removeAttribute('name');
                 }
             });
             
-            memberIds.forEach(userId => {
-                const participantTag = document.querySelector(`.participant-tag[data-user-id="${userId}"]`);
-                if (participantTag) {
-                    participantTag.classList.add('selected');
-                    const hiddenInput = participantTag.querySelector('input[type="hidden"]');
+            // Selecionar participantes que estão no desafio
+            document.querySelectorAll('.participant-tag').forEach(tag => {
+                const userId = tag.getAttribute('data-user-id');
+                if (userId && memberIdsNum.includes(String(userId))) {
+                    tag.classList.add('selected');
+                    const hiddenInput = tag.querySelector('input[type="hidden"]');
                     if (hiddenInput) {
+                        // O value já está correto, só precisamos garantir que tem o name
                         hiddenInput.setAttribute('name', 'participants[]');
-                        hiddenInput.value = userId;
                     }
                 }
             });
