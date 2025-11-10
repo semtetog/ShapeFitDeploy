@@ -437,9 +437,11 @@ require_once __DIR__ . '/includes/header.php';
 /* Groups Grid */
 .challenge-groups-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .challenge-group-card {
@@ -456,6 +458,10 @@ require_once __DIR__ . '/includes/header.php';
     filter: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    min-width: 0 !important;
 }
 
 .challenge-group-card:hover {
@@ -468,8 +474,12 @@ require_once __DIR__ . '/includes/header.php';
 .group-card-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .group-name {
@@ -478,6 +488,10 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-primary);
     margin: 0;
     flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 .group-status {
@@ -522,6 +536,10 @@ require_once __DIR__ . '/includes/header.php';
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .group-info {
@@ -538,6 +556,9 @@ require_once __DIR__ . '/includes/header.php';
     gap: 0.5rem;
     color: var(--text-secondary);
     font-size: 0.875rem;
+    flex-shrink: 0;
+    min-width: 0;
+    white-space: nowrap;
 }
 
 .group-info-item i {
@@ -546,22 +567,38 @@ require_once __DIR__ . '/includes/header.php';
 
 .group-card-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     margin-top: auto;
     padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .btn-action {
     flex: 1;
-    padding: 0.75rem;
+    min-width: 0;
+    padding: 0.625rem 0.5rem;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    border: 1px solid;
+    background: transparent;
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 600;
     transition: all 0.3s ease;
     border: none;
