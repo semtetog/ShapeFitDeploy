@@ -1224,6 +1224,132 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         
         <div class="card-suggestions"><div class="card-header"><h3>Sugestões para <?php echo htmlspecialchars($meal_suggestion_data['display_name']); ?></span></h3><a href="<?php echo BASE_APP_URL; ?>/explore_recipes.php?categories=<?php echo urlencode($meal_suggestion_data['category_id'] ?? ''); ?>" class="view-all-link">Ver mais</a></div><div class="carousel-wrapper"><div class="suggestions-carousel"><?php if (!empty($meal_suggestion_data['recipes'])): foreach($meal_suggestion_data['recipes'] as $recipe): ?><div class="suggestion-item glass-card"> <a href="<?php echo BASE_APP_URL; ?>/view_recipe.php?id=<?php echo $recipe['id']; ?>" class="suggestion-link"><div class="suggestion-image-container"><img src="<?php echo BASE_ASSET_URL . '/assets/images/recipes/' . htmlspecialchars($recipe['image_filename'] ? $recipe['image_filename'] : 'placeholder_food.jpg'); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>"></div><div class="recipe-info"><h4><?php echo htmlspecialchars($recipe['name']); ?></h4><span><i class="fas fa-fire-alt"></i> <?php echo round($recipe['kcal_per_serving']); ?> kcal</span></div></a></div><?php endforeach; else: ?><div class="no-suggestions-card glass-card"><p>Nenhuma sugestão para esta refeição no momento.</p></div><?php endif; ?></div></div></div>
         
+        <!-- Card de Grupos de Desafio -->
+        <div class="glass-card card-challenges">
+            <div class="card-header">
+                <h3><i class="fas fa-trophy"></i> Grupos de Desafio</h3>
+                <?php if (!empty($user_challenge_groups)): ?>
+                    <a href="<?php echo BASE_APP_URL; ?>/challenges.php" class="view-all-link">Ver todos</a>
+                <?php endif; ?>
+            </div>
+            
+            <?php if (empty($user_challenge_groups)): ?>
+                <!-- Estado vazio: usuário não está em nenhum grupo -->
+                <div class="challenges-empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h4>Nenhum grupo de desafio</h4>
+                    <p>Você não foi adicionado(a) em nenhum grupo de desafios. Consulte seu nutricionista para mais informações.</p>
+                </div>
+            <?php else: ?>
+                <!-- Lista de desafios -->
+                <div class="challenges-list">
+                    <?php foreach ($user_challenge_groups as $challenge): ?>
+                        <?php
+                        $start_date = new DateTime($challenge['start_date']);
+                        $end_date = new DateTime($challenge['end_date']);
+                        $today = new DateTime();
+                        $status = $challenge['status'];
+                        
+                        // Determinar status atual
+                        if ($today < $start_date) {
+                            $current_status = 'scheduled';
+                            $status_text = 'Agendado';
+                            $status_color = 'var(--text-secondary)';
+                        } elseif ($today >= $start_date && $today <= $end_date) {
+                            $current_status = 'active';
+                            $status_text = 'Em andamento';
+                            $status_color = 'var(--accent-orange)';
+                        } else {
+                            $current_status = 'completed';
+                            $status_text = 'Concluído';
+                            $status_color = '#4CAF50';
+                        }
+                        
+                        // Calcular progresso (dias)
+                        $total_days = $start_date->diff($end_date)->days + 1;
+                        $days_passed = $today > $start_date ? $start_date->diff($today)->days : 0;
+                        $days_remaining = max(0, $end_date->diff($today)->days);
+                        $progress_percentage = $total_days > 0 ? min(100, round(($days_passed / $total_days) * 100)) : 0;
+                        ?>
+                        <a href="<?php echo BASE_APP_URL; ?>/challenges.php?id=<?php echo $challenge['id']; ?>" class="challenge-item">
+                            <div class="challenge-item-header">
+                                <h4><?php echo htmlspecialchars($challenge['name']); ?></h4>
+                                <span class="challenge-status" style="color: <?php echo $status_color; ?>;">
+                                    <?php echo $status_text; ?>
+                                </span>
+                            </div>
+                            
+                            <?php if ($challenge['description']): ?>
+                                <p class="challenge-description"><?php echo htmlspecialchars(substr($challenge['description'], 0, 100)); ?><?php echo strlen($challenge['description']) > 100 ? '...' : ''; ?></p>
+                            <?php endif; ?>
+                            
+                            <div class="challenge-meta">
+                                <span class="challenge-date">
+                                    <i class="fas fa-calendar"></i>
+                                    <?php echo $start_date->format('d/m/Y'); ?> - <?php echo $end_date->format('d/m/Y'); ?>
+                                </span>
+                                <span class="challenge-participants">
+                                    <i class="fas fa-users"></i>
+                                    <?php echo $challenge['total_participants']; ?> participante<?php echo $challenge['total_participants'] > 1 ? 's' : ''; ?>
+                                </span>
+                            </div>
+                            
+                            <?php if ($current_status === 'active'): ?>
+                                <div class="challenge-progress">
+                                    <div class="challenge-progress-info">
+                                        <span><?php echo $days_remaining; ?> dia<?php echo $days_remaining > 1 ? 's' : ''; ?> restante<?php echo $days_remaining > 1 ? 's' : ''; ?></span>
+                                        <span><?php echo $progress_percentage; ?>%</span>
+                                    </div>
+                                    <div class="progress-bar-challenge">
+                                        <div class="progress-bar-challenge-fill" style="width: <?php echo $progress_percentage; ?>%;"></div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($challenge['goals'])): ?>
+                                <div class="challenge-goals-preview">
+                                    <?php foreach ($challenge['goals'] as $goal): ?>
+                                        <span class="challenge-goal-badge">
+                                            <?php
+                                            $goal_icons = [
+                                                'calories' => 'fas fa-fire',
+                                                'water' => 'fas fa-tint',
+                                                'exercise' => 'fas fa-dumbbell',
+                                                'sleep' => 'fas fa-bed'
+                                            ];
+                                            $goal_labels = [
+                                                'calories' => 'Calorias',
+                                                'water' => 'Água',
+                                                'exercise' => 'Exercício',
+                                                'sleep' => 'Sono'
+                                            ];
+                                            $icon = $goal_icons[$goal['type']] ?? 'fas fa-bullseye';
+                                            $label = $goal_labels[$goal['type']] ?? ucfirst($goal['type']);
+                                            ?>
+                                            <i class="<?php echo $icon; ?>"></i>
+                                            <?php echo $label; ?>
+                                            <?php if (isset($goal['value'])): ?>
+                                                <span><?php echo $goal['value']; ?>
+                                                <?php
+                                                if ($goal['type'] === 'calories') echo 'kcal';
+                                                elseif ($goal['type'] === 'water') echo 'ml';
+                                                elseif ($goal['type'] === 'exercise') echo 'min';
+                                                elseif ($goal['type'] === 'sleep') echo 'h';
+                                                ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        
     </section>
 </div>
 
