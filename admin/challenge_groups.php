@@ -945,22 +945,28 @@ require_once __DIR__ . '/includes/header.php';
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: auto;
     color: var(--text-secondary);
     z-index: 10;
+    pointer-events: none;
 }
 
 .loading-spinner i {
     font-size: 3rem;
     margin-bottom: 1.5rem;
     color: var(--accent-orange);
-    display: inline-block;
+    display: block;
     width: 3rem;
     height: 3rem;
     line-height: 3rem;
     text-align: center;
-    animation: spin 1s linear infinite;
-    transform-origin: center center;
+    animation: spin-icon 1s linear infinite;
+    transform-origin: 50% 50%;
+}
+
+.loading-spinner i.fa-spinner {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
 }
 
 .loading-spinner p {
@@ -972,11 +978,12 @@ require_once __DIR__ . '/includes/header.php';
     display: block;
     transform: none !important;
     animation: none !important;
-    position: static !important;
+    position: relative !important;
     white-space: nowrap;
+    width: 100%;
 }
 
-@keyframes spin {
+@keyframes spin-icon {
     0% {
         transform: rotate(0deg);
     }
@@ -2306,7 +2313,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="progress-modal-body" id="progressModalBody">
             <div class="loading-spinner">
-                <i class="fas fa-spinner fa-spin"></i>
+                <i class="fas fa-spinner"></i>
                 <p>Carregando progresso...</p>
             </div>
         </div>
