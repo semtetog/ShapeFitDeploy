@@ -713,12 +713,9 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.8125rem;
 }
 
-.btn-action > *:not(i) {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-    flex: 1;
+/* Garantir que o texto dos botões não seja cortado */
+.btn-action {
+    text-align: center;
 }
 
 /* Toggle Switch - Interruptor Moderno */
