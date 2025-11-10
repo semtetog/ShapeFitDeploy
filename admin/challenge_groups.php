@@ -2358,20 +2358,158 @@ function closeChallengeModal() {
 }
 
 function editChallenge(id) {
-    // TODO: Implement edit functionality
-    alert('Editar desafio: ' + id);
+    if (!id) {
+        alert('Erro: ID do desafio não fornecido');
+        return;
+    }
+    
+    // Buscar dados do desafio via AJAX
+    fetch('ajax_challenge_groups.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'get',
+            challenge_id: id
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success && result.challenge) {
+            const challenge = result.challenge;
+            
+            // Preencher campos do formulário
+            document.getElementById('challengeId').value = challenge.id;
+            document.getElementById('challengeName').value = challenge.name || '';
+            document.getElementById('challengeDescription').value = challenge.description || '';
+            
+            // Converter datas de Y-m-d para d/m/Y
+            if (challenge.start_date) {
+                const startDate = new Date(challenge.start_date + 'T00:00:00');
+                const startDay = String(startDate.getDate()).padStart(2, '0');
+                const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+                const startYear = startDate.getFullYear();
+                document.getElementById('startDate').value = `${startDay}/${startMonth}/${startYear}`;
+            }
+            
+            if (challenge.end_date) {
+                const endDate = new Date(challenge.end_date + 'T00:00:00');
+                const endDay = String(endDate.getDate()).padStart(2, '0');
+                const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+                const endYear = endDate.getFullYear();
+                document.getElementById('endDate').value = `${endDay}/${endMonth}/${endYear}`;
+            }
+            
+            // Preencher metas
+            const goals = challenge.goals || [];
+            document.querySelectorAll('.goal-tag').forEach(tag => {
+                tag.classList.remove('active');
+                const goalType = tag.dataset.goal;
+                const goalInput = document.getElementById(`goal_${goalType}_input`);
+                if (goalInput) {
+                    goalInput.style.display = 'none';
+                }
+            });
+            
+            goals.forEach(goal => {
+                const goalTag = document.querySelector(`.goal-tag[data-goal="${goal.type}"]`);
+                if (goalTag) {
+                    goalTag.classList.add('active');
+                    const goalInput = document.getElementById(`goal_${goal.type}_input`);
+                    if (goalInput) {
+                        goalInput.style.display = 'flex';
+                        const valueInput = document.getElementById(`goal_${goal.type}_value`);
+                        if (valueInput) {
+                            valueInput.value = goal.value || '';
+                        }
+                    }
+                }
+            });
+            
+            // Preencher participantes
+            const memberIds = challenge.member_ids || [];
+            document.querySelectorAll('.participant-tag').forEach(tag => {
+                tag.classList.remove('selected');
+                const hiddenInput = tag.querySelector('input[type="hidden"]');
+                if (hiddenInput) {
+                    hiddenInput.removeAttribute('name');
+                }
+            });
+            
+            memberIds.forEach(userId => {
+                const participantTag = document.querySelector(`.participant-tag[data-user-id="${userId}"]`);
+                if (participantTag) {
+                    participantTag.classList.add('selected');
+                    const hiddenInput = participantTag.querySelector('input[type="hidden"]');
+                    if (hiddenInput) {
+                        hiddenInput.setAttribute('name', 'participants[]');
+                        hiddenInput.value = userId;
+                    }
+                }
+            });
+            
+            // Atualizar título do modal
+            document.getElementById('modalTitle').textContent = 'Editar Desafio';
+            
+            // Abrir modal
+            openChallengeModal();
+            
+            // Reinicializar Flatpickr com as datas
+            setTimeout(() => {
+                initFlatpickr();
+            }, 300);
+            
+        } else {
+            alert('Erro ao carregar desafio: ' + (result.message || 'Desafio não encontrado'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao carregar desafio. Tente novamente.');
+    });
 }
 
 function deleteChallenge(id) {
-    if (confirm('Tem certeza que deseja excluir este desafio?')) {
-        // TODO: Implement delete functionality
-        alert('Excluir desafio: ' + id);
+    if (!id) {
+        alert('Erro: ID do desafio não fornecido');
+        return;
     }
+    
+    if (!confirm('Tem certeza que deseja excluir este desafio? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+    
+    // Deletar desafio via AJAX
+    fetch('ajax_challenge_groups.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'delete',
+            challenge_id: id
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert(result.message || 'Desafio excluído com sucesso!');
+            // Recarregar a página para atualizar a lista
+            location.reload();
+        } else {
+            alert('Erro ao excluir desafio: ' + (result.message || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao excluir desafio. Tente novamente.');
+    });
 }
 
 function viewChallenge(id) {
-    // TODO: Implement view functionality
-    alert('Ver desafio: ' + id);
+    // Para visualizar, vamos apenas abrir no modo de edição (readonly pode ser implementado depois)
+    editChallenge(id);
 }
 
 // Salvar desafio
