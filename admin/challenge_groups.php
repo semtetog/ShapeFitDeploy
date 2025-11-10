@@ -3150,6 +3150,14 @@ function displayChallengeProgress(data) {
     const currentDate = data.current_date;
     const baseAssetUrl = '<?php echo BASE_ASSET_URL; ?>';
     
+    // Adicionar overlay quando mostrar conteúdo completo
+    if (!modal.querySelector('.challenge-edit-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'challenge-edit-overlay';
+        overlay.onclick = closeProgressModal;
+        modal.insertBefore(overlay, modalBody);
+    }
+    
     // Mudar o modal para o conteúdo completo
     modalBody.className = 'challenge-edit-content progress-modal-content';
     
