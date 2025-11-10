@@ -2665,33 +2665,33 @@ function viewChallenge(id) {
     editChallenge(id);
 }
 
-function toggleChallengeStatus(id, currentStatus) {
+function toggleChallengeStatus(id, currentStatus, toggleElement) {
     if (!id) {
         alert('Erro: ID do desafio não fornecido');
         // Reverter o toggle
-        const toggle = document.querySelector(`.toggle-switch-input[data-challenge-id="${id}"]`);
-        if (toggle) {
-            toggle.checked = currentStatus === 'active';
-            updateToggleLabel(toggle);
+        if (toggleElement) {
+            toggleElement.checked = currentStatus === 'active';
+            updateToggleLabel(toggleElement);
         }
         return;
     }
     
-    // Encontrar o toggle e elementos relacionados
-    const toggle = document.querySelector(`.toggle-switch-input[data-challenge-id="${id}"]`);
+    // Usar o elemento passado ou encontrar
+    const toggle = toggleElement || document.querySelector(`.toggle-switch-input[data-challenge-id="${id}"]`);
     if (!toggle) return;
     
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     const wrapper = toggle.closest('.toggle-switch-wrapper');
     const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
     
-    // Atualizar label imediatamente para feedback visual
+    // Atualizar label e visual imediatamente para feedback visual instantâneo
     if (label) {
         label.textContent = newStatus === 'active' ? 'Ativo' : 'Inativo';
         label.style.color = newStatus === 'active' ? '#22C55E' : '#EF4444';
+        label.style.fontWeight = newStatus === 'active' ? '700' : '600';
     }
     
-    // Atualizar status via AJAX
+    // Atualizar status via AJAX (sem recarregar a página)
     fetch('ajax_challenge_groups.php', {
         method: 'POST',
         headers: {
@@ -2708,10 +2708,9 @@ function toggleChallengeStatus(id, currentStatus) {
         if (result.success) {
             // Atualizar o atributo data-current-status para próximas mudanças
             toggle.setAttribute('data-current-status', newStatus);
-            // Pequeno delay para mostrar o feedback antes de recarregar
-            setTimeout(() => {
-                location.reload();
-            }, 200);
+            
+            // Não recarregar a página - tudo já foi atualizado visualmente
+            // A atualização visual já aconteceu acima, então não precisa fazer mais nada
         } else {
             // Reverter o toggle em caso de erro
             toggle.checked = currentStatus === 'active';
@@ -2732,8 +2731,10 @@ function updateToggleLabel(toggle) {
     const wrapper = toggle.closest('.toggle-switch-wrapper');
     const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
     if (label) {
-        label.textContent = toggle.checked ? 'Ativo' : 'Inativo';
-        label.style.color = toggle.checked ? '#22C55E' : '#EF4444';
+        const isActive = toggle.checked;
+        label.textContent = isActive ? 'Ativo' : 'Inativo';
+        label.style.color = isActive ? '#22C55E' : '#EF4444';
+        label.style.fontWeight = isActive ? '700' : '600';
     }
 }
 
