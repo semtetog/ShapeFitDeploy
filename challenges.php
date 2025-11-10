@@ -648,11 +648,7 @@ body {
                 <i class="fas fa-trophy"></i>
                 <?php echo htmlspecialchars($page_title); ?>
             </h1>
-        <?php else: ?>
-            <!-- Não mostrar título duplicado quando visualizando desafio específico -->
-            <div style="flex: 1;"></div>
         <?php endif; ?>
-        <div style="width: 40px;"></div> <!-- Spacer para centralizar -->
     </div>
 
     <?php if ($challenge_id > 0 && isset($challenge)): ?>
