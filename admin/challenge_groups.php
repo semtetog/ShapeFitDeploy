@@ -2681,13 +2681,23 @@ function toggleChallengeStatus(id, currentStatus, toggleElement) {
     if (!toggle) return;
     
     // O toggle já foi alterado pelo usuário, então pegamos o estado atual (checked)
+    // IMPORTANTE: O checkbox já foi alterado pelo evento onchange, então checked já reflete o novo estado
     const isChecked = toggle.checked;
     const newStatus = isChecked ? 'active' : 'inactive';
     const wrapper = toggle.closest('.toggle-switch-wrapper');
     const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
     
-    // Atualizar label baseado no estado atual do checkbox (já alterado)
+    // Atualizar label IMEDIATAMENTE baseado no estado atual do checkbox
+    // Isso garante feedback visual instantâneo
     if (label) {
+        // Forçar atualização imediata
+        requestAnimationFrame(() => {
+            label.textContent = isChecked ? 'Ativo' : 'Inativo';
+            label.style.color = isChecked ? '#22C55E' : '#EF4444';
+            label.style.fontWeight = isChecked ? '700' : '600';
+        });
+        
+        // Também atualizar diretamente (backup)
         label.textContent = isChecked ? 'Ativo' : 'Inativo';
         label.style.color = isChecked ? '#22C55E' : '#EF4444';
         label.style.fontWeight = isChecked ? '700' : '600';
