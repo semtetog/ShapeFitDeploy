@@ -726,15 +726,14 @@ require_once __DIR__ . '/includes/header.php';
 /* ========================================================================= */
 
 .progress-modal-content {
-    max-width: 1400px;
-    width: 95%;
-    max-height: 90vh;
+    max-width: 1200px;
+    width: 90%;
+    max-height: 85vh;
     overflow-y: auto;
     background: rgba(18, 18, 23, 0.98);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
 }
 
 .progress-modal-content-simple {
@@ -753,60 +752,57 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .progress-modal-body {
-    padding: 2rem;
+    padding: 1.5rem;
     position: relative;
-    min-height: 400px;
 }
 
 .progress-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .progress-date {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    color: var(--text-primary);
-    font-size: 1rem;
-    font-weight: 600;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
     font-family: 'Montserrat', sans-serif;
 }
 
 .progress-date i {
     color: var(--accent-orange);
-    font-size: 1.1rem;
+    font-size: 0.875rem;
 }
 
 .btn-refresh {
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.3);
     color: var(--accent-orange);
-    padding: 0.625rem 1.25rem;
-    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     font-family: 'Montserrat', sans-serif;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .btn-refresh:hover {
-    background: rgba(255, 107, 0, 0.2);
+    background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
 }
 
 .btn-refresh i {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
 }
 
 .progress-ranking {
@@ -814,77 +810,70 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .ranking-title {
-    font-size: 1.5rem;
+    font-size: 1.125rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     font-family: 'Montserrat', sans-serif;
 }
 
 .ranking-title i {
     color: var(--accent-orange);
-    font-size: 1.5rem;
+    font-size: 1rem;
 }
 
 .participants-ranking-list {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0.875rem;
 }
 
 .participant-rank-item {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 1.5rem;
+    border-radius: 10px;
+    padding: 1rem;
     display: grid;
-    grid-template-columns: 100px 1fr 400px;
-    gap: 1.5rem;
+    grid-template-columns: 50px 1fr 320px;
+    gap: 1rem;
     align-items: start;
-    transition: all 0.3s ease;
-    position: relative;
+    transition: background 0.2s ease;
 }
 
 .participant-rank-item:hover {
     background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 107, 0, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 107, 0, 0.2);
 }
 
 .participant-rank-item.rank-first {
-    border-color: rgba(255, 215, 0, 0.6);
-    background: rgba(255, 215, 0, 0.08);
-    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+    border-color: rgba(255, 215, 0, 0.4);
+    background: rgba(255, 215, 0, 0.05);
 }
 
 .participant-rank-item.rank-second {
-    border-color: rgba(192, 192, 192, 0.6);
-    background: rgba(192, 192, 192, 0.08);
-    box-shadow: 0 4px 20px rgba(192, 192, 192, 0.15);
+    border-color: rgba(192, 192, 192, 0.4);
+    background: rgba(192, 192, 192, 0.05);
 }
 
 .participant-rank-item.rank-third {
-    border-color: rgba(205, 127, 50, 0.6);
-    background: rgba(205, 127, 50, 0.08);
-    box-shadow: 0 4px 20px rgba(205, 127, 50, 0.15);
+    border-color: rgba(205, 127, 50, 0.4);
+    background: rgba(205, 127, 50, 0.05);
 }
 
 .rank-number {
-    font-size: 1.75rem;
-    font-weight: 800;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: var(--accent-orange);
     text-align: center;
     font-family: 'Montserrat', sans-serif;
-    line-height: 1.2;
+    line-height: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 60px;
+    min-height: 40px;
 }
 
 .rank-number.rank-first {
@@ -902,19 +891,19 @@ require_once __DIR__ . '/includes/header.php';
 .participant-info {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     min-width: 0;
 }
 
 .participant-avatar {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    min-height: 60px;
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    min-height: 45px;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .participant-avatar img {
@@ -931,7 +920,7 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center;
     color: white;
     font-weight: 700;
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-family: 'Montserrat', sans-serif;
 }
 
@@ -941,10 +930,10 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .participant-name {
-    font-size: 1.125rem;
-    font-weight: 700;
+    font-size: 0.9375rem;
+    font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
     font-family: 'Montserrat', sans-serif;
     white-space: nowrap;
     overflow: hidden;
@@ -953,8 +942,8 @@ require_once __DIR__ . '/includes/header.php';
 
 .participant-stats {
     display: flex;
-    gap: 1.5rem;
-    font-size: 0.875rem;
+    gap: 1rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
     font-family: 'Montserrat', sans-serif;
     flex-wrap: wrap;
@@ -963,31 +952,31 @@ require_once __DIR__ . '/includes/header.php';
 .stat-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
+    gap: 0.375rem;
+    font-weight: 500;
 }
 
 .stat-item i {
     color: var(--accent-orange);
-    font-size: 0.875rem;
+    font-size: 0.75rem;
 }
 
 .today-progress {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
     width: 100%;
 }
 
 .today-points {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 0.875rem;
+    font-weight: 600;
     color: var(--accent-orange);
     text-align: left;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.2);
-    border-radius: 10px;
+    border-radius: 8px;
     font-family: 'Montserrat', sans-serif;
     display: flex;
     align-items: center;
@@ -995,68 +984,61 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .today-points i {
-    font-size: 1rem;
+    font-size: 0.875rem;
 }
 
 .today-goals {
     display: flex;
     flex-direction: column;
-    gap: 0.875rem;
+    gap: 0.625rem;
 }
 
 .goal-progress-item {
     display: grid;
-    grid-template-columns: 100px 1fr 120px;
-    gap: 1rem;
+    grid-template-columns: 80px 1fr 100px;
+    gap: 0.75rem;
     align-items: center;
-    padding: 0.75rem;
+    padding: 0.5rem;
     background: rgba(255, 255, 255, 0.02);
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
-}
-
-.goal-progress-item:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .goal-label {
     color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     font-family: 'Montserrat', sans-serif;
 }
 
 .goal-label i {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: var(--accent-orange);
 }
 
 .goal-progress-bar {
-    height: 10px;
+    height: 8px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 4px;
     overflow: hidden;
     position: relative;
 }
 
 .goal-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent-orange), #FF8533);
-    transition: width 0.5s ease;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+    background: var(--accent-orange);
+    transition: width 0.3s ease;
+    border-radius: 4px;
 }
 
 .goal-value {
-    color: var(--text-primary);
+    color: var(--text-secondary);
     text-align: right;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 0.8125rem;
+    font-weight: 500;
     font-family: 'Montserrat', sans-serif;
     white-space: nowrap;
 }
@@ -1152,71 +1134,48 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-secondary);
 }
 
-@media (max-width: 1200px) {
-    .participant-rank-item {
-        grid-template-columns: 80px 1fr 350px;
-        gap: 1.25rem;
-        padding: 1.25rem;
-    }
-    
-    .goal-progress-item {
-        grid-template-columns: 90px 1fr 110px;
-        gap: 0.875rem;
-    }
-}
-
 @media (max-width: 968px) {
     .participant-rank-item {
-        grid-template-columns: 70px 1fr;
-        gap: 1rem;
+        grid-template-columns: 45px 1fr;
+        gap: 0.875rem;
     }
     
     .today-progress {
         grid-column: 1 / -1;
-        margin-top: 1.25rem;
-        padding-top: 1.25rem;
-        border-top: 2px solid rgba(255, 255, 255, 0.1);
+        margin-top: 0.875rem;
+        padding-top: 0.875rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .goal-progress-item {
-        grid-template-columns: 80px 1fr 100px;
-        gap: 0.75rem;
-    }
-    
-    .participant-avatar {
-        width: 50px;
-        height: 50px;
-        min-width: 50px;
-        min-height: 50px;
-    }
-    
-    .avatar-initials {
-        font-size: 1.1rem;
-    }
-    
-    .participant-name {
-        font-size: 1rem;
+        grid-template-columns: 70px 1fr 90px;
+        gap: 0.625rem;
     }
     
     .progress-modal-body {
-        padding: 1.5rem;
+        padding: 1.25rem;
+    }
+    
+    .progress-header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.875rem;
     }
 }
 
 @media (max-width: 640px) {
     .progress-modal-content {
-        width: 98%;
-        max-height: 95vh;
+        width: 95%;
+        max-height: 90vh;
     }
     
     .progress-modal-body {
-        padding: 1.25rem;
+        padding: 1rem;
     }
     
     .participant-rank-item {
         grid-template-columns: 1fr;
-        padding: 1rem;
-        gap: 1rem;
+        padding: 0.875rem;
+        gap: 0.75rem;
     }
     
     .rank-number {
@@ -1227,47 +1186,33 @@ require_once __DIR__ . '/includes/header.php';
     }
     
     .participant-info {
-        gap: 0.75rem;
-    }
-    
-    .participant-stats {
-        gap: 1rem;
-        font-size: 0.8125rem;
+        gap: 0.625rem;
     }
     
     .today-progress {
-        margin-top: 1rem;
-        padding-top: 1rem;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
     }
     
     .goal-progress-item {
         grid-template-columns: 1fr;
         gap: 0.5rem;
-        padding: 0.625rem;
-    }
-    
-    .goal-label {
-        font-size: 0.8125rem;
+        padding: 0.5rem;
     }
     
     .goal-value {
         text-align: left;
-        font-size: 0.8125rem;
     }
     
     .progress-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 1rem;
+        gap: 0.75rem;
     }
     
     .btn-refresh {
         width: 100%;
         justify-content: center;
-    }
-    
-    .ranking-title {
-        font-size: 1.25rem;
     }
 }
 
@@ -3646,7 +3591,6 @@ function displayChallengeProgress(data) {
     } else {
         participants.forEach(participant => {
             const rankClass = participant.rank === 1 ? 'rank-first' : participant.rank === 2 ? 'rank-second' : participant.rank === 3 ? 'rank-third' : '';
-            const medal = participant.rank === 1 ? '🥇' : participant.rank === 2 ? '🥈' : participant.rank === 3 ? '🥉' : '';
             
             // Avatar
             let avatarHtml = '';
@@ -3671,7 +3615,7 @@ function displayChallengeProgress(data) {
             html += `
                 <div class="participant-rank-item ${rankClass}">
                     <div class="rank-number ${rankNumberClass}">
-                        ${medal}<span style="font-size: 1.25rem; margin-left: 0.25rem;">#${participant.rank}</span>
+                        #${participant.rank}
                     </div>
                     <div class="participant-info">
                         <div class="participant-avatar">${avatarHtml}</div>
