@@ -28,6 +28,33 @@ $action = $data['action'] ?? '';
 $user_id = $_SESSION['user_id'];
 
 try {
+    // Verificar se a tabela existe
+    $table_exists = false;
+    $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
+    if ($check_table && $check_table->num_rows > 0) {
+        $table_exists = true;
+    }
+    if ($check_table) {
+        $check_table->close();
+    }
+    
+    if (!$table_exists) {
+        // Tabela não existe ainda - retornar array vazio ou mensagem
+        switch ($action) {
+            case 'get_notifications':
+                echo json_encode(['success' => true, 'notifications' => []]);
+                break;
+            case 'mark_as_read':
+            case 'mark_all_as_read':
+                echo json_encode(['success' => true, 'message' => 'Tabela de notificações ainda não criada']);
+                break;
+            default:
+                echo json_encode(['success' => false, 'message' => 'Tabela de notificações ainda não criada']);
+                break;
+        }
+        exit;
+    }
+    
     switch ($action) {
         case 'mark_as_read':
             $notification_id = (int)($data['notification_id'] ?? 0);
@@ -50,9 +77,11 @@ try {
                 SET is_read = 1
                 WHERE user_id = ? AND is_read = 0
             ");
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-            $stmt->close();
+            if ($stmt) {
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $stmt->close();
+            }
             echo json_encode(['success' => true, 'message' => 'Todas as notificações marcadas como lidas']);
             break;
             
@@ -61,6 +90,7 @@ try {
             break;
     }
 } catch (Exception $e) {
+    error_log("Erro em challenge_notifications.php: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 
