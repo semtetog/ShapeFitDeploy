@@ -686,7 +686,7 @@ require_once __DIR__ . '/includes/header.php';
     flex: 1;
     min-width: 0;
     max-width: 100%;
-    padding: 0.625rem 0.625rem;
+    padding: 0.625rem 0.75rem;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -837,10 +837,6 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(59, 130, 246, 0.1);
     border-color: rgba(59, 130, 246, 0.3);
     color: #3B82F6;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    min-width: fit-content;
-    overflow: visible;
 }
 
 .btn-action.btn-view:hover {
