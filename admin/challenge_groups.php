@@ -1601,19 +1601,19 @@ require_once __DIR__ . '/includes/header.php';
         <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card" onclick="filterByStatus('')">
-                <div class="stat-number"><?php echo $stats['total']; ?></div>
+                <div class="stat-number" id="stat-total"><?php echo $stats['total']; ?></div>
                 <div class="stat-label">Total</div>
             </div>
             <div class="stat-card" onclick="filterByStatus('active')">
-                <div class="stat-number"><?php echo $stats['active']; ?></div>
+                <div class="stat-number" id="stat-active"><?php echo $stats['active']; ?></div>
                 <div class="stat-label">Ativos</div>
             </div>
             <div class="stat-card" onclick="filterByStatus('completed')">
-                <div class="stat-number"><?php echo $stats['completed']; ?></div>
+                <div class="stat-number" id="stat-completed"><?php echo $stats['completed']; ?></div>
                 <div class="stat-label">Concluídos</div>
             </div>
             <div class="stat-card" onclick="filterByStatus('scheduled')">
-                <div class="stat-number"><?php echo $stats['scheduled']; ?></div>
+                <div class="stat-number" id="stat-scheduled"><?php echo $stats['scheduled']; ?></div>
                 <div class="stat-label">Agendados</div>
             </div>
             </div>
@@ -2710,6 +2710,9 @@ function toggleChallengeStatus(id, currentStatus, toggleElement) {
         if (result.success) {
             // Atualizar o atributo data-current-status para próximas mudanças
             toggle.setAttribute('data-current-status', newStatus);
+            
+            // Atualizar os stats no topo da página
+            updateStats();
             
             // Não recarregar a página - tudo já foi atualizado visualmente
         } else {

@@ -39,6 +39,9 @@ try {
         case 'toggle_status':
             toggleChallengeStatus($data);
             break;
+        case 'get_stats':
+            getStats($data);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -277,6 +280,47 @@ function toggleChallengeStatus($data) {
         'success' => true,
         'message' => 'Status do desafio atualizado com sucesso!',
         'status' => $new_status
+    ]);
+}
+
+function getStats($data) {
+    global $conn;
+    
+    $admin_id = $_SESSION['admin_id'] ?? 1;
+    
+    // Total de grupos
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM sf_challenge_groups WHERE created_by = ?");
+    $stmt->bind_param("i", $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stats['total'] = $result->fetch_assoc()['count'];
+    $stmt->close();
+    
+    // Por status
+    $stmt = $conn->prepare("
+        SELECT status, COUNT(*) as count 
+        FROM sf_challenge_groups 
+        WHERE created_by = ?
+        GROUP BY status
+    ");
+    $stmt->bind_param("i", $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $stats_by_status = ['active' => 0, 'inactive' => 0, 'completed' => 0, 'scheduled' => 0];
+    while ($row = $result->fetch_assoc()) {
+        $stats_by_status[$row['status']] = $row['count'];
+    }
+    $stmt->close();
+    
+    $stats['active'] = $stats_by_status['active'];
+    $stats['completed'] = $stats_by_status['completed'];
+    $stats['scheduled'] = $stats_by_status['scheduled'];
+    $stats['inactive'] = $stats_by_status['inactive'];
+    
+    echo json_encode([
+        'success' => true,
+        'stats' => $stats
     ]);
 }
 
