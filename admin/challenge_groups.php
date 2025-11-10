@@ -2845,6 +2845,16 @@ function openCreateChallengeModal() {
     document.getElementById('challengeForm').reset();
     document.getElementById('challengeId').value = '';
     
+    // Limpar campos de data explicitamente
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    if (startDateInput) {
+        startDateInput.value = '';
+    }
+    if (endDateInput) {
+        endDateInput.value = '';
+    }
+    
     // Reset goal tags
     document.querySelectorAll('.goal-tag').forEach(tag => {
         tag.classList.remove('active');
