@@ -969,50 +969,49 @@ require_once __DIR__ . '/includes/header.php';
     height: 10px;
     background: var(--accent-orange);
     border-radius: 50%;
-    top: 50%;
+    top: 0;
     left: 50%;
     margin-left: -5px;
-    margin-top: -5px;
-    transform-origin: 0 0;
+    transform-origin: 50% 40px;
 }
 
 .spinner-dot:nth-child(1) {
-    transform: rotate(0deg) translate(0, -35px);
+    transform: rotate(0deg);
     opacity: 1;
 }
 
 .spinner-dot:nth-child(2) {
-    transform: rotate(45deg) translate(0, -35px);
+    transform: rotate(45deg);
     opacity: 0.875;
 }
 
 .spinner-dot:nth-child(3) {
-    transform: rotate(90deg) translate(0, -35px);
+    transform: rotate(90deg);
     opacity: 0.75;
 }
 
 .spinner-dot:nth-child(4) {
-    transform: rotate(135deg) translate(0, -35px);
+    transform: rotate(135deg);
     opacity: 0.625;
 }
 
 .spinner-dot:nth-child(5) {
-    transform: rotate(180deg) translate(0, -35px);
+    transform: rotate(180deg);
     opacity: 0.5;
 }
 
 .spinner-dot:nth-child(6) {
-    transform: rotate(225deg) translate(0, -35px);
+    transform: rotate(225deg);
     opacity: 0.375;
 }
 
 .spinner-dot:nth-child(7) {
-    transform: rotate(270deg) translate(0, -35px);
+    transform: rotate(270deg);
     opacity: 0.25;
 }
 
 .spinner-dot:nth-child(8) {
-    transform: rotate(315deg) translate(0, -35px);
+    transform: rotate(315deg);
     opacity: 0.125;
 }
 
