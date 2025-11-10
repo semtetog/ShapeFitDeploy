@@ -231,6 +231,88 @@ require_once __DIR__ . '/includes/header.php';
     }
 }
 
+/* Responsividade dos Cards de Desafio */
+@media (max-width: 1024px) {
+    .challenge-groups-grid {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+        gap: 0.875rem;
+    }
+    
+    .btn-action {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.375rem;
+        gap: 0.25rem;
+    }
+    
+    .btn-action i {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .challenge-groups-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .challenge-group-card {
+        min-height: auto !important;
+    }
+    
+    .group-card-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        flex: 1 1 calc(50% - 0.25rem);
+        min-width: calc(50% - 0.25rem);
+        font-size: 0.75rem;
+        padding: 0.5rem 0.375rem;
+    }
+    
+    .group-card-header {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .toggle-switch-wrapper {
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .challenge-group-card {
+        padding: 0.875rem !important;
+        gap: 0.625rem !important;
+    }
+    
+    .group-name {
+        font-size: 1rem;
+    }
+    
+    .group-card-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn-action {
+        flex: 1;
+        width: 100%;
+        min-width: 100%;
+        padding: 0.5rem;
+    }
+    
+    .group-info {
+        font-size: 0.8125rem;
+        gap: 0.75rem;
+    }
+    
+    .group-info-item {
+        font-size: 0.8125rem;
+    }
+}
+
 .stat-card {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid var(--glass-border) !important;
@@ -544,10 +626,12 @@ require_once __DIR__ . '/includes/header.php';
 
 .group-info {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
     padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .group-info-item {
