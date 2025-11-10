@@ -169,9 +169,19 @@ body {
 
 .page-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
+    gap: 1rem;
+}
+
+/* Quando há título, centralizar e espaçar */
+.page-header:has(.page-title) {
+    justify-content: space-between;
+}
+
+/* Quando não há título, apenas alinhar à esquerda */
+.page-header:not(:has(.page-title)) {
+    justify-content: flex-start;
 }
 
 .page-title {
@@ -182,10 +192,34 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1;
+    justify-content: center;
 }
 
 .page-title i {
     color: var(--accent-orange);
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+    transform: translateX(-2px);
 }
 
 .back-button {
