@@ -2680,15 +2680,17 @@ function toggleChallengeStatus(id, currentStatus, toggleElement) {
     const toggle = toggleElement || document.querySelector(`.toggle-switch-input[data-challenge-id="${id}"]`);
     if (!toggle) return;
     
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    // O toggle já foi alterado pelo usuário, então pegamos o estado atual (checked)
+    const isChecked = toggle.checked;
+    const newStatus = isChecked ? 'active' : 'inactive';
     const wrapper = toggle.closest('.toggle-switch-wrapper');
     const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
     
-    // Atualizar label e visual imediatamente para feedback visual instantâneo
+    // Atualizar label baseado no estado atual do checkbox (já alterado)
     if (label) {
-        label.textContent = newStatus === 'active' ? 'Ativo' : 'Inativo';
-        label.style.color = newStatus === 'active' ? '#22C55E' : '#EF4444';
-        label.style.fontWeight = newStatus === 'active' ? '700' : '600';
+        label.textContent = isChecked ? 'Ativo' : 'Inativo';
+        label.style.color = isChecked ? '#22C55E' : '#EF4444';
+        label.style.fontWeight = isChecked ? '700' : '600';
     }
     
     // Atualizar status via AJAX (sem recarregar a página)
@@ -2710,10 +2712,9 @@ function toggleChallengeStatus(id, currentStatus, toggleElement) {
             toggle.setAttribute('data-current-status', newStatus);
             
             // Não recarregar a página - tudo já foi atualizado visualmente
-            // A atualização visual já aconteceu acima, então não precisa fazer mais nada
         } else {
             // Reverter o toggle em caso de erro
-            toggle.checked = currentStatus === 'active';
+            toggle.checked = !isChecked;
             updateToggleLabel(toggle);
             alert('Erro ao atualizar status: ' + (result.message || 'Erro desconhecido'));
         }
@@ -2721,7 +2722,7 @@ function toggleChallengeStatus(id, currentStatus, toggleElement) {
     .catch(error => {
         console.error('Erro:', error);
         // Reverter o toggle em caso de erro
-        toggle.checked = currentStatus === 'active';
+        toggle.checked = !isChecked;
         updateToggleLabel(toggle);
         alert('Erro ao atualizar status. Tente novamente.');
     });
