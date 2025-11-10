@@ -3481,6 +3481,15 @@ function viewChallengeProgress(challengeId) {
     
     modal.classList.add('active');
     
+    // IMPORTANTE: Voltar para a classe progress-modal-content-simple para centralizar o loading
+    modalBody.className = 'progress-modal-content-simple';
+    
+    // Remover overlay se existir (será readicionado quando mostrar conteúdo completo)
+    const existingOverlay = modal.querySelector('.challenge-edit-overlay');
+    if (existingOverlay) {
+        existingOverlay.remove();
+    }
+    
     // Mostrar apenas o loading de bolinhas
     modalBody.innerHTML = `
         <div class="loading-spinner-simple">
