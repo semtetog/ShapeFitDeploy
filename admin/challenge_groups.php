@@ -2680,27 +2680,36 @@ function toggleChallengeStatus(id, currentStatus, toggleElement) {
     const toggle = toggleElement || document.querySelector(`.toggle-switch-input[data-challenge-id="${id}"]`);
     if (!toggle) return;
     
-    // O toggle já foi alterado pelo usuário, então pegamos o estado atual (checked)
-    // IMPORTANTE: O checkbox já foi alterado pelo evento onchange, então checked já reflete o novo estado
+    // IMPORTANTE: O checkbox já foi alterado pelo evento onchange
+    // Então toggle.checked já reflete o NOVO estado (não o antigo)
     const isChecked = toggle.checked;
     const newStatus = isChecked ? 'active' : 'inactive';
+    
+    console.log('Toggle changed:', {
+        challengeId: id,
+        oldStatus: currentStatus,
+        isChecked: isChecked,
+        newStatus: newStatus
+    });
+    
     const wrapper = toggle.closest('.toggle-switch-wrapper');
     const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
     
     // Atualizar label IMEDIATAMENTE baseado no estado atual do checkbox
-    // Isso garante feedback visual instantâneo
     if (label) {
-        // Forçar atualização imediata
-        requestAnimationFrame(() => {
-            label.textContent = isChecked ? 'Ativo' : 'Inativo';
-            label.style.color = isChecked ? '#22C55E' : '#EF4444';
-            label.style.fontWeight = isChecked ? '700' : '600';
-        });
+        const newText = isChecked ? 'Ativo' : 'Inativo';
+        const newColor = isChecked ? '#22C55E' : '#EF4444';
+        const newWeight = isChecked ? '700' : '600';
         
-        // Também atualizar diretamente (backup)
-        label.textContent = isChecked ? 'Ativo' : 'Inativo';
-        label.style.color = isChecked ? '#22C55E' : '#EF4444';
-        label.style.fontWeight = isChecked ? '700' : '600';
+        console.log('Updating label:', { newText, newColor, newWeight });
+        
+        // Atualizar diretamente
+        label.textContent = newText;
+        label.style.color = newColor;
+        label.style.fontWeight = newWeight;
+        
+        // Forçar reflow para garantir que a atualização seja visível
+        label.offsetHeight;
     }
     
     // Atualizar status via AJAX (sem recarregar a página)
