@@ -1501,7 +1501,7 @@ require_once __DIR__ . '/includes/header.php';
             <button class="btn-create-challenge" onclick="openCreateChallengeModal()" title="Criar Novo Desafio">
                 <i class="fas fa-plus"></i>
                 </button>
-        </div>
+            </div>
 
         <!-- Stats -->
         <div class="stats-grid">
@@ -1521,8 +1521,8 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="stat-number"><?php echo $stats['scheduled']; ?></div>
                 <div class="stat-label">Agendados</div>
             </div>
+            </div>
         </div>
-    </div>
 
     <!-- Filter Card -->
     <div class="filter-card">
@@ -1599,27 +1599,27 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <div class="group-info">
                         <div class="group-info-item">
-                            <i class="fas fa-users"></i>
+                                    <i class="fas fa-users"></i>
                             <span><?php echo $group['member_count']; ?> participantes</span>
-                        </div>
+                                    </div>
                         <?php if (!empty($goals)): ?>
                         <div class="group-info-item">
                             <i class="fas fa-bullseye"></i>
                             <span><?php echo count($goals); ?> meta(s)</span>
-                        </div>
+                                </div>
                         <?php endif; ?>
                         <div class="group-info-item">
                             <span><?php echo $start_date->format('d/m/Y'); ?> - <?php echo $end_date->format('d/m/Y'); ?></span>
-                        </div>
-                    </div>
+                                    </div>
+                                </div>
                     
                     <div class="group-card-actions" onclick="event.stopPropagation()">
                         <button class="btn-action btn-edit" onclick="editChallenge(<?php echo $group['id']; ?>)">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
                         <button class="btn-action btn-delete" onclick="deleteChallenge(<?php echo $group['id']; ?>)">
                             <i class="fas fa-trash"></i> Excluir
-                        </button>
+                            </button>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -1645,8 +1645,8 @@ require_once __DIR__ . '/includes/header.php';
                     <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search_term); ?>&status=<?php echo urlencode($status_filter); ?>">
                         Próxima <i class="fas fa-chevron-right"></i>
                     </a>
-                <?php endif; ?>
-    </div>
+            <?php endif; ?>
+        </div>
         <?php endif; ?>
     <?php endif; ?>
 </div>
@@ -1685,16 +1685,16 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="challenge-form-group">
                         <label for="startDate">Data de Início</label>
                         <div class="date-input-wrapper-modern">
-                            <input type="text" id="startDate" name="start_date" class="challenge-form-input custom-datepicker" placeholder="dd/mm/aaaa" required>
+                            <input type="text" id="startDate" name="start_date" class="challenge-form-input custom-datepicker" placeholder="dd/mm/aaaa" maxlength="10" required>
                             <button type="button" class="date-icon-btn" onclick="document.getElementById('startDate')._flatpickr?.open();">
                                 <i class="fas fa-calendar-alt"></i>
                             </button>
-                        </div>
+                    </div>
                     </div>
                     <div class="challenge-form-group">
                         <label for="endDate">Data de Fim</label>
                         <div class="date-input-wrapper-modern">
-                            <input type="text" id="endDate" name="end_date" class="challenge-form-input custom-datepicker" placeholder="dd/mm/aaaa" required>
+                            <input type="text" id="endDate" name="end_date" class="challenge-form-input custom-datepicker" placeholder="dd/mm/aaaa" maxlength="10" required>
                             <button type="button" class="date-icon-btn" onclick="document.getElementById('endDate')._flatpickr?.open();">
                                 <i class="fas fa-calendar-alt"></i>
                             </button>
@@ -1727,8 +1727,8 @@ require_once __DIR__ . '/includes/header.php';
                             <i class="fas fa-bed"></i>
                             <span>Sono</span>
                         </span>
-                    </div>
-                    
+                </div>
+                
                     <!-- Inputs de valores das metas -->
                     <div class="challenge-goals-inputs">
                         <div class="goal-input-wrapper" id="goal_calories_input" style="display: none;">
@@ -1835,8 +1835,8 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
             </form>
-        </div>
-        
+</div>
+
         <div class="challenge-edit-footer">
             <button type="button" class="btn-cancel" onclick="closeChallengeModal()">Cancelar</button>
             <button type="button" class="btn-save" onclick="saveChallenge()">
@@ -1901,6 +1901,70 @@ function handleSearch(event) {
         url.searchParams.delete('page'); // Reset to page 1
         window.location.href = url.toString();
     }
+}
+
+// Função para aplicar máscara de data (dd/mm/aaaa)
+function applyDateMask(input) {
+    input.addEventListener('input', function(e) {
+        let value = this.value.replace(/\D/g, ''); // Remove tudo que não é número
+        const maxLength = 8; // Máximo de 8 dígitos (ddmmyyyy)
+        
+        // Limitar a 8 dígitos
+        if (value.length > maxLength) {
+            value = value.substring(0, maxLength);
+        }
+        
+        // Formatar com barras
+        let formattedValue = '';
+        if (value.length > 0) {
+            formattedValue = value.substring(0, 2); // Dia
+            if (value.length > 2) {
+                formattedValue += '/' + value.substring(2, 4); // Mês
+            }
+            if (value.length > 4) {
+                formattedValue += '/' + value.substring(4, 8); // Ano
+            }
+        }
+        
+        this.value = formattedValue;
+    });
+    
+    // Prevenir digitação de caracteres não numéricos (exceto controle)
+    input.addEventListener('keydown', function(e) {
+        // Permitir teclas de controle (backspace, delete, tab, etc)
+        if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab' || 
+            e.key === 'ArrowLeft' || e.key === 'ArrowRight' || 
+            e.key === 'ArrowUp' || e.key === 'ArrowDown' ||
+            e.ctrlKey || e.metaKey) {
+            return;
+        }
+        
+        // Permitir apenas números
+        if (!/^[0-9]$/.test(e.key)) {
+            e.preventDefault();
+        }
+    });
+    
+    // Limitar comprimento máximo no paste
+    input.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const numbersOnly = pastedText.replace(/\D/g, '').substring(0, 8);
+        
+        // Formatar como data
+        let formattedValue = '';
+        if (numbersOnly.length > 0) {
+            formattedValue = numbersOnly.substring(0, 2);
+            if (numbersOnly.length > 2) {
+                formattedValue += '/' + numbersOnly.substring(2, 4);
+            }
+            if (numbersOnly.length > 4) {
+                formattedValue += '/' + numbersOnly.substring(4, 8);
+            }
+        }
+        
+        this.value = formattedValue;
+    });
 }
 
 // Inicializar Flatpickr
@@ -2017,6 +2081,9 @@ function initFlatpickr() {
     
     // Inicializar para data de início
     if (startDateInput) {
+        // Aplicar máscara de data
+        applyDateMask(startDateInput);
+        
         const startPicker = flatpickr(startDateInput, {
             ...flatpickrOptions,
             onChange: function(selectedDates, dateStr, instance) {
@@ -2031,17 +2098,21 @@ function initFlatpickr() {
                 }
             },
             onValueUpdate: function(selectedDates, dateStr, instance) {
-                // Validar e formatar quando o usuário digita manualmente
-                if (dateStr && !selectedDates.length) {
-                    // Tentar parsear a data digitada
+                // Quando o Flatpickr atualiza o valor (do calendário), garantir formato
+                if (dateStr && selectedDates.length > 0) {
+                    // Já está formatado pelo Flatpickr
+                } else if (dateStr && !selectedDates.length) {
+                    // Validar quando o usuário digita manualmente
                     const parts = dateStr.split('/');
-                    if (parts.length === 3) {
+                    if (parts.length === 3 && parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
                         const day = parseInt(parts[0], 10);
                         const month = parseInt(parts[1], 10) - 1;
                         const year = parseInt(parts[2], 10);
-                        const date = new Date(year, month, day);
-                        if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
-                            instance.setDate(date, false);
+                        if (day >= 1 && day <= 31 && month >= 0 && month <= 11 && year >= 2020) {
+                            const date = new Date(year, month, day);
+                            if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
+                                instance.setDate(date, false);
+                            }
                         }
                     }
                 }
@@ -2069,7 +2140,7 @@ function initFlatpickr() {
             const value = this.value.trim();
             if (value) {
                 const parts = value.split('/');
-                if (parts.length === 3) {
+                if (parts.length === 3 && parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
                     const day = parseInt(parts[0], 10);
                     const month = parseInt(parts[1], 10);
                     const year = parseInt(parts[2], 10);
@@ -2086,19 +2157,27 @@ function initFlatpickr() {
     
     // Inicializar para data de fim
     if (endDateInput) {
+        // Aplicar máscara de data
+        applyDateMask(endDateInput);
+        
         const endPicker = flatpickr(endDateInput, {
             ...flatpickrOptions,
             onValueUpdate: function(selectedDates, dateStr, instance) {
-                // Validar e formatar quando o usuário digita manualmente
-                if (dateStr && !selectedDates.length) {
+                // Quando o Flatpickr atualiza o valor (do calendário), garantir formato
+                if (dateStr && selectedDates.length > 0) {
+                    // Já está formatado pelo Flatpickr
+                } else if (dateStr && !selectedDates.length) {
+                    // Validar quando o usuário digita manualmente
                     const parts = dateStr.split('/');
-                    if (parts.length === 3) {
+                    if (parts.length === 3 && parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
                         const day = parseInt(parts[0], 10);
                         const month = parseInt(parts[1], 10) - 1;
                         const year = parseInt(parts[2], 10);
-                        const date = new Date(year, month, day);
-                        if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
-                            instance.setDate(date, false);
+                        if (day >= 1 && day <= 31 && month >= 0 && month <= 11 && year >= 2020) {
+                            const date = new Date(year, month, day);
+                            if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
+                                instance.setDate(date, false);
+                            }
                         }
                     }
                 }
@@ -2126,7 +2205,7 @@ function initFlatpickr() {
             const value = this.value.trim();
             if (value) {
                 const parts = value.split('/');
-                if (parts.length === 3) {
+                if (parts.length === 3 && parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
                     const day = parseInt(parts[0], 10);
                     const month = parseInt(parts[1], 10);
                     const year = parseInt(parts[2], 10);
