@@ -2660,20 +2660,7 @@ input[type="number"] {
 <div id="progressModal" class="challenge-edit-modal">
     <div class="challenge-edit-overlay" onclick="closeProgressModal()"></div>
     <div class="progress-modal-content" id="progressModalBody">
-        <div class="progress-modal-body" style="display: flex; align-items: center; justify-content: center; min-height: 400px;">
-            <div class="loading-spinner-simple">
-                <div class="spinner-dots">
-                    <div class="spinner-dot"></div>
-                    <div class="spinner-dot"></div>
-                    <div class="spinner-dot"></div>
-                    <div class="spinner-dot"></div>
-                    <div class="spinner-dot"></div>
-                    <div class="spinner-dot"></div>
-                    <div class="spinner-dot"></div>
-                    <div class="spinner-dot"></div>
-                </div>
-            </div>
-        </div>
+        <!-- Conteúdo será inserido dinamicamente -->
     </div>
 </div>
 
@@ -3646,9 +3633,11 @@ function viewChallengeProgress(challengeId) {
         modal.insertBefore(overlay, modalBody);
     }
     
-    // Manter a mesma estrutura do modal - apenas mostrar loading dentro do conteúdo
-    // Não mudar a classe, apenas o conteúdo interno
+    // Mostrar loading com a mesma estrutura do modal de progresso completo
     modalBody.innerHTML = `
+        <button class="sleep-modal-close" onclick="closeProgressModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
         <div class="progress-modal-body" style="display: flex; align-items: center; justify-content: center; min-height: 400px;">
             <div class="loading-spinner-simple">
                 <div class="spinner-dots">
@@ -3734,14 +3723,14 @@ function displayChallengeProgress(data) {
         <button class="sleep-modal-close" onclick="closeProgressModal()" type="button">
             <i class="fas fa-times"></i>
         </button>
+        <div class="challenge-edit-header">
+            <h3>Progresso: ${challenge.name}</h3>
+        </div>
         <div class="progress-modal-body">
             <div class="progress-header">
-                <div>
-                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">Progresso: ${challenge.name}</h3>
-                    <div class="progress-date" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;">
-                        <i class="fas fa-calendar"></i>
-                        Progresso de ${formattedDate}
-                    </div>
+                <div class="progress-date">
+                    <i class="fas fa-calendar"></i>
+                    Progresso de ${formattedDate}
                 </div>
                 <button class="btn-refresh" onclick="viewChallengeProgress(${challenge.id})" title="Atualizar">
                     <i class="fas fa-sync-alt"></i> Atualizar
