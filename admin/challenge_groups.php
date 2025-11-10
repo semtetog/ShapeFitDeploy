@@ -738,15 +738,15 @@ require_once __DIR__ . '/includes/header.php';
 
 .progress-modal-content-simple {
     position: relative;
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    min-height: 400px;
     background: transparent;
     border: none;
     box-shadow: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
+    padding: 2rem;
     margin: 0;
     z-index: 10001;
 }
