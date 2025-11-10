@@ -59,23 +59,6 @@ if ($challenge_id > 0) {
     $daily_progress = $progress_result->fetch_assoc();
     $stmt_progress->close();
     
-    // Buscar progresso histórico do usuário no desafio (últimos 7 dias)
-    $stmt_history = $conn->prepare("
-        SELECT date, points_earned, points_breakdown, calories_consumed, water_ml, exercise_minutes, sleep_hours
-        FROM sf_challenge_group_daily_progress
-        WHERE challenge_group_id = ? AND user_id = ?
-        ORDER BY date DESC
-        LIMIT 7
-    ");
-    $stmt_history->bind_param("ii", $challenge_id, $user_id);
-    $stmt_history->execute();
-    $history_result = $stmt_history->get_result();
-    $progress_history = [];
-    while ($row = $history_result->fetch_assoc()) {
-        $progress_history[] = $row;
-    }
-    $stmt_history->close();
-    
     // Buscar estatísticas do usuário no desafio
     $user_total_points = getChallengeGroupTotalPoints($conn, $challenge_id, $user_id);
     
@@ -647,87 +630,9 @@ body {
     color: var(--accent-orange);
 }
 
-/* Gráfico de Progresso */
-.progress-chart-section {
-    margin-bottom: 24px;
-}
-
-.progress-chart {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 8px;
-    height: 200px;
-    padding: 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-}
-
-.chart-bar-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
-    justify-content: flex-end;
-}
-
-.chart-bar {
-    width: 100%;
-    background: linear-gradient(135deg, #3B82F6, #60A5FA);
-    border-radius: 4px 4px 0 0;
-    min-height: 20px;
-    position: relative;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding-top: 4px;
-}
-
-.chart-bar-value {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.chart-bar-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 8px;
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-}
-
-.chart-day-name {
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.chart-day-number {
-    font-size: 0.65rem;
-    margin-top: 2px;
-}
-
 @media (max-width: 480px) {
     .progress-stats-grid {
         grid-template-columns: 1fr;
-    }
-    
-    .progress-chart {
-        height: 150px;
-        gap: 4px;
-    }
-    
-    .chart-bar-value {
-        font-size: 0.6rem;
-    }
-    
-    .chart-bar-label {
-        font-size: 0.65rem;
     }
 }
 </style>
@@ -954,41 +859,6 @@ body {
                                 </div>
                             </div>
                         <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-                
-                <!-- Gráfico de Progresso (Últimos 7 dias) -->
-                <?php if (!empty($progress_history)): ?>
-                    <div class="progress-chart-section">
-                        <h4 class="section-subtitle">Pontos dos Últimos 7 Dias</h4>
-                        <div class="progress-chart">
-                            <?php
-                            $max_points = max(array_column($progress_history, 'points_earned'));
-                            $max_points = max($max_points, 10); // Mínimo de 10 para visualização
-                            ?>
-                            <?php 
-                            $day_names_pt = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-                            foreach (array_reverse($progress_history) as $day): ?>
-                                <?php
-                                $date_obj = new DateTime($day['date']);
-                                $day_of_week = (int)$date_obj->format('w');
-                                $day_name = $day_names_pt[$day_of_week];
-                                $day_number = $date_obj->format('d');
-                                $points = (int)($day['points_earned'] ?? 0);
-                                $height_percentage = $max_points > 0 ? ($points / $max_points) * 100 : 0;
-                                $is_weekend = in_array($day_of_week, [0, 6]);
-                                ?>
-                                <div class="chart-bar-container">
-                                    <div class="chart-bar" style="height: <?php echo $height_percentage; ?>%; <?php echo $is_weekend ? 'background: linear-gradient(135deg, #FF6B00, #FF8533);' : ''; ?>">
-                                        <span class="chart-bar-value"><?php echo $points; ?></span>
-                                    </div>
-                                    <div class="chart-bar-label">
-                                        <span class="chart-day-name"><?php echo $day_name; ?></span>
-                                        <span class="chart-day-number"><?php echo $day_number; ?></span>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
                     </div>
                 <?php endif; ?>
             </div>
