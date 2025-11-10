@@ -2742,6 +2742,38 @@ function updateToggleLabel(toggle) {
     }
 }
 
+function updateStats() {
+    // Buscar stats atualizados via AJAX
+    fetch('ajax_challenge_groups.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'get_stats'
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success && result.stats) {
+            // Atualizar os números dos stats
+            const statTotal = document.getElementById('stat-total');
+            const statActive = document.getElementById('stat-active');
+            const statCompleted = document.getElementById('stat-completed');
+            const statScheduled = document.getElementById('stat-scheduled');
+            
+            if (statTotal) statTotal.textContent = result.stats.total || 0;
+            if (statActive) statActive.textContent = result.stats.active || 0;
+            if (statCompleted) statCompleted.textContent = result.stats.completed || 0;
+            if (statScheduled) statScheduled.textContent = result.stats.scheduled || 0;
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao atualizar stats:', error);
+        // Não mostrar erro para o usuário, é apenas uma atualização de UI
+    });
+}
+
 // Salvar desafio
 function saveChallenge() {
     const form = document.getElementById('challengeForm');
