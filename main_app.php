@@ -127,7 +127,7 @@ $challenge_groups_query = "
         COUNT(DISTINCT cgm.user_id) as total_participants
     FROM sf_challenge_groups cg
     INNER JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
-    WHERE cgm.user_id = ? AND cgm.status = 'active'
+    WHERE cgm.user_id = ?
     GROUP BY cg.id
     ORDER BY cg.start_date DESC, cg.created_at DESC
     LIMIT 5
