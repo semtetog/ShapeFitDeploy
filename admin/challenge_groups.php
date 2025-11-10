@@ -726,9 +726,15 @@ require_once __DIR__ . '/includes/header.php';
 /* ========================================================================= */
 
 .progress-modal-content {
-    max-width: 1200px;
+    max-width: 1400px;
+    width: 95%;
     max-height: 90vh;
     overflow-y: auto;
+    background: rgba(18, 18, 23, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .progress-modal-content-simple {
@@ -747,7 +753,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .progress-modal-body {
-    padding: 1.5rem;
+    padding: 2rem;
     position: relative;
     min-height: 400px;
 }
@@ -756,27 +762,36 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .progress-date {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+    gap: 0.75rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.progress-date i {
+    color: var(--accent-orange);
+    font-size: 1.1rem;
 }
 
 .btn-refresh {
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.3);
     color: var(--accent-orange);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -786,79 +801,120 @@ require_once __DIR__ . '/includes/header.php';
 .btn-refresh:hover {
     background: rgba(255, 107, 0, 0.2);
     border-color: var(--accent-orange);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+}
+
+.btn-refresh i {
+    font-size: 0.875rem;
 }
 
 .progress-ranking {
-    margin-top: 1.5rem;
+    margin-top: 0;
 }
 
 .ranking-title {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.ranking-title i {
+    color: var(--accent-orange);
+    font-size: 1.5rem;
 }
 
 .participants-ranking-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
 .participant-rank-item {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1rem;
+    border-radius: 16px;
+    padding: 1.5rem;
     display: grid;
-    grid-template-columns: 80px 1fr 300px;
-    gap: 1rem;
-    align-items: center;
+    grid-template-columns: 100px 1fr 400px;
+    gap: 1.5rem;
+    align-items: start;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .participant-rank-item:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 107, 0, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .participant-rank-item.rank-first {
-    border-color: rgba(255, 215, 0, 0.5);
-    background: rgba(255, 215, 0, 0.05);
+    border-color: rgba(255, 215, 0, 0.6);
+    background: rgba(255, 215, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
 }
 
 .participant-rank-item.rank-second {
-    border-color: rgba(192, 192, 192, 0.5);
-    background: rgba(192, 192, 192, 0.05);
+    border-color: rgba(192, 192, 192, 0.6);
+    background: rgba(192, 192, 192, 0.08);
+    box-shadow: 0 4px 20px rgba(192, 192, 192, 0.15);
 }
 
 .participant-rank-item.rank-third {
-    border-color: rgba(205, 127, 50, 0.5);
-    background: rgba(205, 127, 50, 0.05);
+    border-color: rgba(205, 127, 50, 0.6);
+    background: rgba(205, 127, 50, 0.08);
+    box-shadow: 0 4px 20px rgba(205, 127, 50, 0.15);
 }
 
 .rank-number {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 800;
     color: var(--accent-orange);
     text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+}
+
+.rank-number.rank-first {
+    color: #FFD700;
+}
+
+.rank-number.rank-second {
+    color: #C0C0C0;
+}
+
+.rank-number.rank-third {
+    color: #CD7F32;
 }
 
 .participant-info {
     display: flex;
     align-items: center;
     gap: 1rem;
+    min-width: 0;
 }
 
 .participant-avatar {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .participant-avatar img {
@@ -875,84 +931,134 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center;
     color: white;
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .participant-details {
     flex: 1;
+    min-width: 0;
 }
 
 .participant-name {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.125rem;
+    font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .participant-stats {
     display: flex;
-    gap: 1rem;
-    font-size: 0.85rem;
+    gap: 1.5rem;
+    font-size: 0.875rem;
     color: var(--text-secondary);
+    font-family: 'Montserrat', sans-serif;
+    flex-wrap: wrap;
 }
 
 .stat-item {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.stat-item i {
+    color: var(--accent-orange);
+    font-size: 0.875rem;
 }
 
 .today-progress {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
+    width: 100%;
 }
 
 .today-points {
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 700;
     color: var(--accent-orange);
-    text-align: right;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    border-radius: 10px;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.today-points i {
+    font-size: 1rem;
 }
 
 .today-goals {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.875rem;
 }
 
 .goal-progress-item {
     display: grid;
-    grid-template-columns: 80px 1fr 80px;
-    gap: 0.5rem;
+    grid-template-columns: 100px 1fr 120px;
+    gap: 1rem;
     align-items: center;
-    font-size: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.goal-progress-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .goal-label {
-    color: var(--text-secondary);
+    color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.goal-label i {
+    font-size: 0.875rem;
+    color: var(--accent-orange);
 }
 
 .goal-progress-bar {
-    height: 6px;
+    height: 10px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+    border-radius: 8px;
     overflow: hidden;
+    position: relative;
 }
 
 .goal-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--accent-orange), #FF8533);
-    transition: width 0.3s ease;
+    transition: width 0.5s ease;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
 }
 
 .goal-value {
-    color: var(--text-secondary);
+    color: var(--text-primary);
     text-align: right;
-    font-size: 0.7rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    white-space: nowrap;
 }
 
 .loading-spinner-simple {
@@ -1046,30 +1152,122 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-secondary);
 }
 
+@media (max-width: 1200px) {
+    .participant-rank-item {
+        grid-template-columns: 80px 1fr 350px;
+        gap: 1.25rem;
+        padding: 1.25rem;
+    }
+    
+    .goal-progress-item {
+        grid-template-columns: 90px 1fr 110px;
+        gap: 0.875rem;
+    }
+}
+
 @media (max-width: 968px) {
     .participant-rank-item {
-        grid-template-columns: 60px 1fr;
+        grid-template-columns: 70px 1fr;
+        gap: 1rem;
     }
     
     .today-progress {
         grid-column: 1 / -1;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .goal-progress-item {
+        grid-template-columns: 80px 1fr 100px;
+        gap: 0.75rem;
+    }
+    
+    .participant-avatar {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        min-height: 50px;
+    }
+    
+    .avatar-initials {
+        font-size: 1.1rem;
+    }
+    
+    .participant-name {
+        font-size: 1rem;
+    }
+    
+    .progress-modal-body {
+        padding: 1.5rem;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
     .progress-modal-content {
-        width: 95%;
+        width: 98%;
+        max-height: 95vh;
+    }
+    
+    .progress-modal-body {
+        padding: 1.25rem;
     }
     
     .participant-rank-item {
         grid-template-columns: 1fr;
+        padding: 1rem;
+        gap: 1rem;
     }
     
     .rank-number {
         text-align: left;
+        flex-direction: row;
+        min-height: auto;
+        justify-content: flex-start;
+    }
+    
+    .participant-info {
+        gap: 0.75rem;
+    }
+    
+    .participant-stats {
+        gap: 1rem;
+        font-size: 0.8125rem;
+    }
+    
+    .today-progress {
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+    
+    .goal-progress-item {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.625rem;
+    }
+    
+    .goal-label {
+        font-size: 0.8125rem;
+    }
+    
+    .goal-value {
+        text-align: left;
+        font-size: 0.8125rem;
+    }
+    
+    .progress-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .btn-refresh {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .ranking-title {
+        font-size: 1.25rem;
     }
 }
 
@@ -1400,6 +1598,20 @@ require_once __DIR__ . '/includes/header.php';
     -webkit-appearance: none !important;
     margin: 0 !important;
     display: none !important;
+}
+
+/* Remover setas dos inputs de número das metas */
+.challenge-form-input[type="number"]::-webkit-outer-spin-button,
+.challenge-form-input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.challenge-form-input[type="number"],
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 /* Mês alinhado ao centro (modo static - texto, não dropdown) */
@@ -3453,10 +3665,13 @@ function displayChallengeProgress(data) {
                 avatarHtml = `<div class="avatar-initials" style="background-color: ${bgColor}">${initials}</div>`;
             }
             
+            // Adicionar classe ao rank-number baseado na posição
+            const rankNumberClass = participant.rank === 1 ? 'rank-first' : participant.rank === 2 ? 'rank-second' : participant.rank === 3 ? 'rank-third' : '';
+            
             html += `
                 <div class="participant-rank-item ${rankClass}">
-                    <div class="rank-number">
-                        ${medal} #${participant.rank}
+                    <div class="rank-number ${rankNumberClass}">
+                        ${medal}<span style="font-size: 1.25rem; margin-left: 0.25rem;">#${participant.rank}</span>
                     </div>
                     <div class="participant-info">
                         <div class="participant-avatar">${avatarHtml}</div>
@@ -3467,7 +3682,7 @@ function displayChallengeProgress(data) {
                                     <i class="fas fa-star"></i> ${participant.total_points.toLocaleString('pt-BR')} pts
                                 </span>
                                 <span class="stat-item">
-                                    <i class="fas fa-calendar-check"></i> ${participant.active_days} dias
+                                    <i class="fas fa-calendar-check"></i> ${participant.active_days} ${participant.active_days === 1 ? 'dia' : 'dias'}
                                 </span>
                             </div>
                         </div>
