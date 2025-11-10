@@ -1710,10 +1710,10 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <div class="group-card-actions" onclick="event.stopPropagation()">
                         <div class="toggle-switch-wrapper">
+                            <?php
+                            $is_active = $group['status'] === 'active';
+                            ?>
                             <label class="toggle-switch">
-                                <?php
-                                $is_active = $group['status'] === 'active';
-                                ?>
                                 <input type="checkbox" 
                                        class="toggle-switch-input" 
                                        <?php echo $is_active ? 'checked' : ''; ?>
@@ -1722,7 +1722,7 @@ require_once __DIR__ . '/includes/header.php';
                                        data-current-status="<?php echo $group['status']; ?>">
                                 <span class="toggle-switch-slider"></span>
                             </label>
-                            <span class="toggle-switch-label"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
+                            <span class="toggle-switch-label" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
                         </div>
                         <button class="btn-action btn-edit" onclick="editChallenge(<?php echo $group['id']; ?>)">
                                 <i class="fas fa-edit"></i> Editar
