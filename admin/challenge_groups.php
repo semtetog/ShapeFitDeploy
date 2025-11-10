@@ -718,6 +718,274 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 /* ========================================================================= */
+/*       PROGRESS MODAL - MODAL DE PROGRESSO DOS PARTICIPANTES               */
+/* ========================================================================= */
+
+.progress-modal-content {
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.progress-modal-body {
+    padding: 1.5rem;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.btn-refresh {
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    color: var(--accent-orange);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-refresh:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+}
+
+.progress-ranking {
+    margin-top: 1.5rem;
+}
+
+.ranking-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.participants-ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.participant-rank-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: 80px 1fr 300px;
+    gap: 1rem;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.participant-rank-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 107, 0, 0.3);
+}
+
+.participant-rank-item.rank-first {
+    border-color: rgba(255, 215, 0, 0.5);
+    background: rgba(255, 215, 0, 0.05);
+}
+
+.participant-rank-item.rank-second {
+    border-color: rgba(192, 192, 192, 0.5);
+    background: rgba(192, 192, 192, 0.05);
+}
+
+.participant-rank-item.rank-third {
+    border-color: rgba(205, 127, 50, 0.5);
+    background: rgba(205, 127, 50, 0.05);
+}
+
+.rank-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    text-align: center;
+}
+
+.participant-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.participant-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.participant-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.participant-details {
+    flex: 1;
+}
+
+.participant-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.participant-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.today-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.today-points {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-orange);
+    text-align: right;
+}
+
+.today-goals {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.goal-progress-item {
+    display: grid;
+    grid-template-columns: 80px 1fr 80px;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.goal-label {
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.goal-progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.goal-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-orange), #FF8533);
+    transition: width 0.3s ease;
+}
+
+.goal-value {
+    color: var(--text-secondary);
+    text-align: right;
+    font-size: 0.7rem;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+.loading-spinner i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--accent-orange);
+}
+
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: #EF4444;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 968px) {
+    .participant-rank-item {
+        grid-template-columns: 60px 1fr;
+    }
+    
+    .today-progress {
+        grid-column: 1 / -1;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}
+
+@media (max-width: 480px) {
+    .progress-modal-content {
+        width: 95%;
+    }
+    
+    .participant-rank-item {
+        grid-template-columns: 1fr;
+    }
+    
+    .rank-number {
+        text-align: left;
+    }
+}
+
+/* ========================================================================= */
 /*       CHALLENGE MODAL - ESTILO FOODS_MANAGEMENT_NEW.PHP                  */
 /* ========================================================================= */
 
