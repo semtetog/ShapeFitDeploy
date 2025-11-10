@@ -814,68 +814,143 @@ function checkChallengeRankChanges($conn, $user_id) {
  * Cria uma notificação de desafio
  */
 function createChallengeNotification($conn, $challenge_id, $user_id, $type, $message) {
-    // Verificar se já existe notificação similar recente (últimas 2 horas) para evitar spam
-    $stmt_check = $conn->prepare("
-        SELECT id FROM sf_challenge_notifications
-        WHERE challenge_group_id = ? AND user_id = ? AND notification_type = ?
-        AND created_at > DATE_SUB(NOW(), INTERVAL 2 HOUR)
-        LIMIT 1
-    ");
-    $stmt_check->bind_param("iis", $challenge_id, $user_id, $type);
-    $stmt_check->execute();
-    $check_result = $stmt_check->get_result();
-    if ($check_result->num_rows > 0) {
-        $stmt_check->close();
-        return; // Já existe notificação similar recente
+    // Verificar se a tabela existe antes de tentar inserir
+    $table_exists = false;
+    $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
+    if ($check_table && $check_table->num_rows > 0) {
+        $table_exists = true;
     }
-    $stmt_check->close();
+    if ($check_table) {
+        $check_table->close();
+    }
     
-    $stmt = $conn->prepare("
-        INSERT INTO sf_challenge_notifications 
-        (challenge_group_id, user_id, notification_type, message)
-        VALUES (?, ?, ?, ?)
-    ");
-    $stmt->bind_param("iiss", $challenge_id, $user_id, $type, $message);
-    $stmt->execute();
-    $stmt->close();
+    // Se a tabela não existe, apenas retornar (não criar notificação)
+    if (!$table_exists) {
+        return;
+    }
+    
+    try {
+        // Verificar se já existe notificação similar recente (últimas 2 horas) para evitar spam
+        $stmt_check = $conn->prepare("
+            SELECT id FROM sf_challenge_notifications
+            WHERE challenge_group_id = ? AND user_id = ? AND notification_type = ?
+            AND created_at > DATE_SUB(NOW(), INTERVAL 2 HOUR)
+            LIMIT 1
+        ");
+        if (!$stmt_check) {
+            error_log("Erro ao preparar verificação de notificação: " . $conn->error);
+            return;
+        }
+        $stmt_check->bind_param("iis", $challenge_id, $user_id, $type);
+        $stmt_check->execute();
+        $check_result = $stmt_check->get_result();
+        if ($check_result->num_rows > 0) {
+            $stmt_check->close();
+            return; // Já existe notificação similar recente
+        }
+        $stmt_check->close();
+        
+        $stmt = $conn->prepare("
+            INSERT INTO sf_challenge_notifications 
+            (challenge_group_id, user_id, notification_type, message)
+            VALUES (?, ?, ?, ?)
+        ");
+        if (!$stmt) {
+            error_log("Erro ao preparar inserção de notificação: " . $conn->error);
+            return;
+        }
+        $stmt->bind_param("iiss", $challenge_id, $user_id, $type, $message);
+        $stmt->execute();
+        $stmt->close();
+    } catch (Exception $e) {
+        error_log("Erro ao criar notificação: " . $e->getMessage());
+        // Não propagar o erro para não quebrar o fluxo principal
+    }
 }
 
 /**
  * Busca notificações não lidas do usuário
  */
 function getChallengeNotifications($conn, $user_id, $limit = 10) {
-    $stmt = $conn->prepare("
-        SELECT cn.*, cg.name as challenge_name
-        FROM sf_challenge_notifications cn
-        INNER JOIN sf_challenge_groups cg ON cn.challenge_group_id = cg.id
-        WHERE cn.user_id = ? AND cn.is_read = 0
-        ORDER BY cn.created_at DESC
-        LIMIT ?
-    ");
-    $stmt->bind_param("ii", $user_id, $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $notifications = [];
-    while ($row = $result->fetch_assoc()) {
-        $notifications[] = $row;
+    // Verificar se a tabela existe antes de tentar consultar
+    $table_exists = false;
+    $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
+    if ($check_table && $check_table->num_rows > 0) {
+        $table_exists = true;
     }
-    $stmt->close();
+    if ($check_table) {
+        $check_table->close();
+    }
     
-    return $notifications;
+    // Se a tabela não existe, retornar array vazio
+    if (!$table_exists) {
+        return [];
+    }
+    
+    try {
+        $stmt = $conn->prepare("
+            SELECT cn.*, cg.name as challenge_name
+            FROM sf_challenge_notifications cn
+            INNER JOIN sf_challenge_groups cg ON cn.challenge_group_id = cg.id
+            WHERE cn.user_id = ? AND cn.is_read = 0
+            ORDER BY cn.created_at DESC
+            LIMIT ?
+        ");
+        if (!$stmt) {
+            error_log("Erro ao preparar query de notificações: " . $conn->error);
+            return [];
+        }
+        $stmt->bind_param("ii", $user_id, $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $notifications = [];
+        while ($row = $result->fetch_assoc()) {
+            $notifications[] = $row;
+        }
+        $stmt->close();
+        
+        return $notifications;
+    } catch (Exception $e) {
+        error_log("Erro ao buscar notificações: " . $e->getMessage());
+        return [];
+    }
 }
 
 /**
  * Marca notificação como lida
  */
 function markNotificationAsRead($conn, $notification_id, $user_id) {
-    $stmt = $conn->prepare("
-        UPDATE sf_challenge_notifications
-        SET is_read = 1
-        WHERE id = ? AND user_id = ?
-    ");
-    $stmt->bind_param("ii", $notification_id, $user_id);
-    $stmt->execute();
-    $stmt->close();
+    // Verificar se a tabela existe antes de tentar atualizar
+    $table_exists = false;
+    $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
+    if ($check_table && $check_table->num_rows > 0) {
+        $table_exists = true;
+    }
+    if ($check_table) {
+        $check_table->close();
+    }
+    
+    // Se a tabela não existe, apenas retornar
+    if (!$table_exists) {
+        return;
+    }
+    
+    try {
+        $stmt = $conn->prepare("
+            UPDATE sf_challenge_notifications
+            SET is_read = 1
+            WHERE id = ? AND user_id = ?
+        ");
+        if (!$stmt) {
+            error_log("Erro ao preparar atualização de notificação: " . $conn->error);
+            return;
+        }
+        $stmt->bind_param("ii", $notification_id, $user_id);
+        $stmt->execute();
+        $stmt->close();
+    } catch (Exception $e) {
+        error_log("Erro ao marcar notificação como lida: " . $e->getMessage());
+    }
 }
 
 /**
