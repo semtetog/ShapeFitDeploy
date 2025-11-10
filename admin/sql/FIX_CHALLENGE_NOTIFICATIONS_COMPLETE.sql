@@ -3,14 +3,6 @@
 -- Execute este script uma única vez para corrigir a estrutura da tabela
 -- ============================================================================
 
--- Verificar estrutura atual
-SELECT 'ESTRUTURA ATUAL:' as info;
-SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE 
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_SCHEMA = DATABASE() 
-AND TABLE_NAME = 'sf_challenge_notifications'
-ORDER BY ORDINAL_POSITION;
-
 -- ============================================================================
 -- PASSO 1: Adicionar coluna challenge_group_id (se não existir)
 -- ============================================================================
@@ -22,6 +14,7 @@ ADD COLUMN `challenge_group_id` int(11) NULL AFTER `id`;
 -- PASSO 2: Migrar dados de group_id para challenge_group_id
 -- ============================================================================
 -- Se group_id existir, copiar os dados
+-- Se der erro "Unknown column 'group_id'", significa que não existe, continue
 UPDATE `sf_challenge_notifications` 
 SET `challenge_group_id` = `group_id` 
 WHERE `challenge_group_id` IS NULL AND `group_id` IS NOT NULL;
@@ -81,29 +74,6 @@ ADD INDEX `idx_user_read` (`user_id`, `is_read`);
 
 ALTER TABLE `sf_challenge_notifications` 
 ADD INDEX `idx_challenge_user_type_created` (`challenge_group_id`, `user_id`, `notification_type`, `created_at`);
-
--- ============================================================================
--- VERIFICAÇÃO FINAL
--- ============================================================================
-SELECT 'ESTRUTURA FINAL:' as info;
-SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_SCHEMA = DATABASE() 
-AND TABLE_NAME = 'sf_challenge_notifications'
-ORDER BY ORDINAL_POSITION;
-
-SELECT 'CONSTRAINTS:' as info;
-SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE
-FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
-WHERE TABLE_SCHEMA = DATABASE() 
-AND TABLE_NAME = 'sf_challenge_notifications';
-
-SELECT 'ÍNDICES:' as info;
-SELECT INDEX_NAME, COLUMN_NAME
-FROM INFORMATION_SCHEMA.STATISTICS
-WHERE TABLE_SCHEMA = DATABASE() 
-AND TABLE_NAME = 'sf_challenge_notifications'
-ORDER BY INDEX_NAME, SEQ_IN_INDEX;
 
 -- ============================================================================
 -- OPcional: Remover colunas antigas (DESCOMENTE APENAS SE QUISER REMOVER)
