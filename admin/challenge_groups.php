@@ -2494,19 +2494,23 @@ function initFlatpickr() {
     function safeDestroyFlatpickr(input) {
         if (!input) return;
         
-        const fp = input._flatpickr;
-        if (!fp) return;
+        // Verificar se há uma instância do Flatpickr
+        if (!input._flatpickr) return;
         
-        // Limpar referência primeiro para evitar loops
-        input._flatpickr = null;
-        
-        // Tentar destruir apenas se o método existir
-        if (typeof fp.destroy === 'function') {
-            try {
+        try {
+            const fp = input._flatpickr;
+            
+            // Tentar destruir apenas se o método existir
+            if (fp && typeof fp.destroy === 'function') {
+                // Chamar destroy ANTES de limpar a referência
                 fp.destroy();
-            } catch (e) {
-                // Ignorar erros - a instância pode já estar destruída
             }
+        } catch (e) {
+            // Ignorar erros - a instância pode já estar destruída
+            console.warn('Erro ao destruir Flatpickr (pode ser ignorado):', e);
+        } finally {
+            // Limpar referência após tentar destruir
+            input._flatpickr = null;
         }
     }
     
@@ -2515,25 +2519,20 @@ function initFlatpickr() {
     safeDestroyFlatpickr(endDateInput);
     
     // Limpar qualquer elemento do calendário que possa ter ficado no DOM
-    // Aguardar um pouco para garantir que a destruição foi processada
-    setTimeout(() => {
-        try {
-            const existingCalendars = document.querySelectorAll('.flatpickr-calendar');
-            existingCalendars.forEach(cal => {
-                try {
-                    // Remover apenas se não estiver anexado a um input ativo
-                    const parent = cal.parentElement;
-                    if (!parent || !parent.querySelector('input[data-flatpickr]')) {
-                        cal.remove();
-                    }
-                } catch (e) {
-                    // Ignorar erros
-                }
-            });
-        } catch (e) {
-            // Ignorar erros ao limpar calendários
-        }
-    }, 100);
+    // Fazer isso imediatamente após destruir as instâncias
+    try {
+        const existingCalendars = document.querySelectorAll('.flatpickr-calendar');
+        existingCalendars.forEach(cal => {
+            try {
+                // Remover calendários órfãos (que não estão mais anexados a inputs)
+                cal.remove();
+            } catch (e) {
+                // Ignorar erros
+            }
+        });
+    } catch (e) {
+        // Ignorar erros ao limpar calendários
+    }
     
     // Configuração do Flatpickr
     const flatpickrOptions = {
@@ -2551,16 +2550,43 @@ function initFlatpickr() {
         altInput: false, // Não criar input alternativo
         parseDate: function(datestr, format) {
             // Função para parsear datas no formato dd/mm/yyyy
-            if (!datestr) return null;
+            // Retornar null se não houver valor ou se o valor for muito curto (parcial)
+            if (!datestr || typeof datestr !== 'string') return null;
+            
+            // Limpar espaços
+            datestr = datestr.trim();
+            
+            // Se o valor for muito curto (menos de 8 caracteres), não é uma data válida
+            // dd/mm/yyyy = 10 caracteres mínimos
+            if (datestr.length < 8) return null;
+            
+            // Tentar formato d/m/Y
             if (format === 'd/m/Y' || !format) {
                 const parts = datestr.split('/');
+                // Deve ter exatamente 3 partes
                 if (parts.length === 3) {
                     const day = parseInt(parts[0], 10);
                     const month = parseInt(parts[1], 10) - 1; // Mês é 0-indexed
                     const year = parseInt(parts[2], 10);
-                    if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-                        return new Date(year, month, day);
+                    
+                    // Validar se todos os valores são números válidos
+                    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+                    
+                    // Validar ranges
+                    if (day < 1 || day > 31) return null;
+                    if (month < 0 || month > 11) return null;
+                    if (year < 2020 || year > 2100) return null;
+                    
+                    // Criar data e validar
+                    const date = new Date(year, month, day);
+                    if (isNaN(date.getTime())) return null;
+                    
+                    // Verificar se a data é válida (evitar datas inválidas como 31/02)
+                    if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+                        return null;
                     }
+                    
+                    return date;
                 }
             }
             return null;
@@ -2639,6 +2665,13 @@ function initFlatpickr() {
     
     // Inicializar para data de início
     if (startDateInput) {
+        // Limpar valor se estiver parcial ou inválido antes de inicializar
+        const startValue = startDateInput.value.trim();
+        if (startValue && startValue.length < 8) {
+            // Valor muito curto, limpar
+            startDateInput.value = '';
+        }
+        
         // Aplicar máscara de data
         applyDateMask(startDateInput);
         
@@ -2715,6 +2748,13 @@ function initFlatpickr() {
     
     // Inicializar para data de fim
     if (endDateInput) {
+        // Limpar valor se estiver parcial ou inválido antes de inicializar
+        const endValue = endDateInput.value.trim();
+        if (endValue && endValue.length < 8) {
+            // Valor muito curto, limpar
+            endDateInput.value = '';
+        }
+        
         // Aplicar máscara de data
         applyDateMask(endDateInput);
         
@@ -2952,19 +2992,22 @@ function closeChallengeModal() {
     function safeDestroyFlatpickr(input) {
         if (!input) return;
         
-        const fp = input._flatpickr;
-        if (!fp) return;
+        // Verificar se há uma instância do Flatpickr
+        if (!input._flatpickr) return;
         
-        // Limpar referência primeiro para evitar loops
-        input._flatpickr = null;
-        
-        // Tentar destruir apenas se o método existir
-        if (typeof fp.destroy === 'function') {
-            try {
+        try {
+            const fp = input._flatpickr;
+            
+            // Tentar destruir apenas se o método existir
+            if (fp && typeof fp.destroy === 'function') {
+                // Chamar destroy ANTES de limpar a referência
                 fp.destroy();
-            } catch (e) {
-                // Ignorar erros - a instância pode já estar destruída
             }
+        } catch (e) {
+            // Ignorar erros - a instância pode já estar destruída
+        } finally {
+            // Limpar referência após tentar destruir
+            input._flatpickr = null;
         }
     }
     
@@ -2975,23 +3018,18 @@ function closeChallengeModal() {
     safeDestroyFlatpickr(endDateInput);
     
     // Limpar qualquer elemento do calendário que possa ter ficado no DOM
-    setTimeout(() => {
-        try {
-            const existingCalendars = document.querySelectorAll('.flatpickr-calendar');
-            existingCalendars.forEach(cal => {
-                try {
-                    const parent = cal.parentElement;
-                    if (!parent || !parent.querySelector('input[data-flatpickr]')) {
-                        cal.remove();
-                    }
-                } catch (e) {
-                    // Ignorar erros
-                }
-            });
-        } catch (e) {
-            // Ignorar erros ao limpar calendários
-        }
-    }, 100);
+    try {
+        const existingCalendars = document.querySelectorAll('.flatpickr-calendar');
+        existingCalendars.forEach(cal => {
+            try {
+                cal.remove();
+            } catch (e) {
+                // Ignorar erros
+            }
+        });
+    } catch (e) {
+        // Ignorar erros ao limpar calendários
+    }
 }
 
 function editChallenge(id) {
