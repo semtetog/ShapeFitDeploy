@@ -683,11 +683,6 @@ require_once __DIR__ . '/includes/header.php';
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    font-family: 'Montserrat', sans-serif;
 }
 
 /* Toggle Switch - Interruptor Moderno */
