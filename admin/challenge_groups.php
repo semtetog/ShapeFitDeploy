@@ -1679,14 +1679,7 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="challenge-group-card" onclick="viewChallenge(<?php echo $group['id']; ?>)">
                     <div class="group-card-header">
                         <h3 class="group-name"><?php echo htmlspecialchars($group['name']); ?></h3>
-                        <span class="group-status <?php echo $status_class; ?>">
-                            <?php 
-                            echo $status_class === 'active' ? 'Ativo' : 
-                                ($status_class === 'completed' ? 'Concluído' : 
-                                ($status_class === 'scheduled' ? 'Agendado' : 'Inativo')); 
-                            ?>
-                                </span>
-                            </div>
+                    </div>
                     
                     <?php if (!empty($group['description'])): ?>
                         <p class="group-description"><?php echo htmlspecialchars($group['description']); ?></p>
