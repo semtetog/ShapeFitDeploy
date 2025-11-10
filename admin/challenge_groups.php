@@ -870,9 +870,9 @@ require_once __DIR__ . '/includes/header.php';
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    flex: 1 !important;
     position: relative !important;
-    min-width: 0 !important;
+    width: 100% !important;
+    flex: 0 0 auto !important;
 }
 
 /* Centraliza corretamente o container de MÊS + ANO */
@@ -883,16 +883,19 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center !important;
     width: auto !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     color: var(--text-primary) !important;
     font-family: 'Montserrat', sans-serif !important;
     text-align: center !important;
-    position: relative !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
     z-index: 5 !important;
     gap: 0.25rem !important;
 }
 
-/* Ano menor */
+/* Ano menor - remover setas do input */
 .flatpickr-current-month .cur-year {
     font-size: 0.75rem !important;
     font-weight: 600 !important;
@@ -900,10 +903,21 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-secondary) !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 100% !important;
+    width: auto !important;
     text-align: center !important;
     display: block !important;
     line-height: 1.2 !important;
+    /* Remover setas do input number */
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+}
+
+/* Remover setas do input number do ano */
+.flatpickr-current-month .cur-year::-webkit-outer-spin-button,
+.flatpickr-current-month .cur-year::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+    display: none !important;
 }
 
 /* Mês alinhado ao centro (modo static - texto, não dropdown) */
