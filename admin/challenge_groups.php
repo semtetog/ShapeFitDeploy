@@ -2472,13 +2472,43 @@ function editChallenge(id) {
             // Atualizar título do modal
             document.getElementById('modalTitle').textContent = 'Editar Desafio';
             
-            // Abrir modal
+            // Abrir modal (já reinicializa o Flatpickr dentro dele)
             openChallengeModal();
             
-            // Reinicializar Flatpickr com as datas
+            // Aguardar um pouco mais para garantir que o Flatpickr seja reinicializado com as datas
+            // O openChallengeModal já chama initFlatpickr após 100ms, mas precisamos de mais tempo
+            // para que as datas sejam definidas corretamente
             setTimeout(() => {
-                initFlatpickr();
-            }, 300);
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+                
+                // Atualizar datas no Flatpickr se já estiver inicializado
+                if (startDateInput && startDateInput._flatpickr && startDateInput.value) {
+                    const parts = startDateInput.value.split('/');
+                    if (parts.length === 3) {
+                        const day = parseInt(parts[0], 10);
+                        const month = parseInt(parts[1], 10) - 1;
+                        const year = parseInt(parts[2], 10);
+                        const date = new Date(year, month, day);
+                        if (!isNaN(date.getTime())) {
+                            startDateInput._flatpickr.setDate(date, false);
+                        }
+                    }
+                }
+                
+                if (endDateInput && endDateInput._flatpickr && endDateInput.value) {
+                    const parts = endDateInput.value.split('/');
+                    if (parts.length === 3) {
+                        const day = parseInt(parts[0], 10);
+                        const month = parseInt(parts[1], 10) - 1;
+                        const year = parseInt(parts[2], 10);
+                        const date = new Date(year, month, day);
+                        if (!isNaN(date.getTime())) {
+                            endDateInput._flatpickr.setDate(date, false);
+                        }
+                    }
+                }
+            }, 400);
             
         } else {
             alert('Erro ao carregar desafio: ' + (result.message || 'Desafio não encontrado'));
