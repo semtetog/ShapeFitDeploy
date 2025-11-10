@@ -3048,7 +3048,7 @@ function viewChallengeProgress(challengeId) {
     const modalTitle = document.getElementById('progressModalTitle');
     
     modal.classList.add('active');
-    modalBody.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i><p>Carregando progresso...</p></div>';
+    modalBody.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i><p>Carregando progresso...</p></div>';
     
     // Buscar progresso via AJAX
     fetch('ajax_challenge_groups.php', {
