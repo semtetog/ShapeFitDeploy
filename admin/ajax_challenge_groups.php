@@ -51,7 +51,12 @@ try {
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
     }
+} catch (mysqli_sql_exception $e) {
+    error_log("Erro SQL em ajax_challenge_groups.php: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Erro ao processar solicitação: ' . $e->getMessage()]);
+    exit;
 } catch (Exception $e) {
+    error_log("Erro em ajax_challenge_groups.php: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit;
 }
