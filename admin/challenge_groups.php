@@ -2804,10 +2804,13 @@ function updateStats() {
             const statCompleted = document.getElementById('stat-completed');
             const statScheduled = document.getElementById('stat-scheduled');
             
+            const statInactive = document.getElementById('stat-inactive');
+            
             if (statTotal) statTotal.textContent = result.stats.total || 0;
             if (statActive) statActive.textContent = result.stats.active || 0;
             if (statCompleted) statCompleted.textContent = result.stats.completed || 0;
             if (statScheduled) statScheduled.textContent = result.stats.scheduled || 0;
+            if (statInactive) statInactive.textContent = result.stats.inactive || 0;
         }
     })
     .catch(error => {
