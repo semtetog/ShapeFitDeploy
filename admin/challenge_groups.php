@@ -2490,52 +2490,50 @@ function initFlatpickr() {
     }
     
     // Remover instâncias existentes antes de criar novas
-    // Verificar se existe e se tem o método destroy antes de chamar
-    if (startDateInput._flatpickr) {
-        try {
-            // Verificar se a instância ainda é válida
-            if (startDateInput._flatpickr && typeof startDateInput._flatpickr.destroy === 'function') {
-                // Verificar se o calendarContainer ainda existe (indica que a instância está válida)
-                if (startDateInput._flatpickr.calendarContainer) {
-                    startDateInput._flatpickr.destroy();
-                }
+    // Abordagem mais defensiva: apenas tentar destruir se realmente existir e tiver o método
+    function safeDestroyFlatpickr(input) {
+        if (!input) return;
+        
+        const fp = input._flatpickr;
+        if (!fp) return;
+        
+        // Limpar referência primeiro para evitar loops
+        input._flatpickr = null;
+        
+        // Tentar destruir apenas se o método existir
+        if (typeof fp.destroy === 'function') {
+            try {
+                fp.destroy();
+            } catch (e) {
+                // Ignorar erros - a instância pode já estar destruída
             }
-            // Limpar a referência de qualquer forma
-            startDateInput._flatpickr = null;
-        } catch (e) {
-            console.warn('Erro ao destruir Flatpickr do startDate:', e);
-            // Limpar a referência mesmo se houver erro
-            startDateInput._flatpickr = null;
         }
     }
     
-    if (endDateInput._flatpickr) {
-        try {
-            // Verificar se a instância ainda é válida
-            if (endDateInput._flatpickr && typeof endDateInput._flatpickr.destroy === 'function') {
-                // Verificar se o calendarContainer ainda existe (indica que a instância está válida)
-                if (endDateInput._flatpickr.calendarContainer) {
-                    endDateInput._flatpickr.destroy();
-                }
-            }
-            // Limpar a referência de qualquer forma
-            endDateInput._flatpickr = null;
-        } catch (e) {
-            console.warn('Erro ao destruir Flatpickr do endDate:', e);
-            // Limpar a referência mesmo se houver erro
-            endDateInput._flatpickr = null;
-        }
-    }
+    // Destruir instâncias existentes
+    safeDestroyFlatpickr(startDateInput);
+    safeDestroyFlatpickr(endDateInput);
     
     // Limpar qualquer elemento do calendário que possa ter ficado no DOM
-    const existingCalendars = document.querySelectorAll('.flatpickr-calendar');
-    existingCalendars.forEach(cal => {
+    // Aguardar um pouco para garantir que a destruição foi processada
+    setTimeout(() => {
         try {
-            cal.remove();
+            const existingCalendars = document.querySelectorAll('.flatpickr-calendar');
+            existingCalendars.forEach(cal => {
+                try {
+                    // Remover apenas se não estiver anexado a um input ativo
+                    const parent = cal.parentElement;
+                    if (!parent || !parent.querySelector('input[data-flatpickr]')) {
+                        cal.remove();
+                    }
+                } catch (e) {
+                    // Ignorar erros
+                }
+            });
         } catch (e) {
-            console.warn('Erro ao remover calendário do DOM:', e);
+            // Ignorar erros ao limpar calendários
         }
-    });
+    }, 100);
     
     // Configuração do Flatpickr
     const flatpickrOptions = {
