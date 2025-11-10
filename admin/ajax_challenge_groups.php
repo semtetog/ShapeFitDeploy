@@ -85,61 +85,99 @@ function getChallengeProgress($data) {
     $current_date = date('Y-m-d');
     
     // Buscar participantes com progresso
-    $stmt = $conn->prepare("
+    // Primeiro buscar todos os participantes do grupo
+    $stmt_participants = $conn->prepare("
         SELECT 
             u.id,
             u.name,
             u.email,
-            up.profile_image_filename,
-            COALESCE(SUM(cgdp.points_earned), 0) as total_points,
-            COUNT(DISTINCT cgdp.date) as active_days,
-            cgdp_today.calories_consumed as today_calories,
-            cgdp_today.water_ml as today_water,
-            cgdp_today.exercise_minutes as today_exercise,
-            cgdp_today.sleep_hours as today_sleep,
-            cgdp_today.points_earned as today_points,
-            cgdp_today.points_breakdown as today_points_breakdown
+            up.profile_image_filename
         FROM sf_challenge_group_members cgm
         INNER JOIN sf_users u ON cgm.user_id = u.id
         LEFT JOIN sf_user_profiles up ON u.id = up.user_id
-        LEFT JOIN sf_challenge_group_daily_progress cgdp ON cgdp.user_id = u.id AND cgdp.challenge_group_id = ?
-        LEFT JOIN sf_challenge_group_daily_progress cgdp_today ON cgdp_today.user_id = u.id 
-            AND cgdp_today.challenge_group_id = ? 
-            AND cgdp_today.date = ?
         WHERE cgm.group_id = ?
-        GROUP BY u.id, u.name, u.email, up.profile_image_filename, 
-                 cgdp_today.calories_consumed, cgdp_today.water_ml, 
-                 cgdp_today.exercise_minutes, cgdp_today.sleep_hours,
-                 cgdp_today.points_earned, cgdp_today.points_breakdown
-        ORDER BY total_points DESC, u.name ASC
+        ORDER BY u.name ASC
     ");
-    $stmt->bind_param("iisi", $challenge_id, $challenge_id, $current_date, $challenge_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt_participants->bind_param("i", $challenge_id);
+    $stmt_participants->execute();
+    $result_participants = $stmt_participants->get_result();
     
     $participants = [];
     $rank = 1;
-    while ($row = $result->fetch_assoc()) {
-        $points_breakdown = json_decode($row['today_points_breakdown'] ?? '{}', true);
+    
+    while ($user = $result_participants->fetch_assoc()) {
+        $user_id = (int)$user['id'];
+        
+        // Buscar pontos totais do usuário no desafio
+        $stmt_total = $conn->prepare("
+            SELECT 
+                COALESCE(SUM(points_earned), 0) as total_points,
+                COUNT(DISTINCT date) as active_days
+            FROM sf_challenge_group_daily_progress
+            WHERE challenge_group_id = ? AND user_id = ?
+        ");
+        $stmt_total->bind_param("ii", $challenge_id, $user_id);
+        $stmt_total->execute();
+        $result_total = $stmt_total->get_result();
+        $total_data = $result_total->fetch_assoc();
+        $stmt_total->close();
+        
+        // Buscar progresso de hoje
+        $stmt_today = $conn->prepare("
+            SELECT 
+                calories_consumed,
+                water_ml,
+                exercise_minutes,
+                sleep_hours,
+                points_earned,
+                points_breakdown
+            FROM sf_challenge_group_daily_progress
+            WHERE challenge_group_id = ? AND user_id = ? AND date = ?
+        ");
+        $stmt_today->bind_param("iis", $challenge_id, $user_id, $current_date);
+        $stmt_today->execute();
+        $result_today = $stmt_today->get_result();
+        $today_data = $result_today->fetch_assoc();
+        $stmt_today->close();
+        
+        $points_breakdown = json_decode($today_data['points_breakdown'] ?? '{}', true);
+        
         $participants[] = [
-            'rank' => $rank++,
-            'user_id' => (int)$row['id'],
-            'name' => $row['name'],
-            'email' => $row['email'],
-            'profile_image' => $row['profile_image_filename'],
-            'total_points' => (int)$row['total_points'],
-            'active_days' => (int)$row['active_days'],
+            'rank' => 0, // Será calculado depois
+            'user_id' => $user_id,
+            'name' => $user['name'],
+            'email' => $user['email'],
+            'profile_image' => $user['profile_image_filename'],
+            'total_points' => (int)($total_data['total_points'] ?? 0),
+            'active_days' => (int)($total_data['active_days'] ?? 0),
             'today' => [
-                'calories' => (float)($row['today_calories'] ?? 0),
-                'water' => (float)($row['today_water'] ?? 0),
-                'exercise' => (int)($row['today_exercise'] ?? 0),
-                'sleep' => (float)($row['today_sleep'] ?? 0),
-                'points' => (int)($row['today_points'] ?? 0),
+                'calories' => (float)($today_data['calories_consumed'] ?? 0),
+                'water' => (float)($today_data['water_ml'] ?? 0),
+                'exercise' => (int)($today_data['exercise_minutes'] ?? 0),
+                'sleep' => (float)($today_data['sleep_hours'] ?? 0),
+                'points' => (int)($today_data['points_earned'] ?? 0),
                 'points_breakdown' => $points_breakdown
             ]
         ];
     }
-    $stmt->close();
+    $stmt_participants->close();
+    
+    // Ordenar por pontos totais e atribuir ranking
+    usort($participants, function($a, $b) {
+        if ($a['total_points'] == $b['total_points']) {
+            return strcmp($a['name'], $b['name']);
+        }
+        return $b['total_points'] - $a['total_points'];
+    });
+    
+    // Atribuir ranking
+    foreach ($participants as $index => &$participant) {
+        $participant['rank'] = $index + 1;
+    }
+    unset($participant);
+    
+    // Não precisa mais do $result e $stmt
+    
     
     echo json_encode([
         'success' => true,
