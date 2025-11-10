@@ -3701,9 +3701,9 @@ function displayChallengeProgress(data) {
                     <div class="goal-progress-item">
                         <span class="goal-label"><i class="fas fa-fire"></i> Calorias</span>
                         <div class="goal-progress-bar">
-                            <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                            <div class="goal-progress-fill" style="width: ${percentage.toFixed(1)}%"></div>
                         </div>
-                        <span class="goal-value">${Math.round(participant.today.calories)} / ${goalsMap.calories}</span>
+                        <span class="goal-value">${Math.round(participant.today.calories)} / ${goalsMap.calories} kcal</span>
                     </div>
                 `;
             }
@@ -3714,7 +3714,7 @@ function displayChallengeProgress(data) {
                     <div class="goal-progress-item">
                         <span class="goal-label"><i class="fas fa-tint"></i> Água</span>
                         <div class="goal-progress-bar">
-                            <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                            <div class="goal-progress-fill" style="width: ${percentage.toFixed(1)}%"></div>
                         </div>
                         <span class="goal-value">${Math.round(participant.today.water)} / ${goalsMap.water} ml</span>
                     </div>
@@ -3727,9 +3727,9 @@ function displayChallengeProgress(data) {
                     <div class="goal-progress-item">
                         <span class="goal-label"><i class="fas fa-dumbbell"></i> Exercício</span>
                         <div class="goal-progress-bar">
-                            <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                            <div class="goal-progress-fill" style="width: ${percentage.toFixed(1)}%"></div>
                         </div>
-                        <span class="goal-value">${participant.today.exercise} / ${goalsMap.exercise} min</span>
+                        <span class="goal-value">${Math.round(participant.today.exercise)} / ${goalsMap.exercise} min</span>
                     </div>
                 `;
             }
@@ -3740,7 +3740,7 @@ function displayChallengeProgress(data) {
                     <div class="goal-progress-item">
                         <span class="goal-label"><i class="fas fa-bed"></i> Sono</span>
                         <div class="goal-progress-bar">
-                            <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                            <div class="goal-progress-fill" style="width: ${percentage.toFixed(1)}%"></div>
                         </div>
                         <span class="goal-value">${participant.today.sleep.toFixed(1)} / ${goalsMap.sleep} h</span>
                     </div>
