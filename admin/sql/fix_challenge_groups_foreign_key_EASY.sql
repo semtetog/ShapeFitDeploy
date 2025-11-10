@@ -3,12 +3,23 @@
 -- ============================================================
 
 -- PASSO 1: Descobrir o nome da constraint atual
--- Execute este comando e copie o nome da constraint que aparece:
-SHOW CREATE TABLE sf_challenge_groups;
+-- Opção A: Execute este comando para ver o nome da constraint diretamente:
+SELECT 
+    CONSTRAINT_NAME as 'Nome da Constraint'
+FROM 
+    information_schema.KEY_COLUMN_USAGE 
+WHERE 
+    TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'sf_challenge_groups'
+    AND COLUMN_NAME = 'created_by'
+    AND REFERENCED_TABLE_NAME IS NOT NULL;
 
--- Você verá algo como:
--- CONSTRAINT `sf_challenge_groups_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `sf_users` (`id`)
--- Copie o nome: sf_challenge_groups_ibfk_1
+-- Opção B: Ou execute este comando e procure por "CONSTRAINT" no resultado:
+-- SHOW CREATE TABLE sf_challenge_groups;
+
+-- Você verá algo como: sf_challenge_groups_ibfk_1
+-- Copie esse nome para usar no PASSO 2
+-- Se não aparecer nenhum resultado, pode pular o PASSO 2 e ir direto para o PASSO 3
 
 
 -- PASSO 2: Remover a constraint antiga
