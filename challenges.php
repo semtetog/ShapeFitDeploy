@@ -21,14 +21,14 @@ if (!$user_profile_data || !$user_profile_data['onboarding_complete']) {
 $challenge_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($challenge_id > 0) {
-    // Buscar desafio específico
+    // Buscar desafio específico (apenas se não estiver inativo)
     $stmt = $conn->prepare("
         SELECT 
             cg.*,
             COUNT(DISTINCT cgm.user_id) as total_participants
         FROM sf_challenge_groups cg
         INNER JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
-        WHERE cg.id = ? AND cgm.user_id = ?
+        WHERE cg.id = ? AND cgm.user_id = ? AND cg.status != 'inactive'
         GROUP BY cg.id
     ");
     $stmt->bind_param("ii", $challenge_id, $user_id);
@@ -85,14 +85,14 @@ if ($challenge_id > 0) {
     
     $page_title = htmlspecialchars($challenge['name']);
 } else {
-    // Buscar todos os desafios do usuário
+    // Buscar todos os desafios do usuário (apenas ativos)
     $stmt = $conn->prepare("
         SELECT 
             cg.*,
             COUNT(DISTINCT cgm.user_id) as total_participants
         FROM sf_challenge_groups cg
         INNER JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
-        WHERE cgm.user_id = ?
+        WHERE cgm.user_id = ? AND cg.status != 'inactive'
         GROUP BY cg.id
         ORDER BY cg.start_date DESC, cg.created_at DESC
     ");

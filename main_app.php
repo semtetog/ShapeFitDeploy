@@ -120,14 +120,14 @@ foreach ($routine_items as $item) {
 // --- SUGESTÕES DE REFEIÇÃO ---
 $meal_suggestion_data = getMealSuggestions($conn);
 
-// --- BUSCAR GRUPOS DE DESAFIO DO USUÁRIO ---
+// --- BUSCAR GRUPOS DE DESAFIO DO USUÁRIO (apenas ativos) ---
 $challenge_groups_query = "
     SELECT 
         cg.*,
         COUNT(DISTINCT cgm.user_id) as total_participants
     FROM sf_challenge_groups cg
     INNER JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
-    WHERE cgm.user_id = ?
+    WHERE cgm.user_id = ? AND cg.status != 'inactive'
     GROUP BY cg.id
     ORDER BY cg.start_date DESC, cg.created_at DESC
     LIMIT 5

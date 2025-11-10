@@ -38,6 +38,7 @@ while ($row = $stats_result->fetch_assoc()) {
 $stats['active'] = $stats_by_status['active'];
 $stats['completed'] = $stats_by_status['completed'];
 $stats['scheduled'] = $stats_by_status['scheduled'] ?? 0;
+$stats['inactive'] = $stats_by_status['inactive'] ?? 0;
 
 // --- Construir query de busca ---
 $sql = "SELECT 
@@ -198,7 +199,7 @@ require_once __DIR__ . '/includes/header.php';
 /* Stats Grid - Estilo igual foods_management_new.php */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     margin-top: 1.5rem;
     width: 100%;
@@ -206,6 +207,24 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
     overflow: visible;
     position: relative;
+}
+
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .stat-card {
@@ -1615,6 +1634,10 @@ require_once __DIR__ . '/includes/header.php';
             <div class="stat-card" onclick="filterByStatus('scheduled')">
                 <div class="stat-number" id="stat-scheduled"><?php echo $stats['scheduled']; ?></div>
                 <div class="stat-label">Agendados</div>
+            </div>
+            <div class="stat-card" onclick="filterByStatus('inactive')">
+                <div class="stat-number" id="stat-inactive"><?php echo $stats['inactive']; ?></div>
+                <div class="stat-label">Inativos</div>
             </div>
             </div>
         </div>
