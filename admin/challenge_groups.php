@@ -676,6 +676,7 @@ require_once __DIR__ . '/includes/header.php';
 .btn-action {
     flex: 1;
     min-width: 0;
+    max-width: 100%;
     padding: 0.625rem 0.5rem;
     border-radius: 8px;
     display: flex;
@@ -694,6 +695,20 @@ require_once __DIR__ . '/includes/header.php';
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
+    position: relative;
+}
+
+.btn-action i {
+    flex-shrink: 0;
+    font-size: 0.8125rem;
+}
+
+.btn-action span,
+.btn-action:not(:has(i)) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
 }
 
 /* Toggle Switch - Interruptor Moderno */
