@@ -2915,14 +2915,48 @@ function openCreateChallengeModal() {
     document.getElementById('challengeForm').reset();
     document.getElementById('challengeId').value = '';
     
-    // Limpar campos de data explicitamente
+    // Limpar campos de data explicitamente e garantir que estão vazios
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
     if (startDateInput) {
         startDateInput.value = '';
+        startDateInput.removeAttribute('data-flatpickr');
+        // Remover qualquer instância do Flatpickr que possa existir
+        if (startDateInput._flatpickr) {
+            try {
+                startDateInput._flatpickr.destroy();
+            } catch (e) {
+                // Ignorar erros
+            }
+            startDateInput._flatpickr = null;
+        }
     }
     if (endDateInput) {
         endDateInput.value = '';
+        endDateInput.removeAttribute('data-flatpickr');
+        // Remover qualquer instância do Flatpickr que possa existir
+        if (endDateInput._flatpickr) {
+            try {
+                endDateInput._flatpickr.destroy();
+            } catch (e) {
+                // Ignorar erros
+            }
+            endDateInput._flatpickr = null;
+        }
+    }
+    
+    // Limpar qualquer calendário do DOM antes de abrir o modal
+    try {
+        const existingCalendars = document.querySelectorAll('.flatpickr-calendar');
+        existingCalendars.forEach(cal => {
+            try {
+                cal.remove();
+            } catch (e) {
+                // Ignorar erros
+            }
+        });
+    } catch (e) {
+        // Ignorar erros
     }
     
     // Reset goal tags
