@@ -955,18 +955,15 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 3rem;
     margin-bottom: 1.5rem;
     color: var(--accent-orange);
-    display: block;
+    display: inline-block;
     width: 3rem;
     height: 3rem;
     line-height: 3rem;
     text-align: center;
-    animation: spin-icon 1s linear infinite;
-    transform-origin: 50% 50%;
-}
-
-.loading-spinner i.fa-spinner {
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
+    vertical-align: middle;
+    animation: spin-icon-only 1s linear infinite;
+    transform-origin: center center;
+    box-sizing: border-box;
 }
 
 .loading-spinner p {
@@ -976,18 +973,19 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-secondary);
     text-align: center;
     display: block;
-    transform: none !important;
-    animation: none !important;
-    position: relative !important;
     white-space: nowrap;
     width: 100%;
+    /* Garantir que o texto nunca gire */
+    transform: translateZ(0) !important;
+    animation: none !important;
+    will-change: auto !important;
 }
 
-@keyframes spin-icon {
-    0% {
+@keyframes spin-icon-only {
+    from {
         transform: rotate(0deg);
     }
-    100% {
+    to {
         transform: rotate(360deg);
     }
 }
