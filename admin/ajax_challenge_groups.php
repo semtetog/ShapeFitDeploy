@@ -48,7 +48,25 @@ try {
 function saveChallenge($data) {
     global $conn;
     
-    $admin_id = $_SESSION['admin_id'] ?? 1;
+    // Obter admin_id da sessão
+    $admin_id = $_SESSION['admin_id'] ?? null;
+    
+    if (!$admin_id) {
+        throw new Exception('Admin não autenticado');
+    }
+    
+    // Verificar se o admin existe na tabela sf_admins
+    $stmt_check = $conn->prepare("SELECT id FROM sf_admins WHERE id = ?");
+    $stmt_check->bind_param("i", $admin_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    
+    if ($result_check->num_rows === 0) {
+        $stmt_check->close();
+        throw new Exception('Admin não encontrado no sistema');
+    }
+    $stmt_check->close();
+    
     $challenge_id = $data['challenge_id'] ?? null;
     $name = trim($data['name'] ?? '');
     $description = trim($data['description'] ?? '');
