@@ -3297,11 +3297,12 @@ function displayChallengeProgress(data) {
     }
     
     html += `
+                </div>
             </div>
         </div>
     `;
     
-    progressBody.innerHTML = html;
+    modalBody.innerHTML = html;
 }
 
 function closeProgressModal() {
