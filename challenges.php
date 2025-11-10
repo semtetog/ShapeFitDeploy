@@ -642,10 +642,18 @@ body {
         <a href="javascript:history.back()" class="back-button" aria-label="Voltar">
             <i class="fas fa-chevron-left"></i>
         </a>
-        <h1 class="page-title">
-            <i class="fas fa-trophy"></i>
-            <?php echo htmlspecialchars($page_title); ?>
-        </h1>
+        <?php if ($challenge_id == 0): ?>
+            <!-- Mostrar título apenas na lista de desafios -->
+            <h1 class="page-title">
+                <i class="fas fa-trophy"></i>
+                <?php echo htmlspecialchars($page_title); ?>
+            </h1>
+        <?php else: ?>
+            <!-- Não mostrar título duplicado quando visualizando desafio específico -->
+            <h1 class="page-title" style="opacity: 0; pointer-events: none;">
+                <i class="fas fa-trophy"></i>
+            </h1>
+        <?php endif; ?>
         <div style="width: 40px;"></div> <!-- Spacer para centralizar -->
     </div>
 
