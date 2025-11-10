@@ -2707,14 +2707,6 @@ function toggleChallengeStatus(id, currentStatus, toggleElement) {
     // Então toggle.checked já reflete o NOVO estado (não o antigo)
     const isChecked = toggle.checked;
     const newStatus = isChecked ? 'active' : 'inactive';
-    
-    console.log('Toggle changed:', {
-        challengeId: id,
-        oldStatus: currentStatus,
-        isChecked: isChecked,
-        newStatus: newStatus
-    });
-    
     const wrapper = toggle.closest('.toggle-switch-wrapper');
     const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
     
@@ -2723,8 +2715,6 @@ function toggleChallengeStatus(id, currentStatus, toggleElement) {
         const newText = isChecked ? 'Ativo' : 'Inativo';
         const newColor = isChecked ? '#22C55E' : '#EF4444';
         const newWeight = isChecked ? '700' : '600';
-        
-        console.log('Updating label:', { newText, newColor, newWeight });
         
         // Atualizar diretamente
         label.textContent = newText;
