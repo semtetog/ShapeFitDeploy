@@ -2312,14 +2312,10 @@ document.addEventListener('click', function(event) {
 
 // Modal functions
 function openCreateChallengeModal() {
+    // Limpar formulário para criar novo desafio
     document.getElementById('modalTitle').textContent = 'Criar Novo Desafio';
     document.getElementById('challengeForm').reset();
     document.getElementById('challengeId').value = '';
-    document.getElementById('challengeModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Reinicializar Flatpickr após abrir o modal
-    setTimeout(initFlatpickr, 100);
     
     // Reset goal tags
     document.querySelectorAll('.goal-tag').forEach(tag => {
@@ -2341,7 +2337,7 @@ function openCreateChallengeModal() {
         tag.classList.remove('selected');
         const hiddenInput = tag.querySelector('input[type="hidden"]');
         if (hiddenInput) {
-            hiddenInput.name = '';
+            hiddenInput.removeAttribute('name');
         }
     });
     
@@ -2350,6 +2346,18 @@ function openCreateChallengeModal() {
     if (statusInput) {
         statusInput.value = 'scheduled';
     }
+    
+    // Abrir modal
+    openChallengeModal();
+}
+
+function openChallengeModal() {
+    // Função genérica para abrir o modal (usada tanto para criar quanto editar)
+    document.getElementById('challengeModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Reinicializar Flatpickr após abrir o modal
+    setTimeout(initFlatpickr, 100);
 }
 
 function closeChallengeModal() {
