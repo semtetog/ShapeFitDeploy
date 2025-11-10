@@ -557,26 +557,28 @@ require_once __DIR__ . '/includes/header.php';
     transform: translateY(-2px);
 }
 
+/* Quando o desafio está ativo, o botão mostra "Desativar" (vermelho) */
 .btn-toggle-status.active {
-    background: rgba(34, 197, 94, 0.15);
-    border-color: rgba(34, 197, 94, 0.3);
-    color: #22C55E;
-}
-
-.btn-toggle-status.active:hover {
-    background: rgba(34, 197, 94, 0.2);
-    border-color: rgba(34, 197, 94, 0.4);
-}
-
-.btn-toggle-status:not(.active) {
     background: rgba(239, 68, 68, 0.15);
     border-color: rgba(239, 68, 68, 0.3);
     color: #EF4444;
 }
 
-.btn-toggle-status:not(.active):hover {
+.btn-toggle-status.active:hover {
     background: rgba(239, 68, 68, 0.2);
     border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* Quando o desafio está inativo, o botão mostra "Ativar" (verde) */
+.btn-toggle-status:not(.active) {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #22C55E;
+}
+
+.btn-toggle-status:not(.active):hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.4);
 }
 
 .btn-edit {
