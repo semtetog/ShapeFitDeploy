@@ -2948,46 +2948,50 @@ function closeChallengeModal() {
     document.body.style.overflow = '';
     
     // Destruir instâncias do Flatpickr ao fechar o modal para evitar conflitos
+    // Usar a mesma lógica defensiva da função initFlatpickr
+    function safeDestroyFlatpickr(input) {
+        if (!input) return;
+        
+        const fp = input._flatpickr;
+        if (!fp) return;
+        
+        // Limpar referência primeiro para evitar loops
+        input._flatpickr = null;
+        
+        // Tentar destruir apenas se o método existir
+        if (typeof fp.destroy === 'function') {
+            try {
+                fp.destroy();
+            } catch (e) {
+                // Ignorar erros - a instância pode já estar destruída
+            }
+        }
+    }
+    
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
     
-    if (startDateInput && startDateInput._flatpickr) {
-        try {
-            if (startDateInput._flatpickr && typeof startDateInput._flatpickr.destroy === 'function') {
-                if (startDateInput._flatpickr.calendarContainer) {
-                    startDateInput._flatpickr.destroy();
-                }
-            }
-            startDateInput._flatpickr = null;
-        } catch (e) {
-            console.warn('Erro ao destruir Flatpickr do startDate:', e);
-            startDateInput._flatpickr = null;
-        }
-    }
-    
-    if (endDateInput && endDateInput._flatpickr) {
-        try {
-            if (endDateInput._flatpickr && typeof endDateInput._flatpickr.destroy === 'function') {
-                if (endDateInput._flatpickr.calendarContainer) {
-                    endDateInput._flatpickr.destroy();
-                }
-            }
-            endDateInput._flatpickr = null;
-        } catch (e) {
-            console.warn('Erro ao destruir Flatpickr do endDate:', e);
-            endDateInput._flatpickr = null;
-        }
-    }
+    safeDestroyFlatpickr(startDateInput);
+    safeDestroyFlatpickr(endDateInput);
     
     // Limpar qualquer elemento do calendário que possa ter ficado no DOM
-    const existingCalendars = document.querySelectorAll('.flatpickr-calendar');
-    existingCalendars.forEach(cal => {
+    setTimeout(() => {
         try {
-            cal.remove();
+            const existingCalendars = document.querySelectorAll('.flatpickr-calendar');
+            existingCalendars.forEach(cal => {
+                try {
+                    const parent = cal.parentElement;
+                    if (!parent || !parent.querySelector('input[data-flatpickr]')) {
+                        cal.remove();
+                    }
+                } catch (e) {
+                    // Ignorar erros
+                }
+            });
         } catch (e) {
-            // Ignorar erros ao remover
+            // Ignorar erros ao limpar calendários
         }
-    });
+    }, 100);
 }
 
 function editChallenge(id) {
