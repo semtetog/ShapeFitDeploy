@@ -728,7 +728,10 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .progress-modal-content-simple {
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 200px;
     height: 200px;
     background: transparent;
@@ -739,6 +742,7 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center;
     padding: 0;
     margin: 0;
+    z-index: 10001;
 }
 
 .progress-modal-body {
@@ -2340,7 +2344,6 @@ require_once __DIR__ . '/includes/header.php';
 
 <!-- Modal de Progresso do Desafio -->
 <div id="progressModal" class="challenge-edit-modal">
-    <div class="challenge-edit-overlay" onclick="closeProgressModal()"></div>
     <div class="progress-modal-content-simple" id="progressModalBody">
         <div class="loading-spinner-simple">
             <div class="spinner-dots">
