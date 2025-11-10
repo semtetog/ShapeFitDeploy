@@ -3102,57 +3102,68 @@ function editChallenge(id) {
             // Abrir modal (já reinicializa o Flatpickr dentro dele)
             openChallengeModal();
             
+            // Função auxiliar para definir data no Flatpickr com retry
+            function setDateInFlatpickr(input, dateValue, retries = 5) {
+                if (!input || !dateValue || retries <= 0) return;
+                
+                // Verificar se o Flatpickr está inicializado
+                if (!input._flatpickr) {
+                    // Tentar novamente após um pequeno delay
+                    setTimeout(() => setDateInFlatpickr(input, dateValue, retries - 1), 100);
+                    return;
+                }
+                
+                try {
+                    // Verificar se a instância é válida
+                    if (!input._flatpickr || typeof input._flatpickr.setDate !== 'function') {
+                        setTimeout(() => setDateInFlatpickr(input, dateValue, retries - 1), 100);
+                        return;
+                    }
+                    
+                    // Tentar parsear no formato d/m/Y
+                    const parts = dateValue.split('/');
+                    if (parts.length === 3) {
+                        const day = parseInt(parts[0], 10);
+                        const month = parseInt(parts[1], 10) - 1;
+                        const year = parseInt(parts[2], 10);
+                        
+                        if (!isNaN(day) && !isNaN(month) && !isNaN(year) && 
+                            day >= 1 && day <= 31 && month >= 0 && month <= 11 && year >= 2020) {
+                            const date = new Date(year, month, day);
+                            // Verificar se a data é válida (evitar datas inválidas como 31/02)
+                            if (!isNaN(date.getTime()) && 
+                                date.getFullYear() === year && 
+                                date.getMonth() === month && 
+                                date.getDate() === day) {
+                                // Tentar setar a data
+                                input._flatpickr.setDate(date, false);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Erro ao definir data no Flatpickr:', e);
+                    // Tentar novamente se ainda houver retries
+                    if (retries > 1) {
+                        setTimeout(() => setDateInFlatpickr(input, dateValue, retries - 1), 100);
+                    }
+                }
+            }
+            
             // Aguardar que o Flatpickr seja inicializado antes de definir as datas
             // O openChallengeModal chama initFlatpickr após 150ms, então esperamos um pouco mais
             setTimeout(() => {
                 const startDateInput = document.getElementById('startDate');
                 const endDateInput = document.getElementById('endDate');
                 
-                // Atualizar datas no Flatpickr se já estiver inicializado
-                if (startDateInput && startDateInput._flatpickr) {
-                    const startValue = startDateInput.value;
-                    if (startValue) {
-                        try {
-                            const parts = startValue.split('/');
-                            if (parts.length === 3) {
-                                const day = parseInt(parts[0], 10);
-                                const month = parseInt(parts[1], 10) - 1;
-                                const year = parseInt(parts[2], 10);
-                                if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-                                    const date = new Date(year, month, day);
-                                    if (!isNaN(date.getTime())) {
-                                        startDateInput._flatpickr.setDate(date, false);
-                                    }
-                                }
-                            }
-                        } catch (e) {
-                            console.warn('Erro ao definir data de início no Flatpickr:', e);
-                        }
-                    }
+                // Definir datas usando a função auxiliar com retry
+                if (startDateInput && startDateInput.value) {
+                    setDateInFlatpickr(startDateInput, startDateInput.value);
                 }
                 
-                if (endDateInput && endDateInput._flatpickr) {
-                    const endValue = endDateInput.value;
-                    if (endValue) {
-                        try {
-                            const parts = endValue.split('/');
-                            if (parts.length === 3) {
-                                const day = parseInt(parts[0], 10);
-                                const month = parseInt(parts[1], 10) - 1;
-                                const year = parseInt(parts[2], 10);
-                                if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-                                    const date = new Date(year, month, day);
-                                    if (!isNaN(date.getTime())) {
-                                        endDateInput._flatpickr.setDate(date, false);
-                                    }
-                                }
-                            }
-                        } catch (e) {
-                            console.warn('Erro ao definir data de fim no Flatpickr:', e);
-                        }
-                    }
+                if (endDateInput && endDateInput.value) {
+                    setDateInFlatpickr(endDateInput, endDateInput.value);
                 }
-            }, 300);
+            }, 400);
             
         } else {
             alert('Erro ao carregar desafio: ' + (result.message || 'Desafio não encontrado'));
