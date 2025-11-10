@@ -3035,6 +3035,7 @@ function displayChallengeProgress(data) {
     const challenge = data.challenge;
     const participants = data.participants || [];
     const currentDate = data.current_date;
+    const baseAssetUrl = '<?php echo BASE_ASSET_URL; ?>';
     
     // Formatar data
     const dateObj = new Date(currentDate + 'T00:00:00');
@@ -3074,7 +3075,7 @@ function displayChallengeProgress(data) {
             // Avatar
             let avatarHtml = '';
             if (participant.profile_image) {
-                avatarHtml = `<img src="<?php echo BASE_ASSET_URL; ?>/assets/images/users/${participant.profile_image}" alt="${participant.name}">`;
+                avatarHtml = `<img src="${baseAssetUrl}/assets/images/users/${participant.profile_image}" alt="${participant.name}">`;
             } else {
                 const nameParts = participant.name.split(' ');
                 const initials = nameParts.length > 1 
