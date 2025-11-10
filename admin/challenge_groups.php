@@ -240,8 +240,8 @@ require_once __DIR__ . '/includes/header.php';
     
     .btn-action {
         font-size: 0.75rem;
-        padding: 0.5rem 0.375rem;
-        gap: 0.25rem;
+        padding: 0.5rem 0.5rem;
+        gap: 0.375rem;
         flex-shrink: 1;
         max-width: 100%;
     }
@@ -249,12 +249,6 @@ require_once __DIR__ . '/includes/header.php';
     .btn-action i {
         font-size: 0.75rem;
         flex-shrink: 0;
-    }
-    
-    .btn-action > *:not(i) {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 }
 
@@ -278,7 +272,7 @@ require_once __DIR__ . '/includes/header.php';
         min-width: 0;
         max-width: calc(50% - 0.25rem);
         font-size: 0.75rem;
-        padding: 0.5rem 0.375rem;
+        padding: 0.5rem 0.5rem;
     }
     
     .btn-action i {
@@ -316,7 +310,7 @@ require_once __DIR__ . '/includes/header.php';
         width: 100%;
         min-width: 0;
         max-width: 100%;
-        padding: 0.5rem;
+        padding: 0.5rem 0.75rem;
     }
     
     .btn-action i {
