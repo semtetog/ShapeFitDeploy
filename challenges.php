@@ -390,11 +390,17 @@ body {
     align-items: center;
     justify-content: center;
     margin: 0 auto 24px;
+    position: relative;
 }
 
 .empty-state-icon i {
     font-size: 3rem;
     color: var(--accent-orange);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1;
 }
 
 .empty-state h3 {
