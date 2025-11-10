@@ -527,6 +527,7 @@ require_once __DIR__ . '/includes/header.php';
     margin-top: auto;
     padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    align-items: center;
 }
 
 .btn-action {
@@ -2674,14 +2675,27 @@ function viewChallenge(id) {
 function toggleChallengeStatus(id, currentStatus) {
     if (!id) {
         alert('Erro: ID do desafio não fornecido');
+        // Reverter o toggle
+        const toggle = document.querySelector(`.toggle-switch-input[data-challenge-id="${id}"]`);
+        if (toggle) {
+            toggle.checked = currentStatus === 'active';
+            updateToggleLabel(toggle);
+        }
         return;
     }
     
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-    const actionText = newStatus === 'active' ? 'ativar' : 'desativar';
+    // Encontrar o toggle e elementos relacionados
+    const toggle = document.querySelector(`.toggle-switch-input[data-challenge-id="${id}"]`);
+    if (!toggle) return;
     
-    if (!confirm(`Tem certeza que deseja ${actionText} este desafio?`)) {
-        return;
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    const wrapper = toggle.closest('.toggle-switch-wrapper');
+    const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
+    
+    // Atualizar label imediatamente para feedback visual
+    if (label) {
+        label.textContent = newStatus === 'active' ? 'Ativo' : 'Inativo';
+        label.style.color = newStatus === 'active' ? '#22C55E' : '#EF4444';
     }
     
     // Atualizar status via AJAX
@@ -2699,16 +2713,35 @@ function toggleChallengeStatus(id, currentStatus) {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            // Recarregar a página para atualizar a lista
-            location.reload();
+            // Atualizar o atributo data-current-status para próximas mudanças
+            toggle.setAttribute('data-current-status', newStatus);
+            // Pequeno delay para mostrar o feedback antes de recarregar
+            setTimeout(() => {
+                location.reload();
+            }, 200);
         } else {
+            // Reverter o toggle em caso de erro
+            toggle.checked = currentStatus === 'active';
+            updateToggleLabel(toggle);
             alert('Erro ao atualizar status: ' + (result.message || 'Erro desconhecido'));
         }
     })
     .catch(error => {
         console.error('Erro:', error);
+        // Reverter o toggle em caso de erro
+        toggle.checked = currentStatus === 'active';
+        updateToggleLabel(toggle);
         alert('Erro ao atualizar status. Tente novamente.');
     });
+}
+
+function updateToggleLabel(toggle) {
+    const wrapper = toggle.closest('.toggle-switch-wrapper');
+    const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
+    if (label) {
+        label.textContent = toggle.checked ? 'Ativo' : 'Inativo';
+        label.style.color = toggle.checked ? '#22C55E' : '#EF4444';
+    }
 }
 
 // Salvar desafio
