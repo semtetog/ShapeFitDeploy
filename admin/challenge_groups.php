@@ -1679,6 +1679,20 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="challenge-group-card" onclick="viewChallenge(<?php echo $group['id']; ?>)">
                     <div class="group-card-header">
                         <h3 class="group-name"><?php echo htmlspecialchars($group['name']); ?></h3>
+                        <div class="toggle-switch-wrapper" onclick="event.stopPropagation()">
+                            <?php
+                            $is_active = $group['status'] === 'active';
+                            ?>
+                            <label class="toggle-switch">
+                                <input type="checkbox" 
+                                       class="toggle-switch-input" 
+                                       <?php echo $is_active ? 'checked' : ''; ?>
+                                       onchange="toggleChallengeStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>')"
+                                       data-challenge-id="<?php echo $group['id']; ?>"
+                                       data-current-status="<?php echo $group['status']; ?>">
+                                <span class="toggle-switch-slider"></span>
+                            </label>
+                        </div>
                     </div>
                     
                     <?php if (!empty($group['description'])): ?>
@@ -1702,21 +1716,6 @@ require_once __DIR__ . '/includes/header.php';
                                 </div>
                     
                     <div class="group-card-actions" onclick="event.stopPropagation()">
-                        <div class="toggle-switch-wrapper">
-                            <?php
-                            $is_active = $group['status'] === 'active';
-                            ?>
-                            <label class="toggle-switch">
-                                <input type="checkbox" 
-                                       class="toggle-switch-input" 
-                                       <?php echo $is_active ? 'checked' : ''; ?>
-                                       onchange="toggleChallengeStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>')"
-                                       data-challenge-id="<?php echo $group['id']; ?>"
-                                       data-current-status="<?php echo $group['status']; ?>">
-                                <span class="toggle-switch-slider"></span>
-                            </label>
-                            <span class="toggle-switch-label" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
-                        </div>
                         <button class="btn-action btn-edit" onclick="editChallenge(<?php echo $group['id']; ?>)">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
