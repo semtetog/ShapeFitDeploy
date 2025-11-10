@@ -650,9 +650,7 @@ body {
             </h1>
         <?php else: ?>
             <!-- Não mostrar título duplicado quando visualizando desafio específico -->
-            <h1 class="page-title" style="opacity: 0; pointer-events: none;">
-                <i class="fas fa-trophy"></i>
-            </h1>
+            <div style="flex: 1;"></div>
         <?php endif; ?>
         <div style="width: 40px;"></div> <!-- Spacer para centralizar -->
     </div>
