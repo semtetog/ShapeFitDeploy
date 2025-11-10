@@ -4,8 +4,12 @@
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/includes/auth_admin.php';
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/challenge_status_helper.php';
 
 requireAdminLogin();
+
+// Atualizar status dos desafios automaticamente baseado nas datas
+updateChallengeStatusAutomatically($conn);
 
 $page_slug = 'challenge_groups';
 $page_title = 'Grupos de Desafio';

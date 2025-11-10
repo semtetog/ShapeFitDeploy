@@ -6,9 +6,13 @@ require_once 'includes/auth.php';
 requireLogin();
 require_once 'includes/db.php';
 require_once 'includes/functions.php';
+require_once 'includes/challenge_status_helper.php';
 
 $user_id = $_SESSION['user_id'];
 $current_date = date('Y-m-d');
+
+// Atualizar status dos desafios automaticamente baseado nas datas
+updateChallengeStatusAutomatically($conn);
 
 // Verificar se usuário completou onboarding
 $user_profile_data = getUserProfileData($conn, $user_id);

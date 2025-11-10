@@ -20,8 +20,14 @@ date_default_timezone_set('America/Sao_Paulo');
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/db.php';
 
+// Criar diretório de logs se não existir
+$logs_dir = dirname(__DIR__) . '/logs';
+if (!is_dir($logs_dir)) {
+    mkdir($logs_dir, 0755, true);
+}
+
 // Log de execução
-$log_file = dirname(__DIR__) . '/logs/challenge_status_update.log';
+$log_file = $logs_dir . '/challenge_status_update.log';
 
 function writeLog($message) {
     global $log_file;
@@ -37,11 +43,13 @@ try {
     $current_date = date('Y-m-d');
     writeLog("Data atual: $current_date");
     
-    // 1. Ativar desafios agendados que já começaram
+    // 1. Ativar desafios agendados que já começaram (mas não inativos)
     $stmt_activate = $conn->prepare("
-        UPDATE sf_challenges 
-        SET status = 'active' 
-        WHERE start_date <= ? AND status = 'scheduled'
+        UPDATE sf_challenge_groups 
+        SET status = 'active', updated_at = NOW()
+        WHERE start_date <= ? 
+          AND status = 'scheduled'
+          AND status != 'inactive'
     ");
     $stmt_activate->bind_param("s", $current_date);
     $stmt_activate->execute();
@@ -56,9 +64,10 @@ try {
     
     // 2. Completar desafios ativos que já terminaram
     $stmt_complete = $conn->prepare("
-        UPDATE sf_challenges 
-        SET status = 'completed' 
-        WHERE end_date < ? AND status = 'active'
+        UPDATE sf_challenge_groups 
+        SET status = 'completed', updated_at = NOW()
+        WHERE end_date < ? 
+          AND status = 'active'
     ");
     $stmt_complete->bind_param("s", $current_date);
     $stmt_complete->execute();
@@ -76,7 +85,7 @@ try {
         SELECT 
             status,
             COUNT(*) as count
-        FROM sf_challenges 
+        FROM sf_challenge_groups 
         GROUP BY status
     ")->fetch_all(MYSQLI_ASSOC);
     
@@ -88,10 +97,11 @@ try {
     // 4. Verificar desafios próximos do fim (opcional - para notificações futuras)
     $upcoming_end = $conn->query("
         SELECT name, end_date
-        FROM sf_challenges 
+        FROM sf_challenge_groups 
         WHERE status = 'active' 
         AND end_date BETWEEN '$current_date' AND DATE_ADD('$current_date', INTERVAL 3 DAY)
         ORDER BY end_date ASC
+        LIMIT 10
     ")->fetch_all(MYSQLI_ASSOC);
     
     if (!empty($upcoming_end)) {
