@@ -234,8 +234,8 @@ require_once __DIR__ . '/includes/header.php';
 /* Responsividade dos Cards de Desafio */
 @media (max-width: 1024px) {
     .challenge-groups-grid {
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-        gap: 0.875rem;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+        gap: 1.25rem;
     }
     
     .btn-action {
