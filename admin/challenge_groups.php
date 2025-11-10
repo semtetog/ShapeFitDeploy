@@ -680,6 +680,18 @@ require_once __DIR__ . '/includes/header.php';
     border-color: #EF4444;
 }
 
+.btn-action.btn-view {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #3B82F6;
+}
+
+.btn-action.btn-view:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3B82F6;
+    color: #3B82F6;
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;
@@ -1740,6 +1752,9 @@ require_once __DIR__ . '/includes/header.php';
                                 </div>
                     
                     <div class="group-card-actions" onclick="event.stopPropagation()">
+                        <button class="btn-action btn-view" onclick="viewChallengeProgress(<?php echo $group['id']; ?>)" title="Ver Progresso">
+                            <i class="fas fa-chart-line"></i> Progresso
+                        </button>
                         <button class="btn-action btn-edit" onclick="editChallenge(<?php echo $group['id']; ?>)">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
@@ -1968,6 +1983,25 @@ require_once __DIR__ . '/includes/header.php';
             <button type="button" class="btn-save" onclick="saveChallenge()">
                 <i class="fas fa-save"></i> Salvar Desafio
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Progresso do Desafio -->
+<div id="progressModal" class="challenge-edit-modal">
+    <div class="challenge-edit-overlay" onclick="closeProgressModal()"></div>
+    <div class="challenge-edit-content progress-modal-content">
+        <button class="sleep-modal-close" onclick="closeProgressModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="challenge-edit-header">
+            <h3 id="progressModalTitle">Progresso do Desafio</h3>
+        </div>
+        <div class="progress-modal-body" id="progressModalBody">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Carregando progresso...</p>
+            </div>
         </div>
     </div>
 </div>
@@ -2686,6 +2720,204 @@ function deleteChallenge(id) {
 function viewChallenge(id) {
     // Para visualizar, vamos apenas abrir no modo de edição (readonly pode ser implementado depois)
     editChallenge(id);
+}
+
+function viewChallengeProgress(challengeId) {
+    if (!challengeId) {
+        alert('Erro: ID do desafio não fornecido');
+        return;
+    }
+    
+    // Abrir modal
+    const modal = document.getElementById('progressModal');
+    const modalBody = document.getElementById('progressModalBody');
+    const modalTitle = document.getElementById('progressModalTitle');
+    
+    modal.classList.add('active');
+    modalBody.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i><p>Carregando progresso...</p></div>';
+    
+    // Buscar progresso via AJAX
+    fetch('ajax_challenge_groups.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'get_progress',
+            challenge_id: challengeId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayChallengeProgress(data);
+            modalTitle.textContent = `Progresso: ${data.challenge.name}`;
+        } else {
+            modalBody.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-circle"></i> ${data.message}</div>`;
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao buscar progresso:', error);
+        modalBody.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Erro ao carregar progresso. Tente novamente.</div>';
+    });
+}
+
+function displayChallengeProgress(data) {
+    const modalBody = document.getElementById('progressModalBody');
+    const challenge = data.challenge;
+    const participants = data.participants || [];
+    const currentDate = data.current_date;
+    
+    // Formatar data
+    const dateObj = new Date(currentDate + 'T00:00:00');
+    const formattedDate = dateObj.toLocaleDateString('pt-BR');
+    
+    // Preparar metas para exibição
+    const goalsMap = {};
+    challenge.goals.forEach(goal => {
+        goalsMap[goal.type] = goal.value;
+    });
+    
+    let html = `
+        <div class="progress-header">
+            <div class="progress-date">
+                <i class="fas fa-calendar"></i>
+                Progresso de ${formattedDate}
+            </div>
+            <button class="btn-refresh" onclick="viewChallengeProgress(${challenge.id})" title="Atualizar">
+                <i class="fas fa-sync-alt"></i> Atualizar
+            </button>
+        </div>
+        
+        <div class="progress-ranking">
+            <h4 class="ranking-title">
+                <i class="fas fa-trophy"></i> Ranking de Participantes
+            </h4>
+            <div class="participants-ranking-list">
+    `;
+    
+    if (participants.length === 0) {
+        html += '<div class="empty-state"><p>Nenhum participante encontrado ou sem progresso registrado.</p></div>';
+    } else {
+        participants.forEach(participant => {
+            const rankClass = participant.rank === 1 ? 'rank-first' : participant.rank === 2 ? 'rank-second' : participant.rank === 3 ? 'rank-third' : '';
+            const medal = participant.rank === 1 ? '🥇' : participant.rank === 2 ? '🥈' : participant.rank === 3 ? '🥉' : '';
+            
+            // Avatar
+            let avatarHtml = '';
+            if (participant.profile_image) {
+                avatarHtml = `<img src="<?php echo BASE_ASSET_URL; ?>/assets/images/users/${participant.profile_image}" alt="${participant.name}">`;
+            } else {
+                const nameParts = participant.name.split(' ');
+                const initials = nameParts.length > 1 
+                    ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+                    : participant.name.substring(0, 2).toUpperCase();
+                const hash = participant.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                const r = (hash % 156) + 50;
+                const g = ((hash * 2) % 156) + 50;
+                const b = ((hash * 3) % 156) + 50;
+                const bgColor = `rgb(${r}, ${g}, ${b})`;
+                avatarHtml = `<div class="avatar-initials" style="background-color: ${bgColor}">${initials}</div>`;
+            }
+            
+            html += `
+                <div class="participant-rank-item ${rankClass}">
+                    <div class="rank-number">
+                        ${medal} #${participant.rank}
+                    </div>
+                    <div class="participant-info">
+                        <div class="participant-avatar">${avatarHtml}</div>
+                        <div class="participant-details">
+                            <div class="participant-name">${participant.name}</div>
+                            <div class="participant-stats">
+                                <span class="stat-item">
+                                    <i class="fas fa-star"></i> ${participant.total_points.toLocaleString('pt-BR')} pts
+                                </span>
+                                <span class="stat-item">
+                                    <i class="fas fa-calendar-check"></i> ${participant.active_days} dias
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="today-progress">
+                        <div class="today-points">
+                            <i class="fas fa-bolt"></i> ${participant.today.points} pts hoje
+                        </div>
+                        <div class="today-goals">
+            `;
+            
+            // Progresso de hoje para cada meta
+            if (goalsMap.calories) {
+                const percentage = Math.min(100, (participant.today.calories / goalsMap.calories) * 100);
+                html += `
+                    <div class="goal-progress-item">
+                        <span class="goal-label"><i class="fas fa-fire"></i> Calorias</span>
+                        <div class="goal-progress-bar">
+                            <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="goal-value">${Math.round(participant.today.calories)} / ${goalsMap.calories}</span>
+                    </div>
+                `;
+            }
+            
+            if (goalsMap.water) {
+                const percentage = Math.min(100, (participant.today.water / goalsMap.water) * 100);
+                html += `
+                    <div class="goal-progress-item">
+                        <span class="goal-label"><i class="fas fa-tint"></i> Água</span>
+                        <div class="goal-progress-bar">
+                            <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="goal-value">${Math.round(participant.today.water)} / ${goalsMap.water} ml</span>
+                    </div>
+                `;
+            }
+            
+            if (goalsMap.exercise) {
+                const percentage = Math.min(100, (participant.today.exercise / goalsMap.exercise) * 100);
+                html += `
+                    <div class="goal-progress-item">
+                        <span class="goal-label"><i class="fas fa-dumbbell"></i> Exercício</span>
+                        <div class="goal-progress-bar">
+                            <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="goal-value">${participant.today.exercise} / ${goalsMap.exercise} min</span>
+                    </div>
+                `;
+            }
+            
+            if (goalsMap.sleep) {
+                const percentage = Math.min(100, (participant.today.sleep / goalsMap.sleep) * 100);
+                html += `
+                    <div class="goal-progress-item">
+                        <span class="goal-label"><i class="fas fa-bed"></i> Sono</span>
+                        <div class="goal-progress-bar">
+                            <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="goal-value">${participant.today.sleep.toFixed(1)} / ${goalsMap.sleep} h</span>
+                    </div>
+                `;
+            }
+            
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += `
+            </div>
+        </div>
+    `;
+    
+    modalBody.innerHTML = html;
+}
+
+function closeProgressModal() {
+    const modal = document.getElementById('progressModal');
+    modal.classList.remove('active');
 }
 
 function toggleChallengeStatus(id, currentStatus, toggleElement) {

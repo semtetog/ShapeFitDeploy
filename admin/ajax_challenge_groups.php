@@ -42,6 +42,11 @@ try {
         case 'get_stats':
             getStats($data);
             break;
+            
+        case 'get_progress':
+            getChallengeProgress($data);
+            break;
+            
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -49,6 +54,105 @@ try {
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit;
+}
+
+function getChallengeProgress($data) {
+    global $conn;
+    
+    $admin_id = $_SESSION['admin_id'] ?? 1;
+    $challenge_id = (int)($data['challenge_id'] ?? 0);
+    
+    if ($challenge_id <= 0) {
+        throw new Exception('ID do desafio inválido');
+    }
+    
+    // Verificar se o desafio pertence ao admin
+    $stmt_check = $conn->prepare("SELECT id, name, goals, start_date, end_date FROM sf_challenge_groups WHERE id = ? AND created_by = ?");
+    $stmt_check->bind_param("ii", $challenge_id, $admin_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    
+    if ($result_check->num_rows === 0) {
+        $stmt_check->close();
+        throw new Exception('Desafio não encontrado ou sem permissão');
+    }
+    
+    $challenge_info = $result_check->fetch_assoc();
+    $goals = json_decode($challenge_info['goals'] ?? '[]', true);
+    $stmt_check->close();
+    
+    // Data atual
+    $current_date = date('Y-m-d');
+    
+    // Buscar participantes com progresso
+    $stmt = $conn->prepare("
+        SELECT 
+            u.id,
+            u.name,
+            u.email,
+            up.profile_image_filename,
+            COALESCE(SUM(cgdp.points_earned), 0) as total_points,
+            COUNT(DISTINCT cgdp.date) as active_days,
+            cgdp_today.calories_consumed as today_calories,
+            cgdp_today.water_ml as today_water,
+            cgdp_today.exercise_minutes as today_exercise,
+            cgdp_today.sleep_hours as today_sleep,
+            cgdp_today.points_earned as today_points,
+            cgdp_today.points_breakdown as today_points_breakdown
+        FROM sf_challenge_group_members cgm
+        INNER JOIN sf_users u ON cgm.user_id = u.id
+        LEFT JOIN sf_user_profiles up ON u.id = up.user_id
+        LEFT JOIN sf_challenge_group_daily_progress cgdp ON cgdp.user_id = u.id AND cgdp.challenge_group_id = ?
+        LEFT JOIN sf_challenge_group_daily_progress cgdp_today ON cgdp_today.user_id = u.id 
+            AND cgdp_today.challenge_group_id = ? 
+            AND cgdp_today.date = ?
+        WHERE cgm.group_id = ?
+        GROUP BY u.id, u.name, u.email, up.profile_image_filename, 
+                 cgdp_today.calories_consumed, cgdp_today.water_ml, 
+                 cgdp_today.exercise_minutes, cgdp_today.sleep_hours,
+                 cgdp_today.points_earned, cgdp_today.points_breakdown
+        ORDER BY total_points DESC, u.name ASC
+    ");
+    $stmt->bind_param("iisi", $challenge_id, $challenge_id, $current_date, $challenge_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $participants = [];
+    $rank = 1;
+    while ($row = $result->fetch_assoc()) {
+        $points_breakdown = json_decode($row['today_points_breakdown'] ?? '{}', true);
+        $participants[] = [
+            'rank' => $rank++,
+            'user_id' => (int)$row['id'],
+            'name' => $row['name'],
+            'email' => $row['email'],
+            'profile_image' => $row['profile_image_filename'],
+            'total_points' => (int)$row['total_points'],
+            'active_days' => (int)$row['active_days'],
+            'today' => [
+                'calories' => (float)($row['today_calories'] ?? 0),
+                'water' => (float)($row['today_water'] ?? 0),
+                'exercise' => (int)($row['today_exercise'] ?? 0),
+                'sleep' => (float)($row['today_sleep'] ?? 0),
+                'points' => (int)($row['today_points'] ?? 0),
+                'points_breakdown' => $points_breakdown
+            ]
+        ];
+    }
+    $stmt->close();
+    
+    echo json_encode([
+        'success' => true,
+        'challenge' => [
+            'id' => $challenge_id,
+            'name' => $challenge_info['name'],
+            'goals' => $goals,
+            'start_date' => $challenge_info['start_date'],
+            'end_date' => $challenge_info['end_date']
+        ],
+        'participants' => $participants,
+        'current_date' => $current_date
+    ]);
 }
 
 function saveChallenge($data) {
