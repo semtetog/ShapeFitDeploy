@@ -3065,10 +3065,14 @@ function editChallenge(id) {
             });
             
             // Preencher participantes
-            const memberIds = challenge.member_ids || [];
-            // Converter para números para comparar corretamente
-            const memberIdsNum = memberIds.map(id => String(id));
+            // O backend retorna 'participants', não 'member_ids'
+            const participantIds = challenge.participants || challenge.member_ids || [];
+            // Converter para strings para comparar corretamente
+            const participantIdsStr = participantIds.map(id => String(id));
             
+            console.log('Participantes do desafio:', participantIdsStr);
+            
+            // Primeiro, remover seleção de todos
             document.querySelectorAll('.participant-tag').forEach(tag => {
                 tag.classList.remove('selected');
                 const hiddenInput = tag.querySelector('input[type="hidden"]');
@@ -3078,17 +3082,18 @@ function editChallenge(id) {
                 }
             });
             
-            // Selecionar participantes que estão no desafio
+            // Depois, selecionar participantes que estão no desafio
             document.querySelectorAll('.participant-tag').forEach(tag => {
                 const userId = tag.getAttribute('data-user-id');
                 const hiddenInput = tag.querySelector('input[type="hidden"]');
                 
-                if (userId && memberIdsNum.includes(String(userId))) {
+                if (userId && participantIdsStr.includes(String(userId))) {
                     // Participante está no desafio - selecionar
                     tag.classList.add('selected');
                     if (hiddenInput) {
                         hiddenInput.setAttribute('name', 'participants[]');
                     }
+                    console.log('Participante selecionado:', userId);
                 } else {
                     // Participante não está no desafio - não selecionar
                     tag.classList.remove('selected');
