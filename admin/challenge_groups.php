@@ -545,40 +545,97 @@ require_once __DIR__ . '/includes/header.php';
     font-family: 'Montserrat', sans-serif;
 }
 
-.btn-toggle-status {
-    background: rgba(255, 255, 255, 0.05);
+/* Toggle Switch - Interruptor Moderno */
+.toggle-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.toggle-switch-label {
+    font-size: 0.875rem;
+    font-weight: 600;
     color: var(--text-secondary);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 50px;
+    text-align: left;
+    transition: color 0.3s ease;
 }
 
-.btn-toggle-status:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
-    transform: translateY(-2px);
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    cursor: pointer;
+    flex-shrink: 0;
 }
 
-/* Quando o desafio está ativo, o botão mostra "Desativar" (vermelho) */
-.btn-toggle-status.active {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #EF4444;
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
-.btn-toggle-status.active:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: rgba(239, 68, 68, 0.4);
+.toggle-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #EF4444; /* Vermelho quando desativado */
+    transition: all 0.3s ease;
+    border-radius: 26px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Quando o desafio está inativo, o botão mostra "Ativar" (verde) */
-.btn-toggle-status:not(.active) {
-    background: rgba(34, 197, 94, 0.15);
-    border-color: rgba(34, 197, 94, 0.3);
+.toggle-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Quando está ativo (checked) - Verde */
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background-color: #22C55E; /* Verde quando ativado */
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider:before {
+    transform: translateX(24px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover effect */
+.toggle-switch:hover .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.toggle-switch-input:checked:hover + .toggle-switch-slider {
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+.toggle-switch-input:not(:checked):hover + .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Atualizar label quando está ativo */
+.toggle-switch-input:checked ~ .toggle-switch-label,
+.toggle-switch-wrapper:has(.toggle-switch-input:checked) .toggle-switch-label {
     color: #22C55E;
+    font-weight: 700;
 }
 
-.btn-toggle-status:not(.active):hover {
-    background: rgba(34, 197, 94, 0.2);
-    border-color: rgba(34, 197, 94, 0.4);
+.toggle-switch-wrapper:has(.toggle-switch-input:not(:checked)) .toggle-switch-label {
+    color: #EF4444;
 }
 
 .btn-edit {
@@ -1651,17 +1708,21 @@ require_once __DIR__ . '/includes/header.php';
                                 </div>
                     
                     <div class="group-card-actions" onclick="event.stopPropagation()">
-                        <?php
-                        $is_active = $group['status'] === 'active';
-                        $toggle_text = $is_active ? 'Desativar' : 'Ativar';
-                        $toggle_class = $is_active ? 'active' : '';
-                        ?>
-                        <button class="btn-action btn-toggle-status <?php echo $toggle_class; ?>" 
-                                onclick="toggleChallengeStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>')"
-                                title="<?php echo $toggle_text; ?>">
-                            <i class="fas fa-power-off"></i>
-                            <span><?php echo $toggle_text; ?></span>
-                        </button>
+                        <div class="toggle-switch-wrapper">
+                            <label class="toggle-switch">
+                                <?php
+                                $is_active = $group['status'] === 'active';
+                                ?>
+                                <input type="checkbox" 
+                                       class="toggle-switch-input" 
+                                       <?php echo $is_active ? 'checked' : ''; ?>
+                                       onchange="toggleChallengeStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>')"
+                                       data-challenge-id="<?php echo $group['id']; ?>"
+                                       data-current-status="<?php echo $group['status']; ?>">
+                                <span class="toggle-switch-slider"></span>
+                            </label>
+                            <span class="toggle-switch-label"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
+                        </div>
                         <button class="btn-action btn-edit" onclick="editChallenge(<?php echo $group['id']; ?>)">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
