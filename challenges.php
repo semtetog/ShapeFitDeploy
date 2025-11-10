@@ -222,25 +222,6 @@ body {
     transform: translateX(-2px);
 }
 
-.back-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-primary);
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.back-button:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--accent-orange);
-}
-
 /* Card de desafio */
 .challenge-card {
     background: rgba(255, 255, 255, 0.05);
