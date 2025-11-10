@@ -771,65 +771,65 @@ function checkChallengeRankChanges($conn, $user_id) {
             
             // Para cada usuário no desafio, verificar mudanças
             foreach ($rankings as $check_user_id => $current_data) {
-            $current_rank = $current_data['rank'];
-            $current_points = $current_data['points'];
-            
-            // Buscar snapshot anterior
-            $stmt_snapshot = $conn->prepare("
-                SELECT last_rank, last_points
-                FROM sf_challenge_user_rank_snapshot
-                WHERE challenge_group_id = ? AND user_id = ?
-            ");
-            if (!$stmt_snapshot) {
-                error_log("Erro ao preparar query de snapshot: " . $conn->error);
-                continue;
-            }
-            $stmt_snapshot->bind_param("ii", $challenge_id, $check_user_id);
-            $stmt_snapshot->execute();
-            $snapshot_result = $stmt_snapshot->get_result();
-            $snapshot = $snapshot_result->fetch_assoc();
-            $stmt_snapshot->close();
-            
-            if ($snapshot && $snapshot['last_rank'] !== null) {
-                $last_rank = (int)$snapshot['last_rank'];
-                $last_points = (int)$snapshot['last_points'];
+                $current_rank = $current_data['rank'];
+                $current_points = $current_data['points'];
                 
-                // Verificar se subiu no ranking
-                if ($current_rank < $last_rank) {
-                    // Usuário subiu no ranking
-                    $positions_gained = $last_rank - $current_rank;
-                    $message = "🎉 Você subiu {$positions_gained} posição" . ($positions_gained > 1 ? "ões" : "") . " no ranking! Agora você está em #{$current_rank}.";
-                    createChallengeNotification($conn, $challenge_id, $check_user_id, 'rank_change', $message);
+                // Buscar snapshot anterior
+                $stmt_snapshot = $conn->prepare("
+                    SELECT last_rank, last_points
+                    FROM sf_challenge_user_rank_snapshot
+                    WHERE challenge_group_id = ? AND user_id = ?
+                ");
+                if (!$stmt_snapshot) {
+                    error_log("Erro ao preparar query de snapshot: " . $conn->error);
+                    continue;
                 }
+                $stmt_snapshot->bind_param("ii", $challenge_id, $check_user_id);
+                $stmt_snapshot->execute();
+                $snapshot_result = $stmt_snapshot->get_result();
+                $snapshot = $snapshot_result->fetch_assoc();
+                $stmt_snapshot->close();
                 
-                // Verificar se foi ultrapassado
-                if ($current_rank > $last_rank) {
-                    // Buscar quem ultrapassou este usuário
-                    foreach ($rankings as $other_user_id => $other_data) {
-                        if ($other_user_id != $check_user_id && 
-                            $other_data['rank'] < $current_rank && 
-                            $other_data['rank'] >= $last_rank) {
-                            
-                            $stmt_user = $conn->prepare("SELECT name FROM sf_users WHERE id = ?");
-                            if ($stmt_user) {
-                                $stmt_user->bind_param("i", $other_user_id);
-                                $stmt_user->execute();
-                                $user_result = $stmt_user->get_result();
-                                $overtaker = $user_result->fetch_assoc();
-                                $stmt_user->close();
-                            } else {
-                                $overtaker = null;
-                            }
-                            
-                            if ($overtaker) {
-                                $overtake_message = "⚠️ {$overtaker['name']} te ultrapassou no ranking! Você está em #{$current_rank}.";
-                                createChallengeNotification($conn, $challenge_id, $check_user_id, 'overtake', $overtake_message);
+                if ($snapshot && $snapshot['last_rank'] !== null) {
+                    $last_rank = (int)$snapshot['last_rank'];
+                    $last_points = (int)$snapshot['last_points'];
+                    
+                    // Verificar se subiu no ranking
+                    if ($current_rank < $last_rank) {
+                        // Usuário subiu no ranking
+                        $positions_gained = $last_rank - $current_rank;
+                        $message = "🎉 Você subiu {$positions_gained} posição" . ($positions_gained > 1 ? "ões" : "") . " no ranking! Agora você está em #{$current_rank}.";
+                        createChallengeNotification($conn, $challenge_id, $check_user_id, 'rank_change', $message);
+                    }
+                    
+                    // Verificar se foi ultrapassado
+                    if ($current_rank > $last_rank) {
+                        // Buscar quem ultrapassou este usuário
+                        foreach ($rankings as $other_user_id => $other_data) {
+                            if ($other_user_id != $check_user_id && 
+                                $other_data['rank'] < $current_rank && 
+                                $other_data['rank'] >= $last_rank) {
+                                
+                                $stmt_user = $conn->prepare("SELECT name FROM sf_users WHERE id = ?");
+                                if ($stmt_user) {
+                                    $stmt_user->bind_param("i", $other_user_id);
+                                    $stmt_user->execute();
+                                    $user_result = $stmt_user->get_result();
+                                    $overtaker = $user_result->fetch_assoc();
+                                    $stmt_user->close();
+                                } else {
+                                    $overtaker = null;
+                                }
+                                
+                                if ($overtaker) {
+                                    $overtake_message = "⚠️ {$overtaker['name']} te ultrapassou no ranking! Você está em #{$current_rank}.";
+                                    createChallengeNotification($conn, $challenge_id, $check_user_id, 'overtake', $overtake_message);
+                                }
                             }
                         }
                     }
                 }
-            }
-            
+                
                 // Atualizar snapshot
                 $stmt_update = $conn->prepare("
                     INSERT INTO sf_challenge_user_rank_snapshot 
