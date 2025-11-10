@@ -2480,6 +2480,31 @@ function applyDateMask(input) {
 
 // Inicializar Flatpickr
 function initFlatpickr() {
+    // Verificar se os inputs existem
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    
+    if (!startDateInput || !endDateInput) {
+        console.warn('Inputs de data não encontrados. Flatpickr não será inicializado.');
+        return;
+    }
+    
+    // Remover instâncias existentes antes de criar novas
+    if (startDateInput._flatpickr) {
+        try {
+            startDateInput._flatpickr.destroy();
+        } catch (e) {
+            console.warn('Erro ao destruir Flatpickr do startDate:', e);
+        }
+    }
+    if (endDateInput._flatpickr) {
+        try {
+            endDateInput._flatpickr.destroy();
+        } catch (e) {
+            console.warn('Erro ao destruir Flatpickr do endDate:', e);
+        }
+    }
+    
     // Configuração do Flatpickr
     const flatpickrOptions = {
         locale: 'pt',
@@ -2496,29 +2521,21 @@ function initFlatpickr() {
         altInput: false, // Não criar input alternativo
         parseDate: function(datestr, format) {
             // Função para parsear datas no formato dd/mm/yyyy
-            if (format === 'd/m/Y') {
+            if (!datestr) return null;
+            if (format === 'd/m/Y' || !format) {
                 const parts = datestr.split('/');
                 if (parts.length === 3) {
                     const day = parseInt(parts[0], 10);
                     const month = parseInt(parts[1], 10) - 1; // Mês é 0-indexed
                     const year = parseInt(parts[2], 10);
-                    return new Date(year, month, day);
+                    if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                        return new Date(year, month, day);
+                    }
                 }
             }
             return null;
         }
     };
-    
-    // Remover instâncias existentes
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-    
-    if (startDateInput && startDateInput._flatpickr) {
-        startDateInput._flatpickr.destroy();
-    }
-    if (endDateInput && endDateInput._flatpickr) {
-        endDateInput._flatpickr.destroy();
-    }
     
     // Função para corrigir o header do calendário (ano em cima, mês embaixo)
     function fixHeader(instance) {
@@ -2732,11 +2749,11 @@ function initFlatpickr() {
     }
 }
 
-// Inicializar Flatpickr ao carregar a página
-document.addEventListener('DOMContentLoaded', function() {
-    // Aguardar um pouco para garantir que o DOM está totalmente carregado
-    setTimeout(initFlatpickr, 100);
-});
+// NÃO inicializar Flatpickr ao carregar a página
+// O Flatpickr será inicializado apenas quando o modal for aberto
+// document.addEventListener('DOMContentLoaded', function() {
+//     setTimeout(initFlatpickr, 100);
+// });
 
 // Filter participants
 function filterParticipants() {
@@ -2864,11 +2881,23 @@ function openCreateChallengeModal() {
 
 function openChallengeModal() {
     // Função genérica para abrir o modal (usada tanto para criar quanto editar)
-    document.getElementById('challengeModal').classList.add('active');
+    const modal = document.getElementById('challengeModal');
+    if (!modal) {
+        console.error('Modal não encontrado');
+        return;
+    }
+    
+    modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    // Reinicializar Flatpickr após abrir o modal
-    setTimeout(initFlatpickr, 100);
+    // Aguardar um pouco para garantir que o modal está visível antes de inicializar Flatpickr
+    setTimeout(function() {
+        try {
+            initFlatpickr();
+        } catch (e) {
+            console.error('Erro ao inicializar Flatpickr:', e);
+        }
+    }, 150);
 }
 
 function closeChallengeModal() {
@@ -2986,40 +3015,57 @@ function editChallenge(id) {
             // Abrir modal (já reinicializa o Flatpickr dentro dele)
             openChallengeModal();
             
-            // Aguardar um pouco mais para garantir que o Flatpickr seja reinicializado com as datas
-            // O openChallengeModal já chama initFlatpickr após 100ms, mas precisamos de mais tempo
-            // para que as datas sejam definidas corretamente
+            // Aguardar que o Flatpickr seja inicializado antes de definir as datas
+            // O openChallengeModal chama initFlatpickr após 150ms, então esperamos um pouco mais
             setTimeout(() => {
                 const startDateInput = document.getElementById('startDate');
                 const endDateInput = document.getElementById('endDate');
                 
                 // Atualizar datas no Flatpickr se já estiver inicializado
-                if (startDateInput && startDateInput._flatpickr && startDateInput.value) {
-                    const parts = startDateInput.value.split('/');
-                    if (parts.length === 3) {
-                        const day = parseInt(parts[0], 10);
-                        const month = parseInt(parts[1], 10) - 1;
-                        const year = parseInt(parts[2], 10);
-                        const date = new Date(year, month, day);
-                        if (!isNaN(date.getTime())) {
-                            startDateInput._flatpickr.setDate(date, false);
+                if (startDateInput && startDateInput._flatpickr) {
+                    const startValue = startDateInput.value;
+                    if (startValue) {
+                        try {
+                            const parts = startValue.split('/');
+                            if (parts.length === 3) {
+                                const day = parseInt(parts[0], 10);
+                                const month = parseInt(parts[1], 10) - 1;
+                                const year = parseInt(parts[2], 10);
+                                if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                                    const date = new Date(year, month, day);
+                                    if (!isNaN(date.getTime())) {
+                                        startDateInput._flatpickr.setDate(date, false);
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('Erro ao definir data de início no Flatpickr:', e);
                         }
                     }
                 }
                 
-                if (endDateInput && endDateInput._flatpickr && endDateInput.value) {
-                    const parts = endDateInput.value.split('/');
-                    if (parts.length === 3) {
-                        const day = parseInt(parts[0], 10);
-                        const month = parseInt(parts[1], 10) - 1;
-                        const year = parseInt(parts[2], 10);
-                        const date = new Date(year, month, day);
-                        if (!isNaN(date.getTime())) {
-                            endDateInput._flatpickr.setDate(date, false);
+                if (endDateInput && endDateInput._flatpickr) {
+                    const endValue = endDateInput.value;
+                    if (endValue) {
+                        try {
+                            const parts = endValue.split('/');
+                            if (parts.length === 3) {
+                                const day = parseInt(parts[0], 10);
+                                const month = parseInt(parts[1], 10) - 1;
+                                const year = parseInt(parts[2], 10);
+                                if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                                    const date = new Date(year, month, day);
+                                    if (!isNaN(date.getTime())) {
+                                        endDateInput._flatpickr.setDate(date, false);
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('Erro ao definir data de fim no Flatpickr:', e);
                         }
                     }
                 }
-            }, 400);
+            }, 300);
             
         } else {
             alert('Erro ao carregar desafio: ' + (result.message || 'Desafio não encontrado'));
@@ -3458,88 +3504,113 @@ function saveChallenge() {
     let startDateStr = '';
     let endDateStr = '';
     
+    // Função auxiliar para converter data de d/m/Y para Y-m-d
+    function parseDateToYMD(dateStr) {
+        if (!dateStr || !dateStr.trim()) {
+            return null;
+        }
+        
+        // Remover espaços
+        dateStr = dateStr.trim();
+        
+        // Tentar formato d/m/Y
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10);
+            const year = parseInt(parts[2], 10);
+            
+            // Validar valores
+            if (isNaN(day) || isNaN(month) || isNaN(year)) {
+                return null;
+            }
+            
+            if (day < 1 || day > 31 || month < 1 || month > 12 || year < 2020 || year > 2100) {
+                return null;
+            }
+            
+            // Verificar se a data é válida
+            const date = new Date(year, month - 1, day);
+            if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+                return null;
+            }
+            
+            // Formatar para Y-m-d
+            return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
+        
+        // Tentar formato Y-m-d (já está no formato correto)
+        if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            return dateStr;
+        }
+        
+        return null;
+    }
+    
+    // Obter datas
     if (startDateInput) {
-        if (startDateInput._flatpickr) {
-            // Se tem Flatpickr, pegar a data selecionada (objeto Date) ou o valor do input
-            const selectedDate = startDateInput._flatpickr.selectedDates[0];
-            if (selectedDate) {
-                // Converter para formato Y-m-d para o backend
-                const year = selectedDate.getFullYear();
-                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-                const day = String(selectedDate.getDate()).padStart(2, '0');
-                startDateStr = `${year}-${month}-${day}`;
-            } else {
-                // Se não tem data selecionada, tentar parsear do input (formato d/m/Y)
-                const inputValue = startDateInput.value.trim();
-                if (inputValue) {
-                    const parts = inputValue.split('/');
-                    if (parts.length === 3) {
-                        const day = parts[0].padStart(2, '0');
-                        const month = parts[1].padStart(2, '0');
-                        const year = parts[2];
-                        startDateStr = `${year}-${month}-${day}`;
-                    } else {
-                        startDateStr = inputValue; // Tentar usar como está
-                    }
-                }
-            }
-        } else {
-            // Sem Flatpickr, tentar parsear formato d/m/Y
-            const inputValue = startDateInput.value.trim();
-            if (inputValue) {
-                const parts = inputValue.split('/');
-                if (parts.length === 3) {
-                    const day = parts[0].padStart(2, '0');
-                    const month = parts[1].padStart(2, '0');
-                    const year = parts[2];
+        let dateValue = '';
+        
+        // Tentar obter do Flatpickr primeiro
+        if (startDateInput._flatpickr && startDateInput._flatpickr.selectedDates && startDateInput._flatpickr.selectedDates.length > 0) {
+            try {
+                const selectedDate = startDateInput._flatpickr.selectedDates[0];
+                if (selectedDate && selectedDate instanceof Date && !isNaN(selectedDate.getTime())) {
+                    const year = selectedDate.getFullYear();
+                    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(selectedDate.getDate()).padStart(2, '0');
                     startDateStr = `${year}-${month}-${day}`;
-                } else {
-                    startDateStr = inputValue;
                 }
+            } catch (e) {
+                console.warn('Erro ao obter data do Flatpickr:', e);
             }
+        }
+        
+        // Se não conseguiu do Flatpickr, tentar do input
+        if (!startDateStr && startDateInput.value) {
+            startDateStr = parseDateToYMD(startDateInput.value);
         }
     }
     
     if (endDateInput) {
-        if (endDateInput._flatpickr) {
-            const selectedDate = endDateInput._flatpickr.selectedDates[0];
-            if (selectedDate) {
-                const year = selectedDate.getFullYear();
-                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-                const day = String(selectedDate.getDate()).padStart(2, '0');
-                endDateStr = `${year}-${month}-${day}`;
-            } else {
-                const inputValue = endDateInput.value.trim();
-                if (inputValue) {
-                    const parts = inputValue.split('/');
-                    if (parts.length === 3) {
-                        const day = parts[0].padStart(2, '0');
-                        const month = parts[1].padStart(2, '0');
-                        const year = parts[2];
-                        endDateStr = `${year}-${month}-${day}`;
-                    } else {
-                        endDateStr = inputValue;
-                    }
-                }
-            }
-        } else {
-            const inputValue = endDateInput.value.trim();
-            if (inputValue) {
-                const parts = inputValue.split('/');
-                if (parts.length === 3) {
-                    const day = parts[0].padStart(2, '0');
-                    const month = parts[1].padStart(2, '0');
-                    const year = parts[2];
+        let dateValue = '';
+        
+        // Tentar obter do Flatpickr primeiro
+        if (endDateInput._flatpickr && endDateInput._flatpickr.selectedDates && endDateInput._flatpickr.selectedDates.length > 0) {
+            try {
+                const selectedDate = endDateInput._flatpickr.selectedDates[0];
+                if (selectedDate && selectedDate instanceof Date && !isNaN(selectedDate.getTime())) {
+                    const year = selectedDate.getFullYear();
+                    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(selectedDate.getDate()).padStart(2, '0');
                     endDateStr = `${year}-${month}-${day}`;
-                } else {
-                    endDateStr = inputValue;
                 }
+            } catch (e) {
+                console.warn('Erro ao obter data do Flatpickr:', e);
             }
+        }
+        
+        // Se não conseguiu do Flatpickr, tentar do input
+        if (!endDateStr && endDateInput.value) {
+            endDateStr = parseDateToYMD(endDateInput.value);
         }
     }
     
-    if (!name || !startDateStr || !endDateStr) {
-        alert('Por favor, preencha todos os campos obrigatórios');
+    // Validar campos obrigatórios
+    if (!name || !name.trim()) {
+        alert('Por favor, preencha o nome do desafio');
+        return;
+    }
+    
+    if (!startDateStr) {
+        alert('Por favor, preencha a data de início no formato dd/mm/aaaa');
+        if (startDateInput) startDateInput.focus();
+        return;
+    }
+    
+    if (!endDateStr) {
+        alert('Por favor, preencha a data de fim no formato dd/mm/aaaa');
+        if (endDateInput) endDateInput.focus();
         return;
     }
     
