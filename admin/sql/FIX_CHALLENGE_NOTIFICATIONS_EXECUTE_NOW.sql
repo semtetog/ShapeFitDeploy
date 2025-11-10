@@ -1,9 +1,9 @@
 -- ============================================================================
 -- SCRIPT FINAL - Execute este script completo
--- As colunas já existem, então este script apenas ajusta o que falta
+-- Ignore erros de "Duplicate" ou "doesn't exist" - isso é normal
 -- ============================================================================
 
--- 1. Migrar dados de group_id para challenge_group_id (se group_id existir)
+-- 1. Migrar dados de group_id para challenge_group_id (se group_id existir e houver dados NULL)
 UPDATE `sf_challenge_notifications` 
 SET `challenge_group_id` = `group_id` 
 WHERE `challenge_group_id` IS NULL AND `group_id` IS NOT NULL;
@@ -18,20 +18,12 @@ ALTER TABLE `sf_challenge_notifications`
 MODIFY COLUMN `challenge_group_id` int(11) NOT NULL,
 MODIFY COLUMN `notification_type` enum('rank_change','overtake','milestone','daily_reminder') NOT NULL DEFAULT 'rank_change';
 
--- 4. Remover constraint antiga (se existir) - pode dar erro, ignore
-ALTER TABLE `sf_challenge_notifications` 
-DROP FOREIGN KEY `sf_challenge_notifications_ibfk_1`;
-
--- 5. Adicionar nova constraint - pode dar erro se já existir, ignore
+-- 4. Adicionar nova constraint (pode dar erro se já existir, ignore)
 ALTER TABLE `sf_challenge_notifications` 
 ADD CONSTRAINT `fk_challenge_notifications_group` 
 FOREIGN KEY (`challenge_group_id`) REFERENCES `sf_challenge_groups` (`id`) ON DELETE CASCADE;
 
--- 6. Remover índice antigo (se existir) - pode dar erro, ignore
-ALTER TABLE `sf_challenge_notifications` 
-DROP INDEX `idx_challenge_notifications_group`;
-
--- 7. Adicionar índices necessários - pode dar erro se já existirem, ignore
+-- 5. Adicionar índices necessários (pode dar erro se já existirem, ignore)
 ALTER TABLE `sf_challenge_notifications` 
 ADD INDEX `idx_challenge_notifications_group` (`challenge_group_id`);
 
