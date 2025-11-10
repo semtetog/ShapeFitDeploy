@@ -281,16 +281,45 @@ function saveChallenge($data) {
         throw new Exception('Datas de início e fim são obrigatórias');
     }
     
-    // Converter datas de dd/mm/yyyy para Y-m-d
-    $start_date_obj = DateTime::createFromFormat('d/m/Y', $start_date);
-    $end_date_obj = DateTime::createFromFormat('d/m/Y', $end_date);
+    // Converter datas - aceitar tanto Y-m-d quanto d/m/Y
+    $start_date_obj = null;
+    $end_date_obj = null;
     
-    if (!$start_date_obj || !$end_date_obj) {
-        throw new Exception('Formato de data inválido. Use dd/mm/aaaa');
+    // Tentar formato Y-m-d primeiro (formato que o frontend envia)
+    $start_date_obj = DateTime::createFromFormat('Y-m-d', $start_date);
+    $end_date_obj = DateTime::createFromFormat('Y-m-d', $end_date);
+    
+    // Se não funcionar, tentar formato d/m/Y
+    if (!$start_date_obj) {
+        $start_date_obj = DateTime::createFromFormat('d/m/Y', $start_date);
+    }
+    if (!$end_date_obj) {
+        $end_date_obj = DateTime::createFromFormat('d/m/Y', $end_date);
     }
     
+    // Se ainda não funcionar, tentar outros formatos comuns
+    if (!$start_date_obj) {
+        $start_date_obj = DateTime::createFromFormat('Y/m/d', $start_date);
+    }
+    if (!$end_date_obj) {
+        $end_date_obj = DateTime::createFromFormat('Y/m/d', $end_date);
+    }
+    
+    // Validar se as datas foram parseadas corretamente
+    if (!$start_date_obj || !$end_date_obj) {
+        error_log("Erro ao parsear datas - start_date: '$start_date', end_date: '$end_date'");
+        throw new Exception('Formato de data inválido. Use dd/mm/aaaa ou YYYY-mm-dd');
+    }
+    
+    // Converter para formato Y-m-d para armazenar no banco
     $start_date = $start_date_obj->format('Y-m-d');
     $end_date = $end_date_obj->format('Y-m-d');
+    
+    // Validar se as datas são válidas (não são datas inválidas como 31/02)
+    $errors = DateTime::getLastErrors();
+    if ($errors && ($errors['warning_count'] > 0 || $errors['error_count'] > 0)) {
+        throw new Exception('Datas inválidas. Verifique se as datas estão corretas.');
+    }
     
     if ($start_date > $end_date) {
         throw new Exception('Data de início deve ser anterior à data de fim');
