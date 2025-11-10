@@ -686,16 +686,16 @@ require_once __DIR__ . '/includes/header.php';
     flex: 1;
     min-width: 0;
     max-width: 100%;
-    padding: 0.625rem 0.5rem;
+    padding: 0.625rem 0.625rem;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.375rem;
+    gap: 0.5rem;
     font-size: 0.8125rem;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: clip;
     box-sizing: border-box;
     border: 1px solid;
     background: transparent;
@@ -705,6 +705,7 @@ require_once __DIR__ . '/includes/header.php';
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
     position: relative;
+    line-height: 1.2;
 }
 
 .btn-action i {
@@ -839,6 +840,10 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(59, 130, 246, 0.1);
     border-color: rgba(59, 130, 246, 0.3);
     color: #3B82F6;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    min-width: fit-content;
+    overflow: visible;
 }
 
 .btn-action.btn-view:hover {
@@ -2656,17 +2661,20 @@ input[type="number"] {
 
 <!-- Modal de Progresso do Desafio -->
 <div id="progressModal" class="challenge-edit-modal">
-    <div class="progress-modal-content-simple" id="progressModalBody">
-        <div class="loading-spinner-simple">
-            <div class="spinner-dots">
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
+    <div class="challenge-edit-overlay" onclick="closeProgressModal()"></div>
+    <div class="progress-modal-content" id="progressModalBody">
+        <div class="progress-modal-body" style="display: flex; align-items: center; justify-content: center; min-height: 400px;">
+            <div class="loading-spinner-simple">
+                <div class="spinner-dots">
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -3632,27 +3640,30 @@ function viewChallengeProgress(challengeId) {
     
     modal.classList.add('active');
     
-    // IMPORTANTE: Voltar para a classe progress-modal-content-simple para centralizar o loading
-    modalBody.className = 'progress-modal-content-simple';
-    
-    // Remover overlay se existir (será readicionado quando mostrar conteúdo completo)
-    const existingOverlay = modal.querySelector('.challenge-edit-overlay');
-    if (existingOverlay) {
-        existingOverlay.remove();
+    // Garantir que o overlay existe
+    let overlay = modal.querySelector('.challenge-edit-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'challenge-edit-overlay';
+        overlay.onclick = closeProgressModal;
+        modal.insertBefore(overlay, modalBody);
     }
     
-    // Mostrar apenas o loading de bolinhas
+    // Manter a mesma estrutura do modal - apenas mostrar loading dentro do conteúdo
+    // Não mudar a classe, apenas o conteúdo interno
     modalBody.innerHTML = `
-        <div class="loading-spinner-simple">
-            <div class="spinner-dots">
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
-                <div class="spinner-dot"></div>
+        <div class="progress-modal-body" style="display: flex; align-items: center; justify-content: center; min-height: 400px;">
+            <div class="loading-spinner-simple">
+                <div class="spinner-dots">
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                </div>
             </div>
         </div>
     `;
@@ -3703,16 +3714,14 @@ function displayChallengeProgress(data) {
     const currentDate = data.current_date;
     const baseAssetUrl = '<?php echo BASE_ASSET_URL; ?>';
     
-    // Adicionar overlay quando mostrar conteúdo completo
-    if (!modal.querySelector('.challenge-edit-overlay')) {
-        const overlay = document.createElement('div');
+    // Garantir que o overlay existe (já deve existir, mas verificar)
+    let overlay = modal.querySelector('.challenge-edit-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
         overlay.className = 'challenge-edit-overlay';
         overlay.onclick = closeProgressModal;
         modal.insertBefore(overlay, modalBody);
     }
-    
-    // Mudar o modal para o conteúdo completo
-    modalBody.className = 'challenge-edit-content progress-modal-content';
     
     // Formatar data
     const dateObj = new Date(currentDate + 'T00:00:00');
@@ -3728,8 +3737,8 @@ function displayChallengeProgress(data) {
         <button class="sleep-modal-close" onclick="closeProgressModal()" type="button">
             <i class="fas fa-times"></i>
         </button>
-        <div class="challenge-edit-header">
-            <h3>Progresso: ${challenge.name}</h3>
+        <div class="progress-header" style="margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <h3 style="margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">Progresso: ${challenge.name}</h3>
         </div>
         <div class="progress-modal-body">
             <div class="progress-header">
