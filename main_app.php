@@ -286,6 +286,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 .card-missions,
 .card-meal-cta,
 .card-suggestions,
+.card-challenges,
 .card-action-item {
     grid-column: 1 / -1;
 }
