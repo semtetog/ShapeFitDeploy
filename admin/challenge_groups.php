@@ -935,15 +935,38 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .loading-spinner {
-    text-align: center;
-    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
     color: var(--text-secondary);
+    min-height: 300px;
 }
 
 .loading-spinner i {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
     color: var(--accent-orange);
+    animation: spin 1s linear infinite;
+}
+
+.loading-spinner p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    text-align: center;
+    transform: none !important;
+    animation: none !important;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .error-message {
