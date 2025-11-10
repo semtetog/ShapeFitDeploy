@@ -1,22 +1,14 @@
 <?php
-// admin/ajax_challenge_groups.php - API AJAX para gerenciar grupos de desafio
-
-require_once __DIR__ . '/../includes/config.php';
-require_once __DIR__ . '/includes/auth_admin.php';
-require_once __DIR__ . '/../includes/db.php';
+define('IS_AJAX_REQUEST', true);
+require_once '../includes/config.php';
+require_once '../includes/db.php';
+require_once '../includes/auth.php';
 
 requireAdminLogin();
-
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Método não permitido']);
-    exit;
-}
-
-// Ler dados JSON do body
-$json = file_get_contents('php://input');
-$data = json_decode($json, true);
+$input = file_get_contents('php://input');
+$data = json_decode($input, true);
 
 if (!$data) {
     echo json_encode(['success' => false, 'message' => 'Dados inválidos']);
@@ -64,37 +56,47 @@ try {
 function getChallengeProgress($data) {
     global $conn;
     
-    try {
-        $admin_id = $_SESSION['admin_id'] ?? 1;
-        $challenge_id = (int)($data['challenge_id'] ?? 0);
-        
-        if ($challenge_id <= 0) {
-            throw new Exception('ID do desafio inválido');
-        }
-        
-        // Verificar se o desafio pertence ao admin
-        $stmt_check = $conn->prepare("SELECT id, name, goals, start_date, end_date FROM sf_challenge_groups WHERE id = ? AND created_by = ?");
-        if (!$stmt_check) {
-            throw new Exception('Erro ao preparar query: ' . $conn->error);
-        }
-        $stmt_check->bind_param("ii", $challenge_id, $admin_id);
-        $stmt_check->execute();
-        $result_check = $stmt_check->get_result();
-        
-        if ($result_check->num_rows === 0) {
-            $stmt_check->close();
-            throw new Exception('Desafio não encontrado ou sem permissão');
-        }
-        
-        $challenge_info = $result_check->fetch_assoc();
-        $goals = json_decode($challenge_info['goals'] ?? '[]', true);
+    $admin_id = $_SESSION['admin_id'] ?? 1;
+    $challenge_id = (int)($data['challenge_id'] ?? 0);
+    
+    if ($challenge_id <= 0) {
+        throw new Exception('ID do desafio inválido');
+    }
+    
+    // Verificar se o desafio pertence ao admin
+    $stmt_check = $conn->prepare("SELECT id, name, goals, start_date, end_date FROM sf_challenge_groups WHERE id = ? AND created_by = ?");
+    if (!$stmt_check) {
+        throw new Exception('Erro ao preparar query: ' . $conn->error);
+    }
+    $stmt_check->bind_param("ii", $challenge_id, $admin_id);
+    if (!$stmt_check->execute()) {
+        $error = $stmt_check->error;
         $stmt_check->close();
-        
-        // Data atual
-        $current_date = date('Y-m-d');
+        throw new Exception('Erro ao executar query: ' . $error);
+    }
+    $result_check = $stmt_check->get_result();
+    
+    if ($result_check->num_rows === 0) {
+        $stmt_check->close();
+        throw new Exception('Desafio não encontrado ou sem permissão');
+    }
+    
+    $challenge_info = $result_check->fetch_assoc();
+    if (!$challenge_info) {
+        $stmt_check->close();
+        throw new Exception('Erro ao buscar informações do desafio');
+    }
+    
+    $goals = json_decode($challenge_info['goals'] ?? '[]', true);
+    if (!is_array($goals)) {
+        $goals = [];
+    }
+    $stmt_check->close();
+    
+    // Data atual
+    $current_date = date('Y-m-d');
     
     // Buscar participantes com progresso
-    // Primeiro buscar todos os participantes do grupo
     $stmt_participants = $conn->prepare("
         SELECT 
             u.id,
@@ -107,17 +109,29 @@ function getChallengeProgress($data) {
         WHERE cgm.group_id = ?
         ORDER BY u.name ASC
     ");
+    if (!$stmt_participants) {
+        throw new Exception('Erro ao preparar query de participantes: ' . $conn->error);
+    }
     $stmt_participants->bind_param("i", $challenge_id);
-    $stmt_participants->execute();
+    if (!$stmt_participants->execute()) {
+        $error = $stmt_participants->error;
+        $stmt_participants->close();
+        throw new Exception('Erro ao executar query de participantes: ' . $error);
+    }
     $result_participants = $stmt_participants->get_result();
     
     $participants = [];
-    $rank = 1;
     
     while ($user = $result_participants->fetch_assoc()) {
+        if (!$user || !isset($user['id'])) {
+            continue;
+        }
+        
         $user_id = (int)$user['id'];
         
         // Buscar pontos totais do usuário no desafio
+        $total_points = 0;
+        $active_days = 0;
         $stmt_total = $conn->prepare("
             SELECT 
                 COALESCE(SUM(points_earned), 0) as total_points,
@@ -125,13 +139,27 @@ function getChallengeProgress($data) {
             FROM sf_challenge_group_daily_progress
             WHERE challenge_group_id = ? AND user_id = ?
         ");
-        $stmt_total->bind_param("ii", $challenge_id, $user_id);
-        $stmt_total->execute();
-        $result_total = $stmt_total->get_result();
-        $total_data = $result_total->fetch_assoc();
-        $stmt_total->close();
+        if ($stmt_total) {
+            $stmt_total->bind_param("ii", $challenge_id, $user_id);
+            if ($stmt_total->execute()) {
+                $result_total = $stmt_total->get_result();
+                $total_data = $result_total->fetch_assoc();
+                if ($total_data) {
+                    $total_points = (int)($total_data['total_points'] ?? 0);
+                    $active_days = (int)($total_data['active_days'] ?? 0);
+                }
+            }
+            $stmt_total->close();
+        }
         
         // Buscar progresso de hoje
+        $today_calories = 0;
+        $today_water = 0;
+        $today_exercise = 0;
+        $today_sleep = 0;
+        $today_points = 0;
+        $points_breakdown = [];
+        
         $stmt_today = $conn->prepare("
             SELECT 
                 calories_consumed,
@@ -143,28 +171,42 @@ function getChallengeProgress($data) {
             FROM sf_challenge_group_daily_progress
             WHERE challenge_group_id = ? AND user_id = ? AND date = ?
         ");
-        $stmt_today->bind_param("iis", $challenge_id, $user_id, $current_date);
-        $stmt_today->execute();
-        $result_today = $stmt_today->get_result();
-        $today_data = $result_today->fetch_assoc();
-        $stmt_today->close();
-        
-        $points_breakdown = json_decode($today_data['points_breakdown'] ?? '{}', true);
+        if ($stmt_today) {
+            $stmt_today->bind_param("iis", $challenge_id, $user_id, $current_date);
+            if ($stmt_today->execute()) {
+                $result_today = $stmt_today->get_result();
+                $today_data = $result_today->fetch_assoc();
+                if ($today_data) {
+                    $today_calories = (float)($today_data['calories_consumed'] ?? 0);
+                    $today_water = (float)($today_data['water_ml'] ?? 0);
+                    $today_exercise = (int)($today_data['exercise_minutes'] ?? 0);
+                    $today_sleep = (float)($today_data['sleep_hours'] ?? 0);
+                    $today_points = (int)($today_data['points_earned'] ?? 0);
+                    if (!empty($today_data['points_breakdown'])) {
+                        $decoded = json_decode($today_data['points_breakdown'], true);
+                        if (is_array($decoded)) {
+                            $points_breakdown = $decoded;
+                        }
+                    }
+                }
+            }
+            $stmt_today->close();
+        }
         
         $participants[] = [
             'rank' => 0, // Será calculado depois
             'user_id' => $user_id,
-            'name' => $user['name'],
-            'email' => $user['email'],
-            'profile_image' => $user['profile_image_filename'],
-            'total_points' => (int)($total_data['total_points'] ?? 0),
-            'active_days' => (int)($total_data['active_days'] ?? 0),
+            'name' => $user['name'] ?? '',
+            'email' => $user['email'] ?? '',
+            'profile_image' => $user['profile_image_filename'] ?? null,
+            'total_points' => $total_points,
+            'active_days' => $active_days,
             'today' => [
-                'calories' => (float)($today_data['calories_consumed'] ?? 0),
-                'water' => (float)($today_data['water_ml'] ?? 0),
-                'exercise' => (int)($today_data['exercise_minutes'] ?? 0),
-                'sleep' => (float)($today_data['sleep_hours'] ?? 0),
-                'points' => (int)($today_data['points_earned'] ?? 0),
+                'calories' => $today_calories,
+                'water' => $today_water,
+                'exercise' => $today_exercise,
+                'sleep' => $today_sleep,
+                'points' => $today_points,
                 'points_breakdown' => $points_breakdown
             ]
         ];
@@ -185,21 +227,18 @@ function getChallengeProgress($data) {
     }
     unset($participant);
     
-    // Não precisa mais do $result e $stmt
-    
-    
     echo json_encode([
         'success' => true,
         'challenge' => [
             'id' => $challenge_id,
-            'name' => $challenge_info['name'],
+            'name' => $challenge_info['name'] ?? '',
             'goals' => $goals,
-            'start_date' => $challenge_info['start_date'],
-            'end_date' => $challenge_info['end_date']
+            'start_date' => $challenge_info['start_date'] ?? '',
+            'end_date' => $challenge_info['end_date'] ?? ''
         ],
         'participants' => $participants,
         'current_date' => $current_date
-    ]);
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
 function saveChallenge($data) {
@@ -242,17 +281,39 @@ function saveChallenge($data) {
         throw new Exception('Datas de início e fim são obrigatórias');
     }
     
-    if (new DateTime($start_date) > new DateTime($end_date)) {
+    // Converter datas de dd/mm/yyyy para Y-m-d
+    $start_date_obj = DateTime::createFromFormat('d/m/Y', $start_date);
+    $end_date_obj = DateTime::createFromFormat('d/m/Y', $end_date);
+    
+    if (!$start_date_obj || !$end_date_obj) {
+        throw new Exception('Formato de data inválido. Use dd/mm/aaaa');
+    }
+    
+    $start_date = $start_date_obj->format('Y-m-d');
+    $end_date = $end_date_obj->format('Y-m-d');
+    
+    if ($start_date > $end_date) {
         throw new Exception('Data de início deve ser anterior à data de fim');
     }
     
-    // Preparar metas JSON
+    // Validar goals
+    if (empty($goals) || !is_array($goals)) {
+        throw new Exception('Pelo menos uma meta deve ser definida');
+    }
+    
+    // Validar participantes
+    if (empty($participants) || !is_array($participants)) {
+        throw new Exception('Pelo menos um participante deve ser selecionado');
+    }
+    
+    // Converter goals para JSON
     $goals_json = json_encode($goals);
     
-    // Iniciar transação
     $conn->begin_transaction();
     
     try {
+        $was_edit = false;
+        
         if ($challenge_id) {
             // Atualizar desafio existente
             $stmt = $conn->prepare("
@@ -262,10 +323,8 @@ function saveChallenge($data) {
             ");
             $stmt->bind_param("ssssssii", $name, $description, $start_date, $end_date, $status, $goals_json, $challenge_id, $admin_id);
             $stmt->execute();
-            if ($stmt->affected_rows === 0) {
-                throw new Exception('Desafio não encontrado ou sem permissão para editar');
-            }
             $stmt->close();
+            $was_edit = true;
         } else {
             // Criar novo desafio
             $stmt = $conn->prepare("
@@ -286,10 +345,7 @@ function saveChallenge($data) {
         
         // Adicionar novos participantes
         if (!empty($participants)) {
-            $stmt = $conn->prepare("
-                INSERT INTO sf_challenge_group_members (group_id, user_id, joined_at, status)
-                VALUES (?, ?, NOW(), 'active')
-            ");
+            $stmt = $conn->prepare("INSERT INTO sf_challenge_group_members (group_id, user_id, joined_at) VALUES (?, ?, NOW())");
             foreach ($participants as $user_id) {
                 $user_id = (int)$user_id;
                 if ($user_id > 0) {
@@ -302,8 +358,6 @@ function saveChallenge($data) {
         
         // Confirmar transação
         $conn->commit();
-        
-        $was_edit = isset($data['challenge_id']) && !empty($data['challenge_id']);
         
         echo json_encode([
             'success' => true,
@@ -347,7 +401,7 @@ function deleteChallenge($data) {
     
     echo json_encode([
         'success' => true,
-        'message' => 'Desafio excluído com sucesso!'
+        'message' => 'Desafio deletado com sucesso!'
     ]);
 }
 
@@ -361,14 +415,20 @@ function getChallenge($data) {
         throw new Exception('ID do desafio inválido');
     }
     
-    // Buscar desafio
     $stmt = $conn->prepare("
-        SELECT cg.*, 
-               GROUP_CONCAT(DISTINCT cgm.user_id) as member_ids
+        SELECT 
+            cg.id,
+            cg.name,
+            cg.description,
+            cg.start_date,
+            cg.end_date,
+            cg.status,
+            cg.goals,
+            cg.created_by,
+            cg.created_at,
+            cg.updated_at
         FROM sf_challenge_groups cg
-        LEFT JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
         WHERE cg.id = ? AND cg.created_by = ?
-        GROUP BY cg.id
     ");
     $stmt->bind_param("ii", $challenge_id, $admin_id);
     $stmt->execute();
@@ -384,7 +444,24 @@ function getChallenge($data) {
     
     // Decodificar goals JSON
     $challenge['goals'] = json_decode($challenge['goals'] ?? '[]', true);
-    $challenge['member_ids'] = $challenge['member_ids'] ? explode(',', $challenge['member_ids']) : [];
+    
+    // Buscar participantes
+    $stmt = $conn->prepare("
+        SELECT user_id 
+        FROM sf_challenge_group_members 
+        WHERE group_id = ?
+    ");
+    $stmt->bind_param("i", $challenge_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $participants = [];
+    while ($row = $result->fetch_assoc()) {
+        $participants[] = (int)$row['user_id'];
+    }
+    $stmt->close();
+    
+    $challenge['participants'] = $participants;
     
     echo json_encode([
         'success' => true,
@@ -397,16 +474,14 @@ function toggleChallengeStatus($data) {
     
     $admin_id = $_SESSION['admin_id'] ?? 1;
     $challenge_id = (int)($data['challenge_id'] ?? 0);
-    $new_status = $data['status'] ?? 'inactive';
-    
-    // Validar status
-    $allowed_statuses = ['active', 'inactive', 'completed', 'scheduled'];
-    if (!in_array($new_status, $allowed_statuses)) {
-        throw new Exception('Status inválido');
-    }
+    $new_status = $data['status'] ?? 'active';
     
     if ($challenge_id <= 0) {
         throw new Exception('ID do desafio inválido');
+    }
+    
+    if (!in_array($new_status, ['active', 'inactive'])) {
+        throw new Exception('Status inválido');
     }
     
     // Verificar se o desafio pertence ao admin
@@ -429,7 +504,7 @@ function toggleChallengeStatus($data) {
     
     echo json_encode([
         'success' => true,
-        'message' => 'Status do desafio atualizado com sucesso!',
+        'message' => 'Status atualizado com sucesso!',
         'status' => $new_status
     ]);
 }
@@ -439,7 +514,9 @@ function getStats($data) {
     
     $admin_id = $_SESSION['admin_id'] ?? 1;
     
-    // Total de grupos
+    $stats = [];
+    
+    // Total
     $stmt = $conn->prepare("SELECT COUNT(*) as count FROM sf_challenge_groups WHERE created_by = ?");
     $stmt->bind_param("i", $admin_id);
     $stmt->execute();
@@ -458,7 +535,13 @@ function getStats($data) {
     $stmt->execute();
     $result = $stmt->get_result();
     
-    $stats_by_status = ['active' => 0, 'inactive' => 0, 'completed' => 0, 'scheduled' => 0];
+    $stats_by_status = [
+        'active' => 0,
+        'inactive' => 0,
+        'completed' => 0,
+        'scheduled' => 0
+    ];
+    
     while ($row = $result->fetch_assoc()) {
         $stats_by_status[$row['status']] = $row['count'];
     }
@@ -475,3 +558,5 @@ function getStats($data) {
     ]);
 }
 
+$conn->close();
+?>
