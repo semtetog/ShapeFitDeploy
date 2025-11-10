@@ -858,13 +858,17 @@ function checkChallengeRankChanges($conn, $user_id) {
  */
 function createChallengeNotification($conn, $challenge_id, $user_id, $type, $message) {
     // Verificar se a tabela existe antes de tentar inserir
-    $table_exists = false;
-    $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
-    if ($check_table && $check_table->num_rows > 0) {
-        $table_exists = true;
-    }
-    if ($check_table) {
-        $check_table->close();
+    try {
+        $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
+        $table_exists = false;
+        if ($check_table) {
+            $table_exists = ($check_table->num_rows > 0);
+            $check_table->close();
+        }
+    } catch (Exception $e) {
+        // Se houver erro ao verificar, assumir que a tabela não existe
+        error_log("Erro ao verificar existência da tabela de notificações: " . $e->getMessage());
+        return;
     }
     
     // Se a tabela não existe, apenas retornar (não criar notificação)
@@ -905,6 +909,10 @@ function createChallengeNotification($conn, $challenge_id, $user_id, $type, $mes
         $stmt->bind_param("iiss", $challenge_id, $user_id, $type, $message);
         $stmt->execute();
         $stmt->close();
+    } catch (mysqli_sql_exception $e) {
+        // Erro específico do MySQL (como tabela não existe)
+        error_log("Erro MySQL ao criar notificação: " . $e->getMessage());
+        // Não propagar o erro para não quebrar o fluxo principal
     } catch (Exception $e) {
         error_log("Erro ao criar notificação: " . $e->getMessage());
         // Não propagar o erro para não quebrar o fluxo principal
@@ -916,13 +924,17 @@ function createChallengeNotification($conn, $challenge_id, $user_id, $type, $mes
  */
 function getChallengeNotifications($conn, $user_id, $limit = 10) {
     // Verificar se a tabela existe antes de tentar consultar
-    $table_exists = false;
-    $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
-    if ($check_table && $check_table->num_rows > 0) {
-        $table_exists = true;
-    }
-    if ($check_table) {
-        $check_table->close();
+    try {
+        $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
+        $table_exists = false;
+        if ($check_table) {
+            $table_exists = ($check_table->num_rows > 0);
+            $check_table->close();
+        }
+    } catch (Exception $e) {
+        // Se houver erro ao verificar, assumir que a tabela não existe
+        error_log("Erro ao verificar existência da tabela de notificações: " . $e->getMessage());
+        return [];
     }
     
     // Se a tabela não existe, retornar array vazio
@@ -953,6 +965,10 @@ function getChallengeNotifications($conn, $user_id, $limit = 10) {
         $stmt->close();
         
         return $notifications;
+    } catch (mysqli_sql_exception $e) {
+        // Erro específico do MySQL (como tabela não existe)
+        error_log("Erro MySQL ao buscar notificações: " . $e->getMessage());
+        return [];
     } catch (Exception $e) {
         error_log("Erro ao buscar notificações: " . $e->getMessage());
         return [];
@@ -964,13 +980,17 @@ function getChallengeNotifications($conn, $user_id, $limit = 10) {
  */
 function markNotificationAsRead($conn, $notification_id, $user_id) {
     // Verificar se a tabela existe antes de tentar atualizar
-    $table_exists = false;
-    $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
-    if ($check_table && $check_table->num_rows > 0) {
-        $table_exists = true;
-    }
-    if ($check_table) {
-        $check_table->close();
+    try {
+        $check_table = $conn->query("SHOW TABLES LIKE 'sf_challenge_notifications'");
+        $table_exists = false;
+        if ($check_table) {
+            $table_exists = ($check_table->num_rows > 0);
+            $check_table->close();
+        }
+    } catch (Exception $e) {
+        // Se houver erro ao verificar, assumir que a tabela não existe
+        error_log("Erro ao verificar existência da tabela de notificações: " . $e->getMessage());
+        return;
     }
     
     // Se a tabela não existe, apenas retornar
@@ -991,6 +1011,9 @@ function markNotificationAsRead($conn, $notification_id, $user_id) {
         $stmt->bind_param("ii", $notification_id, $user_id);
         $stmt->execute();
         $stmt->close();
+    } catch (mysqli_sql_exception $e) {
+        // Erro específico do MySQL (como tabela não existe)
+        error_log("Erro MySQL ao marcar notificação como lida: " . $e->getMessage());
     } catch (Exception $e) {
         error_log("Erro ao marcar notificação como lida: " . $e->getMessage());
     }
