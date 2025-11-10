@@ -3150,11 +3150,15 @@ function viewChallengeProgress(challengeId) {
 }
 
 function displayChallengeProgress(data) {
+    const modal = document.getElementById('progressModal');
     const modalBody = document.getElementById('progressModalBody');
     const challenge = data.challenge;
     const participants = data.participants || [];
     const currentDate = data.current_date;
     const baseAssetUrl = '<?php echo BASE_ASSET_URL; ?>';
+    
+    // Mudar o modal para o conteúdo completo
+    modalBody.className = 'challenge-edit-content progress-modal-content';
     
     // Formatar data
     const dateObj = new Date(currentDate + 'T00:00:00');
@@ -3167,21 +3171,28 @@ function displayChallengeProgress(data) {
     });
     
     let html = `
-        <div class="progress-header">
-            <div class="progress-date">
-                <i class="fas fa-calendar"></i>
-                Progresso de ${formattedDate}
-            </div>
-            <button class="btn-refresh" onclick="viewChallengeProgress(${challenge.id})" title="Atualizar">
-                <i class="fas fa-sync-alt"></i> Atualizar
-            </button>
+        <button class="sleep-modal-close" onclick="closeProgressModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="challenge-edit-header">
+            <h3>Progresso: ${challenge.name}</h3>
         </div>
-        
-        <div class="progress-ranking">
-            <h4 class="ranking-title">
-                <i class="fas fa-trophy"></i> Ranking de Participantes
-            </h4>
-            <div class="participants-ranking-list">
+        <div class="progress-modal-body">
+            <div class="progress-header">
+                <div class="progress-date">
+                    <i class="fas fa-calendar"></i>
+                    Progresso de ${formattedDate}
+                </div>
+                <button class="btn-refresh" onclick="viewChallengeProgress(${challenge.id})" title="Atualizar">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+            
+            <div class="progress-ranking">
+                <h4 class="ranking-title">
+                    <i class="fas fa-trophy"></i> Ranking de Participantes
+                </h4>
+                <div class="participants-ranking-list">
     `;
     
     if (participants.length === 0) {
