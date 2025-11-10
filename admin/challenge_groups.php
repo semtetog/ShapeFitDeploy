@@ -551,7 +551,7 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1;
+    flex-shrink: 0;
 }
 
 .toggle-switch-label {
@@ -1687,11 +1687,12 @@ require_once __DIR__ . '/includes/header.php';
                                 <input type="checkbox" 
                                        class="toggle-switch-input" 
                                        <?php echo $is_active ? 'checked' : ''; ?>
-                                       onchange="toggleChallengeStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>')"
+                                       onchange="toggleChallengeStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>', this)"
                                        data-challenge-id="<?php echo $group['id']; ?>"
                                        data-current-status="<?php echo $group['status']; ?>">
                                 <span class="toggle-switch-slider"></span>
                             </label>
+                            <span class="toggle-switch-label" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
                         </div>
                     </div>
                     
