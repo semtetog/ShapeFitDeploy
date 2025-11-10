@@ -1038,9 +1038,10 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .flatpickr-days {
-    padding: 0.5rem 0 !important;
+    padding: 0.5rem 0.25rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    overflow: visible !important;
 }
 
 .dayContainer {
@@ -1052,6 +1053,7 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0 !important;
     box-sizing: border-box !important;
     gap: 0 !important;
+    overflow: visible !important;
 }
 
 .flatpickr-day {
@@ -1071,7 +1073,7 @@ require_once __DIR__ . '/includes/header.php';
     max-width: calc((100% - 0.875rem) / 7) !important;
     height: 2.5rem !important;
     line-height: 1 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     text-overflow: ellipsis !important;
     text-align: center !important;
     padding: 0 !important;
