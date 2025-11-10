@@ -1948,12 +1948,16 @@ function initFlatpickr() {
             monthContainer.appendChild(month); // mês depois (fica embaixo)
         }
         
-        // Aplicar estilos flexbox
+        // Aplicar estilos flexbox e centralização absoluta
         monthContainer.style.display = "flex";
         monthContainer.style.flexDirection = "column";
         monthContainer.style.alignItems = "center";
         monthContainer.style.justifyContent = "center";
         monthContainer.style.width = "auto";
+        monthContainer.style.position = "absolute";
+        monthContainer.style.left = "50%";
+        monthContainer.style.top = "50%";
+        monthContainer.style.transform = "translate(-50%, -50%)";
         monthContainer.style.gap = "0.25rem";
         
         // Remover setas do calendário
