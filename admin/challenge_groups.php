@@ -1685,7 +1685,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="challenge-form-group">
                         <label for="startDate">Data de Início</label>
                         <div class="date-input-wrapper-modern">
-                            <input type="text" id="startDate" name="start_date" class="challenge-form-input custom-datepicker" placeholder="Selecione a data" required readonly>
+                            <input type="text" id="startDate" name="start_date" class="challenge-form-input custom-datepicker" placeholder="dd/mm/aaaa" required>
                             <button type="button" class="date-icon-btn" onclick="document.getElementById('startDate')._flatpickr?.open();">
                                 <i class="fas fa-calendar-alt"></i>
                             </button>
@@ -1694,7 +1694,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="challenge-form-group">
                         <label for="endDate">Data de Fim</label>
                         <div class="date-input-wrapper-modern">
-                            <input type="text" id="endDate" name="end_date" class="challenge-form-input custom-datepicker" placeholder="Selecione a data" required readonly>
+                            <input type="text" id="endDate" name="end_date" class="challenge-form-input custom-datepicker" placeholder="dd/mm/aaaa" required>
                             <button type="button" class="date-icon-btn" onclick="document.getElementById('endDate')._flatpickr?.open();">
                                 <i class="fas fa-calendar-alt"></i>
                             </button>
@@ -1908,16 +1908,30 @@ function initFlatpickr() {
     // Configuração do Flatpickr
     const flatpickrOptions = {
         locale: 'pt',
-        dateFormat: 'Y-m-d',
+        dateFormat: 'd/m/Y', // Formato brasileiro: 10/11/2025
         minDate: 'today',
-        allowInput: false,
+        allowInput: true, // Permitir digitação manual
         clickOpens: true,
         animate: true,
         monthSelectorType: 'static', // Mês como texto, não dropdown
         defaultDate: null,
         static: false, // Não usar posicionamento estático
         appendTo: document.body, // Anexar ao body para melhor controle de posição
-        positionElement: null // Não usar elemento de posicionamento para evitar seta
+        positionElement: null, // Não usar elemento de posicionamento para evitar seta
+        altInput: false, // Não criar input alternativo
+        parseDate: function(datestr, format) {
+            // Função para parsear datas no formato dd/mm/yyyy
+            if (format === 'd/m/Y') {
+                const parts = datestr.split('/');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1; // Mês é 0-indexed
+                    const year = parseInt(parts[2], 10);
+                    return new Date(year, month, day);
+                }
+            }
+            return null;
+        }
     };
     
     // Remover instâncias existentes
@@ -2005,7 +2019,7 @@ function initFlatpickr() {
     if (startDateInput) {
         const startPicker = flatpickr(startDateInput, {
             ...flatpickrOptions,
-            onChange: function(selectedDates, dateStr) {
+            onChange: function(selectedDates, dateStr, instance) {
                 // Atualizar minDate do endDate para ser após startDate
                 if (endDateInput && selectedDates.length > 0) {
                     const endDatePicker = endDateInput._flatpickr;
@@ -2013,6 +2027,22 @@ function initFlatpickr() {
                         const nextDay = new Date(selectedDates[0]);
                         nextDay.setDate(nextDay.getDate() + 1);
                         endDatePicker.set('minDate', nextDay);
+                    }
+                }
+            },
+            onValueUpdate: function(selectedDates, dateStr, instance) {
+                // Validar e formatar quando o usuário digita manualmente
+                if (dateStr && !selectedDates.length) {
+                    // Tentar parsear a data digitada
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        const day = parseInt(parts[0], 10);
+                        const month = parseInt(parts[1], 10) - 1;
+                        const year = parseInt(parts[2], 10);
+                        const date = new Date(year, month, day);
+                        if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
+                            instance.setDate(date, false);
+                        }
                     }
                 }
             },
@@ -2033,12 +2063,46 @@ function initFlatpickr() {
                 }, 10);
             }
         });
+        
+        // Adicionar evento de blur para validar quando o usuário sair do campo
+        startDateInput.addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (value) {
+                const parts = value.split('/');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10);
+                    const year = parseInt(parts[2], 10);
+                    if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 2020) {
+                        const date = new Date(year, month - 1, day);
+                        if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day) {
+                            startPicker.setDate(date, false);
+                        }
+                    }
+                }
+            }
+        });
     }
     
     // Inicializar para data de fim
     if (endDateInput) {
         const endPicker = flatpickr(endDateInput, {
             ...flatpickrOptions,
+            onValueUpdate: function(selectedDates, dateStr, instance) {
+                // Validar e formatar quando o usuário digita manualmente
+                if (dateStr && !selectedDates.length) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        const day = parseInt(parts[0], 10);
+                        const month = parseInt(parts[1], 10) - 1;
+                        const year = parseInt(parts[2], 10);
+                        const date = new Date(year, month, day);
+                        if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
+                            instance.setDate(date, false);
+                        }
+                    }
+                }
+            },
             onReady: function(_, __, instance) {
                 fixHeader(instance);
                 disablePastMonth(instance);
@@ -2054,6 +2118,25 @@ function initFlatpickr() {
                     fixHeader(instance);
                     disablePastMonth(instance);
                 }, 10);
+            }
+        });
+        
+        // Adicionar evento de blur para validar quando o usuário sair do campo
+        endDateInput.addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (value) {
+                const parts = value.split('/');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10);
+                    const year = parseInt(parts[2], 10);
+                    if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 2020) {
+                        const date = new Date(year, month - 1, day);
+                        if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day) {
+                            endPicker.setDate(date, false);
+                        }
+                    }
+                }
             }
         });
     }
@@ -2226,20 +2309,106 @@ function saveChallenge() {
     const name = formData.get('name');
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
-    const startDate = startDateInput ? (startDateInput._flatpickr ? startDateInput._flatpickr.input.value : startDateInput.value) : '';
-    const endDate = endDateInput ? (endDateInput._flatpickr ? endDateInput._flatpickr.input.value : endDateInput.value) : '';
     
-    // Atualizar valores no formData
-    formData.set('start_date', startDate);
-    formData.set('end_date', endDate);
+    // Obter valores do Flatpickr ou do input diretamente
+    let startDateStr = '';
+    let endDateStr = '';
     
-    if (!name || !startDate || !endDate) {
+    if (startDateInput) {
+        if (startDateInput._flatpickr) {
+            // Se tem Flatpickr, pegar a data selecionada (objeto Date) ou o valor do input
+            const selectedDate = startDateInput._flatpickr.selectedDates[0];
+            if (selectedDate) {
+                // Converter para formato Y-m-d para o backend
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                const day = String(selectedDate.getDate()).padStart(2, '0');
+                startDateStr = `${year}-${month}-${day}`;
+            } else {
+                // Se não tem data selecionada, tentar parsear do input (formato d/m/Y)
+                const inputValue = startDateInput.value.trim();
+                if (inputValue) {
+                    const parts = inputValue.split('/');
+                    if (parts.length === 3) {
+                        const day = parts[0].padStart(2, '0');
+                        const month = parts[1].padStart(2, '0');
+                        const year = parts[2];
+                        startDateStr = `${year}-${month}-${day}`;
+                    } else {
+                        startDateStr = inputValue; // Tentar usar como está
+                    }
+                }
+            }
+        } else {
+            // Sem Flatpickr, tentar parsear formato d/m/Y
+            const inputValue = startDateInput.value.trim();
+            if (inputValue) {
+                const parts = inputValue.split('/');
+                if (parts.length === 3) {
+                    const day = parts[0].padStart(2, '0');
+                    const month = parts[1].padStart(2, '0');
+                    const year = parts[2];
+                    startDateStr = `${year}-${month}-${day}`;
+                } else {
+                    startDateStr = inputValue;
+                }
+            }
+        }
+    }
+    
+    if (endDateInput) {
+        if (endDateInput._flatpickr) {
+            const selectedDate = endDateInput._flatpickr.selectedDates[0];
+            if (selectedDate) {
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                const day = String(selectedDate.getDate()).padStart(2, '0');
+                endDateStr = `${year}-${month}-${day}`;
+            } else {
+                const inputValue = endDateInput.value.trim();
+                if (inputValue) {
+                    const parts = inputValue.split('/');
+                    if (parts.length === 3) {
+                        const day = parts[0].padStart(2, '0');
+                        const month = parts[1].padStart(2, '0');
+                        const year = parts[2];
+                        endDateStr = `${year}-${month}-${day}`;
+                    } else {
+                        endDateStr = inputValue;
+                    }
+                }
+            }
+        } else {
+            const inputValue = endDateInput.value.trim();
+            if (inputValue) {
+                const parts = inputValue.split('/');
+                if (parts.length === 3) {
+                    const day = parts[0].padStart(2, '0');
+                    const month = parts[1].padStart(2, '0');
+                    const year = parts[2];
+                    endDateStr = `${year}-${month}-${day}`;
+                } else {
+                    endDateStr = inputValue;
+                }
+            }
+        }
+    }
+    
+    if (!name || !startDateStr || !endDateStr) {
         alert('Por favor, preencha todos os campos obrigatórios');
         return;
     }
     
-    // Validar datas
-    if (new Date(startDate) > new Date(endDate)) {
+    // Validar datas (criar objetos Date para validação)
+    const startDateObj = new Date(startDateStr);
+    const endDateObj = new Date(endDateStr);
+    
+    if (isNaN(startDateObj.getTime()) || isNaN(endDateObj.getTime())) {
+        alert('Por favor, insira datas válidas no formato dd/mm/aaaa');
+        return;
+    }
+    
+    if (startDateObj > endDateObj) {
         alert('A data de início deve ser anterior à data de fim');
         return;
     }
@@ -2274,8 +2443,8 @@ function saveChallenge() {
         challenge_id: formData.get('challenge_id') || null,
         name: name,
         description: formData.get('description') || '',
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateStr,
+        end_date: endDateStr,
         status: formData.get('status') || 'scheduled',
         goals: goals,
         participants: participants
