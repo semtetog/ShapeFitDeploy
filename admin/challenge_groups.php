@@ -729,6 +729,8 @@ require_once __DIR__ . '/includes/header.php';
 
 .progress-modal-body {
     padding: 1.5rem;
+    position: relative;
+    min-height: 400px;
 }
 
 .progress-header {
@@ -935,36 +937,50 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    width: 100%;
     color: var(--text-secondary);
-    min-height: 300px;
+    z-index: 10;
 }
 
 .loading-spinner i {
     font-size: 3rem;
     margin-bottom: 1.5rem;
     color: var(--accent-orange);
+    display: inline-block;
+    width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+    text-align: center;
     animation: spin 1s linear infinite;
+    transform-origin: center center;
 }
 
 .loading-spinner p {
     margin: 0;
+    padding: 0;
     font-size: 1rem;
     color: var(--text-secondary);
     text-align: center;
+    display: block;
     transform: none !important;
     animation: none !important;
+    position: static !important;
+    white-space: nowrap;
 }
 
 @keyframes spin {
-    from {
+    0% {
         transform: rotate(0deg);
     }
-    to {
+    100% {
         transform: rotate(360deg);
     }
 }
