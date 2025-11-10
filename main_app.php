@@ -144,6 +144,10 @@ while ($row = $challenge_groups_result->fetch_assoc()) {
 }
 $stmt_challenges->close();
 
+// --- BUSCAR NOTIFICAÇÕES DE DESAFIOS ---
+$challenge_notifications = getChallengeNotifications($conn, $user_id, 5);
+$unread_notifications_count = count($challenge_notifications);
+
 // --- PREPARAÇÃO PARA O LAYOUT ---
 $page_title = "Dashboard";
 $extra_js = ['script.js'];
@@ -780,6 +784,153 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     max-width: 400px;
 }
 
+/* Notificações de Desafios */
+.card-notifications {
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.card-notifications .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 16px;
+}
+
+.card-notifications .card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-notifications .card-header h3 i {
+    color: var(--accent-orange);
+}
+
+.notification-badge {
+    background: var(--accent-orange);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    min-width: 24px;
+    text-align: center;
+}
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.notification-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-orange);
+}
+
+.notification-item.read {
+    opacity: 0.6;
+}
+
+.notification-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icon i {
+    font-size: 1rem;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-message {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+.notification-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.notification-challenge {
+    font-weight: 600;
+}
+
+.notification-time {
+    color: var(--text-secondary);
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent-orange);
+}
+
+.view-all-notifications {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    color: var(--accent-orange);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-top: 1px solid var(--glass-border);
+    margin-top: 8px;
+    transition: color 0.2s ease;
+}
+
+.view-all-notifications:hover {
+    color: #FF8533;
+}
+
 .challenges-list {
     display: flex;
     flex-direction: column;
@@ -1226,6 +1377,55 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         <div class="card-suggestions"><div class="card-header"><h3>Sugestões para <?php echo htmlspecialchars($meal_suggestion_data['display_name']); ?></span></h3><a href="<?php echo BASE_APP_URL; ?>/explore_recipes.php?categories=<?php echo urlencode($meal_suggestion_data['category_id'] ?? ''); ?>" class="view-all-link">Ver mais</a></div><div class="carousel-wrapper"><div class="suggestions-carousel"><?php if (!empty($meal_suggestion_data['recipes'])): foreach($meal_suggestion_data['recipes'] as $recipe): ?><div class="suggestion-item glass-card"> <a href="<?php echo BASE_APP_URL; ?>/view_recipe.php?id=<?php echo $recipe['id']; ?>" class="suggestion-link"><div class="suggestion-image-container"><img src="<?php echo BASE_ASSET_URL . '/assets/images/recipes/' . htmlspecialchars($recipe['image_filename'] ? $recipe['image_filename'] : 'placeholder_food.jpg'); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>"></div><div class="recipe-info"><h4><?php echo htmlspecialchars($recipe['name']); ?></h4><span><i class="fas fa-fire-alt"></i> <?php echo round($recipe['kcal_per_serving']); ?> kcal</span></div></a></div><?php endforeach; else: ?><div class="no-suggestions-card glass-card"><p>Nenhuma sugestão para esta refeição no momento.</p></div><?php endif; ?></div></div></div>
         
         <!-- Card de Grupos de Desafio -->
+        <!-- Notificações de Desafios -->
+        <?php if (!empty($challenge_notifications)): ?>
+            <div class="glass-card card-notifications">
+                <div class="card-header">
+                    <h3><i class="fas fa-bell"></i> Notificações de Desafios</h3>
+                    <span class="notification-badge"><?php echo $unread_notifications_count; ?></span>
+                </div>
+                <div class="notifications-list">
+                    <?php foreach ($challenge_notifications as $notification): ?>
+                        <div class="notification-item" data-notification-id="<?php echo $notification['id']; ?>">
+                            <div class="notification-icon">
+                                <?php if ($notification['notification_type'] === 'rank_change'): ?>
+                                    <i class="fas fa-arrow-up" style="color: #22C55E;"></i>
+                                <?php elseif ($notification['notification_type'] === 'overtake'): ?>
+                                    <i class="fas fa-exclamation-triangle" style="color: #EF4444;"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-info-circle" style="color: var(--accent-orange);"></i>
+                                <?php endif; ?>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-message"><?php echo htmlspecialchars($notification['message']); ?></div>
+                                <div class="notification-meta">
+                                    <span class="notification-challenge"><?php echo htmlspecialchars($notification['challenge_name']); ?></span>
+                                    <span class="notification-time"><?php 
+                                        $created = new DateTime($notification['created_at']);
+                                        $now = new DateTime();
+                                        $diff = $now->diff($created);
+                                        if ($diff->days > 0) {
+                                            echo $diff->days . ' dia' . ($diff->days > 1 ? 's' : '') . ' atrás';
+                                        } elseif ($diff->h > 0) {
+                                            echo $diff->h . ' hora' . ($diff->h > 1 ? 's' : '') . ' atrás';
+                                        } elseif ($diff->i > 0) {
+                                            echo $diff->i . ' minuto' . ($diff->i > 1 ? 's' : '') . ' atrás';
+                                        } else {
+                                            echo 'Agora';
+                                        }
+                                    ?></span>
+                                </div>
+                            </div>
+                            <button class="notification-close" onclick="markNotificationAsRead(<?php echo $notification['id']; ?>, this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <a href="<?php echo BASE_APP_URL; ?>/challenges.php" class="view-all-notifications">Ver todas as notificações</a>
+            </div>
+        <?php endif; ?>
+        
         <div class="glass-card card-challenges">
             <div class="card-header">
                 <h3><i class="fas fa-trophy"></i> Grupos de Desafio</h3>
@@ -1968,6 +2168,52 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 
     });
 
+    // Função para marcar notificação como lida
+    function markNotificationAsRead(notificationId, element) {
+        fetch('<?php echo BASE_APP_URL; ?>/api/challenge_notifications.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'mark_as_read',
+                notification_id: notificationId
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                // Marcar visualmente como lida
+                const notificationItem = element.closest('.notification-item');
+                if (notificationItem) {
+                    notificationItem.classList.add('read');
+                    notificationItem.style.opacity = '0.6';
+                    // Remover após animação
+                    setTimeout(() => {
+                        notificationItem.style.display = 'none';
+                        // Atualizar contador de notificações
+                        const badge = document.querySelector('.notification-badge');
+                        if (badge) {
+                            const currentCount = parseInt(badge.textContent) || 0;
+                            const newCount = Math.max(0, currentCount - 1);
+                            if (newCount > 0) {
+                                badge.textContent = newCount;
+                            } else {
+                                // Se não há mais notificações, ocultar o card
+                                const notificationsCard = document.querySelector('.card-notifications');
+                                if (notificationsCard) {
+                                    notificationsCard.style.display = 'none';
+                                }
+                            }
+                        }
+                    }, 300);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao marcar notificação como lida:', error);
+        });
+    }
 
 </script>
 

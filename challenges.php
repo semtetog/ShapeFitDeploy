@@ -48,7 +48,7 @@ if ($challenge_id > 0) {
     // Decodificar goals JSON
     $challenge['goals'] = json_decode($challenge['goals'] ?? '[]', true);
     
-    // Buscar progresso do usuário no desafio
+    // Buscar progresso do usuário no desafio (hoje)
     $stmt_progress = $conn->prepare("
         SELECT * FROM sf_challenge_group_daily_progress
         WHERE challenge_group_id = ? AND user_id = ? AND date = ?
@@ -59,8 +59,60 @@ if ($challenge_id > 0) {
     $daily_progress = $progress_result->fetch_assoc();
     $stmt_progress->close();
     
-    // Buscar participantes do desafio com pontos do desafio
-    require_once APP_ROOT_PATH . '/includes/functions.php';
+    // Buscar progresso histórico do usuário no desafio (últimos 7 dias)
+    $stmt_history = $conn->prepare("
+        SELECT date, points_earned, points_breakdown, calories_consumed, water_ml, exercise_minutes, sleep_hours
+        FROM sf_challenge_group_daily_progress
+        WHERE challenge_group_id = ? AND user_id = ?
+        ORDER BY date DESC
+        LIMIT 7
+    ");
+    $stmt_history->bind_param("ii", $challenge_id, $user_id);
+    $stmt_history->execute();
+    $history_result = $stmt_history->get_result();
+    $progress_history = [];
+    while ($row = $history_result->fetch_assoc()) {
+        $progress_history[] = $row;
+    }
+    $stmt_history->close();
+    
+    // Buscar estatísticas do usuário no desafio
+    $user_total_points = getChallengeGroupTotalPoints($conn, $challenge_id, $user_id);
+    
+    // Buscar posição do usuário no ranking
+    $stmt_user_rank = $conn->prepare("
+        SELECT 
+            u.id,
+            RANK() OVER (ORDER BY COALESCE(SUM(cgdp.points_earned), 0) DESC) as user_rank
+        FROM sf_challenge_group_members cgm
+        INNER JOIN sf_users u ON cgm.user_id = u.id
+        LEFT JOIN sf_challenge_group_daily_progress cgdp ON cgdp.user_id = u.id AND cgdp.challenge_group_id = ?
+        WHERE cgm.group_id = ? AND u.id = ?
+        GROUP BY u.id
+    ");
+    $stmt_user_rank->bind_param("iii", $challenge_id, $challenge_id, $user_id);
+    $stmt_user_rank->execute();
+    $user_rank_result = $stmt_user_rank->get_result();
+    $user_rank_data = $user_rank_result->fetch_assoc();
+    $user_rank = $user_rank_data['user_rank'] ?? 0;
+    $stmt_user_rank->close();
+    
+    // Buscar progresso médio por meta
+    $stmt_avg = $conn->prepare("
+        SELECT 
+            AVG(calories_consumed) as avg_calories,
+            AVG(water_ml) as avg_water,
+            AVG(exercise_minutes) as avg_exercise,
+            AVG(sleep_hours) as avg_sleep,
+            COUNT(*) as days_active
+        FROM sf_challenge_group_daily_progress
+        WHERE challenge_group_id = ? AND user_id = ?
+    ");
+    $stmt_avg->bind_param("ii", $challenge_id, $user_id);
+    $stmt_avg->execute();
+    $avg_result = $stmt_avg->get_result();
+    $avg_stats = $avg_result->fetch_assoc();
+    $stmt_avg->close();
     
     // Sincronizar progresso antes de buscar ranking
     syncChallengeGroupProgress($conn, $user_id, $current_date);
@@ -423,6 +475,261 @@ body {
     margin: 0;
     line-height: 1.6;
 }
+
+/* Dashboard de Progresso */
+.progress-dashboard-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-title i {
+    color: var(--accent-orange);
+}
+
+.progress-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.progress-stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon i {
+    font-size: 1.5rem;
+}
+
+.stat-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.section-subtitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.goals-progress-section {
+    margin-bottom: 24px;
+}
+
+.goal-progress-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.goal-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.goal-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.goal-info i {
+    color: var(--accent-orange);
+    font-size: 1.1rem;
+}
+
+.goal-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.goal-points {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.multiplier-badge {
+    background: rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.points-value {
+    font-weight: 700;
+    color: var(--accent-orange);
+    font-size: 0.9rem;
+}
+
+.goal-progress-bar-container {
+    margin-top: 8px;
+}
+
+.goal-progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.goal-progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #FF6600, #FF8533);
+    border-radius: 4px;
+    transition: width 0.5s ease-in-out;
+}
+
+.goal-progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.goal-consumed {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.goal-percentage {
+    font-weight: 600;
+    color: var(--accent-orange);
+}
+
+/* Gráfico de Progresso */
+.progress-chart-section {
+    margin-bottom: 24px;
+}
+
+.progress-chart {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8px;
+    height: 200px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.chart-bar-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.chart-bar {
+    width: 100%;
+    background: linear-gradient(135deg, #3B82F6, #60A5FA);
+    border-radius: 4px 4px 0 0;
+    min-height: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 4px;
+}
+
+.chart-bar-value {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.chart-bar-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.chart-day-name {
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.chart-day-number {
+    font-size: 0.65rem;
+    margin-top: 2px;
+}
+
+@media (max-width: 480px) {
+    .progress-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .progress-chart {
+        height: 150px;
+        gap: 4px;
+    }
+    
+    .chart-bar-value {
+        font-size: 0.6rem;
+    }
+    
+    .chart-bar-label {
+        font-size: 0.65rem;
+    }
+}
 </style>
 
 <div class="app-container">
@@ -533,6 +840,158 @@ body {
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+            
+            <!-- Dashboard de Progresso do Usuário -->
+            <div class="progress-dashboard-section">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-chart-line"></i>
+                    Meu Progresso
+                </h3>
+                
+                <!-- Estatísticas Gerais -->
+                <div class="progress-stats-grid">
+                    <div class="progress-stat-card">
+                        <div class="stat-icon" style="background: rgba(255, 107, 0, 0.1);">
+                            <i class="fas fa-trophy" style="color: var(--accent-orange);"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value"><?php echo number_format($user_total_points, 0, ',', '.'); ?></div>
+                            <div class="stat-label">Pontos Totais</div>
+                        </div>
+                    </div>
+                    <div class="progress-stat-card">
+                        <div class="stat-icon" style="background: rgba(34, 197, 94, 0.1);">
+                            <i class="fas fa-medal" style="color: #22C55E;"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">#<?php echo $user_rank; ?></div>
+                            <div class="stat-label">Posição no Ranking</div>
+                        </div>
+                    </div>
+                    <div class="progress-stat-card">
+                        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1);">
+                            <i class="fas fa-calendar-check" style="color: #3B82F6;"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value"><?php echo $avg_stats['days_active'] ?? 0; ?></div>
+                            <div class="stat-label">Dias Ativos</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progresso por Meta (Hoje) -->
+                <?php if ($daily_progress && !empty($challenge['goals'])): ?>
+                    <div class="goals-progress-section">
+                        <h4 class="section-subtitle">Progresso de Hoje</h4>
+                        <?php
+                        $points_config = getChallengePointsConfig();
+                        $multiplier = getChallengePointsMultiplier($current_date);
+                        $breakdown = json_decode($daily_progress['points_breakdown'] ?? '{}', true);
+                        
+                        $goal_icons = [
+                            'calories' => 'fas fa-fire',
+                            'water' => 'fas fa-tint',
+                            'exercise' => 'fas fa-dumbbell',
+                            'sleep' => 'fas fa-bed'
+                        ];
+                        ?>
+                        <?php foreach ($challenge['goals'] as $goal): ?>
+                            <?php
+                            $goal_type = $goal['type'] ?? '';
+                            $goal_value = (float)($goal['value'] ?? 0);
+                            $config = $points_config[$goal_type] ?? null;
+                            
+                            if (!$config || $goal_value <= 0) continue;
+                            
+                            // Obter valores consumidos
+                            $consumed = 0;
+                            $unit = '';
+                            switch ($goal_type) {
+                                case 'calories':
+                                    $consumed = (float)($daily_progress['calories_consumed'] ?? 0);
+                                    $unit = 'kcal';
+                                    break;
+                                case 'water':
+                                    $consumed = (float)($daily_progress['water_ml'] ?? 0);
+                                    $unit = 'ml';
+                                    break;
+                                case 'exercise':
+                                    $consumed = (int)($daily_progress['exercise_minutes'] ?? 0);
+                                    $unit = 'min';
+                                    break;
+                                case 'sleep':
+                                    $consumed = (float)($daily_progress['sleep_hours'] ?? 0);
+                                    $unit = 'h';
+                                    break;
+                            }
+                            
+                            $percentage = min(100, ($consumed / $goal_value) * 100);
+                            $goal_breakdown = $breakdown[$goal_type] ?? null;
+                            $points_today = $goal_breakdown['final_points'] ?? 0;
+                            ?>
+                            <div class="goal-progress-card">
+                                <div class="goal-progress-header">
+                                    <div class="goal-info">
+                                        <i class="<?php echo $goal_icons[$goal_type] ?? 'fas fa-bullseye'; ?>"></i>
+                                        <span class="goal-name"><?php echo $config['label']; ?></span>
+                                    </div>
+                                    <div class="goal-points">
+                                        <?php if ($multiplier > 1): ?>
+                                            <span class="multiplier-badge"><?php echo $multiplier; ?>x</span>
+                                        <?php endif; ?>
+                                        <span class="points-value">+<?php echo $points_today; ?> pts</span>
+                                    </div>
+                                </div>
+                                <div class="goal-progress-bar-container">
+                                    <div class="goal-progress-bar">
+                                        <div class="goal-progress-fill" style="width: <?php echo $percentage; ?>%;"></div>
+                                    </div>
+                                    <div class="goal-progress-info">
+                                        <span class="goal-consumed"><?php echo number_format($consumed, $goal_type === 'calories' || $goal_type === 'water' ? 0 : ($goal_type === 'sleep' ? 1 : 0), ',', '.'); ?> <?php echo $unit; ?></span>
+                                        <span class="goal-target">/ <?php echo number_format($goal_value, $goal_type === 'calories' || $goal_type === 'water' ? 0 : ($goal_type === 'sleep' ? 1 : 0), ',', '.'); ?> <?php echo $unit; ?></span>
+                                        <span class="goal-percentage"><?php echo round($percentage, 1); ?>%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <!-- Gráfico de Progresso (Últimos 7 dias) -->
+                <?php if (!empty($progress_history)): ?>
+                    <div class="progress-chart-section">
+                        <h4 class="section-subtitle">Pontos dos Últimos 7 Dias</h4>
+                        <div class="progress-chart">
+                            <?php
+                            $max_points = max(array_column($progress_history, 'points_earned'));
+                            $max_points = max($max_points, 10); // Mínimo de 10 para visualização
+                            ?>
+                            <?php 
+                            $day_names_pt = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                            foreach (array_reverse($progress_history) as $day): ?>
+                                <?php
+                                $date_obj = new DateTime($day['date']);
+                                $day_of_week = (int)$date_obj->format('w');
+                                $day_name = $day_names_pt[$day_of_week];
+                                $day_number = $date_obj->format('d');
+                                $points = (int)($day['points_earned'] ?? 0);
+                                $height_percentage = $max_points > 0 ? ($points / $max_points) * 100 : 0;
+                                $is_weekend = in_array($day_of_week, [0, 6]);
+                                ?>
+                                <div class="chart-bar-container">
+                                    <div class="chart-bar" style="height: <?php echo $height_percentage; ?>%; <?php echo $is_weekend ? 'background: linear-gradient(135deg, #FF6B00, #FF8533);' : ''; ?>">
+                                        <span class="chart-bar-value"><?php echo $points; ?></span>
+                                    </div>
+                                    <div class="chart-bar-label">
+                                        <span class="chart-day-name"><?php echo $day_name; ?></span>
+                                        <span class="chart-day-number"><?php echo $day_number; ?></span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
             
             <?php if (!empty($participants)): ?>
                 <div class="participants-section">

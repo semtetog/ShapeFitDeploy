@@ -493,7 +493,56 @@ function syncChallengeGroupProgress($conn, $user_id, $date = null) {
 }
 
 /**
+ * Calcula multiplicador baseado na data (fins de semana, feriados, etc)
+ */
+function getChallengePointsMultiplier($date) {
+    $date_obj = new DateTime($date);
+    $day_of_week = (int)$date_obj->format('w'); // 0 = Domingo, 6 = Sábado
+    
+    // Multiplicador 2x para fins de semana
+    if ($day_of_week == 0 || $day_of_week == 6) {
+        return 2.0;
+    }
+    
+    // Multiplicador padrão
+    return 1.0;
+}
+
+/**
+ * Configuração de pontos por tipo de meta
+ */
+function getChallengePointsConfig() {
+    return [
+        'calories' => [
+            'points_per_percent' => 2, // 2 pontos por cada 10% da meta
+            'percent_increment' => 10, // Incremento de 10%
+            'bonus_completion' => 25, // Bônus por atingir 100%
+            'label' => 'Calorias'
+        ],
+        'water' => [
+            'points_per_unit' => 1, // 1 ponto por copo (250ml)
+            'unit_size' => 250, // Tamanho da unidade em ml
+            'bonus_completion' => 20, // Bônus por atingir 100%
+            'label' => 'Água'
+        ],
+        'exercise' => [
+            'points_per_unit' => 2, // 2 pontos por 10 minutos
+            'unit_size' => 10, // Tamanho da unidade em minutos
+            'bonus_completion' => 30, // Bônus por atingir 100%
+            'label' => 'Exercício'
+        ],
+        'sleep' => [
+            'points_per_unit' => 4, // 4 pontos por hora
+            'unit_size' => 1, // Tamanho da unidade em horas
+            'bonus_completion' => 25, // Bônus por atingir 100%
+            'label' => 'Sono'
+        ]
+    ];
+}
+
+/**
  * Calcula pontos do desafio baseado nas metas e atualiza no banco
+ * Agora com suporte a multiplicadores e valores configuráveis
  */
 function calculateAndUpdateChallengePoints($conn, $challenge_id, $user_id, $date, $goals) {
     // Buscar progresso atual
@@ -512,7 +561,14 @@ function calculateAndUpdateChallengePoints($conn, $challenge_id, $user_id, $date
         return 0;
     }
     
+    // Obter multiplicador do dia
+    $multiplier = getChallengePointsMultiplier($date);
+    
+    // Obter configuração de pontos
+    $points_config = getChallengePointsConfig();
+    
     $total_points = 0;
+    $points_breakdown = [];
     
     // Calcular pontos para cada meta do desafio
     foreach ($goals as $goal) {
@@ -523,66 +579,81 @@ function calculateAndUpdateChallengePoints($conn, $challenge_id, $user_id, $date
             continue;
         }
         
+        $config = $points_config[$goal_type] ?? null;
+        if (!$config) {
+            continue;
+        }
+        
+        $base_points = 0;
+        $percentage = 0;
+        
         switch ($goal_type) {
             case 'calories':
                 $consumed = (float)$progress['calories_consumed'];
-                // Pontos progressivos: 2 pontos por cada 10% da meta atingida
-                // Bônus de 20 pontos por atingir 100% da meta
                 $percentage = min(100, ($consumed / $goal_value) * 100);
-                $points = floor($percentage / 10) * 2; // 2 pontos por 10%
+                // Pontos progressivos baseado em percentual
+                $base_points = floor($percentage / $config['percent_increment']) * $config['points_per_percent'];
                 if ($percentage >= 100) {
-                    $points += 20; // Bônus por atingir meta
+                    $base_points += $config['bonus_completion'];
                 }
-                $total_points += $points;
                 break;
                 
             case 'water':
                 $consumed_ml = (float)$progress['water_ml'];
-                // Pontos progressivos: 1 ponto por cada 250ml (1 copo) até a meta
-                // Bônus de 15 pontos por atingir 100% da meta
                 $percentage = min(100, ($consumed_ml / $goal_value) * 100);
-                $cups = floor($consumed_ml / 250);
-                $goal_cups = floor($goal_value / 250);
-                $points = min($cups, $goal_cups) * 1; // 1 ponto por copo até a meta
+                // Pontos baseados em unidades (copos)
+                $units = floor($consumed_ml / $config['unit_size']);
+                $goal_units = floor($goal_value / $config['unit_size']);
+                $base_points = min($units, $goal_units) * $config['points_per_unit'];
                 if ($percentage >= 100) {
-                    $points += 15; // Bônus por atingir meta
+                    $base_points += $config['bonus_completion'];
                 }
-                $total_points += $points;
                 break;
                 
             case 'exercise':
                 $consumed_minutes = (int)$progress['exercise_minutes'];
-                // Pontos progressivos: 2 pontos por cada 10 minutos até a meta
-                // Bônus de 25 pontos por atingir 100% da meta
                 $percentage = min(100, ($consumed_minutes / $goal_value) * 100);
-                $points = floor(min($consumed_minutes, $goal_value) / 10) * 2; // 2 pontos por 10min
+                // Pontos baseados em unidades (blocos de 10min)
+                $units = floor(min($consumed_minutes, $goal_value) / $config['unit_size']);
+                $base_points = $units * $config['points_per_unit'];
                 if ($percentage >= 100) {
-                    $points += 25; // Bônus por atingir meta
+                    $base_points += $config['bonus_completion'];
                 }
-                $total_points += $points;
                 break;
                 
             case 'sleep':
                 $consumed_hours = (float)$progress['sleep_hours'];
-                // Pontos progressivos: 3 pontos por hora até a meta
-                // Bônus de 20 pontos por atingir 100% da meta
                 $percentage = min(100, ($consumed_hours / $goal_value) * 100);
-                $points = floor(min($consumed_hours, $goal_value)) * 3; // 3 pontos por hora
+                // Pontos baseados em unidades (horas)
+                $units = floor(min($consumed_hours, $goal_value) / $config['unit_size']);
+                $base_points = $units * $config['points_per_unit'];
                 if ($percentage >= 100) {
-                    $points += 20; // Bônus por atingir meta
+                    $base_points += $config['bonus_completion'];
                 }
-                $total_points += $points;
                 break;
         }
+        
+        // Aplicar multiplicador
+        $final_points = round($base_points * $multiplier);
+        
+        $points_breakdown[$goal_type] = [
+            'base_points' => $base_points,
+            'multiplier' => $multiplier,
+            'final_points' => $final_points,
+            'percentage' => round($percentage, 1)
+        ];
+        
+        $total_points += $final_points;
     }
     
-    // Atualizar pontos no banco
+    // Atualizar pontos no banco (incluindo breakdown JSON)
+    $breakdown_json = json_encode($points_breakdown);
     $stmt_update = $conn->prepare("
         UPDATE sf_challenge_group_daily_progress
-        SET points_earned = ?
+        SET points_earned = ?, points_breakdown = ?
         WHERE challenge_group_id = ? AND user_id = ? AND date = ?
     ");
-    $stmt_update->bind_param("iiis", $total_points, $challenge_id, $user_id, $date);
+    $stmt_update->bind_param("issis", $total_points, $breakdown_json, $challenge_id, $user_id, $date);
     $stmt_update->execute();
     $stmt_update->close();
     
@@ -610,11 +681,201 @@ function getChallengeGroupTotalPoints($conn, $challenge_id, $user_id) {
 /**
  * Atualiza pontos de desafio quando o usuário faz ações no app
  * Esta função deve ser chamada após atualizações no tracking diário
+ * Agora também verifica mudanças de ranking e cria notificações
  */
 function updateChallengePoints($conn, $user_id, $action_type = null) {
     // Sincronizar progresso para todos os desafios ativos
     syncChallengeGroupProgress($conn, $user_id);
+    
+    // Verificar mudanças de ranking e criar notificações
+    checkChallengeRankChanges($conn, $user_id);
+    
     return true;
+}
+
+/**
+ * Verifica mudanças de ranking nos desafios e cria notificações
+ */
+function checkChallengeRankChanges($conn, $user_id) {
+    // Buscar desafios ativos do usuário
+    $stmt = $conn->prepare("
+        SELECT DISTINCT cg.id
+        FROM sf_challenge_groups cg
+        INNER JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
+        WHERE cgm.user_id = ? 
+          AND cg.status = 'active'
+    ");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $challenges = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    
+    foreach ($challenges as $challenge) {
+        $challenge_id = $challenge['id'];
+        
+        // Buscar ranking atual de todos os participantes
+        $stmt_rank = $conn->prepare("
+            SELECT 
+                u.id,
+                COALESCE(SUM(cgdp.points_earned), 0) as total_points
+            FROM sf_challenge_group_members cgm
+            INNER JOIN sf_users u ON cgm.user_id = u.id
+            LEFT JOIN sf_challenge_group_daily_progress cgdp ON cgdp.user_id = u.id AND cgdp.challenge_group_id = ?
+            WHERE cgm.group_id = ?
+            GROUP BY u.id
+            ORDER BY total_points DESC
+        ");
+        $stmt_rank->bind_param("ii", $challenge_id, $challenge_id);
+        $stmt_rank->execute();
+        $rank_result = $stmt_rank->get_result();
+        
+        $rankings = [];
+        $rank = 1;
+        while ($row = $rank_result->fetch_assoc()) {
+            $rankings[$row['id']] = [
+                'rank' => $rank++,
+                'points' => (int)$row['total_points']
+            ];
+        }
+        $stmt_rank->close();
+        
+        // Para cada usuário no desafio, verificar mudanças
+        foreach ($rankings as $check_user_id => $current_data) {
+            $current_rank = $current_data['rank'];
+            $current_points = $current_data['points'];
+            
+            // Buscar snapshot anterior
+            $stmt_snapshot = $conn->prepare("
+                SELECT last_rank, last_points
+                FROM sf_challenge_user_rank_snapshot
+                WHERE challenge_group_id = ? AND user_id = ?
+            ");
+            $stmt_snapshot->bind_param("ii", $challenge_id, $check_user_id);
+            $stmt_snapshot->execute();
+            $snapshot_result = $stmt_snapshot->get_result();
+            $snapshot = $snapshot_result->fetch_assoc();
+            $stmt_snapshot->close();
+            
+            if ($snapshot && $snapshot['last_rank'] !== null) {
+                $last_rank = (int)$snapshot['last_rank'];
+                $last_points = (int)$snapshot['last_points'];
+                
+                // Verificar se subiu no ranking
+                if ($current_rank < $last_rank) {
+                    // Usuário subiu no ranking
+                    $positions_gained = $last_rank - $current_rank;
+                    $message = "🎉 Você subiu {$positions_gained} posição" . ($positions_gained > 1 ? "ões" : "") . " no ranking! Agora você está em #{$current_rank}.";
+                    createChallengeNotification($conn, $challenge_id, $check_user_id, 'rank_change', $message);
+                }
+                
+                // Verificar se foi ultrapassado
+                if ($current_rank > $last_rank) {
+                    // Buscar quem ultrapassou este usuário
+                    foreach ($rankings as $other_user_id => $other_data) {
+                        if ($other_user_id != $check_user_id && 
+                            $other_data['rank'] < $current_rank && 
+                            $other_data['rank'] >= $last_rank) {
+                            
+                            $stmt_user = $conn->prepare("SELECT name FROM sf_users WHERE id = ?");
+                            $stmt_user->bind_param("i", $other_user_id);
+                            $stmt_user->execute();
+                            $user_result = $stmt_user->get_result();
+                            $overtaker = $user_result->fetch_assoc();
+                            $stmt_user->close();
+                            
+                            if ($overtaker) {
+                                $overtake_message = "⚠️ {$overtaker['name']} te ultrapassou no ranking! Você está em #{$current_rank}.";
+                                createChallengeNotification($conn, $challenge_id, $check_user_id, 'overtake', $overtake_message);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Atualizar snapshot
+            $stmt_update = $conn->prepare("
+                INSERT INTO sf_challenge_user_rank_snapshot 
+                (challenge_group_id, user_id, last_rank, last_points)
+                VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                last_rank = VALUES(last_rank),
+                last_points = VALUES(last_points),
+                last_updated = NOW()
+            ");
+            $stmt_update->bind_param("iiii", $challenge_id, $check_user_id, $current_rank, $current_points);
+            $stmt_update->execute();
+            $stmt_update->close();
+        }
+    }
+}
+
+/**
+ * Cria uma notificação de desafio
+ */
+function createChallengeNotification($conn, $challenge_id, $user_id, $type, $message) {
+    // Verificar se já existe notificação similar recente (últimas 2 horas) para evitar spam
+    $stmt_check = $conn->prepare("
+        SELECT id FROM sf_challenge_notifications
+        WHERE challenge_group_id = ? AND user_id = ? AND notification_type = ?
+        AND created_at > DATE_SUB(NOW(), INTERVAL 2 HOUR)
+        LIMIT 1
+    ");
+    $stmt_check->bind_param("iis", $challenge_id, $user_id, $type);
+    $stmt_check->execute();
+    $check_result = $stmt_check->get_result();
+    if ($check_result->num_rows > 0) {
+        $stmt_check->close();
+        return; // Já existe notificação similar recente
+    }
+    $stmt_check->close();
+    
+    $stmt = $conn->prepare("
+        INSERT INTO sf_challenge_notifications 
+        (challenge_group_id, user_id, notification_type, message)
+        VALUES (?, ?, ?, ?)
+    ");
+    $stmt->bind_param("iiss", $challenge_id, $user_id, $type, $message);
+    $stmt->execute();
+    $stmt->close();
+}
+
+/**
+ * Busca notificações não lidas do usuário
+ */
+function getChallengeNotifications($conn, $user_id, $limit = 10) {
+    $stmt = $conn->prepare("
+        SELECT cn.*, cg.name as challenge_name
+        FROM sf_challenge_notifications cn
+        INNER JOIN sf_challenge_groups cg ON cn.challenge_group_id = cg.id
+        WHERE cn.user_id = ? AND cn.is_read = 0
+        ORDER BY cn.created_at DESC
+        LIMIT ?
+    ");
+    $stmt->bind_param("ii", $user_id, $limit);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $notifications = [];
+    while ($row = $result->fetch_assoc()) {
+        $notifications[] = $row;
+    }
+    $stmt->close();
+    
+    return $notifications;
+}
+
+/**
+ * Marca notificação como lida
+ */
+function markNotificationAsRead($conn, $notification_id, $user_id) {
+    $stmt = $conn->prepare("
+        UPDATE sf_challenge_notifications
+        SET is_read = 1
+        WHERE id = ? AND user_id = ?
+    ");
+    $stmt->bind_param("ii", $notification_id, $user_id);
+    $stmt->execute();
+    $stmt->close();
 }
 
 /**
