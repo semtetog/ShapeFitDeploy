@@ -1649,11 +1649,16 @@ require_once __DIR__ . '/includes/header.php';
                                 </div>
                     
                     <div class="group-card-actions" onclick="event.stopPropagation()">
-                        <button class="btn-action btn-toggle-status <?php echo $group['status'] === 'active' ? 'active' : ''; ?>" 
+                        <?php
+                        $is_active = $group['status'] === 'active';
+                        $toggle_text = $is_active ? 'Desativar' : 'Ativar';
+                        $toggle_class = $is_active ? 'active' : '';
+                        ?>
+                        <button class="btn-action btn-toggle-status <?php echo $toggle_class; ?>" 
                                 onclick="toggleChallengeStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>')"
-                                title="<?php echo $group['status'] === 'active' ? 'Desativar' : 'Ativar'; ?>">
+                                title="<?php echo $toggle_text; ?>">
                             <i class="fas fa-power-off"></i>
-                            <span><?php echo $group['status'] === 'active' ? 'Desativar' : 'Ativar'; ?></span>
+                            <span><?php echo $toggle_text; ?></span>
                         </button>
                         <button class="btn-action btn-edit" onclick="editChallenge(<?php echo $group['id']; ?>)">
                                 <i class="fas fa-edit"></i> Editar
