@@ -697,21 +697,46 @@ function updateChallengePoints($conn, $user_id, $action_type = null) {
  * Verifica mudanças de ranking nos desafios e cria notificações
  */
 function checkChallengeRankChanges($conn, $user_id) {
-    // Buscar desafios ativos do usuário
-    $stmt = $conn->prepare("
-        SELECT DISTINCT cg.id
-        FROM sf_challenge_groups cg
-        INNER JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
-        WHERE cgm.user_id = ? 
-          AND cg.status = 'active'
-    ");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $challenges = $result->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
+    // Verificar se a tabela de snapshot existe
+    $snapshot_table_exists = false;
+    try {
+        $check_snapshot = $conn->query("SHOW TABLES LIKE 'sf_challenge_user_rank_snapshot'");
+        if ($check_snapshot && $check_snapshot->num_rows > 0) {
+            $snapshot_table_exists = true;
+        }
+        if ($check_snapshot) {
+            $check_snapshot->close();
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao verificar tabela de snapshot: " . $e->getMessage());
+        return;
+    }
     
-    foreach ($challenges as $challenge) {
+    // Se a tabela de snapshot não existe, não fazer nada (tabelas ainda não foram criadas)
+    if (!$snapshot_table_exists) {
+        return;
+    }
+    
+    try {
+        // Buscar desafios ativos do usuário
+        $stmt = $conn->prepare("
+            SELECT DISTINCT cg.id
+            FROM sf_challenge_groups cg
+            INNER JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
+            WHERE cgm.user_id = ? 
+              AND cg.status = 'active'
+        ");
+        if (!$stmt) {
+            error_log("Erro ao preparar query de desafios: " . $conn->error);
+            return;
+        }
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $challenges = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        
+        foreach ($challenges as $challenge) {
         $challenge_id = $challenge['id'];
         
         // Buscar ranking atual de todos os participantes
@@ -751,6 +776,10 @@ function checkChallengeRankChanges($conn, $user_id) {
                 FROM sf_challenge_user_rank_snapshot
                 WHERE challenge_group_id = ? AND user_id = ?
             ");
+            if (!$stmt_snapshot) {
+                error_log("Erro ao preparar query de snapshot: " . $conn->error);
+                continue;
+            }
             $stmt_snapshot->bind_param("ii", $challenge_id, $check_user_id);
             $stmt_snapshot->execute();
             $snapshot_result = $stmt_snapshot->get_result();
@@ -778,11 +807,15 @@ function checkChallengeRankChanges($conn, $user_id) {
                             $other_data['rank'] >= $last_rank) {
                             
                             $stmt_user = $conn->prepare("SELECT name FROM sf_users WHERE id = ?");
-                            $stmt_user->bind_param("i", $other_user_id);
-                            $stmt_user->execute();
-                            $user_result = $stmt_user->get_result();
-                            $overtaker = $user_result->fetch_assoc();
-                            $stmt_user->close();
+                            if ($stmt_user) {
+                                $stmt_user->bind_param("i", $other_user_id);
+                                $stmt_user->execute();
+                                $user_result = $stmt_user->get_result();
+                                $overtaker = $user_result->fetch_assoc();
+                                $stmt_user->close();
+                            } else {
+                                $overtaker = null;
+                            }
                             
                             if ($overtaker) {
                                 $overtake_message = "⚠️ {$overtaker['name']} te ultrapassou no ranking! Você está em #{$current_rank}.";
@@ -803,10 +836,15 @@ function checkChallengeRankChanges($conn, $user_id) {
                 last_points = VALUES(last_points),
                 last_updated = NOW()
             ");
-            $stmt_update->bind_param("iiii", $challenge_id, $check_user_id, $current_rank, $current_points);
-            $stmt_update->execute();
-            $stmt_update->close();
+            if ($stmt_update) {
+                $stmt_update->bind_param("iiii", $challenge_id, $check_user_id, $current_rank, $current_points);
+                $stmt_update->execute();
+                $stmt_update->close();
+            }
         }
+    } catch (Exception $e) {
+        error_log("Erro ao verificar mudanças de ranking: " . $e->getMessage());
+        // Não propagar o erro para não quebrar o fluxo principal
     }
 }
 
