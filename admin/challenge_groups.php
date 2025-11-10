@@ -242,10 +242,19 @@ require_once __DIR__ . '/includes/header.php';
         font-size: 0.75rem;
         padding: 0.5rem 0.375rem;
         gap: 0.25rem;
+        flex-shrink: 1;
+        max-width: 100%;
     }
     
     .btn-action i {
         font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+    
+    .btn-action > *:not(i) {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
