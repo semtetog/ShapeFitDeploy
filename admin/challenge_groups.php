@@ -2901,8 +2901,33 @@ function openChallengeModal() {
 }
 
 function closeChallengeModal() {
-    document.getElementById('challengeModal').classList.remove('active');
+    const modal = document.getElementById('challengeModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
     document.body.style.overflow = '';
+    
+    // Destruir instâncias do Flatpickr ao fechar o modal para evitar conflitos
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    
+    if (startDateInput && startDateInput._flatpickr) {
+        try {
+            startDateInput._flatpickr.destroy();
+            startDateInput._flatpickr = null;
+        } catch (e) {
+            console.warn('Erro ao destruir Flatpickr do startDate:', e);
+        }
+    }
+    
+    if (endDateInput && endDateInput._flatpickr) {
+        try {
+            endDateInput._flatpickr.destroy();
+            endDateInput._flatpickr = null;
+        } catch (e) {
+            console.warn('Erro ao destruir Flatpickr do endDate:', e);
+        }
+    }
 }
 
 function editChallenge(id) {
