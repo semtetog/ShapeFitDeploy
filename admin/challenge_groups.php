@@ -3112,12 +3112,25 @@ function viewChallengeProgress(challengeId) {
             challenge_id: challengeId
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro na resposta do servidor: ' + response.status);
+        }
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            return response.text().then(text => {
+                console.error('Resposta não é JSON:', text);
+                throw new Error('Resposta do servidor não é JSON válido');
+            });
+        }
+        return response.json();
+    })
     .then(data => {
-        if (data.success) {
+        if (data && data.success) {
             displayChallengeProgress(data);
         } else {
-            modalBody.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-circle"></i> ${data.message}</div>`;
+            const errorMsg = data && data.message ? data.message : 'Erro desconhecido';
+            modalBody.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-circle"></i> ${errorMsg}</div>`;
         }
     })
     .catch(error => {
