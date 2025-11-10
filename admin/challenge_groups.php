@@ -533,8 +533,8 @@ require_once __DIR__ . '/includes/header.php';
 /* Groups Grid */
 .challenge-groups-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+    gap: 1.5rem;
     margin-bottom: 2rem;
     width: 100%;
     box-sizing: border-box;
@@ -868,15 +868,9 @@ require_once __DIR__ . '/includes/header.php';
 /*       PROGRESS MODAL - MODAL DE PROGRESSO DOS PARTICIPANTES               */
 /* ========================================================================= */
 
+/* Modal de progresso usa a mesma estrutura dos outros modais */
 .progress-modal-content {
-    max-width: 1200px;
-    width: 90%;
-    max-height: 85vh;
-    overflow-y: auto;
-    background: rgba(18, 18, 23, 0.98);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    /* Herda estilos de .challenge-edit-content */
 }
 
 .progress-modal-content-simple {
@@ -3628,7 +3622,10 @@ function viewChallengeProgress(challengeId) {
         <button class="sleep-modal-close" onclick="closeProgressModal()" type="button">
             <i class="fas fa-times"></i>
         </button>
-        <div class="progress-modal-body" style="display: flex; align-items: center; justify-content: center; min-height: 400px;">
+        <div class="challenge-edit-header">
+            <h3>Carregando Progresso...</h3>
+        </div>
+        <div class="challenge-edit-body" style="display: flex; align-items: center; justify-content: center; min-height: 400px;">
             <div class="loading-spinner-simple">
                 <div class="spinner-dots">
                     <div class="spinner-dot"></div>
