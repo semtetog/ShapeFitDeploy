@@ -445,7 +445,7 @@ require_once __DIR__ . '/includes/header.php';
 .group-card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 1rem;
 }
 
