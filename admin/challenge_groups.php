@@ -3734,14 +3734,14 @@ function displayChallengeProgress(data) {
         <button class="sleep-modal-close" onclick="closeProgressModal()" type="button">
             <i class="fas fa-times"></i>
         </button>
-        <div class="progress-header" style="margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-            <h3 style="margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">Progresso: ${challenge.name}</h3>
-        </div>
         <div class="progress-modal-body">
             <div class="progress-header">
-                <div class="progress-date">
-                    <i class="fas fa-calendar"></i>
-                    Progresso de ${formattedDate}
+                <div>
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">Progresso: ${challenge.name}</h3>
+                    <div class="progress-date" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;">
+                        <i class="fas fa-calendar"></i>
+                        Progresso de ${formattedDate}
+                    </div>
                 </div>
                 <button class="btn-refresh" onclick="viewChallengeProgress(${challenge.id})" title="Atualizar">
                     <i class="fas fa-sync-alt"></i> Atualizar
