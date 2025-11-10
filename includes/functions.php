@@ -737,36 +737,40 @@ function checkChallengeRankChanges($conn, $user_id) {
         $stmt->close();
         
         foreach ($challenges as $challenge) {
-        $challenge_id = $challenge['id'];
-        
-        // Buscar ranking atual de todos os participantes
-        $stmt_rank = $conn->prepare("
-            SELECT 
-                u.id,
-                COALESCE(SUM(cgdp.points_earned), 0) as total_points
-            FROM sf_challenge_group_members cgm
-            INNER JOIN sf_users u ON cgm.user_id = u.id
-            LEFT JOIN sf_challenge_group_daily_progress cgdp ON cgdp.user_id = u.id AND cgdp.challenge_group_id = ?
-            WHERE cgm.group_id = ?
-            GROUP BY u.id
-            ORDER BY total_points DESC
-        ");
-        $stmt_rank->bind_param("ii", $challenge_id, $challenge_id);
-        $stmt_rank->execute();
-        $rank_result = $stmt_rank->get_result();
-        
-        $rankings = [];
-        $rank = 1;
-        while ($row = $rank_result->fetch_assoc()) {
-            $rankings[$row['id']] = [
-                'rank' => $rank++,
-                'points' => (int)$row['total_points']
-            ];
-        }
-        $stmt_rank->close();
-        
-        // Para cada usuário no desafio, verificar mudanças
-        foreach ($rankings as $check_user_id => $current_data) {
+            $challenge_id = $challenge['id'];
+            
+            // Buscar ranking atual de todos os participantes
+            $stmt_rank = $conn->prepare("
+                SELECT 
+                    u.id,
+                    COALESCE(SUM(cgdp.points_earned), 0) as total_points
+                FROM sf_challenge_group_members cgm
+                INNER JOIN sf_users u ON cgm.user_id = u.id
+                LEFT JOIN sf_challenge_group_daily_progress cgdp ON cgdp.user_id = u.id AND cgdp.challenge_group_id = ?
+                WHERE cgm.group_id = ?
+                GROUP BY u.id
+                ORDER BY total_points DESC
+            ");
+            if (!$stmt_rank) {
+                error_log("Erro ao preparar query de ranking: " . $conn->error);
+                continue;
+            }
+            $stmt_rank->bind_param("ii", $challenge_id, $challenge_id);
+            $stmt_rank->execute();
+            $rank_result = $stmt_rank->get_result();
+            
+            $rankings = [];
+            $rank = 1;
+            while ($row = $rank_result->fetch_assoc()) {
+                $rankings[$row['id']] = [
+                    'rank' => $rank++,
+                    'points' => (int)$row['total_points']
+                ];
+            }
+            $stmt_rank->close();
+            
+            // Para cada usuário no desafio, verificar mudanças
+            foreach ($rankings as $check_user_id => $current_data) {
             $current_rank = $current_data['rank'];
             $current_points = $current_data['points'];
             
@@ -826,20 +830,21 @@ function checkChallengeRankChanges($conn, $user_id) {
                 }
             }
             
-            // Atualizar snapshot
-            $stmt_update = $conn->prepare("
-                INSERT INTO sf_challenge_user_rank_snapshot 
-                (challenge_group_id, user_id, last_rank, last_points)
-                VALUES (?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE
-                last_rank = VALUES(last_rank),
-                last_points = VALUES(last_points),
-                last_updated = NOW()
-            ");
-            if ($stmt_update) {
-                $stmt_update->bind_param("iiii", $challenge_id, $check_user_id, $current_rank, $current_points);
-                $stmt_update->execute();
-                $stmt_update->close();
+                // Atualizar snapshot
+                $stmt_update = $conn->prepare("
+                    INSERT INTO sf_challenge_user_rank_snapshot 
+                    (challenge_group_id, user_id, last_rank, last_points)
+                    VALUES (?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE
+                    last_rank = VALUES(last_rank),
+                    last_points = VALUES(last_points),
+                    last_updated = NOW()
+                ");
+                if ($stmt_update) {
+                    $stmt_update->bind_param("iiii", $challenge_id, $check_user_id, $current_rank, $current_points);
+                    $stmt_update->execute();
+                    $stmt_update->close();
+                }
             }
         }
     } catch (Exception $e) {
