@@ -387,65 +387,234 @@ function getUserAvatarHtml($user, $size = 'medium') {
  * @param int $user_id O ID do usuário que realizou a ação.
  * @param string $action_type O tipo de ação realizada (ex: 'mission_complete', 'water_goal').
  */
-function updateChallengePoints($conn, $user_id, $action_type) {
-    // TEMPORÁRIO: Tabela sf_challenge_rules não existe - desabilitado
-    return;
-    
-    // 1. Encontrar as regras e os desafios ativos para este usuário e esta ação
-    $sql = "SELECT 
-                cr.challenge_id, 
-                cr.points_awarded
-            FROM sf_challenge_rules cr
-            JOIN sf_challenge_participants cp ON cr.challenge_id = cp.challenge_id
-            JOIN sf_challenges c ON cr.challenge_id = c.id
-            WHERE cp.user_id = ? 
-              AND cr.action_type = ?
-              AND c.status = 'active'";
-
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        error_log("Erro ao preparar a query de atualização de pontos de desafio: " . $conn->error);
-        return;
+/**
+ * Sincroniza dados do tracking diário para desafios ativos do usuário
+ * Esta função copia dados de sf_user_daily_tracking para sf_challenge_group_daily_progress
+ */
+function syncChallengeGroupProgress($conn, $user_id, $date = null) {
+    if ($date === null) {
+        $date = date('Y-m-d');
     }
-    $stmt->bind_param("is", $user_id, $action_type);
+    
+    // Buscar dados do tracking diário do usuário
+    $daily_tracking = getDailyTrackingRecord($conn, $user_id, $date);
+    if (!$daily_tracking) {
+        return false;
+    }
+    
+    // Buscar desafios ativos do usuário
+    $stmt = $conn->prepare("
+        SELECT cg.id, cg.goals, cg.start_date, cg.end_date
+        FROM sf_challenge_groups cg
+        INNER JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
+        WHERE cgm.user_id = ? 
+          AND cg.status = 'active'
+          AND cg.start_date <= ?
+          AND cg.end_date >= ?
+    ");
+    $stmt->bind_param("iss", $user_id, $date, $date);
     $stmt->execute();
     $result = $stmt->get_result();
-    
-    $rules = $result->fetch_all(MYSQLI_ASSOC);
+    $challenges = $result->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-
-    if (empty($rules)) {
-        return; // Nenhuma regra encontrada para esta ação em desafios ativos
+    
+    if (empty($challenges)) {
+        return false;
     }
-
-    // 2. Para cada regra encontrada, atualizar a pontuação do usuário
-    foreach ($rules as $rule) {
-        $challenge_id = $rule['challenge_id'];
-        $points_to_add = $rule['points_awarded'];
-
-        // Usar INSERT ... ON DUPLICATE KEY UPDATE para criar ou atualizar a pontuação
-        $update_sql = "INSERT INTO sf_challenge_scores (challenge_id, user_id, score)
-                       VALUES (?, ?, ?)
-                       ON DUPLICATE KEY UPDATE score = score + ?";
+    
+    // Converter dados do tracking para formato dos desafios
+    $calories_consumed = (float)($daily_tracking['kcal_consumed'] ?? 0);
+    $water_cups = (int)($daily_tracking['water_consumed_cups'] ?? 0);
+    $water_ml = $water_cups * 250; // Converter copos para ml
+    $exercise_minutes = 0;
+    
+    // Calcular minutos de exercício (workout + cardio)
+    $workout_hours = (float)($daily_tracking['workout_hours'] ?? 0);
+    $cardio_hours = (float)($daily_tracking['cardio_hours'] ?? 0);
+    $exercise_minutes = (int)(($workout_hours + $cardio_hours) * 60);
+    
+    // Também verificar exercícios completados nas rotinas
+    $stmt_exercise = $conn->prepare("
+        SELECT SUM(COALESCE(url.exercise_duration_minutes, 0)) as total_minutes
+        FROM sf_user_routine_log url
+        INNER JOIN sf_user_routine_items uri ON url.routine_item_id = uri.id
+        WHERE url.user_id = ? 
+          AND url.date = ?
+          AND url.is_completed = 1
+          AND uri.is_exercise = 1
+          AND uri.exercise_type = 'duration'
+    ");
+    $stmt_exercise->bind_param("is", $user_id, $date);
+    $stmt_exercise->execute();
+    $exercise_result = $stmt_exercise->get_result();
+    if ($exercise_row = $exercise_result->fetch_assoc()) {
+        $exercise_minutes += (int)($exercise_row['total_minutes'] ?? 0);
+    }
+    $stmt_exercise->close();
+    
+    $sleep_hours = (float)($daily_tracking['sleep_hours'] ?? 0);
+    $steps_count = (int)($daily_tracking['steps_daily'] ?? 0);
+    
+    // Para cada desafio, atualizar progresso e calcular pontos
+    foreach ($challenges as $challenge) {
+        $challenge_id = $challenge['id'];
+        $goals = json_decode($challenge['goals'] ?? '[]', true);
         
-        $update_stmt = $conn->prepare($update_sql);
-        if (!$update_stmt) {
-            error_log("Erro ao preparar a query de INSERT/UPDATE de score: " . $conn->error);
-            continue; // Pula para a próxima regra
-        }
-        $update_stmt->bind_param("iiii", $challenge_id, $user_id, $points_to_add, $points_to_add);
-        $update_stmt->execute();
-        $update_stmt->close();
+        // Inserir ou atualizar progresso diário
+        $stmt_progress = $conn->prepare("
+            INSERT INTO sf_challenge_group_daily_progress 
+            (challenge_group_id, user_id, date, calories_consumed, water_ml, exercise_minutes, sleep_hours, steps_count)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                calories_consumed = VALUES(calories_consumed),
+                water_ml = VALUES(water_ml),
+                exercise_minutes = VALUES(exercise_minutes),
+                sleep_hours = VALUES(sleep_hours),
+                steps_count = VALUES(steps_count)
+        ");
+        $stmt_progress->bind_param("iisddidi", 
+            $challenge_id, 
+            $user_id, 
+            $date,
+            $calories_consumed,
+            $water_ml,
+            $exercise_minutes,
+            $sleep_hours,
+            $steps_count
+        );
+        $stmt_progress->execute();
+        $stmt_progress->close();
+        
+        // Calcular e atualizar pontos
+        calculateAndUpdateChallengePoints($conn, $challenge_id, $user_id, $date, $goals);
+    }
+    
+    return true;
+}
 
-        // 3. Registrar a ação no histórico (opcional, para auditoria)
-        $action_sql = "INSERT INTO sf_challenge_actions (challenge_id, user_id, action_type, points_awarded) VALUES (?, ?, ?, ?)";
-        $action_stmt = $conn->prepare($action_sql);
-        if ($action_stmt) {
-            $action_stmt->bind_param("iisi", $challenge_id, $user_id, $action_type, $points_to_add);
-            $action_stmt->execute();
-            $action_stmt->close();
+/**
+ * Calcula pontos do desafio baseado nas metas e atualiza no banco
+ */
+function calculateAndUpdateChallengePoints($conn, $challenge_id, $user_id, $date, $goals) {
+    // Buscar progresso atual
+    $stmt = $conn->prepare("
+        SELECT calories_consumed, water_ml, exercise_minutes, sleep_hours, steps_count
+        FROM sf_challenge_group_daily_progress
+        WHERE challenge_group_id = ? AND user_id = ? AND date = ?
+    ");
+    $stmt->bind_param("iis", $challenge_id, $user_id, $date);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $progress = $result->fetch_assoc();
+    $stmt->close();
+    
+    if (!$progress) {
+        return 0;
+    }
+    
+    $total_points = 0;
+    
+    // Calcular pontos para cada meta do desafio
+    foreach ($goals as $goal) {
+        $goal_type = $goal['type'] ?? '';
+        $goal_value = (float)($goal['value'] ?? 0);
+        
+        if ($goal_value <= 0) {
+            continue;
+        }
+        
+        switch ($goal_type) {
+            case 'calories':
+                $consumed = (float)$progress['calories_consumed'];
+                // Pontos progressivos: 2 pontos por cada 10% da meta atingida
+                // Bônus de 20 pontos por atingir 100% da meta
+                $percentage = min(100, ($consumed / $goal_value) * 100);
+                $points = floor($percentage / 10) * 2; // 2 pontos por 10%
+                if ($percentage >= 100) {
+                    $points += 20; // Bônus por atingir meta
+                }
+                $total_points += $points;
+                break;
+                
+            case 'water':
+                $consumed_ml = (float)$progress['water_ml'];
+                // Pontos progressivos: 1 ponto por cada 250ml (1 copo) até a meta
+                // Bônus de 15 pontos por atingir 100% da meta
+                $percentage = min(100, ($consumed_ml / $goal_value) * 100);
+                $cups = floor($consumed_ml / 250);
+                $goal_cups = floor($goal_value / 250);
+                $points = min($cups, $goal_cups) * 1; // 1 ponto por copo até a meta
+                if ($percentage >= 100) {
+                    $points += 15; // Bônus por atingir meta
+                }
+                $total_points += $points;
+                break;
+                
+            case 'exercise':
+                $consumed_minutes = (int)$progress['exercise_minutes'];
+                // Pontos progressivos: 2 pontos por cada 10 minutos até a meta
+                // Bônus de 25 pontos por atingir 100% da meta
+                $percentage = min(100, ($consumed_minutes / $goal_value) * 100);
+                $points = floor(min($consumed_minutes, $goal_value) / 10) * 2; // 2 pontos por 10min
+                if ($percentage >= 100) {
+                    $points += 25; // Bônus por atingir meta
+                }
+                $total_points += $points;
+                break;
+                
+            case 'sleep':
+                $consumed_hours = (float)$progress['sleep_hours'];
+                // Pontos progressivos: 3 pontos por hora até a meta
+                // Bônus de 20 pontos por atingir 100% da meta
+                $percentage = min(100, ($consumed_hours / $goal_value) * 100);
+                $points = floor(min($consumed_hours, $goal_value)) * 3; // 3 pontos por hora
+                if ($percentage >= 100) {
+                    $points += 20; // Bônus por atingir meta
+                }
+                $total_points += $points;
+                break;
         }
     }
+    
+    // Atualizar pontos no banco
+    $stmt_update = $conn->prepare("
+        UPDATE sf_challenge_group_daily_progress
+        SET points_earned = ?
+        WHERE challenge_group_id = ? AND user_id = ? AND date = ?
+    ");
+    $stmt_update->bind_param("iiis", $total_points, $challenge_id, $user_id, $date);
+    $stmt_update->execute();
+    $stmt_update->close();
+    
+    return $total_points;
+}
+
+/**
+ * Retorna pontos totais do usuário em um desafio específico
+ */
+function getChallengeGroupTotalPoints($conn, $challenge_id, $user_id) {
+    $stmt = $conn->prepare("
+        SELECT SUM(points_earned) as total_points
+        FROM sf_challenge_group_daily_progress
+        WHERE challenge_group_id = ? AND user_id = ?
+    ");
+    $stmt->bind_param("ii", $challenge_id, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+    
+    return (int)($row['total_points'] ?? 0);
+}
+
+/**
+ * Atualiza pontos de desafio quando o usuário faz ações no app
+ * Esta função deve ser chamada após atualizações no tracking diário
+ */
+function updateChallengePoints($conn, $user_id, $action_type = null) {
+    // Sincronizar progresso para todos os desafios ativos
+    syncChallengeGroupProgress($conn, $user_id);
+    return true;
 }
 
 /**

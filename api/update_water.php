@@ -85,11 +85,6 @@ try {
         // A CORREÇÃO ESTÁ AQUI. ADICIONAMOS O TERCEIRO PARÂMETRO DE VOLTA.
         // ===================================================================
         addPointsToUser($conn, $user_id, $total_points_change, "Ajuste de hidratação"); 
-        
-        // NOVA LÓGICA PARA PONTOS DE DESAFIO - Meta de água atingida
-        if ($new_status_met && !$old_status_met) {
-            updateChallengePoints($conn, $user_id, 'water_goal');
-        }
     }
 
     // 5. ATUALIZA A CONTAGEM DE ÁGUA
@@ -99,6 +94,9 @@ try {
     $stmt_update->close();
 
     $conn->commit();
+    
+    // SINCRONIZAR PONTOS DE DESAFIO - Sempre atualizar quando água é atualizada (DEPOIS do commit)
+    updateChallengePoints($conn, $user_id, 'water_update');
     
     // 6. PREPARA A RESPOSTA
     $stmt_total = $conn->prepare("SELECT points FROM sf_users WHERE id = ?");

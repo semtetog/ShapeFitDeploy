@@ -76,10 +76,10 @@ try {
         // Adicionar pontos ao usuário
         addPointsToUser($conn, $user_id, $points_to_award, "Completou rotina ID: {$routine_id}");
         $points_awarded = $points_to_award;
-        
-        // NOVA LÓGICA PARA PONTOS DE DESAFIO
-        updateChallengePoints($conn, $user_id, 'mission_complete');
     }
+    
+    // SINCRONIZAR PONTOS DE DESAFIO - Atualizar quando rotina é completada
+    updateChallengePoints($conn, $user_id, 'routine_complete');
 
     // 5. Buscar o novo total de pontos para retornar ao frontend
     $stmt_get_points = $conn->prepare("SELECT points FROM sf_users WHERE id = ?");

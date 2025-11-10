@@ -63,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'cardio_hours' => $cardio,
                 'sleep_hours' => $sleep
             ];
+            
+            // SINCRONIZAR PONTOS DE DESAFIO - Atualizar quando tracking é atualizado
+            updateChallengePoints($conn, $user_id, 'tracking_update');
         } else {
             $error_message = "Erro ao salvar dados. Tente novamente.";
         }

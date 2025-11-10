@@ -59,22 +59,29 @@ if ($challenge_id > 0) {
     $daily_progress = $progress_result->fetch_assoc();
     $stmt_progress->close();
     
-    // Buscar participantes do desafio
+    // Buscar participantes do desafio com pontos do desafio
+    require_once APP_ROOT_PATH . '/includes/functions.php';
+    
+    // Sincronizar progresso antes de buscar ranking
+    syncChallengeGroupProgress($conn, $user_id, $current_date);
+    
     $stmt_participants = $conn->prepare("
         SELECT 
             u.id,
             u.name,
-            u.points,
             up.profile_image_filename,
-            up.gender
+            up.gender,
+            COALESCE(SUM(cgdp.points_earned), 0) as challenge_points
         FROM sf_challenge_group_members cgm
         INNER JOIN sf_users u ON cgm.user_id = u.id
         LEFT JOIN sf_user_profiles up ON u.id = up.user_id
+        LEFT JOIN sf_challenge_group_daily_progress cgdp ON cgdp.user_id = u.id AND cgdp.challenge_group_id = ?
         WHERE cgm.group_id = ?
-        ORDER BY u.points DESC
+        GROUP BY u.id, u.name, up.profile_image_filename, up.gender
+        ORDER BY challenge_points DESC, u.name ASC
         LIMIT 10
     ");
-    $stmt_participants->bind_param("i", $challenge_id);
+    $stmt_participants->bind_param("ii", $challenge_id, $challenge_id);
     $stmt_participants->execute();
     $participants_result = $stmt_participants->get_result();
     $participants = [];
@@ -564,7 +571,7 @@ body {
                                 </div>
                                 <div class="participant-info">
                                     <div class="participant-name"><?php echo htmlspecialchars($participant['name']); ?></div>
-                                    <div class="participant-points"><?php echo number_format($participant['points'], 0, ',', '.'); ?> pontos</div>
+                                    <div class="participant-points"><?php echo number_format($participant['challenge_points'], 0, ',', '.'); ?> pontos</div>
                                 </div>
                             </div>
                         <?php endforeach; ?>

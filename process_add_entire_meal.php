@@ -83,6 +83,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Após atualizar os totais, chamamos a função para verificar as metas
         $points_from_goals = checkAndAwardMacroGoals($conn, $user_id, $log_date);
+        
+        // SINCRONIZAR PONTOS DE DESAFIO - Atualizar quando refeição é adicionada
+        updateChallengePoints($conn, $user_id, 'meal_added');
 
         // Armazena os pontos ganhos na sessão para mostrar um popup na próxima página
         $total_points_earned_this_action = $points_for_logging + $points_from_goals;
