@@ -3021,6 +3021,15 @@ function editChallenge(id) {
             document.getElementById('challengeName').value = challenge.name || '';
             document.getElementById('challengeDescription').value = challenge.description || '';
             
+            // IMPORTANTE: Preservar o status atual do desafio ao editar
+            const statusInput = document.getElementById('challengeStatus');
+            if (statusInput && challenge.status) {
+                statusInput.value = challenge.status;
+            } else if (statusInput) {
+                // Se não houver status, manter o padrão 'scheduled'
+                statusInput.value = 'scheduled';
+            }
+            
             // Converter datas de Y-m-d para d/m/Y
             if (challenge.start_date) {
                 const startDate = new Date(challenge.start_date + 'T00:00:00');
