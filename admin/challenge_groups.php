@@ -728,10 +728,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .progress-modal-content-simple {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
     width: 200px;
     height: 200px;
     background: transparent;
