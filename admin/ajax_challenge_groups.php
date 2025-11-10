@@ -36,6 +36,9 @@ try {
         case 'get':
             getChallenge($data);
             break;
+        case 'toggle_status':
+            toggleChallengeStatus($data);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -232,6 +235,48 @@ function getChallenge($data) {
     echo json_encode([
         'success' => true,
         'challenge' => $challenge
+    ]);
+}
+
+function toggleChallengeStatus($data) {
+    global $conn;
+    
+    $admin_id = $_SESSION['admin_id'] ?? 1;
+    $challenge_id = (int)($data['challenge_id'] ?? 0);
+    $new_status = $data['status'] ?? 'inactive';
+    
+    // Validar status
+    $allowed_statuses = ['active', 'inactive', 'completed', 'scheduled'];
+    if (!in_array($new_status, $allowed_statuses)) {
+        throw new Exception('Status inválido');
+    }
+    
+    if ($challenge_id <= 0) {
+        throw new Exception('ID do desafio inválido');
+    }
+    
+    // Verificar se o desafio pertence ao admin
+    $stmt = $conn->prepare("SELECT id FROM sf_challenge_groups WHERE id = ? AND created_by = ?");
+    $stmt->bind_param("ii", $challenge_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        throw new Exception('Desafio não encontrado ou sem permissão');
+    }
+    $stmt->close();
+    
+    // Atualizar status
+    $stmt = $conn->prepare("UPDATE sf_challenge_groups SET status = ?, updated_at = NOW() WHERE id = ?");
+    $stmt->bind_param("si", $new_status, $challenge_id);
+    $stmt->execute();
+    $stmt->close();
+    
+    echo json_encode([
+        'success' => true,
+        'message' => 'Status do desafio atualizado com sucesso!',
+        'status' => $new_status
     ]);
 }
 

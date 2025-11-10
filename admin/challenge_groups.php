@@ -533,15 +533,50 @@ require_once __DIR__ . '/includes/header.php';
     flex: 1;
     padding: 0.75rem;
     border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.btn-toggle-status {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-toggle-status:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.btn-toggle-status.active {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #22C55E;
+}
+
+.btn-toggle-status.active:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.btn-toggle-status:not(.active) {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #EF4444;
+}
+
+.btn-toggle-status:not(.active):hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
 }
 
 .btn-edit {
@@ -1614,6 +1649,12 @@ require_once __DIR__ . '/includes/header.php';
                                 </div>
                     
                     <div class="group-card-actions" onclick="event.stopPropagation()">
+                        <button class="btn-action btn-toggle-status <?php echo $group['status'] === 'active' ? 'active' : ''; ?>" 
+                                onclick="toggleChallengeStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>')"
+                                title="<?php echo $group['status'] === 'active' ? 'Desativar' : 'Ativar'; ?>">
+                            <i class="fas fa-power-off"></i>
+                            <span><?php echo $group['status'] === 'active' ? 'Desativar' : 'Ativar'; ?></span>
+                        </button>
                         <button class="btn-action btn-edit" onclick="editChallenge(<?php echo $group['id']; ?>)">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
@@ -2560,6 +2601,46 @@ function deleteChallenge(id) {
 function viewChallenge(id) {
     // Para visualizar, vamos apenas abrir no modo de edição (readonly pode ser implementado depois)
     editChallenge(id);
+}
+
+function toggleChallengeStatus(id, currentStatus) {
+    if (!id) {
+        alert('Erro: ID do desafio não fornecido');
+        return;
+    }
+    
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    const actionText = newStatus === 'active' ? 'ativar' : 'desativar';
+    
+    if (!confirm(`Tem certeza que deseja ${actionText} este desafio?`)) {
+        return;
+    }
+    
+    // Atualizar status via AJAX
+    fetch('ajax_challenge_groups.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'toggle_status',
+            challenge_id: id,
+            status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Recarregar a página para atualizar a lista
+            location.reload();
+        } else {
+            alert('Erro ao atualizar status: ' + (result.message || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar status. Tente novamente.');
+    });
 }
 
 // Salvar desafio
