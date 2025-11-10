@@ -2643,7 +2643,7 @@ input[type="number"] {
 <!-- Modal de Progresso do Desafio -->
 <div id="progressModal" class="challenge-edit-modal">
     <div class="challenge-edit-overlay" onclick="closeProgressModal()"></div>
-    <div class="progress-modal-content" id="progressModalBody">
+    <div class="challenge-edit-content" id="progressModalBody">
         <!-- Conteúdo será inserido dinamicamente -->
     </div>
 </div>
@@ -3713,7 +3713,7 @@ function displayChallengeProgress(data) {
         <div class="challenge-edit-header">
             <h3>Progresso: ${challenge.name}</h3>
         </div>
-        <div class="progress-modal-body">
+        <div class="challenge-edit-body">
             <div class="progress-header">
                 <div class="progress-date">
                     <i class="fas fa-calendar"></i>
