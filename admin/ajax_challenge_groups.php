@@ -64,30 +64,34 @@ try {
 function getChallengeProgress($data) {
     global $conn;
     
-    $admin_id = $_SESSION['admin_id'] ?? 1;
-    $challenge_id = (int)($data['challenge_id'] ?? 0);
-    
-    if ($challenge_id <= 0) {
-        throw new Exception('ID do desafio inválido');
-    }
-    
-    // Verificar se o desafio pertence ao admin
-    $stmt_check = $conn->prepare("SELECT id, name, goals, start_date, end_date FROM sf_challenge_groups WHERE id = ? AND created_by = ?");
-    $stmt_check->bind_param("ii", $challenge_id, $admin_id);
-    $stmt_check->execute();
-    $result_check = $stmt_check->get_result();
-    
-    if ($result_check->num_rows === 0) {
+    try {
+        $admin_id = $_SESSION['admin_id'] ?? 1;
+        $challenge_id = (int)($data['challenge_id'] ?? 0);
+        
+        if ($challenge_id <= 0) {
+            throw new Exception('ID do desafio inválido');
+        }
+        
+        // Verificar se o desafio pertence ao admin
+        $stmt_check = $conn->prepare("SELECT id, name, goals, start_date, end_date FROM sf_challenge_groups WHERE id = ? AND created_by = ?");
+        if (!$stmt_check) {
+            throw new Exception('Erro ao preparar query: ' . $conn->error);
+        }
+        $stmt_check->bind_param("ii", $challenge_id, $admin_id);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+        
+        if ($result_check->num_rows === 0) {
+            $stmt_check->close();
+            throw new Exception('Desafio não encontrado ou sem permissão');
+        }
+        
+        $challenge_info = $result_check->fetch_assoc();
+        $goals = json_decode($challenge_info['goals'] ?? '[]', true);
         $stmt_check->close();
-        throw new Exception('Desafio não encontrado ou sem permissão');
-    }
-    
-    $challenge_info = $result_check->fetch_assoc();
-    $goals = json_decode($challenge_info['goals'] ?? '[]', true);
-    $stmt_check->close();
-    
-    // Data atual
-    $current_date = date('Y-m-d');
+        
+        // Data atual
+        $current_date = date('Y-m-d');
     
     // Buscar participantes com progresso
     // Primeiro buscar todos os participantes do grupo
