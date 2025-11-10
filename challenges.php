@@ -172,16 +172,17 @@ body {
     align-items: center;
     margin-bottom: 24px;
     gap: 1rem;
+    justify-content: flex-start;
 }
 
 /* Quando há título, centralizar e espaçar */
-.page-header:has(.page-title) {
+.page-header.has-title {
     justify-content: space-between;
 }
 
-/* Quando não há título, apenas alinhar à esquerda */
-.page-header:not(:has(.page-title)) {
-    justify-content: flex-start;
+.page-header.has-title .page-title {
+    flex: 1;
+    justify-content: center;
 }
 
 .page-title {
@@ -192,8 +193,6 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex: 1;
-    justify-content: center;
 }
 
 .page-title i {
@@ -653,7 +652,7 @@ body {
 </style>
 
 <div class="app-container">
-    <div class="page-header">
+    <div class="page-header <?php echo $challenge_id == 0 ? 'has-title' : ''; ?>">
         <a href="javascript:history.back()" class="back-button" aria-label="Voltar">
             <i class="fas fa-chevron-left"></i>
         </a>
