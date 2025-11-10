@@ -266,9 +266,15 @@ require_once __DIR__ . '/includes/header.php';
     
     .btn-action {
         flex: 1 1 calc(50% - 0.25rem);
-        min-width: calc(50% - 0.25rem);
+        min-width: 0;
+        max-width: calc(50% - 0.25rem);
         font-size: 0.75rem;
         padding: 0.5rem 0.375rem;
+    }
+    
+    .btn-action i {
+        font-size: 0.75rem;
+        flex-shrink: 0;
     }
     
     .group-card-header {
@@ -299,12 +305,17 @@ require_once __DIR__ . '/includes/header.php';
     .btn-action {
         flex: 1;
         width: 100%;
-        min-width: 100%;
+        min-width: 0;
+        max-width: 100%;
         padding: 0.5rem;
     }
     
+    .btn-action i {
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+    
     .group-info {
-        font-size: 0.8125rem;
         gap: 0.75rem;
     }
     
