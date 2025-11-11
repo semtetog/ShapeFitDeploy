@@ -781,20 +781,18 @@ require_once __DIR__ . '/includes/header.php';
     }
     
     .group-card-actions {
-        flex-direction: row;
-        flex-wrap: wrap;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.625rem;
     }
     
     .btn-action {
-        flex: 1 1 calc(50% - 0.25rem);
-        min-width: 0;
-        max-width: calc(50% - 0.25rem);
-        font-size: 0.75rem;
-        padding: 0.5rem 0.5rem;
+        width: 100%;
+        font-size: 0.8125rem;
+        padding: 0.625rem 0.75rem;
     }
     
     .btn-action i {
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         flex-shrink: 0;
     }
     
