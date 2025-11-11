@@ -195,8 +195,8 @@ if ($stmt_checkin) {
         }
         $stmt_questions->close();
         
-        // Verificar se já existe disponibilidade para esta semana
-        $week_start = date('Y-m-d', strtotime('monday this week')); // Segunda-feira da semana
+        // Verificar se já existe disponibilidade para esta semana (domingo da semana)
+        $week_start = date('Y-m-d', strtotime('sunday this week')); // Domingo da semana
         $availability_query = "SELECT * FROM sf_checkin_availability WHERE config_id = ? AND user_id = ? AND week_date = ?";
         $stmt_avail = $conn->prepare($availability_query);
         $stmt_avail->bind_param("iis", $available_checkin['id'], $user_id, $week_start);
@@ -2632,7 +2632,7 @@ function showQuestionOptions(question) {
     optionsDiv.className = 'checkin-options';
     
     if (question.question_type === 'scale' && question.options) {
-        const options = JSON.parse(question.options);
+        const options = Array.isArray(question.options) ? question.options : JSON.parse(question.options);
         options.forEach(option => {
             const btn = document.createElement('button');
             btn.className = 'checkin-option-btn';
@@ -2641,7 +2641,7 @@ function showQuestionOptions(question) {
             optionsDiv.appendChild(btn);
         });
     } else if (question.question_type === 'multiple_choice' && question.options) {
-        const options = JSON.parse(question.options);
+        const options = Array.isArray(question.options) ? question.options : JSON.parse(question.options);
         options.forEach(option => {
             const btn = document.createElement('button');
             btn.className = 'checkin-option-btn';

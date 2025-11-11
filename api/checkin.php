@@ -82,8 +82,8 @@ function submitCheckin($data, $user_id) {
         
         $stmt->close();
         
-        // Marcar check-in como completo
-        $week_start = date('Y-m-d', strtotime('monday this week'));
+        // Marcar check-in como completo (domingo da semana)
+        $week_start = date('Y-m-d', strtotime('sunday this week'));
         $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
         $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
         $stmt_update->execute();
