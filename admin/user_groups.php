@@ -981,8 +981,8 @@ require_once __DIR__ . '/includes/header.php';
 
 .challenge-form-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.8125rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-primary);
     font-family: 'Montserrat', sans-serif;
@@ -1529,14 +1529,11 @@ input[type="number"] {
         </div>
         <div class="challenge-edit-footer">
             <button type="button" class="btn-cancel" onclick="closeGoalsModal()">Cancelar</button>
-            <button type="button" class="btn-save" onclick="saveGroupGoals()">
-                <i class="fas fa-save"></i> Salvar Metas
-            </button>
             <button type="button" class="btn-action btn-revert" onclick="revertGroupGoals()" title="Reverter Metas dos Membros">
                 <i class="fas fa-undo"></i> Reverter Metas
             </button>
-            <button type="button" class="btn-action btn-apply" onclick="applyGoalsToMembers()">
-                <i class="fas fa-users"></i> Aplicar aos Membros
+            <button type="button" class="btn-save" onclick="saveGroupGoals()">
+                <i class="fas fa-save"></i> Salvar e Aplicar aos Membros
             </button>
         </div>
     </div>
@@ -1952,7 +1949,6 @@ function manageGroupGoals(groupId) {
             document.getElementById('targetProtein').value = goals.target_protein_g || '';
             document.getElementById('targetCarbs').value = goals.target_carbs_g || '';
             document.getElementById('targetFat').value = goals.target_fat_g || '';
-            document.getElementById('targetSteps').value = goals.target_steps_daily || '';
             document.getElementById('targetExercise').value = goals.target_exercise_minutes || '';
             document.getElementById('targetSleep').value = goals.target_sleep_hours || '';
         } else {
@@ -1989,11 +1985,11 @@ function saveGroupGoals() {
         target_protein_g: formData.get('target_protein_g') || null,
         target_carbs_g: formData.get('target_carbs_g') || null,
         target_fat_g: formData.get('target_fat_g') || null,
-        target_steps_daily: formData.get('target_steps_daily') || null,
         target_exercise_minutes: formData.get('target_exercise_minutes') || null,
         target_sleep_hours: formData.get('target_sleep_hours') || null
     };
     
+    // Primeiro salvar as metas
     fetch('ajax_user_groups.php', {
         method: 'POST',
         headers: {
@@ -2007,10 +2003,28 @@ function saveGroupGoals() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message || 'Metas salvas com sucesso!');
+            // Depois aplicar aos membros automaticamente
+            return fetch('ajax_user_groups.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'apply_goals_to_members',
+                    group_id: groupId
+                })
+            });
+        } else {
+            throw new Error(data.message || 'Erro ao salvar metas');
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Metas salvas e aplicadas aos membros com sucesso!');
             closeGoalsModal();
         } else {
-            alert('Erro ao salvar metas: ' + (data.message || 'Erro desconhecido'));
+            alert('Metas salvas, mas erro ao aplicar aos membros: ' + (data.message || 'Erro desconhecido'));
         }
     })
     .catch(error => {
