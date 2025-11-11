@@ -86,8 +86,8 @@ if (isset($_SESSION['admin_id'])) {
                     <li class="<?php echo ($page_slug ?? '') === 'foods' ? 'active' : ''; ?>">
                         <a href="<?php echo BASE_ADMIN_URL; ?>/foods_management_new.php"><i class="fas fa-utensils"></i> Alimentos</a>
                     </li>
-        <li class="<?php echo ($page_slug ?? '') === 'diet_plans' ? 'active' : ''; ?>">
-            <a href="<?php echo BASE_ADMIN_URL; ?>/diet_plans.php"><i class="fas fa-clipboard-list"></i> Planos Alimentares</a>
+        <li class="<?php echo ($page_slug ?? '') === 'checkin' ? 'active' : ''; ?>">
+            <a href="<?php echo BASE_ADMIN_URL; ?>/checkin.php"><i class="fas fa-clipboard-check"></i> Check-in</a>
         </li>
         <li class="<?php echo ($page_slug ?? '') === 'challenge_groups' ? 'active' : ''; ?>">
             <a href="<?php echo BASE_ADMIN_URL; ?>/challenge_groups.php"><i class="fas fa-users"></i> Grupos de Desafio</a>

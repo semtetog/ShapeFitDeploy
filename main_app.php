@@ -148,6 +148,74 @@ $stmt_challenges->close();
 $challenge_notifications = getChallengeNotifications($conn, $user_id, 5);
 $unread_notifications_count = count($challenge_notifications);
 
+// --- BUSCAR CHECK-IN DISPONÍVEL ---
+$available_checkin = null;
+$today_day_of_week = (int)date('w'); // 0=Domingo, 6=Sábado
+
+// Buscar check-ins ativos para hoje
+$checkin_query = "
+    SELECT DISTINCT cc.*
+    FROM sf_checkin_configs cc
+    INNER JOIN sf_checkin_distribution cd ON cc.id = cd.config_id
+    LEFT JOIN sf_user_group_members ugm ON cd.target_type = 'group' AND cd.target_id = ugm.group_id
+    WHERE cc.is_active = 1 
+    AND cc.day_of_week = ?
+    AND (
+        (cd.target_type = 'user' AND cd.target_id = ?)
+        OR (cd.target_type = 'group' AND ugm.user_id = ?)
+    )
+    AND NOT EXISTS (
+        SELECT 1 FROM sf_checkin_availability ca
+        WHERE ca.config_id = cc.id 
+        AND ca.user_id = ?
+        AND ca.week_date = DATE(DATE_SUB(NOW(), INTERVAL DAYOFWEEK(NOW())-1 DAY))
+        AND ca.is_completed = 1
+    )
+    LIMIT 1
+";
+
+$stmt_checkin = $conn->prepare($checkin_query);
+if ($stmt_checkin) {
+    $stmt_checkin->bind_param("iiii", $today_day_of_week, $user_id, $user_id, $user_id);
+    $stmt_checkin->execute();
+    $checkin_result = $stmt_checkin->get_result();
+    if ($checkin_result->num_rows > 0) {
+        $available_checkin = $checkin_result->fetch_assoc();
+        
+        // Buscar perguntas do check-in
+        $questions_query = "SELECT * FROM sf_checkin_questions WHERE config_id = ? ORDER BY order_index ASC";
+        $stmt_questions = $conn->prepare($questions_query);
+        $stmt_questions->bind_param("i", $available_checkin['id']);
+        $stmt_questions->execute();
+        $questions_result = $stmt_questions->get_result();
+        $available_checkin['questions'] = [];
+        while ($q = $questions_result->fetch_assoc()) {
+            $q['options'] = !empty($q['options']) ? json_decode($q['options'], true) : null;
+            $available_checkin['questions'][] = $q;
+        }
+        $stmt_questions->close();
+        
+        // Verificar se já existe disponibilidade para esta semana
+        $week_start = date('Y-m-d', strtotime('monday this week')); // Segunda-feira da semana
+        $availability_query = "SELECT * FROM sf_checkin_availability WHERE config_id = ? AND user_id = ? AND week_date = ?";
+        $stmt_avail = $conn->prepare($availability_query);
+        $stmt_avail->bind_param("iis", $available_checkin['id'], $user_id, $week_start);
+        $stmt_avail->execute();
+        $avail_result = $stmt_avail->get_result();
+        
+        if ($avail_result->num_rows === 0) {
+            // Criar registro de disponibilidade
+            $insert_avail = "INSERT INTO sf_checkin_availability (config_id, user_id, week_date, is_available, available_at) VALUES (?, ?, ?, 1, NOW())";
+            $stmt_insert = $conn->prepare($insert_avail);
+            $stmt_insert->bind_param("iis", $available_checkin['id'], $user_id, $week_start);
+            $stmt_insert->execute();
+            $stmt_insert->close();
+        }
+        $stmt_avail->close();
+    }
+    $stmt_checkin->close();
+}
+
 // --- PREPARAÇÃO PARA O LAYOUT ---
 $page_title = "Dashboard";
 $extra_js = ['script.js'];
@@ -1426,6 +1494,24 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
             </div>
         <?php endif; ?>
         
+        <!-- Card de Check-in -->
+        <?php if ($available_checkin): ?>
+            <div class="glass-card card-checkin" id="checkinCard" style="background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 107, 0, 0.05) 100%); border: 2px solid var(--accent-orange);">
+                <div class="checkin-card-content">
+                    <div class="checkin-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <div class="checkin-info">
+                        <h3><?php echo htmlspecialchars($available_checkin['name']); ?></h3>
+                        <p>Hora do seu feedback semanal!</p>
+                    </div>
+                    <button class="checkin-btn" onclick="openCheckinModal()">
+                        Responder
+                    </button>
+                </div>
+            </div>
+        <?php endif; ?>
+        
         <div class="glass-card card-challenges">
             <div class="card-header">
                 <h3><i class="fas fa-trophy"></i> Grupos de Desafio</h3>
@@ -2219,5 +2305,434 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 
 <?php
 require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
-require_once APP_ROOT_PATH . '/includes/layout_footer.php';
 ?>
+
+<style>
+/* Check-in Card Styles */
+.card-checkin {
+    margin-bottom: 24px;
+    padding: 20px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+.checkin-card-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.checkin-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.checkin-info {
+    flex: 1;
+}
+
+.checkin-info h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.checkin-info p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.checkin-btn {
+    padding: 12px 24px;
+    background: var(--accent-orange);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.checkin-btn:hover {
+    background: #e55a00;
+    transform: translateY(-2px);
+}
+
+/* Check-in Modal (WhatsApp Style) */
+.checkin-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.checkin-modal.active {
+    display: flex;
+}
+
+.checkin-chat-container {
+    width: 100%;
+    max-width: 500px;
+    height: 90vh;
+    max-height: 800px;
+    background: #0b141a;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.checkin-chat-header {
+    background: #202c33;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.checkin-chat-header h3 {
+    margin: 0;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.checkin-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s ease;
+}
+
+.checkin-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.checkin-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #0b141a;
+}
+
+.checkin-message {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    word-wrap: break-word;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.checkin-message.bot {
+    align-self: flex-start;
+    background: #202c33;
+    color: #e9edef;
+    border-bottom-left-radius: 4px;
+}
+
+.checkin-message.user {
+    align-self: flex-end;
+    background: #005c4b;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.checkin-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.checkin-option-btn {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.checkin-option-btn:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+}
+
+.checkin-input-container {
+    padding: 16px;
+    background: #202c33;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.checkin-text-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: #2a3942;
+    border: none;
+    border-radius: 24px;
+    color: white;
+    font-size: 0.95rem;
+    outline: none;
+    font-family: inherit;
+}
+
+.checkin-text-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.checkin-send-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--accent-orange);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.checkin-send-btn:hover {
+    background: #e55a00;
+    transform: scale(1.1);
+}
+
+.checkin-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+</style>
+
+<!-- Check-in Modal -->
+<?php if ($available_checkin): ?>
+<div class="checkin-modal" id="checkinModal">
+    <div class="checkin-chat-container">
+        <div class="checkin-chat-header">
+            <h3><?php echo htmlspecialchars($available_checkin['name']); ?></h3>
+            <button class="checkin-close-btn" onclick="closeCheckinModal()">&times;</button>
+        </div>
+        <div class="checkin-messages" id="checkinMessages"></div>
+        <div class="checkin-input-container" id="checkinInputContainer" style="display: none;">
+            <input type="text" class="checkin-text-input" id="checkinTextInput" placeholder="Digite sua resposta..." onkeypress="if(event.key === 'Enter') sendCheckinResponse()">
+            <button class="checkin-send-btn" onclick="sendCheckinResponse()" id="checkinSendBtn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+const checkinData = <?php echo json_encode($available_checkin); ?>;
+let currentQuestionIndex = 0;
+let checkinResponses = {};
+
+function openCheckinModal() {
+    document.getElementById('checkinModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    currentQuestionIndex = 0;
+    checkinResponses = {};
+    renderNextQuestion();
+}
+
+function closeCheckinModal() {
+    document.getElementById('checkinModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function renderNextQuestion() {
+    const messagesDiv = document.getElementById('checkinMessages');
+    const inputContainer = document.getElementById('checkinInputContainer');
+    
+    if (currentQuestionIndex >= checkinData.questions.length) {
+        // Todas as perguntas foram respondidas
+        addMessage('Obrigado pelo seu feedback! Seu check-in foi salvo com sucesso.', 'bot');
+        inputContainer.style.display = 'none';
+        
+        // Salvar todas as respostas
+        saveCheckinResponses();
+        return;
+    }
+    
+    const question = checkinData.questions[currentQuestionIndex];
+    
+    // Adicionar mensagem da pergunta
+    addMessage(question.question_text, 'bot');
+    
+    // Mostrar opções ou input baseado no tipo
+    if (question.question_type === 'text') {
+        inputContainer.style.display = 'flex';
+        document.getElementById('checkinTextInput').value = '';
+        document.getElementById('checkinTextInput').focus();
+    } else {
+        inputContainer.style.display = 'none';
+        showQuestionOptions(question);
+    }
+}
+
+function showQuestionOptions(question) {
+    const messagesDiv = document.getElementById('checkinMessages');
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'checkin-options';
+    
+    if (question.question_type === 'scale' && question.options) {
+        const options = JSON.parse(question.options);
+        options.forEach(option => {
+            const btn = document.createElement('button');
+            btn.className = 'checkin-option-btn';
+            btn.textContent = option;
+            btn.onclick = () => selectOption(option);
+            optionsDiv.appendChild(btn);
+        });
+    } else if (question.question_type === 'multiple_choice' && question.options) {
+        const options = JSON.parse(question.options);
+        options.forEach(option => {
+            const btn = document.createElement('button');
+            btn.className = 'checkin-option-btn';
+            btn.textContent = option;
+            btn.onclick = () => selectOption(option);
+            optionsDiv.appendChild(btn);
+        });
+    }
+    
+    messagesDiv.appendChild(optionsDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function selectOption(option) {
+    const question = checkinData.questions[currentQuestionIndex];
+    checkinResponses[question.id] = {
+        response_value: option,
+        response_text: null
+    };
+    
+    addMessage(option, 'user');
+    currentQuestionIndex++;
+    setTimeout(() => renderNextQuestion(), 500);
+}
+
+function sendCheckinResponse() {
+    const input = document.getElementById('checkinTextInput');
+    const response = input.value.trim();
+    
+    if (!response) return;
+    
+    const question = checkinData.questions[currentQuestionIndex];
+    checkinResponses[question.id] = {
+        response_text: response,
+        response_value: null
+    };
+    
+    addMessage(response, 'user');
+    input.value = '';
+    currentQuestionIndex++;
+    
+    setTimeout(() => renderNextQuestion(), 500);
+}
+
+function addMessage(text, type) {
+    const messagesDiv = document.getElementById('checkinMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `checkin-message ${type}`;
+    messageDiv.textContent = text;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function saveCheckinResponses() {
+    const formData = new FormData();
+    formData.append('action', 'submit_checkin');
+    formData.append('config_id', checkinData.id);
+    formData.append('responses', JSON.stringify(checkinResponses));
+    
+    fetch('<?php echo BASE_APP_URL; ?>/api/checkin.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Ocultar card após 2 segundos
+            setTimeout(() => {
+                document.getElementById('checkinCard').style.display = 'none';
+                closeCheckinModal();
+            }, 2000);
+        } else {
+            alert('Erro ao salvar check-in: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao salvar check-in');
+    });
+}
+
+// Auto-abrir modal se disponível
+window.addEventListener('load', function() {
+    <?php if ($available_checkin): ?>
+    // Auto-abrir após 1 segundo
+    setTimeout(() => {
+        openCheckinModal();
+    }, 1000);
+    <?php endif; ?>
+});
+</script>
+<?php endif; ?>
+
+<?php require_once APP_ROOT_PATH . '/includes/layout_footer.php'; ?>
