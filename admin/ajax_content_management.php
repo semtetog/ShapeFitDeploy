@@ -476,6 +476,26 @@ function saveContent($conn, $admin_id) {
                 $sql = "UPDATE sf_member_content SET " . implode(", ", $update_fields) . " WHERE id = ? AND admin_id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param($param_types, ...$update_values);
+                
+                if (!$stmt->execute()) {
+                    throw new Exception('Erro ao atualizar conteúdo: ' . $stmt->error);
+                }
+                
+                // Verificar se houve alterações
+                $affected_rows = $stmt->affected_rows;
+                $stmt->close();
+                
+                // Se não houve alterações, informar
+                if ($affected_rows === 0) {
+                    $conn->commit();
+                    ob_clean();
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Nenhuma alteração foi feita',
+                        'content_id' => $content_id
+                    ]);
+                    return;
+                }
             }
         } else {
             // Criar novo conteúdo
