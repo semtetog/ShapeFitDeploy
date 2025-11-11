@@ -2196,11 +2196,29 @@ function editContent(contentId, preserveNewFilePreview = false) {
                     // Adicionar arquivo ao container
                     fileContainer.appendChild(fileItem);
                     
-                    // Título do vídeo (se existir) - diretamente abaixo do vídeo
-                    if (isVideo && file.video_title && file.video_title.trim() !== '') {
+                    // Título do vídeo (se existir) - diretamente abaixo do vídeo - EDITÁVEL
+                    if (isVideo) {
                         const titleDiv = document.createElement('div');
-                        titleDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.375rem 0.625rem; background: rgba(255, 107, 0, 0.06); border-radius: 6px; border: 1px solid rgba(255, 107, 0, 0.15);';
-                        titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center;">${file.video_title}</p>`;
+                        titleDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.375rem 0.625rem; background: rgba(255, 107, 0, 0.06); border-radius: 6px; border: 1px solid rgba(255, 107, 0, 0.15); cursor: pointer; transition: all 0.2s ease;';
+                        titleDiv.dataset.fileId = file.id || '';
+                        titleDiv.dataset.contentId = content.id;
+                        titleDiv.dataset.originalTitle = file.video_title || '';
+                        
+                        const titleText = file.video_title && file.video_title.trim() !== '' ? file.video_title : 'Clique para adicionar título';
+                        titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${titleText}</p>`;
+                        
+                        // Anexar event listeners usando addEventListener para garantir que funcionem
+                        titleDiv.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            editVideoTitle(titleDiv, file.id || null, content.id);
+                        });
+                        titleDiv.addEventListener('mouseenter', () => {
+                            titleDiv.style.background = 'rgba(255, 107, 0, 0.1)';
+                        });
+                        titleDiv.addEventListener('mouseleave', () => {
+                            titleDiv.style.background = 'rgba(255, 107, 0, 0.06)';
+                        });
+                        
                         fileContainer.appendChild(titleDiv);
                     }
                     
@@ -2323,6 +2341,104 @@ function deleteContent(contentId) {
             console.error('Erro:', error);
             showAlert('Erro', 'Erro ao deletar conteúdo. Tente novamente.');
         });
+    });
+}
+
+// Função para editar título do vídeo inline
+function editVideoTitle(titleDiv, fileId, contentId) {
+    const currentText = titleDiv.dataset.originalTitle || '';
+    const titleP = titleDiv.querySelector('p');
+    
+    // Criar input
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentText;
+    input.style.cssText = 'width: 100%; padding: 0.375rem 0.625rem; background: rgba(255, 255, 255, 0.1); border: 2px solid var(--accent-orange); border-radius: 6px; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; text-align: center; outline: none;';
+    input.maxLength = 255;
+    
+    // Substituir texto por input
+    titleDiv.innerHTML = '';
+    titleDiv.appendChild(input);
+    input.focus();
+    input.select();
+    
+    // Salvar ao pressionar Enter ou perder foco
+    const saveTitle = () => {
+        const newTitle = input.value.trim();
+        titleDiv.dataset.originalTitle = newTitle;
+        
+        // Atualizar via AJAX
+        const formData = new FormData();
+        formData.append('action', 'update_video_title');
+        formData.append('file_id', fileId);
+        formData.append('content_id', contentId);
+        formData.append('video_title', newTitle);
+        
+        fetch('ajax_content_management.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Atualizar display
+                const displayText = newTitle || 'Clique para adicionar título';
+                titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
+                titleDiv.onclick = (e) => {
+                    e.stopPropagation();
+                    editVideoTitle(titleDiv, fileId, contentId);
+                };
+                titleDiv.onmouseenter = () => {
+                    titleDiv.style.background = 'rgba(255, 107, 0, 0.1)';
+                };
+                titleDiv.onmouseleave = () => {
+                    titleDiv.style.background = 'rgba(255, 107, 0, 0.06)';
+                };
+            } else {
+                showAlert('Erro', 'Erro ao atualizar título: ' + (data.error || 'Erro desconhecido'));
+                // Restaurar texto original
+                const displayText = currentText || 'Clique para adicionar título';
+                titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
+                titleDiv.onclick = (e) => {
+                    e.stopPropagation();
+                    editVideoTitle(titleDiv, fileId, contentId);
+                };
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showAlert('Erro', 'Erro ao atualizar título. Tente novamente.');
+            // Restaurar texto original
+            const displayText = currentText || 'Clique para adicionar título';
+            titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
+            titleDiv.onclick = (e) => {
+                e.stopPropagation();
+                editVideoTitle(titleDiv, fileId, contentId);
+            };
+        });
+    };
+    
+    input.addEventListener('blur', saveTitle);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            input.blur();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            // Cancelar - restaurar texto original
+            const displayText = currentText || 'Clique para adicionar título';
+            titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
+            titleDiv.onclick = (e) => {
+                e.stopPropagation();
+                editVideoTitle(titleDiv, fileId, contentId);
+            };
+            titleDiv.onmouseenter = () => {
+                titleDiv.style.background = 'rgba(255, 107, 0, 0.1)';
+            };
+            titleDiv.onmouseleave = () => {
+                titleDiv.style.background = 'rgba(255, 107, 0, 0.06)';
+            };
+        }
     });
 }
 

@@ -323,8 +323,9 @@ function saveContent($conn, $admin_id) {
                 $param_types = "ssss";
                 
                 // Adicionar thumbnail apenas se não estiver usando tabela de arquivos
-                $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
-                if (!($check_files_table && $check_files_table->num_rows > 0) && $thumbnail_url) {
+                // Re-verificar se a tabela existe (não reutilizar variável anterior)
+                $check_files_table_again = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+                if (!($check_files_table_again && $check_files_table_again->num_rows > 0) && $thumbnail_url) {
                     $update_fields[] = "thumbnail_url = ?";
                     $update_values[] = $thumbnail_url;
                     $param_types .= "s";
@@ -350,29 +351,25 @@ function saveContent($conn, $admin_id) {
                 $param_types .= "ii";
                 
                 $sql = "UPDATE sf_member_content SET " . implode(", ", $update_fields) . " WHERE id = ? AND admin_id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param($param_types, ...$update_values);
+                $stmt_update = $conn->prepare($sql);
+                if (!$stmt_update) {
+                    throw new Exception('Erro ao preparar query de atualização: ' . $conn->error);
+                }
+                $stmt_update->bind_param($param_types, ...$update_values);
                 
-                // Verificar se houve alterações antes de executar
-                if (!$stmt->execute()) {
-                    throw new Exception('Erro ao atualizar conteúdo: ' . $stmt->error);
+                // Executar atualização
+                if (!$stmt_update->execute()) {
+                    $stmt_update->close();
+                    throw new Exception('Erro ao atualizar conteúdo: ' . $stmt_update->error);
                 }
                 
                 // Verificar se houve alterações
-                $affected_rows = $stmt->affected_rows;
-                $stmt->close();
+                $affected_rows = $stmt_update->affected_rows;
+                $stmt_update->close();
                 
-                // Se não houve alterações e não há novo arquivo, informar
-                if ($affected_rows === 0 && !$file_path) {
-                    $conn->commit();
-                    ob_clean();
-                    echo json_encode([
-                        'success' => true,
-                        'message' => 'Nenhuma alteração foi feita',
-                        'content_id' => $content_id
-                    ]);
-                    return;
-                }
+                // Se não houve alterações e não há novo arquivo, informar mas não impedir o salvamento
+                // (o arquivo já foi inserido acima, então sempre há sucesso)
+                $has_changes = ($affected_rows > 0 || $file_path);
             } elseif (isset($_POST['remove_file']) && $_POST['remove_file'] == '1') {
                 // Arquivo foi removido - deletar arquivo antigo e limpar campos
                 $stmt_old = $conn->prepare("SELECT file_path, thumbnail_url FROM sf_member_content WHERE id = ? AND admin_id = ?");
@@ -474,28 +471,24 @@ function saveContent($conn, $admin_id) {
                 $param_types .= "ii";
                 
                 $sql = "UPDATE sf_member_content SET " . implode(", ", $update_fields) . " WHERE id = ? AND admin_id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param($param_types, ...$update_values);
+                $stmt_update_no_file = $conn->prepare($sql);
+                if (!$stmt_update_no_file) {
+                    throw new Exception('Erro ao preparar query de atualização: ' . $conn->error);
+                }
+                $stmt_update_no_file->bind_param($param_types, ...$update_values);
                 
-                if (!$stmt->execute()) {
-                    throw new Exception('Erro ao atualizar conteúdo: ' . $stmt->error);
+                if (!$stmt_update_no_file->execute()) {
+                    $stmt_update_no_file->close();
+                    throw new Exception('Erro ao atualizar conteúdo: ' . $stmt_update_no_file->error);
                 }
                 
                 // Verificar se houve alterações
-                $affected_rows = $stmt->affected_rows;
-                $stmt->close();
+                $affected_rows = $stmt_update_no_file->affected_rows;
+                $stmt_update_no_file->close();
                 
-                // Se não houve alterações, informar
-                if ($affected_rows === 0) {
-                    $conn->commit();
-                    ob_clean();
-                    echo json_encode([
-                        'success' => true,
-                        'message' => 'Nenhuma alteração foi feita',
-                        'content_id' => $content_id
-                    ]);
-                    return;
-                }
+                // Sempre permitir salvar, apenas informar se não houve alterações
+                // (não retornar cedo, deixar continuar o fluxo normal)
+                $has_changes = ($affected_rows > 0);
             }
         } else {
             // Criar novo conteúdo
@@ -574,9 +567,14 @@ function saveContent($conn, $admin_id) {
         $conn->commit();
         
         ob_clean();
+        // Determinar mensagem baseada em se houve alterações ou não
+        $message = $content_id > 0 
+            ? (isset($has_changes) && !$has_changes ? 'Nenhuma alteração foi feita' : 'Conteúdo atualizado com sucesso')
+            : 'Conteúdo criado com sucesso';
+        
         echo json_encode([
             'success' => true,
-            'message' => $content_id > 0 ? 'Conteúdo atualizado com sucesso' : 'Conteúdo criado com sucesso',
+            'message' => $message,
             'content_id' => $content_id
         ]);
         
