@@ -320,43 +320,23 @@ require_once __DIR__ . '/includes/header.php';
     flex-wrap: wrap;
 }
 
-.search-input-wrapper {
-    flex: 1;
-    min-width: 200px;
-    position: relative;
-}
-
 .search-input {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    flex: 1;
+    min-width: 250px;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    color: var(--text-primary);
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    font-weight: 500;
+    outline: none;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
-    box-sizing: border-box;
 }
 
 .search-input:focus {
-    outline: none;
-    border-color: var(--accent-orange);
     background: rgba(255, 255, 255, 0.08);
-}
-
-.search-input::placeholder {
-    color: var(--text-secondary);
-}
-
-.search-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-secondary);
-    font-size: 0.875rem;
+    border-color: var(--accent-orange);
 }
 
 /* Groups Grid */
@@ -977,6 +957,26 @@ require_once __DIR__ . '/includes/header.php';
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
+    overflow: visible;
+}
+
+/* Custom Select - Ajustes para abrir fora do modal */
+.custom-select-wrapper {
+    position: relative;
+    min-width: 180px;
+    z-index: 1;
+}
+
+.custom-select-wrapper.active {
+    z-index: 10000;
+}
+
+.custom-select-options {
+    position: absolute !important;
+    z-index: 10000 !important;
+    top: calc(100% + 0.5rem) !important;
+    left: 0 !important;
+    right: 0 !important;
 }
 
 .challenge-edit-footer {
@@ -1314,15 +1314,12 @@ input[type="number"] {
     <!-- Search Bar -->
     <div class="filter-card">
         <div class="filter-row">
-            <div class="search-input-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" 
-                       class="search-input" 
-                       id="searchInput" 
-                       placeholder="Buscar grupos..." 
-                       value="<?php echo htmlspecialchars($search_term); ?>"
-                       onkeyup="handleSearch()">
-            </div>
+            <input type="text" 
+                   class="search-input" 
+                   id="searchInput" 
+                   placeholder="Buscar grupos..." 
+                   value="<?php echo htmlspecialchars($search_term); ?>"
+                   onkeyup="handleSearch()">
         </div>
     </div>
 
