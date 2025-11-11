@@ -43,31 +43,77 @@ try {
     $user_group_ids = [];
 }
 
+// Verificar se as colunas existem
+$has_target_type = false;
+$has_target_id = false;
+$has_status = false;
+
+try {
+    $check_content_table = $conn->query("SHOW TABLES LIKE 'sf_member_content'");
+    if ($check_content_table && $check_content_table->num_rows > 0) {
+        $check_target_type = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'target_type'");
+        if ($check_target_type && $check_target_type->num_rows > 0) {
+            $has_target_type = true;
+        }
+        $check_target_id = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'target_id'");
+        if ($check_target_id && $check_target_id->num_rows > 0) {
+            $has_target_id = true;
+        }
+        $check_status = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'status'");
+        if ($check_status && $check_status->num_rows > 0) {
+            $has_status = true;
+        }
+    }
+} catch (Exception $e) {
+    // Ignorar
+}
+
 // Buscar conteúdo
 $content = null;
 try {
     $check_content_table = $conn->query("SHOW TABLES LIKE 'sf_member_content'");
     if ($check_content_table && $check_content_table->num_rows > 0) {
-        $content_query = "
-            SELECT mc.*
-            FROM sf_member_content mc
-            WHERE mc.id = ? 
-            AND mc.status = 'active'
-            AND (
-                mc.target_type = 'all'
-                OR (mc.target_type = 'user' AND mc.target_id = ?)
-                " . (!empty($user_group_ids) ? "OR (mc.target_type = 'group' AND mc.target_id IN (" . implode(',', array_fill(0, count($user_group_ids), '?')) . "))" : "") . "
-            )
-        ";
+        $where_conditions = ["mc.id = ?"];
+        $params = [$content_id];
+        $types = 'i';
+        
+        // Status
+        if ($has_status) {
+            $where_conditions[] = "mc.status = 'active'";
+        } else {
+            // Se não tem coluna status, usar is_active (se existir) ou mostrar todos
+            $check_is_active = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'is_active'");
+            if ($check_is_active && $check_is_active->num_rows > 0) {
+                $where_conditions[] = "mc.is_active = 1";
+            }
+        }
+        
+        // Target type e target_id
+        if ($has_target_type && $has_target_id) {
+            $target_conditions = ["mc.target_type = 'all'"];
+            if (!empty($user_group_ids)) {
+                $placeholders = implode(',', array_fill(0, count($user_group_ids), '?'));
+                $target_conditions[] = "(mc.target_type = 'user' AND mc.target_id = ?)";
+                $target_conditions[] = "(mc.target_type = 'group' AND mc.target_id IN ($placeholders))";
+                $params = array_merge($params, [$user_id], $user_group_ids);
+                $types .= str_repeat('i', count($user_group_ids) + 1);
+            } else {
+                $target_conditions[] = "(mc.target_type = 'user' AND mc.target_id = ?)";
+                $params[] = $user_id;
+                $types .= 'i';
+            }
+            $where_conditions[] = "(" . implode(" OR ", $target_conditions) . ")";
+        }
+        
+        $content_query = "SELECT mc.* FROM sf_member_content mc";
+        if (!empty($where_conditions)) {
+            $content_query .= " WHERE " . implode(" AND ", $where_conditions);
+        }
         
         $stmt_content = $conn->prepare($content_query);
         if ($stmt_content) {
-            if (!empty($user_group_ids)) {
-                $params = array_merge([$content_id, $user_id], $user_group_ids);
-                $types = str_repeat('i', count($params));
+            if (!empty($params) && !empty($types)) {
                 $stmt_content->bind_param($types, ...$params);
-            } else {
-                $stmt_content->bind_param("ii", $content_id, $user_id);
             }
             $stmt_content->execute();
             $content_result = $stmt_content->get_result();
@@ -79,6 +125,7 @@ try {
     }
 } catch (Exception $e) {
     // Erro ao buscar conteúdo
+    error_log("Erro ao buscar conteúdo: " . $e->getMessage());
 }
 
 if (!$content) {

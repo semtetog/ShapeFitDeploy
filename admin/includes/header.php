@@ -11,6 +11,22 @@ if (session_status() == PHP_SESSION_NONE) { session_start(); }
 if (!defined('BASE_ADMIN_URL')) {
     define('BASE_ADMIN_URL', BASE_APP_URL . '/admin'); // Usa BASE_APP_URL do seu config principal
 }
+
+// 4. Buscar dados do admin para exibir foto e nome
+$admin_data = null;
+if (isset($_SESSION['admin_id'])) {
+    require_once __DIR__ . '/../../includes/db.php';
+    $stmt = $conn->prepare("SELECT id, full_name, profile_image_filename FROM sf_admins WHERE id = ?");
+    if ($stmt) {
+        $stmt->bind_param("i", $_SESSION['admin_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $admin_data = $result->fetch_assoc();
+        }
+        $stmt->close();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -85,12 +101,35 @@ if (!defined('BASE_ADMIN_URL')) {
             
             <!-- Card de Perfil do Admin -->
             <div class="sidebar-admin-profile">
-                <div class="admin-profile-card">
+                <div class="admin-profile-card" onclick="window.location.href='<?php echo BASE_ADMIN_URL; ?>/edit_profile.php'" style="cursor: pointer;">
                     <div class="admin-avatar">
-                        <i class="fas fa-user"></i>
+                        <?php
+                        $admin_name = $admin_data['full_name'] ?? $_SESSION['admin_name'] ?? 'Administrador';
+                        $has_photo = false;
+                        $avatar_url = '';
+                        
+                        if (!empty($admin_data['profile_image_filename']) && file_exists(APP_ROOT_PATH . '/assets/images/users/' . $admin_data['profile_image_filename'])) {
+                            $avatar_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_data['profile_image_filename']);
+                            $has_photo = true;
+                        }
+                        
+                        if ($has_photo):
+                        ?>
+                            <img src="<?php echo $avatar_url; ?>" alt="<?php echo htmlspecialchars($admin_name); ?>" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        <?php else: ?>
+                            <?php
+                            $name_parts = explode(' ', trim($admin_name));
+                            $initials = count($name_parts) > 1 
+                                ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) 
+                                : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : 'AD');
+                            ?>
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; color: var(--accent-orange);">
+                                <?php echo $initials; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     <div class="admin-info">
-                        <div class="admin-name"><?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Administrador'); ?></div>
+                        <div class="admin-name"><?php echo htmlspecialchars($admin_name); ?></div>
                         <div class="admin-role">Administrador</div>
                     </div>
                 </div>

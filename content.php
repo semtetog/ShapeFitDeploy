@@ -104,7 +104,9 @@ try {
             $where_conditions[] = "(" . implode(" OR ", $target_conditions) . ")";
         }
         
-        $content_query = "SELECT mc.* FROM sf_member_content mc";
+        $content_query = "SELECT mc.*, a.full_name as author_name, a.profile_image_filename 
+                          FROM sf_member_content mc 
+                          LEFT JOIN sf_admins a ON mc.admin_id = a.id";
         if (!empty($where_conditions)) {
             $content_query .= " WHERE " . implode(" AND ", $where_conditions);
         }
@@ -255,23 +257,59 @@ body {
 .content-meta {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
     padding-top: 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
 }
 
-.content-type-badge {
+.content-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.author-avatar,
+.author-avatar-placeholder {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.author-avatar {
+    object-fit: cover;
+    border: 2px solid rgba(255, 107, 0, 0.3);
+}
+
+.author-avatar-placeholder {
+    background: rgba(255, 107, 0, 0.2);
+    border: 2px solid rgba(255, 107, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent-orange);
+}
+
+.author-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.content-date {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.2);
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--accent-orange);
+    color: var(--text-secondary);
+}
+
+.content-date i {
+    font-size: 0.75rem;
 }
 
 .content-categories {
@@ -400,6 +438,37 @@ body {
                             <?php if (!empty($content['description'])): ?>
                                 <p class="content-description"><?php echo htmlspecialchars($content['description']); ?></p>
                             <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="content-meta">
+                        <?php if (!empty($content['author_name'])): ?>
+                            <div class="content-author">
+                                <?php
+                                // Mostrar foto do autor se houver, senão placeholder
+                                $author_photo = '';
+                                if (!empty($content['profile_image_filename']) && file_exists(APP_ROOT_PATH . '/assets/images/users/' . $content['profile_image_filename'])) {
+                                    $author_photo = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($content['profile_image_filename']);
+                                }
+                                ?>
+                                <?php if ($author_photo): ?>
+                                    <img src="<?php echo $author_photo; ?>" alt="<?php echo htmlspecialchars($content['author_name']); ?>" class="author-avatar">
+                                <?php else: ?>
+                                    <div class="author-avatar-placeholder">
+                                        <?php
+                                        $name_parts = explode(' ', trim($content['author_name']));
+                                        $initials = count($name_parts) > 1 
+                                            ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) 
+                                            : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : '??');
+                                        echo $initials;
+                                        ?>
+                                    </div>
+                                <?php endif; ?>
+                                <span class="author-name"><?php echo htmlspecialchars($content['author_name']); ?></span>
+                            </div>
+                        <?php endif; ?>
+                        <div class="content-date">
+                            <i class="fas fa-calendar"></i>
+                            <span><?php echo date('d/m/Y', strtotime($content['created_at'])); ?></span>
                         </div>
                     </div>
                 </a>
