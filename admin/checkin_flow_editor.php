@@ -2574,8 +2574,14 @@ if (document.readyState === 'loading') {
     }
 }
 
-// Atualizar conexões quando o canvas é redimensionado
-window.addEventListener('resize', updateConnections);
+// Atualizar conexões quando o viewport é redimensionado
+window.addEventListener('resize', () => {
+    if (!canvasWrapper || !connectionsLayer) return;
+    const w = canvasWrapper.clientWidth;
+    const h = canvasWrapper.clientHeight;
+    connectionsLayer.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    updateConnections();
+});
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
