@@ -1548,9 +1548,6 @@ require_once __DIR__ . '/includes/header.php';
                 
                             <!-- Input hidden para armazenar o frame selecionado -->
                             <input type="hidden" id="selectedThumbnailData" name="thumbnail_data" data-file-id="">
-                            <button type="button" onclick="regenerateVideoFrames()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--accent-orange); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all 0.3s ease;">
-                                <i class="fas fa-sync-alt"></i> Gerar novos frames
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -2562,9 +2559,13 @@ function saveContent() {
         return;
     }
     
-    // Validar título do arquivo (obrigatório para vídeos e PDFs)
+    // Validar título do arquivo (obrigatório apenas para novos arquivos, não para edição de existentes)
     const videoTitleInput = document.getElementById('videoTitle');
-    if (videoTitleInput && videoTitleInput.offsetParent !== null) { // Se o campo está visível
+    const fileInput = document.getElementById('contentFile');
+    const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+    
+    // Só validar título se houver um novo arquivo sendo enviado
+    if (hasNewFile && videoTitleInput && videoTitleInput.offsetParent !== null) {
         const videoTitle = videoTitleInput.value.trim();
         if (!videoTitle) {
             showAlert('Validação', 'Título do arquivo é obrigatório');
