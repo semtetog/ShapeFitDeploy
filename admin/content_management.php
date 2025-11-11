@@ -2136,9 +2136,13 @@ function editContent(contentId, preserveNewFilePreview = false) {
                                  content.content_type === 'pdf' ||
                                  (file.file_path && /\.pdf$/i.test(file.file_path));
                     
+                    // Criar container para arquivo + título
+                    const fileContainer = document.createElement('div');
+                    fileContainer.style.cssText = 'display: flex; flex-direction: column; width: 100%; max-width: 300px;';
+                    
                     // Criar elemento do arquivo
                     const fileItem = document.createElement('div');
-                    fileItem.style.cssText = 'position: relative; width: 100%; max-width: 300px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); cursor: pointer;';
+                    fileItem.style.cssText = 'position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); cursor: pointer;';
                     fileItem.dataset.fileUrl = fileUrl;
                     fileItem.onclick = () => window.open(fileUrl, '_blank');
                     
@@ -2189,15 +2193,19 @@ function editContent(contentId, preserveNewFilePreview = false) {
                     deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                     fileItem.appendChild(deleteBtn);
                     
-                    currentFilesList.appendChild(fileItem);
+                    // Adicionar arquivo ao container
+                    fileContainer.appendChild(fileItem);
                     
-                    // Título do vídeo (se existir) - mais compacto
+                    // Título do vídeo (se existir) - diretamente abaixo do vídeo
                     if (isVideo && file.video_title && file.video_title.trim() !== '') {
                         const titleDiv = document.createElement('div');
-                        titleDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.375rem 0.5rem; background: rgba(255, 107, 0, 0.08); border-radius: 6px; max-width: 300px;';
-                        titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.3;">${file.video_title}</p>`;
-                        fileItem.parentNode.insertBefore(titleDiv, fileItem.nextSibling);
+                        titleDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.375rem 0.625rem; background: rgba(255, 107, 0, 0.06); border-radius: 6px; border: 1px solid rgba(255, 107, 0, 0.15);';
+                        titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center;">${file.video_title}</p>`;
+                        fileContainer.appendChild(titleDiv);
                     }
+                    
+                    // Adicionar container completo à lista
+                    currentFilesList.appendChild(fileContainer);
                 });
                 
                 currentFilesInfo.style.display = 'block';
