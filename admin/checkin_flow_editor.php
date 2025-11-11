@@ -1744,71 +1744,67 @@ function removeConnectionCondition(fromNodeId, toNodeId) {
 }
 
 function updateConnections() {
-    if (!connectionsLayer || !canvas) return;
+    if (!connectionsLayer || !viewport) return;
     
-    // Limpar TODAS as linhas existentes (incluindo temporárias)
-    const allLines = connectionsLayer.querySelectorAll('line, path');
-    allLines.forEach(el => el.remove());
+    // Cancelar requestAnimationFrame anterior se existir
+    if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+    }
     
-    // Remover conexões inválidas (nós que não existem mais)
-    connections = connections.filter(conn => {
-        return nodes.some(n => n.id === conn.from) && nodes.some(n => n.id === conn.to);
-    });
-    
-    // Desenhar novas conexões
-    connections.forEach((conn, index) => {
-        const fromNode = nodes.find(n => n.id === conn.from);
-        const toNode = nodes.find(n => n.id === conn.to);
+    // Usar requestAnimationFrame para renderização suave
+    rafId = requestAnimationFrame(() => {
+        // Limpar TODAS as linhas existentes (incluindo temporárias, exceto a que está sendo desenhada)
+        const allLines = connectionsLayer.querySelectorAll('path:not(#temp-connection)');
+        allLines.forEach(el => el.remove());
         
-        if (!fromNode || !toNode) return;
+        // Remover conexões inválidas (nós que não existem mais)
+        connections = connections.filter(conn => {
+            return nodes.some(n => n.id === conn.from) && nodes.some(n => n.id === conn.to);
+        });
         
-        const fromEl = document.getElementById(conn.from);
-        const toEl = document.getElementById(conn.to);
-        
-        if (!fromEl || !toEl) return;
-        
-        const fromConnector = fromEl.querySelector('.flow-node-connector.output');
-        const toConnector = toEl.querySelector('.flow-node-connector.input');
-        
-        if (!fromConnector || !toConnector) return;
-        
-        // Calcular posições baseadas nas coordenadas dos nós
-        // Os conectores estão sempre no centro horizontal e nas bordas verticais
-        const fromNodeWidth = fromEl.offsetWidth || 200;
-        const toNodeWidth = toEl.offsetWidth || 200;
-        const fromNodeHeight = fromEl.offsetHeight || 100;
-        const toNodeHeight = toEl.offsetHeight || 100;
-        
-        // Posições dos conectores em coordenadas locais do nó
-        // Os conectores estão posicionados nas bordas dos cards
-        // Output: bottom center (parte inferior do card)
-        // Input: top center (parte superior do card)
-        const fromConnectorLocalX = fromNodeWidth / 2;
-        const fromConnectorLocalY = fromNodeHeight; // bottom edge do card
-        const toConnectorLocalX = toNodeWidth / 2;
-        const toConnectorLocalY = 0; // top edge do card
-        
-        // Calcular posições absolutas no viewport (considerando zoom e pan)
-        const canvasRect = canvas.getBoundingClientRect();
-        const svgRect = connectionsLayer.getBoundingClientRect();
-        
-        // Posições no canvas com zoom
-        const fromCanvasX = (fromNode.x + fromConnectorLocalX) * zoomLevel;
-        const fromCanvasY = (fromNode.y + fromConnectorLocalY) * zoomLevel;
-        const toCanvasX = (toNode.x + toConnectorLocalX) * zoomLevel;
-        const toCanvasY = (toNode.y + toConnectorLocalY) * zoomLevel;
-        
-        // Adicionar offset do pan e posição do canvas no viewport
-        const fromViewportX = fromCanvasX + canvasOffset.x + canvasRect.left;
-        const fromViewportY = fromCanvasY + canvasOffset.y + canvasRect.top;
-        const toViewportX = toCanvasX + canvasOffset.x + canvasRect.left;
-        const toViewportY = toCanvasY + canvasOffset.y + canvasRect.top;
-        
-        // Converter para coordenadas do SVG (relativas ao connectionsLayer)
-        const svgX1 = fromViewportX - svgRect.left;
-        const svgY1 = fromViewportY - svgRect.top;
-        const svgX2 = toViewportX - svgRect.left;
-        const svgY2 = toViewportY - svgRect.top;
+        // Desenhar novas conexões
+        connections.forEach((conn, index) => {
+            const fromNode = nodes.find(n => n.id === conn.from);
+            const toNode = nodes.find(n => n.id === conn.to);
+            
+            if (!fromNode || !toNode) return;
+            
+            const fromEl = document.getElementById(conn.from);
+            const toEl = document.getElementById(conn.to);
+            
+            if (!fromEl || !toEl) return;
+            
+            const fromConnector = fromEl.querySelector('.flow-node-connector.output');
+            const toConnector = toEl.querySelector('.flow-node-connector.input');
+            
+            if (!fromConnector || !toConnector) return;
+            
+            // Calcular posições baseadas nas coordenadas dos nós (lógicas)
+            const fromNodeWidth = fromEl.offsetWidth || 200;
+            const toNodeWidth = toEl.offsetWidth || 200;
+            const fromNodeHeight = fromEl.offsetHeight || 100;
+            const toNodeHeight = toEl.offsetHeight || 100;
+            
+            // Posições dos conectores em coordenadas locais do nó
+            // Output: bottom center (parte inferior do card)
+            // Input: top center (parte superior do card)
+            const fromConnectorLocalX = fromNodeWidth / 2;
+            const fromConnectorLocalY = fromNodeHeight; // bottom edge
+            const toConnectorLocalX = toNodeWidth / 2;
+            const toConnectorLocalY = 0; // top edge
+            
+            // Calcular posições em coordenadas de tela (screen)
+            // screenX = (node.x + connectorLocalX) * zoom + pan.x
+            const screenX1 = (fromNode.x + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
+            const screenY1 = (fromNode.y + fromConnectorLocalY) * zoomLevel + canvasOffset.y;
+            const screenX2 = (toNode.x + toConnectorLocalX) * zoomLevel + canvasOffset.x;
+            const screenY2 = (toNode.y + toConnectorLocalY) * zoomLevel + canvasOffset.y;
+            
+            // O SVG está no mesmo viewport, então as coordenadas são diretas
+            const svgX1 = screenX1;
+            const svgY1 = screenY1;
+            const svgX2 = screenX2;
+            const svgY2 = screenY2;
         
         // Criar linha única com ID
         const lineId = `connection-${conn.from}-${conn.to}`;
