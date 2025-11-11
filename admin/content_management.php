@@ -2431,6 +2431,8 @@ function saveContent() {
     // Validação básica
     const title = document.getElementById('contentTitle').value.trim();
     const contentType = document.getElementById('contentType').value;
+    const contentId = document.getElementById('contentId').value;
+    const fileInput = document.getElementById('contentFile');
     
     if (!title) {
         showAlert('Validação', 'Título é obrigatório');
@@ -2439,7 +2441,6 @@ function saveContent() {
     
     // Detectar tipo de conteúdo automaticamente se não estiver definido
     if (!contentType) {
-        const fileInput = document.getElementById('contentFile');
         if (fileInput.files[0]) {
             const detectedType = detectContentType(fileInput.files[0]);
             if (detectedType) {
@@ -2459,8 +2460,6 @@ function saveContent() {
     }
     
     // Validar se há arquivo (obrigatório para vídeos e PDF)
-    const fileInput = document.getElementById('contentFile');
-    const contentId = document.getElementById('contentId').value;
     if (!fileInput.files[0] && !contentId) {
         showAlert('Validação', 'Arquivo é obrigatório para este tipo de conteúdo');
         return;
