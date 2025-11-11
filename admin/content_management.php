@@ -1268,6 +1268,27 @@ require_once __DIR__ . '/includes/header.php';
     border-color: var(--accent-orange);
 }
 
+/* Estilos para preview do arquivo atual no modal */
+#currentFilePreview {
+    transition: all 0.3s ease;
+}
+
+#currentFilePreview:hover {
+    transform: scale(1.02);
+    border-color: var(--accent-orange);
+}
+
+#currentFilePreview:hover #currentFilePlayOverlay {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+#currentFilePreview button[onclick*="removeCurrentFile"]:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: #EF4444 !important;
+    transform: scale(1.1);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .content-grid {
