@@ -476,7 +476,6 @@ function saveGroupGoals($data, $admin_id) {
     $target_protein_g = !empty($data['target_protein_g']) ? (float)$data['target_protein_g'] : null;
     $target_carbs_g = !empty($data['target_carbs_g']) ? (float)$data['target_carbs_g'] : null;
     $target_fat_g = !empty($data['target_fat_g']) ? (float)$data['target_fat_g'] : null;
-    $target_steps_daily = !empty($data['target_steps_daily']) ? (int)$data['target_steps_daily'] : null;
     $target_exercise_minutes = !empty($data['target_exercise_minutes']) ? (int)$data['target_exercise_minutes'] : null;
     $target_sleep_hours = !empty($data['target_sleep_hours']) ? (float)$data['target_sleep_hours'] : null;
     
@@ -492,23 +491,23 @@ function saveGroupGoals($data, $admin_id) {
         $stmt = $conn->prepare("
             UPDATE sf_user_group_goals 
             SET target_kcal = ?, target_water_ml = ?, target_protein_g = ?, target_carbs_g = ?, 
-                target_fat_g = ?, target_steps_daily = ?, target_exercise_minutes = ?, 
+                target_fat_g = ?, target_exercise_minutes = ?, 
                 target_sleep_hours = ?, updated_at = NOW()
             WHERE group_id = ? AND admin_id = ?
         ");
-        $stmt->bind_param("iidddiiidi", $target_kcal, $target_water_ml, $target_protein_g, $target_carbs_g, 
-                         $target_fat_g, $target_steps_daily, $target_exercise_minutes, $target_sleep_hours, 
+        $stmt->bind_param("iidddiidi", $target_kcal, $target_water_ml, $target_protein_g, $target_carbs_g, 
+                         $target_fat_g, $target_exercise_minutes, $target_sleep_hours, 
                          $group_id, $admin_id);
     } else {
         // Inserir
         $stmt = $conn->prepare("
             INSERT INTO sf_user_group_goals 
             (group_id, admin_id, target_kcal, target_water_ml, target_protein_g, target_carbs_g, 
-             target_fat_g, target_steps_daily, target_exercise_minutes, target_sleep_hours, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+             target_fat_g, target_exercise_minutes, target_sleep_hours, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         ");
-        $stmt->bind_param("iiiidddiii", $group_id, $admin_id, $target_kcal, $target_water_ml, $target_protein_g, 
-                         $target_carbs_g, $target_fat_g, $target_steps_daily, $target_exercise_minutes, $target_sleep_hours);
+        $stmt->bind_param("iiiidddii", $group_id, $admin_id, $target_kcal, $target_water_ml, $target_protein_g, 
+                         $target_carbs_g, $target_fat_g, $target_exercise_minutes, $target_sleep_hours);
     }
     
     if (!$stmt->execute()) {

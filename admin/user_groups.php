@@ -1509,15 +1509,9 @@ input[type="number"] {
                     <h3 class="challenge-section-title">
                         <i class="fas fa-dumbbell"></i> Metas de Atividade
                     </h3>
-                    <div class="challenge-form-row">
-                        <div class="challenge-form-group">
-                            <label for="targetSteps">Passos (passos/dia)</label>
-                            <input type="number" id="targetSteps" name="target_steps_daily" class="challenge-form-input" min="0" step="100" placeholder="Ex: 10000">
-                        </div>
-                        <div class="challenge-form-group">
-                            <label for="targetExercise">Exercício (min/dia)</label>
-                            <input type="number" id="targetExercise" name="target_exercise_minutes" class="challenge-form-input" min="0" step="5" placeholder="Ex: 30">
-                        </div>
+                    <div class="challenge-form-group">
+                        <label for="targetExercise">Exercício (min/dia)</label>
+                        <input type="number" id="targetExercise" name="target_exercise_minutes" class="challenge-form-input" min="0" step="5" placeholder="Ex: 30">
                     </div>
                 </div>
                 
