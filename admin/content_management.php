@@ -1633,14 +1633,24 @@ function initCustomSelect(selectId, hiddenInputId, onChangeCallback) {
     const triggerHandler = function(e) {
         e.stopPropagation();
         
+        const wrapper = customSelect.closest('.custom-select-wrapper');
+        
         // Fechar outros selects
         document.querySelectorAll('.custom-select').forEach(s => {
             if (s.id !== selectId) {
                 s.classList.remove('active');
             }
         });
+        document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+            if (w !== wrapper) {
+                w.classList.remove('active');
+            }
+        });
         
         customSelect.classList.toggle('active');
+        if (wrapper) {
+            wrapper.classList.toggle('active');
+        }
     };
     
     trigger.addEventListener('click', triggerHandler);
