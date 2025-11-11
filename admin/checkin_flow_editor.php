@@ -1805,8 +1805,8 @@ function updateConnections() {
             const svgY1 = screenY1;
             const svgX2 = screenX2;
             const svgY2 = screenY2;
-        
-        // Criar linha única com ID
+            
+            // Criar linha única com ID
         const lineId = `connection-${conn.from}-${conn.to}`;
         
         // Verificar se já existe (não deveria, mas por segurança)
