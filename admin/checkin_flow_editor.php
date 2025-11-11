@@ -1952,6 +1952,13 @@ function applyZoom() {
     canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
     canvas.style.transformOrigin = 'top left';
     
+    // Mover o grid junto com o pan (background-position)
+    // O grid se move naturalmente com o transform, mas precisamos ajustar o background-position
+    // para que fique alinhado corretamente
+    const gridOffsetX = canvasOffset.x % 20;
+    const gridOffsetY = canvasOffset.y % 20;
+    canvas.style.backgroundPosition = `${gridOffsetX}px ${gridOffsetY}px`;
+    
     // SVG não precisa de transform, vamos calcular as posições diretamente
     connectionsLayer.style.transform = 'none';
     connectionsLayer.style.transformOrigin = 'top left';
