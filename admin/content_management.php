@@ -2082,6 +2082,7 @@ function editContent(contentId) {
                     
                     // Definir src e poster do vídeo
                     currentFileVideo.src = fileUrl;
+                    currentFileVideo.muted = true; // Mudo para preview
                     if (content.thumbnail_url) {
                         let thumbnailUrl = content.thumbnail_url;
                         if (!thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/')) {
