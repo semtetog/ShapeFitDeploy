@@ -1538,7 +1538,10 @@ input[type="number"] {
             <button type="button" class="btn-save" onclick="saveGroupGoals()">
                 <i class="fas fa-save"></i> Salvar Metas
             </button>
-            <button type="button" class="btn-action btn-patients" onclick="applyGoalsToMembers()" style="margin-left: auto;">
+            <button type="button" class="btn-action btn-revert" onclick="revertGroupGoals()" title="Reverter Metas dos Membros">
+                <i class="fas fa-undo"></i> Reverter Metas
+            </button>
+            <button type="button" class="btn-action btn-apply" onclick="applyGoalsToMembers()">
                 <i class="fas fa-users"></i> Aplicar aos Membros
             </button>
         </div>
