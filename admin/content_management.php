@@ -2183,6 +2183,29 @@ function saveContent() {
         return;
     }
     
+    // Se houver thumbnail selecionada de um frame do vídeo, converter e adicionar
+    const selectedThumbnailData = document.getElementById('selectedThumbnailData').value;
+    if (selectedThumbnailData && !formData.has('thumbnail')) {
+        // Converter data URL para blob e adicionar ao FormData
+        fetch(selectedThumbnailData)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
+                formData.append('thumbnail', file);
+                submitFormData(formData);
+            })
+            .catch(() => {
+                // Se falhar, tentar enviar sem thumbnail
+                submitFormData(formData);
+            });
+        return;
+    }
+    
+    submitFormData(formData);
+}
+
+// Função auxiliar para enviar FormData
+function submitFormData(formData) {
     // Mostrar loading
     const saveButton = document.querySelector('.btn-save');
     const originalText = saveButton.innerHTML;
