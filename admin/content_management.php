@@ -2879,6 +2879,29 @@ function savePendingFile(callback) {
     const formData = new FormData(form);
     formData.append('action', 'save_content');
     
+    // Função auxiliar para processar após salvar
+    const processAfterSave = (savedContentId) => {
+        // Restaurar input e limpar dados pendentes
+        fileInput.value = '';
+        if (videoTitleInput) {
+            videoTitleInput.value = '';
+        }
+        pendingFileData = null;
+        
+        // Recarregar conteúdo para mostrar o arquivo salvo (mantém modal aberto)
+        if (savedContentId) {
+            setTimeout(() => {
+                editContent(savedContentId, false);
+                // Depois de recarregar, processar o novo arquivo
+                if (callback) {
+                    setTimeout(callback, 500);
+                }
+            }, 300);
+        } else {
+            if (callback) callback();
+        }
+    };
+    
     // Se houver thumbnail pendente, adicionar
     if (pendingFileData.thumbnailData) {
         fetch(pendingFileData.thumbnailData)
@@ -2888,48 +2911,24 @@ function savePendingFile(callback) {
                 formData.append('thumbnail', thumbnailFile);
                 return submitFormData(formData, true); // true = salvar silenciosamente
             })
-            .then(() => {
-                // Restaurar input e limpar dados pendentes
-                fileInput.value = '';
-                if (videoTitleInput) {
-                    videoTitleInput.value = '';
-                }
-                pendingFileData = null;
-                if (callback) callback();
+            .then(data => {
+                const savedContentId = data && data.content_id ? data.content_id : contentId;
+                processAfterSave(savedContentId);
             })
             .catch(() => {
-                submitFormData(formData, true).then(() => {
-                    fileInput.value = '';
-                    if (videoTitleInput) {
-                        videoTitleInput.value = '';
-                    }
-                    pendingFileData = null;
-                    if (callback) callback();
+                submitFormData(formData, true).then(data => {
+                    const savedContentId = data && data.content_id ? data.content_id : contentId;
+                    processAfterSave(savedContentId);
                 }).catch(() => {
-                    fileInput.value = '';
-                    if (videoTitleInput) {
-                        videoTitleInput.value = '';
-                    }
-                    pendingFileData = null;
-                    if (callback) callback();
+                    processAfterSave(contentId);
                 });
             });
     } else {
-        submitFormData(formData, true).then(() => {
-            // Restaurar input e limpar dados pendentes
-            fileInput.value = '';
-            if (videoTitleInput) {
-                videoTitleInput.value = '';
-            }
-            pendingFileData = null;
-            if (callback) callback();
+        submitFormData(formData, true).then(data => {
+            const savedContentId = data && data.content_id ? data.content_id : contentId;
+            processAfterSave(savedContentId);
         }).catch(() => {
-            fileInput.value = '';
-            if (videoTitleInput) {
-                videoTitleInput.value = '';
-            }
-            pendingFileData = null;
-            if (callback) callback();
+            processAfterSave(contentId);
         });
     }
 }
@@ -2961,7 +2960,14 @@ function handleFileSelect(event) {
         // Se tem título, salvar automaticamente antes de trocar
         if (previousTitle) {
             // Salvar arquivo pendente e depois processar o novo
+            // O callback será chamado após recarregar o conteúdo e mostrar o arquivo salvo
             savePendingFile(() => {
+                // Processar o novo arquivo após salvar o anterior
+                // Precisamos redefinir o input file com o novo arquivo
+                const fileInput = document.getElementById('contentFile');
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
                 processNewFile(file);
             });
             return;
@@ -2970,18 +2976,8 @@ function handleFileSelect(event) {
             pendingFileData = null;
         }
     } else if (hasPreviousFile && !currentVideoFile) {
-        // PDF anterior
-        pendingFileData = {
-            file: null, // PDF não tem currentVideoFile
-            videoTitle: previousTitle,
-            thumbnailData: null
-        };
-        
-        if (previousTitle) {
-            // Tentar encontrar o arquivo PDF anterior (não temos referência direta)
-            // Por enquanto, apenas processar o novo arquivo
-            pendingFileData = null;
-        }
+        // PDF anterior - não temos referência direta ao arquivo, então apenas processar o novo
+        pendingFileData = null;
     }
     
     // Processar novo arquivo
