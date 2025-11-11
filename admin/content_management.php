@@ -2223,9 +2223,13 @@ function editContent(contentId, preserveNewFilePreview = false) {
                 videoTitleGroup.style.display = 'none';
             }
             
-            // Limpar previews de novos arquivos
-            clearFilePreview();
-            clearThumbnailPreview();
+            // Limpar previews de novos arquivos apenas se não estiver preservando
+            if (!preserveNewFilePreview) {
+                clearFilePreview();
+                clearThumbnailPreview();
+            }
+            // Se preserveNewFilePreview for true, o preview do novo arquivo já está visível
+            // e não deve ser limpo
             
             // Se for vídeo e tiver arquivo atual, mostrar opção de gerar frames
             if (content.content_type === 'videos' && content.file_path) {
