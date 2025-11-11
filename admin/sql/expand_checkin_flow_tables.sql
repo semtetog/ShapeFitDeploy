@@ -1,10 +1,58 @@
 -- Expandir tabelas do check-in para suportar sistema completo de fluxos estilo Typebot
 
--- Adicionar colunas na tabela de configurações
-ALTER TABLE `sf_checkin_configs` 
-ADD COLUMN `flow_data` JSON NULL AFTER `description`,
-ADD COLUMN `status` ENUM('draft', 'published', 'archived') DEFAULT 'draft' AFTER `is_active`,
-ADD COLUMN `version` INT(11) DEFAULT 1 AFTER `status`;
+-- Adicionar colunas na tabela de configurações (apenas se não existirem)
+-- Verificar e adicionar flow_data
+SET @dbname = DATABASE();
+SET @tablename = 'sf_checkin_configs';
+SET @columnname = 'flow_data';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = @tablename)
+      AND (table_schema = @dbname)
+      AND (column_name = @columnname)
+  ) > 0,
+  'SELECT 1', -- Coluna já existe, não fazer nada
+  CONCAT('ALTER TABLE `', @tablename, '` ADD COLUMN `', @columnname, '` JSON NULL AFTER `description`')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+-- Verificar e adicionar status
+SET @columnname = 'status';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = @tablename)
+      AND (table_schema = @dbname)
+      AND (column_name = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE `', @tablename, '` ADD COLUMN `', @columnname, '` ENUM(\'draft\', \'published\', \'archived\') NOT NULL DEFAULT \'draft\' AFTER `is_active`')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+-- Verificar e adicionar version
+SET @columnname = 'version';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = @tablename)
+      AND (table_schema = @dbname)
+      AND (column_name = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE `', @tablename, '` ADD COLUMN `', @columnname, '` INT(11) NULL DEFAULT NULL AFTER `status`')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Tabela para versões publicadas (snapshots imutáveis)
 CREATE TABLE IF NOT EXISTS `sf_checkin_flow_versions` (
@@ -94,13 +142,59 @@ CREATE TABLE IF NOT EXISTS `sf_checkin_flow_variables` (
   CONSTRAINT `fk_flow_variables_config` FOREIGN KEY (`config_id`) REFERENCES `sf_checkin_configs` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Expandir tabela de sessões
-ALTER TABLE `sf_checkin_availability` 
-ADD COLUMN `session_id` VARCHAR(36) NULL COMMENT 'UUID da sessão ativa' AFTER `is_completed`,
-ADD COLUMN `last_block_key` VARCHAR(100) NULL AFTER `session_id`,
-ADD COLUMN `flow_version_id` INT(11) NULL AFTER `last_block_key`,
-ADD INDEX `session_id` (`session_id`),
-ADD INDEX `last_block_key` (`last_block_key`);
+-- Expandir tabela de sessões (apenas se as colunas não existirem)
+SET @tablename = 'sf_checkin_availability';
+
+-- Verificar e adicionar session_id
+SET @columnname = 'session_id';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = @tablename)
+      AND (table_schema = @dbname)
+      AND (column_name = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE `', @tablename, '` ADD COLUMN `', @columnname, '` VARCHAR(36) NULL COMMENT \'UUID da sessão ativa\' AFTER `is_completed`, ADD INDEX `', @columnname, '` (`', @columnname, '`)')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+-- Verificar e adicionar last_block_key
+SET @columnname = 'last_block_key';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = @tablename)
+      AND (table_schema = @dbname)
+      AND (column_name = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE `', @tablename, '` ADD COLUMN `', @columnname, '` VARCHAR(100) NULL AFTER `session_id`, ADD INDEX `', @columnname, '` (`', @columnname, '`)')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+-- Verificar e adicionar flow_version_id
+SET @columnname = 'flow_version_id';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = @tablename)
+      AND (table_schema = @dbname)
+      AND (column_name = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE `', @tablename, '` ADD COLUMN `', @columnname, '` INT(11) NULL AFTER `last_block_key`')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Tabela para respostas detalhadas (expandir além de sf_checkin_responses)
 CREATE TABLE IF NOT EXISTS `sf_checkin_flow_answers` (
