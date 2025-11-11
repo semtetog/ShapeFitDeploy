@@ -1956,8 +1956,10 @@ function toggleContentStatus(contentId, currentStatus, toggleElement) {
     // Então toggle.checked já reflete o NOVO estado (não o antigo)
     const isChecked = toggle.checked;
     const newStatus = isChecked ? 'active' : 'inactive';
+    const oldStatus = isChecked ? 'inactive' : 'active';
     const wrapper = toggle.closest('.toggle-switch-wrapper');
     const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
+    const card = toggle.closest('.content-card');
     
     // Atualizar label IMEDIATAMENTE baseado no estado atual do checkbox
     if (label) {
@@ -1969,11 +1971,17 @@ function toggleContentStatus(contentId, currentStatus, toggleElement) {
         label.textContent = newText;
         label.style.color = newColor;
         label.style.fontWeight = newWeight;
-        
-        // Forçar reflow para garantir que a atualização seja visível
-        label.offsetHeight;
     }
     
+    // Atualizar data-status do card IMEDIATAMENTE
+    if (card) {
+        card.setAttribute('data-status', newStatus);
+    }
+    
+    // Atualizar estatísticas IMEDIATAMENTE (otimisticamente)
+    updateStatsOptimistic(oldStatus, newStatus);
+    
+    // Enviar para o servidor
     fetch('ajax_content_management.php', {
         method: 'POST',
         headers: {
@@ -2001,71 +2009,70 @@ function toggleContentStatus(contentId, currentStatus, toggleElement) {
     })
     .then(data => {
         if (data.success) {
-            // Atualizar estatísticas
-            updateContentStats();
-            // Atualizar data-status do card
-            const card = toggle.closest('.content-card');
-            if (card) {
-                card.setAttribute('data-status', newStatus);
-            }
+            // Confirmar estatísticas com dados do servidor
+            updateStats();
         } else {
-            // Reverter toggle
+            // Reverter tudo se houver erro
             toggle.checked = !isChecked;
             if (label) {
                 label.textContent = isChecked ? 'Inativo' : 'Ativo';
                 label.style.color = isChecked ? '#EF4444' : '#22C55E';
                 label.style.fontWeight = isChecked ? '600' : '700';
             }
+            if (card) {
+                card.setAttribute('data-status', oldStatus);
+            }
+            // Reverter estatísticas
+            updateStatsOptimistic(newStatus, oldStatus);
             alert('Erro ao atualizar status: ' + (data.error || 'Erro desconhecido'));
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        // Reverter toggle
+        // Reverter tudo se houver erro
         toggle.checked = !isChecked;
         if (label) {
             label.textContent = isChecked ? 'Inativo' : 'Ativo';
             label.style.color = isChecked ? '#EF4444' : '#22C55E';
             label.style.fontWeight = isChecked ? '600' : '700';
         }
+        if (card) {
+            card.setAttribute('data-status', oldStatus);
+        }
+        // Reverter estatísticas
+        updateStatsOptimistic(newStatus, oldStatus);
         alert('Erro ao atualizar status. Tente novamente.');
     });
 }
 
-// Atualizar estatísticas de conteúdo
-function updateContentStats() {
-    fetch('ajax_content_management.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            action: 'get_stats'
-        })
-    })
-    .then(async response => {
-        const text = await response.text();
-        if (!response.ok || !text) return null;
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            return null;
+// Atualizar estatísticas de forma otimista (antes da resposta do servidor)
+function updateStatsOptimistic(fromStatus, toStatus) {
+    const statActive = document.getElementById('statActive');
+    const statInactive = document.getElementById('statInactive');
+    
+    if (fromStatus === 'active' && toStatus === 'inactive') {
+        // Mudou de ativo para inativo
+        if (statActive) {
+            const current = parseInt(statActive.textContent) || 0;
+            statActive.textContent = Math.max(0, current - 1);
         }
-    })
-    .then(data => {
-        if (data && data.success && data.stats) {
-            const statTotal = document.getElementById('stat-total');
-            const statActive = document.getElementById('stat-active');
-            const statInactive = document.getElementById('stat-inactive');
-            if (statTotal) statTotal.textContent = data.stats.total || 0;
-            if (statActive) statActive.textContent = data.stats.active || 0;
-            if (statInactive) statInactive.textContent = data.stats.inactive || 0;
+        if (statInactive) {
+            const current = parseInt(statInactive.textContent) || 0;
+            statInactive.textContent = current + 1;
         }
-    })
-    .catch(error => {
-        console.error('Erro ao atualizar estatísticas:', error);
-    });
+    } else if (fromStatus === 'inactive' && toStatus === 'active') {
+        // Mudou de inativo para ativo
+        if (statActive) {
+            const current = parseInt(statActive.textContent) || 0;
+            statActive.textContent = current + 1;
+        }
+        if (statInactive) {
+            const current = parseInt(statInactive.textContent) || 0;
+            statInactive.textContent = Math.max(0, current - 1);
+        }
+    }
 }
+
 
 // Função para fechar modal
 function closeContentModal() {
