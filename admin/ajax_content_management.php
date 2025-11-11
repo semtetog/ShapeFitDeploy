@@ -296,11 +296,9 @@ function saveContent($conn, $admin_id) {
         $mime_type = null;
     } elseif ($content_id == 0) {
         // Para novos conteúdos, arquivo é obrigatório
-        if ($content_id == 0) {
-            throw new Exception('Arquivo é obrigatório para criar novo conteúdo');
-        }
-        // Se estiver editando, não precisa de arquivo novo
+        throw new Exception('Arquivo é obrigatório para criar novo conteúdo');
     }
+    // Se estiver editando (content_id > 0) e não há arquivo novo, não precisa de arquivo
     
     // Iniciar transação
     $conn->begin_transaction();
