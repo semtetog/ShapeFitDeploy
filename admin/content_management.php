@@ -730,13 +730,13 @@ require_once __DIR__ . '/includes/header.php';
     
     .content-card-actions {
         flex-direction: row;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        justify-content: space-between;
     }
     
     .content-card-actions .btn-action {
-        flex: 1 1 calc(50% - 0.25rem);
+        flex: 1;
         min-width: 0;
-        max-width: calc(50% - 0.25rem);
         font-size: 0.75rem;
         padding: 0.5rem 0.5rem;
     }
@@ -753,13 +753,13 @@ require_once __DIR__ . '/includes/header.php';
     }
     
     .content-card-actions {
-        flex-direction: column;
+        flex-direction: row;
         gap: 0.5rem;
+        justify-content: space-between;
     }
     
     .content-card-actions .btn-action {
         flex: 1;
-        width: 100%;
         min-width: 0;
         max-width: 100%;
         padding: 0.5rem 0.75rem;
@@ -1461,10 +1461,6 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div class="content-card-actions" onclick="event.stopPropagation()">
-                        <button class="btn-action btn-view" onclick="viewContent(<?php echo $content['id']; ?>)" title="Visualizar">
-                            <i class="fas fa-eye"></i>
-                            <span>Visualizar</span>
-                        </button>
                         <button class="btn-action btn-edit" onclick="editContent(<?php echo $content['id']; ?>)" title="Editar">
                             <i class="fas fa-edit"></i>
                             <span>Editar</span>
