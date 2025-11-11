@@ -1839,7 +1839,6 @@ function openCreateContentModal() {
     document.getElementById('fileUploadGroup').style.display = 'block';
     document.getElementById('targetIdGroup').style.display = 'none';
     document.getElementById('currentFileInfo').style.display = 'none';
-    document.getElementById('currentThumbnailInfo').style.display = 'none';
     clearFilePreview();
     clearThumbnailPreview();
     
@@ -2657,30 +2656,14 @@ function selectVideoFrame(frameDataUrl, frameElement) {
     frameElement.style.borderColor = 'var(--accent-orange)';
     frameElement.querySelector('.frame-check-icon').style.display = 'flex';
     
-    // Converter data URL para blob
-    fetch(frameDataUrl)
-        .then(res => res.blob())
-        .then(blob => {
-            // Criar arquivo a partir do blob
-            const file = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
-            
-            // Criar FileList simulada
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            
-            // Atualizar input de thumbnail
-            const thumbnailInput = document.getElementById('contentThumbnail');
-            thumbnailInput.files = dataTransfer.files;
-            
-            // Mostrar preview
-            const thumbnailPreview = document.getElementById('thumbnailPreview');
-            const previewThumbnail = document.getElementById('previewThumbnail');
-            previewThumbnail.src = frameDataUrl;
-            thumbnailPreview.style.display = 'block';
-            
-            // Armazenar data URL no hidden input
-            document.getElementById('selectedThumbnailData').value = frameDataUrl;
-        });
+    // Atualizar poster do vídeo diretamente
+    const previewVideo = document.getElementById('previewVideo');
+    if (previewVideo) {
+        previewVideo.poster = frameDataUrl;
+    }
+    
+    // Salvar no hidden input
+    document.getElementById('selectedThumbnailData').value = frameDataUrl;
 }
 
 // Função para limpar preview do arquivo
