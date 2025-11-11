@@ -320,6 +320,13 @@ function saveContent($conn, $admin_id) {
                 $update_values = [$title, $description, $content_type, $content_text];
                 $param_types = "ssss";
                 
+                // Adicionar thumbnail se foi enviada
+                if ($thumbnail_url) {
+                    $update_fields[] = "thumbnail_url = ?";
+                    $update_values[] = $thumbnail_url;
+                    $param_types .= "s";
+                }
+                
                 if ($has_target_type && $has_target_id) {
                     $update_fields[] = "target_type = ?";
                     $update_fields[] = "target_id = ?";
