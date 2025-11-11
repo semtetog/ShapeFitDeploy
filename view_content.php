@@ -299,30 +299,72 @@ body {
     object-fit: contain;
 }
 
-.content-pdf {
+.content-pdf-card {
     width: 100%;
-    height: 600px;
-    border: none;
+    aspect-ratio: 16 / 9;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
     border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--text-primary);
+    position: relative;
+    overflow: hidden;
 }
 
-.content-pdf-link {
-    display: inline-flex;
+.content-pdf-card:hover {
+    background: rgba(255, 107, 0, 0.1);
+    border-color: var(--accent-orange);
+    transform: translateY(-2px);
+}
+
+.content-pdf-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(255, 107, 0, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.content-pdf-card:hover::before {
+    opacity: 1;
+}
+
+.content-pdf-icon {
+    font-size: 4rem;
+    color: var(--accent-orange);
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.content-pdf-card:hover .content-pdf-icon {
+    transform: scale(1.1);
+}
+
+.content-pdf-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    position: relative;
+    z-index: 1;
+    display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
-    background: var(--accent-orange);
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    margin-top: 16px;
 }
 
-.content-pdf-link:hover {
-    background: #ff8c33;
-    transform: translateY(-2px);
+.content-pdf-label i {
+    font-size: 0.875rem;
 }
 
 .content-meta {
@@ -496,14 +538,18 @@ body {
                         </div>
                     <?php elseif ($is_pdf): ?>
                         <!-- PDF -->
-                        <div class="content-media">
-                            <iframe class="content-pdf" src="<?php echo htmlspecialchars($file_url); ?>#toolbar=0" type="application/pdf">
-                                <p>Seu navegador não suporta PDFs. <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-link">
-                                    <i class="fas fa-download"></i> Baixar PDF
-                                </a></p>
-                            </iframe>
-                            <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-link">
-                                <i class="fas fa-external-link-alt"></i> Abrir PDF em nova aba
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <?php if (!empty($file['video_title'])): ?>
+                                <h3 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-orange);">
+                                    <?php echo htmlspecialchars($file['video_title']); ?>
+                                </h3>
+                            <?php endif; ?>
+                            <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-card">
+                                <i class="fas fa-file-pdf content-pdf-icon"></i>
+                                <div class="content-pdf-label">
+                                    <span>Abrir PDF</span>
+                                    <i class="fas fa-external-link-alt"></i>
+                                </div>
                             </a>
                         </div>
                     <?php endif; ?>
