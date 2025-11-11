@@ -49,6 +49,9 @@ try {
         case 'get_content':
             getContent($conn, $admin_id);
             break;
+        case 'update_video_title':
+            updateVideoTitle($conn, $admin_id);
+            break;
         case 'delete_content':
             deleteContent($conn, $admin_id);
             break;
@@ -349,6 +352,27 @@ function saveContent($conn, $admin_id) {
                 $sql = "UPDATE sf_member_content SET " . implode(", ", $update_fields) . " WHERE id = ? AND admin_id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param($param_types, ...$update_values);
+                
+                // Verificar se houve alterações antes de executar
+                if (!$stmt->execute()) {
+                    throw new Exception('Erro ao atualizar conteúdo: ' . $stmt->error);
+                }
+                
+                // Verificar se houve alterações
+                $affected_rows = $stmt->affected_rows;
+                $stmt->close();
+                
+                // Se não houve alterações e não há novo arquivo, informar
+                if ($affected_rows === 0 && !$file_path) {
+                    $conn->commit();
+                    ob_clean();
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Nenhuma alteração foi feita',
+                        'content_id' => $content_id
+                    ]);
+                    return;
+                }
             } elseif (isset($_POST['remove_file']) && $_POST['remove_file'] == '1') {
                 // Arquivo foi removido - deletar arquivo antigo e limpar campos
                 $stmt_old = $conn->prepare("SELECT file_path, thumbnail_url FROM sf_member_content WHERE id = ? AND admin_id = ?");
@@ -621,6 +645,55 @@ function getContent($conn, $admin_id) {
     } catch (Exception $e) {
         throw $e;
     }
+}
+
+function updateVideoTitle($conn, $admin_id) {
+    $file_id = (int)($_POST['file_id'] ?? 0);
+    $content_id = (int)($_POST['content_id'] ?? 0);
+    $video_title = trim($_POST['video_title'] ?? '');
+    
+    if ($file_id <= 0 || $content_id <= 0) {
+        throw new Exception('ID do arquivo ou conteúdo inválido');
+    }
+    
+    // Verificar se o conteúdo pertence ao admin
+    $stmt_check = $conn->prepare("SELECT id FROM sf_member_content WHERE id = ? AND admin_id = ?");
+    $stmt_check->bind_param("ii", $content_id, $admin_id);
+    $stmt_check->execute();
+    $check_result = $stmt_check->get_result();
+    if ($check_result->num_rows === 0) {
+        $stmt_check->close();
+        throw new Exception('Conteúdo não encontrado ou você não tem permissão para editá-lo');
+    }
+    $stmt_check->close();
+    
+    // Verificar se a tabela de arquivos existe
+    $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+    if ($check_files_table && $check_files_table->num_rows > 0) {
+        // Atualizar título na tabela sf_content_files
+        $stmt = $conn->prepare("UPDATE sf_content_files SET video_title = ? WHERE id = ? AND content_id = ?");
+        $stmt->bind_param("sii", $video_title, $file_id, $content_id);
+        if (!$stmt->execute()) {
+            $stmt->close();
+            throw new Exception('Erro ao atualizar título: ' . $stmt->error);
+        }
+        $stmt->close();
+    } else {
+        // Fallback: atualizar em sf_member_content (se a coluna existir)
+        $check_video_title = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'video_title'");
+        if ($check_video_title && $check_video_title->num_rows > 0) {
+            $stmt = $conn->prepare("UPDATE sf_member_content SET video_title = ? WHERE id = ? AND admin_id = ?");
+            $stmt->bind_param("sii", $video_title, $content_id, $admin_id);
+            if (!$stmt->execute()) {
+                $stmt->close();
+                throw new Exception('Erro ao atualizar título: ' . $stmt->error);
+            }
+            $stmt->close();
+        }
+    }
+    
+    ob_clean();
+    echo json_encode(['success' => true, 'message' => 'Título atualizado com sucesso']);
 }
 
 function removeContentFile($conn, $admin_id) {

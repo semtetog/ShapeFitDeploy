@@ -133,6 +133,50 @@ if (!$content) {
     exit();
 }
 
+// Buscar arquivos da tabela sf_content_files se existir
+$content_files = [];
+try {
+    $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+    if ($check_files_table && $check_files_table->num_rows > 0) {
+        $stmt_files = $conn->prepare("SELECT * FROM sf_content_files WHERE content_id = ? ORDER BY display_order ASC, created_at ASC");
+        $stmt_files->bind_param("i", $content_id);
+        $stmt_files->execute();
+        $files_result = $stmt_files->get_result();
+        while ($file_row = $files_result->fetch_assoc()) {
+            $content_files[] = $file_row;
+        }
+        $stmt_files->close();
+    }
+    
+    // Se não há arquivos na tabela, usar campos antigos do sf_member_content (compatibilidade)
+    if (empty($content_files)) {
+        if (!empty($content['file_path'])) {
+            $content_files[] = [
+                'id' => null,
+                'file_path' => $content['file_path'],
+                'file_name' => $content['file_name'] ?? null,
+                'file_size' => $content['file_size'] ?? null,
+                'mime_type' => $content['mime_type'] ?? null,
+                'thumbnail_url' => $content['thumbnail_url'] ?? null,
+                'video_title' => $content['video_title'] ?? null,
+                'display_order' => 0
+            ];
+        }
+    }
+} catch (Exception $e) {
+    // Erro ao buscar arquivos - usar método antigo
+    if (!empty($content['file_path'])) {
+        $content_files[] = [
+            'id' => null,
+            'file_path' => $content['file_path'],
+            'file_name' => $content['file_name'] ?? null,
+            'mime_type' => $content['mime_type'] ?? null,
+            'thumbnail_url' => $content['thumbnail_url'] ?? null,
+            'video_title' => $content['video_title'] ?? null,
+        ];
+    }
+}
+
 // Registrar visualização
 try {
     $check_views_table = $conn->query("SHOW TABLES LIKE 'sf_content_views'");
@@ -325,49 +369,7 @@ body {
             <p class="content-description"><?php echo nl2br(htmlspecialchars($content['description'])); ?></p>
         <?php endif; ?>
 
-        <?php if ($content['content_type'] === 'videos' && !empty($content['file_path'])): ?>
-            <!-- Vídeo -->
-            <div class="content-media">
-                <?php
-                // Construir URL correta do arquivo
-                $video_url = $content['file_path'];
-                if (!empty($video_url) && !preg_match('/^https?:\/\//', $video_url) && !preg_match('/^\//', $video_url)) {
-                    $video_url = '/' . ltrim($video_url, '/');
-                }
-                // Se tiver thumbnail, usar como poster
-                $poster = '';
-                if (!empty($content['thumbnail_url'])) {
-                    $poster = $content['thumbnail_url'];
-                    if (!preg_match('/^https?:\/\//', $poster) && !preg_match('/^\//', $poster)) {
-                        $poster = '/' . ltrim($poster, '/');
-                    }
-                }
-                ?>
-                <video class="content-video" controls <?php echo !empty($poster) ? 'poster="' . htmlspecialchars($poster) . '"' : ''; ?>>
-                    <source src="<?php echo htmlspecialchars($video_url); ?>" type="<?php echo htmlspecialchars($content['mime_type'] ?? 'video/mp4'); ?>">
-                    Seu navegador não suporta a reprodução de vídeos.
-                </video>
-            </div>
-        <?php elseif ($content['content_type'] === 'pdf' && !empty($content['file_path'])): ?>
-            <!-- PDF -->
-            <div class="content-media">
-                <?php
-                // Construir URL correta do arquivo
-                $pdf_url = $content['file_path'];
-                if (!empty($pdf_url) && !preg_match('/^https?:\/\//', $pdf_url) && !preg_match('/^\//', $pdf_url)) {
-                    $pdf_url = '/' . ltrim($pdf_url, '/');
-                }
-                ?>
-                <iframe class="content-pdf" src="<?php echo htmlspecialchars($pdf_url); ?>#toolbar=0" type="application/pdf">
-                    <p>Seu navegador não suporta PDFs. <a href="<?php echo htmlspecialchars($pdf_url); ?>" target="_blank" class="content-pdf-link">
-                        <i class="fas fa-download"></i> Baixar PDF
-                    </a></p>
-                </iframe>
-                <a href="<?php echo htmlspecialchars($pdf_url); ?>" target="_blank" class="content-pdf-link">
-                    <i class="fas fa-external-link-alt"></i> Abrir PDF em nova aba
-                </a>
-            </div>
-        <?php else: ?>
+        <?php if (empty($content_files)): ?>
             <!-- Sem arquivo -->
             <div class="empty-state">
                 <div class="empty-state-icon">
@@ -375,6 +377,72 @@ body {
                 </div>
                 <h3>Arquivo não disponível</h3>
                 <p>O arquivo deste conteúdo não está disponível no momento.</p>
+            </div>
+        <?php else: ?>
+            <!-- Lista de arquivos -->
+            <div class="files-list" style="display: flex; flex-direction: column; gap: 24px;">
+                <?php foreach ($content_files as $index => $file): ?>
+                    <?php
+                    // Determinar tipo de arquivo
+                    $is_video = false;
+                    $is_pdf = false;
+                    
+                    if (!empty($file['mime_type'])) {
+                        $is_video = strpos($file['mime_type'], 'video/') === 0;
+                        $is_pdf = $file['mime_type'] === 'application/pdf';
+                    } else {
+                        // Fallback: verificar extensão
+                        $ext = strtolower(pathinfo($file['file_path'], PATHINFO_EXTENSION));
+                        $is_video = in_array($ext, ['mp4', 'mov', 'avi', 'webm']);
+                        $is_pdf = $ext === 'pdf';
+                    }
+                    
+                    // Construir URL correta do arquivo
+                    $file_url = $file['file_path'];
+                    if (!empty($file_url) && !preg_match('/^https?:\/\//', $file_url) && !preg_match('/^\//', $file_url)) {
+                        $file_url = '/' . ltrim($file_url, '/');
+                    }
+                    ?>
+                    
+                    <div class="file-item" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px;">
+                        <?php if ($is_video): ?>
+                            <!-- Vídeo -->
+                            <?php if (!empty($file['video_title'])): ?>
+                                <h3 style="margin: 0 0 16px 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-orange);">
+                                    <?php echo htmlspecialchars($file['video_title']); ?>
+                                </h3>
+                            <?php endif; ?>
+                            <div class="content-media">
+                                <?php
+                                // Se tiver thumbnail, usar como poster
+                                $poster = '';
+                                if (!empty($file['thumbnail_url'])) {
+                                    $poster = $file['thumbnail_url'];
+                                    if (!preg_match('/^https?:\/\//', $poster) && !preg_match('/^\//', $poster)) {
+                                        $poster = '/' . ltrim($poster, '/');
+                                    }
+                                }
+                                ?>
+                                <video class="content-video" controls <?php echo !empty($poster) ? 'poster="' . htmlspecialchars($poster) . '"' : ''; ?>>
+                                    <source src="<?php echo htmlspecialchars($file_url); ?>" type="<?php echo htmlspecialchars($file['mime_type'] ?? 'video/mp4'); ?>">
+                                    Seu navegador não suporta a reprodução de vídeos.
+                                </video>
+                            </div>
+                        <?php elseif ($is_pdf): ?>
+                            <!-- PDF -->
+                            <div class="content-media">
+                                <iframe class="content-pdf" src="<?php echo htmlspecialchars($file_url); ?>#toolbar=0" type="application/pdf">
+                                    <p>Seu navegador não suporta PDFs. <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-link">
+                                        <i class="fas fa-download"></i> Baixar PDF
+                                    </a></p>
+                                </iframe>
+                                <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-link">
+                                    <i class="fas fa-external-link-alt"></i> Abrir PDF em nova aba
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
 
