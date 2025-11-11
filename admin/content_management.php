@@ -2161,6 +2161,7 @@ function editContent(contentId, preserveNewFilePreview = false) {
                     
                     // Criar container para arquivo + título
                     const fileContainer = document.createElement('div');
+                    fileContainer.className = 'file-container';
                     fileContainer.style.cssText = 'display: flex; flex-direction: column; width: 100%; max-width: 300px;';
                     
                     // Criar elemento do arquivo
@@ -3278,17 +3279,43 @@ function generateVideoFramesForExistingVideo(video, fileId, framesContainer, cur
             console.log('Total de frames no container:', framesContainer.children.length);
             
             // Se houver thumbnail atual, tentar marcá-la após um pequeno delay
-            if (currentThumbnailUrl) {
+            if (currentThumbnailUrl && fileId) {
                 setTimeout(() => {
-                    // Por enquanto, vamos marcar o primeiro frame como padrão
-                    // TODO: Implementar comparação de imagens para encontrar o frame correto baseado na thumbnail atual
-                    const firstFrame = framesContainer.querySelector('.video-frame-thumb');
-                    if (firstFrame) {
-                        // Marcar o primeiro frame como selecionado por padrão
-                        // O usuário pode mudar se necessário
-                        console.log('Thumbnail atual encontrada, mas comparação de imagens não implementada. Primeiro frame será marcado por padrão.');
+                    // Tentar encontrar o frame que corresponde à thumbnail atual
+                    const frameDivs = framesContainer.querySelectorAll('.video-frame-thumb');
+                    
+                    // Tentar carregar a thumbnail atual e comparar com os frames
+                    const currentThumbImg = new Image();
+                    currentThumbImg.crossOrigin = 'anonymous';
+                    currentThumbImg.onload = function() {
+                        // Por enquanto, vamos marcar o primeiro frame como selecionado
+                        // TODO: Implementar comparação de imagens mais precisa
+                        const firstFrame = frameDivs[0];
+                        if (firstFrame) {
+                            const frameImg = firstFrame.querySelector('img');
+                            if (frameImg) {
+                                selectVideoFrameForExisting(fileId, frameImg.src, firstFrame, framesContainer);
+                            }
+                        }
+                    };
+                    currentThumbImg.onerror = function() {
+                        // Se não conseguir carregar, marcar o primeiro frame
+                        const firstFrame = frameDivs[0];
+                        if (firstFrame) {
+                            const frameImg = firstFrame.querySelector('img');
+                            if (frameImg) {
+                                selectVideoFrameForExisting(fileId, frameImg.src, firstFrame, framesContainer);
+                            }
+                        }
+                    };
+                    
+                    // Tentar carregar a thumbnail atual
+                    let thumbUrl = currentThumbnailUrl;
+                    if (!thumbUrl.startsWith('http') && !thumbUrl.startsWith('/')) {
+                        thumbUrl = '/' + thumbUrl;
                     }
-                }, 200);
+                    currentThumbImg.src = thumbUrl;
+                }, 300);
             }
             
             return;
@@ -3458,12 +3485,18 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
     
     // Inserir o container após o fileItem (dentro do fileContainer)
     if (fileContainer) {
-        // Encontrar o título do arquivo (se existir) para inserir antes dele
+        // Inserir após o fileItem, mas antes do título (se existir)
         const titleDiv = fileContainer.querySelector('[data-file-id][data-content-id]');
         if (titleDiv && titleDiv !== fileItem) {
+            // Inserir antes do título
             fileContainer.insertBefore(thumbnailContainer, titleDiv);
         } else {
-            fileContainer.appendChild(thumbnailContainer);
+            // Inserir após o fileItem
+            if (fileItem.nextSibling) {
+                fileContainer.insertBefore(thumbnailContainer, fileItem.nextSibling);
+            } else {
+                fileContainer.appendChild(thumbnailContainer);
+            }
         }
     }
     
@@ -3538,37 +3571,6 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
     setTimeout(() => {
         thumbnailContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 200);
-}
-    
-    // Adicionar loading
-    const loadingDiv = document.createElement('div');
-    loadingDiv.style.cssText = 'text-align: center; padding: 2rem; color: var(--text-secondary);';
-    loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando vídeo...';
-    framesContainer.appendChild(loadingDiv);
-    
-    // Criar vídeo temporário para gerar frames
-    const tempVideo = document.createElement('video');
-    tempVideo.src = fileUrl;
-    tempVideo.muted = true;
-    tempVideo.preload = 'metadata';
-    tempVideo.crossOrigin = 'anonymous';
-    
-    tempVideo.onloadedmetadata = function() {
-        loadingDiv.remove();
-        generateVideoFramesForExistingVideo(tempVideo, fileId);
-    };
-    
-    tempVideo.onerror = function() {
-        loadingDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar vídeo';
-        loadingDiv.style.color = '#EF4444';
-    };
-    
-    tempVideo.load();
-    
-    // Scroll suave até a galeria de thumbnails
-    setTimeout(() => {
-        thumbnailGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
 }
 
 // Função para salvar thumbnail de um arquivo específico
