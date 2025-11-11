@@ -1288,6 +1288,7 @@ function removeOption(nodeId, index) {
 function startDragNode(e, nodeId) {
     if (e.target.closest('.flow-node-connector')) return;
     if (e.target.closest('.btn-node-action')) return;
+    if (!canvas) return;
     
     isDragging = true;
     currentDraggingNode = nodeId;
