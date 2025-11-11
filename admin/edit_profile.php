@@ -11,9 +11,23 @@ $admin_id = $_SESSION['admin_id'];
 $success_message = '';
 $error_message = '';
 
-// Buscar dados do admin
+// Buscar dados do admin (verificar se coluna profile_image_filename existe)
 $admin_data = null;
-$stmt = $conn->prepare("SELECT id, full_name, username, email, profile_image_filename FROM sf_admins WHERE id = ?");
+// Verificar se a coluna existe
+$check_column = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'profile_image_filename'");
+$has_profile_image = $check_column && $check_column->num_rows > 0;
+
+// Verificar se tem full_name ou name
+$check_full_name = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'full_name'");
+$has_full_name = $check_full_name && $check_full_name->num_rows > 0;
+
+$name_field = $has_full_name ? 'full_name' : 'name';
+$select_fields = "id, $name_field as full_name, username, email";
+if ($has_profile_image) {
+    $select_fields .= ", profile_image_filename";
+}
+
+$stmt = $conn->prepare("SELECT $select_fields FROM sf_admins WHERE id = ?");
 if ($stmt) {
     $stmt->bind_param("i", $admin_id);
     $stmt->execute();
@@ -41,8 +55,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $conn->begin_transaction();
             
+            // Verificar qual campo de nome usar
+            $check_full_name = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'full_name'");
+            $has_full_name = $check_full_name && $check_full_name->num_rows > 0;
+            $name_field = $has_full_name ? 'full_name' : 'name';
+            
             // Atualizar nome
-            $update_fields = ["full_name = ?"];
+            $update_fields = ["$name_field = ?"];
             $update_values = [$full_name];
             $param_types = "s";
             
@@ -60,8 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $param_types .= "s";
             }
             
-            // Processar upload de foto
-            if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
+            // Processar upload de foto (apenas se a coluna existir)
+            $check_column = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'profile_image_filename'");
+            $has_profile_image = $check_column && $check_column->num_rows > 0;
+            
+            if ($has_profile_image && isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
                 $file = $_FILES['profile_image'];
                 
                 // Validar que é uma imagem
@@ -132,7 +154,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success_message = 'Perfil atualizado com sucesso!';
             
             // Recarregar dados do admin
-            $stmt = $conn->prepare("SELECT id, full_name, username, email, profile_image_filename FROM sf_admins WHERE id = ?");
+            $check_column = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'profile_image_filename'");
+            $has_profile_image = $check_column && $check_column->num_rows > 0;
+            $check_full_name = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'full_name'");
+            $has_full_name = $check_full_name && $check_full_name->num_rows > 0;
+            $name_field = $has_full_name ? 'full_name' : 'name';
+            $select_fields = "id, $name_field as full_name, username, email";
+            if ($has_profile_image) {
+                $select_fields .= ", profile_image_filename";
+            }
+            $stmt = $conn->prepare("SELECT $select_fields FROM sf_admins WHERE id = ?");
             $stmt->bind_param("i", $admin_id);
             $stmt->execute();
             $result = $stmt->get_result();
