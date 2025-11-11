@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $full_name = trim($_POST['full_name'] ?? '');
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
+    $remove_photo = isset($_POST['remove_photo']) && $_POST['remove_photo'] == '1';
     
     if (empty($full_name)) {
         $error_message = 'Nome é obrigatório';
@@ -112,7 +113,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $has_profile_image = in_array('profile_image_filename', $available_columns);
             
-            if ($has_profile_image && isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
+            // Remover foto se solicitado
+            if ($has_profile_image && $remove_photo) {
+                $upload_dir = APP_ROOT_PATH . '/assets/images/users/';
+                if (!empty($admin_data['profile_image_filename'])) {
+                    $old_file = $upload_dir . $admin_data['profile_image_filename'];
+                    if (file_exists($old_file)) {
+                        unlink($old_file);
+                    }
+                }
+                // Usar NULL diretamente na query, não via bind_param
+                $update_fields[] = "profile_image_filename = NULL";
+            }
+            // Upload de nova foto
+            elseif ($has_profile_image && isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
                 $file = $_FILES['profile_image'];
                 
                 // Validar que é uma imagem
@@ -230,174 +244,336 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $page_title = "Editar Perfil";
 
 require_once __DIR__ . '/includes/header.php';
+
+// Preparar dados da foto
+$admin_name = $admin_data['full_name'];
+$has_photo = false;
+$avatar_url = '';
+
+if (!empty($admin_data['profile_image_filename']) && file_exists(APP_ROOT_PATH . '/assets/images/users/' . $admin_data['profile_image_filename'])) {
+    $avatar_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_data['profile_image_filename']);
+    $has_photo = true;
+}
+
+$name_parts = explode(' ', trim($admin_name));
+$initials = count($name_parts) > 1 
+    ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) 
+    : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : 'AD');
 ?>
 
 <style>
-.edit-profile-container {
-    max-width: 600px;
+/* Estilos consistentes com o painel admin */
+.edit-profile-page {
+    max-width: 800px;
     margin: 0 auto;
-}
-
-.profile-header {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 2rem;
     padding: 2rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
 }
 
-.profile-avatar-section {
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.profile-card {
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-photo-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: rgba(255, 107, 0, 0.1);
-    border: 3px solid var(--accent-orange);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+.profile-photo-wrapper {
     position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.profile-avatar img {
-    width: 100%;
-    height: 100%;
+.profile-photo-wrapper:hover {
+    transform: scale(1.05);
+}
+
+.profile-photo-wrapper:hover .photo-overlay {
+    opacity: 1;
+}
+
+.profile-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid var(--accent-orange);
     object-fit: cover;
+    display: block;
+    background: rgba(255, 107, 0, 0.1);
 }
 
-.profile-avatar-placeholder {
-    width: 100%;
-    height: 100%;
+.profile-photo-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid var(--accent-orange);
+    background: rgba(255, 107, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 700;
     color: var(--accent-orange);
+    font-family: 'Montserrat', sans-serif;
 }
 
-.profile-info-section {
-    flex: 1;
-}
-
-.profile-form {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 2rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="password"],
-.form-group input[type="file"] {
+.photo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-size: 1rem;
-}
-
-.form-group input[type="file"] {
-    padding: 0.5rem;
-    cursor: pointer;
-}
-
-.form-group small {
-    display: block;
-    margin-top: 0.5rem;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-}
-
-.form-actions {
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 2rem;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
-.btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
+.photo-overlay i {
+    color: white;
+    font-size: 2rem;
+}
+
+.photo-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-photo-action {
+    padding: 0.5rem 1rem;
     border-radius: 8px;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    border: none;
 }
 
-.btn-primary {
-    background: var(--accent-orange);
-    color: white;
+.btn-change-photo {
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    color: var(--accent-orange);
 }
 
-.btn-primary:hover {
-    background: #ff8c33;
-    transform: translateY(-2px);
+.btn-change-photo:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
 }
 
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
+.btn-remove-photo {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #EF4444;
+}
+
+.btn-remove-photo:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #EF4444;
+}
+
+/* Form styles - igual content_management.php */
+.challenge-form-group {
+    margin-bottom: 1rem;
+}
+
+.challenge-form-group:last-child {
+    margin-bottom: 0;
+}
+
+.challenge-form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
     color: var(--text-primary);
-    border: 1px solid var(--glass-border);
+    font-family: 'Montserrat', sans-serif;
 }
 
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
+.challenge-form-group label:has(+ input[required])::after,
+.challenge-form-group label:has(+ textarea[required])::after,
+.challenge-form-group label:has(+ select[required])::after {
+    content: ' *';
+    color: var(--accent-orange);
+    margin-left: 0.25rem;
+}
+
+.challenge-form-group label:has(span[style*="accent-orange"])::after {
+    content: none;
+}
+
+.challenge-form-input,
+.challenge-form-textarea {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
+}
+
+.challenge-form-input:focus,
+.challenge-form-textarea:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.challenge-form-input[type="file"] {
+    padding: 0.75rem;
+    cursor: pointer;
+}
+
+.challenge-form-input[type="file"]::file-selector-button {
+    padding: 0.5rem 1rem;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 8px;
+    color: var(--accent-orange);
+    cursor: pointer;
+    font-weight: 600;
+    margin-right: 1rem;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.challenge-form-input[type="file"]::file-selector-button:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+}
+
+.challenge-form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.challenge-form-group input[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.form-footer {
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.form-footer button,
+.form-footer a {
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    border: none;
+}
+
+.form-footer .btn-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-footer .btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.form-footer .btn-save {
+    background: linear-gradient(135deg, #FF6600, #FF8533);
+    color: white;
+    border: none;
+}
+
+.form-footer .btn-save:hover {
+    background: linear-gradient(135deg, #FF8533, #FF6600);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
 }
 
 .alert {
-    padding: 1rem;
-    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .alert-success {
-    background: rgba(76, 175, 80, 0.2);
+    background: rgba(76, 175, 80, 0.15);
     border: 1px solid rgba(76, 175, 80, 0.3);
     color: #4CAF50;
 }
 
 .alert-error {
-    background: rgba(244, 67, 54, 0.2);
+    background: rgba(244, 67, 54, 0.15);
     border: 1px solid rgba(244, 67, 54, 0.3);
     color: #F44336;
+}
+
+.hidden-file-input {
+    display: none;
 }
 </style>
 
 <div class="content-wrapper">
-    <div class="edit-profile-container">
-        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: var(--text-primary);">Editar Perfil</h1>
+    <div class="edit-profile-page">
+        <div class="page-header">
+            <h1>Editar Perfil</h1>
+        </div>
         
         <?php if ($success_message): ?>
             <div class="alert alert-success">
@@ -413,87 +589,73 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         <?php endif; ?>
         
-        <div class="profile-header">
-            <div class="profile-avatar-section">
-                <div class="profile-avatar">
-                    <?php
-                    $admin_name = $admin_data['full_name'];
-                    $has_photo = false;
-                    $avatar_url = '';
-                    
-                    if (!empty($admin_data['profile_image_filename']) && file_exists(APP_ROOT_PATH . '/assets/images/users/' . $admin_data['profile_image_filename'])) {
-                        $avatar_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_data['profile_image_filename']);
-                        $has_photo = true;
-                    }
-                    
-                    if ($has_photo):
-                    ?>
-                        <img src="<?php echo $avatar_url; ?>" alt="<?php echo htmlspecialchars($admin_name); ?>">
+        <form method="POST" enctype="multipart/form-data" class="profile-card">
+            <!-- Seção de Foto -->
+            <div class="profile-photo-section">
+                <div class="profile-photo-wrapper" onclick="document.getElementById('profile_image').click()" title="Clique para trocar a foto">
+                    <?php if ($has_photo): ?>
+                        <img src="<?php echo $avatar_url; ?>" alt="<?php echo htmlspecialchars($admin_name); ?>" class="profile-photo" id="profilePhotoDisplay">
                     <?php else: ?>
-                        <?php
-                        $name_parts = explode(' ', trim($admin_name));
-                        $initials = count($name_parts) > 1 
-                            ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) 
-                            : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : 'AD');
-                        ?>
-                        <div class="profile-avatar-placeholder"><?php echo $initials; ?></div>
+                        <div class="profile-photo-placeholder" id="profilePhotoDisplay"><?php echo $initials; ?></div>
+                    <?php endif; ?>
+                    <div class="photo-overlay">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+                
+                <div class="photo-actions">
+                    <button type="button" class="btn-photo-action btn-change-photo" onclick="document.getElementById('profile_image').click()">
+                        <i class="fas fa-camera"></i> Trocar Foto
+                    </button>
+                    <?php if ($has_photo): ?>
+                        <button type="button" class="btn-photo-action btn-remove-photo" onclick="removePhoto()">
+                            <i class="fas fa-trash"></i> Remover Foto
+                        </button>
                     <?php endif; ?>
                 </div>
+                
+                <input type="file" id="profile_image" name="profile_image" accept="image/*" class="hidden-file-input" onchange="handlePhotoChange(event)">
+                <input type="hidden" id="remove_photo" name="remove_photo" value="0">
             </div>
-            <div class="profile-info-section">
-                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">
-                    <?php echo htmlspecialchars($admin_data['full_name']); ?>
-                </h2>
-                <p style="color: var(--text-secondary); margin: 0;">
-                    <?php echo htmlspecialchars($admin_data['email']); ?>
-                </p>
-            </div>
-        </div>
-        
-        <form method="POST" enctype="multipart/form-data" class="profile-form">
-            <div class="form-group">
+            
+            <!-- Campos do Formulário -->
+            <div class="challenge-form-group">
                 <label for="full_name">Nome Completo <span style="color: var(--accent-orange);">*</span></label>
-                <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($admin_data['full_name']); ?>" required>
+                <input type="text" id="full_name" name="full_name" class="challenge-form-input" value="<?php echo htmlspecialchars($admin_data['full_name']); ?>" required>
             </div>
             
             <?php if (!empty($admin_data['email'])): ?>
-                <div class="form-group">
+                <div class="challenge-form-group">
                     <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($admin_data['email']); ?>" disabled>
+                    <input type="email" id="email" name="email" class="challenge-form-input" value="<?php echo htmlspecialchars($admin_data['email']); ?>" disabled>
                     <small>O e-mail não pode ser alterado</small>
                 </div>
             <?php endif; ?>
             
             <?php if (!empty($admin_data['username'])): ?>
-                <div class="form-group">
+                <div class="challenge-form-group">
                     <label for="username">Usuário</label>
-                    <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($admin_data['username']); ?>" disabled>
+                    <input type="text" id="username" name="username" class="challenge-form-input" value="<?php echo htmlspecialchars($admin_data['username']); ?>" disabled>
                     <small>O nome de usuário não pode ser alterado</small>
                 </div>
             <?php endif; ?>
             
-            <div class="form-group">
-                <label for="profile_image">Foto de Perfil</label>
-                <input type="file" id="profile_image" name="profile_image" accept="image/*">
-                <small>Formatos aceitos: JPG, PNG, WebP. Máximo: 5MB</small>
-            </div>
-            
-            <div class="form-group">
+            <div class="challenge-form-group">
                 <label for="new_password">Nova Senha</label>
-                <input type="password" id="new_password" name="new_password" placeholder="Deixe em branco para manter a senha atual">
+                <input type="password" id="new_password" name="new_password" class="challenge-form-input" placeholder="Deixe em branco para manter a senha atual">
                 <small>Mínimo de 6 caracteres</small>
             </div>
             
-            <div class="form-group">
+            <div class="challenge-form-group">
                 <label for="confirm_password">Confirmar Nova Senha</label>
-                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirme a nova senha">
+                <input type="password" id="confirm_password" name="confirm_password" class="challenge-form-input" placeholder="Confirme a nova senha">
             </div>
             
-            <div class="form-actions">
-                <a href="<?php echo BASE_ADMIN_URL; ?>/dashboard.php" class="btn btn-secondary">
+            <div class="form-footer">
+                <a href="<?php echo BASE_ADMIN_URL; ?>/dashboard.php" class="btn-cancel">
                     <i class="fas fa-times"></i> Cancelar
                 </a>
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn-save">
                     <i class="fas fa-save"></i> Salvar Alterações
                 </button>
             </div>
@@ -501,5 +663,89 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<script>
+// Preview da foto ao selecionar
+function handlePhotoChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validar tipo
+    if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione uma imagem válida');
+        event.target.value = '';
+        return;
+    }
+    
+    // Validar tamanho (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('A imagem é muito grande. Máximo: 5MB');
+        event.target.value = '';
+        return;
+    }
+    
+    // Mostrar preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const display = document.getElementById('profilePhotoDisplay');
+        if (display.tagName === 'DIV') {
+            // Substituir placeholder por imagem
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = 'Foto de Perfil';
+            img.className = 'profile-photo';
+            img.id = 'profilePhotoDisplay';
+            display.parentNode.replaceChild(img, display);
+        } else {
+            display.src = e.target.result;
+        }
+        
+        // Mostrar botão de remover se não estiver visível
+        const removeBtn = document.querySelector('.btn-remove-photo');
+        if (!removeBtn) {
+            const photoActions = document.querySelector('.photo-actions');
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'btn-photo-action btn-remove-photo';
+            removeButton.innerHTML = '<i class="fas fa-trash"></i> Remover Foto';
+            removeButton.onclick = removePhoto;
+            photoActions.appendChild(removeButton);
+        }
+        
+        // Limpar flag de remoção
+        document.getElementById('remove_photo').value = '0';
+    };
+    reader.readAsDataURL(file);
+}
 
+// Remover foto
+function removePhoto() {
+    if (!confirm('Tem certeza que deseja remover sua foto de perfil?')) {
+        return;
+    }
+    
+    const display = document.getElementById('profilePhotoDisplay');
+    const adminName = '<?php echo htmlspecialchars($admin_name); ?>';
+    const initials = '<?php echo htmlspecialchars($initials); ?>';
+    
+    // Substituir por placeholder
+    const placeholder = document.createElement('div');
+    placeholder.className = 'profile-photo-placeholder';
+    placeholder.id = 'profilePhotoDisplay';
+    placeholder.textContent = initials;
+    display.parentNode.replaceChild(placeholder, display);
+    
+    // Limpar input de arquivo
+    document.getElementById('profile_image').value = '';
+    
+    // Marcar para remoção
+    document.getElementById('remove_photo').value = '1';
+    
+    // Remover botão de remover
+    const removeBtn = document.querySelector('.btn-remove-photo');
+    if (removeBtn) {
+        removeBtn.remove();
+    }
+}
+</script>
+
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

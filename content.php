@@ -274,8 +274,8 @@ body {
 
 .author-avatar,
 .author-avatar-placeholder {
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     flex-shrink: 0;
 }
@@ -291,7 +291,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--accent-orange);
 }
