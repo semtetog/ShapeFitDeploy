@@ -3288,14 +3288,40 @@ function generateVideoFramesForExistingVideo(video, fileId) {
             // Garantir que o thumbnailGroup está visível
             const thumbnailGroup = document.getElementById('thumbnailGroup');
             if (thumbnailGroup) {
+                // Verificar todos os elementos pais
+                let parent = thumbnailGroup.parentElement;
+                let parentChain = [];
+                while (parent) {
+                    parentChain.push({
+                        tag: parent.tagName,
+                        id: parent.id,
+                        class: parent.className,
+                        display: window.getComputedStyle(parent).display,
+                        visibility: window.getComputedStyle(parent).visibility,
+                        opacity: window.getComputedStyle(parent).opacity
+                    });
+                    parent = parent.parentElement;
+                }
+                console.log('Cadeia de elementos pais do thumbnailGroup:', parentChain);
+                
                 thumbnailGroup.style.display = 'block';
                 thumbnailGroup.style.visibility = 'visible';
                 thumbnailGroup.style.opacity = '1';
+                thumbnailGroup.style.height = 'auto';
+                thumbnailGroup.style.minHeight = '200px';
+                
+                // Forçar reflow
+                void thumbnailGroup.offsetHeight;
+                
                 console.log('thumbnailGroup exibido:', {
                     display: thumbnailGroup.style.display,
+                    computedDisplay: window.getComputedStyle(thumbnailGroup).display,
                     visibility: thumbnailGroup.style.visibility,
+                    computedVisibility: window.getComputedStyle(thumbnailGroup).visibility,
                     offsetParent: thumbnailGroup.offsetParent,
-                    offsetHeight: thumbnailGroup.offsetHeight
+                    offsetHeight: thumbnailGroup.offsetHeight,
+                    clientHeight: thumbnailGroup.clientHeight,
+                    scrollHeight: thumbnailGroup.scrollHeight
                 });
             }
             
@@ -3303,41 +3329,66 @@ function generateVideoFramesForExistingVideo(video, fileId) {
             gallery.style.display = 'block';
             gallery.style.visibility = 'visible';
             gallery.style.opacity = '1';
+            gallery.style.height = 'auto';
+            gallery.style.minHeight = '200px';
+            
+            // Forçar reflow
+            void gallery.offsetHeight;
+            
             console.log('Galeria exibida:', gallery.style.display, 'Visível:', gallery.offsetParent !== null);
             console.log('Estado da galeria depois:', { 
-                display: gallery.style.display, 
+                display: gallery.style.display,
+                computedDisplay: window.getComputedStyle(gallery).display,
                 visibility: gallery.style.visibility,
+                computedVisibility: window.getComputedStyle(gallery).visibility,
                 offsetParent: gallery.offsetParent, 
                 offsetHeight: gallery.offsetHeight,
-                parentDisplay: gallery.parentElement ? gallery.parentElement.style.display : 'N/A',
-                parentVisibility: gallery.parentElement ? gallery.parentElement.style.visibility : 'N/A'
+                clientHeight: gallery.clientHeight,
+                scrollHeight: gallery.scrollHeight,
+                parentDisplay: gallery.parentElement ? window.getComputedStyle(gallery.parentElement).display : 'N/A',
+                parentVisibility: gallery.parentElement ? window.getComputedStyle(gallery.parentElement).visibility : 'N/A'
             });
             
             // Verificar se o container de frames está visível
-            console.log('Estado do framesContainer:', {
-                display: framesContainer.style.display,
-                offsetParent: framesContainer.offsetParent,
-                offsetHeight: framesContainer.offsetHeight,
-                children: framesContainer.children.length,
-                parentDisplay: framesContainer.parentElement ? framesContainer.parentElement.style.display : 'N/A',
-                parentOffsetParent: framesContainer.parentElement ? framesContainer.parentElement.offsetParent : 'N/A'
-            });
-            
-            // Garantir que o framesContainer está visível
             if (framesContainer) {
                 framesContainer.style.display = 'grid';
-                console.log('framesContainer display definido como grid');
+                // Forçar reflow
+                void framesContainer.offsetHeight;
+                
+                console.log('Estado do framesContainer:', {
+                    display: framesContainer.style.display,
+                    computedDisplay: window.getComputedStyle(framesContainer).display,
+                    offsetParent: framesContainer.offsetParent,
+                    offsetHeight: framesContainer.offsetHeight,
+                    clientHeight: framesContainer.clientHeight,
+                    scrollHeight: framesContainer.scrollHeight,
+                    children: framesContainer.children.length,
+                    parentDisplay: framesContainer.parentElement ? window.getComputedStyle(framesContainer.parentElement).display : 'N/A',
+                    parentVisibility: framesContainer.parentElement ? window.getComputedStyle(framesContainer.parentElement).visibility : 'N/A'
+                });
             }
             
-            // Scroll até a galeria
+            // Scroll até a galeria após um pequeno delay para garantir que o DOM foi atualizado
             setTimeout(() => {
-                if (thumbnailGroup) {
+                if (thumbnailGroup && thumbnailGroup.offsetParent) {
                     thumbnailGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                } else {
+                    console.log('Scroll para thumbnailGroup executado');
+                } else if (gallery && gallery.offsetParent) {
                     gallery.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    console.log('Scroll para gallery executado');
+                } else {
+                    console.warn('Não foi possível fazer scroll - elementos não estão visíveis');
+                    // Tentar forçar visibilidade novamente
+                    if (thumbnailGroup) {
+                        thumbnailGroup.style.display = 'block !important';
+                        thumbnailGroup.style.visibility = 'visible !important';
+                    }
+                    if (gallery) {
+                        gallery.style.display = 'block !important';
+                        gallery.style.visibility = 'visible !important';
+                    }
                 }
-                console.log('Scroll executado');
-            }, 200);
+            }, 300);
             return;
         }
         
