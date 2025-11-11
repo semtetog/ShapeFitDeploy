@@ -1028,11 +1028,9 @@ require_once __DIR__ . '/includes/header.php';
     margin-bottom: 18px;
 }
 
-#goalsModal .challenge-form-group:last-child {
-    margin-bottom: 18px;
-}
-
-#goalsModal .challenge-form-group:last-of-type {
+/* Remover margin-bottom do último campo dentro de cada seção */
+#goalsModal .challenge-section > .challenge-form-group:last-child,
+#goalsModal .challenge-section > .challenge-form-row:last-child {
     margin-bottom: 0;
 }
 
