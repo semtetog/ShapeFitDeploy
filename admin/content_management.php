@@ -595,11 +595,11 @@ require_once __DIR__ . '/includes/header.php';
 /* Actions - igual group-card-actions */
 .content-card-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
     padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     align-items: center;
-    flex-wrap: wrap;
+    justify-content: space-between;
     width: 100%;
     box-sizing: border-box;
     min-width: 0;
@@ -620,7 +620,7 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center;
     gap: 0.5rem;
     white-space: nowrap;
-    flex: 1 1 auto;
+    flex: 1;
     min-width: 0;
     box-sizing: border-box;
     border: 1px solid var(--glass-border);
@@ -646,18 +646,6 @@ require_once __DIR__ . '/includes/header.php';
     min-width: 0;
 }
 
-.content-card-actions .btn-action.btn-view {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: rgba(59, 130, 246, 0.3);
-    color: #3B82F6;
-}
-
-.content-card-actions .btn-action.btn-view:hover {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: #3B82F6;
-    color: #3B82F6;
-}
-
 .content-card-actions .btn-action.btn-edit {
     background: rgba(255, 107, 0, 0.1);
     color: var(--accent-orange);
@@ -678,7 +666,7 @@ require_once __DIR__ . '/includes/header.php';
 .content-card-actions .btn-action.btn-delete:hover {
     background: rgba(239, 68, 68, 0.2);
     border-color: #EF4444;
-    transform: scale(1.1);
+    transform: translateY(-2px);
 }
 
 /* Status badge */
@@ -710,11 +698,13 @@ require_once __DIR__ . '/includes/header.php';
 @media (max-width: 1024px) {
     .content-card-actions {
         gap: 0.75rem;
+        justify-content: space-between;
     }
     
     .content-card-actions .btn-action {
         font-size: 0.75rem;
         padding: 0.5rem 0.5rem;
+        flex: 1;
     }
 }
 
