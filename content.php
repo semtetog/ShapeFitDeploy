@@ -146,6 +146,28 @@ try {
             $stmt_content->execute();
             $content_result = $stmt_content->get_result();
             while ($row = $content_result->fetch_assoc()) {
+                // Se estamos usando a tabela de arquivos, buscar o primeiro arquivo para thumbnail
+                if ($has_files_table) {
+                    $stmt_file = $conn->prepare("SELECT * FROM sf_content_files WHERE content_id = ? ORDER BY display_order ASC, created_at ASC LIMIT 1");
+                    $stmt_file->bind_param("i", $row['id']);
+                    $stmt_file->execute();
+                    $file_result = $stmt_file->get_result();
+                    if ($file_row = $file_result->fetch_assoc()) {
+                        // Usar dados do primeiro arquivo para thumbnail e tipo
+                        $row['thumbnail_url'] = $file_row['thumbnail_url'];
+                        $row['file_path'] = $file_row['file_path'];
+                        $row['mime_type'] = $file_row['mime_type'];
+                        // Determinar content_type baseado no mime_type se necessário
+                        if (empty($row['content_type']) && !empty($file_row['mime_type'])) {
+                            if (strpos($file_row['mime_type'], 'video/') === 0) {
+                                $row['content_type'] = 'videos';
+                            } elseif ($file_row['mime_type'] === 'application/pdf') {
+                                $row['content_type'] = 'pdf';
+                            }
+                        }
+                    }
+                    $stmt_file->close();
+                }
                 $user_contents[] = $row;
             }
             $stmt_content->close();
