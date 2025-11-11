@@ -2561,7 +2561,6 @@ function saveContent() {
     
     // Validar título do arquivo (obrigatório apenas para novos arquivos, não para edição de existentes)
     const videoTitleInput = document.getElementById('videoTitle');
-    const fileInput = document.getElementById('contentFile');
     const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
     
     // Só validar título se houver um novo arquivo sendo enviado
