@@ -45,6 +45,12 @@ while ($q = $questions_result->fetch_assoc()) {
 }
 $stmt_questions->close();
 
+// Buscar fluxo salvo (se existir)
+$saved_flow = null;
+if (!empty($checkin['flow_data'])) {
+    $saved_flow = json_decode($checkin['flow_data'], true);
+}
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -484,23 +490,37 @@ const connectionsLayer = document.getElementById('connectionsLayer');
 
 // Carregar fluxo existente ou criar padrão
 function loadFlow() {
-    // TODO: Carregar do banco de dados
-    // Por enquanto, criar fluxo padrão baseado nas perguntas
+    const savedFlow = <?php echo $saved_flow ? json_encode($saved_flow) : 'null'; ?>;
     const questions = <?php echo json_encode($questions); ?>;
     
-    if (questions.length > 0) {
-        let y = 100;
-        questions.forEach((q, index) => {
-            addNode('question', 200, y + (index * 150), {
-                questionId: q.id,
-                text: q.question_text,
-                type: q.question_type,
-                options: q.options
-            });
+    if (savedFlow && savedFlow.nodes && savedFlow.nodes.length > 0) {
+        // Carregar fluxo salvo
+        savedFlow.nodes.forEach(node => {
+            nodes.push(node);
+            renderNode(node);
         });
+        
+        if (savedFlow.connections) {
+            connections = savedFlow.connections;
+        }
+        
+        nodeIdCounter = Math.max(...nodes.map(n => parseInt(n.id.split('_')[1]) || 0)) + 1;
     } else {
-        // Fluxo padrão vazio
-        addNode('text', 200, 100, { text: 'Bem-vindo ao check-in!' });
+        // Criar fluxo padrão baseado nas perguntas
+        if (questions.length > 0) {
+            let y = 100;
+            questions.forEach((q, index) => {
+                addNode('question', 200, y + (index * 150), {
+                    questionId: q.id,
+                    text: q.question_text,
+                    type: q.question_type,
+                    options: q.options
+                });
+            });
+        } else {
+            // Fluxo padrão vazio
+            addNode('text', 200, 100, { text: 'Bem-vindo ao check-in!' });
+        }
     }
     
     updateConnections();
