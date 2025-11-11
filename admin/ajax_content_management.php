@@ -349,6 +349,12 @@ function saveContent($conn, $admin_id) {
                 $update_values = [$title, $description, $content_type, $content_text];
                 $param_types = "ssss";
                 
+                // Para campos NULL, não usar bind_param - usar diretamente na query
+                // Vou refazer a query sem usar placeholders para NULL
+                $update_fields = ["title = ?", "description = ?", "content_type = ?", "file_path = NULL", "file_name = NULL", "file_size = NULL", "mime_type = NULL", "content_text = ?", "thumbnail_url = NULL"];
+                $update_values = [$title, $description, $content_type, $content_text];
+                $param_types = "ssss";
+                
                 if ($has_target_type && $has_target_id) {
                     $update_fields[] = "target_type = ?";
                     $update_fields[] = "target_id = ?";
