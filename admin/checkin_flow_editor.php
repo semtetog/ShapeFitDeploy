@@ -802,8 +802,8 @@ function setupCanvasEvents() {
             return;
         }
         
-        // Se clicou diretamente no canvas (fundo), fazer pan
-        if (e.target === canvas || e.target === connectionsLayer || e.target.closest('.flow-canvas-wrapper')) {
+        // Se clicou diretamente no canvas (fundo vazio), fazer pan
+        if (e.target === canvas) {
             isPanning = true;
             panStart.x = e.clientX - canvasOffset.x;
             panStart.y = e.clientY - canvasOffset.y;
@@ -865,11 +865,24 @@ function setupCanvasEvents() {
     const canvasWrapper = document.querySelector('.flow-canvas-wrapper');
     if (canvasWrapper) {
         canvasWrapper.addEventListener('mousedown', (e) => {
-            // Se clicou diretamente no wrapper (fundo), fazer pan
-            if (e.target === canvasWrapper || e.target === connectionsLayer) {
-                if (!e.target.closest('.flow-node') && 
-                    !e.target.closest('.flow-node-connector') && 
-                    !e.target.closest('.btn-node-action')) {
+            // Se clicou diretamente no wrapper ou SVG (fundo), fazer pan
+            // Mas não se clicou em um nó, conector ou botão
+            const clickedNode = e.target.closest('.flow-node');
+            const clickedConnector = e.target.closest('.flow-node-connector');
+            const clickedButton = e.target.closest('.btn-node-action') || e.target.closest('button');
+            
+            if (!clickedNode && !clickedConnector && !clickedButton) {
+                // Clique no fundo - fazer pan
+                if (e.target === canvasWrapper || 
+                    e.target === connectionsLayer || 
+                    e.target === canvas ||
+                    e.target.tagName === 'svg' ||
+                    e.target.tagName === 'path') {
+                    // Se clicou em uma conexão (path), não fazer pan, mas sim selecionar
+                    if (e.target.tagName === 'path' && e.target.classList.contains('flow-connection-line')) {
+                        return; // Deixa o handler da conexão lidar com isso
+                    }
+                    
                     isPanning = true;
                     panStart.x = e.clientX - canvasOffset.x;
                     panStart.y = e.clientY - canvasOffset.y;
