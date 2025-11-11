@@ -1467,14 +1467,13 @@ require_once __DIR__ . '/includes/header.php';
             <form id="contentForm" enctype="multipart/form-data">
                 <input type="hidden" id="contentId" name="content_id">
                 
-                <div class="challenge-form-row">
-                    <div class="challenge-form-group">
-                        <label for="contentTitle">Título *</label>
-                        <input type="text" id="contentTitle" name="title" class="challenge-form-input" required placeholder="Ex: Receita de Salada Fit">
-                    </div>
+                <div class="challenge-form-group">
+                    <label for="contentTitle">Título <span style="color: var(--accent-orange);">*</span></label>
+                    <input type="text" id="contentTitle" name="title" class="challenge-form-input" required placeholder="Ex: Receita de Salada Fit">
+                </div>
+                
                 <!-- Tipo de conteúdo será detectado automaticamente -->
                 <input type="hidden" id="contentType" name="content_type" value="">
-                </div>
                 
                 <div class="challenge-form-group">
                     <label for="contentDescription">Descrição</label>
@@ -1482,7 +1481,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 
                 <div class="challenge-form-group" id="fileUploadGroup">
-                    <label for="contentFile">Arquivo *</label>
+                    <label for="contentFile">Arquivo <span style="color: var(--accent-orange);">*</span></label>
                     <input type="file" id="contentFile" name="file" class="challenge-form-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf" onchange="handleFileSelect(event)">
                     <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Formatos aceitos: Vídeos (MP4, MOV, AVI, WebM) ou PDF. Máximo: 100MB para vídeos, 10MB para PDF.</small>
                     
@@ -1503,8 +1502,12 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <!-- Arquivo atual (ao editar) -->
-                    <div id="currentFileInfo" style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px; display: none;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;">
+                    <div id="currentFileInfo" style="margin-top: 0.75rem; display: none;">
+                        <!-- Mostrar thumbnail se existir, senão mostrar nome do arquivo -->
+                        <div id="currentFileThumbnail" style="display: none; width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); margin-bottom: 0.75rem;">
+                            <img id="currentFileThumbnailImg" style="width: 100%; height: auto; display: block; max-height: 200px; object-fit: cover;" alt="Thumbnail do arquivo">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px; color: var(--text-secondary); font-size: 0.875rem;">
                             <i class="fas fa-file"></i>
                             <span id="currentFileName"></span>
                             <a href="#" id="currentFileLink" target="_blank" style="margin-left: auto; color: var(--accent-orange); text-decoration: none; margin-right: 0.5rem;">
@@ -1565,7 +1568,7 @@ require_once __DIR__ . '/includes/header.php';
                 
                 <div class="challenge-form-row">
                     <div class="challenge-form-group">
-                        <label for="targetType">Público-Alvo *</label>
+                        <label for="targetType">Público-Alvo <span style="color: var(--accent-orange);">*</span></label>
                         <input type="hidden" id="targetType" name="target_type" value="">
                         <div class="custom-select-wrapper">
                             <div class="custom-select" id="targetTypeSelect">
@@ -2042,6 +2045,17 @@ function editContent(contentId) {
             const currentFileInfo = document.getElementById('currentFileInfo');
             const currentFileName = document.getElementById('currentFileName');
             const currentFileLink = document.getElementById('currentFileLink');
+            const currentFileThumbnail = document.getElementById('currentFileThumbnail');
+            const currentFileThumbnailImg = document.getElementById('currentFileThumbnailImg');
+            
+            // Armazenar dados do arquivo atual
+            currentFileData = {
+                file_path: content.file_path,
+                file_name: content.file_name,
+                thumbnail_url: content.thumbnail_url
+            };
+            fileRemoved = false;
+            
             if (content.file_path && content.file_name) {
                 currentFileName.textContent = content.file_name;
                 // Construir URL do arquivo
@@ -2050,6 +2064,19 @@ function editContent(contentId) {
                     fileUrl = '/' + fileUrl;
                 }
                 currentFileLink.href = fileUrl;
+                
+                // Mostrar thumbnail se existir
+                if (content.thumbnail_url) {
+                    let thumbnailUrl = content.thumbnail_url;
+                    if (!thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/')) {
+                        thumbnailUrl = '/' + thumbnailUrl;
+                    }
+                    currentFileThumbnailImg.src = thumbnailUrl;
+                    currentFileThumbnail.style.display = 'block';
+                } else {
+                    currentFileThumbnail.style.display = 'none';
+                }
+                
                 currentFileInfo.style.display = 'block';
             } else {
                 currentFileInfo.style.display = 'none';
@@ -2186,6 +2213,11 @@ function saveContent() {
     if (!fileInput.files[0] && !contentId) {
         showAlert('Validação', 'Arquivo é obrigatório para este tipo de conteúdo');
         return;
+    }
+    
+    // Se arquivo foi removido, adicionar flag
+    if (fileRemoved) {
+        formData.append('remove_file', '1');
     }
     
     // Se houver thumbnail selecionada de um frame do vídeo, converter e adicionar
@@ -2390,6 +2422,9 @@ function removeCurrentFile() {
     const currentFileInfo = document.getElementById('currentFileInfo');
     const fileInput = document.getElementById('contentFile');
     
+    // Marcar que arquivo foi removido
+    fileRemoved = true;
+    
     if (currentFileInfo) {
         currentFileInfo.style.display = 'none';
     }
@@ -2407,6 +2442,9 @@ function removeCurrentFile() {
     
     // Resetar tipo de conteúdo
     document.getElementById('contentType').value = '';
+    
+    // Limpar dados do arquivo atual
+    currentFileData = null;
 }
 
 // Função para gerar frames do vídeo

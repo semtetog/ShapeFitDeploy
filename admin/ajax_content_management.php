@@ -254,6 +254,12 @@ function saveContent($conn, $admin_id) {
         $file_path = $file_path_db;
         $file_size = $file['size'];
         $mime_type = $file_mime;
+    } elseif (isset($_POST['remove_file']) && $_POST['remove_file'] == '1') {
+        // Arquivo foi removido pelo usuário
+        $file_path = null;
+        $file_name = null;
+        $file_size = null;
+        $mime_type = null;
     } elseif ($content_id == 0) {
         // Para novos conteúdos, arquivo é obrigatório
         throw new Exception('Arquivo é obrigatório para este tipo de conteúdo');
@@ -266,7 +272,7 @@ function saveContent($conn, $admin_id) {
         if ($content_id > 0) {
             // Atualizar conteúdo existente
             if ($file_path) {
-                // Buscar arquivo antigo para deletar
+                // Novo arquivo foi enviado - deletar arquivo antigo
                 $stmt_old = $conn->prepare("SELECT file_path FROM sf_member_content WHERE id = ? AND admin_id = ?");
                 $stmt_old->bind_param("ii", $content_id, $admin_id);
                 $stmt_old->execute();
@@ -291,6 +297,57 @@ function saveContent($conn, $admin_id) {
                     $update_values[] = $thumbnail_url;
                     $param_types .= "s";
                 }
+                
+                if ($has_target_type && $has_target_id) {
+                    $update_fields[] = "target_type = ?";
+                    $update_fields[] = "target_id = ?";
+                    $update_values[] = $target_type;
+                    $update_values[] = $target_id;
+                    $param_types .= "ss";
+                }
+                
+                if ($has_status) {
+                    $update_fields[] = "status = ?";
+                    $update_values[] = $status;
+                    $param_types .= "s";
+                }
+                
+                $update_fields[] = "updated_at = NOW()";
+                $update_values[] = $content_id;
+                $update_values[] = $admin_id;
+                $param_types .= "ii";
+                
+                $sql = "UPDATE sf_member_content SET " . implode(", ", $update_fields) . " WHERE id = ? AND admin_id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param($param_types, ...$update_values);
+            } elseif (isset($_POST['remove_file']) && $_POST['remove_file'] == '1') {
+                // Arquivo foi removido - deletar arquivo antigo e limpar campos
+                $stmt_old = $conn->prepare("SELECT file_path, thumbnail_url FROM sf_member_content WHERE id = ? AND admin_id = ?");
+                $stmt_old->bind_param("ii", $content_id, $admin_id);
+                $stmt_old->execute();
+                $old_data = $stmt_old->get_result()->fetch_assoc();
+                $stmt_old->close();
+                
+                // Deletar arquivo antigo
+                if ($old_data && $old_data['file_path']) {
+                    $old_file_full = APP_ROOT_PATH . $old_data['file_path'];
+                    if (file_exists($old_file_full)) {
+                        unlink($old_file_full);
+                    }
+                }
+                
+                // Deletar thumbnail antiga também
+                if ($old_data && $old_data['thumbnail_url']) {
+                    $old_thumb_full = APP_ROOT_PATH . $old_data['thumbnail_url'];
+                    if (file_exists($old_thumb_full)) {
+                        unlink($old_thumb_full);
+                    }
+                }
+                
+                // Atualizar removendo arquivo e thumbnail
+                $update_fields = ["title = ?", "description = ?", "content_type = ?", "file_path = NULL", "file_name = NULL", "file_size = NULL", "mime_type = NULL", "content_text = ?", "thumbnail_url = NULL"];
+                $update_values = [$title, $description, $content_type, $content_text];
+                $param_types = "ssss";
                 
                 if ($has_target_type && $has_target_id) {
                     $update_fields[] = "target_type = ?";
