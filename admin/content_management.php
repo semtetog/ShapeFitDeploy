@@ -2327,6 +2327,12 @@ function toggleContentFields() {
 let currentVideoFile = null;
 let videoFramesGenerated = false;
 
+// Variável global para controlar se arquivo foi removido
+let fileRemoved = false;
+
+// Variável global para armazenar dados do arquivo atual (para remoção)
+let currentFileData = null;
+
 // Função para detectar tipo de conteúdo automaticamente
 function detectContentType(file) {
     if (!file) return '';
