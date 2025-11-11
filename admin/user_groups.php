@@ -392,11 +392,11 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+    gap: 1rem;
     width: 100%;
     box-sizing: border-box;
     min-width: 0;
+    margin-bottom: 0.75rem;
 }
 
 .group-name {
@@ -409,17 +409,22 @@ require_once __DIR__ . '/includes/header.php';
     word-wrap: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
+    line-height: 1.3;
 }
 
 .group-description {
     font-size: 0.875rem;
     color: var(--text-secondary);
-    margin-top: 0.5rem;
+    margin: 0.5rem 0 0 0;
     line-height: 1.5;
     word-wrap: break-word;
     overflow-wrap: break-word;
     width: 100%;
     box-sizing: border-box;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 /* Toggle Switch - Igual challenge_groups.php */
@@ -561,41 +566,39 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .btn-action {
+    flex: 1;
     min-width: 0;
     max-width: 100%;
-    padding: 0.625rem 0.5rem;
-    gap: 0.375rem;
-    overflow: visible;
-    text-overflow: clip;
-    line-height: 1.2;
-    border-radius: 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    padding: 0.625rem 0.75rem;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: none;
-    font-family: 'Montserrat', sans-serif;
-    text-align: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
     white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    box-sizing: border-box;
+    border: 1px solid;
+    background: transparent;
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    position: relative;
+    line-height: 1.2;
 }
 
 .btn-action i {
-    font-size: 0.75rem;
     flex-shrink: 0;
+    font-size: 0.8125rem;
 }
 
-@media (min-width: 768px) {
-    .btn-action {
-        font-size: 0.8125rem;
-        padding: 0.625rem 0.625rem;
-    }
-    
-    .btn-action i {
-        font-size: 0.875rem;
-    }
+/* Garantir que o texto dos botões não seja cortado */
+.btn-action {
+    text-align: center;
 }
 
 .btn-view {
