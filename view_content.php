@@ -138,14 +138,38 @@ $content_files = [];
 try {
     $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
     if ($check_files_table && $check_files_table->num_rows > 0) {
+        // Buscar todos os arquivos
         $stmt_files = $conn->prepare("SELECT * FROM sf_content_files WHERE content_id = ? ORDER BY display_order ASC, created_at ASC");
         $stmt_files->bind_param("i", $content_id);
         $stmt_files->execute();
         $files_result = $stmt_files->get_result();
+        $all_files = [];
         while ($file_row = $files_result->fetch_assoc()) {
-            $content_files[] = $file_row;
+            $all_files[] = $file_row;
         }
         $stmt_files->close();
+        
+        // Separar vídeos e PDFs, ordenando: vídeos primeiro, PDFs por último
+        $videos = [];
+        $pdfs = [];
+        foreach ($all_files as $file) {
+            $is_pdf = false;
+            if (!empty($file['mime_type'])) {
+                $is_pdf = $file['mime_type'] === 'application/pdf';
+            } else {
+                $ext = strtolower(pathinfo($file['file_path'], PATHINFO_EXTENSION));
+                $is_pdf = $ext === 'pdf';
+            }
+            
+            if ($is_pdf) {
+                $pdfs[] = $file;
+            } else {
+                $videos[] = $file;
+            }
+        }
+        
+        // Combinar: vídeos primeiro, depois PDFs
+        $content_files = array_merge($videos, $pdfs);
     }
     
     // Se não há arquivos na tabela, usar campos antigos do sf_member_content (compatibilidade)
@@ -352,6 +376,47 @@ body {
     margin: 0;
     line-height: 1.5;
 }
+
+/* Separador laranja moderno (igual ao modal de calendário) */
+.content-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 32px 0;
+    gap: 1rem;
+}
+
+.content-separator-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-orange), transparent);
+    flex: 1;
+    position: relative;
+}
+
+.content-separator-line::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent-orange), transparent);
+    opacity: 0.3;
+    filter: blur(1px);
+}
+
+.content-separator-dots {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.content-separator-dot {
+    width: 4px;
+    height: 4px;
+    background: var(--accent-orange);
+    border-radius: 50%;
+}
 </style>
 
 <div class="app-container">
@@ -380,7 +445,7 @@ body {
             </div>
         <?php else: ?>
             <!-- Lista de arquivos -->
-            <div class="files-list" style="display: flex; flex-direction: column; gap: 32px;">
+            <div class="files-list" style="display: flex; flex-direction: column;">
                 <?php foreach ($content_files as $index => $file): ?>
                     <?php
                     // Determinar tipo de arquivo
@@ -442,6 +507,19 @@ body {
                             </a>
                         </div>
                     <?php endif; ?>
+                    
+                    <?php if ($index < count($content_files) - 1): ?>
+                        <!-- Separador laranja entre arquivos -->
+                        <div class="content-separator">
+                            <div class="content-separator-line"></div>
+                            <div class="content-separator-dots">
+                                <div class="content-separator-dot"></div>
+                                <div class="content-separator-dot"></div>
+                                <div class="content-separator-dot"></div>
+                            </div>
+                            <div class="content-separator-line"></div>
+                        </div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -449,7 +527,13 @@ body {
         <div class="content-meta">
             <div class="content-meta-item">
                 <i class="fas fa-calendar"></i>
-                <span><?php echo date('d/m/Y', strtotime($content['created_at'])); ?></span>
+                <span><?php 
+                    // Usar updated_at se existir, senão usar created_at
+                    $date_to_show = !empty($content['updated_at']) && $content['updated_at'] !== '0000-00-00 00:00:00' 
+                        ? $content['updated_at'] 
+                        : $content['created_at'];
+                    echo date('d/m/Y', strtotime($date_to_show)); 
+                ?></span>
             </div>
         </div>
     </div>
