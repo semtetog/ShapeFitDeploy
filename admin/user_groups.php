@@ -1020,6 +1020,66 @@ require_once __DIR__ . '/includes/header.php';
     font-family: 'Montserrat', sans-serif;
 }
 
+/* Estilos específicos para o modal de metas - Espaçamentos uniformes */
+#goalsModal .challenge-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+#goalsModal .challenge-form-group:last-child {
+    margin-bottom: 18px;
+}
+
+#goalsModal .challenge-form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+#goalsModal .challenge-form-group label {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+}
+
+#goalsModal .challenge-form-input {
+    margin: 0;
+}
+
+/* Ajustar espaçamento das linhas no modal de metas */
+#goalsModal .challenge-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 18px;
+}
+
+#goalsModal .challenge-form-row:last-child {
+    margin-bottom: 0;
+}
+
+#goalsModal .challenge-form-row .challenge-form-group {
+    margin-bottom: 0;
+}
+
+#goalsModal .challenge-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+}
+
+#goalsModal .challenge-section:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+#goalsModal .challenge-section:not(:first-of-type) {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+}
+
 .challenge-form-group label:has(+ input[required])::after,
 .challenge-form-group label:has(+ textarea[required])::after {
     content: ' *';
