@@ -1324,29 +1324,21 @@ function startDragNode(e, nodeId) {
 }
 
 function dragNode(e) {
-    if (!isDragging || !currentDraggingNode) return;
+    if (!isDragging || !currentDraggingNode || !canvas) return;
     if (isPanning) return; // Não arrastar nó se estiver fazendo pan
     
-    const canvasRect = canvas.getBoundingClientRect();
     const node = nodes.find(n => n.id === currentDraggingNode);
     if (!node) return;
     
+    const canvasRect = canvas.getBoundingClientRect();
+    
     // Calcular nova posição considerando zoom e pan
-    // Primeiro, converter coordenadas do mouse para coordenadas do canvas
-    const mouseX = e.clientX - canvasRect.left;
-    const mouseY = e.clientY - canvasRect.top;
-    
-    // Aplicar transformação inversa (considerar zoom e pan)
-    const canvasX = (mouseX - canvasOffset.x) / zoomLevel;
-    const canvasY = (mouseY - canvasOffset.y) / zoomLevel;
-    
-    // Calcular nova posição do nó
-    const newX = canvasX - dragOffset.x / zoomLevel;
-    const newY = canvasY - dragOffset.y / zoomLevel;
+    node.x = (e.clientX - canvasRect.left - canvasOffset.x) / zoomLevel - dragOffset.x;
+    node.y = (e.clientY - canvasRect.top - canvasOffset.y) / zoomLevel - dragOffset.y;
     
     // Limitar dentro dos bounds do canvas (opcional)
-    node.x = Math.max(0, newX);
-    node.y = Math.max(0, newY);
+    node.x = Math.max(0, node.x);
+    node.y = Math.max(0, node.y);
     
     const nodeEl = document.getElementById(currentDraggingNode);
     if (nodeEl) {
@@ -1393,11 +1385,20 @@ function startConnection(e, nodeId, connectorType) {
         return;
     }
     
+    if (!connectionsLayer) {
+        console.error('connectionsLayer não inicializado');
+        return;
+    }
+    
     isConnecting = true;
     connectionStart = { nodeId, connectorType };
     
     const nodeEl = document.getElementById(nodeId);
+    if (!nodeEl) return;
+    
     const connectorEl = nodeEl.querySelector(`[data-connector="${connectorType}"]`);
+    if (!connectorEl) return;
+    
     const rect = connectorEl.getBoundingClientRect();
     const svgRect = connectionsLayer.getBoundingClientRect();
     
