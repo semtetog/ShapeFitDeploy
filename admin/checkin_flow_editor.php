@@ -301,19 +301,34 @@ require_once __DIR__ . '/includes/header.php';
 
 .flow-connection-line {
     stroke: var(--accent-orange);
-    stroke-width: 2;
+    stroke-width: 3;
     fill: none;
-    marker-end: url(#arrowhead);
+    opacity: 0.8;
+    transition: stroke-width 0.2s ease, opacity 0.2s ease;
+}
+
+.flow-connection-line:hover {
+    stroke-width: 4;
+    opacity: 1;
+}
+
+.flow-connection-line.conditional {
+    stroke-dasharray: 8,4;
+    opacity: 0.6;
 }
 
 .flow-connection-line.connecting {
-    stroke-dasharray: 5,5;
-    animation: dash 0.5s linear infinite;
+    stroke-dasharray: 8,4;
+    opacity: 0.6;
+    animation: pulse-connection 1.5s ease-in-out infinite;
 }
 
-@keyframes dash {
-    to {
-        stroke-dashoffset: -10;
+@keyframes pulse-connection {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 0.9;
     }
 }
 
