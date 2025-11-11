@@ -3605,10 +3605,9 @@ function saveFileThumbnail(fileId, frameDataUrl) {
         .then(blob => {
             const file = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
             const formData = new FormData();
-            formData.append('action', 'save_content');
-            formData.append('content_id', document.getElementById('contentId').value);
+            formData.append('action', 'save_thumbnail_only'); // Ação específica que não valida título
+            formData.append('file_id', fileId);
             formData.append('thumbnail', file);
-            formData.append('thumbnail_file_id', fileId);
             
             return fetch('ajax_content_management.php', {
                 method: 'POST',
@@ -3626,18 +3625,10 @@ function saveFileThumbnail(fileId, frameDataUrl) {
                         video.poster = frameDataUrl;
                     }
                 }
-                
-                // Mostrar mensagem de sucesso
-                showAlert('Sucesso', 'Thumbnail atualizada com sucesso!');
-                
-                // Recarregar conteúdo para atualizar a lista
-                const contentId = document.getElementById('contentId').value;
-                if (contentId) {
-                    setTimeout(() => {
-                        editContent(contentId, true);
-                    }, 1000);
-                }
+                // Não mostrar alerta, apenas atualizar silenciosamente
+                // A atualização visual já acontece acima
             } else {
+                console.error('Erro ao salvar thumbnail:', data.error);
                 showAlert('Erro', data.error || 'Erro ao salvar thumbnail');
             }
         })
