@@ -2383,12 +2383,6 @@ function editContent(contentId, preserveNewFilePreview = false) {
     });
 }
 
-// Função para visualizar conteúdo
-function viewContent(contentId) {
-    // Redirecionar para página de visualização
-    window.open(`admin/view_content.php?id=${contentId}`, '_blank');
-}
-
 // Função para excluir conteúdo
 function deleteContent(contentId) {
     showConfirm('Confirmar Exclusão', 'Tem certeza que deseja excluir este conteúdo? Esta ação não pode ser desfeita.', function() {
