@@ -545,5 +545,20 @@ html {
     <?php endif; ?>
 </div>
 
-<?php require_once APP_ROOT_PATH . '/includes/layout_footer.php'; ?>
+<?php 
+// Adicionar bottom nav
+$current_page_script = 'content.php';
+$nav_map = [
+    'main_app.php' => 'home',
+    'progress.php' => 'stats',
+    'diary.php' => 'diary',
+    'explore_recipes.php' => 'explore',
+    'content.php' => 'explore',
+    'view_content.php' => 'explore',
+    'more_options.php' => 'settings'
+];
+$active_item = $nav_map[$current_page_script] ?? 'home';
+require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php'; 
+require_once APP_ROOT_PATH . '/includes/layout_footer.php'; 
+?>
 
