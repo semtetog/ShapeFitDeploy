@@ -68,8 +68,8 @@ $sql = "SELECT
     ug.created_at,
     ug.updated_at,
     COUNT(DISTINCT ugm.user_id) as member_count
-    FROM sf_user_groups ug
-    LEFT JOIN sf_user_group_members ugm ON ug.id = ugm.group_id
+                 FROM sf_user_groups ug
+                 LEFT JOIN sf_user_group_members ugm ON ug.id = ugm.group_id
     WHERE ug.admin_id = ?";
 $conditions = [];
 $params = [$admin_id];
@@ -636,15 +636,26 @@ require_once __DIR__ . '/includes/header.php';
     border-color: #a855f7;
 }
 
-.btn-patients {
+.btn-apply {
     background: rgba(34, 197, 94, 0.1);
     color: #22c55e;
     border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-.btn-patients:hover {
+.btn-apply:hover {
     background: rgba(34, 197, 94, 0.2);
     border-color: #22c55e;
+}
+
+.btn-revert {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-revert:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
 }
 
 /* Empty State */
@@ -934,6 +945,13 @@ require_once __DIR__ . '/includes/header.php';
     font-weight: 700;
     color: var(--text-primary);
     font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.challenge-edit-header h3 i {
+    color: var(--accent-orange);
 }
 
 .challenge-edit-body {
@@ -999,6 +1017,21 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(255, 255, 255, 0.08);
 }
 
+/* Remover setinhas dos inputs numéricos */
+.challenge-form-input[type="number"]::-webkit-outer-spin-button,
+.challenge-form-input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.challenge-form-input[type="number"],
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
 .challenge-form-textarea {
     resize: vertical;
     min-height: 80px;
@@ -1007,7 +1040,16 @@ require_once __DIR__ . '/includes/header.php';
 .challenge-section {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.challenge-section:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.challenge-section:not(:first-of-type) {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .challenge-section-title {
@@ -1018,6 +1060,10 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.challenge-section-title i {
+    color: var(--accent-orange);
 }
 
 .participants-search {
@@ -1148,7 +1194,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <button class="btn-create-group" onclick="openCreateGroupModal()" title="Criar Novo Grupo">
                 <i class="fas fa-plus"></i>
-            </button>
+                </button>
         </div>
 
         <!-- Stats -->
@@ -1160,7 +1206,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="stat-card" onclick="filterByStatus('active')">
                 <div class="stat-number" id="stat-active"><?php echo $stats['active']; ?></div>
                 <div class="stat-label">Ativos</div>
-            </div>
+                </div>
             <div class="stat-card" onclick="filterByStatus('inactive')">
                 <div class="stat-number" id="stat-inactive"><?php echo $stats['inactive']; ?></div>
                 <div class="stat-label">Inativos</div>
@@ -1177,20 +1223,20 @@ require_once __DIR__ . '/includes/header.php';
                        placeholder="Buscar grupos..." 
                        value="<?php echo htmlspecialchars($search_term); ?>"
                        onkeyup="handleSearch()">
+                </div>
             </div>
         </div>
-    </div>
 
     <!-- Groups Grid -->
     <?php if (empty($user_groups)): ?>
-        <div class="empty-state">
+                <div class="empty-state">
             <div class="empty-state-icon">
                 <i class="fas fa-users"></i>
-            </div>
+                    </div>
             <h3>Nenhum grupo encontrado</h3>
-            <p>Crie seu primeiro grupo para organizar seus pacientes</p>
-        </div>
-    <?php else: ?>
+                    <p>Crie seu primeiro grupo para organizar seus pacientes</p>
+                </div>
+            <?php else: ?>
         <div class="user-groups-grid">
             <?php foreach ($user_groups as $group): ?>
                 <div class="user-group-card" data-status="<?php echo $group['status']; ?>">
@@ -1247,7 +1293,7 @@ require_once __DIR__ . '/includes/header.php';
                         </button>
                     </div>
                 </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
         </div>
 
         <!-- Pagination -->
@@ -1270,8 +1316,8 @@ require_once __DIR__ . '/includes/header.php';
                     <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search_term); ?>&status=<?php echo urlencode($status_filter); ?>">
                         Próxima <i class="fas fa-chevron-right"></i>
                     </a>
-                <?php endif; ?>
-            </div>
+            <?php endif; ?>
+        </div>
         <?php endif; ?>
     <?php endif; ?>
 </div>
@@ -1406,10 +1452,10 @@ require_once __DIR__ . '/includes/header.php';
             <h3 id="membersTitle">Membros do Grupo</h3>
         </div>
         <div class="challenge-edit-body" id="membersContent">
-            <!-- Conteúdo será carregado via JavaScript -->
+                <!-- Conteúdo será carregado via JavaScript -->
+            </div>
         </div>
     </div>
-</div>
 
 <!-- Modal de Metas do Grupo -->
 <div id="goalsModal" class="challenge-edit-modal">
@@ -1419,7 +1465,9 @@ require_once __DIR__ . '/includes/header.php';
             <i class="fas fa-times"></i>
         </button>
         <div class="challenge-edit-header">
-            <h3 id="goalsTitle">Metas do Grupo</h3>
+            <h3 id="goalsTitle">
+                <i class="fas fa-bullseye"></i> Metas do Grupo
+            </h3>
         </div>
         <div class="challenge-edit-body">
             <form id="goalsForm">

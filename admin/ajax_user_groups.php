@@ -66,6 +66,9 @@ try {
         case 'apply_goals_to_members':
             applyGoalsToMembers($data, $admin_id);
             break;
+        case 'revert_goals_from_members':
+            revertGoalsFromMembers($data, $admin_id);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
