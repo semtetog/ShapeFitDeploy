@@ -183,6 +183,7 @@ $checkin_query = "
 
 $stmt_checkin = $conn->prepare($checkin_query);
 if ($stmt_checkin) {
+    // Bind: day_of_week, user_id (para distribuições), user_id (para grupos), user_id (para availability)
     $stmt_checkin->bind_param("iiii", $today_day_of_week, $user_id, $user_id, $user_id);
     $stmt_checkin->execute();
     $checkin_result = $stmt_checkin->get_result();

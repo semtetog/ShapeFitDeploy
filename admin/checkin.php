@@ -586,6 +586,7 @@ require_once __DIR__ . '/includes/header.php';
     font-family: 'Montserrat', sans-serif;
     outline: none;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .form-group input:focus,
@@ -593,11 +594,18 @@ require_once __DIR__ . '/includes/header.php';
 .form-group textarea:focus {
     background: rgba(255, 255, 255, 0.08);
     border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
 .form-group textarea {
     resize: vertical;
     min-height: 100px;
+}
+
+.form-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    cursor: pointer;
 }
 
 .questions-list {
