@@ -497,6 +497,62 @@ let currentDraggingNode = null;
 // Inicializar canvas
 const canvas = document.getElementById('flowCanvas');
 const connectionsLayer = document.getElementById('connectionsLayer');
+const canvasContainer = document.querySelector('.flow-canvas-container');
+
+// Pan do canvas (arrastar o canvas inteiro com botão direito ou espaço)
+canvas.addEventListener('mousedown', (e) => {
+    // Se clicou em um nó ou conector, não fazer pan
+    if (e.target.closest('.flow-node') || e.target.closest('.flow-node-connector')) {
+        return;
+    }
+    
+    // Pan com botão direito ou botão do meio ou Ctrl/Cmd
+    if (e.button === 2 || e.button === 1 || e.ctrlKey || e.metaKey) {
+        isPanning = true;
+        panStart.x = e.clientX - canvasOffset.x;
+        panStart.y = e.clientY - canvasOffset.y;
+        canvas.style.cursor = 'grabbing';
+        canvas.classList.add('panning');
+        e.preventDefault();
+    }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    if (isPanning) {
+        canvasOffset.x = e.clientX - panStart.x;
+        canvasOffset.y = e.clientY - panStart.y;
+        
+        // Aplicar transformação ao canvas
+        canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
+        connectionsLayer.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
+        
+        updateConnections();
+    }
+});
+
+canvas.addEventListener('mouseup', () => {
+    if (isPanning) {
+        isPanning = false;
+        canvas.style.cursor = 'grab';
+        canvas.classList.remove('panning');
+    }
+});
+
+canvas.addEventListener('mouseleave', () => {
+    if (isPanning) {
+        isPanning = false;
+        canvas.style.cursor = 'grab';
+        canvas.classList.remove('panning');
+    }
+});
+
+// Prevenir menu de contexto no canvas
+canvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+});
+
+// Atualizar cursor
+canvas.style.cursor = 'grab';
 
 // Carregar fluxo existente ou criar padrão
 function loadFlow() {
@@ -685,14 +741,15 @@ function startDragNode(e, nodeId) {
 
 function dragNode(e) {
     if (!isDragging || !currentDraggingNode) return;
+    if (isPanning) return; // Não arrastar nó se estiver fazendo pan
     
     const canvasRect = canvas.getBoundingClientRect();
     const node = nodes.find(n => n.id === currentDraggingNode);
     if (!node) return;
     
-    // Calcular nova posição considerando o offset e o scroll do canvas
-    const newX = e.clientX - canvasRect.left - dragOffset.x + canvasOffset.x;
-    const newY = e.clientY - canvasRect.top - dragOffset.y + canvasOffset.y;
+    // Calcular nova posição considerando o offset (sem canvasOffset para posição absoluta)
+    const newX = e.clientX - canvasRect.left - dragOffset.x;
+    const newY = e.clientY - canvasRect.top - dragOffset.y;
     
     // Limitar dentro dos bounds do canvas (opcional)
     node.x = Math.max(0, newX);
