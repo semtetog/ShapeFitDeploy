@@ -157,11 +157,6 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     height: 100%;
     background-color: #1a1a1a;
-    background-image: 
-        linear-gradient(rgba(255, 107, 0, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 107, 0, 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
-    background-position: 0 0;
     overflow: hidden;
 }
 
@@ -173,9 +168,10 @@ require_once __DIR__ . '/includes/header.php';
     transform-origin: top left;
     transition: transform 0.1s ease-out;
     background-color: #1a1a1a;
+    /* Grid cinza clarinho que se move com zoom/pan */
     background-image: 
-        linear-gradient(rgba(255, 107, 0, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 107, 0, 0.1) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
     background-size: 20px 20px;
     background-position: 0 0;
 }
@@ -1764,12 +1760,13 @@ function updateConnections() {
         const toNodeHeight = toEl.offsetHeight || 100;
         
         // Posições dos conectores em coordenadas locais do nó
-        // Input: top center, Output: bottom center
-        // Conectar exatamente nas bordas dos cards
+        // Os conectores estão posicionados nas bordas dos cards
+        // Output: bottom center (parte inferior do card)
+        // Input: top center (parte superior do card)
         const fromConnectorLocalX = fromNodeWidth / 2;
-        const fromConnectorLocalY = fromNodeHeight; // bottom edge
+        const fromConnectorLocalY = fromNodeHeight; // bottom edge do card
         const toConnectorLocalX = toNodeWidth / 2;
-        const toConnectorLocalY = 0; // top edge
+        const toConnectorLocalY = 0; // top edge do card
         
         // Posições absolutas no canvas (considerando zoom e pan)
         const x1 = (fromNode.x + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
