@@ -913,6 +913,17 @@ function selectNode(nodeId) {
 }
 
 function renderPropertiesPanel(nodeId) {
+    // Se nodeId é null, mostrar estado vazio
+    if (!nodeId) {
+        document.getElementById('propertiesContent').innerHTML = `
+            <div class="properties-empty">
+                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>Selecione um bloco para editar suas propriedades</p>
+            </div>
+        `;
+        return;
+    }
+    
     const node = nodes.find(n => n.id === nodeId);
     if (!node) {
         document.getElementById('propertiesContent').innerHTML = `
@@ -934,7 +945,8 @@ function renderPropertiesPanel(nodeId) {
             </div>
             <div class="form-group">
                 <label>Mensagem *</label>
-                <textarea id="prop-prompt" rows="4" placeholder="Digite a mensagem do bot..." onchange="updateNodeProperty('${nodeId}', 'prompt', this.value)">${node.data.prompt || ''}</textarea>
+                <textarea id="prop-prompt" rows="4" placeholder="Digite a mensagem do bot... Use {{variavel}} para placeholders" onchange="updateNodeProperty('${nodeId}', 'prompt', this.value)">${node.data.prompt || ''}</textarea>
+                <small style="color: var(--text-secondary); font-size: 0.75rem;">Use {{nome_variavel}} para inserir valores de respostas anteriores</small>
             </div>
             <div class="form-group">
                 <label>Delay (ms)</label>
@@ -999,7 +1011,8 @@ function renderPropertiesPanel(nodeId) {
             </div>
             <div class="form-group">
                 <label>Pergunta/Prompt *</label>
-                <textarea id="prop-prompt" rows="3" placeholder="Digite a pergunta..." onchange="updateNodeProperty('${nodeId}', 'prompt', this.value)">${node.data.prompt || ''}</textarea>
+                <textarea id="prop-prompt" rows="3" placeholder="Digite a pergunta... Use {{variavel}} para placeholders" onchange="updateNodeProperty('${nodeId}', 'prompt', this.value)">${node.data.prompt || ''}</textarea>
+                <small style="color: var(--text-secondary); font-size: 0.75rem;">Use {{nome_variavel}} para inserir valores de respostas anteriores</small>
             </div>
             <div class="form-group">
                 <label>Nome da Variável *</label>
@@ -1315,7 +1328,131 @@ function addConnection(fromNodeId, toNodeId) {
         return;
     }
     
-    connections.push({ from: fromNodeId, to: toNodeId });
+    connections.push({ 
+        from: fromNodeId, 
+        to: toNodeId,
+        condition: null,
+        priority: connections.filter(c => c.from === fromNodeId).length
+    });
+    updateConnections();
+}
+
+function selectConnection(fromNodeId, toNodeId) {
+    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
+    if (conn) {
+        renderConnectionProperties(conn, fromNodeId, toNodeId);
+    }
+}
+
+function renderConnectionProperties(conn, fromNodeId, toNodeId) {
+    const fromNode = nodes.find(n => n.id === fromNodeId);
+    const toNode = nodes.find(n => n.id === toNodeId);
+    
+    if (!fromNode || !toNode) return;
+    
+    // Obter variáveis disponíveis
+    const variables = extractVariables();
+    
+    const propsContent = document.getElementById('propertiesContent');
+    propsContent.innerHTML = `
+        <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+            <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 0.9rem;">Conexão</h4>
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.8rem;">
+                ${getNodeContent(fromNode)} → ${getNodeContent(toNode)}
+            </p>
+        </div>
+        <div class="form-group">
+            <label>Prioridade</label>
+            <input type="number" id="conn-priority" value="${conn.priority || 0}" min="0" onchange="updateConnectionProperty('${fromNodeId}', '${toNodeId}', 'priority', parseInt(this.value))">
+            <small style="color: var(--text-secondary); font-size: 0.75rem;">Menor número = maior prioridade</small>
+        </div>
+        <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="conn-has-condition" ${conn.condition ? 'checked' : ''} onchange="toggleConnectionCondition('${fromNodeId}', '${toNodeId}', this.checked)">
+                <span>Adicionar Condição</span>
+            </label>
+        </div>
+        ${conn.condition ? `
+            <div id="condition-editor" class="form-group">
+                <label>Condição</label>
+                <select id="conn-var" onchange="updateConditionVar('${fromNodeId}', '${toNodeId}')">
+                    <option value="">Selecione uma variável...</option>
+                    ${variables.map(v => `
+                        <option value="${v.name}" ${conn.condition?.var === v.name ? 'selected' : ''}>${v.name} (${v.type})</option>
+                    `).join('')}
+                </select>
+                <select id="conn-operator" style="margin-top: 0.5rem;" onchange="updateConditionOperator('${fromNodeId}', '${toNodeId}')">
+                    <option value="==" ${conn.condition?.op === '==' ? 'selected' : ''}>Igual a (==)</option>
+                    <option value="!=" ${conn.condition?.op === '!=' ? 'selected' : ''}>Diferente de (!=)</option>
+                    <option value=">" ${conn.condition?.op === '>' ? 'selected' : ''}>Maior que (>)</option>
+                    <option value=">=" ${conn.condition?.op === '>=' ? 'selected' : ''}>Maior ou igual (>=)</option>
+                    <option value="<" ${conn.condition?.op === '<' ? 'selected' : ''}>Menor que (<)</option>
+                    <option value="<=" ${conn.condition?.op === '<=' ? 'selected' : ''}>Menor ou igual (<=)</option>
+                    <option value="contains" ${conn.condition?.op === 'contains' ? 'selected' : ''}>Contém</option>
+                    <option value="startsWith" ${conn.condition?.op === 'startsWith' ? 'selected' : ''}>Começa com</option>
+                </select>
+                <input type="text" id="conn-value" value="${conn.condition?.value || ''}" placeholder="Valor de comparação" style="margin-top: 0.5rem;" onchange="updateConditionValue('${fromNodeId}', '${toNodeId}', this.value)">
+                <button onclick="removeConnectionCondition('${fromNodeId}', '${toNodeId}')" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; color: #ef4444; cursor: pointer;">
+                    <i class="fas fa-trash"></i> Remover Condição
+                </button>
+            </div>
+        ` : ''}
+    `;
+}
+
+function toggleConnectionCondition(fromNodeId, toNodeId, enabled) {
+    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
+    if (!conn) return;
+    
+    if (enabled) {
+        conn.condition = { var: '', op: '==', value: '' };
+    } else {
+        conn.condition = null;
+    }
+    
+    renderConnectionProperties(conn, fromNodeId, toNodeId);
+}
+
+function updateConnectionProperty(fromNodeId, toNodeId, prop, value) {
+    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
+    if (!conn) return;
+    
+    conn[prop] = value;
+    updateConnections();
+}
+
+function updateConditionVar(fromNodeId, toNodeId) {
+    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
+    if (!conn || !conn.condition) return;
+    
+    const select = document.getElementById('conn-var');
+    conn.condition.var = select.value;
+    updateConnections();
+}
+
+function updateConditionOperator(fromNodeId, toNodeId) {
+    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
+    if (!conn || !conn.condition) return;
+    
+    const select = document.getElementById('conn-operator');
+    conn.condition.op = select.value;
+    updateConnections();
+}
+
+function updateConditionValue(fromNodeId, toNodeId, value) {
+    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
+    if (!conn || !conn.condition) return;
+    
+    conn.condition.value = value;
+    updateConnections();
+}
+
+function removeConnectionCondition(fromNodeId, toNodeId) {
+    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
+    if (!conn) return;
+    
+    conn.condition = null;
+    renderConnectionProperties(conn, fromNodeId, toNodeId);
     updateConnections();
 }
 
@@ -1378,20 +1515,55 @@ function updateConnections() {
         line.setAttribute('x2', x2);
         line.setAttribute('y2', y2);
         line.setAttribute('class', 'flow-connection-line');
+        // Estilo baseado em condição
+        const hasCondition = conn.condition && conn.condition.var;
         line.setAttribute('stroke', 'var(--accent-orange)');
         line.setAttribute('stroke-width', '2');
         line.setAttribute('fill', 'none');
         line.setAttribute('marker-end', 'url(#arrowhead)');
+        if (hasCondition) {
+            line.setAttribute('class', 'flow-connection-line conditional');
+            line.setAttribute('stroke-dasharray', '5,5');
+        }
         line.dataset.from = conn.from;
         line.dataset.to = conn.to;
         line.style.cursor = 'pointer';
         
         line.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (confirm('Deseja remover esta conexão?')) {
-                connections = connections.filter(c => !(c.from === conn.from && c.to === conn.to));
-                updateConnections();
-            }
+            // Mostrar menu de contexto
+            const menu = document.createElement('div');
+            menu.style.cssText = `
+                position: fixed;
+                top: ${e.clientY}px;
+                left: ${e.clientX}px;
+                background: rgba(20, 20, 20, 0.95);
+                border: 1px solid var(--glass-border);
+                border-radius: 8px;
+                padding: 0.5rem;
+                z-index: 10000;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            `;
+            menu.innerHTML = `
+                <button onclick="selectConnection('${conn.from}', '${conn.to}'); this.parentElement.remove();" style="width: 100%; padding: 0.5rem; background: transparent; border: none; color: var(--text-primary); cursor: pointer; text-align: left; border-radius: 4px; margin-bottom: 0.25rem;">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button onclick="if(confirm('Deseja remover esta conexão?')) { connections = connections.filter(c => !(c.from === '${conn.from}' && c.to === '${conn.to}')); updateConnections(); } this.parentElement.remove();" style="width: 100%; padding: 0.5rem; background: transparent; border: none; color: #ef4444; cursor: pointer; text-align: left; border-radius: 4px;">
+                    <i class="fas fa-trash"></i> Remover
+                </button>
+            `;
+            document.body.appendChild(menu);
+            
+            // Remover menu ao clicar fora
+            setTimeout(() => {
+                const removeMenu = (e) => {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        document.removeEventListener('click', removeMenu);
+                    }
+                };
+                setTimeout(() => document.addEventListener('click', removeMenu), 100);
+            }, 100);
         });
         
         connectionsLayer.appendChild(line);
@@ -1666,17 +1838,40 @@ function renderNextBlock() {
     const inputDiv = document.getElementById('chatInputContainer');
     
     if (block.type === 'bot_message') {
-        // Mostrar mensagem do bot
-        addChatMessage(block.data.prompt || '...', 'bot');
+        // Processar placeholders na mensagem
+        const message = processPlaceholders(block.data.prompt || '...', chatState.answers);
+        addChatMessage(message, 'bot');
         
         // Aguardar delay e avançar
-        setTimeout(() => {
-            moveToNextBlock();
-        }, block.data.delay || 500);
+        const delay = block.data.delay || (block.data.auto_continue ? 500 : 0);
+        if (delay > 0 || block.data.auto_continue) {
+            setTimeout(() => {
+                moveToNextBlock();
+            }, delay);
+        } else {
+            // Mostrar botão "Continuar"
+            const inputDiv = document.getElementById('chatInputContainer');
+            inputDiv.innerHTML = '';
+            const continueBtn = document.createElement('button');
+            continueBtn.textContent = 'Continuar';
+            continueBtn.style.cssText = `
+                width: 100%;
+                padding: 0.75rem;
+                background: var(--accent-orange);
+                border: none;
+                border-radius: 8px;
+                color: white;
+                cursor: pointer;
+                font-weight: 600;
+            `;
+            continueBtn.onclick = () => moveToNextBlock();
+            inputDiv.appendChild(continueBtn);
+        }
         
     } else if (block.type === 'question') {
-        // Mostrar pergunta e input
-        addChatMessage(block.data.prompt || '...', 'bot');
+        // Processar placeholders na pergunta
+        const question = processPlaceholders(block.data.prompt || '...', chatState.answers);
+        addChatMessage(question, 'bot');
         renderQuestionInput(block);
         
     } else if (block.type === 'action') {
@@ -1701,6 +1896,7 @@ function addChatMessage(text, type) {
         margin-bottom: 1rem;
         display: flex;
         ${type === 'bot' ? 'justify-content: flex-start;' : 'justify-content: flex-end;'}
+        animation: fadeInUp 0.3s ease;
     `;
     
     const bubble = document.createElement('div');
@@ -1712,11 +1908,27 @@ function addChatMessage(text, type) {
         color: ${type === 'bot' ? 'var(--text-primary)' : 'white'};
         word-wrap: break-word;
     `;
-    bubble.textContent = text;
+    
+    // Processar placeholders
+    const processedText = processPlaceholders(text, chatState?.answers || {});
+    bubble.innerHTML = processedText.replace(/\n/g, '<br>');
     
     messageDiv.appendChild(bubble);
     messagesDiv.appendChild(messageDiv);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function processPlaceholders(text, answers) {
+    if (!text) return '';
+    
+    // Substituir {{variavel}} pelos valores
+    return text.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+        const value = answers[varName];
+        if (value === undefined || value === null) {
+            return match; // Manter placeholder se não houver valor
+        }
+        return String(value);
+    });
 }
 
 function renderQuestionInput(block) {
@@ -1802,19 +2014,78 @@ function renderQuestionInput(block) {
 }
 
 function submitAnswer(block, value) {
-    if (!value || value.trim() === '') {
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
         if (block.data.required !== false) {
             alert('Esta pergunta é obrigatória');
             return;
         }
     }
     
+    // Validar valor baseado no tipo
+    if (!validateAnswer(block, value)) {
+        return;
+    }
+    
+    // Normalizar valor
+    const normalizedValue = normalizeAnswer(block, value);
+    
     // Salvar resposta
-    chatState.answers[block.data.variable_name] = value;
-    addChatMessage(value, 'user');
+    chatState.answers[block.data.variable_name] = normalizedValue;
+    
+    // Mostrar resposta do usuário
+    const displayValue = block.subtype === 'yesno' ? (value === 'true' ? 'Sim' : 'Não') : value;
+    addChatMessage(displayValue, 'user');
+    
+    // Limpar input
+    const inputDiv = document.getElementById('chatInputContainer');
+    inputDiv.innerHTML = '';
     
     // Mover para próximo bloco
-    moveToNextBlock();
+    setTimeout(() => moveToNextBlock(), 200);
+}
+
+function validateAnswer(block, value) {
+    if (block.subtype === 'number') {
+        const num = Number(value);
+        if (isNaN(num)) {
+            alert('Por favor, insira um número válido');
+            return false;
+        }
+        if (block.data.min !== undefined && num < block.data.min) {
+            alert(`O valor deve ser maior ou igual a ${block.data.min}`);
+            return false;
+        }
+        if (block.data.max !== undefined && num > block.data.max) {
+            alert(`O valor deve ser menor ou igual a ${block.data.max}`);
+            return false;
+        }
+    } else if (block.subtype === 'email') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            alert('Por favor, insira um email válido');
+            return false;
+        }
+    } else if (block.subtype === 'multiple_choice' || block.subtype === 'chips') {
+        const options = block.data.options || [];
+        const validValues = options.map(opt => opt.value);
+        if (!validValues.includes(value)) {
+            alert('Por favor, selecione uma opção válida');
+            return false;
+        }
+    }
+    return true;
+}
+
+function normalizeAnswer(block, value) {
+    if (block.subtype === 'number') {
+        return Number(value);
+    } else if (block.subtype === 'yesno') {
+        return value === 'true' || value === true || value === 'Sim';
+    } else if (block.subtype === 'checkbox') {
+        // Se já é array, retornar; senão, criar array
+        return Array.isArray(value) ? value : [value];
+    }
+    return String(value);
 }
 
 function moveToNextBlock() {
@@ -1823,22 +2094,76 @@ function moveToNextBlock() {
     const currentBlockId = chatState.currentBlock.id;
     
     // Encontrar próximo bloco baseado nas conexões
-    const nextConnections = connections.filter(c => c.from === currentBlockId);
+    let nextConnections = connections.filter(c => c.from === currentBlockId);
     
     if (nextConnections.length === 0) {
         // Fim do fluxo
-        addChatMessage('Fluxo finalizado!', 'bot');
+        addChatMessage('Fluxo finalizado! Obrigado pelas suas respostas.', 'bot');
         return;
     }
     
-    // Por enquanto, pegar a primeira conexão (depois implementar condições)
-    const nextBlock = nodes.find(n => n.id === nextConnections[0].to);
+    // Ordenar por prioridade
+    nextConnections.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+    
+    // Avaliar condições
+    let nextBlock = null;
+    for (const conn of nextConnections) {
+        if (conn.condition) {
+            // Avaliar condição
+            if (evaluateCondition(conn.condition, chatState.answers)) {
+                nextBlock = nodes.find(n => n.id === conn.to);
+                break;
+            }
+        } else {
+            // Conexão sem condição (fallback/default)
+            if (!nextBlock) {
+                nextBlock = nodes.find(n => n.id === conn.to);
+            }
+        }
+    }
+    
+    // Se nenhuma condição foi satisfeita, usar o fallback
+    if (!nextBlock && nextConnections.length > 0) {
+        nextBlock = nodes.find(n => n.id === nextConnections[0].to);
+    }
     
     if (nextBlock) {
         chatState.currentBlock = nextBlock;
         setTimeout(() => renderNextBlock(), 300);
     } else {
-        addChatMessage('Fluxo finalizado!', 'bot');
+        addChatMessage('Fluxo finalizado! Obrigado pelas suas respostas.', 'bot');
+    }
+}
+
+function evaluateCondition(condition, answers) {
+    if (!condition || !condition.var) return true;
+    
+    const varValue = answers[condition.var];
+    const compareValue = condition.value;
+    
+    if (varValue === undefined || varValue === null) {
+        return false;
+    }
+    
+    switch (condition.op) {
+        case '==':
+            return String(varValue) === String(compareValue);
+        case '!=':
+            return String(varValue) !== String(compareValue);
+        case '>':
+            return Number(varValue) > Number(compareValue);
+        case '>=':
+            return Number(varValue) >= Number(compareValue);
+        case '<':
+            return Number(varValue) < Number(compareValue);
+        case '<=':
+            return Number(varValue) <= Number(compareValue);
+        case 'contains':
+            return String(varValue).toLowerCase().includes(String(compareValue).toLowerCase());
+        case 'startsWith':
+            return String(varValue).toLowerCase().startsWith(String(compareValue).toLowerCase());
+        default:
+            return true;
     }
 }
 
