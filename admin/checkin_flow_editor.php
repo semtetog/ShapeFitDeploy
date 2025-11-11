@@ -1451,8 +1451,10 @@ function endConnection(e) {
     if (!isConnecting) return;
     
     // Remover linha temporária
-    const tempLine = connectionsLayer.querySelector('#temp-connection');
-    if (tempLine) tempLine.remove();
+    if (connectionsLayer) {
+        const tempLine = connectionsLayer.querySelector('#temp-connection');
+        if (tempLine) tempLine.remove();
+    }
     
     const target = e.target.closest('.flow-node-connector');
     if (target && connectionStart) {
@@ -1471,6 +1473,9 @@ function endConnection(e) {
     connectionStart = null;
     document.removeEventListener('mousemove', drawConnection);
     document.removeEventListener('mouseup', endConnection);
+    
+    // Atualizar conexões após criar nova
+    updateConnections();
 }
 
 function addConnection(fromNodeId, toNodeId) {
@@ -1698,6 +1703,7 @@ function updateConnections() {
         path.dataset.from = conn.from;
         path.dataset.to = conn.to;
         path.style.cursor = 'pointer';
+        path.style.pointerEvents = 'stroke';
         
         path.addEventListener('click', (e) => {
             e.stopPropagation();
