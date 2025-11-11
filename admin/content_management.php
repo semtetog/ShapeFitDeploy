@@ -1380,7 +1380,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             <?php else: ?>
             <?php foreach ($contents as $content): ?>
-                <div class="content-card" data-type="<?php echo $content['content_type']; ?>" data-status="<?php echo $content['status'] ?? 'draft'; ?>">
+                <div class="content-card" data-type="<?php echo $content['content_type']; ?>" data-status="<?php echo $content['status'] ?? 'active'; ?>">
                     <div class="content-card-header">
                         <div class="content-header-with-icon">
                             <div class="content-type-icon">
@@ -1408,6 +1408,21 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                             <h3 class="content-name"><?php echo htmlspecialchars($content['title']); ?></h3>
                         </div>
+                        <div class="toggle-switch-wrapper" onclick="event.stopPropagation()">
+                            <?php
+                            $is_active = ($content['status'] ?? 'active') === 'active';
+                            ?>
+                            <label class="toggle-switch">
+                                <input type="checkbox" 
+                                       class="toggle-switch-input" 
+                                       <?php echo $is_active ? 'checked' : ''; ?>
+                                       onchange="toggleContentStatus(<?php echo $content['id']; ?>, '<?php echo $content['status'] ?? 'active'; ?>', this)"
+                                       data-content-id="<?php echo $content['id']; ?>"
+                                       data-current-status="<?php echo $content['status'] ?? 'active'; ?>">
+                                <span class="toggle-switch-slider"></span>
+                            </label>
+                            <span class="toggle-switch-label" id="toggle-label-<?php echo $content['id']; ?>" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
+                        </div>
                     </div>
                     
                     <div class="content-card-body">
@@ -1417,35 +1432,25 @@ require_once __DIR__ . '/includes/header.php';
                         </p>
                         
                         <!-- Informações extras (opcionais) - aparecem antes do spacer -->
-                        <?php if ((isset($content['target_type']) && $content['target_type'] !== 'all') || isset($content['status'])): ?>
+                        <?php if (isset($content['target_type']) && $content['target_type'] !== 'all'): ?>
                             <div class="content-extra-info">
-                                <?php if (isset($content['target_type']) && $content['target_type'] !== 'all'): ?>
-                                    <div class="content-info-item">
-                                        <i class="fas fa-users"></i>
-                                        <span>
-                                            <?php
-                                            switch($content['target_type']) {
-                                                case 'user':
-                                                    echo 'Usuário específico';
-                                                    break;
-                                                case 'group':
-                                                    echo 'Grupo específico';
-                                                    break;
-                                                default:
-                                                    echo 'Todos os usuários';
-                                            }
-                                            ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
-                                
-                                <?php if (isset($content['status'])): ?>
-                                    <div class="content-info-item">
-                                        <span class="status-badge <?php echo $content['status']; ?>">
-                                            <?php echo ucfirst($content['status']); ?>
-                                        </span>
-                                    </div>
-                                <?php endif; ?>
+                                <div class="content-info-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>
+                                        <?php
+                                        switch($content['target_type']) {
+                                            case 'user':
+                                                echo 'Usuário específico';
+                                                break;
+                                            case 'group':
+                                                echo 'Grupo específico';
+                                                break;
+                                            default:
+                                                echo 'Todos os usuários';
+                                        }
+                                        ?>
+                                    </span>
+                                </div>
                             </div>
                         <?php endif; ?>
                         
@@ -1579,21 +1584,8 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
                 
-                <div class="challenge-form-group">
-                    <label>Status</label>
-                    <input type="hidden" id="contentStatus" name="status" value="active">
-                    <div class="toggle-switch-wrapper">
-                        <label class="toggle-switch">
-                            <input type="checkbox" 
-                                   class="toggle-switch-input" 
-                                   id="contentStatusToggle"
-                                   checked
-                                   onchange="updateContentStatus(this)">
-                            <span class="toggle-switch-slider"></span>
-                        </label>
-                        <span class="toggle-switch-label" id="contentStatusLabel" style="color: #22C55E; font-weight: 700;">Ativo</span>
-                    </div>
-                </div>
+                <!-- Status será sempre 'active' por padrão, mas pode ser alterado via toggle no card -->
+                <input type="hidden" id="contentStatus" name="status" value="active">
             </form>
         </div>
         <div class="challenge-edit-footer">
@@ -1850,43 +1842,131 @@ function openCreateContentModal() {
     // Resetar custom selects
     resetCustomSelect('contentTypeSelect', 'contentType', '', 'Selecione...');
     resetCustomSelect('targetTypeSelect', 'targetType', '', 'Selecione...');
-    // Resetar toggle de status
-    const statusToggle = document.getElementById('contentStatusToggle');
-    const statusLabel = document.getElementById('contentStatusLabel');
-    const statusInput = document.getElementById('contentStatus');
-    if (statusToggle) {
-        statusToggle.checked = true;
-        statusInput.value = 'active';
-        if (statusLabel) {
-            statusLabel.textContent = 'Ativo';
-            statusLabel.style.color = '#22C55E';
-            statusLabel.style.fontWeight = '700';
-        }
-    }
+    // Status sempre será 'active' por padrão (definido no hidden input)
     
     const modal = document.getElementById('contentModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
-// Função para atualizar status do conteúdo via toggle
-function updateContentStatus(toggleElement) {
-    const toggle = toggleElement || document.getElementById('contentStatusToggle');
-    const label = document.getElementById('contentStatusLabel');
-    const input = document.getElementById('contentStatus');
+// Toggle status do conteúdo - Igual user_groups.php
+function toggleContentStatus(contentId, currentStatus, toggleElement) {
+    const toggle = toggleElement || document.querySelector(`.toggle-switch-input[data-content-id="${contentId}"]`);
+    if (!toggle) return;
     
-    if (!toggle || !label || !input) return;
-    
+    // IMPORTANTE: O checkbox já foi alterado pelo evento onchange
+    // Então toggle.checked já reflete o NOVO estado (não o antigo)
     const isChecked = toggle.checked;
     const newStatus = isChecked ? 'active' : 'inactive';
-    const newText = isChecked ? 'Ativo' : 'Inativo';
-    const newColor = isChecked ? '#22C55E' : '#EF4444';
-    const newWeight = isChecked ? '700' : '600';
+    const wrapper = toggle.closest('.toggle-switch-wrapper');
+    const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
     
-    input.value = newStatus;
-    label.textContent = newText;
-    label.style.color = newColor;
-    label.style.fontWeight = newWeight;
+    // Atualizar label IMEDIATAMENTE baseado no estado atual do checkbox
+    if (label) {
+        const newText = isChecked ? 'Ativo' : 'Inativo';
+        const newColor = isChecked ? '#22C55E' : '#EF4444';
+        const newWeight = isChecked ? '700' : '600';
+        
+        // Atualizar diretamente
+        label.textContent = newText;
+        label.style.color = newColor;
+        label.style.fontWeight = newWeight;
+        
+        // Forçar reflow para garantir que a atualização seja visível
+        label.offsetHeight;
+    }
+    
+    fetch('ajax_content_management.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'toggle_status',
+            content_id: contentId,
+            status: newStatus
+        })
+    })
+    .then(async response => {
+        const text = await response.text();
+        if (!response.ok) {
+            throw new Error(text || `Erro HTTP ${response.status}`);
+        }
+        if (!text || text.trim() === '') {
+            throw new Error('Resposta vazia do servidor');
+        }
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('Resposta inválida do servidor');
+        }
+    })
+    .then(data => {
+        if (data.success) {
+            // Atualizar estatísticas
+            updateContentStats();
+            // Atualizar data-status do card
+            const card = toggle.closest('.content-card');
+            if (card) {
+                card.setAttribute('data-status', newStatus);
+            }
+        } else {
+            // Reverter toggle
+            toggle.checked = !isChecked;
+            if (label) {
+                label.textContent = isChecked ? 'Inativo' : 'Ativo';
+                label.style.color = isChecked ? '#EF4444' : '#22C55E';
+                label.style.fontWeight = isChecked ? '600' : '700';
+            }
+            alert('Erro ao atualizar status: ' + (data.error || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        // Reverter toggle
+        toggle.checked = !isChecked;
+        if (label) {
+            label.textContent = isChecked ? 'Inativo' : 'Ativo';
+            label.style.color = isChecked ? '#EF4444' : '#22C55E';
+            label.style.fontWeight = isChecked ? '600' : '700';
+        }
+        alert('Erro ao atualizar status. Tente novamente.');
+    });
+}
+
+// Atualizar estatísticas de conteúdo
+function updateContentStats() {
+    fetch('ajax_content_management.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'get_stats'
+        })
+    })
+    .then(async response => {
+        const text = await response.text();
+        if (!response.ok || !text) return null;
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            return null;
+        }
+    })
+    .then(data => {
+        if (data && data.success && data.stats) {
+            const statTotal = document.getElementById('stat-total');
+            const statActive = document.getElementById('stat-active');
+            const statInactive = document.getElementById('stat-inactive');
+            if (statTotal) statTotal.textContent = data.stats.total || 0;
+            if (statActive) statActive.textContent = data.stats.active || 0;
+            if (statInactive) statInactive.textContent = data.stats.inactive || 0;
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao atualizar estatísticas:', error);
+    });
 }
 
 // Função para fechar modal
@@ -1918,20 +1998,7 @@ function editContent(contentId) {
             // Definir valores dos custom selects
             setCustomSelectValue('contentTypeSelect', 'contentType', content.content_type || '');
             setCustomSelectValue('targetTypeSelect', 'targetType', content.target_type || 'all');
-            // Atualizar toggle de status
-            const statusToggle = document.getElementById('contentStatusToggle');
-            const statusLabel = document.getElementById('contentStatusLabel');
-            const statusInput = document.getElementById('contentStatus');
-            const isActive = (content.status || 'active') === 'active';
-            if (statusToggle) {
-                statusToggle.checked = isActive;
-                statusInput.value = isActive ? 'active' : 'inactive';
-                if (statusLabel) {
-                    statusLabel.textContent = isActive ? 'Ativo' : 'Inativo';
-                    statusLabel.style.color = isActive ? '#22C55E' : '#EF4444';
-                    statusLabel.style.fontWeight = isActive ? '700' : '600';
-                }
-            }
+            // Status não é editado no modal, apenas via toggle no card
             
             // Toggle campos baseado no tipo
             toggleContentFields();

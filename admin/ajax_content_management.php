@@ -48,6 +48,9 @@ try {
         case 'get_stats':
             getStats($conn, $admin_id);
             break;
+        case 'toggle_status':
+            toggleContentStatus($conn, $admin_id);
+            break;
         default:
             throw new Exception('Ação não especificada');
     }
@@ -451,6 +454,68 @@ function getStats($conn, $admin_id) {
             'draft' => $stats_by_status['draft'],
             'by_type' => $stats_by_type
         ]
+    ]);
+}
+
+function toggleContentStatus($conn, $admin_id) {
+    // Verificar se recebeu JSON
+    $input = file_get_contents('php://input');
+    $data = json_decode($input, true);
+    
+    if (!$data) {
+        // Tentar POST normal
+        $content_id = (int)($_POST['content_id'] ?? 0);
+        $status = $_POST['status'] ?? 'active';
+    } else {
+        $content_id = (int)($data['content_id'] ?? 0);
+        $status = $data['status'] ?? 'active';
+    }
+    
+    if ($content_id <= 0) {
+        throw new Exception('ID do conteúdo inválido');
+    }
+    
+    // Validar status
+    if ($status !== 'active' && $status !== 'inactive') {
+        throw new Exception('Status inválido. Use apenas "active" ou "inactive"');
+    }
+    
+    // Verificar se a coluna status existe
+    $has_status = false;
+    try {
+        $check_status = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'status'");
+        if ($check_status && $check_status->num_rows > 0) {
+            $has_status = true;
+        }
+    } catch (Exception $e) {
+        // Se não conseguir verificar, assume que não existe
+        $has_status = false;
+    }
+    
+    if (!$has_status) {
+        throw new Exception('Coluna status não existe na tabela. Execute o script SQL para adicionar a coluna.');
+    }
+    
+    // Atualizar status
+    $stmt = $conn->prepare("UPDATE sf_member_content SET status = ? WHERE id = ? AND admin_id = ?");
+    $stmt->bind_param("sii", $status, $content_id, $admin_id);
+    
+    if (!$stmt->execute()) {
+        throw new Exception('Erro ao atualizar status: ' . $stmt->error);
+    }
+    
+    if ($stmt->affected_rows === 0) {
+        $stmt->close();
+        throw new Exception('Conteúdo não encontrado ou você não tem permissão para editá-lo');
+    }
+    
+    $stmt->close();
+    
+    ob_clean();
+    echo json_encode([
+        'success' => true,
+        'message' => 'Status atualizado com sucesso',
+        'status' => $status
     ]);
 }
 
