@@ -226,6 +226,145 @@ require_once __DIR__ . '/includes/header.php';
     cursor: grabbing !important;
 }
 
+/* Grupo Typebot - Card branco grande */
+.typebot-group {
+    position: absolute;
+    min-width: 320px;
+    max-width: 400px;
+    width: auto;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0;
+    cursor: move;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    user-select: none;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.typebot-group:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.typebot-group.selected {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.typebot-group-header {
+    background: #f9fafb;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.typebot-group-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.typebot-group-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.typebot-group-content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Bloco dentro do grupo */
+.typebot-block {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    width: 100%;
+}
+
+.typebot-block-content {
+    padding: 0.75rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+    color: #374151;
+    line-height: 1.5;
+}
+
+.typebot-block-content.text-bubble {
+    background: #f3f4f6;
+    border-left: 3px solid #9ca3af;
+    padding-left: 0.875rem;
+}
+
+.typebot-block-content.input-field {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    padding: 0.625rem 0.75rem;
+    border-radius: 6px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.typebot-block-content.choice-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.typebot-choice-item {
+    padding: 0.5rem 0.75rem;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+/* Conectores do grupo (não dos blocos individuais) */
+.typebot-group-connector {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #3b82f6;
+    border: 3px solid #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.typebot-group-connector:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.typebot-group-connector.input {
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.typebot-group-connector.output {
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 .flow-node {
     position: absolute;
     min-width: 200px;
@@ -1071,153 +1210,172 @@ function loadFlow() {
     updateConnections();
 }
 
-// Renderizar grupo do Typebot
+// Renderizar grupo do Typebot - Card branco grande com título
 function renderTypebotGroup(group) {
     const groupCoords = group.graphCoordinates || { x: 0, y: 0 };
-    let currentY = groupCoords.y || 0;
+    const groupTitle = group.title || 'Grupo';
     
-    // Renderizar cada bloco do grupo
-    if (group.blocks && Array.isArray(group.blocks)) {
-        group.blocks.forEach((block, index) => {
-            renderTypebotBlock(block, group, groupCoords.x, currentY);
-            currentY += 120; // Espaçamento entre blocos
-        });
-    }
-}
-
-// Renderizar bloco individual do Typebot
-function renderTypebotBlock(block, group, x, y) {
-    const blockEl = document.createElement('div');
-    blockEl.className = 'flow-node typebot-block';
-    blockEl.id = block.id;
-    blockEl.style.left = (x || 0) + 'px';
-    blockEl.style.top = (y || 0) + 'px';
-    blockEl.dataset.blockId = block.id;
-    blockEl.dataset.groupId = group.id;
-    blockEl.dataset.blockType = block.type;
+    // Criar container do grupo
+    const groupEl = document.createElement('div');
+    groupEl.className = 'typebot-group';
+    groupEl.id = `group_${group.id}`;
+    groupEl.style.left = (groupCoords.x || 0) + 'px';
+    groupEl.style.top = (groupCoords.y || 0) + 'px';
+    groupEl.dataset.groupId = group.id;
     
-    // Mapear tipos do Typebot para nossos labels
-    const typeLabels = {
-        'text': 'Mensagem',
-        'text input': 'Input Texto',
-        'choice input': 'Múltipla Escolha',
-        'number input': 'Input Número',
-        'email input': 'Input Email',
-        'phone input': 'Input Telefone',
-        'date input': 'Input Data',
-        'url input': 'Input URL',
-        'file input': 'Input Arquivo',
-        'payment input': 'Input Pagamento',
-        'rating input': 'Avaliação',
-        'picture choice': 'Escolha de Imagem',
-        'button': 'Botão',
-        'image': 'Imagem',
-        'video': 'Vídeo',
-        'embed': 'Embed',
-        'audio': 'Áudio'
-    };
+    // Calcular altura do grupo baseado nos blocos
+    const blocksCount = group.blocks ? group.blocks.length : 0;
+    const estimatedHeight = Math.max(200, blocksCount * 100 + 100); // Header + blocos + padding
     
-    const typeIcons = {
-        'text': 'fa-comment',
-        'text input': 'fa-keyboard',
-        'choice input': 'fa-list',
-        'number input': 'fa-hashtag',
-        'email input': 'fa-envelope',
-        'phone input': 'fa-phone',
-        'date input': 'fa-calendar',
-        'url input': 'fa-link',
-        'file input': 'fa-file',
-        'payment input': 'fa-credit-card',
-        'rating input': 'fa-star',
-        'picture choice': 'fa-images',
-        'button': 'fa-mouse-pointer',
-        'image': 'fa-image',
-        'video': 'fa-video',
-        'embed': 'fa-code',
-        'audio': 'fa-headphones'
-    };
+    groupEl.style.width = '360px';
+    groupEl.style.minHeight = estimatedHeight + 'px';
     
-    const displayLabel = typeLabels[block.type] || block.type;
-    const displayIcon = typeIcons[block.type] || 'fa-cube';
-    
-    // Extrair texto do conteúdo
-    let contentText = '';
-    if (block.content) {
-        if (block.content.richText && Array.isArray(block.content.richText)) {
-            contentText = block.content.richText.map(rt => {
-                if (rt.type === 'p' && rt.children) {
-                    return rt.children.map(c => c.text || '').join('');
-                }
-                return '';
-            }).filter(t => t).join(' ').substring(0, 100);
-        } else if (block.content.plainText) {
-            contentText = block.content.plainText.substring(0, 100);
-        } else if (block.content.html) {
-            const tmp = document.createElement('div');
-            tmp.innerHTML = block.content.html;
-            contentText = tmp.textContent || tmp.innerText || '';
-            contentText = contentText.substring(0, 100);
-        }
-    }
-    
-    // Para choice input, mostrar opções
-    if (block.type === 'choice input' && block.items) {
-        const options = block.items.map(item => item.content || '').join(', ');
-        contentText = options.substring(0, 100);
-    }
-    
-    blockEl.innerHTML = `
-        <div class="flow-node-header">
-            <div class="flow-node-type">
-                <i class="fas ${displayIcon}"></i>
-                <span>${displayLabel}</span>
-            </div>
-            <div class="flow-node-actions">
-                <button class="btn-node-action" onclick="editTypebotBlock('${block.id}')" title="Editar">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-node-action" onclick="deleteTypebotBlock('${block.id}')" title="Excluir">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
+    // Header do grupo
+    const headerEl = document.createElement('div');
+    headerEl.className = 'typebot-group-header';
+    headerEl.innerHTML = `
+        <div class="typebot-group-title">
+            <span>${groupTitle}</span>
         </div>
-        <div class="flow-node-content">
-            ${contentText || 'Novo bloco'}
+        <div class="typebot-group-actions">
+            <button class="btn-node-action" onclick="editTypebotGroup('${group.id}')" title="Editar">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-node-action" onclick="deleteTypebotGroup('${group.id}')" title="Excluir">
+                <i class="fas fa-trash"></i>
+            </button>
         </div>
-        <div class="flow-node-connector input" data-connector="input" data-block="${block.id}"></div>
-        <div class="flow-node-connector output" data-connector="output" data-block="${block.id}"></div>
     `;
     
-    if (canvas) {
-        canvas.appendChild(blockEl);
+    // Conteúdo do grupo (blocos)
+    const contentEl = document.createElement('div');
+    contentEl.className = 'typebot-group-content';
+    
+    // Renderizar cada bloco dentro do grupo
+    if (group.blocks && Array.isArray(group.blocks)) {
+        group.blocks.forEach((block, index) => {
+            const blockEl = renderTypebotBlockInGroup(block, group);
+            contentEl.appendChild(blockEl);
+        });
     }
     
-    // Event listeners
-    blockEl.addEventListener('mousedown', (e) => {
-        if (e.target.closest('.flow-node-connector')) return;
+    // Montar estrutura
+    groupEl.appendChild(headerEl);
+    groupEl.appendChild(contentEl);
+    
+    // Conectores do grupo (não dos blocos individuais)
+    const inputConnector = document.createElement('div');
+    inputConnector.className = 'typebot-group-connector input';
+    inputConnector.dataset.connector = 'input';
+    inputConnector.dataset.group = group.id;
+    
+    const outputConnector = document.createElement('div');
+    outputConnector.className = 'typebot-group-connector output';
+    outputConnector.dataset.connector = 'output';
+    outputConnector.dataset.group = group.id;
+    
+    groupEl.appendChild(inputConnector);
+    groupEl.appendChild(outputConnector);
+    
+    if (canvas) {
+        canvas.appendChild(groupEl);
+    }
+    
+    // Event listeners para arrastar o grupo inteiro
+    headerEl.addEventListener('mousedown', (e) => {
         if (e.target.closest('.btn-node-action')) return;
         e.stopPropagation();
-        startDragTypebotBlock(e, block.id);
+        startDragTypebotGroup(e, group.id);
     });
     
-    blockEl.addEventListener('click', (e) => {
+    groupEl.addEventListener('click', (e) => {
         if (e.target.closest('.btn-node-action')) return;
-        if (e.target.closest('.flow-node-connector')) return;
+        if (e.target.closest('.typebot-group-connector')) return;
         e.stopPropagation();
-        selectTypebotBlock(block.id);
+        selectTypebotGroup(group.id);
     });
     
-    const connectors = blockEl.querySelectorAll('.flow-node-connector');
+    const connectors = groupEl.querySelectorAll('.typebot-group-connector');
     connectors.forEach(connector => {
         connector.addEventListener('mousedown', (e) => {
             e.stopPropagation();
-            startConnection(e, block.id, connector.dataset.connector);
+            startConnection(e, `group_${group.id}`, connector.dataset.connector);
         });
     });
     
     // Armazenar referência
+    if (!window.typebotGroups) window.typebotGroups = {};
+    window.typebotGroups[group.id] = group;
+}
+
+// Renderizar bloco dentro do grupo (não como card separado)
+function renderTypebotBlockInGroup(block, group) {
+    const blockEl = document.createElement('div');
+    blockEl.className = 'typebot-block';
+    blockEl.id = block.id;
+    blockEl.dataset.blockId = block.id;
+    blockEl.dataset.groupId = group.id;
+    blockEl.dataset.blockType = block.type;
+    
+    const contentEl = document.createElement('div');
+    contentEl.className = 'typebot-block-content';
+    
+    // Extrair e renderizar conteúdo baseado no tipo
+    if (block.type === 'text') {
+        contentEl.classList.add('text-bubble');
+        if (block.content && block.content.richText) {
+            const text = extractTextFromRichText(block.content.richText);
+            // Destacar variáveis {{Nome}} em roxo
+            contentEl.innerHTML = text.replace(/\{\{(\w+)\}\}/g, '<span style="color: #9333ea; font-weight: 600;">{{$1}}</span>');
+        } else {
+            contentEl.textContent = block.content?.plainText || 'Mensagem de texto';
+        }
+    } else if (block.type === 'text input') {
+        contentEl.classList.add('input-field');
+        const placeholder = block.content?.options?.labels?.placeholder || 'Escreva sua resposta';
+        const variableName = block.content?.options?.variableId ? 
+            (window.typebotVariables?.find(v => v.id === block.content.options.variableId)?.name || '') : '';
+        contentEl.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-keyboard" style="color: #6b7280;"></i>
+                <span>${placeholder}</span>
+            </div>
+            ${variableName ? `<div style="margin-top: 0.25rem; font-size: 0.75rem; color: #9333ea; font-weight: 600;">Definir ${variableName}</div>` : ''}
+        `;
+    } else if (block.type === 'choice input') {
+        contentEl.classList.add('choice-input');
+        if (block.content && block.content.richText) {
+            const questionText = extractTextFromRichText(block.content.richText);
+            contentEl.innerHTML = `<div style="margin-bottom: 0.5rem; color: #374151; font-weight: 500;">${questionText.replace(/\{\{(\w+)\}\}/g, '<span style="color: #9333ea; font-weight: 600;">{{$1}}</span>')}</div>`;
+        }
+        if (block.items && Array.isArray(block.items)) {
+            block.items.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'typebot-choice-item';
+                itemEl.textContent = item.content || '';
+                contentEl.appendChild(itemEl);
+            });
+        }
+    }
+    
+    blockEl.appendChild(contentEl);
+    
+    // Armazenar referência
     if (!window.typebotBlocks) window.typebotBlocks = {};
     window.typebotBlocks[block.id] = block;
+    
+    return blockEl;
+}
+
+// Selecionar grupo Typebot
+function selectTypebotGroup(groupId) {
+    document.querySelectorAll('.typebot-group').forEach(g => g.classList.remove('selected'));
+    const groupEl = document.getElementById(`group_${groupId}`);
+    if (groupEl) {
+        groupEl.classList.add('selected');
+        selectedNode = `group_${groupId}`;
+        renderTypebotGroupPropertiesPanel(groupId);
+    }
 }
 
 // Selecionar bloco Typebot
@@ -1228,6 +1386,154 @@ function selectTypebotBlock(blockId) {
         blockEl.classList.add('selected');
         selectedNode = blockId;
         renderTypebotPropertiesPanel(blockId);
+    }
+}
+
+// Arrastar grupo Typebot
+function startDragTypebotGroup(e, groupId) {
+    const groupEl = document.getElementById(`group_${groupId}`);
+    if (!groupEl) return;
+    
+    isDragging = true;
+    currentDraggingNode = `group_${groupId}`;
+    
+    const rect = groupEl.getBoundingClientRect();
+    dragOffset.x = e.clientX - rect.left;
+    dragOffset.y = e.clientY - rect.top;
+    
+    groupEl.style.zIndex = '1000';
+    
+    document.addEventListener('mousemove', dragTypebotGroup);
+    document.addEventListener('mouseup', stopDragTypebotGroup);
+    
+    e.preventDefault();
+}
+
+function dragTypebotGroup(e) {
+    if (!isDragging || !currentDraggingNode || !currentDraggingNode.startsWith('group_')) return;
+    
+    const groupEl = document.getElementById(currentDraggingNode);
+    if (!groupEl) return;
+    
+    const canvasRect = canvas.getBoundingClientRect();
+    const newX = (e.clientX - canvasRect.left - dragOffset.x) / zoomLevel - canvasOffset.x / zoomLevel;
+    const newY = (e.clientY - canvasRect.top - dragOffset.y) / zoomLevel - canvasOffset.y / zoomLevel;
+    
+    groupEl.style.left = newX + 'px';
+    groupEl.style.top = newY + 'px';
+    
+    // Atualizar coordenadas no fluxo
+    const groupId = currentDraggingNode.replace('group_', '');
+    const group = window.typebotGroups && window.typebotGroups[groupId];
+    if (group && window.typebotFlow && window.typebotFlow.groups) {
+        const foundGroup = window.typebotFlow.groups.find(g => g.id === groupId);
+        if (foundGroup) {
+            if (!foundGroup.graphCoordinates) foundGroup.graphCoordinates = { x: 0, y: 0 };
+            foundGroup.graphCoordinates.x = newX;
+            foundGroup.graphCoordinates.y = newY;
+        }
+    }
+    
+    updateConnections();
+}
+
+function stopDragTypebotGroup() {
+    if (currentDraggingNode && currentDraggingNode.startsWith('group_')) {
+        const groupEl = document.getElementById(currentDraggingNode);
+        if (groupEl) {
+            groupEl.style.zIndex = '';
+        }
+    }
+    isDragging = false;
+    currentDraggingNode = null;
+    document.removeEventListener('mousemove', dragTypebotGroup);
+    document.removeEventListener('mouseup', stopDragTypebotGroup);
+}
+
+// Editar grupo Typebot
+function editTypebotGroup(groupId) {
+    selectTypebotGroup(groupId);
+}
+
+// Deletar grupo Typebot
+function deleteTypebotGroup(groupId) {
+    if (!confirm('Tem certeza que deseja excluir este grupo e todos os seus blocos?')) return;
+    
+    const groupEl = document.getElementById(`group_${groupId}`);
+    if (groupEl) {
+        groupEl.remove();
+    }
+    
+    // Remover do fluxo
+    if (window.typebotFlow && window.typebotFlow.groups) {
+        window.typebotFlow.groups = window.typebotFlow.groups.filter(g => g.id !== groupId);
+    }
+    
+    // Remover edges relacionados
+    if (window.typebotEdges) {
+        window.typebotEdges = window.typebotEdges.filter(edge => {
+            return edge.from?.groupId !== groupId && edge.to?.groupId !== groupId;
+        });
+    }
+    
+    updateConnections();
+}
+
+// Renderizar painel de propriedades do grupo
+function renderTypebotGroupPropertiesPanel(groupId) {
+    const group = window.typebotGroups && window.typebotGroups[groupId];
+    if (!group) {
+        document.getElementById('propertiesContent').innerHTML = `
+            <div class="properties-empty">
+                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>Selecione um grupo para editar suas propriedades</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let propertiesHTML = `<h3>Propriedades do Grupo</h3>`;
+    propertiesHTML += `
+        <div class="form-group">
+            <label>Título do Grupo</label>
+            <input type="text" class="form-control" value="${group.title || ''}" 
+                   onchange="updateTypebotGroupTitle('${groupId}', this.value)">
+        </div>
+    `;
+    
+    propertiesHTML += `<div class="form-group"><label>Blocos no Grupo</label>`;
+    if (group.blocks && group.blocks.length > 0) {
+        group.blocks.forEach((block, index) => {
+            const blockType = block.type === 'text' ? 'Mensagem' : 
+                             block.type === 'text input' ? 'Input Texto' : 
+                             block.type === 'choice input' ? 'Múltipla Escolha' : block.type;
+            propertiesHTML += `
+                <div style="padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 0.5rem;">
+                    <strong>${index + 1}. ${blockType}</strong>
+                    <button class="btn-node-action" onclick="editTypebotBlock('${block.id}')" style="float: right;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            `;
+        });
+    }
+    propertiesHTML += `</div>`;
+    
+    document.getElementById('propertiesContent').innerHTML = propertiesHTML;
+}
+
+function updateTypebotGroupTitle(groupId, newTitle) {
+    if (window.typebotFlow && window.typebotFlow.groups) {
+        const group = window.typebotFlow.groups.find(g => g.id === groupId);
+        if (group) {
+            group.title = newTitle;
+            // Atualizar visualmente
+            const groupEl = document.getElementById(`group_${groupId}`);
+            if (groupEl) {
+                const titleEl = groupEl.querySelector('.typebot-group-title span');
+                if (titleEl) titleEl.textContent = newTitle;
+            }
+        }
     }
 }
 
