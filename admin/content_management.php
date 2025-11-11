@@ -1863,13 +1863,35 @@ function openCreateContentModal() {
     document.getElementById('contentId').value = '';
     document.getElementById('fileUploadGroup').style.display = 'block';
     document.getElementById('targetIdGroup').style.display = 'none';
+    
+    // Ocultar e limpar arquivos salvos ao criar novo conteúdo
+    const currentFilesInfo = document.getElementById('currentFilesInfo');
+    const currentFilesList = document.getElementById('currentFilesList');
+    if (currentFilesInfo) {
+        currentFilesInfo.style.display = 'none';
+    }
+    if (currentFilesList) {
+        currentFilesList.innerHTML = '';
+    }
+    
     // Ocultar currentFileInfo apenas ao criar novo (não ao editar)
     const currentFileInfo = document.getElementById('currentFileInfo');
     if (currentFileInfo) {
         currentFileInfo.style.display = 'none';
     }
+    
     clearFilePreview();
     clearThumbnailPreview();
+    
+    // Limpar campo de título do vídeo
+    const videoTitleInput = document.getElementById('videoTitle');
+    if (videoTitleInput) {
+        videoTitleInput.value = '';
+    }
+    const videoTitleGroup = document.getElementById('videoTitleGroup');
+    if (videoTitleGroup) {
+        videoTitleGroup.style.display = 'none';
+    }
     
     // Resetar tipo de conteúdo
     document.getElementById('contentType').value = '';
@@ -2533,7 +2555,6 @@ function saveContent() {
     }
     
     // Se não houver thumbnail selecionada mas há vídeo novo, gerar automaticamente do primeiro frame
-    const fileInput = document.getElementById('contentFile');
     if (fileInput && fileInput.files[0] && fileInput.files[0].type.startsWith('video/') && !thumbnailData) {
         const previewVideo = document.getElementById('previewVideo');
         if (previewVideo && previewVideo.readyState >= 2) {

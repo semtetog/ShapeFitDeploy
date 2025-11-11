@@ -189,6 +189,15 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 body {
     background-color: var(--bg-color);
     color: var(--text-primary);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+html {
+    height: 100%;
+    overflow: hidden;
 }
 
 .app-container {
