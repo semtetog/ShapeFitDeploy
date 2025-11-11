@@ -1477,6 +1477,13 @@ require_once __DIR__ . '/includes/header.php';
                 <?php endforeach; ?>
             <?php endif; ?>
     </div>
+    
+    <?php 
+    // Se for requisição AJAX, parar aqui (retornar apenas o grid)
+    if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
+        exit;
+    }
+    ?>
 </div>
 
 <!-- Modal de Criar/Editar Conteúdo -->
