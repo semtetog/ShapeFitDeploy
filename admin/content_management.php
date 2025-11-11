@@ -2083,7 +2083,7 @@ function closeContentModal() {
 }
 
 // Função para editar conteúdo
-function editContent(contentId) {
+function editContent(contentId, preserveNewFilePreview = false) {
     fetch('ajax_content_management.php', {
         method: 'POST',
         headers: {
@@ -2186,7 +2186,10 @@ function editContent(contentId) {
                 
                 currentFileInfo.style.display = 'block';
             } else {
-                currentFileInfo.style.display = 'none';
+                // Se não há arquivo salvo, ocultar apenas se não estiver preservando preview de novo arquivo
+                if (!preserveNewFilePreview) {
+                    currentFileInfo.style.display = 'none';
+                }
             }
             
             // Carregar mini título se existir
@@ -2425,12 +2428,21 @@ function submitFormData(formData) {
             
             // Recarregar dados do conteúdo para mostrar o arquivo salvo (mantém modal aberto)
             if (contentId) {
-                // Limpar previews de novos arquivos
-                clearFilePreview();
-                clearThumbnailPreview();
+                // NÃO limpar previews - manter se houver novo arquivo selecionado
+                // Apenas recarregar dados do conteúdo para atualizar arquivo atual
+                // Mas preservar o preview do novo arquivo se existir
+                const fileInput = document.getElementById('contentFile');
+                const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+                
+                if (!hasNewFile) {
+                    // Se não há novo arquivo selecionado, limpar previews e recarregar
+                    clearFilePreview();
+                    clearThumbnailPreview();
+                }
                 
                 // Recarregar dados do conteúdo (mostra arquivo salvo com título)
-                editContent(contentId);
+                // Mas preservar o preview do novo arquivo se existir
+                editContent(contentId, hasNewFile);
             }
             
             // Atualizar lista de conteúdos via AJAX (sem recarregar página)
