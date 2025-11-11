@@ -155,8 +155,6 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     height: 100%;
     position: relative;
-    transform-origin: top left;
-    transition: transform 0.1s ease-out;
     cursor: grab;
     transform-origin: top left;
     transition: transform 0.1s ease-out;
