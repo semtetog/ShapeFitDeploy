@@ -30,24 +30,40 @@ CREATE TABLE IF NOT EXISTS `sf_member_content` (
 
 -- 2. Se a tabela já existe, execute os comandos abaixo UM POR VEZ
 -- Se algum der erro de coluna já existir, ignore e continue com o próximo
+-- IMPORTANTE: Não usar AFTER para evitar erros se a coluna referenciada não existir
 
--- Adicionar file_path (ignore erro se já existir)
-ALTER TABLE `sf_member_content` ADD COLUMN `file_path` VARCHAR(500) DEFAULT NULL AFTER `content_type`;
+-- Adicionar file_path (ignore erro se já existir) - SEM AFTER
+ALTER TABLE `sf_member_content` ADD COLUMN `file_path` VARCHAR(500) DEFAULT NULL;
 
--- Adicionar file_name (ignore erro se já existir)
-ALTER TABLE `sf_member_content` ADD COLUMN `file_name` VARCHAR(255) DEFAULT NULL AFTER `file_path`;
+-- Adicionar file_name (ignore erro se já existir) - SEM AFTER
+ALTER TABLE `sf_member_content` ADD COLUMN `file_name` VARCHAR(255) DEFAULT NULL;
 
--- Adicionar file_size (ignore erro se já existir)
-ALTER TABLE `sf_member_content` ADD COLUMN `file_size` INT(11) DEFAULT NULL AFTER `file_name`;
+-- Adicionar file_size (ignore erro se já existir) - SEM AFTER
+ALTER TABLE `sf_member_content` ADD COLUMN `file_size` INT(11) DEFAULT NULL;
 
--- Adicionar mime_type (ignore erro se já existir)
-ALTER TABLE `sf_member_content` ADD COLUMN `mime_type` VARCHAR(100) DEFAULT NULL AFTER `file_size`;
+-- Adicionar mime_type (ignore erro se já existir) - SEM AFTER
+ALTER TABLE `sf_member_content` ADD COLUMN `mime_type` VARCHAR(100) DEFAULT NULL;
 
--- Adicionar status (ignore erro se já existir)
-ALTER TABLE `sf_member_content` ADD COLUMN `status` ENUM('active', 'inactive', 'draft') DEFAULT 'active' AFTER `target_id`;
+-- Adicionar content_text (ignore erro se já existir) - SEM AFTER
+ALTER TABLE `sf_member_content` ADD COLUMN `content_text` LONGTEXT DEFAULT NULL;
+
+-- Adicionar thumbnail_url (ignore erro se já existir) - SEM AFTER
+ALTER TABLE `sf_member_content` ADD COLUMN `thumbnail_url` VARCHAR(500) DEFAULT NULL;
+
+-- Adicionar target_type (ignore erro se já existir) - SEM AFTER
+ALTER TABLE `sf_member_content` ADD COLUMN `target_type` ENUM('all', 'user', 'group') DEFAULT 'all';
+
+-- Adicionar target_id (ignore erro se já existir) - SEM AFTER
+ALTER TABLE `sf_member_content` ADD COLUMN `target_id` INT(11) DEFAULT NULL;
+
+-- Adicionar status (ignore erro se já existir) - SEM AFTER (vai para o final da tabela)
+ALTER TABLE `sf_member_content` ADD COLUMN `status` ENUM('active', 'inactive', 'draft') DEFAULT 'active';
 
 -- Adicionar índice em status (ignore erro se já existir)
 ALTER TABLE `sf_member_content` ADD INDEX `status` (`status`);
+
+-- Adicionar índice em target_type e target_id (ignore erro se já existir)
+ALTER TABLE `sf_member_content` ADD INDEX `target_type` (`target_type`, `target_id`);
 
 -- 3. Criar tabela de relacionamento com categorias
 CREATE TABLE IF NOT EXISTS `sf_content_category_relations` (

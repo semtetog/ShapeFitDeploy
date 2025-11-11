@@ -323,9 +323,9 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                     <i class="fas fa-bullseye option-icon" style="color: var(--accent-orange);"></i>
                     <span class="option-label">Minha meta</span>
                 </a>
-                <a href="<?php echo BASE_APP_URL; ?>/progress.php" class="option-card">
-                    <i class="fas fa-chart-line option-icon" style="color: #3b82f6;"></i>
-                    <span class="option-label">Progresso</span>
+                <a href="<?php echo BASE_APP_URL; ?>/content.php" class="option-card">
+                    <i class="fas fa-file-alt option-icon" style="color: #3b82f6;"></i>
+                    <span class="option-label">Conteúdos</span>
                 </a>
                 <a href="<?php echo BASE_APP_URL; ?>/routine.php" class="option-card">
                     <i class="fas fa-tasks option-icon" style="color: #22c55e;"></i>
