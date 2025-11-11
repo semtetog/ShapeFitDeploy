@@ -269,10 +269,10 @@ body {
 
 .content-video {
     width: 100%;
-    height: auto;
-    min-height: 400px;
+    aspect-ratio: 16 / 9;
     background: #000;
     border-radius: 12px;
+    object-fit: contain;
 }
 
 .content-pdf {
@@ -380,7 +380,7 @@ body {
             </div>
         <?php else: ?>
             <!-- Lista de arquivos -->
-            <div class="files-list" style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="files-list" style="display: flex; flex-direction: column; gap: 32px;">
                 <?php foreach ($content_files as $index => $file): ?>
                     <?php
                     // Determinar tipo de arquivo
@@ -404,11 +404,11 @@ body {
                     }
                     ?>
                     
-                    <div class="file-item" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px;">
-                        <?php if ($is_video): ?>
-                            <!-- Vídeo -->
+                    <?php if ($is_video): ?>
+                        <!-- Vídeo -->
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
                             <?php if (!empty($file['video_title'])): ?>
-                                <h3 style="margin: 0 0 16px 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-orange);">
+                                <h3 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-orange);">
                                     <?php echo htmlspecialchars($file['video_title']); ?>
                                 </h3>
                             <?php endif; ?>
@@ -428,20 +428,20 @@ body {
                                     Seu navegador não suporta a reprodução de vídeos.
                                 </video>
                             </div>
-                        <?php elseif ($is_pdf): ?>
-                            <!-- PDF -->
-                            <div class="content-media">
-                                <iframe class="content-pdf" src="<?php echo htmlspecialchars($file_url); ?>#toolbar=0" type="application/pdf">
-                                    <p>Seu navegador não suporta PDFs. <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-link">
-                                        <i class="fas fa-download"></i> Baixar PDF
-                                    </a></p>
-                                </iframe>
-                                <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-link">
-                                    <i class="fas fa-external-link-alt"></i> Abrir PDF em nova aba
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                    </div>
+                        </div>
+                    <?php elseif ($is_pdf): ?>
+                        <!-- PDF -->
+                        <div class="content-media">
+                            <iframe class="content-pdf" src="<?php echo htmlspecialchars($file_url); ?>#toolbar=0" type="application/pdf">
+                                <p>Seu navegador não suporta PDFs. <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-link">
+                                    <i class="fas fa-download"></i> Baixar PDF
+                                </a></p>
+                            </iframe>
+                            <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-link">
+                                <i class="fas fa-external-link-alt"></i> Abrir PDF em nova aba
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
