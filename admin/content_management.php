@@ -1711,6 +1711,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });
 
+// Close select when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.custom-select-wrapper')) {
+        document.querySelectorAll('.custom-select').forEach(select => {
+            select.classList.remove('active');
+        });
+        document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => {
+            wrapper.classList.remove('active');
+        });
+    }
+});
+
 // Filter by status from stat card
 function filterByStatus(status) {
     const url = new URL(window.location);
