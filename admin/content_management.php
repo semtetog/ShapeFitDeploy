@@ -678,6 +678,7 @@ require_once __DIR__ . '/includes/header.php';
 .content-card-actions .btn-action.btn-delete:hover {
     background: rgba(239, 68, 68, 0.2);
     border-color: #EF4444;
+    transform: scale(1.1);
 }
 
 /* Status badge */
@@ -2216,6 +2217,19 @@ function editContent(contentId, preserveNewFilePreview = false) {
                     };
                     deleteBtn.style.cssText = 'position: absolute; top: 0.5rem; right: 0.5rem; width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; cursor: pointer; transition: all 0.3s ease;';
                     deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    
+                    // Adicionar hover com zoom
+                    deleteBtn.addEventListener('mouseenter', function() {
+                        this.style.transform = 'scale(1.15)';
+                        this.style.background = 'rgba(239, 68, 68, 0.2)';
+                        this.style.borderColor = '#EF4444';
+                    });
+                    deleteBtn.addEventListener('mouseleave', function() {
+                        this.style.transform = 'scale(1)';
+                        this.style.background = 'rgba(239, 68, 68, 0.1)';
+                        this.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    });
+                    
                     fileItem.appendChild(deleteBtn);
                     
                     // Adicionar arquivo ao container
