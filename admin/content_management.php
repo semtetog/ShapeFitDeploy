@@ -2346,14 +2346,21 @@ function deleteContent(contentId) {
 
 // Função para editar título do vídeo inline
 function editVideoTitle(titleDiv, fileId, contentId) {
+    // Prevenir múltiplas edições simultâneas
+    if (titleDiv.dataset.editing === 'true') {
+        return;
+    }
+    
     const currentText = titleDiv.dataset.originalTitle || '';
-    const titleP = titleDiv.querySelector('p');
+    
+    // Marcar como editando
+    titleDiv.dataset.editing = 'true';
     
     // Criar input
     const input = document.createElement('input');
     input.type = 'text';
     input.value = currentText;
-    input.style.cssText = 'width: 100%; padding: 0.375rem 0.625rem; background: rgba(255, 255, 255, 0.1); border: 2px solid var(--accent-orange); border-radius: 6px; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; text-align: center; outline: none;';
+    input.style.cssText = 'width: 100%; padding: 0.375rem 0.625rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); border-radius: 6px; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; text-align: center; outline: none;';
     input.maxLength = 255;
     
     // Substituir texto por input
@@ -2362,7 +2369,29 @@ function editVideoTitle(titleDiv, fileId, contentId) {
     input.focus();
     input.select();
     
-    // Salvar ao pressionar Enter ou perder foco
+    const restoreTitle = (text) => {
+        const displayText = text || 'Clique para adicionar título';
+        titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
+        
+        // Remover flag de edição
+        titleDiv.dataset.editing = 'false';
+        
+        // Re-adicionar event listeners usando addEventListener
+        const clickHandler = (e) => {
+            e.stopPropagation();
+            editVideoTitle(titleDiv, fileId, contentId);
+        };
+        titleDiv.addEventListener('click', clickHandler);
+        
+        titleDiv.addEventListener('mouseenter', () => {
+            titleDiv.style.background = 'rgba(255, 107, 0, 0.1)';
+        });
+        
+        titleDiv.addEventListener('mouseleave', () => {
+            titleDiv.style.background = 'rgba(255, 107, 0, 0.06)';
+        });
+    };
+    
     const saveTitle = () => {
         const newTitle = input.value.trim();
         titleDiv.dataset.originalTitle = newTitle;
@@ -2381,64 +2410,42 @@ function editVideoTitle(titleDiv, fileId, contentId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Atualizar display
-                const displayText = newTitle || 'Clique para adicionar título';
-                titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
-                titleDiv.onclick = (e) => {
-                    e.stopPropagation();
-                    editVideoTitle(titleDiv, fileId, contentId);
-                };
-                titleDiv.onmouseenter = () => {
-                    titleDiv.style.background = 'rgba(255, 107, 0, 0.1)';
-                };
-                titleDiv.onmouseleave = () => {
-                    titleDiv.style.background = 'rgba(255, 107, 0, 0.06)';
-                };
+                restoreTitle(newTitle);
             } else {
                 showAlert('Erro', 'Erro ao atualizar título: ' + (data.error || 'Erro desconhecido'));
-                // Restaurar texto original
-                const displayText = currentText || 'Clique para adicionar título';
-                titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
-                titleDiv.onclick = (e) => {
-                    e.stopPropagation();
-                    editVideoTitle(titleDiv, fileId, contentId);
-                };
+                restoreTitle(currentText);
             }
         })
         .catch(error => {
             console.error('Erro:', error);
             showAlert('Erro', 'Erro ao atualizar título. Tente novamente.');
-            // Restaurar texto original
-            const displayText = currentText || 'Clique para adicionar título';
-            titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
-            titleDiv.onclick = (e) => {
-                e.stopPropagation();
-                editVideoTitle(titleDiv, fileId, contentId);
-            };
+            restoreTitle(currentText);
         });
     };
     
-    input.addEventListener('blur', saveTitle);
+    // Usar setTimeout para evitar conflito com click event
+    let blurTimeout;
+    input.addEventListener('blur', () => {
+        blurTimeout = setTimeout(() => {
+            saveTitle();
+        }, 200);
+    });
+    
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            input.blur();
+            clearTimeout(blurTimeout);
+            saveTitle();
         } else if (e.key === 'Escape') {
             e.preventDefault();
-            // Cancelar - restaurar texto original
-            const displayText = currentText || 'Clique para adicionar título';
-            titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
-            titleDiv.onclick = (e) => {
-                e.stopPropagation();
-                editVideoTitle(titleDiv, fileId, contentId);
-            };
-            titleDiv.onmouseenter = () => {
-                titleDiv.style.background = 'rgba(255, 107, 0, 0.1)';
-            };
-            titleDiv.onmouseleave = () => {
-                titleDiv.style.background = 'rgba(255, 107, 0, 0.06)';
-            };
+            clearTimeout(blurTimeout);
+            restoreTitle(currentText);
         }
+    });
+    
+    // Prevenir que o blur seja acionado quando clicar no próprio titleDiv
+    titleDiv.addEventListener('mousedown', (e) => {
+        e.preventDefault();
     });
 }
 
