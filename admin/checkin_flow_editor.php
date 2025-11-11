@@ -158,6 +158,12 @@ require_once __DIR__ . '/includes/header.php';
     height: 100%;
     background-color: #1a1a1a;
     overflow: hidden;
+    /* grid leve e infinito no fundo do wrapper */
+    background-image:
+        linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0; /* será atualizado via JS */
 }
 
 /* Viewport único que recebe transform (zoom + pan) */
@@ -177,20 +183,11 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Canvas onde ficam os nodes */
 .flow-canvas {
-    width: 5000px;
-    height: 5000px;
     position: absolute;
     top: 0;
     left: 0;
     cursor: inherit;
-    background-color: #1a1a1a;
-    /* Grid cinza mais escuro que cobre todo o canvas */
-    background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-    background-size: 20px 20px;
-    background-position: 0 0;
-    background-repeat: repeat;
+    background: none;
 }
 
 /* SVG onde ficam as linhas */
@@ -198,8 +195,8 @@ require_once __DIR__ . '/includes/header.php';
     position: absolute;
     top: 0;
     left: 0;
-    width: 5000px;
-    height: 5000px;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     z-index: 1;
     overflow: visible;
