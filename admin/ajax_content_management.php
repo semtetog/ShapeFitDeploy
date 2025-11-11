@@ -530,6 +530,84 @@ function getContent($conn, $admin_id) {
     }
 }
 
+function removeContentFile($conn, $admin_id) {
+    $content_id = (int)($_POST['content_id'] ?? 0);
+    
+    if ($content_id <= 0) {
+        throw new Exception('ID do conteúdo inválido');
+    }
+    
+    // Buscar dados do arquivo e thumbnail
+    $stmt = $conn->prepare("SELECT file_path, thumbnail_url FROM sf_member_content WHERE id = ? AND admin_id = ?");
+    if (!$stmt) {
+        throw new Exception('Erro ao preparar query: ' . $conn->error);
+    }
+    
+    $stmt->bind_param("ii", $content_id, $admin_id);
+    if (!$stmt->execute()) {
+        $stmt->close();
+        throw new Exception('Erro ao executar query: ' . $stmt->error);
+    }
+    
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        throw new Exception('Conteúdo não encontrado ou você não tem permissão para editá-lo');
+    }
+    
+    $content = $result->fetch_assoc();
+    $stmt->close();
+    
+    // Iniciar transação
+    $conn->begin_transaction();
+    
+    try {
+        // Deletar arquivo do servidor
+        if (!empty($content['file_path'])) {
+            $file_path_full = APP_ROOT_PATH . $content['file_path'];
+            if (file_exists($file_path_full)) {
+                unlink($file_path_full);
+            }
+        }
+        
+        // Deletar thumbnail do servidor
+        if (!empty($content['thumbnail_url'])) {
+            $thumb_path_full = APP_ROOT_PATH . $content['thumbnail_url'];
+            if (file_exists($thumb_path_full)) {
+                unlink($thumb_path_full);
+            }
+        }
+        
+        // Atualizar banco de dados - remover arquivo e thumbnail
+        $update_fields = ["file_path = NULL", "file_name = NULL", "file_size = NULL", "mime_type = NULL", "thumbnail_url = NULL", "updated_at = NOW()"];
+        $update_values = [$content_id, $admin_id];
+        $param_types = "ii";
+        
+        $sql = "UPDATE sf_member_content SET " . implode(", ", $update_fields) . " WHERE id = ? AND admin_id = ?";
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new Exception('Erro ao preparar query de atualização: ' . $conn->error);
+        }
+        
+        $stmt->bind_param($param_types, ...$update_values);
+        if (!$stmt->execute()) {
+            $stmt->close();
+            throw new Exception('Erro ao executar atualização: ' . $stmt->error);
+        }
+        
+        $stmt->close();
+        
+        // Commit
+        $conn->commit();
+        
+        ob_clean();
+        echo json_encode(['success' => true, 'message' => 'Arquivo removido com sucesso']);
+    } catch (Exception $e) {
+        $conn->rollback();
+        throw $e;
+    }
+}
+
 function deleteContent($conn, $admin_id) {
     $content_id = (int)($_POST['content_id'] ?? 0);
     
