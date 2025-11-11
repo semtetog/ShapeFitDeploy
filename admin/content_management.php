@@ -3343,6 +3343,11 @@ function selectVideoFrameForExisting(fileId, frameDataUrl, frameElement) {
         selectedThumbnailData.value = frameDataUrl;
         selectedThumbnailData.dataset.fileId = fileId || '';
     }
+    
+    // Salvar automaticamente a thumbnail selecionada
+    if (fileId && frameDataUrl) {
+        saveFileThumbnail(fileId, frameDataUrl);
+    }
 }
 
 // Função para editar thumbnail de um arquivo específico
@@ -3392,6 +3397,58 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
     setTimeout(() => {
         thumbnailGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 100);
+}
+
+// Função para salvar thumbnail de um arquivo específico
+function saveFileThumbnail(fileId, frameDataUrl) {
+    if (!fileId || !frameDataUrl) return;
+    
+    // Converter data URL para blob
+    fetch(frameDataUrl)
+        .then(res => res.blob())
+        .then(blob => {
+            const file = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
+            const formData = new FormData();
+            formData.append('action', 'save_content');
+            formData.append('content_id', document.getElementById('contentId').value);
+            formData.append('thumbnail', file);
+            formData.append('thumbnail_file_id', fileId);
+            
+            return fetch('ajax_content_management.php', {
+                method: 'POST',
+                body: formData
+            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Atualizar preview do arquivo na lista
+                const fileItem = document.querySelector(`[data-file-id="${fileId}"]`);
+                if (fileItem) {
+                    const video = fileItem.querySelector('video');
+                    if (video) {
+                        video.poster = frameDataUrl;
+                    }
+                }
+                
+                // Mostrar mensagem de sucesso
+                showAlert('Sucesso', 'Thumbnail atualizada com sucesso!');
+                
+                // Recarregar conteúdo para atualizar a lista
+                const contentId = document.getElementById('contentId').value;
+                if (contentId) {
+                    setTimeout(() => {
+                        editContent(contentId, true);
+                    }, 1000);
+                }
+            } else {
+                showAlert('Erro', data.error || 'Erro ao salvar thumbnail');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao salvar thumbnail:', error);
+            showAlert('Erro', 'Erro ao salvar thumbnail. Tente novamente.');
+        });
 }
 
 // Função para abrir arquivo atual ao clicar
