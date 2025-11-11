@@ -432,7 +432,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="flow-canvas-container">
-        <svg id="connectionsLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+        <svg id="connectionsLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: stroke; z-index: 1; overflow: visible;">
             <defs>
                 <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
                     <polygon points="0 0, 10 3, 0 6" fill="var(--accent-orange)" />
@@ -781,8 +781,16 @@ function dragNode(e) {
         nodeEl.style.top = node.y + 'px';
     }
     
-    updateConnections();
+    // Atualizar conexões durante o drag (debounced)
+    if (!updateConnectionsTimeout) {
+        updateConnectionsTimeout = setTimeout(() => {
+            updateConnections();
+            updateConnectionsTimeout = null;
+        }, 16); // ~60fps
+    }
 }
+
+let updateConnectionsTimeout = null;
 
 function stopDragNode() {
     if (currentDraggingNode) {
@@ -791,6 +799,13 @@ function stopDragNode() {
             nodeEl.style.zIndex = '';
         }
     }
+    
+    // Garantir que as conexões sejam atualizadas ao final do drag
+    if (updateConnectionsTimeout) {
+        clearTimeout(updateConnectionsTimeout);
+        updateConnectionsTimeout = null;
+    }
+    updateConnections();
     
     isDragging = false;
     currentDraggingNode = null;
