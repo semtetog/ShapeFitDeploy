@@ -1519,11 +1519,11 @@ require_once __DIR__ . '/includes/header.php';
                             <!-- Vídeo ou thumbnail -->
                             <video id="currentFileVideo" style="width: 100%; height: auto; max-height: 150px; display: none; object-fit: cover;" poster=""></video>
                             <img id="currentFileThumbnailImg" style="width: 100%; height: auto; max-height: 150px; display: none; object-fit: cover;" alt="Preview do arquivo">
-                            <div id="currentFilePDFIcon" style="display: none; width: 100%; height: 150px; background: rgba(255, 107, 0, 0.1); display: flex; align-items: center; justify-content: center;">
+                            <div id="currentFilePDFIcon" style="display: none; width: 100%; height: 150px; background: rgba(255, 107, 0, 0.1); flex: 1; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--accent-orange);"></i>
                             </div>
                             <!-- Botão de lixeira -->
-                            <button type="button" onclick="event.stopPropagation(); removeCurrentFile();" class="btn-action btn-delete" style="position: absolute; top: 0.5rem; right: 0.5rem; width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);">
+                            <button type="button" onclick="event.stopPropagation(); removeCurrentFile();" style="position: absolute; top: 0.5rem; right: 0.5rem; width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; cursor: pointer; transition: all 0.3s ease;">
                                 <i class="fas fa-trash"></i>
                             </button>
                             <!-- Overlay de play para vídeo -->
