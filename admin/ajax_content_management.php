@@ -1102,3 +1102,119 @@ function getFile($conn, $admin_id) {
     exit;
 }
 
+// Função para salvar apenas a thumbnail de um arquivo (sem validar título)
+function saveThumbnailOnly($conn, $admin_id) {
+    $file_id = isset($_POST['file_id']) ? intval($_POST['file_id']) : 0;
+    
+    if ($file_id <= 0) {
+        echo json_encode(['success' => false, 'error' => 'ID do arquivo inválido']);
+        exit;
+    }
+    
+    try {
+        // Verificar se a tabela sf_content_files existe
+        $table_exists = false;
+        $check_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+        if ($check_table && $check_table->num_rows > 0) {
+            $table_exists = true;
+        }
+        
+        if (!$table_exists) {
+            echo json_encode(['success' => false, 'error' => 'Tabela sf_content_files não existe']);
+            exit;
+        }
+        
+        // Verificar se o arquivo existe e pertence a um conteúdo do admin
+        $stmt_check = $conn->prepare("
+            SELECT cf.*, mc.admin_id 
+            FROM sf_content_files cf
+            INNER JOIN sf_member_content mc ON cf.content_id = mc.id
+            WHERE cf.id = ? AND mc.admin_id = ?
+        ");
+        $stmt_check->bind_param("ii", $file_id, $admin_id);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+        
+        if ($result_check->num_rows === 0) {
+            $stmt_check->close();
+            echo json_encode(['success' => false, 'error' => 'Arquivo não encontrado ou sem permissão']);
+            exit;
+        }
+        
+        $file_data = $result_check->fetch_assoc();
+        $stmt_check->close();
+        
+        // Processar upload da thumbnail
+        if (!isset($_FILES['thumbnail']) || $_FILES['thumbnail']['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['success' => false, 'error' => 'Nenhuma thumbnail foi enviada']);
+            exit;
+        }
+        
+        $thumbnail = $_FILES['thumbnail'];
+        
+        // Validar tipo de arquivo
+        $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        $file_type = mime_content_type($thumbnail['tmp_name']);
+        if ($file_type === false) {
+            $file_type = $thumbnail['type'];
+        }
+        
+        if (!in_array($file_type, $allowed_types)) {
+            echo json_encode(['success' => false, 'error' => 'Tipo de arquivo inválido. Use apenas imagens (JPEG, PNG, WebP)']);
+            exit;
+        }
+        
+        // Validar tamanho (máximo 5MB)
+        if ($thumbnail['size'] > 5 * 1024 * 1024) {
+            echo json_encode(['success' => false, 'error' => 'Thumbnail muito grande. Máximo: 5MB']);
+            exit;
+        }
+        
+        // Diretório de thumbnails
+        $thumbnails_dir = __DIR__ . '/../assets/content/thumbnails/';
+        if (!is_dir($thumbnails_dir)) {
+            mkdir($thumbnails_dir, 0755, true);
+        }
+        
+        // Gerar nome único para a thumbnail
+        $file_extension = pathinfo($thumbnail['name'], PATHINFO_EXTENSION);
+        $thumbnail_filename = 'thumb_' . $file_id . '_' . time() . '.' . $file_extension;
+        $thumbnail_path = $thumbnails_dir . $thumbnail_filename;
+        
+        // Mover arquivo
+        if (!move_uploaded_file($thumbnail['tmp_name'], $thumbnail_path)) {
+            echo json_encode(['success' => false, 'error' => 'Erro ao salvar thumbnail no servidor']);
+            exit;
+        }
+        
+        // Caminho relativo para salvar no banco
+        $thumbnail_url = 'assets/content/thumbnails/' . $thumbnail_filename;
+        
+        // Deletar thumbnail antiga se existir
+        if (!empty($file_data['thumbnail_url'])) {
+            $old_thumbnail_path = __DIR__ . '/../' . $file_data['thumbnail_url'];
+            if (file_exists($old_thumbnail_path)) {
+                @unlink($old_thumbnail_path);
+            }
+        }
+        
+        // Atualizar no banco
+        $stmt_update = $conn->prepare("UPDATE sf_content_files SET thumbnail_url = ? WHERE id = ?");
+        $stmt_update->bind_param("si", $thumbnail_url, $file_id);
+        $stmt_update->execute();
+        $stmt_update->close();
+        
+        ob_clean();
+        echo json_encode([
+            'success' => true,
+            'message' => 'Thumbnail atualizada com sucesso',
+            'thumbnail_url' => $thumbnail_url
+        ]);
+    } catch (Exception $e) {
+        ob_clean();
+        echo json_encode(['success' => false, 'error' => 'Erro ao salvar thumbnail: ' . $e->getMessage()]);
+    }
+    
+    exit;
+}
+
