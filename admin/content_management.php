@@ -1980,7 +1980,41 @@ function saveContent() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(async response => {
+        // Ler o texto da resposta uma única vez
+        const text = await response.text();
+        
+        // Verificar se a resposta é válida
+        if (!response.ok) {
+            let errorMsg = 'Erro ao salvar conteúdo';
+            try {
+                const json = JSON.parse(text);
+                errorMsg = json.error || errorMsg;
+            } catch (e) {
+                errorMsg = text || `Erro HTTP ${response.status}`;
+            }
+            throw new Error(errorMsg);
+        }
+        
+        // Verificar se a resposta está vazia
+        if (!text || text.trim() === '') {
+            throw new Error('Resposta vazia do servidor');
+        }
+        
+        // Verificar Content-Type
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Resposta inválida do servidor: ' + (text.substring(0, 100) || 'Resposta não é JSON'));
+        }
+        
+        // Tentar parsear JSON
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.error('Erro ao parsear JSON:', text);
+            throw new Error('Resposta inválida do servidor. Verifique o console para mais detalhes.');
+        }
+    })
     .then(data => {
         if (data.success) {
             showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
@@ -1996,7 +2030,7 @@ function saveContent() {
     })
     .catch(error => {
         console.error('Erro:', error);
-        showAlert('Erro', 'Erro ao salvar conteúdo. Tente novamente.');
+        showAlert('Erro', 'Erro ao salvar conteúdo: ' + error.message);
         saveButton.innerHTML = originalText;
         saveButton.disabled = false;
     });

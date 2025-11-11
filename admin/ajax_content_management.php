@@ -1,6 +1,28 @@
 <?php
 // admin/ajax_content_management.php - AJAX endpoint para gerenciamento de conteúdo
 
+// Iniciar output buffering para capturar qualquer saída inesperada
+ob_start();
+
+// Handler de erros para garantir que sempre retorne JSON
+set_error_handler(function($severity, $message, $file, $line) {
+    if (error_reporting() === 0) return false;
+    ob_clean();
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'error' => 'Erro interno: ' . $message]);
+    exit;
+});
+
+// Handler de exceções não capturadas
+set_exception_handler(function($exception) {
+    ob_clean();
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'error' => 'Erro interno: ' . $exception->getMessage()]);
+    exit;
+});
+
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/includes/auth_admin.php';
 require_once __DIR__ . '/../includes/db.php';
@@ -30,8 +52,15 @@ try {
             throw new Exception('Ação não especificada');
     }
 } catch (Exception $e) {
+    ob_clean();
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    exit;
+} catch (Error $e) {
+    ob_clean();
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Erro interno: ' . $e->getMessage()]);
+    exit;
 }
 
 function saveContent($conn, $admin_id) {
@@ -99,8 +128,23 @@ function saveContent($conn, $admin_id) {
     $file_size = null;
     $mime_type = null;
     
-    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+    if (isset($_FILES['file'])) {
         $file = $_FILES['file'];
+        
+        // Verificar erros de upload do PHP
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            $upload_errors = [
+                UPLOAD_ERR_INI_SIZE => 'Arquivo excede o tamanho máximo permitido pelo servidor (upload_max_filesize)',
+                UPLOAD_ERR_FORM_SIZE => 'Arquivo excede o tamanho máximo permitido pelo formulário',
+                UPLOAD_ERR_PARTIAL => 'Upload parcial do arquivo',
+                UPLOAD_ERR_NO_FILE => 'Nenhum arquivo foi enviado',
+                UPLOAD_ERR_NO_TMP_DIR => 'Diretório temporário não encontrado',
+                UPLOAD_ERR_CANT_WRITE => 'Falha ao escrever arquivo no disco',
+                UPLOAD_ERR_EXTENSION => 'Upload bloqueado por extensão'
+            ];
+            $error_msg = $upload_errors[$file['error']] ?? 'Erro desconhecido no upload (código: ' . $file['error'] . ')';
+            throw new Exception($error_msg);
+        }
         
         // Validar tipo de arquivo
         $allowed_mime_types = [
@@ -112,7 +156,14 @@ function saveContent($conn, $admin_id) {
             'application/pdf'
         ];
         
+        if (!file_exists($file['tmp_name'])) {
+            throw new Exception('Arquivo temporário não encontrado. Verifique as configurações de upload do servidor.');
+        }
+        
         $file_mime = mime_content_type($file['tmp_name']);
+        if ($file_mime === false) {
+            $file_mime = $file['type'];
+        }
         $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         
         // Validar extensão também
@@ -130,7 +181,14 @@ function saveContent($conn, $admin_id) {
         // Criar diretório de upload
         $upload_dir = APP_ROOT_PATH . '/assets/content/';
         if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
+            if (!mkdir($upload_dir, 0755, true)) {
+                throw new Exception('Erro ao criar diretório de upload. Verifique as permissões.');
+            }
+        }
+        
+        // Verificar se o diretório é gravável
+        if (!is_writable($upload_dir)) {
+            throw new Exception('Diretório de upload não tem permissão de escrita. Verifique as permissões.');
         }
         
         // Gerar nome único para o arquivo
@@ -141,7 +199,8 @@ function saveContent($conn, $admin_id) {
         
         // Mover arquivo
         if (!move_uploaded_file($file['tmp_name'], $file_path_full)) {
-            throw new Exception('Erro ao fazer upload do arquivo');
+            $error = error_get_last();
+            throw new Exception('Erro ao fazer upload do arquivo. ' . ($error ? $error['message'] : 'Verifique as permissões do diretório.'));
         }
         
         $file_path = $file_path_db;
@@ -294,6 +353,7 @@ function saveContent($conn, $admin_id) {
         
         $conn->commit();
         
+        ob_clean();
         echo json_encode([
             'success' => true,
             'message' => $content_id > 0 ? 'Conteúdo atualizado com sucesso' : 'Conteúdo criado com sucesso',
@@ -349,6 +409,7 @@ function getContent($conn, $admin_id) {
     
     $content['categories'] = $categories;
     
+    ob_clean();
     echo json_encode(['success' => true, 'content' => $content]);
 }
 
@@ -383,6 +444,7 @@ function deleteContent($conn, $admin_id) {
     
     $stmt->close();
     
+    ob_clean();
     echo json_encode(['success' => true, 'message' => 'Conteúdo deletado com sucesso']);
 }
 
@@ -412,6 +474,7 @@ function getStats($conn, $admin_id) {
         $stats_by_type[$row['content_type']] = $row['count'];
     }
     
+    ob_clean();
     echo json_encode([
         'success' => true,
         'stats' => [
