@@ -2259,16 +2259,41 @@ function endConnection(e) {
         if (tempLine) tempLine.remove();
     }
     
-    const target = e.target.closest('.flow-node-connector');
-    if (target && connectionStart) {
-        const targetNodeId = target.dataset.node;
-        const targetConnector = target.dataset.connector;
+    // Verificar se é conector de grupo Typebot
+    const targetGroupConnector = e.target.closest('.typebot-group-connector');
+    if (targetGroupConnector && connectionStart) {
+        const targetGroupId = targetGroupConnector.dataset.group;
+        const targetConnector = targetGroupConnector.dataset.connector;
+        const startGroupId = connectionStart.nodeId.replace('group_', '');
         
         // Só conectar output -> input e não conectar consigo mesmo
         if (connectionStart.connectorType === 'output' && 
             targetConnector === 'input' && 
-            connectionStart.nodeId !== targetNodeId) {
-            addConnection(connectionStart.nodeId, targetNodeId);
+            startGroupId !== targetGroupId) {
+            // Criar edge no formato Typebot
+            if (window.typebotEdges) {
+                const newEdge = {
+                    id: `edge_${Date.now()}`,
+                    from: { groupId: startGroupId },
+                    to: { groupId: targetGroupId }
+                };
+                window.typebotEdges.push(newEdge);
+                updateConnections();
+            }
+        }
+    } else {
+        // Formato antigo (nodes/connections)
+        const target = e.target.closest('.flow-node-connector');
+        if (target && connectionStart) {
+            const targetNodeId = target.dataset.node;
+            const targetConnector = target.dataset.connector;
+            
+            // Só conectar output -> input e não conectar consigo mesmo
+            if (connectionStart.connectorType === 'output' && 
+                targetConnector === 'input' && 
+                connectionStart.nodeId !== targetNodeId) {
+                addConnection(connectionStart.nodeId, targetNodeId);
+            }
         }
     }
     
@@ -2436,17 +2461,29 @@ function updateConnections() {
         const allLines = connectionsLayer.querySelectorAll('path:not(#temp-connection)');
         allLines.forEach(el => el.remove());
         
-        // Se estamos usando formato Typebot
+        // Se estamos usando formato Typebot - conectar grupos entre si
         if (window.typebotEdges && window.typebotEdges.length > 0) {
             window.typebotEdges.forEach((edge) => {
-                let fromBlockId = null;
-                let toBlockId = null;
+                let fromGroupId = null;
+                let toGroupId = null;
                 
-                // Encontrar blockId de origem
-                if (edge.from?.blockId) {
-                    fromBlockId = edge.from.blockId;
+                // Encontrar groupId de origem
+                if (edge.from?.groupId) {
+                    fromGroupId = edge.from.groupId;
+                } else if (edge.from?.blockId) {
+                    // Se é um bloco específico, encontrar o grupo pai
+                    if (window.typebotFlow && window.typebotFlow.groups) {
+                        window.typebotFlow.groups.forEach(group => {
+                            if (group.blocks) {
+                                const foundBlock = group.blocks.find(b => b.id === edge.from.blockId);
+                                if (foundBlock) {
+                                    fromGroupId = group.id;
+                                }
+                            }
+                        });
+                    }
                 } else if (edge.from?.itemId) {
-                    // Conexão de um item de choice input - encontrar o bloco pai
+                    // Conexão de um item de choice input - encontrar o grupo pai
                     if (window.typebotFlow && window.typebotFlow.groups) {
                         window.typebotFlow.groups.forEach(group => {
                             if (group.blocks) {
@@ -2454,64 +2491,60 @@ function updateConnections() {
                                     if (block.items) {
                                         const item = block.items.find(i => i.id === edge.from.itemId);
                                         if (item) {
-                                            fromBlockId = block.id;
+                                            fromGroupId = group.id;
                                         }
                                     }
                                 });
                             }
                         });
                     }
-                } else if (edge.from?.groupId) {
-                    // Pegar último bloco do grupo
+                }
+                
+                // Encontrar groupId de destino
+                if (edge.to?.groupId) {
+                    toGroupId = edge.to.groupId;
+                } else if (edge.to?.blockId) {
+                    // Se é um bloco específico, encontrar o grupo pai
                     if (window.typebotFlow && window.typebotFlow.groups) {
-                        const group = window.typebotFlow.groups.find(g => g.id === edge.from.groupId);
-                        if (group && group.blocks && group.blocks.length > 0) {
-                            fromBlockId = group.blocks[group.blocks.length - 1].id;
-                        }
+                        window.typebotFlow.groups.forEach(group => {
+                            if (group.blocks) {
+                                const foundBlock = group.blocks.find(b => b.id === edge.to.blockId);
+                                if (foundBlock) {
+                                    toGroupId = group.id;
+                                }
+                            }
+                        });
                     }
                 }
                 
-                // Encontrar blockId de destino
-                if (edge.to?.blockId) {
-                    toBlockId = edge.to.blockId;
-                } else if (edge.to?.groupId) {
-                    // Pegar primeiro bloco do grupo
-                    if (window.typebotFlow && window.typebotFlow.groups) {
-                        const group = window.typebotFlow.groups.find(g => g.id === edge.to.groupId);
-                        if (group && group.blocks && group.blocks.length > 0) {
-                            toBlockId = group.blocks[0].id;
-                        }
-                    }
-                }
+                if (!fromGroupId || !toGroupId) return;
                 
-                if (!fromBlockId || !toBlockId) return;
+                const fromGroupEl = document.getElementById(`group_${fromGroupId}`);
+                const toGroupEl = document.getElementById(`group_${toGroupId}`);
                 
-                const fromEl = document.getElementById(fromBlockId);
-                const toEl = document.getElementById(toBlockId);
+                if (!fromGroupEl || !toGroupEl) return;
                 
-                if (!fromEl || !toEl) return;
-                
-                const fromConnector = fromEl.querySelector('.flow-node-connector.output');
-                const toConnector = toEl.querySelector('.flow-node-connector.input');
+                const fromConnector = fromGroupEl.querySelector('.typebot-group-connector.output');
+                const toConnector = toGroupEl.querySelector('.typebot-group-connector.input');
                 
                 if (!fromConnector || !toConnector) return;
                 
-                // Obter coordenadas dos blocos
-                const fromX = parseFloat(fromEl.style.left) || 0;
-                const fromY = parseFloat(fromEl.style.top) || 0;
-                const toX = parseFloat(toEl.style.left) || 0;
-                const toY = parseFloat(toEl.style.top) || 0;
+                // Obter coordenadas dos grupos
+                const fromX = parseFloat(fromGroupEl.style.left) || 0;
+                const fromY = parseFloat(fromGroupEl.style.top) || 0;
+                const toX = parseFloat(toGroupEl.style.left) || 0;
+                const toY = parseFloat(toGroupEl.style.top) || 0;
                 
-                const fromNodeWidth = fromEl.offsetWidth || 200;
-                const toNodeWidth = toEl.offsetWidth || 200;
-                const fromNodeHeight = fromEl.offsetHeight || 100;
-                const toNodeHeight = toEl.offsetHeight || 100;
+                const fromGroupWidth = fromGroupEl.offsetWidth || 360;
+                const toGroupWidth = toGroupEl.offsetWidth || 360;
+                const fromGroupHeight = fromGroupEl.offsetHeight || 200;
+                const toGroupHeight = toGroupEl.offsetHeight || 200;
                 
-                // Posições dos conectores
-                const fromConnectorLocalX = fromNodeWidth / 2;
-                const fromConnectorLocalY = fromNodeHeight;
-                const toConnectorLocalX = toNodeWidth / 2;
-                const toConnectorLocalY = 0;
+                // Posições dos conectores (centro horizontal, topo/baixo vertical)
+                const fromConnectorLocalX = fromGroupWidth / 2;
+                const fromConnectorLocalY = fromGroupHeight; // bottom
+                const toConnectorLocalX = toGroupWidth / 2;
+                const toConnectorLocalY = 0; // top
                 
                 // Calcular posições em coordenadas de tela
                 const screenX1 = (fromX + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
@@ -2524,7 +2557,7 @@ function updateConnections() {
                 const svgX2 = screenX2;
                 const svgY2 = screenY2;
                 
-                const lineId = `connection-${fromBlockId}-${toBlockId}`;
+                const lineId = `connection-group-${fromGroupId}-group-${toGroupId}`;
                 const existing = connectionsLayer.querySelector(`#${lineId}`);
                 if (existing) existing.remove();
                 
@@ -2537,7 +2570,7 @@ function updateConnections() {
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 path.setAttribute('id', lineId);
                 path.setAttribute('d', `M ${svgX1} ${svgY1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${svgX2} ${svgY2}`);
-                path.setAttribute('stroke', 'var(--accent-orange)');
+                path.setAttribute('stroke', '#3b82f6');
                 path.setAttribute('stroke-width', '2');
                 path.setAttribute('fill', 'none');
                 path.setAttribute('pointer-events', 'stroke');
