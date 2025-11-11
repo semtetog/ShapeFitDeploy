@@ -2219,6 +2219,8 @@ function editContent(contentId, preserveNewFilePreview = false) {
                         editBtn.type = 'button';
                         editBtn.onclick = (e) => {
                             e.stopPropagation();
+                            e.preventDefault();
+                            console.log('Botão de editar clicado:', { fileId: file.id, contentId: content.id, fileUrl });
                             editFileThumbnail(file.id || null, content.id, fileUrl);
                         };
                         editBtn.style.cssText = 'width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); cursor: pointer; transition: all 0.3s ease;';
@@ -3353,14 +3355,30 @@ function selectVideoFrameForExisting(fileId, frameDataUrl, frameElement) {
 
 // Função para editar thumbnail de um arquivo específico
 function editFileThumbnail(fileId, contentId, fileUrl) {
-    if (!fileId || !contentId || !fileUrl) return;
+    console.log('editFileThumbnail chamado:', { fileId, contentId, fileUrl });
+    
+    if (!fileId || !contentId || !fileUrl) {
+        console.error('Parâmetros inválidos:', { fileId, contentId, fileUrl });
+        showAlert('Erro', 'Parâmetros inválidos para editar thumbnail');
+        return;
+    }
     
     // Mostrar grupo de thumbnail
     const thumbnailGroup = document.getElementById('thumbnailGroup');
     const videoFramesGallery = document.getElementById('videoFramesGallery');
     const framesContainer = videoFramesGallery ? videoFramesGallery.querySelector('div') : null;
     
-    if (!thumbnailGroup || !videoFramesGallery || !framesContainer) return;
+    console.log('Elementos encontrados:', { 
+        thumbnailGroup: !!thumbnailGroup, 
+        videoFramesGallery: !!videoFramesGallery, 
+        framesContainer: !!framesContainer 
+    });
+    
+    if (!thumbnailGroup || !videoFramesGallery || !framesContainer) {
+        console.error('Elementos não encontrados:', { thumbnailGroup, videoFramesGallery, framesContainer });
+        showAlert('Erro', 'Elementos do modal não encontrados. Certifique-se de que o modal está aberto.');
+        return;
+    }
     
     // Limpar frames anteriores
     framesContainer.innerHTML = '';
