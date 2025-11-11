@@ -149,6 +149,20 @@ require_once __DIR__ . '/includes/header.php';
     position: relative;
     width: 100%;
     height: 100%;
+    background-color: #1a1a1a;
+}
+
+.flow-canvas-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a;
+    background-image: 
+        linear-gradient(rgba(255, 107, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 107, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0;
+    overflow: hidden;
 }
 
 .flow-canvas {
