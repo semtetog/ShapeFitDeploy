@@ -230,9 +230,9 @@ html {
     justify-content: center;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 12px;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--text-primary);
     text-decoration: none;
     transition: all 0.3s ease;
@@ -240,9 +240,10 @@ html {
 }
 
 .back-button:hover {
-    background: rgba(255, 107, 0, 0.1);
+    background: rgba(255, 255, 255, 0.1);
     border-color: var(--accent-orange);
     color: var(--accent-orange);
+    transform: translateX(-2px);
 }
 
 .content-grid {
