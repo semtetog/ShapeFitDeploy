@@ -846,16 +846,17 @@ function initCanvas() {
     viewport = document.getElementById('viewport');
     canvasWrapper = document.querySelector('.flow-canvas-wrapper');
     
-    if (!canvas || !connectionsLayer || !viewport) {
+    if (!canvas || !connectionsLayer || !viewport || !canvasWrapper) {
         console.error('Elementos do canvas não encontrados!');
         return false;
     }
     
-    // Ajustar tamanho do SVG para cobrir todo o canvas
-    connectionsLayer.setAttribute('width', '5000');
-    connectionsLayer.setAttribute('height', '5000');
-    connectionsLayer.style.width = '5000px';
-    connectionsLayer.style.height = '5000px';
+    // SVG ocupa toda a área visível do wrapper
+    const w = canvasWrapper.clientWidth;
+    const h = canvasWrapper.clientHeight;
+    connectionsLayer.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    connectionsLayer.style.width = '100%';
+    connectionsLayer.style.height = '100%';
     
     return true;
 }
