@@ -153,16 +153,23 @@ $available_checkin = null;
 $today_day_of_week = (int)date('w'); // 0=Domingo, 6=Sábado
 
 // Buscar check-ins ativos para hoje
+// Se o check-in não tem distribuições, fica disponível para todos
 $checkin_query = "
     SELECT DISTINCT cc.*
     FROM sf_checkin_configs cc
-    INNER JOIN sf_checkin_distribution cd ON cc.id = cd.config_id
+    LEFT JOIN sf_checkin_distribution cd ON cc.id = cd.config_id
     LEFT JOIN sf_user_group_members ugm ON cd.target_type = 'group' AND cd.target_id = ugm.group_id
     WHERE cc.is_active = 1 
     AND cc.day_of_week = ?
     AND (
-        (cd.target_type = 'user' AND cd.target_id = ?)
-        OR (cd.target_type = 'group' AND ugm.user_id = ?)
+        -- Check-in sem distribuições (disponível para todos)
+        NOT EXISTS (SELECT 1 FROM sf_checkin_distribution WHERE config_id = cc.id)
+        OR
+        -- Check-in com distribuições específicas
+        (
+            (cd.target_type = 'user' AND cd.target_id = ?)
+            OR (cd.target_type = 'group' AND ugm.user_id = ?)
+        )
     )
     AND NOT EXISTS (
         SELECT 1 FROM sf_checkin_availability ca

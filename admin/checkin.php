@@ -19,6 +19,68 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $per_page = 12;
 $offset = ($page - 1) * $per_page;
 
+// --- Criar check-in padrão se não existir ---
+$default_checkin_query = "SELECT id FROM sf_checkin_configs WHERE admin_id = ? AND name = 'Feedback Semanal' LIMIT 1";
+$stmt_default = $conn->prepare($default_checkin_query);
+$stmt_default->bind_param("i", $admin_id);
+$stmt_default->execute();
+$default_result = $stmt_default->get_result();
+
+if ($default_result->num_rows === 0) {
+    // Criar check-in padrão
+    $conn->begin_transaction();
+    try {
+        // Inserir configuração
+        $insert_config = "INSERT INTO sf_checkin_configs (admin_id, name, description, day_of_week, is_active, created_at, updated_at) VALUES (?, 'Feedback Semanal', 'Check-in semanal padrão para acompanhamento dos pacientes', 0, 1, NOW(), NOW())";
+        $stmt_insert = $conn->prepare($insert_config);
+        $stmt_insert->bind_param("i", $admin_id);
+        $stmt_insert->execute();
+        $default_checkin_id = $conn->insert_id;
+        $stmt_insert->close();
+        
+        // Inserir perguntas padrão
+        $default_questions = [
+            ['question_text' => 'Seu nome completo', 'question_type' => 'text', 'order_index' => 0],
+            ['question_text' => 'Você teve alguma mudança significativa na rotina?', 'question_type' => 'text', 'order_index' => 1],
+            ['question_text' => 'O que tem achado do plano? Tem tido dificuldade com alguma parte do planejamento?', 'question_type' => 'text', 'order_index' => 2],
+            ['question_text' => 'Nessa semana você acabou faltando algum treino ou aeróbico?', 'question_type' => 'multiple_choice', 'options' => json_encode(['Sim', 'Não']), 'order_index' => 3],
+            ['question_text' => 'Quantos treinos ao todo você fez essa última semana?', 'question_type' => 'text', 'order_index' => 4],
+            ['question_text' => 'Tiveram refeições sociais essa semana? Houve alguma refeição fora do plano?', 'question_type' => 'multiple_choice', 'options' => json_encode(['Sim', 'Não']), 'order_index' => 5],
+            ['question_text' => 'O que você teve de refeições fora do planejado?', 'question_type' => 'text', 'order_index' => 6],
+            ['question_text' => 'Em relação ao seu apetite, se fosse dar uma nota de 0 a 10, qual você daria? (Apetite é VONTADE de comer)', 'question_type' => 'scale', 'options' => json_encode(['Muita vontade de comer! (10)', '7.5', '5', '2.5', 'Nenhuma vontade de comer (0)']), 'order_index' => 7],
+            ['question_text' => 'E em relação aos seus níveis de fome durante o dia, a sensação de barriga vazia e de que a comida não tem sido suficiente:', 'question_type' => 'scale', 'options' => json_encode(['Muita fome! (10)', '7.5', '5', '2.5', 'Fome zerada (0)']), 'order_index' => 8],
+            ['question_text' => 'E a motivação? Tá acordando todos os dias no gás pra cuidar da saúde? De 0 a 10!', 'question_type' => 'scale', 'options' => json_encode(['Motivação nas alturas! (10)', '7.5', '5', '2.5', 'Sem motivação nenhuma (0)']), 'order_index' => 9],
+            ['question_text' => 'Em relação ao desejo por furar o cardápio, comer umas gostosuras e tudo mais, como está? De 0 a 10!', 'question_type' => 'scale', 'options' => json_encode(['Muita vontade de furar! (10)', '7.5', '5', '2.5', 'Nenhuma vontade de furar! (0)']), 'order_index' => 10],
+            ['question_text' => 'Pensando nisso, como está o seu humor atualmente? Se fosse classificar de 0 a 10?', 'question_type' => 'scale', 'options' => json_encode(['Humor está maravilhoso! (10)', '7.5', '5', '2.5', 'Humor está péssimo! (0)']), 'order_index' => 11],
+            ['question_text' => 'Como que está o seu sono? Olhando tanto pra quantidade quanto pra qualidade?', 'question_type' => 'scale', 'options' => json_encode(['Dormindo feito um bebê (10)', '7.5', '5', '2.5', 'Sono está horrível! (0)']), 'order_index' => 12],
+            ['question_text' => 'Você vem se recuperando bem? Tanto dos exercícios quanto das atividades do dia-a-dia? De 0 a 10!', 'question_type' => 'scale', 'options' => json_encode(['Recuperação incrível (10)', '7.5', '5', '2.5', 'Estou sempre quebrado! (0)']), 'order_index' => 13],
+            ['question_text' => 'Está indo a banheiro todos os dias? Como está seu intestino? Dê uma nota de 0 a 10!', 'question_type' => 'scale', 'options' => json_encode(['Intestino reloginho, perfeito! (10)', '7.5', '5', '2.5', 'Intestino travado (0)']), 'order_index' => 14],
+            ['question_text' => 'E a sua performance, tanto nos exercícios quanto nas atividades mentais, vai bem? De 0 a 10!', 'question_type' => 'scale', 'options' => json_encode(['Performance em alta! (10)', '7.5', '5', '2.5', 'Está em baixa, viu? (0)']), 'order_index' => 15],
+            ['question_text' => 'E o estresse? Se fosse classificar de 0 a 10 os níveis de estresse na sua vida, como está?', 'question_type' => 'scale', 'options' => json_encode(['Vida muito estressante! (10)', '7.5', '5', '2.5', 'Vida tranquila! (0)']), 'order_index' => 16],
+            ['question_text' => 'De todos esses marcadores que você acabou de me passar, tem algum problema específico que você queira comentar sobre?', 'question_type' => 'text', 'order_index' => 17],
+            ['question_text' => 'Se fosse pra dar uma nota pra essa semana, qual você daria?', 'question_type' => 'scale', 'options' => json_encode(['Nota 10, foi maravilhosa!', 'Nota 7.5, foi boa mas poderia ter sido melhor', 'Nota 5.0, foi mediana', 'Nota 2.5, não foi tão boa', 'Nota 0, foi péssima']), 'order_index' => 18],
+            ['question_text' => 'Caso você tenha se pesado essa semana, me informe abaixo seu peso atual', 'question_type' => 'text', 'order_index' => 19],
+        ];
+        
+        $stmt_question = $conn->prepare("INSERT INTO sf_checkin_questions (config_id, question_text, question_type, options, order_index, is_required, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, NOW(), NOW())");
+        foreach ($default_questions as $q) {
+            $options = $q['options'] ?? null;
+            $stmt_question->bind_param("isssi", $default_checkin_id, $q['question_text'], $q['question_type'], $options, $q['order_index']);
+            $stmt_question->execute();
+        }
+        $stmt_question->close();
+        
+        // Distribuir para todos os usuários (sem grupos específicos, todos podem ver)
+        // Não vamos adicionar distribuições específicas, deixando disponível para todos
+        
+        $conn->commit();
+    } catch (Exception $e) {
+        $conn->rollback();
+        error_log("Erro ao criar check-in padrão: " . $e->getMessage());
+    }
+}
+$stmt_default->close();
+
 // --- Estatísticas gerais ---
 $stats = [];
 
@@ -136,6 +198,37 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
 }
 
+.btn-add-checkin-circular {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    max-width: 64px;
+    max-height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.btn-add-checkin-circular:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
+}
+
+.btn-add-checkin-circular i {
+    font-size: 1.5rem;
+}
+
 .checkin-page * {
     box-shadow: none !important;
 }
@@ -166,9 +259,15 @@ require_once __DIR__ . '/includes/header.php';
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin-top: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
@@ -349,66 +448,117 @@ require_once __DIR__ . '/includes/header.php';
     transform: translateY(-2px);
 }
 
-/* Modal Styles */
+/* Modal Styles - Premium Design */
 .modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
     z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    animation: fadeIn 0.4s ease;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    overflow-y: auto;
 }
 
 .modal.active {
     display: flex;
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .modal-content {
-    background: rgba(20, 20, 20, 0.95);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
+    background: var(--surface-color);
+    margin: 0 auto;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
     width: 100%;
-    max-width: 800px;
+    max-width: 900px;
     max-height: 90vh;
-    overflow-y: auto;
-    padding: 2rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+    animation: slideIn 0.4s ease;
+    overflow: hidden;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-header {
+    background: linear-gradient(135deg, var(--accent-orange) 0%, #ff8533 100%);
+    color: white;
+    padding: 25px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--glass-border);
+    flex-shrink: 0;
+    border-radius: 16px 16px 0 0;
 }
 
 .modal-header h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
     margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
 }
 
 .modal-close {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.5rem;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
     cursor: pointer;
-    padding: 0.5rem;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+    outline: none;
+    border: none;
+    box-shadow: none;
 }
 
 .modal-close:hover {
-    color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+}
+
+.modal-close:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.modal-body {
+    padding: 30px;
+    background: var(--surface-color);
+    flex: 1;
+    overflow-y: auto;
 }
 
 .form-group {
@@ -458,9 +608,15 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    padding: 1rem;
+    padding: 1.25rem;
     margin-bottom: 1rem;
     position: relative;
+    transition: all 0.3s ease;
+}
+
+.question-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 107, 0, 0.3);
 }
 
 .question-item-header {
@@ -523,6 +679,25 @@ require_once __DIR__ . '/includes/header.php';
     padding: 1rem;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.distribution-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.distribution-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.distribution-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 0, 0.3);
+    border-radius: 4px;
+}
+
+.distribution-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 0, 0.5);
 }
 
 .distribution-item {
@@ -590,8 +765,8 @@ require_once __DIR__ . '/includes/header.php';
                 <h2>Check-in</h2>
                 <p>Gerencie os check-ins semanais dos seus pacientes</p>
             </div>
-            <button class="btn-primary" onclick="openCreateCheckinModal()">
-                <i class="fas fa-plus"></i> Criar Check-in
+            <button class="btn-add-checkin-circular" onclick="openCreateCheckinModal()" title="Criar novo check-in">
+                <i class="fas fa-plus"></i>
             </button>
         </div>
 
@@ -605,6 +780,10 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="stat-label">Ativos</div>
             </div>
             <div class="stat-card" onclick="filterByStatus('inactive')">
+                <div class="stat-number"><?php echo $stats['inactive']; ?></div>
+                <div class="stat-label">Inativos</div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='checkin_responses.php'">
                 <div class="stat-number"><?php echo $stats['responses']; ?></div>
                 <div class="stat-label">Respostas</div>
             </div>
@@ -675,40 +854,41 @@ require_once __DIR__ . '/includes/header.php';
             <h3 id="modalTitle">Criar Check-in</h3>
             <button class="modal-close" onclick="closeCheckinModal()">&times;</button>
         </div>
-        <form id="checkinForm" onsubmit="saveCheckin(event)">
-            <input type="hidden" id="checkinId" name="checkin_id" value="0">
-            
-            <div class="form-group">
-                <label>Nome do Check-in *</label>
-                <input type="text" id="checkinName" name="name" required placeholder="Ex: Feedback Semanal">
-            </div>
-
-            <div class="form-group">
-                <label>Descrição</label>
-                <textarea id="checkinDescription" name="description" placeholder="Descrição opcional do check-in"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Dia da Semana *</label>
-                <div class="day-selector">
-                    <?php 
-                    $days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-                    for ($i = 0; $i < 7; $i++): 
-                    ?>
-                        <div class="day-option" data-day="<?php echo $i; ?>" onclick="selectDay(<?php echo $i; ?>)">
-                            <?php echo $days[$i]; ?>
-                        </div>
-                    <?php endfor; ?>
+        <div class="modal-body">
+            <form id="checkinForm" onsubmit="saveCheckin(event)">
+                <input type="hidden" id="checkinId" name="checkin_id" value="0">
+                
+                <div class="form-group">
+                    <label>Nome do Check-in *</label>
+                    <input type="text" id="checkinName" name="name" required placeholder="Ex: Feedback Semanal">
                 </div>
-                <input type="hidden" id="dayOfWeek" name="day_of_week" value="0">
-            </div>
 
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="checkinActive" name="is_active" checked> 
-                    Check-in ativo
-                </label>
-            </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="checkinDescription" name="description" placeholder="Descrição opcional do check-in"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Dia da Semana *</label>
+                    <div class="day-selector">
+                        <?php 
+                        $days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                        for ($i = 0; $i < 7; $i++): 
+                        ?>
+                            <div class="day-option" data-day="<?php echo $i; ?>" onclick="selectDay(<?php echo $i; ?>)">
+                                <?php echo $days[$i]; ?>
+                            </div>
+                        <?php endfor; ?>
+                    </div>
+                    <input type="hidden" id="dayOfWeek" name="day_of_week" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="checkinActive" name="is_active" checked style="width: auto; margin: 0;"> 
+                        <span>Check-in ativo</span>
+                    </label>
+                </div>
 
             <div class="questions-list">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -748,15 +928,17 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                <button type="submit" class="btn-primary" style="flex: 1;">
-                    <i class="fas fa-save"></i> Salvar
-                </button>
-                <button type="button" class="btn-action" onclick="closeCheckinModal()" style="flex: 1;">
-                    Cancelar
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
+        
+        <div class="modal-footer" style="padding: 25px 30px; background: var(--surface-color); border-top: 1px solid var(--border-color); display: flex; gap: 1rem; justify-content: flex-end; flex-shrink: 0;">
+            <button type="button" class="btn-action" onclick="closeCheckinModal()" style="min-width: 120px;">
+                Cancelar
+            </button>
+            <button type="submit" form="checkinForm" class="btn-primary" style="min-width: 120px;">
+                <i class="fas fa-save"></i> Salvar
+            </button>
+        </div>
     </div>
 </div>
 
