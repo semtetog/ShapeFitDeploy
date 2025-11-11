@@ -3281,11 +3281,13 @@ function generateVideoFramesForExistingVideo(video, fileId) {
     
     function extractNextFrame() {
         if (currentFrameIndex >= frameTimes.length) {
+            console.log('Todos os frames foram extraídos');
             gallery.style.display = 'block';
             return;
         }
         
         const time = frameTimes[currentFrameIndex];
+        console.log(`Extraindo frame ${currentFrameIndex + 1}/${frameTimes.length} no tempo ${time.toFixed(2)}s`);
         tempVideo.currentTime = time;
     }
     
@@ -3336,12 +3338,20 @@ function generateVideoFramesForExistingVideo(video, fileId) {
         extractNextFrame();
     };
     
-    tempVideo.onerror = function() {
-        console.error('Erro ao gerar frames do vídeo existente');
+    tempVideo.onerror = function(error) {
+        console.error('Erro ao gerar frames do vídeo existente:', error);
     };
     
-    tempVideo.load();
-    extractNextFrame();
+    tempVideo.onloadedmetadata = function() {
+        console.log('Vídeo temporário carregado, iniciando extração de frames');
+    };
+    
+    try {
+        tempVideo.load();
+        extractNextFrame();
+    } catch (error) {
+        console.error('Erro ao iniciar extração de frames:', error);
+    }
 }
 
 // Função para selecionar frame de vídeo existente (com fileId)
