@@ -1455,9 +1455,8 @@ function dragNode(e) {
     node.x = logicalX - dragOffset.x;
     node.y = logicalY - dragOffset.y;
     
-    // Limitar dentro dos bounds do canvas (opcional)
-    node.x = Math.max(0, node.x);
-    node.y = Math.max(0, node.y);
+    // Permitir coordenadas negativas para canvas infinito
+    // (removido clamp: node.x = Math.max(0, node.x);)
     
     // Renderizar posição do nó (em pixels, sem zoom)
     const nodeEl = document.getElementById(currentDraggingNode);
