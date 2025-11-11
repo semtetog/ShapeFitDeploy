@@ -213,16 +213,15 @@ function saveContent($conn, $admin_id) {
         $thumbnail_url = '/assets/content/thumbnails/' . $thumbnail_name;
     }
     
-    if (isset($_FILES['file'])) {
+    if (isset($_FILES['file']) && $_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {
         $file = $_FILES['file'];
         
-        // Verificar erros de upload do PHP
+        // Verificar erros de upload do PHP (apenas se realmente há um arquivo sendo enviado)
         if ($file['error'] !== UPLOAD_ERR_OK) {
             $upload_errors = [
                 UPLOAD_ERR_INI_SIZE => 'Arquivo excede o tamanho máximo permitido pelo servidor (upload_max_filesize)',
                 UPLOAD_ERR_FORM_SIZE => 'Arquivo excede o tamanho máximo permitido pelo formulário',
                 UPLOAD_ERR_PARTIAL => 'Upload parcial do arquivo',
-                UPLOAD_ERR_NO_FILE => 'Nenhum arquivo foi enviado',
                 UPLOAD_ERR_NO_TMP_DIR => 'Diretório temporário não encontrado',
                 UPLOAD_ERR_CANT_WRITE => 'Falha ao escrever arquivo no disco',
                 UPLOAD_ERR_EXTENSION => 'Upload bloqueado por extensão'
@@ -297,7 +296,10 @@ function saveContent($conn, $admin_id) {
         $mime_type = null;
     } elseif ($content_id == 0) {
         // Para novos conteúdos, arquivo é obrigatório
-        throw new Exception('Arquivo é obrigatório para este tipo de conteúdo');
+        if ($content_id == 0) {
+            throw new Exception('Arquivo é obrigatório para criar novo conteúdo');
+        }
+        // Se estiver editando, não precisa de arquivo novo
     }
     
     // Iniciar transação
