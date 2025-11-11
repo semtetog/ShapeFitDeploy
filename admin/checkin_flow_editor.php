@@ -161,11 +161,13 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .flow-canvas {
-    width: 100%;
-    height: 100%;
-    min-width: 2000px;
-    min-height: 2000px;
-    position: relative;
+    width: 5000px;
+    height: 5000px;
+    min-width: 5000px;
+    min-height: 5000px;
+    position: absolute;
+    top: 0;
+    left: 0;
     cursor: grab;
     transform-origin: top left;
     transition: transform 0.1s ease-out;
