@@ -752,21 +752,21 @@ require_once __DIR__ . '/includes/header.php';
 /* Responsividade */
 @media (max-width: 1024px) {
     .user-groups-grid {
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
         gap: 1.25rem;
     }
     
+    .group-card-actions {
+        gap: 0.625rem;
+    }
+    
     .btn-action {
-        font-size: 0.75rem;
-        padding: 0.5rem 0.5rem;
-        gap: 0.375rem;
-        flex-shrink: 1;
-        max-width: 100%;
+        padding: 0.6875rem 0.875rem;
+        font-size: 0.8125rem;
     }
     
     .btn-action i {
-        font-size: 0.75rem;
-        flex-shrink: 0;
+        font-size: 0.8125rem;
     }
 }
 
