@@ -32,7 +32,14 @@ requireAdminLogin();
 header('Content-Type: application/json');
 
 $admin_id = $_SESSION['admin_id'] ?? 1;
-$action = $_POST['action'] ?? $_GET['action'] ?? '';
+
+// Tentar ler ação do JSON primeiro (para toggle_status e outras ações que usam JSON)
+$input = file_get_contents('php://input');
+$json_data = null;
+if (!empty($input)) {
+    $json_data = json_decode($input, true);
+}
+$action = $json_data['action'] ?? $_POST['action'] ?? $_GET['action'] ?? '';
 
 try {
     switch ($action) {
@@ -451,17 +458,16 @@ function getStats($conn, $admin_id) {
 }
 
 function toggleContentStatus($conn, $admin_id) {
-    // Verificar se recebeu JSON
-    $input = file_get_contents('php://input');
-    $data = json_decode($input, true);
+    // Ler dados do JSON (já foi lido no início do arquivo)
+    global $json_data;
     
-    if (!$data) {
-        // Tentar POST normal
+    if ($json_data) {
+        $content_id = (int)($json_data['content_id'] ?? 0);
+        $status = $json_data['status'] ?? 'active';
+    } else {
+        // Fallback para POST normal
         $content_id = (int)($_POST['content_id'] ?? 0);
         $status = $_POST['status'] ?? 'active';
-    } else {
-        $content_id = (int)($data['content_id'] ?? 0);
-        $status = $data['status'] ?? 'active';
     }
     
     if ($content_id <= 0) {
