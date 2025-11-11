@@ -130,22 +130,48 @@ function saveContent($conn, $admin_id) {
     if (empty($title)) {
         throw new Exception('Título é obrigatório');
     }
-    if (empty($content_type)) {
-        throw new Exception('Tipo de conteúdo é obrigatório');
-    }
     
-    // Validar tipos permitidos - apenas vídeos e PDF
-    $allowed_types = ['videos', 'pdf'];
-    if (!in_array($content_type, $allowed_types)) {
-        throw new Exception('Tipo de conteúdo inválido. Use apenas "videos" ou "pdf"');
-    }
-    
-    // Processar upload de arquivo
+    // Processar upload de arquivo primeiro para detectar tipo automaticamente
     $file_path = null;
     $file_name = null;
     $file_size = null;
     $mime_type = null;
     $thumbnail_url = null;
+    
+    // Se não há content_type mas há arquivo, detectar automaticamente
+    if (empty($content_type) && isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['file'];
+        $file_mime = mime_content_type($file['tmp_name']);
+        if ($file_mime === false) {
+            $file_mime = $file['type'];
+        }
+        
+        if (str_starts_with($file_mime, 'video/')) {
+            $content_type = 'videos';
+        } elseif ($file_mime === 'application/pdf' || str_ends_with(strtolower($file['name']), '.pdf')) {
+            $content_type = 'pdf';
+        }
+    }
+    
+    // Se ainda não há content_type e está editando, buscar do banco
+    if (empty($content_type) && $content_id > 0) {
+        $stmt_check = $conn->prepare("SELECT content_type FROM sf_member_content WHERE id = ?");
+        $stmt_check->bind_param("i", $content_id);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+        if ($row = $result_check->fetch_assoc()) {
+            $content_type = $row['content_type'];
+        }
+        $stmt_check->close();
+    }
+    
+    // Validar tipos permitidos - apenas vídeos e PDF (se content_type foi definido)
+    if (!empty($content_type)) {
+        $allowed_types = ['videos', 'pdf'];
+        if (!in_array($content_type, $allowed_types)) {
+            throw new Exception('Tipo de conteúdo inválido. Use apenas "videos" ou "pdf"');
+        }
+    }
     
     // Processar upload de thumbnail
     if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
