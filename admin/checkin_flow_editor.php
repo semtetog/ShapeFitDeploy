@@ -1537,9 +1537,10 @@ function drawConnection(e) {
     path.setAttribute('d', pathData);
     path.setAttribute('class', 'flow-connection-line connecting');
     path.setAttribute('stroke', 'var(--accent-orange)');
-    path.setAttribute('stroke-width', '2');
-    path.setAttribute('stroke-dasharray', '5,5');
+    path.setAttribute('stroke-width', '3');
+    path.setAttribute('stroke-dasharray', '8,4');
     path.setAttribute('fill', 'none');
+    path.setAttribute('opacity', '0.6');
     connectionsLayer.appendChild(path);
 }
 
@@ -1797,17 +1798,33 @@ function updateConnections() {
         const hasCondition = conn.condition && conn.condition.var;
         const lineClass = hasCondition ? 'flow-connection-line conditional' : 'flow-connection-line';
         path.setAttribute('class', lineClass);
+        // Linha mais visível e sem setinha
         path.setAttribute('stroke', 'var(--accent-orange)');
-        path.setAttribute('stroke-width', '2');
+        path.setAttribute('stroke-width', '3');
         path.setAttribute('fill', 'none');
-        path.setAttribute('marker-end', 'url(#arrowhead)');
+        path.setAttribute('opacity', '0.8');
+        
+        // Sem setinha (removido marker-end)
+        
         if (hasCondition) {
-            path.setAttribute('stroke-dasharray', '5,5');
+            path.setAttribute('stroke-dasharray', '8,4');
+            path.setAttribute('opacity', '0.6');
         }
+        
         path.dataset.from = conn.from;
         path.dataset.to = conn.to;
         path.style.cursor = 'pointer';
         path.style.pointerEvents = 'stroke';
+        
+        // Efeito hover
+        path.addEventListener('mouseenter', () => {
+            path.setAttribute('stroke-width', '4');
+            path.setAttribute('opacity', '1');
+        });
+        path.addEventListener('mouseleave', () => {
+            path.setAttribute('stroke-width', hasCondition ? '3' : '3');
+            path.setAttribute('opacity', hasCondition ? '0.6' : '0.8');
+        });
         
         path.addEventListener('click', (e) => {
             e.stopPropagation();
