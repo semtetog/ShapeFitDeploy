@@ -840,17 +840,24 @@ let nodeIdCounter = 0;
 let currentDraggingNode = null;
 
 // Inicializar canvas - aguardar DOM
-let canvas, connectionsLayer, canvasContainer;
+let canvas, connectionsLayer, viewport, canvasWrapper;
 
 function initCanvas() {
     canvas = document.getElementById('flowCanvas');
     connectionsLayer = document.getElementById('connectionsLayer');
-    canvasContainer = document.querySelector('.flow-canvas-wrapper') || document.querySelector('.flow-canvas-container');
+    viewport = document.getElementById('viewport');
+    canvasWrapper = document.querySelector('.flow-canvas-wrapper');
     
-    if (!canvas || !connectionsLayer) {
-        console.error('Canvas ou connectionsLayer não encontrado!');
+    if (!canvas || !connectionsLayer || !viewport) {
+        console.error('Elementos do canvas não encontrados!');
         return false;
     }
+    
+    // Ajustar tamanho do SVG para cobrir todo o canvas
+    connectionsLayer.setAttribute('width', '5000');
+    connectionsLayer.setAttribute('height', '5000');
+    connectionsLayer.style.width = '5000px';
+    connectionsLayer.style.height = '5000px';
     
     return true;
 }
