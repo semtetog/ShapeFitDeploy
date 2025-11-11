@@ -2342,7 +2342,11 @@ function handleFileSelect(event) {
 
 // Função para gerar frames do vídeo
 function generateVideoFrames(video) {
-    if (!video || video.readyState < 2) return;
+    if (!video || video.readyState < 2) {
+        // Se o vídeo ainda não carregou, tentar novamente
+        setTimeout(() => generateVideoFrames(video), 500);
+        return;
+    }
     
     const gallery = document.getElementById('videoFramesGallery');
     const framesContainer = gallery.querySelector('div');
@@ -2351,6 +2355,12 @@ function generateVideoFrames(video) {
     // Limpar frames anteriores
     framesContainer.innerHTML = '';
     videoFramesGenerated = false;
+    
+    // Mostrar loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.style.cssText = 'text-align: center; padding: 2rem; color: var(--text-secondary);';
+    loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando frames...';
+    framesContainer.appendChild(loadingDiv);
     
     const duration = video.duration;
     const numFrames = 4; // 4 frames como no YouTube
@@ -2363,59 +2373,98 @@ function generateVideoFrames(video) {
     canvas.height = video.videoHeight;
     
     let framesExtracted = 0;
+    const frameTimes = [];
     
-    // Extrair frames em diferentes momentos do vídeo
+    // Calcular tempos dos frames
     for (let i = 1; i <= numFrames; i++) {
-        const time = frameInterval * i;
-        
-        // Criar um novo vídeo element para cada frame (para não interferir no preview)
-        const tempVideo = document.createElement('video');
-        tempVideo.src = video.src;
-        tempVideo.currentTime = time;
-        tempVideo.muted = true;
-        
-        tempVideo.onseeked = function() {
-            // Desenhar frame no canvas
-            ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
-            
-            // Converter canvas para imagem
-            const frameDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-            
-            // Criar elemento de frame
-            const frameDiv = document.createElement('div');
-            frameDiv.style.cssText = 'position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent; transition: all 0.3s ease;';
-            frameDiv.className = 'video-frame-thumb';
-            frameDiv.dataset.frameIndex = framesExtracted;
-            
-            const frameImg = document.createElement('img');
-            frameImg.src = frameDataUrl;
-            frameImg.style.cssText = 'width: 100%; height: 120px; object-fit: cover; display: block;';
-            frameImg.alt = `Frame ${i}`;
-            
-            const checkIcon = document.createElement('div');
-            checkIcon.style.cssText = 'position: absolute; top: 0.5rem; right: 0.5rem; background: var(--accent-orange); color: white; width: 24px; height: 24px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 0.75rem;';
-            checkIcon.innerHTML = '<i class="fas fa-check"></i>';
-            checkIcon.className = 'frame-check-icon';
-            
-            frameDiv.appendChild(frameImg);
-            frameDiv.appendChild(checkIcon);
-            
-            // Adicionar evento de clique
-            frameDiv.addEventListener('click', function() {
-                selectVideoFrame(frameDataUrl, frameDiv);
-            });
-            
-            framesContainer.appendChild(frameDiv);
-            
-            framesExtracted++;
-            if (framesExtracted === numFrames) {
-                videoFramesGenerated = true;
-                gallery.style.display = 'block';
-            }
-        };
-        
-        tempVideo.load();
+        frameTimes.push(frameInterval * i);
     }
+    
+    // Criar um vídeo temporário para extrair frames (não interfere com o preview)
+    const tempVideo = document.createElement('video');
+    tempVideo.src = video.src;
+    tempVideo.muted = true;
+    tempVideo.preload = 'metadata';
+    
+    let currentFrameIndex = 0;
+    
+    function extractNextFrame() {
+        if (currentFrameIndex >= frameTimes.length) {
+            // Todos os frames foram extraídos
+            videoFramesGenerated = true;
+            gallery.style.display = 'block';
+            return;
+        }
+        
+        const time = frameTimes[currentFrameIndex];
+        tempVideo.currentTime = time;
+    }
+    
+    tempVideo.onseeked = function() {
+        // Desenhar frame no canvas
+        ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+        
+        // Converter canvas para imagem
+        const frameDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        
+        // Criar elemento de frame
+        const frameDiv = document.createElement('div');
+        frameDiv.style.cssText = 'position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.05);';
+        frameDiv.className = 'video-frame-thumb';
+        frameDiv.dataset.frameIndex = currentFrameIndex;
+        
+        // Hover effect
+        frameDiv.addEventListener('mouseenter', function() {
+            if (!this.querySelector('.frame-check-icon').style.display || this.querySelector('.frame-check-icon').style.display === 'none') {
+                this.style.borderColor = 'rgba(255, 107, 0, 0.5)';
+            }
+        });
+        frameDiv.addEventListener('mouseleave', function() {
+            if (!this.querySelector('.frame-check-icon').style.display || this.querySelector('.frame-check-icon').style.display === 'none') {
+                this.style.borderColor = 'transparent';
+            }
+        });
+        
+        const frameImg = document.createElement('img');
+        frameImg.src = frameDataUrl;
+        frameImg.style.cssText = 'width: 100%; height: 120px; object-fit: cover; display: block;';
+        frameImg.alt = `Frame ${currentFrameIndex + 1}`;
+        
+        const checkIcon = document.createElement('div');
+        checkIcon.style.cssText = 'position: absolute; top: 0.5rem; right: 0.5rem; background: var(--accent-orange); color: white; width: 24px; height: 24px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 0.75rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);';
+        checkIcon.innerHTML = '<i class="fas fa-check"></i>';
+        checkIcon.className = 'frame-check-icon';
+        
+        frameDiv.appendChild(frameImg);
+        frameDiv.appendChild(checkIcon);
+        
+        // Adicionar evento de clique
+        frameDiv.addEventListener('click', function() {
+            selectVideoFrame(frameDataUrl, frameDiv);
+        });
+        
+        // Remover loading se for o primeiro frame
+        if (currentFrameIndex === 0) {
+            loadingDiv.remove();
+        }
+        
+        framesContainer.appendChild(frameDiv);
+        
+        framesExtracted++;
+        currentFrameIndex++;
+        
+        // Extrair próximo frame
+        extractNextFrame();
+    };
+    
+    tempVideo.onerror = function() {
+        loadingDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao gerar frames';
+        loadingDiv.style.color = '#EF4444';
+    };
+    
+    // Iniciar extração
+    tempVideo.load();
+    extractNextFrame();
 }
 
 // Função para regenerar frames
