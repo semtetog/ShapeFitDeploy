@@ -2595,39 +2595,7 @@ function saveContent() {
         return;
     }
     
-    // Se não houver thumbnail selecionada mas há vídeo novo, gerar automaticamente do primeiro frame
-    if (fileInput && fileInput.files[0] && fileInput.files[0].type.startsWith('video/') && !thumbnailData) {
-        const previewVideo = document.getElementById('previewVideo');
-        if (previewVideo && previewVideo.readyState >= 2) {
-            // Extrair primeiro frame automaticamente
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = previewVideo.videoWidth;
-            canvas.height = previewVideo.videoHeight;
-            
-            // Ir para o primeiro frame (0.1 segundos)
-            previewVideo.currentTime = 0.1;
-            previewVideo.onseeked = function() {
-                ctx.drawImage(previewVideo, 0, 0, canvas.width, canvas.height);
-                const frameDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-                
-                // Converter para blob e adicionar
-                fetch(frameDataUrl)
-                    .then(res => res.blob())
-                    .then(blob => {
-                        const file = new File([blob], 'thumbnail_auto.jpg', { type: 'image/jpeg' });
-                        formData.append('thumbnail', file);
-                        submitFormData(formData);
-                    })
-                    .catch(() => {
-                        submitFormData(formData);
-                    });
-            };
-            previewVideo.load();
-            return;
-        }
-    }
-    
+    // Thumbnail é opcional - enviar sem thumbnail se não houver uma selecionada
     submitFormData(formData);
 }
 
