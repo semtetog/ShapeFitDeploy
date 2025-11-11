@@ -2170,6 +2170,7 @@ function editContent(contentId, preserveNewFilePreview = false) {
                     const fileItem = document.createElement('div');
                     fileItem.style.cssText = 'position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); cursor: pointer;';
                     fileItem.dataset.fileUrl = fileUrl;
+                    fileItem.dataset.fileId = file.id || '';
                     fileItem.onclick = () => window.open(fileUrl, '_blank');
                     
                     if (isVideo) {
