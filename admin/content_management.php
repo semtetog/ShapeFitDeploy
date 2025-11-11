@@ -226,8 +226,8 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Stats Grid - Estilo igual user_groups.php */
 .stats-grid {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
     margin-top: 1.5rem;
     width: 100%;
@@ -235,56 +235,47 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
     overflow: visible;
     position: relative;
-    flex-wrap: wrap;
+}
+
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .stat-card {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 16px !important;
-    padding: 1.25rem 1.5rem !important;
+    padding: 1.25rem 1rem !important;
     text-align: center !important;
     transition: all 0.3s ease !important;
     cursor: pointer !important;
+    aspect-ratio: 1.4 !important;
     min-height: 110px !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
     box-sizing: border-box !important;
+    width: 100% !important;
     position: relative !important;
     overflow: visible !important;
     z-index: 1 !important;
     gap: 0 !important;
     box-shadow: none !important;
-    flex: 0 0 auto;
-    min-width: 180px;
-    max-width: 220px;
-}
-
-@media (max-width: 768px) {
-    .stats-grid {
-        justify-content: center;
-    }
-    
-    .stat-card {
-        flex: 0 0 calc(50% - 0.5rem);
-        min-width: 140px;
-        max-width: none;
-    }
-}
-
-@media (max-width: 480px) {
-    .stats-grid {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .stat-card {
-        flex: 1;
-        min-width: 0;
-        max-width: none;
-    }
 }
 
 .stat-card:hover {
@@ -2789,8 +2780,8 @@ function toggleContentFields() {
     
     // Aceitar vídeos e PDFs (detecção automática)
     fileInput.setAttribute('accept', 'video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf');
-}
-
+    }
+    
 // Variável global para armazenar o vídeo e frames
 let currentVideoFile = null;
 let videoFramesGenerated = false;
@@ -3245,7 +3236,7 @@ function clearFilePreview() {
         // Verificar se é blob URL antes de revogar
         if (previewVideo.src.startsWith('blob:')) {
             URL.revokeObjectURL(previewVideo.src);
-        }
+    }
         previewVideo.src = '';
     }
     
