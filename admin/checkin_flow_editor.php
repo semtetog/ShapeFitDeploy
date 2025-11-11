@@ -873,7 +873,7 @@ function setupCanvasEvents() {
 
 // Carregar fluxo existente ou criar padrão
 function loadFlow() {
-    const savedFlow = <?php echo $saved_flow ? json_encode($saved_flow) : 'null'; ?>;
+    const savedFlow = <?php echo isset($saved_flow) && $saved_flow ? json_encode($saved_flow) : 'null'; ?>;
     const questions = <?php echo json_encode($questions); ?>;
     
     if (savedFlow && savedFlow.nodes && savedFlow.nodes.length > 0) {
@@ -884,7 +884,12 @@ function loadFlow() {
         });
         
         if (savedFlow.connections) {
-            connections = savedFlow.connections;
+            connections = savedFlow.connections.map(conn => ({
+                from: conn.from,
+                to: conn.to,
+                condition: conn.condition || null,
+                priority: conn.priority !== undefined ? conn.priority : 0
+            }));
         }
         
         const maxId = nodes.length > 0 ? Math.max(...nodes.map(n => {
@@ -894,19 +899,19 @@ function loadFlow() {
         nodeIdCounter = maxId + 1;
     } else {
         // Criar fluxo padrão baseado nas perguntas
-        if (questions.length > 0) {
+        if (questions && questions.length > 0) {
             let y = 100;
             questions.forEach((q, index) => {
                 addNode('question', 200, y + (index * 150), {
-                    questionId: q.id,
-                    text: q.question_text,
-                    type: q.question_type,
+                    prompt: q.question_text,
+                    variable_name: `question_${q.id}`,
+                    question_type: q.question_type,
                     options: q.options
-                });
+                }, q.question_type === 'multiple_choice' ? 'multiple_choice' : 'text');
             });
         } else {
             // Fluxo padrão vazio
-            addNode('text', 200, 100, { text: 'Bem-vindo ao check-in!' });
+            addNode('bot_message', 200, 100, { prompt: 'Bem-vindo ao check-in!' }, 'text');
         }
     }
     
@@ -1378,7 +1383,9 @@ function stopDragNode() {
     
     isDragging = false;
     currentDraggingNode = null;
-    canvas.classList.remove('dragging');
+    if (canvas) {
+        canvas.classList.remove('dragging');
+    }
     document.removeEventListener('mousemove', dragNode);
     document.removeEventListener('mouseup', stopDragNode);
 }
