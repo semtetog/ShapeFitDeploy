@@ -3289,19 +3289,47 @@ function generateVideoFramesForExistingVideo(video, fileId) {
             const thumbnailGroup = document.getElementById('thumbnailGroup');
             if (thumbnailGroup) {
                 thumbnailGroup.style.display = 'block';
-                console.log('thumbnailGroup exibido');
+                thumbnailGroup.style.visibility = 'visible';
+                thumbnailGroup.style.opacity = '1';
+                console.log('thumbnailGroup exibido:', {
+                    display: thumbnailGroup.style.display,
+                    visibility: thumbnailGroup.style.visibility,
+                    offsetParent: thumbnailGroup.offsetParent,
+                    offsetHeight: thumbnailGroup.offsetHeight
+                });
             }
             
             // Exibir a galeria
             gallery.style.display = 'block';
+            gallery.style.visibility = 'visible';
+            gallery.style.opacity = '1';
             console.log('Galeria exibida:', gallery.style.display, 'Visível:', gallery.offsetParent !== null);
-            console.log('Estado da galeria depois:', { display: gallery.style.display, offsetParent: gallery.offsetParent, offsetHeight: gallery.offsetHeight });
+            console.log('Estado da galeria depois:', { 
+                display: gallery.style.display, 
+                visibility: gallery.style.visibility,
+                offsetParent: gallery.offsetParent, 
+                offsetHeight: gallery.offsetHeight,
+                parentDisplay: gallery.parentElement ? gallery.parentElement.style.display : 'N/A',
+                parentVisibility: gallery.parentElement ? gallery.parentElement.style.visibility : 'N/A'
+            });
+            
+            // Verificar se o container de frames está visível
+            console.log('Estado do framesContainer:', {
+                display: framesContainer.style.display,
+                offsetParent: framesContainer.offsetParent,
+                offsetHeight: framesContainer.offsetHeight,
+                children: framesContainer.children.length
+            });
             
             // Scroll até a galeria
             setTimeout(() => {
-                gallery.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                if (thumbnailGroup) {
+                    thumbnailGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    gallery.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
                 console.log('Scroll executado');
-            }, 100);
+            }, 200);
             return;
         }
         
