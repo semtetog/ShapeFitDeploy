@@ -3318,8 +3318,16 @@ function generateVideoFramesForExistingVideo(video, fileId) {
                 display: framesContainer.style.display,
                 offsetParent: framesContainer.offsetParent,
                 offsetHeight: framesContainer.offsetHeight,
-                children: framesContainer.children.length
+                children: framesContainer.children.length,
+                parentDisplay: framesContainer.parentElement ? framesContainer.parentElement.style.display : 'N/A',
+                parentOffsetParent: framesContainer.parentElement ? framesContainer.parentElement.offsetParent : 'N/A'
             });
+            
+            // Garantir que o framesContainer está visível
+            if (framesContainer) {
+                framesContainer.style.display = 'grid';
+                console.log('framesContainer display definido como grid');
+            }
             
             // Scroll até a galeria
             setTimeout(() => {
