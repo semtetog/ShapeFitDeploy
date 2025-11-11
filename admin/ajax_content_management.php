@@ -235,7 +235,7 @@ function saveContent($conn, $admin_id) {
                 // Construir query dinamicamente baseado nas colunas existentes
                 $update_fields = ["title = ?", "description = ?", "content_type = ?", "file_path = ?", "file_name = ?", "file_size = ?", "mime_type = ?", "content_text = ?"];
                 $update_values = [$title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, $content_text];
-                $param_types = "sssssis";
+                $param_types = "sssssiss"; // 8 tipos: title(s), description(s), content_type(s), file_path(s), file_name(s), file_size(i), mime_type(s), content_text(s)
                 
                 if ($has_target_type && $has_target_id) {
                     $update_fields[] = "target_type = ?";
@@ -297,7 +297,7 @@ function saveContent($conn, $admin_id) {
             // Construir query dinamicamente baseado nas colunas existentes
             $insert_fields = ["admin_id", "title", "description", "content_type", "file_path", "file_name", "file_size", "mime_type", "content_text"];
             $insert_values = [$admin_id, $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, $content_text];
-            $param_types = "isssssis";
+            $param_types = "isssssiss"; // 9 tipos: admin_id(i), title(s), description(s), content_type(s), file_path(s), file_name(s), file_size(i), mime_type(s), content_text(s)
             $placeholders = ["?", "?", "?", "?", "?", "?", "?", "?", "?"];
             
             if ($has_target_type && $has_target_id) {
