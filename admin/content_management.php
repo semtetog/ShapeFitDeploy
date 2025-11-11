@@ -3152,6 +3152,133 @@ function selectVideoFrame(frameDataUrl, frameElement) {
     }
 }
 
+// Função para gerar frames de um vídeo existente (ao editar)
+function generateVideoFramesForExistingVideo(video, fileId) {
+    if (!video || video.readyState < 2) {
+        setTimeout(() => generateVideoFramesForExistingVideo(video, fileId), 500);
+        return;
+    }
+    
+    const gallery = document.getElementById('videoFramesGallery');
+    const framesContainer = gallery.querySelector('div');
+    if (!framesContainer) return;
+    
+    const duration = video.duration;
+    const numFrames = 4;
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    let framesExtracted = 0;
+    const frameTimes = [];
+    const seed = Date.now() % 1000;
+    const baseInterval = duration / (numFrames + 1);
+    
+    for (let i = 1; i <= numFrames; i++) {
+        const variation = (seed * i) % (baseInterval * 0.3);
+        const frameTime = baseInterval * i + variation;
+        frameTimes.push(Math.max(0.5, Math.min(duration - 0.5, frameTime)));
+    }
+    
+    frameTimes.sort((a, b) => a - b);
+    
+    const tempVideo = document.createElement('video');
+    tempVideo.src = video.src;
+    tempVideo.muted = true;
+    tempVideo.preload = 'metadata';
+    tempVideo.crossOrigin = 'anonymous';
+    
+    let currentFrameIndex = 0;
+    
+    function extractNextFrame() {
+        if (currentFrameIndex >= frameTimes.length) {
+            gallery.style.display = 'block';
+            return;
+        }
+        
+        const time = frameTimes[currentFrameIndex];
+        tempVideo.currentTime = time;
+    }
+    
+    tempVideo.onseeked = function() {
+        ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+        const frameDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        
+        const frameDiv = document.createElement('div');
+        frameDiv.style.cssText = 'position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.05);';
+        frameDiv.className = 'video-frame-thumb';
+        frameDiv.dataset.frameIndex = currentFrameIndex;
+        frameDiv.dataset.fileId = fileId || '';
+        
+        frameDiv.addEventListener('mouseenter', function() {
+            const checkIcon = this.querySelector('.frame-check-icon');
+            if (!checkIcon || checkIcon.style.display === 'none') {
+                this.style.borderColor = 'rgba(255, 107, 0, 0.5)';
+            }
+        });
+        frameDiv.addEventListener('mouseleave', function() {
+            const checkIcon = this.querySelector('.frame-check-icon');
+            if (!checkIcon || checkIcon.style.display === 'none') {
+                this.style.borderColor = 'transparent';
+            }
+        });
+        
+        const frameImg = document.createElement('img');
+        frameImg.src = frameDataUrl;
+        frameImg.style.cssText = 'width: 100%; height: 120px; object-fit: cover; display: block;';
+        frameImg.alt = `Frame ${currentFrameIndex + 1}`;
+        
+        const checkIcon = document.createElement('div');
+        checkIcon.style.cssText = 'position: absolute; top: 0.5rem; right: 0.5rem; background: var(--accent-orange); color: white; width: 24px; height: 24px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 0.75rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);';
+        checkIcon.innerHTML = '<i class="fas fa-check"></i>';
+        checkIcon.className = 'frame-check-icon';
+        
+        frameDiv.appendChild(frameImg);
+        frameDiv.appendChild(checkIcon);
+        
+        frameDiv.addEventListener('click', function() {
+            selectVideoFrameForExisting(fileId, frameDataUrl, frameDiv);
+        });
+        
+        framesContainer.appendChild(frameDiv);
+        
+        framesExtracted++;
+        currentFrameIndex++;
+        extractNextFrame();
+    };
+    
+    tempVideo.onerror = function() {
+        console.error('Erro ao gerar frames do vídeo existente');
+    };
+    
+    tempVideo.load();
+    extractNextFrame();
+}
+
+// Função para selecionar frame de vídeo existente (com fileId)
+function selectVideoFrameForExisting(fileId, frameDataUrl, frameElement) {
+    // Remover seleção anterior
+    document.querySelectorAll('.video-frame-thumb').forEach(frame => {
+        frame.style.borderColor = 'transparent';
+        const checkIcon = frame.querySelector('.frame-check-icon');
+        if (checkIcon) checkIcon.style.display = 'none';
+    });
+    
+    // Marcar frame selecionado
+    frameElement.style.borderColor = 'var(--accent-orange)';
+    const checkIcon = frameElement.querySelector('.frame-check-icon');
+    if (checkIcon) checkIcon.style.display = 'flex';
+    
+    // Salvar no hidden input com fileId
+    const selectedThumbnailData = document.getElementById('selectedThumbnailData');
+    if (selectedThumbnailData) {
+        selectedThumbnailData.value = frameDataUrl;
+        selectedThumbnailData.dataset.fileId = fileId || '';
+    }
+}
+
 // Função para abrir arquivo atual ao clicar
 function openCurrentFile() {
     const currentFilePreview = document.getElementById('currentFilePreview');
