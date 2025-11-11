@@ -55,6 +55,9 @@ try {
         case 'get_file':
             getFile($conn, $admin_id);
             break;
+        case 'save_thumbnail_only':
+            saveThumbnailOnly($conn, $admin_id);
+            break;
         case 'delete_content':
             deleteContent($conn, $admin_id);
             break;

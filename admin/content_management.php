@@ -2090,6 +2090,23 @@ function closeContentModal() {
 
 // Função para editar conteúdo
 function editContent(contentId, preserveNewFilePreview = false) {
+    const modal = document.getElementById('contentModal');
+    
+    // Se o modal já está aberto, apenas atualizar o conteúdo sem animação
+    const isAlreadyOpen = modal && modal.classList.contains('active');
+    
+    // Abrir modal suavemente se não estiver aberto
+    if (!isAlreadyOpen) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Adicionar classe de loading para indicar que está carregando
+    const modalBody = document.querySelector('.challenge-edit-body');
+    if (modalBody && !isAlreadyOpen) {
+        modalBody.style.opacity = '0.5';
+    }
+    
     fetch('ajax_content_management.php', {
         method: 'POST',
         headers: {
@@ -2116,6 +2133,11 @@ function editContent(contentId, preserveNewFilePreview = false) {
             const content = data.content;
             document.getElementById('modalTitle').textContent = 'Editar Conteúdo';
             document.getElementById('contentId').value = content.id;
+            
+            // Restaurar opacidade do modal body
+            if (modalBody) {
+                modalBody.style.opacity = '1';
+            }
             document.getElementById('contentTitle').value = content.title || '';
             document.getElementById('contentDescription').value = content.description || '';
             
