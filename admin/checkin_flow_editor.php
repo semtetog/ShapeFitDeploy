@@ -264,6 +264,10 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-primary);
     line-height: 1.5;
     word-wrap: break-word;
+    min-width: 0;
+    flex-shrink: 0;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .flow-node-connector {
