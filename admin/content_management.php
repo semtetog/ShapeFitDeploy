@@ -1536,9 +1536,6 @@ require_once __DIR__ . '/includes/header.php';
                                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
                                     <!-- Frames serão inseridos aqui via JavaScript -->
                                 </div>
-                                <button type="button" onclick="regenerateVideoFrames()" style="padding: 0.5rem 1rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.3s ease;">
-                                    <i class="fas fa-sync-alt"></i> Gerar novos frames
-                                </button>
                             </div>
                             
                             <!-- Input hidden para armazenar o frame selecionado -->
@@ -2346,10 +2343,31 @@ function submitFormData(formData) {
     .then(data => {
         if (data.success) {
             showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
-            closeContentModal();
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
+            
+            // Atualizar ID do conteúdo se foi criado
+            if (data.content_id) {
+                document.getElementById('contentId').value = data.content_id;
+            }
+            
+            // Recarregar dados do conteúdo para mostrar o arquivo salvo
+            const contentId = document.getElementById('contentId').value;
+            if (contentId) {
+                // Limpar previews de novos arquivos
+                clearFilePreview();
+                clearThumbnailPreview();
+                
+                // Recarregar dados do conteúdo
+                editContent(contentId);
+            } else {
+                // Se não tem ID, recarregar página
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+            
+            // Restaurar botão
+            saveButton.innerHTML = originalText;
+            saveButton.disabled = false;
         } else {
             showAlert('Erro', 'Erro ao salvar conteúdo: ' + (data.error || 'Erro desconhecido'));
             saveButton.innerHTML = originalText;
