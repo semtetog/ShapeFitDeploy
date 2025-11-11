@@ -3292,17 +3292,35 @@ function generateVideoFramesForExistingVideo(video, fileId) {
                 let parent = thumbnailGroup.parentElement;
                 let parentChain = [];
                 while (parent) {
+                    const computedStyle = window.getComputedStyle(parent);
                     parentChain.push({
                         tag: parent.tagName,
                         id: parent.id,
                         class: parent.className,
-                        display: window.getComputedStyle(parent).display,
-                        visibility: window.getComputedStyle(parent).visibility,
-                        opacity: window.getComputedStyle(parent).opacity
+                        display: computedStyle.display,
+                        visibility: computedStyle.visibility,
+                        opacity: computedStyle.opacity,
+                        height: computedStyle.height,
+                        maxHeight: computedStyle.maxHeight,
+                        overflow: computedStyle.overflow,
+                        offsetParent: parent.offsetParent,
+                        offsetHeight: parent.offsetHeight,
+                        clientHeight: parent.clientHeight
                     });
                     parent = parent.parentElement;
                 }
                 console.log('Cadeia de elementos pais do thumbnailGroup:', parentChain);
+                
+                // Verificar se algum pai está escondido
+                const hiddenParent = parentChain.find(p => 
+                    p.display === 'none' || 
+                    p.visibility === 'hidden' || 
+                    p.opacity === '0' ||
+                    p.offsetParent === null
+                );
+                if (hiddenParent) {
+                    console.error('Elemento pai escondido encontrado:', hiddenParent);
+                }
                 
                 thumbnailGroup.style.display = 'block';
                 thumbnailGroup.style.visibility = 'visible';
@@ -3527,6 +3545,13 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
     
     // Limpar frames anteriores
     framesContainer.innerHTML = '';
+    
+    // Garantir que o filePreview está visível (thumbnailGroup está dentro dele)
+    const filePreview = document.getElementById('filePreview');
+    if (filePreview) {
+        filePreview.style.display = 'block';
+        console.log('filePreview exibido');
+    }
     
     // Mostrar grupo de thumbnail
     thumbnailGroup.style.display = 'block';
