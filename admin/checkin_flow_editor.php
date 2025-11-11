@@ -45,10 +45,19 @@ while ($q = $questions_result->fetch_assoc()) {
 }
 $stmt_questions->close();
 
-// Buscar fluxo salvo (se existir)
-$saved_flow = null;
+// Buscar fluxo salvo (se existir) - formato Typebot
+$typebot_flow = null;
 if (!empty($checkin['flow_data'])) {
-    $saved_flow = json_decode($checkin['flow_data'], true);
+    $typebot_flow = json_decode($checkin['flow_data'], true);
+}
+
+// Se não houver fluxo salvo, carregar do JSON do Typebot
+if (!$typebot_flow && file_exists(__DIR__ . '/../json.json')) {
+    $typebot_json_content = file_get_contents(__DIR__ . '/../json.json');
+    $typebot_data = json_decode($typebot_json_content, true);
+    if ($typebot_data && isset($typebot_data['result']['data']['json']['typebot'])) {
+        $typebot_flow = $typebot_data['result']['data']['json']['typebot'];
+    }
 }
 
 require_once __DIR__ . '/includes/header.php';
@@ -1006,34 +1015,36 @@ function applyViewportTransform() {
     updateConnections();
 }
 
-// Carregar fluxo existente ou criar padrão
+// Carregar fluxo existente ou criar padrão - formato Typebot
 function loadFlow() {
-    const savedFlow = <?php echo isset($saved_flow) && $saved_flow ? json_encode($saved_flow) : 'null'; ?>;
+    const typebotFlow = <?php echo isset($typebot_flow) && $typebot_flow ? json_encode($typebot_flow) : 'null'; ?>;
     const questions = <?php echo json_encode($questions); ?>;
     
-    if (savedFlow && savedFlow.nodes && savedFlow.nodes.length > 0) {
-        // Carregar fluxo salvo
-        savedFlow.nodes.forEach(node => {
-            nodes.push(node);
-            renderNode(node);
+    if (typebotFlow && typebotFlow.groups && typebotFlow.groups.length > 0) {
+        // Carregar fluxo Typebot diretamente
+        window.typebotFlow = typebotFlow; // Armazenar globalmente
+        
+        // Renderizar grupos e blocos
+        typebotFlow.groups.forEach(group => {
+            renderTypebotGroup(group);
         });
         
-        if (savedFlow.connections) {
-            connections = savedFlow.connections.map(conn => ({
-                from: conn.from,
-                to: conn.to,
-                condition: conn.condition || null,
-                priority: conn.priority !== undefined ? conn.priority : 0
-            }));
+        // Renderizar conexões (edges)
+        if (typebotFlow.edges) {
+            window.typebotEdges = typebotFlow.edges;
         }
         
-        const maxId = nodes.length > 0 ? Math.max(...nodes.map(n => {
-            const match = n.id.match(/node_(\d+)/);
-            return match ? parseInt(match[1]) : 0;
-        })) : 0;
-        nodeIdCounter = maxId + 1;
+        // Renderizar variáveis
+        if (typebotFlow.variables) {
+            window.typebotVariables = typebotFlow.variables;
+        }
+        
+        // Renderizar eventos (start)
+        if (typebotFlow.events) {
+            window.typebotEvents = typebotFlow.events;
+        }
     } else {
-        // Criar fluxo padrão baseado nas perguntas
+        // Criar fluxo padrão baseado nas perguntas (formato antigo para compatibilidade)
         if (questions && questions.length > 0) {
             let y = 100;
             questions.forEach((q, index) => {
@@ -1051,6 +1062,329 @@ function loadFlow() {
     }
     
     updateConnections();
+}
+
+// Renderizar grupo do Typebot
+function renderTypebotGroup(group) {
+    const groupCoords = group.graphCoordinates || { x: 0, y: 0 };
+    let currentY = groupCoords.y || 0;
+    
+    // Renderizar cada bloco do grupo
+    if (group.blocks && Array.isArray(group.blocks)) {
+        group.blocks.forEach((block, index) => {
+            renderTypebotBlock(block, group, groupCoords.x, currentY);
+            currentY += 120; // Espaçamento entre blocos
+        });
+    }
+}
+
+// Renderizar bloco individual do Typebot
+function renderTypebotBlock(block, group, x, y) {
+    const blockEl = document.createElement('div');
+    blockEl.className = 'flow-node typebot-block';
+    blockEl.id = block.id;
+    blockEl.style.left = (x || 0) + 'px';
+    blockEl.style.top = (y || 0) + 'px';
+    blockEl.dataset.blockId = block.id;
+    blockEl.dataset.groupId = group.id;
+    blockEl.dataset.blockType = block.type;
+    
+    // Mapear tipos do Typebot para nossos labels
+    const typeLabels = {
+        'text': 'Mensagem',
+        'text input': 'Input Texto',
+        'choice input': 'Múltipla Escolha',
+        'number input': 'Input Número',
+        'email input': 'Input Email',
+        'phone input': 'Input Telefone',
+        'date input': 'Input Data',
+        'url input': 'Input URL',
+        'file input': 'Input Arquivo',
+        'payment input': 'Input Pagamento',
+        'rating input': 'Avaliação',
+        'picture choice': 'Escolha de Imagem',
+        'button': 'Botão',
+        'image': 'Imagem',
+        'video': 'Vídeo',
+        'embed': 'Embed',
+        'audio': 'Áudio'
+    };
+    
+    const typeIcons = {
+        'text': 'fa-comment',
+        'text input': 'fa-keyboard',
+        'choice input': 'fa-list',
+        'number input': 'fa-hashtag',
+        'email input': 'fa-envelope',
+        'phone input': 'fa-phone',
+        'date input': 'fa-calendar',
+        'url input': 'fa-link',
+        'file input': 'fa-file',
+        'payment input': 'fa-credit-card',
+        'rating input': 'fa-star',
+        'picture choice': 'fa-images',
+        'button': 'fa-mouse-pointer',
+        'image': 'fa-image',
+        'video': 'fa-video',
+        'embed': 'fa-code',
+        'audio': 'fa-headphones'
+    };
+    
+    const displayLabel = typeLabels[block.type] || block.type;
+    const displayIcon = typeIcons[block.type] || 'fa-cube';
+    
+    // Extrair texto do conteúdo
+    let contentText = '';
+    if (block.content) {
+        if (block.content.richText && Array.isArray(block.content.richText)) {
+            contentText = block.content.richText.map(rt => {
+                if (rt.type === 'p' && rt.children) {
+                    return rt.children.map(c => c.text || '').join('');
+                }
+                return '';
+            }).filter(t => t).join(' ').substring(0, 100);
+        } else if (block.content.plainText) {
+            contentText = block.content.plainText.substring(0, 100);
+        } else if (block.content.html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = block.content.html;
+            contentText = tmp.textContent || tmp.innerText || '';
+            contentText = contentText.substring(0, 100);
+        }
+    }
+    
+    // Para choice input, mostrar opções
+    if (block.type === 'choice input' && block.items) {
+        const options = block.items.map(item => item.content || '').join(', ');
+        contentText = options.substring(0, 100);
+    }
+    
+    blockEl.innerHTML = `
+        <div class="flow-node-header">
+            <div class="flow-node-type">
+                <i class="fas ${displayIcon}"></i>
+                <span>${displayLabel}</span>
+            </div>
+            <div class="flow-node-actions">
+                <button class="btn-node-action" onclick="editTypebotBlock('${block.id}')" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-node-action" onclick="deleteTypebotBlock('${block.id}')" title="Excluir">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        <div class="flow-node-content">
+            ${contentText || 'Novo bloco'}
+        </div>
+        <div class="flow-node-connector input" data-connector="input" data-block="${block.id}"></div>
+        <div class="flow-node-connector output" data-connector="output" data-block="${block.id}"></div>
+    `;
+    
+    if (canvas) {
+        canvas.appendChild(blockEl);
+    }
+    
+    // Event listeners
+    blockEl.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.flow-node-connector')) return;
+        if (e.target.closest('.btn-node-action')) return;
+        e.stopPropagation();
+        startDragTypebotBlock(e, block.id);
+    });
+    
+    blockEl.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-node-action')) return;
+        if (e.target.closest('.flow-node-connector')) return;
+        e.stopPropagation();
+        selectTypebotBlock(block.id);
+    });
+    
+    const connectors = blockEl.querySelectorAll('.flow-node-connector');
+    connectors.forEach(connector => {
+        connector.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            startConnection(e, block.id, connector.dataset.connector);
+        });
+    });
+    
+    // Armazenar referência
+    if (!window.typebotBlocks) window.typebotBlocks = {};
+    window.typebotBlocks[block.id] = block;
+}
+
+// Selecionar bloco Typebot
+function selectTypebotBlock(blockId) {
+    document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('selected'));
+    const blockEl = document.getElementById(blockId);
+    if (blockEl) {
+        blockEl.classList.add('selected');
+        selectedNode = blockId;
+        renderTypebotPropertiesPanel(blockId);
+    }
+}
+
+// Renderizar painel de propriedades do Typebot
+function renderTypebotPropertiesPanel(blockId) {
+    const block = window.typebotBlocks && window.typebotBlocks[blockId];
+    if (!block) {
+        document.getElementById('propertiesContent').innerHTML = `
+            <div class="properties-empty">
+                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>Selecione um bloco para editar suas propriedades</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Renderizar propriedades baseado no tipo do bloco
+    let propertiesHTML = `<h3>Propriedades do Bloco</h3>`;
+    
+    // Propriedades comuns
+    if (block.content && block.content.richText) {
+        propertiesHTML += `
+            <div class="form-group">
+                <label>Texto</label>
+                <textarea id="blockText_${blockId}" class="form-control" rows="4">${extractTextFromRichText(block.content.richText)}</textarea>
+            </div>
+        `;
+    }
+    
+    // Para choice input, mostrar opções
+    if (block.type === 'choice input' && block.items) {
+        propertiesHTML += `<div class="form-group"><label>Opções</label>`;
+        block.items.forEach((item, index) => {
+            propertiesHTML += `
+                <input type="text" class="form-control" value="${item.content || ''}" 
+                       onchange="updateChoiceItem('${blockId}', ${index}, this.value)" 
+                       style="margin-bottom: 0.5rem;">
+            `;
+        });
+        propertiesHTML += `</div>`;
+    }
+    
+    // Para text input, mostrar placeholder
+    if (block.type === 'text input' && block.content && block.content.options) {
+        propertiesHTML += `
+            <div class="form-group">
+                <label>Placeholder</label>
+                <input type="text" class="form-control" value="${block.content.options.labels?.placeholder || ''}" 
+                       onchange="updateTextInputPlaceholder('${blockId}', this.value)">
+            </div>
+        `;
+    }
+    
+    document.getElementById('propertiesContent').innerHTML = propertiesHTML;
+}
+
+// Extrair texto de richText
+function extractTextFromRichText(richText) {
+    if (!Array.isArray(richText)) return '';
+    return richText.map(rt => {
+        if (rt.type === 'p' && rt.children) {
+            return rt.children.map(c => c.text || '').join('');
+        }
+        return '';
+    }).filter(t => t).join('\n');
+}
+
+// Editar bloco Typebot
+function editTypebotBlock(blockId) {
+    selectTypebotBlock(blockId);
+}
+
+// Deletar bloco Typebot
+function deleteTypebotBlock(blockId) {
+    if (!confirm('Tem certeza que deseja excluir este bloco?')) return;
+    
+    const blockEl = document.getElementById(blockId);
+    if (blockEl) {
+        blockEl.remove();
+    }
+    
+    // Remover do fluxo
+    if (window.typebotFlow && window.typebotFlow.groups) {
+        window.typebotFlow.groups.forEach(group => {
+            if (group.blocks) {
+                group.blocks = group.blocks.filter(b => b.id !== blockId);
+            }
+        });
+    }
+    
+    // Remover edges relacionados
+    if (window.typebotEdges) {
+        window.typebotEdges = window.typebotEdges.filter(edge => {
+            return edge.from?.blockId !== blockId && edge.to?.blockId !== blockId;
+        });
+    }
+    
+    updateConnections();
+}
+
+// Arrastar bloco Typebot
+function startDragTypebotBlock(e, blockId) {
+    const blockEl = document.getElementById(blockId);
+    if (!blockEl) return;
+    
+    isDragging = true;
+    currentDraggingNode = blockId;
+    
+    const rect = blockEl.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    
+    dragOffset.x = e.clientX - rect.left;
+    dragOffset.y = e.clientY - rect.top;
+    
+    blockEl.style.zIndex = '1000';
+    
+    document.addEventListener('mousemove', dragTypebotBlock);
+    document.addEventListener('mouseup', stopDragTypebotBlock);
+    
+    e.preventDefault();
+}
+
+function dragTypebotBlock(e) {
+    if (!isDragging || !currentDraggingNode) return;
+    
+    const blockEl = document.getElementById(currentDraggingNode);
+    if (!blockEl) return;
+    
+    const canvasRect = canvas.getBoundingClientRect();
+    const newX = (e.clientX - canvasRect.left - dragOffset.x) / zoomLevel - canvasOffset.x / zoomLevel;
+    const newY = (e.clientY - canvasRect.top - dragOffset.y) / zoomLevel - canvasOffset.y / zoomLevel;
+    
+    blockEl.style.left = newX + 'px';
+    blockEl.style.top = newY + 'px';
+    
+    // Atualizar coordenadas no fluxo
+    const block = window.typebotBlocks && window.typebotBlocks[currentDraggingNode];
+    if (block && window.typebotFlow && window.typebotFlow.groups) {
+        window.typebotFlow.groups.forEach(group => {
+            if (group.blocks) {
+                const foundBlock = group.blocks.find(b => b.id === currentDraggingNode);
+                if (foundBlock) {
+                    if (!group.graphCoordinates) group.graphCoordinates = { x: 0, y: 0 };
+                    group.graphCoordinates.x = newX;
+                    group.graphCoordinates.y = newY;
+                }
+            }
+        });
+    }
+    
+    updateConnections();
+}
+
+function stopDragTypebotBlock() {
+    if (currentDraggingNode) {
+        const blockEl = document.getElementById(currentDraggingNode);
+        if (blockEl) {
+            blockEl.style.zIndex = '';
+        }
+    }
+    isDragging = false;
+    currentDraggingNode = null;
+    document.removeEventListener('mousemove', dragTypebotBlock);
+    document.removeEventListener('mouseup', stopDragTypebotBlock);
 }
 
 function addNode(type, x = null, y = null, data = {}, subtype = null) {
@@ -1789,73 +2123,168 @@ function updateConnections() {
         const allLines = connectionsLayer.querySelectorAll('path:not(#temp-connection)');
         allLines.forEach(el => el.remove());
         
-        // Remover conexões inválidas (nós que não existem mais)
-        connections = connections.filter(conn => {
-            return nodes.some(n => n.id === conn.from) && nodes.some(n => n.id === conn.to);
-        });
-        
-        // Desenhar novas conexões
-        connections.forEach((conn, index) => {
-            const fromNode = nodes.find(n => n.id === conn.from);
-            const toNode = nodes.find(n => n.id === conn.to);
+        // Se estamos usando formato Typebot
+        if (window.typebotEdges && window.typebotEdges.length > 0) {
+            window.typebotEdges.forEach((edge) => {
+                let fromBlockId = null;
+                let toBlockId = null;
+                
+                // Encontrar blockId de origem
+                if (edge.from?.blockId) {
+                    fromBlockId = edge.from.blockId;
+                } else if (edge.from?.itemId) {
+                    // Conexão de um item de choice input - encontrar o bloco pai
+                    if (window.typebotFlow && window.typebotFlow.groups) {
+                        window.typebotFlow.groups.forEach(group => {
+                            if (group.blocks) {
+                                group.blocks.forEach(block => {
+                                    if (block.items) {
+                                        const item = block.items.find(i => i.id === edge.from.itemId);
+                                        if (item) {
+                                            fromBlockId = block.id;
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } else if (edge.from?.groupId) {
+                    // Pegar último bloco do grupo
+                    if (window.typebotFlow && window.typebotFlow.groups) {
+                        const group = window.typebotFlow.groups.find(g => g.id === edge.from.groupId);
+                        if (group && group.blocks && group.blocks.length > 0) {
+                            fromBlockId = group.blocks[group.blocks.length - 1].id;
+                        }
+                    }
+                }
+                
+                // Encontrar blockId de destino
+                if (edge.to?.blockId) {
+                    toBlockId = edge.to.blockId;
+                } else if (edge.to?.groupId) {
+                    // Pegar primeiro bloco do grupo
+                    if (window.typebotFlow && window.typebotFlow.groups) {
+                        const group = window.typebotFlow.groups.find(g => g.id === edge.to.groupId);
+                        if (group && group.blocks && group.blocks.length > 0) {
+                            toBlockId = group.blocks[0].id;
+                        }
+                    }
+                }
+                
+                if (!fromBlockId || !toBlockId) return;
+                
+                const fromEl = document.getElementById(fromBlockId);
+                const toEl = document.getElementById(toBlockId);
+                
+                if (!fromEl || !toEl) return;
+                
+                const fromConnector = fromEl.querySelector('.flow-node-connector.output');
+                const toConnector = toEl.querySelector('.flow-node-connector.input');
+                
+                if (!fromConnector || !toConnector) return;
+                
+                // Obter coordenadas dos blocos
+                const fromX = parseFloat(fromEl.style.left) || 0;
+                const fromY = parseFloat(fromEl.style.top) || 0;
+                const toX = parseFloat(toEl.style.left) || 0;
+                const toY = parseFloat(toEl.style.top) || 0;
+                
+                const fromNodeWidth = fromEl.offsetWidth || 200;
+                const toNodeWidth = toEl.offsetWidth || 200;
+                const fromNodeHeight = fromEl.offsetHeight || 100;
+                const toNodeHeight = toEl.offsetHeight || 100;
+                
+                // Posições dos conectores
+                const fromConnectorLocalX = fromNodeWidth / 2;
+                const fromConnectorLocalY = fromNodeHeight;
+                const toConnectorLocalX = toNodeWidth / 2;
+                const toConnectorLocalY = 0;
+                
+                // Calcular posições em coordenadas de tela
+                const screenX1 = (fromX + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
+                const screenY1 = (fromY + fromConnectorLocalY) * zoomLevel + canvasOffset.y;
+                const screenX2 = (toX + toConnectorLocalX) * zoomLevel + canvasOffset.x;
+                const screenY2 = (toY + toConnectorLocalY) * zoomLevel + canvasOffset.y;
+                
+                const svgX1 = screenX1;
+                const svgY1 = screenY1;
+                const svgX2 = screenX2;
+                const svgY2 = screenY2;
+                
+                const lineId = `connection-${fromBlockId}-${toBlockId}`;
+                const existing = connectionsLayer.querySelector(`#${lineId}`);
+                if (existing) existing.remove();
+                
+                const curveOffset = Math.abs(svgX2 - svgX1) * 0.3;
+                const cp1x = svgX1 + curveOffset;
+                const cp1y = svgY1;
+                const cp2x = svgX2 - curveOffset;
+                const cp2y = svgY2;
+                
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('id', lineId);
+                path.setAttribute('d', `M ${svgX1} ${svgY1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${svgX2} ${svgY2}`);
+                path.setAttribute('stroke', 'var(--accent-orange)');
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('fill', 'none');
+                path.setAttribute('pointer-events', 'stroke');
+                
+                connectionsLayer.appendChild(path);
+            });
+        } else {
+            // Formato antigo (nodes/connections) - manter compatibilidade
+            connections = connections.filter(conn => {
+                return nodes.some(n => n.id === conn.from) && nodes.some(n => n.id === conn.to);
+            });
             
-            if (!fromNode || !toNode) return;
-            
-            const fromEl = document.getElementById(conn.from);
-            const toEl = document.getElementById(conn.to);
-            
-            if (!fromEl || !toEl) return;
-            
-            const fromConnector = fromEl.querySelector('.flow-node-connector.output');
-            const toConnector = toEl.querySelector('.flow-node-connector.input');
-            
-            if (!fromConnector || !toConnector) return;
-            
-            // Calcular posições baseadas nas coordenadas dos nós (lógicas)
-            const fromNodeWidth = fromEl.offsetWidth || 200;
-            const toNodeWidth = toEl.offsetWidth || 200;
-            const fromNodeHeight = fromEl.offsetHeight || 100;
-            const toNodeHeight = toEl.offsetHeight || 100;
-            
-            // Posições dos conectores em coordenadas locais do nó
-            // Output: bottom center (parte inferior do card)
-            // Input: top center (parte superior do card)
-            const fromConnectorLocalX = fromNodeWidth / 2;
-            const fromConnectorLocalY = fromNodeHeight; // bottom edge
-            const toConnectorLocalX = toNodeWidth / 2;
-            const toConnectorLocalY = 0; // top edge
-            
-            // Calcular posições em coordenadas de tela (screen)
-            // screenX = (node.x + connectorLocalX) * zoom + pan.x
-            const screenX1 = (fromNode.x + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
-            const screenY1 = (fromNode.y + fromConnectorLocalY) * zoomLevel + canvasOffset.y;
-            const screenX2 = (toNode.x + toConnectorLocalX) * zoomLevel + canvasOffset.x;
-            const screenY2 = (toNode.y + toConnectorLocalY) * zoomLevel + canvasOffset.y;
-            
-            // O SVG está no mesmo viewport, então as coordenadas são diretas
-            const svgX1 = screenX1;
-            const svgY1 = screenY1;
-            const svgX2 = screenX2;
-            const svgY2 = screenY2;
-            
-            // Criar linha única com ID
-            const lineId = `connection-${conn.from}-${conn.to}`;
-            
-            // Verificar se já existe (não deveria, mas por segurança)
-            const existing = connectionsLayer.querySelector(`#${lineId}`);
-            if (existing) existing.remove();
-            
-            // Criar linha curva (path) ao invés de linha reta
-            const curveOffset = Math.abs(svgX2 - svgX1) * 0.3;
-            
-            // Calcular pontos de controle para curva suave
-            const cp1x = svgX1 + curveOffset;
-            const cp1y = svgY1;
-            const cp2x = svgX2 - curveOffset;
-            const cp2y = svgY2;
-            
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            path.setAttribute('id', lineId);
+            connections.forEach((conn) => {
+                const fromNode = nodes.find(n => n.id === conn.from);
+                const toNode = nodes.find(n => n.id === conn.to);
+                
+                if (!fromNode || !toNode) return;
+                
+                const fromEl = document.getElementById(conn.from);
+                const toEl = document.getElementById(conn.to);
+                
+                if (!fromEl || !toEl) return;
+                
+                const fromConnector = fromEl.querySelector('.flow-node-connector.output');
+                const toConnector = toEl.querySelector('.flow-node-connector.input');
+                
+                if (!fromConnector || !toConnector) return;
+                
+                const fromNodeWidth = fromEl.offsetWidth || 200;
+                const toNodeWidth = toEl.offsetWidth || 200;
+                const fromNodeHeight = fromEl.offsetHeight || 100;
+                const toNodeHeight = toEl.offsetHeight || 100;
+                
+                const fromConnectorLocalX = fromNodeWidth / 2;
+                const fromConnectorLocalY = fromNodeHeight;
+                const toConnectorLocalX = toNodeWidth / 2;
+                const toConnectorLocalY = 0;
+                
+                const screenX1 = (fromNode.x + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
+                const screenY1 = (fromNode.y + fromConnectorLocalY) * zoomLevel + canvasOffset.y;
+                const screenX2 = (toNode.x + toConnectorLocalX) * zoomLevel + canvasOffset.x;
+                const screenY2 = (toNode.y + toConnectorLocalY) * zoomLevel + canvasOffset.y;
+                
+                const svgX1 = screenX1;
+                const svgY1 = screenY1;
+                const svgX2 = screenX2;
+                const svgY2 = screenY2;
+                
+                const lineId = `connection-${conn.from}-${conn.to}`;
+                const existing = connectionsLayer.querySelector(`#${lineId}`);
+                if (existing) existing.remove();
+                
+                const curveOffset = Math.abs(svgX2 - svgX1) * 0.3;
+                const cp1x = svgX1 + curveOffset;
+                const cp1y = svgY1;
+                const cp2x = svgX2 - curveOffset;
+                const cp2y = svgY2;
+                
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('id', lineId);
             const pathData = `M ${svgX1} ${svgY1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${svgX2} ${svgY2}`;
             path.setAttribute('d', pathData);
             
@@ -1996,7 +2425,60 @@ function applyZoom() {
 }
 
 function saveFlow() {
-    // Validar fluxo antes de salvar
+    // Se estamos usando formato Typebot, salvar diretamente
+    if (window.typebotFlow) {
+        // Atualizar coordenadas dos grupos baseado nas posições dos blocos
+        if (window.typebotFlow.groups) {
+            window.typebotFlow.groups.forEach(group => {
+                if (group.blocks && group.blocks.length > 0) {
+                    const firstBlock = group.blocks[0];
+                    const firstBlockEl = document.getElementById(firstBlock.id);
+                    if (firstBlockEl) {
+                        const x = parseFloat(firstBlockEl.style.left) || 0;
+                        const y = parseFloat(firstBlockEl.style.top) || 0;
+                        if (!group.graphCoordinates) group.graphCoordinates = {};
+                        group.graphCoordinates.x = x;
+                        group.graphCoordinates.y = y;
+                    }
+                }
+            });
+        }
+        
+        const flowData = {
+            version: window.typebotFlow.version || "6",
+            groups: window.typebotFlow.groups || [],
+            edges: window.typebotEdges || [],
+            variables: window.typebotVariables || [],
+            events: window.typebotEvents || []
+        };
+        
+        fetch('ajax_checkin.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'save_flow',
+                checkin_id: <?php echo $checkin_id; ?>,
+                flow: flowData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Fluxo salvo com sucesso!');
+            } else {
+                alert('Erro ao salvar: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao salvar fluxo');
+        });
+        return;
+    }
+    
+    // Formato antigo (compatibilidade)
     if (!validateFlow()) {
         return;
     }
