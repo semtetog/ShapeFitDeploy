@@ -321,6 +321,16 @@ $initials = count($name_parts) > 1
     object-fit: cover;
     display: block;
     background: rgba(255, 107, 0, 0.1);
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: auto;
+    -ms-interpolation-mode: bicubic;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .profile-photo-placeholder {
@@ -378,17 +388,6 @@ $initials = count($name_parts) > 1
     gap: 0.5rem;
     font-family: 'Montserrat', sans-serif;
     border: none;
-}
-
-.btn-change-photo {
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    color: var(--accent-orange);
-}
-
-.btn-change-photo:hover {
-    background: rgba(255, 107, 0, 0.2);
-    border-color: var(--accent-orange);
 }
 
 .btn-remove-photo {
@@ -603,16 +602,13 @@ $initials = count($name_parts) > 1
                     </div>
                 </div>
                 
-                <div class="photo-actions">
-                    <button type="button" class="btn-photo-action btn-change-photo" onclick="document.getElementById('profile_image').click()">
-                        <i class="fas fa-camera"></i> Trocar Foto
-                    </button>
-                    <?php if ($has_photo): ?>
+                <?php if ($has_photo): ?>
+                    <div class="photo-actions">
                         <button type="button" class="btn-photo-action btn-remove-photo" onclick="removePhoto()">
                             <i class="fas fa-trash"></i> Remover Foto
                         </button>
-                    <?php endif; ?>
-                </div>
+                    </div>
+                <?php endif; ?>
                 
                 <input type="file" id="profile_image" name="profile_image" accept="image/*" class="hidden-file-input" onchange="handlePhotoChange(event)">
                 <input type="hidden" id="remove_photo" name="remove_photo" value="0">
@@ -702,7 +698,13 @@ function handlePhotoChange(event) {
         // Mostrar botão de remover se não estiver visível
         const removeBtn = document.querySelector('.btn-remove-photo');
         if (!removeBtn) {
-            const photoActions = document.querySelector('.photo-actions');
+            let photoActions = document.querySelector('.photo-actions');
+            if (!photoActions) {
+                photoActions = document.createElement('div');
+                photoActions.className = 'photo-actions';
+                const photoSection = document.querySelector('.profile-photo-section');
+                photoSection.appendChild(photoActions);
+            }
             const removeButton = document.createElement('button');
             removeButton.type = 'button';
             removeButton.className = 'btn-photo-action btn-remove-photo';
@@ -740,10 +742,10 @@ function removePhoto() {
     // Marcar para remoção
     document.getElementById('remove_photo').value = '1';
     
-    // Remover botão de remover
-    const removeBtn = document.querySelector('.btn-remove-photo');
-    if (removeBtn) {
-        removeBtn.remove();
+    // Remover botão de remover e container se existir
+    const photoActions = document.querySelector('.photo-actions');
+    if (photoActions) {
+        photoActions.remove();
     }
 }
 </script>
