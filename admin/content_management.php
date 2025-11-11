@@ -2905,67 +2905,6 @@ function handleFileSelect(event) {
         thumbnailGroup.style.display = 'none';
     }
 }
-    const videoPreview = document.getElementById('videoPreview');
-    const pdfPreview = document.getElementById('pdfPreview');
-    const previewVideo = document.getElementById('previewVideo');
-    const pdfFileName = document.getElementById('pdfFileName');
-    const thumbnailGroup = document.getElementById('thumbnailGroup');
-    const videoFramesGallery = document.getElementById('videoFramesGallery');
-    
-    // Limpar preview anterior
-    if (previewVideo && previewVideo.src && previewVideo.src.startsWith('blob:')) {
-        URL.revokeObjectURL(previewVideo.src);
-    }
-    
-    // Ocultar previews de novos arquivos (serão mostrados quando arquivo for selecionado)
-    videoPreview.style.display = 'none';
-    pdfPreview.style.display = 'none';
-    filePreview.style.display = 'none';
-    videoFramesGallery.style.display = 'none';
-    thumbnailGroup.style.display = 'none';
-    clearThumbnailPreview();
-    videoFramesGenerated = false;
-    
-    // Limpar título anterior
-    const videoTitleInput = document.getElementById('videoTitle');
-    if (videoTitleInput) {
-        videoTitleInput.value = '';
-    }
-    
-    // Verificar tipo de arquivo
-    if (file.type.startsWith('video/') || detectedType === 'videos') {
-        currentVideoFile = file;
-        const videoURL = URL.createObjectURL(file);
-        previewVideo.src = videoURL;
-        videoPreview.style.display = 'block';
-        filePreview.style.display = 'block';
-        
-        // Mostrar campo de título e grupo de thumbnail
-        const videoTitleGroup = document.getElementById('videoTitleGroup');
-        if (videoTitleGroup) {
-            videoTitleGroup.style.display = 'block';
-        }
-        thumbnailGroup.style.display = 'block';
-        
-        // Aguardar o vídeo carregar para extrair frames
-        previewVideo.onloadedmetadata = function() {
-            generateVideoFrames(previewVideo);
-        };
-    } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf') || detectedType === 'pdf') {
-        currentVideoFile = null;
-        pdfFileName.textContent = file.name;
-        pdfPreview.style.display = 'block';
-        filePreview.style.display = 'block';
-        
-        // Mostrar campo de título para PDF também
-        const videoTitleGroup = document.getElementById('videoTitleGroup');
-        if (videoTitleGroup) {
-            videoTitleGroup.style.display = 'block';
-        }
-        // Ocultar apenas thumbnails para PDF
-        thumbnailGroup.style.display = 'none';
-    }
-}
 
 // Função para remover arquivo atual (ao editar) - remoção imediata
 function removeCurrentFile(fileId = null, contentId = null) {
