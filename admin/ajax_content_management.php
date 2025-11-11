@@ -45,6 +45,24 @@ function saveContent($conn, $admin_id) {
     $content_text = trim($_POST['content_text'] ?? '');
     $categories = isset($_POST['categories']) ? (is_array($_POST['categories']) ? $_POST['categories'] : [$_POST['categories']]) : [];
     
+    // Verificar se as colunas target_type e target_id existem
+    $has_target_type = false;
+    $has_target_id = false;
+    try {
+        $check_target_type = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'target_type'");
+        if ($check_target_type && $check_target_type->num_rows > 0) {
+            $has_target_type = true;
+        }
+        $check_target_id = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'target_id'");
+        if ($check_target_id && $check_target_id->num_rows > 0) {
+            $has_target_id = true;
+        }
+    } catch (Exception $e) {
+        // Se não conseguir verificar, assume que não existem
+        $has_target_type = false;
+        $has_target_id = false;
+    }
+    
     // Validar campos obrigatórios
     if (empty($title)) {
         throw new Exception('Título é obrigatório');
@@ -144,24 +162,47 @@ function saveContent($conn, $admin_id) {
                     }
                 }
                 
-                $stmt = $conn->prepare("
-                    UPDATE sf_member_content 
-                    SET title = ?, description = ?, content_type = ?, file_path = ?, file_name = ?, file_size = ?, mime_type = ?, 
-                        content_text = ?, target_type = ?, target_id = ?, status = ?, updated_at = NOW()
-                    WHERE id = ? AND admin_id = ?
-                ");
-                $stmt->bind_param("sssssissssii", $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, 
-                    $content_text, $target_type, $target_id, $status, $content_id, $admin_id);
+                // Construir query dinamicamente baseado nas colunas existentes
+                if ($has_target_type && $has_target_id) {
+                    $stmt = $conn->prepare("
+                        UPDATE sf_member_content 
+                        SET title = ?, description = ?, content_type = ?, file_path = ?, file_name = ?, file_size = ?, mime_type = ?, 
+                            content_text = ?, target_type = ?, target_id = ?, status = ?, updated_at = NOW()
+                        WHERE id = ? AND admin_id = ?
+                    ");
+                    $stmt->bind_param("sssssissssii", $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, 
+                        $content_text, $target_type, $target_id, $status, $content_id, $admin_id);
+                } else {
+                    // Sem target_type e target_id
+                    $stmt = $conn->prepare("
+                        UPDATE sf_member_content 
+                        SET title = ?, description = ?, content_type = ?, file_path = ?, file_name = ?, file_size = ?, mime_type = ?, 
+                            content_text = ?, status = ?, updated_at = NOW()
+                        WHERE id = ? AND admin_id = ?
+                    ");
+                    $stmt->bind_param("sssssisssi", $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, 
+                        $content_text, $status, $content_id, $admin_id);
+                }
             } else {
                 // Atualizar sem alterar arquivo (mantém arquivo existente)
-                $stmt = $conn->prepare("
-                    UPDATE sf_member_content 
-                    SET title = ?, description = ?, content_type = ?, content_text = ?, 
-                        target_type = ?, target_id = ?, status = ?, updated_at = NOW()
-                    WHERE id = ? AND admin_id = ?
-                ");
-                $stmt->bind_param("sssssssii", $title, $description, $content_type, $content_text, 
-                    $target_type, $target_id, $status, $content_id, $admin_id);
+                if ($has_target_type && $has_target_id) {
+                    $stmt = $conn->prepare("
+                        UPDATE sf_member_content 
+                        SET title = ?, description = ?, content_type = ?, content_text = ?, 
+                            target_type = ?, target_id = ?, status = ?, updated_at = NOW()
+                        WHERE id = ? AND admin_id = ?
+                    ");
+                    $stmt->bind_param("sssssssii", $title, $description, $content_type, $content_text, 
+                        $target_type, $target_id, $status, $content_id, $admin_id);
+                } else {
+                    // Sem target_type e target_id
+                    $stmt = $conn->prepare("
+                        UPDATE sf_member_content 
+                        SET title = ?, description = ?, content_type = ?, content_text = ?, status = ?, updated_at = NOW()
+                        WHERE id = ? AND admin_id = ?
+                    ");
+                    $stmt->bind_param("sssssii", $title, $description, $content_type, $content_text, $status, $content_id, $admin_id);
+                }
             }
         } else {
             // Criar novo conteúdo
@@ -169,13 +210,25 @@ function saveContent($conn, $admin_id) {
                 throw new Exception('Arquivo é obrigatório para este tipo de conteúdo');
             }
             
-            $stmt = $conn->prepare("
-                INSERT INTO sf_member_content 
-                (admin_id, title, description, content_type, file_path, file_name, file_size, mime_type, content_text, target_type, target_id, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            $stmt->bind_param("isssssisssss", $admin_id, $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, 
-                $content_text, $target_type, $target_id, $status);
+            // Construir query dinamicamente baseado nas colunas existentes
+            if ($has_target_type && $has_target_id) {
+                $stmt = $conn->prepare("
+                    INSERT INTO sf_member_content 
+                    (admin_id, title, description, content_type, file_path, file_name, file_size, mime_type, content_text, target_type, target_id, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->bind_param("isssssisssss", $admin_id, $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, 
+                    $content_text, $target_type, $target_id, $status);
+            } else {
+                // Sem target_type e target_id
+                $stmt = $conn->prepare("
+                    INSERT INTO sf_member_content 
+                    (admin_id, title, description, content_type, file_path, file_name, file_size, mime_type, content_text, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->bind_param("isssssiss", $admin_id, $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, 
+                    $content_text, $status);
+            }
         }
         
         if (!$stmt->execute()) {

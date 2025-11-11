@@ -104,8 +104,8 @@ if ($table_exists) {
         mc.*,
         a.full_name as author_name,
         GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories
-                      FROM sf_member_content mc
-                      LEFT JOIN sf_admins a ON mc.admin_id = a.id
+                  FROM sf_member_content mc
+                  LEFT JOIN sf_admins a ON mc.admin_id = a.id
         LEFT JOIN sf_content_category_relations ccr ON mc.id = ccr.content_id
         LEFT JOIN sf_categories c ON ccr.category_id = c.id
         WHERE mc.admin_id = ?";
@@ -451,143 +451,270 @@ require_once __DIR__ . '/includes/header.php';
     border-color: var(--accent-orange) !important;
 }
 
-.content-header {
+/* Header do card - igual group-card-header */
+.content-card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 0.75rem;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.content-header-with-icon {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.content-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .content-type-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     background: rgba(255, 107, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--accent-orange);
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     flex-shrink: 0;
 }
 
-.content-actions {
+/* Body do card */
+.content-card-body {
+    flex: 1;
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
 }
 
-.btn-action {
-    padding: 0.5rem;
-    border-radius: 8px;
+.content-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.content-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.content-info-item i {
+    font-size: 0.75rem;
+    color: var(--accent-orange);
+    flex-shrink: 0;
+}
+
+.content-info-item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+/* Actions - igual group-card-actions */
+.content-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.content-card-actions .btn-action {
+    padding: 0.625rem 0.75rem;
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    flex: 1 1 auto;
+    min-width: 0;
+    box-sizing: border-box;
     border: 1px solid var(--glass-border);
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
 }
 
-.btn-action:hover {
+.content-card-actions .btn-action:hover {
     background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-orange);
+    transform: translateY(-2px);
+}
+
+.content-card-actions .btn-action i {
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.content-card-actions .btn-action span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.content-card-actions .btn-action.btn-view {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #3B82F6;
+}
+
+.content-card-actions .btn-action.btn-view:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3B82F6;
+    color: #3B82F6;
+}
+
+.content-card-actions .btn-action.btn-edit {
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--accent-orange);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+}
+
+.content-card-actions .btn-action.btn-edit:hover {
+    background: rgba(255, 107, 0, 0.2);
     border-color: var(--accent-orange);
 }
 
-.content-body h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 0.5rem 0;
+.content-card-actions .btn-action.btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-.content-body p {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin: 0 0 0.75rem 0;
-    line-height: 1.5;
+.content-card-actions .btn-action.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #EF4444;
 }
 
-.content-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-}
-
-.meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-}
-
-.meta-item i {
-    color: var(--accent-orange);
-    width: 16px;
-}
-
-.content-target {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 8px;
-}
-
-.content-target i {
-    color: var(--accent-orange);
-}
-
-.content-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: auto;
-}
-
+/* Status badge */
 .status-badge {
     padding: 0.25rem 0.75rem;
     border-radius: 999px;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
+    display: inline-block;
 }
 
 .status-badge.active {
-    background: rgba(34, 197, 94, 0.2);
-    color: #22c55e;
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
 }
 
 .status-badge.inactive {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
+    background: rgba(107, 114, 128, 0.2);
+    color: #6B7280;
 }
 
 .status-badge.draft {
-    background: rgba(156, 163, 175, 0.2);
-    color: #9ca3af;
+    background: rgba(251, 191, 36, 0.2);
+    color: #FBBF24;
 }
 
-.content-stats {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+/* Responsive */
+@media (max-width: 1024px) {
+    .content-card-actions {
+        gap: 0.75rem;
+    }
+    
+    .content-card-actions .btn-action {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.5rem;
+    }
 }
 
-.content-stats span {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
+@media (max-width: 768px) {
+    .content-card {
+        padding: 0.875rem !important;
+        gap: 0.625rem !important;
+    }
+    
+    .content-name {
+        font-size: 1rem;
+    }
+    
+    .content-card-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .content-card-actions .btn-action {
+        flex: 1 1 calc(50% - 0.25rem);
+        min-width: 0;
+        max-width: calc(50% - 0.25rem);
+        font-size: 0.75rem;
+        padding: 0.5rem 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-card {
+        padding: 0.875rem !important;
+        gap: 0.625rem !important;
+    }
+    
+    .content-name {
+        font-size: 1rem;
+    }
+    
+    .content-card-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .content-card-actions .btn-action {
+        flex: 1;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        padding: 0.5rem 0.75rem;
+    }
 }
 
 /* Empty State */
@@ -799,8 +926,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .challenge-form-input,
-.challenge-form-textarea,
-.challenge-form-select {
+.challenge-form-textarea {
     width: 100%;
     padding: 0.625rem 0.875rem;
     background: rgba(255, 255, 255, 0.05);
@@ -815,8 +941,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .challenge-form-input:focus,
-.challenge-form-textarea:focus,
-.challenge-form-select:focus {
+.challenge-form-textarea:focus {
     outline: none;
     border-color: var(--accent-orange);
     background: rgba(255, 255, 255, 0.08);
@@ -825,6 +950,147 @@ require_once __DIR__ . '/includes/header.php';
 .challenge-form-textarea {
     resize: vertical;
     min-height: 100px;
+}
+
+/* Custom Select - Estilo igual recipes */
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.custom-select {
+    position: relative;
+}
+
+.custom-select-trigger {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
+}
+
+.custom-select-trigger:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.custom-select.active .custom-select-trigger {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.custom-select-trigger i {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+    margin-left: 0.75rem;
+}
+
+.custom-select.active .custom-select-trigger i {
+    transform: rotate(180deg);
+    color: var(--accent-orange);
+}
+
+.custom-select-value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-select-options {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 10001;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.challenge-edit-modal .custom-select-options {
+    z-index: 10001;
+}
+
+.custom-select.active .custom-select-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.custom-select-option {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-select-option:first-child {
+    border-radius: 12px 12px 0 0;
+}
+
+.custom-select-option:last-child {
+    border-bottom: none;
+    border-radius: 0 0 12px 12px;
+}
+
+.custom-select-option:hover {
+    background: rgba(255, 107, 0, 0.15);
+    color: var(--accent-orange);
+}
+
+.custom-select-option.selected {
+    background: rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    font-weight: 600;
+}
+
+.custom-select-options::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-select-options::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 0, 0.3);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 0, 0.5);
 }
 
 .challenge-form-row {
@@ -960,7 +1226,7 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="stat-number" id="statDraft"><?php echo $stats['draft']; ?></div>
                 <div class="stat-label">Rascunhos</div>
             </div>
-        </div>
+            </div>
         </div>
 
     <!-- Filter Card -->
@@ -1026,98 +1292,100 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             <?php else: ?>
             <?php foreach ($contents as $content): ?>
-                <div class="content-card" data-type="<?php echo $content['content_type']; ?>" data-status="<?php echo $content['status']; ?>">
-                    <div class="content-header">
-                        <div class="content-type-icon">
-                            <?php
-                            $icon = 'fas fa-file';
-                            switch($content['content_type']) {
-                                case 'chef':
-                                    $icon = 'fas fa-utensils';
-                                    break;
-                                case 'supplements':
-                                    $icon = 'fas fa-pills';
-                                    break;
-                                case 'videos':
-                                    $icon = 'fas fa-play';
-                                    break;
-                                case 'articles':
-                                    $icon = 'fas fa-file-alt';
-                                    break;
-                                case 'pdf':
-                                    $icon = 'fas fa-file-pdf';
-                                    break;
-                            }
-                            ?>
-                            <i class="<?php echo $icon; ?>"></i>
-                        </div>
-                        <div class="content-actions">
-                            <button class="btn-action" onclick="viewContent(<?php echo $content['id']; ?>)" title="Visualizar">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn-action" onclick="editContent(<?php echo $content['id']; ?>)" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-action" onclick="deleteContent(<?php echo $content['id']; ?>)" title="Excluir" style="color: #ef4444;">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                <div class="content-card" data-type="<?php echo $content['content_type']; ?>" data-status="<?php echo $content['status'] ?? 'draft'; ?>">
+                    <div class="content-card-header">
+                        <div class="content-header-with-icon">
+                            <div class="content-type-icon">
+                                <?php
+                                $icon = 'fas fa-file';
+                                switch($content['content_type']) {
+                                    case 'chef':
+                                        $icon = 'fas fa-utensils';
+                                        break;
+                                    case 'supplements':
+                                        $icon = 'fas fa-pills';
+                                        break;
+                                    case 'videos':
+                                        $icon = 'fas fa-play';
+                                        break;
+                                    case 'articles':
+                                        $icon = 'fas fa-file-alt';
+                                        break;
+                                    case 'pdf':
+                                        $icon = 'fas fa-file-pdf';
+                                        break;
+                                }
+                                ?>
+                                <i class="<?php echo $icon; ?>"></i>
+                            </div>
+                            <h3 class="content-name"><?php echo htmlspecialchars($content['title']); ?></h3>
                         </div>
                     </div>
                     
-                    <div class="content-body">
-                        <h3><?php echo htmlspecialchars($content['title']); ?></h3>
-                        <p><?php echo htmlspecialchars($content['description'] ? substr($content['description'], 0, 100) . '...' : 'Sem descrição'); ?></p>
+                    <div class="content-card-body">
+                        <?php if (!empty($content['description'])): ?>
+                            <p class="content-description"><?php echo htmlspecialchars($content['description']); ?></p>
+                        <?php endif; ?>
                         
-                        <div class="content-meta">
-                            <div class="meta-item">
-                                <i class="fas fa-user"></i>
-                                <span><?php echo htmlspecialchars($content['author_name'] ?? 'Admin'); ?></span>
-                            </div>
-                            <div class="meta-item">
-                                <i class="fas fa-calendar"></i>
-                                <span><?php echo date('d/m/Y', strtotime($content['created_at'])); ?></span>
-                            </div>
-                            <?php if (!empty($content['categories'])): ?>
-                            <div class="meta-item">
+                        <div class="content-info-item">
+                            <i class="fas fa-user"></i>
+                            <span><?php echo htmlspecialchars($content['author_name'] ?? 'Admin'); ?></span>
+                        </div>
+                        
+                        <div class="content-info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span><?php echo date('d/m/Y', strtotime($content['created_at'])); ?></span>
+                        </div>
+                        
+                        <?php if (!empty($content['categories'])): ?>
+                            <div class="content-info-item">
                                 <i class="fas fa-tag"></i>
                                 <span><?php echo htmlspecialchars($content['categories']); ?></span>
                             </div>
-                            <?php endif; ?>
-                        </div>
+                        <?php endif; ?>
                         
-                        <div class="content-target">
-                            <i class="fas fa-users"></i>
-                            <span>
-                                <?php
-                                switch($content['target_type'] ?? 'all') {
-                                    case 'all':
-                                        echo 'Todos os usuários';
-                                        break;
-                                    case 'user':
-                                        echo 'Usuário específico';
-                                        break;
-                                    case 'group':
-                                        echo 'Grupo específico';
-                                        break;
-                                    default:
-                                        echo 'Todos os usuários';
-                                }
-                                ?>
-                            </span>
-                        </div>
+                        <?php if (isset($content['target_type']) && $content['target_type'] !== 'all'): ?>
+                            <div class="content-info-item">
+                                <i class="fas fa-users"></i>
+                                <span>
+                                    <?php
+                                    switch($content['target_type']) {
+                                        case 'user':
+                                            echo 'Usuário específico';
+                                            break;
+                                        case 'group':
+                                            echo 'Grupo específico';
+                                            break;
+                                        default:
+                                            echo 'Todos os usuários';
+                                    }
+                                    ?>
+                                </span>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if (isset($content['status'])): ?>
+                            <div class="content-info-item">
+                                <span class="status-badge <?php echo $content['status']; ?>">
+                                    <?php echo ucfirst($content['status']); ?>
+                                </span>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     
-                    <div class="content-footer">
-                        <div class="content-status">
-                            <span class="status-badge <?php echo $content['status'] ?? 'draft'; ?>">
-                                <?php echo ucfirst($content['status'] ?? 'draft'); ?>
-                            </span>
-                        </div>
-                        <div class="content-stats">
-                            <?php if ($content['file_path']): ?>
-                                <span><i class="fas fa-file"></i> <?php echo $content['content_type'] === 'videos' ? 'Vídeo' : ($content['content_type'] === 'pdf' ? 'PDF' : 'Arquivo'); ?></span>
-                            <?php endif; ?>
-                        </div>
+                    <div class="content-card-actions" onclick="event.stopPropagation()">
+                        <button class="btn-action btn-view" onclick="viewContent(<?php echo $content['id']; ?>)" title="Visualizar">
+                            <i class="fas fa-eye"></i>
+                            <span>Visualizar</span>
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editContent(<?php echo $content['id']; ?>)" title="Editar">
+                            <i class="fas fa-edit"></i>
+                            <span>Editar</span>
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteContent(<?php echo $content['id']; ?>)" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                            <span>Excluir</span>
+                        </button>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -1146,14 +1414,23 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     <div class="challenge-form-group">
                         <label for="contentType">Tipo de Conteúdo *</label>
-                        <select id="contentType" name="content_type" class="challenge-form-select" required onchange="toggleContentFields()">
-                            <option value="">Selecione...</option>
-                            <option value="chef">Chef</option>
-                            <option value="supplements">Suplementos</option>
-                            <option value="videos">Vídeos</option>
-                            <option value="articles">Artigos</option>
-                            <option value="pdf">PDF</option>
-                        </select>
+                        <input type="hidden" id="contentType" name="content_type" value="">
+                        <div class="custom-select-wrapper">
+                            <div class="custom-select" id="contentTypeSelect">
+                                <div class="custom-select-trigger">
+                                    <span class="custom-select-value">Selecione...</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="custom-select-options">
+                                    <div class="custom-select-option" data-value="">Selecione...</div>
+                                    <div class="custom-select-option" data-value="chef">Chef</div>
+                                    <div class="custom-select-option" data-value="supplements">Suplementos</div>
+                                    <div class="custom-select-option" data-value="videos">Vídeos</div>
+                                    <div class="custom-select-option" data-value="articles">Artigos</div>
+                                    <div class="custom-select-option" data-value="pdf">PDF</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -1176,18 +1453,36 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="challenge-form-row">
                     <div class="challenge-form-group">
                         <label for="targetType">Público-Alvo *</label>
-                        <select id="targetType" name="target_type" class="challenge-form-select" required onchange="toggleTargetFields()">
-                            <option value="">Selecione...</option>
-                            <option value="all">Todos os usuários</option>
-                            <option value="user">Usuário específico</option>
-                            <option value="group">Grupo específico</option>
-                        </select>
+                        <input type="hidden" id="targetType" name="target_type" value="">
+                        <div class="custom-select-wrapper">
+                            <div class="custom-select" id="targetTypeSelect">
+                                <div class="custom-select-trigger">
+                                    <span class="custom-select-value">Selecione...</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="custom-select-options">
+                                    <div class="custom-select-option" data-value="">Selecione...</div>
+                                    <div class="custom-select-option" data-value="all">Todos os usuários</div>
+                                    <div class="custom-select-option" data-value="user">Usuário específico</div>
+                                    <div class="custom-select-option" data-value="group">Grupo específico</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="challenge-form-group" id="targetIdGroup" style="display: none;">
                         <label for="targetId">Selecionar</label>
-                        <select id="targetId" name="target_id" class="challenge-form-select">
-                            <option value="">Selecione...</option>
-                        </select>
+                        <input type="hidden" id="targetId" name="target_id" value="">
+                        <div class="custom-select-wrapper">
+                            <div class="custom-select" id="targetIdSelect">
+                                <div class="custom-select-trigger">
+                                    <span class="custom-select-value">Selecione...</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="custom-select-options" id="targetIdOptions">
+                                    <div class="custom-select-option" data-value="">Selecione...</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -1208,11 +1503,20 @@ require_once __DIR__ . '/includes/header.php';
                 
                 <div class="challenge-form-group">
                     <label for="contentStatus">Status</label>
-                    <select id="contentStatus" name="status" class="challenge-form-select">
-                        <option value="draft">Rascunho</option>
-                        <option value="active">Ativo</option>
-                        <option value="inactive">Inativo</option>
-                    </select>
+                    <input type="hidden" id="contentStatus" name="status" value="draft">
+                    <div class="custom-select-wrapper">
+                        <div class="custom-select" id="contentStatusSelect">
+                            <div class="custom-select-trigger">
+                                <span class="custom-select-value">Rascunho</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="custom-select-options">
+                                <div class="custom-select-option selected" data-value="draft">Rascunho</div>
+                                <div class="custom-select-option" data-value="active">Ativo</div>
+                                <div class="custom-select-option" data-value="inactive">Inativo</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -1225,34 +1529,147 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- Modal de Alerta -->
+<div id="alertModal" class="challenge-edit-modal">
+    <div class="challenge-edit-overlay" onclick="closeAlertModal()"></div>
+    <div class="challenge-edit-content" style="max-width: 450px;">
+        <button class="sleep-modal-close" onclick="closeAlertModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="challenge-edit-header">
+            <h3 id="alertTitle">Alerta</h3>
+        </div>
+        <div class="challenge-edit-body">
+            <p id="alertMessage" style="color: var(--text-primary); margin: 0; line-height: 1.6;"></p>
+        </div>
+        <div class="challenge-edit-footer">
+            <button type="button" class="btn-save" onclick="closeAlertModal()">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div id="confirmModal" class="challenge-edit-modal">
+    <div class="challenge-edit-overlay" onclick="closeConfirmModal()"></div>
+    <div class="challenge-edit-content" style="max-width: 450px;">
+        <button class="sleep-modal-close" onclick="closeConfirmModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="challenge-edit-header">
+            <h3 id="confirmTitle">Confirmar</h3>
+        </div>
+        <div class="challenge-edit-body">
+            <p id="confirmMessage" style="color: var(--text-primary); margin: 0; line-height: 1.6;"></p>
+        </div>
+        <div class="challenge-edit-footer">
+            <button type="button" class="btn-cancel" onclick="closeConfirmModal()">Cancelar</button>
+            <button type="button" class="btn-save" id="confirmButton">Confirmar</button>
+        </div>
+    </div>
+</div>
+
 <script>
 // Dados para JavaScript
 const users = <?php echo json_encode($users); ?>;
 const groups = <?php echo json_encode($groups); ?>;
 
-// Toggle custom select
-function toggleSelect(selectId) {
-    const select = document.getElementById(selectId);
-    const wrapper = select.closest('.custom-select-wrapper');
-    const allSelects = document.querySelectorAll('.custom-select');
-    const allWrappers = document.querySelectorAll('.custom-select-wrapper');
+// Armazenar handlers para poder removê-los depois
+const customSelectHandlers = new Map();
+
+// Inicializar custom selects
+function initCustomSelect(selectId, hiddenInputId, onChangeCallback) {
+    const customSelect = document.getElementById(selectId);
+    if (!customSelect) return;
     
-    // Close all other selects
-    allSelects.forEach(s => {
-        if (s.id !== selectId) {
-            s.classList.remove('active');
+    // Remover handlers anteriores se existirem
+    if (customSelectHandlers.has(selectId)) {
+        const handlers = customSelectHandlers.get(selectId);
+        if (handlers.triggerHandler) {
+            handlers.trigger.removeEventListener('click', handlers.triggerHandler);
         }
-    });
-    allWrappers.forEach(w => {
-        if (w.id !== wrapper.id) {
-            w.classList.remove('active');
-        }
+        handlers.optionHandlers.forEach(({ option, handler }) => {
+            option.removeEventListener('click', handler);
+        });
+    }
+    
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const trigger = customSelect.querySelector('.custom-select-trigger');
+    const options = customSelect.querySelectorAll('.custom-select-option');
+    const valueDisplay = customSelect.querySelector('.custom-select-value');
+    
+    // Handler para o trigger
+    const triggerHandler = function(e) {
+        e.stopPropagation();
+        
+        // Fechar outros selects
+        document.querySelectorAll('.custom-select').forEach(s => {
+            if (s.id !== selectId) {
+                s.classList.remove('active');
+            }
+        });
+        
+        customSelect.classList.toggle('active');
+    };
+    
+    trigger.addEventListener('click', triggerHandler);
+    
+    // Handlers para as opções
+    const optionHandlers = [];
+    options.forEach(option => {
+        const optionHandler = function(e) {
+            e.stopPropagation();
+            
+            const value = this.getAttribute('data-value');
+            const text = this.textContent;
+            
+            // Atualiza o valor do input escondido
+            hiddenInput.value = value;
+            // Atualiza o texto visível
+            valueDisplay.textContent = text;
+            
+            // Remove a classe 'selected' de todos e adiciona na clicada
+            options.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Fecha o dropdown
+            customSelect.classList.remove('active');
+            
+            // Chama callback se fornecido
+            if (onChangeCallback) {
+                onChangeCallback(value);
+            }
+        };
+        
+        option.addEventListener('click', optionHandler);
+        optionHandlers.push({ option, handler: optionHandler });
     });
     
-    // Toggle current select
-    select.classList.toggle('active');
-    wrapper.classList.toggle('active');
+    // Armazenar handlers para possível remoção
+    customSelectHandlers.set(selectId, {
+        trigger,
+        triggerHandler,
+        optionHandlers
+    });
 }
+
+// Inicializar todos os custom selects quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', function() {
+    // Tipo de conteúdo
+    initCustomSelect('contentTypeSelect', 'contentType', function(value) {
+        toggleContentFields();
+    });
+    
+    // Público-alvo
+    initCustomSelect('targetTypeSelect', 'targetType', function(value) {
+        toggleTargetFields();
+    });
+    
+    // Target ID (será populado dinamicamente)
+    initCustomSelect('targetIdSelect', 'targetId', null);
+    
+    // Status
+    initCustomSelect('contentStatusSelect', 'contentStatus', null);
+});
 
 // Select type filter
 function selectType(type) {
@@ -1310,6 +1727,41 @@ document.addEventListener('click', function(event) {
     }
 });
 
+// Função para resetar custom select
+function resetCustomSelect(selectId, hiddenInputId, defaultValue = '', defaultText = 'Selecione...') {
+    const customSelect = document.getElementById(selectId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const valueDisplay = customSelect.querySelector('.custom-select-value');
+    const options = customSelect.querySelectorAll('.custom-select-option');
+    
+    hiddenInput.value = defaultValue;
+    valueDisplay.textContent = defaultText;
+    options.forEach(opt => {
+        opt.classList.remove('selected');
+        if (opt.getAttribute('data-value') === defaultValue) {
+            opt.classList.add('selected');
+        }
+    });
+}
+
+// Função para definir valor do custom select
+function setCustomSelectValue(selectId, hiddenInputId, value) {
+    const customSelect = document.getElementById(selectId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const valueDisplay = customSelect.querySelector('.custom-select-value');
+    const options = customSelect.querySelectorAll('.custom-select-option');
+    
+    hiddenInput.value = value;
+    
+    options.forEach(opt => {
+        opt.classList.remove('selected');
+        if (opt.getAttribute('data-value') === value) {
+            opt.classList.add('selected');
+            valueDisplay.textContent = opt.textContent;
+        }
+    });
+}
+
 // Função para abrir modal de criar conteúdo
 function openCreateContentModal() {
     document.getElementById('modalTitle').textContent = 'Criar Conteúdo';
@@ -1318,6 +1770,12 @@ function openCreateContentModal() {
     document.getElementById('fileUploadGroup').style.display = 'block';
     document.getElementById('contentTextGroup').style.display = 'none';
     document.getElementById('targetIdGroup').style.display = 'none';
+    
+    // Resetar custom selects
+    resetCustomSelect('contentTypeSelect', 'contentType', '', 'Selecione...');
+    resetCustomSelect('targetTypeSelect', 'targetType', '', 'Selecione...');
+    resetCustomSelect('contentStatusSelect', 'contentStatus', 'draft', 'Rascunho');
+    
     const modal = document.getElementById('contentModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -1347,10 +1805,12 @@ function editContent(contentId) {
             document.getElementById('contentId').value = content.id;
             document.getElementById('contentTitle').value = content.title || '';
             document.getElementById('contentDescription').value = content.description || '';
-            document.getElementById('contentType').value = content.content_type || '';
-            document.getElementById('contentStatus').value = content.status || 'draft';
-            document.getElementById('targetType').value = content.target_type || 'all';
             document.getElementById('contentText').value = content.content_text || '';
+            
+            // Definir valores dos custom selects
+            setCustomSelectValue('contentTypeSelect', 'contentType', content.content_type || '');
+            setCustomSelectValue('targetTypeSelect', 'targetType', content.target_type || 'all');
+            setCustomSelectValue('contentStatusSelect', 'contentStatus', content.status || 'draft');
             
             // Toggle campos baseado no tipo
             toggleContentFields();
@@ -1358,11 +1818,11 @@ function editContent(contentId) {
             // Toggle campos baseado no público-alvo
             toggleTargetFields();
             
-            // Selecionar target_id se houver
+            // Selecionar target_id se houver (após popular as opções)
             if (content.target_id && content.target_type !== 'all') {
                 setTimeout(() => {
-                    document.getElementById('targetId').value = content.target_id;
-                }, 100);
+                    setCustomSelectValue('targetIdSelect', 'targetId', content.target_id);
+                }, 200);
             }
             
             // Selecionar categorias
@@ -1380,12 +1840,12 @@ function editContent(contentId) {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         } else {
-            alert('Erro ao carregar conteúdo: ' + (data.error || 'Erro desconhecido'));
+            showAlert('Erro', 'Erro ao carregar conteúdo: ' + (data.error || 'Erro desconhecido'));
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao carregar conteúdo. Tente novamente.');
+        showAlert('Erro', 'Erro ao carregar conteúdo. Tente novamente.');
     });
 }
 
@@ -1397,29 +1857,29 @@ function viewContent(contentId) {
 
 // Função para excluir conteúdo
 function deleteContent(contentId) {
-    if (!confirm('Tem certeza que deseja excluir este conteúdo?')) {
-        return;
-    }
-    
-    fetch('ajax_content_management.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `action=delete_content&content_id=${contentId}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Conteúdo deletado com sucesso!');
-            location.reload();
-        } else {
-            alert('Erro ao deletar conteúdo: ' + (data.error || 'Erro desconhecido'));
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        alert('Erro ao deletar conteúdo. Tente novamente.');
+    showConfirm('Confirmar Exclusão', 'Tem certeza que deseja excluir este conteúdo? Esta ação não pode ser desfeita.', function() {
+        fetch('ajax_content_management.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=delete_content&content_id=${contentId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Sucesso', 'Conteúdo deletado com sucesso!');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showAlert('Erro', 'Erro ao deletar conteúdo: ' + (data.error || 'Erro desconhecido'));
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showAlert('Erro', 'Erro ao deletar conteúdo. Tente novamente.');
+        });
     });
 }
 
@@ -1434,12 +1894,12 @@ function saveContent() {
     const contentType = document.getElementById('contentType').value;
     
     if (!title) {
-        alert('Título é obrigatório');
+        showAlert('Validação', 'Título é obrigatório');
         return;
     }
     
     if (!contentType) {
-        alert('Tipo de conteúdo é obrigatório');
+        showAlert('Validação', 'Tipo de conteúdo é obrigatório');
         return;
     }
     
@@ -1447,14 +1907,14 @@ function saveContent() {
     if (contentType === 'articles') {
         const contentText = document.getElementById('contentText').value.trim();
         if (!contentText) {
-            alert('Conteúdo do artigo é obrigatório');
+            showAlert('Validação', 'Conteúdo do artigo é obrigatório');
             return;
         }
     } else {
         const fileInput = document.getElementById('contentFile');
         const contentId = document.getElementById('contentId').value;
         if (!fileInput.files[0] && !contentId) {
-            alert('Arquivo é obrigatório para este tipo de conteúdo');
+            showAlert('Validação', 'Arquivo é obrigatório para este tipo de conteúdo');
             return;
         }
     }
@@ -1472,18 +1932,20 @@ function saveContent() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message || 'Conteúdo salvo com sucesso!');
+            showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
             closeContentModal();
-            location.reload();
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
         } else {
-            alert('Erro ao salvar conteúdo: ' + (data.error || 'Erro desconhecido'));
+            showAlert('Erro', 'Erro ao salvar conteúdo: ' + (data.error || 'Erro desconhecido'));
             saveButton.innerHTML = originalText;
             saveButton.disabled = false;
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao salvar conteúdo. Tente novamente.');
+        showAlert('Erro', 'Erro ao salvar conteúdo. Tente novamente.');
         saveButton.innerHTML = originalText;
         saveButton.disabled = false;
     });
@@ -1523,43 +1985,103 @@ function toggleContentFields() {
 function toggleTargetFields() {
     const targetType = document.getElementById('targetType').value;
     const targetIdGroup = document.getElementById('targetIdGroup');
-    const targetId = document.getElementById('targetId');
+    const targetIdSelect = document.getElementById('targetIdSelect');
+    const targetIdOptions = document.getElementById('targetIdOptions');
+    const targetIdHidden = document.getElementById('targetId');
     
     if (targetType === 'all') {
         targetIdGroup.style.display = 'none';
-        targetId.removeAttribute('required');
-        targetId.value = '';
+        targetIdHidden.removeAttribute('required');
+        targetIdHidden.value = '';
     } else {
         targetIdGroup.style.display = 'block';
-        targetId.setAttribute('required', 'required');
+        targetIdHidden.setAttribute('required', 'required');
         
-        // Limpar opções
-        targetId.innerHTML = '<option value="">Selecione...</option>';
+        // Limpar opções existentes (exceto a primeira)
+        const firstOption = targetIdOptions.querySelector('.custom-select-option[data-value=""]');
+        targetIdOptions.innerHTML = '';
+        if (firstOption) {
+            targetIdOptions.appendChild(firstOption);
+        } else {
+            const defaultOption = document.createElement('div');
+            defaultOption.className = 'custom-select-option';
+            defaultOption.setAttribute('data-value', '');
+            defaultOption.textContent = 'Selecione...';
+            targetIdOptions.appendChild(defaultOption);
+        }
         
-        // Adicionar opções baseadas no tipo
+        // Adicionar opções baseadas no tipo usando custom select
         if (targetType === 'user') {
             users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user.id;
+                const option = document.createElement('div');
+                option.className = 'custom-select-option';
+                option.setAttribute('data-value', user.id);
                 option.textContent = user.name;
-                targetId.appendChild(option);
+                targetIdOptions.appendChild(option);
             });
         } else if (targetType === 'group') {
             groups.forEach(group => {
-                const option = document.createElement('option');
-                option.value = group.id;
+                const option = document.createElement('div');
+                option.className = 'custom-select-option';
+                option.setAttribute('data-value', group.id);
                 option.textContent = group.name;
-                targetId.appendChild(option);
+                targetIdOptions.appendChild(option);
             });
         }
+        
+        // Re-inicializar o custom select com as novas opções
+        initCustomSelect('targetIdSelect', 'targetId', null);
+        
+        // Resetar o valor
+        resetCustomSelect('targetIdSelect', 'targetId', '', 'Selecione...');
     }
+}
+
+// Funções para modais de alerta
+function showAlert(title, message) {
+    document.getElementById('alertTitle').textContent = title;
+    document.getElementById('alertMessage').textContent = message;
+    document.getElementById('alertModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAlertModal() {
+    document.getElementById('alertModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function showConfirm(title, message, onConfirm) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    const confirmButton = document.getElementById('confirmButton');
+    confirmButton.onclick = function() {
+        closeConfirmModal();
+        if (onConfirm) onConfirm();
+    };
+    document.getElementById('confirmModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 // Fechar modal ao clicar no overlay
 document.addEventListener('click', function(event) {
-    const modal = document.getElementById('contentModal');
-    if (event.target === modal.querySelector('.challenge-edit-overlay')) {
+    const contentModal = document.getElementById('contentModal');
+    if (contentModal && event.target === contentModal.querySelector('.challenge-edit-overlay')) {
         closeContentModal();
+    }
+    
+    const alertModal = document.getElementById('alertModal');
+    if (alertModal && event.target === alertModal.querySelector('.challenge-edit-overlay')) {
+        closeAlertModal();
+    }
+    
+    const confirmModal = document.getElementById('confirmModal');
+    if (confirmModal && event.target === confirmModal.querySelector('.challenge-edit-overlay')) {
+        closeConfirmModal();
     }
 });
 
@@ -1567,6 +2089,8 @@ document.addEventListener('click', function(event) {
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeContentModal();
+        closeAlertModal();
+        closeConfirmModal();
     }
 });
 </script>
