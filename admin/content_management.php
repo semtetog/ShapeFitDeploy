@@ -1497,9 +1497,27 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 
                 <div class="challenge-form-group" id="fileUploadGroup">
-                    <label for="contentFile">Arquivo</label>
-                    <input type="file" id="contentFile" name="file" class="challenge-form-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf">
+                    <label for="contentFile">Arquivo *</label>
+                    <input type="file" id="contentFile" name="file" class="challenge-form-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf" onchange="handleFileSelect(event)">
                     <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Formatos aceitos: Vídeos (MP4, MOV, AVI, WebM) ou PDF. Máximo: 100MB para vídeos, 10MB para PDF.</small>
+                    
+                    <!-- Preview do arquivo selecionado -->
+                    <div id="filePreview" style="margin-top: 1rem; display: none;">
+                        <div style="position: relative; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
+                            <div id="videoPreview" style="display: none;">
+                                <video id="previewVideo" style="width: 100%; max-height: 300px; display: block;" controls></video>
+                            </div>
+                            <div id="pdfPreview" style="display: none; padding: 2rem; text-align: center;">
+                                <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--accent-orange); margin-bottom: 1rem;"></i>
+                                <p style="color: var(--text-primary); font-weight: 600; margin: 0;" id="pdfFileName"></p>
+                            </div>
+                            <button type="button" onclick="clearFilePreview()" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0, 0, 0, 0.7); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Arquivo atual (ao editar) -->
                     <div id="currentFileInfo" style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px; display: none;">
                         <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;">
                             <i class="fas fa-file"></i>
@@ -1508,6 +1526,31 @@ require_once __DIR__ . '/includes/header.php';
                                 <i class="fas fa-external-link-alt"></i> Ver arquivo
                             </a>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Thumbnail -->
+                <div class="challenge-form-group" id="thumbnailGroup">
+                    <label for="contentThumbnail">Thumbnail (Opcional)</label>
+                    <input type="file" id="contentThumbnail" name="thumbnail" class="challenge-form-input" accept="image/*" onchange="handleThumbnailSelect(event)">
+                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Imagem de capa para o conteúdo. Formatos: JPG, PNG, WebP. Máximo: 5MB.</small>
+                    
+                    <!-- Preview da thumbnail -->
+                    <div id="thumbnailPreview" style="margin-top: 1rem; display: none;">
+                        <div style="position: relative; width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
+                            <img id="previewThumbnail" style="width: 100%; height: auto; display: block; max-height: 300px; object-fit: cover;" alt="Thumbnail preview">
+                            <button type="button" onclick="clearThumbnailPreview()" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0, 0, 0, 0.7); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Thumbnail atual (ao editar) -->
+                    <div id="currentThumbnailInfo" style="margin-top: 0.75rem; display: none;">
+                        <div style="width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
+                            <img id="currentThumbnail" style="width: 100%; height: auto; display: block; max-height: 300px; object-fit: cover;" alt="Thumbnail atual">
+                        </div>
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Thumbnail atual. Selecione uma nova imagem para substituir.</small>
                     </div>
                 </div>
                 
@@ -1809,6 +1852,9 @@ function openCreateContentModal() {
     document.getElementById('fileUploadGroup').style.display = 'block';
     document.getElementById('targetIdGroup').style.display = 'none';
     document.getElementById('currentFileInfo').style.display = 'none';
+    document.getElementById('currentThumbnailInfo').style.display = 'none';
+    clearFilePreview();
+    clearThumbnailPreview();
     
     // Resetar custom selects
     resetCustomSelect('contentTypeSelect', 'contentType', '', 'Selecione...');
@@ -1986,6 +2032,24 @@ function editContent(contentId) {
             } else {
                 currentFileInfo.style.display = 'none';
             }
+            
+            // Mostrar thumbnail atual se existir
+            const currentThumbnailInfo = document.getElementById('currentThumbnailInfo');
+            const currentThumbnail = document.getElementById('currentThumbnail');
+            if (content.thumbnail_url) {
+                let thumbnailUrl = content.thumbnail_url;
+                if (!thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/')) {
+                    thumbnailUrl = '/' + thumbnailUrl;
+                }
+                currentThumbnail.src = thumbnailUrl;
+                currentThumbnailInfo.style.display = 'block';
+            } else {
+                currentThumbnailInfo.style.display = 'none';
+            }
+            
+            // Limpar previews de novos arquivos
+            clearFilePreview();
+            clearThumbnailPreview();
             
             // Toggle campos baseado no tipo
             toggleContentFields();

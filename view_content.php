@@ -281,20 +281,42 @@ body {
         <?php if ($content['content_type'] === 'videos' && !empty($content['file_path'])): ?>
             <!-- Vídeo -->
             <div class="content-media">
-                <video class="content-video" controls>
-                    <source src="<?php echo htmlspecialchars($content['file_path']); ?>" type="<?php echo htmlspecialchars($content['mime_type'] ?? 'video/mp4'); ?>">
+                <?php
+                // Construir URL correta do arquivo
+                $video_url = $content['file_path'];
+                if (!empty($video_url) && !preg_match('/^https?:\/\//', $video_url) && !preg_match('/^\//', $video_url)) {
+                    $video_url = '/' . ltrim($video_url, '/');
+                }
+                // Se tiver thumbnail, usar como poster
+                $poster = '';
+                if (!empty($content['thumbnail_url'])) {
+                    $poster = $content['thumbnail_url'];
+                    if (!preg_match('/^https?:\/\//', $poster) && !preg_match('/^\//', $poster)) {
+                        $poster = '/' . ltrim($poster, '/');
+                    }
+                }
+                ?>
+                <video class="content-video" controls <?php echo !empty($poster) ? 'poster="' . htmlspecialchars($poster) . '"' : ''; ?>>
+                    <source src="<?php echo htmlspecialchars($video_url); ?>" type="<?php echo htmlspecialchars($content['mime_type'] ?? 'video/mp4'); ?>">
                     Seu navegador não suporta a reprodução de vídeos.
                 </video>
             </div>
         <?php elseif ($content['content_type'] === 'pdf' && !empty($content['file_path'])): ?>
             <!-- PDF -->
             <div class="content-media">
-                <iframe class="content-pdf" src="<?php echo htmlspecialchars($content['file_path']); ?>" type="application/pdf">
-                    <p>Seu navegador não suporta PDFs. <a href="<?php echo htmlspecialchars($content['file_path']); ?>" target="_blank" class="content-pdf-link">
+                <?php
+                // Construir URL correta do arquivo
+                $pdf_url = $content['file_path'];
+                if (!empty($pdf_url) && !preg_match('/^https?:\/\//', $pdf_url) && !preg_match('/^\//', $pdf_url)) {
+                    $pdf_url = '/' . ltrim($pdf_url, '/');
+                }
+                ?>
+                <iframe class="content-pdf" src="<?php echo htmlspecialchars($pdf_url); ?>#toolbar=0" type="application/pdf">
+                    <p>Seu navegador não suporta PDFs. <a href="<?php echo htmlspecialchars($pdf_url); ?>" target="_blank" class="content-pdf-link">
                         <i class="fas fa-download"></i> Baixar PDF
                     </a></p>
                 </iframe>
-                <a href="<?php echo htmlspecialchars($content['file_path']); ?>" target="_blank" class="content-pdf-link">
+                <a href="<?php echo htmlspecialchars($pdf_url); ?>" target="_blank" class="content-pdf-link">
                     <i class="fas fa-external-link-alt"></i> Abrir PDF em nova aba
                 </a>
             </div>

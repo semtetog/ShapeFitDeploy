@@ -136,6 +136,47 @@ function saveContent($conn, $admin_id) {
     $file_name = null;
     $file_size = null;
     $mime_type = null;
+    $thumbnail_url = null;
+    
+    // Processar upload de thumbnail
+    if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
+        $thumbnail = $_FILES['thumbnail'];
+        
+        // Validar que é uma imagem
+        $thumbnail_mime = mime_content_type($thumbnail['tmp_name']);
+        if ($thumbnail_mime === false) {
+            $thumbnail_mime = $thumbnail['type'];
+        }
+        
+        if (!str_starts_with($thumbnail_mime, 'image/')) {
+            throw new Exception('Thumbnail deve ser uma imagem válida');
+        }
+        
+        // Validar tamanho (máximo 5MB)
+        if ($thumbnail['size'] > 5 * 1024 * 1024) {
+            throw new Exception('Thumbnail muito grande. Máximo: 5MB');
+        }
+        
+        // Criar diretório de thumbnails
+        $thumbnail_dir = APP_ROOT_PATH . '/assets/content/thumbnails/';
+        if (!is_dir($thumbnail_dir)) {
+            if (!mkdir($thumbnail_dir, 0755, true)) {
+                throw new Exception('Erro ao criar diretório de thumbnails');
+            }
+        }
+        
+        // Gerar nome único para a thumbnail
+        $thumbnail_extension = strtolower(pathinfo($thumbnail['name'], PATHINFO_EXTENSION));
+        $thumbnail_name = $content_id > 0 ? 'thumb_' . $content_id . '_' . time() : 'thumb_' . time() . '_' . uniqid();
+        $thumbnail_name .= '.' . $thumbnail_extension;
+        $thumbnail_path_full = $thumbnail_dir . $thumbnail_name;
+        
+        if (!move_uploaded_file($thumbnail['tmp_name'], $thumbnail_path_full)) {
+            throw new Exception('Erro ao fazer upload da thumbnail');
+        }
+        
+        $thumbnail_url = '/assets/content/thumbnails/' . $thumbnail_name;
+    }
     
     if (isset($_FILES['file'])) {
         $file = $_FILES['file'];
@@ -244,6 +285,13 @@ function saveContent($conn, $admin_id) {
                 $update_values = [$title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, $content_text];
                 $param_types = "sssssiss"; // 8 tipos: title(s), description(s), content_type(s), file_path(s), file_name(s), file_size(i), mime_type(s), content_text(s)
                 
+                // Adicionar thumbnail se foi enviada
+                if ($thumbnail_url) {
+                    $update_fields[] = "thumbnail_url = ?";
+                    $update_values[] = $thumbnail_url;
+                    $param_types .= "s";
+                }
+                
                 if ($has_target_type && $has_target_id) {
                     $update_fields[] = "target_type = ?";
                     $update_fields[] = "target_id = ?";
@@ -306,6 +354,14 @@ function saveContent($conn, $admin_id) {
             $insert_values = [$admin_id, $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, $content_text];
             $param_types = "isssssiss"; // 9 tipos: admin_id(i), title(s), description(s), content_type(s), file_path(s), file_name(s), file_size(i), mime_type(s), content_text(s)
             $placeholders = ["?", "?", "?", "?", "?", "?", "?", "?", "?"];
+            
+            // Adicionar thumbnail se foi enviada
+            if ($thumbnail_url) {
+                $insert_fields[] = "thumbnail_url";
+                $insert_values[] = $thumbnail_url;
+                $param_types .= "s";
+                $placeholders[] = "?";
+            }
             
             if ($has_target_type && $has_target_id) {
                 $insert_fields[] = "target_type";
