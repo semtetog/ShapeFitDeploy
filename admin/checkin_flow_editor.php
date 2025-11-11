@@ -967,11 +967,11 @@ function applyViewportTransform() {
     // Aplicar transform no viewport (zoom + pan)
     viewport.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
     
-    // Mover o grid junto com o pan
-    const gridOffsetX = canvasOffset.x % 20;
-    const gridOffsetY = canvasOffset.y % 20;
-    if (canvas) {
-        canvas.style.backgroundPosition = `${gridOffsetX}px ${gridOffsetY}px`;
+    // Mover o grid do wrapper para parecer infinito
+    if (canvasWrapper) {
+        const gx = ((canvasOffset.x % 20) + 20) % 20;
+        const gy = ((canvasOffset.y % 20) + 20) % 20;
+        canvasWrapper.style.backgroundPosition = `${gx}px ${gy}px`;
     }
     
     // Atualizar conexões usando requestAnimationFrame
