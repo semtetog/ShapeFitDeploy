@@ -2798,7 +2798,6 @@ function toggleContentFields() {
 // Variável global para armazenar o vídeo e frames
 let currentVideoFile = null;
 let videoFramesGenerated = false;
-let pendingFileData = null; // Armazena dados do arquivo anterior quando um novo é selecionado
 
 // Variável global para controlar se arquivo foi removido
 let fileRemoved = false;
@@ -2829,163 +2828,11 @@ function detectContentType(file) {
     return '';
 }
 
-// Função para salvar arquivo pendente automaticamente
-function savePendingFile(callback) {
-    const fileInput = document.getElementById('contentFile');
-    const videoTitleInput = document.getElementById('videoTitle');
-    const contentTitle = document.getElementById('contentTitle').value.trim();
-    const contentId = document.getElementById('contentId').value;
-    
-    // Verificar se há arquivo pendente com título
-    if (!pendingFileData || !pendingFileData.file) {
-        if (callback) callback();
-        return;
-    }
-    
-    const pendingTitle = pendingFileData.videoTitle ? pendingFileData.videoTitle.trim() : '';
-    
-    // Se não tem título, não salvar - apenas trocar para o novo arquivo
-    if (!pendingTitle) {
-        pendingFileData = null;
-        if (callback) callback();
-        return;
-    }
-    
-    // Verificar se o título do conteúdo está preenchido (obrigatório)
-    if (!contentTitle) {
-        // Se não tem título do conteúdo, não pode salvar
-        pendingFileData = null;
-        if (callback) callback();
-        return;
-    }
-    
-    // Armazenar o arquivo atual do input para restaurar depois
-    const currentFile = fileInput.files[0];
-    
-    // Criar um DataTransfer para definir o arquivo pendente no input
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(pendingFileData.file);
-    fileInput.files = dataTransfer.files;
-    
-    // Armazenar título atual e definir o título pendente
-    const currentTitle = videoTitleInput ? videoTitleInput.value : '';
-    if (videoTitleInput) {
-        videoTitleInput.value = pendingTitle;
-    }
-    
-    // Salvar o arquivo pendente chamando saveContent diretamente
-    // Mas precisamos garantir que não interfira com o novo arquivo
-    const form = document.getElementById('contentForm');
-    const formData = new FormData(form);
-    formData.append('action', 'save_content');
-    
-    // Função auxiliar para processar após salvar
-    const processAfterSave = (savedContentId) => {
-        // Restaurar input e limpar dados pendentes
-        fileInput.value = '';
-        if (videoTitleInput) {
-            videoTitleInput.value = '';
-        }
-        pendingFileData = null;
-        
-        // Recarregar conteúdo para mostrar o arquivo salvo (mantém modal aberto)
-        if (savedContentId) {
-            setTimeout(() => {
-                editContent(savedContentId, false);
-                // Depois de recarregar, processar o novo arquivo
-                if (callback) {
-                    setTimeout(callback, 500);
-                }
-            }, 300);
-        } else {
-            if (callback) callback();
-        }
-    };
-    
-    // Se houver thumbnail pendente, adicionar
-    if (pendingFileData.thumbnailData) {
-        fetch(pendingFileData.thumbnailData)
-            .then(res => res.blob())
-            .then(blob => {
-                const thumbnailFile = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
-                formData.append('thumbnail', thumbnailFile);
-                return submitFormData(formData, true); // true = salvar silenciosamente
-            })
-            .then(data => {
-                const savedContentId = data && data.content_id ? data.content_id : contentId;
-                processAfterSave(savedContentId);
-            })
-            .catch(() => {
-                submitFormData(formData, true).then(data => {
-                    const savedContentId = data && data.content_id ? data.content_id : contentId;
-                    processAfterSave(savedContentId);
-                }).catch(() => {
-                    processAfterSave(contentId);
-                });
-            });
-    } else {
-        submitFormData(formData, true).then(data => {
-            const savedContentId = data && data.content_id ? data.content_id : contentId;
-            processAfterSave(savedContentId);
-        }).catch(() => {
-            processAfterSave(contentId);
-        });
-    }
-}
-
 // Função para lidar com seleção de arquivo
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
     
-    const fileInput = document.getElementById('contentFile');
-    const videoTitleInput = document.getElementById('videoTitle');
-    const filePreview = document.getElementById('filePreview');
-    const previewVideo = document.getElementById('previewVideo');
-    const selectedThumbnailData = document.getElementById('selectedThumbnailData');
-    
-    // Verificar se há um arquivo anterior no preview com título preenchido
-    const hasPreviousFile = filePreview && filePreview.style.display !== 'none';
-    const previousTitle = videoTitleInput ? videoTitleInput.value.trim() : '';
-    const previousThumbnail = selectedThumbnailData ? selectedThumbnailData.value : '';
-    
-    // Se há arquivo anterior, armazenar dados pendentes
-    if (hasPreviousFile && currentVideoFile) {
-        pendingFileData = {
-            file: currentVideoFile,
-            videoTitle: previousTitle,
-            thumbnailData: previousThumbnail
-        };
-        
-        // Se tem título, salvar automaticamente antes de trocar
-        if (previousTitle) {
-            // Salvar arquivo pendente e depois processar o novo
-            // O callback será chamado após recarregar o conteúdo e mostrar o arquivo salvo
-            savePendingFile(() => {
-                // Processar o novo arquivo após salvar o anterior
-                // Precisamos redefinir o input file com o novo arquivo
-                const fileInput = document.getElementById('contentFile');
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                fileInput.files = dataTransfer.files;
-                processNewFile(file);
-            });
-            return;
-        } else {
-            // Se não tem título, apenas trocar para o novo arquivo
-            pendingFileData = null;
-        }
-    } else if (hasPreviousFile && !currentVideoFile) {
-        // PDF anterior - não temos referência direta ao arquivo, então apenas processar o novo
-        pendingFileData = null;
-    }
-    
-    // Processar novo arquivo
-    processNewFile(file);
-}
-
-// Função auxiliar para processar novo arquivo
-function processNewFile(file) {
     // Detectar tipo de conteúdo automaticamente
     const detectedType = detectContentType(file);
     if (detectedType) {
@@ -3004,6 +2851,60 @@ function processNewFile(file) {
     }
     
     const filePreview = document.getElementById('filePreview');
+    const videoPreview = document.getElementById('videoPreview');
+    const pdfPreview = document.getElementById('pdfPreview');
+    const previewVideo = document.getElementById('previewVideo');
+    const pdfFileName = document.getElementById('pdfFileName');
+    const thumbnailGroup = document.getElementById('thumbnailGroup');
+    const videoFramesGallery = document.getElementById('videoFramesGallery');
+    const currentFileInfo = document.getElementById('currentFileInfo');
+    
+    // NÃO ocultar arquivo atual - manter visível para referência
+    // O usuário pode ver o arquivo antigo enquanto seleciona o novo
+    
+    // Ocultar previews de novos arquivos (serão mostrados quando arquivo for selecionado)
+    videoPreview.style.display = 'none';
+    pdfPreview.style.display = 'none';
+    filePreview.style.display = 'none';
+    videoFramesGallery.style.display = 'none';
+    thumbnailGroup.style.display = 'none';
+    clearThumbnailPreview();
+    videoFramesGenerated = false;
+    
+    // Verificar tipo de arquivo
+    if (file.type.startsWith('video/') || detectedType === 'videos') {
+        currentVideoFile = file;
+        const videoURL = URL.createObjectURL(file);
+        previewVideo.src = videoURL;
+        videoPreview.style.display = 'block';
+        filePreview.style.display = 'block';
+        
+        // Mostrar campo de título e grupo de thumbnail
+        const videoTitleGroup = document.getElementById('videoTitleGroup');
+        if (videoTitleGroup) {
+            videoTitleGroup.style.display = 'block';
+        }
+        thumbnailGroup.style.display = 'block';
+        
+        // Aguardar o vídeo carregar para extrair frames
+        previewVideo.onloadedmetadata = function() {
+            generateVideoFrames(previewVideo);
+        };
+    } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf') || detectedType === 'pdf') {
+        currentVideoFile = null;
+        pdfFileName.textContent = file.name;
+        pdfPreview.style.display = 'block';
+        filePreview.style.display = 'block';
+        
+        // Mostrar campo de título para PDF também
+        const videoTitleGroup = document.getElementById('videoTitleGroup');
+        if (videoTitleGroup) {
+            videoTitleGroup.style.display = 'block';
+        }
+        // Ocultar apenas thumbnails para PDF
+        thumbnailGroup.style.display = 'none';
+    }
+}
     const videoPreview = document.getElementById('videoPreview');
     const pdfPreview = document.getElementById('pdfPreview');
     const previewVideo = document.getElementById('previewVideo');
