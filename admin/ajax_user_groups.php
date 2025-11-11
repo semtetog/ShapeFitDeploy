@@ -57,6 +57,15 @@ try {
         case 'get_members':
             getGroupMembers($data, $admin_id);
             break;
+        case 'get_goals':
+            getGroupGoals($data, $admin_id);
+            break;
+        case 'save_goals':
+            saveGroupGoals($data, $admin_id);
+            break;
+        case 'apply_goals_to_members':
+            applyGoalsToMembers($data, $admin_id);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -381,6 +390,309 @@ function getGroupMembers($data, $admin_id) {
     $stmt->close();
     
     echo json_encode(['success' => true, 'members' => $members]);
+}
+
+function getGroupGoals($data, $admin_id) {
+    global $conn;
+    
+    $group_id = (int)($data['group_id'] ?? 0);
+    
+    if ($group_id <= 0) {
+        throw new Exception('ID do grupo inválido');
+    }
+    
+    // Verificar se o grupo pertence ao admin
+    $stmt_check = $conn->prepare("SELECT id FROM sf_user_groups WHERE id = ? AND admin_id = ?");
+    $stmt_check->bind_param("ii", $group_id, $admin_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    
+    if ($result_check->num_rows === 0) {
+        $stmt_check->close();
+        throw new Exception('Grupo não encontrado ou sem permissão');
+    }
+    $stmt_check->close();
+    
+    // Verificar se a tabela existe
+    $table_exists = false;
+    $check_table = $conn->query("SHOW TABLES LIKE 'sf_user_group_goals'");
+    if ($check_table && $check_table->num_rows > 0) {
+        $table_exists = true;
+    }
+    
+    if (!$table_exists) {
+        echo json_encode(['success' => true, 'goals' => null]);
+        return;
+    }
+    
+    // Buscar metas
+    $stmt = $conn->prepare("SELECT * FROM sf_user_group_goals WHERE group_id = ? AND admin_id = ?");
+    $stmt->bind_param("ii", $group_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $goals = $result->fetch_assoc();
+        echo json_encode(['success' => true, 'goals' => $goals]);
+    } else {
+        echo json_encode(['success' => true, 'goals' => null]);
+    }
+    $stmt->close();
+}
+
+function saveGroupGoals($data, $admin_id) {
+    global $conn;
+    
+    $group_id = (int)($data['group_id'] ?? 0);
+    
+    if ($group_id <= 0) {
+        throw new Exception('ID do grupo inválido');
+    }
+    
+    // Verificar se o grupo pertence ao admin
+    $stmt_check = $conn->prepare("SELECT id FROM sf_user_groups WHERE id = ? AND admin_id = ?");
+    $stmt_check->bind_param("ii", $group_id, $admin_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    
+    if ($result_check->num_rows === 0) {
+        $stmt_check->close();
+        throw new Exception('Grupo não encontrado ou sem permissão');
+    }
+    $stmt_check->close();
+    
+    // Verificar se a tabela existe, se não, retornar erro
+    $check_table = $conn->query("SHOW TABLES LIKE 'sf_user_group_goals'");
+    if (!$check_table || $check_table->num_rows === 0) {
+        throw new Exception('Tabela de metas não existe. Execute o script SQL para criar a tabela.');
+    }
+    
+    // Preparar dados
+    $target_kcal = !empty($data['target_kcal']) ? (int)$data['target_kcal'] : null;
+    $target_water_ml = !empty($data['target_water_ml']) ? (int)$data['target_water_ml'] : null;
+    $target_protein_g = !empty($data['target_protein_g']) ? (float)$data['target_protein_g'] : null;
+    $target_carbs_g = !empty($data['target_carbs_g']) ? (float)$data['target_carbs_g'] : null;
+    $target_fat_g = !empty($data['target_fat_g']) ? (float)$data['target_fat_g'] : null;
+    $target_steps_daily = !empty($data['target_steps_daily']) ? (int)$data['target_steps_daily'] : null;
+    $target_exercise_minutes = !empty($data['target_exercise_minutes']) ? (int)$data['target_exercise_minutes'] : null;
+    $target_sleep_hours = !empty($data['target_sleep_hours']) ? (float)$data['target_sleep_hours'] : null;
+    
+    // Verificar se já existem metas
+    $stmt_check_goals = $conn->prepare("SELECT id FROM sf_user_group_goals WHERE group_id = ?");
+    $stmt_check_goals->bind_param("i", $group_id);
+    $stmt_check_goals->execute();
+    $result_check_goals = $stmt_check_goals->get_result();
+    $stmt_check_goals->close();
+    
+    if ($result_check_goals->num_rows > 0) {
+        // Atualizar
+        $stmt = $conn->prepare("
+            UPDATE sf_user_group_goals 
+            SET target_kcal = ?, target_water_ml = ?, target_protein_g = ?, target_carbs_g = ?, 
+                target_fat_g = ?, target_steps_daily = ?, target_exercise_minutes = ?, 
+                target_sleep_hours = ?, updated_at = NOW()
+            WHERE group_id = ? AND admin_id = ?
+        ");
+        $stmt->bind_param("iidddiiidi", $target_kcal, $target_water_ml, $target_protein_g, $target_carbs_g, 
+                         $target_fat_g, $target_steps_daily, $target_exercise_minutes, $target_sleep_hours, 
+                         $group_id, $admin_id);
+    } else {
+        // Inserir
+        $stmt = $conn->prepare("
+            INSERT INTO sf_user_group_goals 
+            (group_id, admin_id, target_kcal, target_water_ml, target_protein_g, target_carbs_g, 
+             target_fat_g, target_steps_daily, target_exercise_minutes, target_sleep_hours, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+        ");
+        $stmt->bind_param("iiiidddiii", $group_id, $admin_id, $target_kcal, $target_water_ml, $target_protein_g, 
+                         $target_carbs_g, $target_fat_g, $target_steps_daily, $target_exercise_minutes, $target_sleep_hours);
+    }
+    
+    if (!$stmt->execute()) {
+        throw new Exception('Erro ao salvar metas: ' . $stmt->error);
+    }
+    
+    $stmt->close();
+    
+    echo json_encode(['success' => true, 'message' => 'Metas salvas com sucesso!']);
+}
+
+function applyGoalsToMembers($data, $admin_id) {
+    global $conn;
+    
+    $group_id = (int)($data['group_id'] ?? 0);
+    
+    if ($group_id <= 0) {
+        throw new Exception('ID do grupo inválido');
+    }
+    
+    // Verificar se o grupo pertence ao admin
+    $stmt_check = $conn->prepare("SELECT id FROM sf_user_groups WHERE id = ? AND admin_id = ?");
+    $stmt_check->bind_param("ii", $group_id, $admin_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    
+    if ($result_check->num_rows === 0) {
+        $stmt_check->close();
+        throw new Exception('Grupo não encontrado ou sem permissão');
+    }
+    $stmt_check->close();
+    
+    // Verificar se a tabela de metas existe
+    $check_table = $conn->query("SHOW TABLES LIKE 'sf_user_group_goals'");
+    if (!$check_table || $check_table->num_rows === 0) {
+        throw new Exception('Tabela de metas não existe. Execute o script SQL para criar a tabela.');
+    }
+    
+    // Buscar metas do grupo
+    $stmt_goals = $conn->prepare("SELECT * FROM sf_user_group_goals WHERE group_id = ? AND admin_id = ?");
+    $stmt_goals->bind_param("ii", $group_id, $admin_id);
+    $stmt_goals->execute();
+    $result_goals = $stmt_goals->get_result();
+    
+    if ($result_goals->num_rows === 0) {
+        $stmt_goals->close();
+        throw new Exception('Nenhuma meta definida para este grupo. Defina as metas primeiro.');
+    }
+    
+    $goals = $result_goals->fetch_assoc();
+    $stmt_goals->close();
+    
+    // Buscar membros do grupo
+    $stmt_members = $conn->prepare("SELECT user_id FROM sf_user_group_members WHERE group_id = ?");
+    $stmt_members->bind_param("i", $group_id);
+    $stmt_members->execute();
+    $result_members = $stmt_members->get_result();
+    
+    $members = [];
+    while ($row = $result_members->fetch_assoc()) {
+        $members[] = (int)$row['user_id'];
+    }
+    $stmt_members->close();
+    
+    if (empty($members)) {
+        throw new Exception('Nenhum membro encontrado neste grupo.');
+    }
+    
+    // Verificar se a tabela sf_user_goals existe
+    $check_user_goals = $conn->query("SHOW TABLES LIKE 'sf_user_goals'");
+    if (!$check_user_goals || $check_user_goals->num_rows === 0) {
+        throw new Exception('Tabela de metas de usuários não existe. Execute o script SQL para criar a tabela.');
+    }
+    
+    // Aplicar metas a cada membro
+    $applied_count = 0;
+    $conn->begin_transaction();
+    
+    try {
+        foreach ($members as $user_id) {
+            // Verificar se já existe meta de nutrição para o usuário
+            $stmt_check_user = $conn->prepare("SELECT id FROM sf_user_goals WHERE user_id = ? AND goal_type = 'nutrition'");
+            $stmt_check_user->bind_param("i", $user_id);
+            $stmt_check_user->execute();
+            $result_check_user = $stmt_check_user->get_result();
+            $stmt_check_user->close();
+            
+            if ($result_check_user->num_rows > 0) {
+                // Atualizar
+                $stmt_update = $conn->prepare("
+                    UPDATE sf_user_goals 
+                    SET target_kcal = ?, target_protein_g = ?, target_carbs_g = ?, target_fat_g = ?, 
+                        target_water_cups = ?, updated_at = NOW()
+                    WHERE user_id = ? AND goal_type = 'nutrition'
+                ");
+                $water_cups = $goals['target_water_ml'] ? (int)($goals['target_water_ml'] / 250) : null;
+                $stmt_update->bind_param("idddii", $goals['target_kcal'], $goals['target_protein_g'], 
+                                        $goals['target_carbs_g'], $goals['target_fat_g'], $water_cups, $user_id);
+            } else {
+                // Inserir
+                $stmt_insert = $conn->prepare("
+                    INSERT INTO sf_user_goals 
+                    (user_id, goal_type, target_kcal, target_protein_g, target_carbs_g, target_fat_g, 
+                     target_water_cups, created_at, updated_at)
+                    VALUES (?, 'nutrition', ?, ?, ?, ?, ?, NOW(), NOW())
+                ");
+                $water_cups = $goals['target_water_ml'] ? (int)($goals['target_water_ml'] / 250) : null;
+                $stmt_insert->bind_param("iidddi", $user_id, $goals['target_kcal'], $goals['target_protein_g'], 
+                                        $goals['target_carbs_g'], $goals['target_fat_g'], $water_cups);
+                
+                if ($stmt_insert->execute()) {
+                    $applied_count++;
+                }
+                $stmt_insert->close();
+                continue;
+            }
+            
+            if ($stmt_update->execute()) {
+                $applied_count++;
+            }
+            $stmt_update->close();
+            
+            // Atualizar/inserir metas de atividade
+            $stmt_check_activity = $conn->prepare("SELECT id FROM sf_user_goals WHERE user_id = ? AND goal_type = 'activity'");
+            $stmt_check_activity->bind_param("i", $user_id);
+            $stmt_check_activity->execute();
+            $result_check_activity = $stmt_check_activity->get_result();
+            $stmt_check_activity->close();
+            
+            if ($result_check_activity->num_rows > 0) {
+                $stmt_update_activity = $conn->prepare("
+                    UPDATE sf_user_goals 
+                    SET target_steps_daily = ?, updated_at = NOW()
+                    WHERE user_id = ? AND goal_type = 'activity'
+                ");
+                $stmt_update_activity->bind_param("ii", $goals['target_steps_daily'], $user_id);
+                $stmt_update_activity->execute();
+                $stmt_update_activity->close();
+            } else {
+                $stmt_insert_activity = $conn->prepare("
+                    INSERT INTO sf_user_goals 
+                    (user_id, goal_type, target_steps_daily, created_at, updated_at)
+                    VALUES (?, 'activity', ?, NOW(), NOW())
+                ");
+                $stmt_insert_activity->bind_param("ii", $user_id, $goals['target_steps_daily']);
+                $stmt_insert_activity->execute();
+                $stmt_insert_activity->close();
+            }
+            
+            // Atualizar/inserir metas de sono
+            $stmt_check_sleep = $conn->prepare("SELECT id FROM sf_user_goals WHERE user_id = ? AND goal_type = 'sleep'");
+            $stmt_check_sleep->bind_param("i", $user_id);
+            $stmt_check_sleep->execute();
+            $result_check_sleep = $stmt_check_sleep->get_result();
+            $stmt_check_sleep->close();
+            
+            if ($result_check_sleep->num_rows > 0) {
+                $stmt_update_sleep = $conn->prepare("
+                    UPDATE sf_user_goals 
+                    SET target_sleep_hours = ?, updated_at = NOW()
+                    WHERE user_id = ? AND goal_type = 'sleep'
+                ");
+                $stmt_update_sleep->bind_param("di", $goals['target_sleep_hours'], $user_id);
+                $stmt_update_sleep->execute();
+                $stmt_update_sleep->close();
+            } else {
+                $stmt_insert_sleep = $conn->prepare("
+                    INSERT INTO sf_user_goals 
+                    (user_id, goal_type, target_sleep_hours, created_at, updated_at)
+                    VALUES (?, 'sleep', ?, NOW(), NOW())
+                ");
+                $stmt_insert_sleep->bind_param("id", $user_id, $goals['target_sleep_hours']);
+                $stmt_insert_sleep->execute();
+                $stmt_insert_sleep->close();
+            }
+        }
+        
+        $conn->commit();
+        
+        echo json_encode([
+            'success' => true, 
+            'message' => "Metas aplicadas com sucesso a $applied_count membro(s)!"
+        ]);
+    } catch (Exception $e) {
+        $conn->rollback();
+        throw $e;
+    }
 }
 
 $conn->close();

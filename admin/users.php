@@ -12,19 +12,49 @@ $page_title = 'Pacientes';
 
 // --- LÓGICA DE BUSCA E PAGINAÇÃO ---
 $search_term = $_GET['search'] ?? '';
+$group_filter = isset($_GET['group']) ? (int)$_GET['group'] : 0;
 $page = isset($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
 $limit = 20;
 $offset = ($page - 1) * $limit;
 
-// --- Contagem total para paginação ---
-$count_sql = "SELECT COUNT(u.id) as total FROM sf_users u";
-$count_params = []; $count_types = "";
-if (!empty($search_term)) {
-    $count_sql .= " WHERE u.name LIKE ? OR u.email LIKE ?";
-    $like_term = "%" . $search_term . "%";
-    $count_params = [$like_term, $like_term];
-    $count_types = "ss";
+// Buscar nome do grupo se filtro por grupo estiver ativo
+$group_name = '';
+if ($group_filter > 0) {
+    $stmt_group = $conn->prepare("SELECT name, group_name FROM sf_user_groups WHERE id = ?");
+    $stmt_group->bind_param("i", $group_filter);
+    $stmt_group->execute();
+    $group_result = $stmt_group->get_result();
+    if ($group_result->num_rows > 0) {
+        $group_data = $group_result->fetch_assoc();
+        $group_name = $group_data['name'] ?? $group_data['group_name'] ?? 'Grupo';
+    }
+    $stmt_group->close();
 }
+
+// --- Contagem total para paginação ---
+$count_sql = "SELECT COUNT(DISTINCT u.id) as total FROM sf_users u";
+$count_params = []; $count_types = "";
+$count_conditions = [];
+
+if (!empty($search_term)) {
+    $count_conditions[] = "(u.name LIKE ? OR u.email LIKE ?)";
+    $like_term = "%" . $search_term . "%";
+    $count_params[] = $like_term;
+    $count_params[] = $like_term;
+    $count_types .= "ss";
+}
+
+if ($group_filter > 0) {
+    $count_sql .= " INNER JOIN sf_user_group_members ugm ON u.id = ugm.user_id";
+    $count_conditions[] = "ugm.group_id = ?";
+    $count_params[] = $group_filter;
+    $count_types .= "i";
+}
+
+if (!empty($count_conditions)) {
+    $count_sql .= " WHERE " . implode(" AND ", $count_conditions);
+}
+
 $stmt_count = $conn->prepare($count_sql);
 if ($stmt_count) {
     if (!empty($count_params)) { $stmt_count->bind_param($count_types, ...$count_params); }
@@ -38,14 +68,28 @@ if ($stmt_count) {
 }
 
 // --- Busca dos usuários da página atual ---
-$sql = "SELECT u.id, u.name, u.email, up.profile_image_filename, u.created_at FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id";
+$sql = "SELECT DISTINCT u.id, u.name, u.email, up.profile_image_filename, u.created_at FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id";
 $params = []; $types = "";
+$conditions = [];
+
 if (!empty($search_term)) {
-    $sql .= " WHERE u.name LIKE ? OR u.email LIKE ?";
+    $conditions[] = "(u.name LIKE ? OR u.email LIKE ?)";
     $params[] = "%" . $search_term . "%";
     $params[] = "%" . $search_term . "%";
     $types .= "ss";
 }
+
+if ($group_filter > 0) {
+    $sql .= " INNER JOIN sf_user_group_members ugm ON u.id = ugm.user_id";
+    $conditions[] = "ugm.group_id = ?";
+    $params[] = $group_filter;
+    $types .= "i";
+}
+
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(" AND ", $conditions);
+}
+
 $sql .= " ORDER BY u.created_at DESC LIMIT ? OFFSET ?";
 $params[] = $limit;
 $params[] = $offset;
@@ -65,11 +109,19 @@ if ($stmt) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<h2>Pacientes Cadastrados</h2>
+<h2>Pacientes Cadastrados<?php if ($group_filter > 0): ?> - <?php echo htmlspecialchars($group_name); ?><?php endif; ?></h2>
 <div class="toolbar">
     <form method="GET" action="users.php" class="search-form">
+        <?php if ($group_filter > 0): ?>
+            <input type="hidden" name="group" value="<?php echo $group_filter; ?>">
+        <?php endif; ?>
         <input type="text" name="search" placeholder="Buscar por nome ou e-mail..." value="<?php echo htmlspecialchars($search_term); ?>">
         <button type="submit"><i class="fas fa-search"></i></button>
+        <?php if ($group_filter > 0): ?>
+            <a href="users.php" class="btn btn-secondary" style="margin-left: 10px;">
+                <i class="fas fa-times"></i> Remover Filtro
+            </a>
+        <?php endif; ?>
     </form>
     <!-- <a href="create_user.php" class="btn btn-primary">Novo Paciente</a> -->
 </div>

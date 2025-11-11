@@ -515,26 +515,37 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .group-card-actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
-    flex-wrap: wrap;
     width: 100%;
     box-sizing: border-box;
     min-width: 0;
     margin-top: auto;
 }
 
+@media (min-width: 768px) {
+    .group-card-actions {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .group-card-actions {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
 .btn-action {
-    flex: 1;
     min-width: 0;
     max-width: 100%;
-    padding: 0.625rem 0.75rem;
-    gap: 0.5rem;
+    padding: 0.625rem 0.5rem;
+    gap: 0.375rem;
     overflow: visible;
     text-overflow: clip;
     line-height: 1.2;
     border-radius: 10px;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -544,11 +555,23 @@ require_once __DIR__ . '/includes/header.php';
     border: none;
     font-family: 'Montserrat', sans-serif;
     text-align: center;
+    white-space: nowrap;
 }
 
 .btn-action i {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+    .btn-action {
+        font-size: 0.8125rem;
+        padding: 0.625rem 0.625rem;
+    }
+    
+    .btn-action i {
+        font-size: 0.875rem;
+    }
 }
 
 .btn-view {
@@ -582,6 +605,28 @@ require_once __DIR__ . '/includes/header.php';
 .btn-delete:hover {
     background: rgba(239, 68, 68, 0.2);
     border-color: #ef4444;
+}
+
+.btn-goals {
+    background: rgba(168, 85, 247, 0.1);
+    color: #a855f7;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.btn-goals:hover {
+    background: rgba(168, 85, 247, 0.2);
+    border-color: #a855f7;
+}
+
+.btn-patients {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.btn-patients:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22c55e;
 }
 
 /* Empty State */
@@ -1164,13 +1209,24 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <div class="group-card-actions" onclick="event.stopPropagation()">
                         <button class="btn-action btn-view" onclick="viewGroupMembers(<?php echo $group['id']; ?>)" title="Ver Membros">
-                            <i class="fas fa-users"></i> Membros
+                            <i class="fas fa-users"></i>
+                            <span>Membros</span>
+                        </button>
+                        <button class="btn-action btn-goals" onclick="manageGroupGoals(<?php echo $group['id']; ?>)" title="Definir Metas">
+                            <i class="fas fa-bullseye"></i>
+                            <span>Metas</span>
+                        </button>
+                        <button class="btn-action btn-patients" onclick="viewGroupPatients(<?php echo $group['id']; ?>)" title="Ver Pacientes">
+                            <i class="fas fa-user-md"></i>
+                            <span>Pacientes</span>
                         </button>
                         <button class="btn-action btn-edit" onclick="editGroup(<?php echo $group['id']; ?>)">
-                            <i class="fas fa-edit"></i> Editar
+                            <i class="fas fa-edit"></i>
+                            <span>Editar</span>
                         </button>
                         <button class="btn-action btn-delete" onclick="deleteGroup(<?php echo $group['id']; ?>)">
-                            <i class="fas fa-trash"></i> Excluir
+                            <i class="fas fa-trash"></i>
+                            <span>Excluir</span>
                         </button>
                     </div>
                 </div>
@@ -1334,6 +1390,92 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="challenge-edit-body" id="membersContent">
             <!-- Conteúdo será carregado via JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Metas do Grupo -->
+<div id="goalsModal" class="challenge-edit-modal">
+    <div class="challenge-edit-overlay" onclick="closeGoalsModal()"></div>
+    <div class="challenge-edit-content" style="max-width: 700px;">
+        <button class="sleep-modal-close" onclick="closeGoalsModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="challenge-edit-header">
+            <h3 id="goalsTitle">Metas do Grupo</h3>
+        </div>
+        <div class="challenge-edit-body">
+            <form id="goalsForm">
+                <input type="hidden" id="goalsGroupId" name="group_id">
+                
+                <!-- Metas Nutricionais -->
+                <div class="challenge-section">
+                    <h3 class="challenge-section-title">
+                        <i class="fas fa-utensils"></i> Metas Nutricionais
+                    </h3>
+                    <div class="challenge-form-row">
+                        <div class="challenge-form-group">
+                            <label for="targetKcal">Calorias (kcal/dia)</label>
+                            <input type="number" id="targetKcal" name="target_kcal" class="challenge-form-input" min="0" step="1" placeholder="Ex: 2000">
+                        </div>
+                        <div class="challenge-form-group">
+                            <label for="targetWater">Água (ml/dia)</label>
+                            <input type="number" id="targetWater" name="target_water_ml" class="challenge-form-input" min="0" step="50" placeholder="Ex: 2000">
+                        </div>
+                    </div>
+                    <div class="challenge-form-row">
+                        <div class="challenge-form-group">
+                            <label for="targetProtein">Proteínas (g/dia)</label>
+                            <input type="number" id="targetProtein" name="target_protein_g" class="challenge-form-input" min="0" step="0.1" placeholder="Ex: 150">
+                        </div>
+                        <div class="challenge-form-group">
+                            <label for="targetCarbs">Carboidratos (g/dia)</label>
+                            <input type="number" id="targetCarbs" name="target_carbs_g" class="challenge-form-input" min="0" step="0.1" placeholder="Ex: 250">
+                        </div>
+                    </div>
+                    <div class="challenge-form-group">
+                        <label for="targetFat">Gorduras (g/dia)</label>
+                        <input type="number" id="targetFat" name="target_fat_g" class="challenge-form-input" min="0" step="0.1" placeholder="Ex: 65">
+                    </div>
+                </div>
+                
+                <!-- Metas de Atividade -->
+                <div class="challenge-section">
+                    <h3 class="challenge-section-title">
+                        <i class="fas fa-dumbbell"></i> Metas de Atividade
+                    </h3>
+                    <div class="challenge-form-row">
+                        <div class="challenge-form-group">
+                            <label for="targetSteps">Passos (passos/dia)</label>
+                            <input type="number" id="targetSteps" name="target_steps_daily" class="challenge-form-input" min="0" step="100" placeholder="Ex: 10000">
+                        </div>
+                        <div class="challenge-form-group">
+                            <label for="targetExercise">Exercício (min/dia)</label>
+                            <input type="number" id="targetExercise" name="target_exercise_minutes" class="challenge-form-input" min="0" step="5" placeholder="Ex: 30">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Metas de Sono -->
+                <div class="challenge-section">
+                    <h3 class="challenge-section-title">
+                        <i class="fas fa-bed"></i> Metas de Sono
+                    </h3>
+                    <div class="challenge-form-group">
+                        <label for="targetSleep">Sono (horas/dia)</label>
+                        <input type="number" id="targetSleep" name="target_sleep_hours" class="challenge-form-input" min="0" max="24" step="0.5" placeholder="Ex: 8">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="challenge-edit-footer">
+            <button type="button" class="btn-cancel" onclick="closeGoalsModal()">Cancelar</button>
+            <button type="button" class="btn-save" onclick="saveGroupGoals()">
+                <i class="fas fa-save"></i> Salvar Metas
+            </button>
+            <button type="button" class="btn-action btn-patients" onclick="applyGoalsToMembers()" style="margin-left: auto;">
+                <i class="fas fa-users"></i> Aplicar aos Membros
+            </button>
         </div>
     </div>
 </div>
@@ -1701,6 +1843,135 @@ function viewGroupMembers(groupId) {
 // Fechar modal de membros
 function closeMembersModal() {
     document.getElementById('membersModal').classList.remove('active');
+}
+
+// Gerenciar metas do grupo
+function manageGroupGoals(groupId) {
+    document.getElementById('goalsGroupId').value = groupId;
+    document.getElementById('goalsTitle').textContent = 'Metas do Grupo';
+    
+    // Buscar metas existentes
+    fetch('ajax_user_groups.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'get_goals',
+            group_id: groupId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.goals) {
+            const goals = data.goals;
+            document.getElementById('targetKcal').value = goals.target_kcal || '';
+            document.getElementById('targetWater').value = goals.target_water_ml || '';
+            document.getElementById('targetProtein').value = goals.target_protein_g || '';
+            document.getElementById('targetCarbs').value = goals.target_carbs_g || '';
+            document.getElementById('targetFat').value = goals.target_fat_g || '';
+            document.getElementById('targetSteps').value = goals.target_steps_daily || '';
+            document.getElementById('targetExercise').value = goals.target_exercise_minutes || '';
+            document.getElementById('targetSleep').value = goals.target_sleep_hours || '';
+        } else {
+            // Limpar campos se não houver metas
+            document.getElementById('goalsForm').reset();
+            document.getElementById('goalsGroupId').value = groupId;
+        }
+        document.getElementById('goalsModal').classList.add('active');
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        // Abrir modal mesmo se houver erro (para criar novas metas)
+        document.getElementById('goalsForm').reset();
+        document.getElementById('goalsGroupId').value = groupId;
+        document.getElementById('goalsModal').classList.add('active');
+    });
+}
+
+// Fechar modal de metas
+function closeGoalsModal() {
+    document.getElementById('goalsModal').classList.remove('active');
+}
+
+// Salvar metas do grupo
+function saveGroupGoals() {
+    const groupId = document.getElementById('goalsGroupId').value;
+    const form = document.getElementById('goalsForm');
+    const formData = new FormData(form);
+    
+    const goals = {
+        group_id: groupId,
+        target_kcal: formData.get('target_kcal') || null,
+        target_water_ml: formData.get('target_water_ml') || null,
+        target_protein_g: formData.get('target_protein_g') || null,
+        target_carbs_g: formData.get('target_carbs_g') || null,
+        target_fat_g: formData.get('target_fat_g') || null,
+        target_steps_daily: formData.get('target_steps_daily') || null,
+        target_exercise_minutes: formData.get('target_exercise_minutes') || null,
+        target_sleep_hours: formData.get('target_sleep_hours') || null
+    };
+    
+    fetch('ajax_user_groups.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'save_goals',
+            ...goals
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message || 'Metas salvas com sucesso!');
+            closeGoalsModal();
+        } else {
+            alert('Erro ao salvar metas: ' + (data.message || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao salvar metas. Tente novamente.');
+    });
+}
+
+// Aplicar metas aos membros do grupo
+function applyGoalsToMembers() {
+    const groupId = document.getElementById('goalsGroupId').value;
+    
+    if (!confirm('Deseja aplicar essas metas a todos os membros deste grupo? Isso irá sobrescrever as metas atuais de cada membro.')) {
+        return;
+    }
+    
+    fetch('ajax_user_groups.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'apply_goals_to_members',
+            group_id: groupId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message || 'Metas aplicadas com sucesso aos membros!');
+        } else {
+            alert('Erro ao aplicar metas: ' + (data.message || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao aplicar metas. Tente novamente.');
+    });
+}
+
+// Ver pacientes do grupo (link para users.php com filtro)
+function viewGroupPatients(groupId) {
+    window.location.href = 'users.php?group=' + groupId;
 }
 
 // Função MD5 simples (para gerar cores)
