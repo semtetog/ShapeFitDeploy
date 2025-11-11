@@ -1500,14 +1500,20 @@ function startConnection(e, nodeId, connectorType) {
     }
     
     const svgRect = connectionsLayer.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
     
-    // Posição absoluta no canvas (considerando zoom e pan)
-    const absX = (node.x + connectorLocalX) * zoomLevel + canvasOffset.x;
-    const absY = (node.y + connectorLocalY) * zoomLevel + canvasOffset.y;
+    // Calcular posição absoluta no viewport (considerando zoom e pan)
+    // Primeiro: posição no canvas com zoom
+    const canvasX = (node.x + connectorLocalX) * zoomLevel;
+    const canvasY = (node.y + connectorLocalY) * zoomLevel;
     
-    // Converter para coordenadas do SVG
-    connectionStart.x = absX - svgRect.left;
-    connectionStart.y = absY - svgRect.top;
+    // Segundo: adicionar offset do pan e posição do canvas no viewport
+    const viewportX = canvasX + canvasOffset.x + canvasRect.left;
+    const viewportY = canvasY + canvasOffset.y + canvasRect.top;
+    
+    // Converter para coordenadas do SVG (relativas ao connectionsLayer)
+    connectionStart.x = viewportX - svgRect.left;
+    connectionStart.y = viewportY - svgRect.top;
     
     document.addEventListener('mousemove', drawConnection);
     document.addEventListener('mouseup', endConnection);
@@ -1768,18 +1774,27 @@ function updateConnections() {
         const toConnectorLocalX = toNodeWidth / 2;
         const toConnectorLocalY = 0; // top edge do card
         
-        // Posições absolutas no canvas (considerando zoom e pan)
-        const x1 = (fromNode.x + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
-        const y1 = (fromNode.y + fromConnectorLocalY) * zoomLevel + canvasOffset.y;
-        const x2 = (toNode.x + toConnectorLocalX) * zoomLevel + canvasOffset.x;
-        const y2 = (toNode.y + toConnectorLocalY) * zoomLevel + canvasOffset.y;
+        // Calcular posições absolutas no viewport (considerando zoom e pan)
+        const canvasRect = canvas.getBoundingClientRect();
+        const svgRect = connectionsLayer.getBoundingClientRect();
+        
+        // Posições no canvas com zoom
+        const fromCanvasX = (fromNode.x + fromConnectorLocalX) * zoomLevel;
+        const fromCanvasY = (fromNode.y + fromConnectorLocalY) * zoomLevel;
+        const toCanvasX = (toNode.x + toConnectorLocalX) * zoomLevel;
+        const toCanvasY = (toNode.y + toConnectorLocalY) * zoomLevel;
+        
+        // Adicionar offset do pan e posição do canvas no viewport
+        const fromViewportX = fromCanvasX + canvasOffset.x + canvasRect.left;
+        const fromViewportY = fromCanvasY + canvasOffset.y + canvasRect.top;
+        const toViewportX = toCanvasX + canvasOffset.x + canvasRect.left;
+        const toViewportY = toCanvasY + canvasOffset.y + canvasRect.top;
         
         // Converter para coordenadas do SVG (relativas ao connectionsLayer)
-        const svgRect = connectionsLayer.getBoundingClientRect();
-        const svgX1 = x1 - svgRect.left;
-        const svgY1 = y1 - svgRect.top;
-        const svgX2 = x2 - svgRect.left;
-        const svgY2 = y2 - svgRect.top;
+        const svgX1 = fromViewportX - svgRect.left;
+        const svgY1 = fromViewportY - svgRect.top;
+        const svgX2 = toViewportX - svgRect.left;
+        const svgY2 = toViewportY - svgRect.top;
         
         // Criar linha única com ID
         const lineId = `connection-${conn.from}-${conn.to}`;
