@@ -224,21 +224,32 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0.5rem 0 0 0;
 }
 
-/* Stats Grid */
+/* Stats Grid - Estilo igual user_groups.php */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
     margin-top: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
+    position: relative;
 }
 
 @media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .stats-grid {
         grid-template-columns: 1fr;
     }
@@ -258,29 +269,35 @@ require_once __DIR__ . '/includes/header.php';
     flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    position: relative !important;
+    overflow: visible !important;
+    z-index: 1 !important;
+    gap: 0 !important;
     box-shadow: none !important;
 }
 
 .stat-card:hover {
     background: rgba(255, 255, 255, 0.08) !important;
     border-color: var(--accent-orange) !important;
+    transform: translateY(-2px);
 }
 
 .stat-number {
-    font-size: 1.5rem !important;
-    font-weight: 700 !important;
-    color: var(--accent-orange) !important;
-    margin: 0 !important;
-    line-height: 1.2 !important;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    margin-bottom: 0.5rem;
+    line-height: 1;
 }
 
 .stat-label {
-    font-size: 0.75rem !important;
-    color: var(--text-secondary) !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    font-weight: 600 !important;
-    margin: 0.5rem 0 0 0 !important;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* Filter Card */
