@@ -52,6 +52,9 @@ try {
         case 'update_video_title':
             updateVideoTitle($conn, $admin_id);
             break;
+        case 'get_file':
+            getFile($conn, $admin_id);
+            break;
         case 'delete_content':
             deleteContent($conn, $admin_id);
             break;
@@ -1043,5 +1046,56 @@ function toggleContentStatus($conn, $admin_id) {
         'message' => 'Status atualizado com sucesso',
         'status' => $status
     ]);
+}
+
+// Função para buscar informações de um arquivo específico
+function getFile($conn, $admin_id) {
+    $file_id = isset($_POST['file_id']) ? intval($_POST['file_id']) : (isset($_GET['file_id']) ? intval($_GET['file_id']) : 0);
+    
+    if ($file_id <= 0) {
+        echo json_encode(['success' => false, 'error' => 'ID do arquivo inválido']);
+        exit;
+    }
+    
+    try {
+        // Verificar se a tabela sf_content_files existe
+        $table_exists = false;
+        $check_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+        if ($check_table && $check_table->num_rows > 0) {
+            $table_exists = true;
+        }
+        
+        if ($table_exists) {
+            $stmt = $conn->prepare("SELECT * FROM sf_content_files WHERE id = ?");
+            $stmt->bind_param("i", $file_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($row = $result->fetch_assoc()) {
+                echo json_encode([
+                    'success' => true,
+                    'file' => [
+                        'id' => $row['id'],
+                        'content_id' => $row['content_id'],
+                        'file_path' => $row['file_path'],
+                        'file_name' => $row['file_name'],
+                        'mime_type' => $row['mime_type'],
+                        'thumbnail_url' => $row['thumbnail_url'],
+                        'video_title' => $row['video_title']
+                    ]
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Arquivo não encontrado']);
+            }
+            
+            $stmt->close();
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Tabela sf_content_files não existe']);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'Erro ao buscar arquivo: ' . $e->getMessage()]);
+    }
+    
+    exit;
 }
 

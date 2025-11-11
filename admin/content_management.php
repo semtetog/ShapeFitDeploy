@@ -1543,8 +1543,8 @@ require_once __DIR__ . '/includes/header.php';
                             <div id="videoFramesGallery" style="display: none; margin-bottom: 1rem;">
                                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; min-height: 120px;">
                                     <!-- Frames serão inseridos aqui via JavaScript -->
-                                </div>
-                            </div>
+                    </div>
+                </div>
                 
                             <!-- Input hidden para armazenar o frame selecionado -->
                             <input type="hidden" id="selectedThumbnailData" name="thumbnail_data" data-file-id="">
@@ -2554,8 +2554,8 @@ function saveContent() {
     }
     
     // Validar se há arquivo (obrigatório para vídeos e PDF)
-    if (!fileInput.files[0] && !contentId) {
-        showAlert('Validação', 'Arquivo é obrigatório para este tipo de conteúdo');
+        if (!fileInput.files[0] && !contentId) {
+            showAlert('Validação', 'Arquivo é obrigatório para este tipo de conteúdo');
         return;
     }
     
@@ -3222,8 +3222,8 @@ function selectVideoFrame(frameDataUrl, frameElement) {
 }
 
 // Função para gerar frames de um vídeo existente (ao editar)
-function generateVideoFramesForExistingVideo(video, fileId) {
-    console.log('generateVideoFramesForExistingVideo chamado:', { video: !!video, readyState: video?.readyState, fileId });
+function generateVideoFramesForExistingVideo(video, fileId, framesContainer, currentThumbnailUrl = null) {
+    console.log('generateVideoFramesForExistingVideo chamado:', { video: !!video, readyState: video?.readyState, fileId, hasContainer: !!framesContainer, currentThumbnailUrl });
     
     if (!video) {
         console.error('Vídeo não fornecido');
@@ -3232,19 +3232,12 @@ function generateVideoFramesForExistingVideo(video, fileId) {
     
     if (video.readyState < 2) {
         console.log('Vídeo ainda não carregado, aguardando...', video.readyState);
-        setTimeout(() => generateVideoFramesForExistingVideo(video, fileId), 500);
+        setTimeout(() => generateVideoFramesForExistingVideo(video, fileId, framesContainer, currentThumbnailUrl), 500);
         return;
     }
     
-    const gallery = document.getElementById('videoFramesGallery');
-    if (!gallery) {
-        console.error('videoFramesGallery não encontrado');
-        return;
-    }
-    
-    const framesContainer = gallery.querySelector('div');
     if (!framesContainer) {
-        console.error('framesContainer não encontrado dentro de videoFramesGallery');
+        console.error('framesContainer não fornecido');
         return;
     }
     
@@ -3283,130 +3276,21 @@ function generateVideoFramesForExistingVideo(video, fileId) {
         if (currentFrameIndex >= frameTimes.length) {
             console.log('Todos os frames foram extraídos');
             console.log('Total de frames no container:', framesContainer.children.length);
-            console.log('Estado da galeria antes:', { display: gallery.style.display, offsetParent: gallery.offsetParent });
             
-            // Garantir que o thumbnailGroup está visível
-            const thumbnailGroup = document.getElementById('thumbnailGroup');
-            if (thumbnailGroup) {
-                // Verificar todos os elementos pais
-                let parent = thumbnailGroup.parentElement;
-                let parentChain = [];
-                while (parent) {
-                    const computedStyle = window.getComputedStyle(parent);
-                    parentChain.push({
-                        tag: parent.tagName,
-                        id: parent.id,
-                        class: parent.className,
-                        display: computedStyle.display,
-                        visibility: computedStyle.visibility,
-                        opacity: computedStyle.opacity,
-                        height: computedStyle.height,
-                        maxHeight: computedStyle.maxHeight,
-                        overflow: computedStyle.overflow,
-                        offsetParent: parent.offsetParent,
-                        offsetHeight: parent.offsetHeight,
-                        clientHeight: parent.clientHeight
-                    });
-                    parent = parent.parentElement;
-                }
-                console.log('Cadeia de elementos pais do thumbnailGroup:', parentChain);
-                
-                // Verificar se algum pai está escondido
-                const hiddenParent = parentChain.find(p => 
-                    p.display === 'none' || 
-                    p.visibility === 'hidden' || 
-                    p.opacity === '0' ||
-                    p.offsetParent === null
-                );
-                if (hiddenParent) {
-                    console.error('Elemento pai escondido encontrado:', hiddenParent);
-                }
-                
-                thumbnailGroup.style.display = 'block';
-                thumbnailGroup.style.visibility = 'visible';
-                thumbnailGroup.style.opacity = '1';
-                thumbnailGroup.style.height = 'auto';
-                thumbnailGroup.style.minHeight = '200px';
-                
-                // Forçar reflow
-                void thumbnailGroup.offsetHeight;
-                
-                console.log('thumbnailGroup exibido:', {
-                    display: thumbnailGroup.style.display,
-                    computedDisplay: window.getComputedStyle(thumbnailGroup).display,
-                    visibility: thumbnailGroup.style.visibility,
-                    computedVisibility: window.getComputedStyle(thumbnailGroup).visibility,
-                    offsetParent: thumbnailGroup.offsetParent,
-                    offsetHeight: thumbnailGroup.offsetHeight,
-                    clientHeight: thumbnailGroup.clientHeight,
-                    scrollHeight: thumbnailGroup.scrollHeight
-                });
+            // Se houver thumbnail atual, tentar marcá-la após um pequeno delay
+            if (currentThumbnailUrl) {
+                setTimeout(() => {
+                    // Por enquanto, vamos marcar o primeiro frame como padrão
+                    // TODO: Implementar comparação de imagens para encontrar o frame correto baseado na thumbnail atual
+                    const firstFrame = framesContainer.querySelector('.video-frame-thumb');
+                    if (firstFrame) {
+                        // Marcar o primeiro frame como selecionado por padrão
+                        // O usuário pode mudar se necessário
+                        console.log('Thumbnail atual encontrada, mas comparação de imagens não implementada. Primeiro frame será marcado por padrão.');
+                    }
+                }, 200);
             }
             
-            // Exibir a galeria
-            gallery.style.display = 'block';
-            gallery.style.visibility = 'visible';
-            gallery.style.opacity = '1';
-            gallery.style.height = 'auto';
-            gallery.style.minHeight = '200px';
-            
-            // Forçar reflow
-            void gallery.offsetHeight;
-            
-            console.log('Galeria exibida:', gallery.style.display, 'Visível:', gallery.offsetParent !== null);
-            console.log('Estado da galeria depois:', { 
-                display: gallery.style.display,
-                computedDisplay: window.getComputedStyle(gallery).display,
-                visibility: gallery.style.visibility,
-                computedVisibility: window.getComputedStyle(gallery).visibility,
-                offsetParent: gallery.offsetParent, 
-                offsetHeight: gallery.offsetHeight,
-                clientHeight: gallery.clientHeight,
-                scrollHeight: gallery.scrollHeight,
-                parentDisplay: gallery.parentElement ? window.getComputedStyle(gallery.parentElement).display : 'N/A',
-                parentVisibility: gallery.parentElement ? window.getComputedStyle(gallery.parentElement).visibility : 'N/A'
-            });
-            
-            // Verificar se o container de frames está visível
-            if (framesContainer) {
-                framesContainer.style.display = 'grid';
-                // Forçar reflow
-                void framesContainer.offsetHeight;
-                
-                console.log('Estado do framesContainer:', {
-                    display: framesContainer.style.display,
-                    computedDisplay: window.getComputedStyle(framesContainer).display,
-                    offsetParent: framesContainer.offsetParent,
-                    offsetHeight: framesContainer.offsetHeight,
-                    clientHeight: framesContainer.clientHeight,
-                    scrollHeight: framesContainer.scrollHeight,
-                    children: framesContainer.children.length,
-                    parentDisplay: framesContainer.parentElement ? window.getComputedStyle(framesContainer.parentElement).display : 'N/A',
-                    parentVisibility: framesContainer.parentElement ? window.getComputedStyle(framesContainer.parentElement).visibility : 'N/A'
-                });
-            }
-            
-            // Scroll até a galeria após um pequeno delay para garantir que o DOM foi atualizado
-            setTimeout(() => {
-                if (thumbnailGroup && thumbnailGroup.offsetParent) {
-                    thumbnailGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    console.log('Scroll para thumbnailGroup executado');
-                } else if (gallery && gallery.offsetParent) {
-                    gallery.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    console.log('Scroll para gallery executado');
-                } else {
-                    console.warn('Não foi possível fazer scroll - elementos não estão visíveis');
-                    // Tentar forçar visibilidade novamente
-                    if (thumbnailGroup) {
-                        thumbnailGroup.style.display = 'block !important';
-                        thumbnailGroup.style.visibility = 'visible !important';
-                    }
-                    if (gallery) {
-                        gallery.style.display = 'block !important';
-                        gallery.style.visibility = 'visible !important';
-                    }
-                }
-            }, 300);
             return;
         }
         
@@ -3452,7 +3336,7 @@ function generateVideoFramesForExistingVideo(video, fileId) {
         frameDiv.appendChild(checkIcon);
         
         frameDiv.addEventListener('click', function() {
-            selectVideoFrameForExisting(fileId, frameDataUrl, frameDiv);
+            selectVideoFrameForExisting(fileId, frameDataUrl, frameDiv, framesContainer);
         });
         
         framesContainer.appendChild(frameDiv);
@@ -3480,13 +3364,22 @@ function generateVideoFramesForExistingVideo(video, fileId) {
 }
 
 // Função para selecionar frame de vídeo existente (com fileId)
-function selectVideoFrameForExisting(fileId, frameDataUrl, frameElement) {
-    // Remover seleção anterior
-    document.querySelectorAll('.video-frame-thumb').forEach(frame => {
-        frame.style.borderColor = 'transparent';
-        const checkIcon = frame.querySelector('.frame-check-icon');
-        if (checkIcon) checkIcon.style.display = 'none';
-    });
+function selectVideoFrameForExisting(fileId, frameDataUrl, frameElement, framesContainer) {
+    // Remover seleção anterior apenas dentro do container específico
+    if (framesContainer) {
+        framesContainer.querySelectorAll('.video-frame-thumb').forEach(frame => {
+            frame.style.borderColor = 'transparent';
+            const checkIcon = frame.querySelector('.frame-check-icon');
+            if (checkIcon) checkIcon.style.display = 'none';
+        });
+    } else {
+        // Fallback: remover de todos se não houver container específico
+        document.querySelectorAll('.video-frame-thumb').forEach(frame => {
+            frame.style.borderColor = 'transparent';
+            const checkIcon = frame.querySelector('.frame-check-icon');
+            if (checkIcon) checkIcon.style.display = 'none';
+        });
+    }
     
     // Marcar frame selecionado
     frameElement.style.borderColor = 'var(--accent-orange)';
@@ -3516,23 +3409,6 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
         return;
     }
     
-    // Mostrar grupo de thumbnail
-    const thumbnailGroup = document.getElementById('thumbnailGroup');
-    const videoFramesGallery = document.getElementById('videoFramesGallery');
-    const framesContainer = videoFramesGallery ? videoFramesGallery.querySelector('div') : null;
-    
-    console.log('Elementos encontrados:', { 
-        thumbnailGroup: !!thumbnailGroup, 
-        videoFramesGallery: !!videoFramesGallery, 
-        framesContainer: !!framesContainer 
-    });
-    
-    if (!thumbnailGroup || !videoFramesGallery || !framesContainer) {
-        console.error('Elementos não encontrados:', { thumbnailGroup, videoFramesGallery, framesContainer });
-        showAlert('Erro', 'Elementos do modal não encontrados. Certifique-se de que o modal está aberto.');
-        return;
-    }
-    
     // Verificar se o modal está aberto
     const modal = document.getElementById('contentModal');
     if (!modal || !modal.classList.contains('active')) {
@@ -3541,24 +3417,128 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
         return;
     }
     
-    console.log('Modal está ativo:', modal.classList.contains('active'));
-    
-    // Limpar frames anteriores
-    framesContainer.innerHTML = '';
-    
-    // Garantir que o filePreview está visível (thumbnailGroup está dentro dele)
-    const filePreview = document.getElementById('filePreview');
-    if (filePreview) {
-        filePreview.style.display = 'block';
-        console.log('filePreview exibido');
+    // Encontrar o fileItem específico que está sendo editado
+    const fileItem = document.querySelector(`[data-file-id="${fileId}"]`);
+    if (!fileItem) {
+        console.error('FileItem não encontrado para fileId:', fileId);
+        showAlert('Erro', 'Arquivo não encontrado.');
+        return;
     }
     
-    // Mostrar grupo de thumbnail
-    thumbnailGroup.style.display = 'block';
-    thumbnailGroup.style.visibility = 'visible';
-    thumbnailGroup.style.opacity = '1';
-    // A galeria será exibida quando os frames forem gerados
-    videoFramesGallery.style.display = 'none'; // Inicialmente escondida, será mostrada quando os frames estiverem prontos
+    // Encontrar o fileContainer (pai do fileItem)
+    const fileContainer = fileItem.closest('.file-container') || fileItem.parentElement;
+    
+    // Remover qualquer galeria de thumbnails existente para este arquivo
+    const existingThumbnailContainer = fileContainer.querySelector(`.thumbnail-container[data-file-id="${fileId}"]`);
+    if (existingThumbnailContainer) {
+        existingThumbnailContainer.remove();
+    }
+    
+    // Criar container de thumbnails abaixo do vídeo
+    const thumbnailContainer = document.createElement('div');
+    thumbnailContainer.className = 'thumbnail-container';
+    thumbnailContainer.dataset.fileId = fileId;
+    thumbnailContainer.style.cssText = 'margin-top: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 12px;';
+    
+    const thumbnailLabel = document.createElement('label');
+    thumbnailLabel.style.cssText = 'display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600; color: var(--text-primary);';
+    thumbnailLabel.textContent = 'Selecione um frame como thumbnail:';
+    thumbnailContainer.appendChild(thumbnailLabel);
+    
+    const framesContainer = document.createElement('div');
+    framesContainer.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; min-height: 120px;';
+    framesContainer.id = `framesContainer_${fileId}`;
+    thumbnailContainer.appendChild(framesContainer);
+    
+    // Adicionar loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.style.cssText = 'text-align: center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;';
+    loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando vídeo...';
+    framesContainer.appendChild(loadingDiv);
+    
+    // Inserir o container após o fileItem (dentro do fileContainer)
+    if (fileContainer) {
+        // Encontrar o título do arquivo (se existir) para inserir antes dele
+        const titleDiv = fileContainer.querySelector('[data-file-id][data-content-id]');
+        if (titleDiv && titleDiv !== fileItem) {
+            fileContainer.insertBefore(thumbnailContainer, titleDiv);
+        } else {
+            fileContainer.appendChild(thumbnailContainer);
+        }
+    }
+    
+    // Buscar a thumbnail atual do arquivo para marcá-la depois
+    fetch('ajax_content_management.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `action=get_file&file_id=${fileId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        const currentThumbnailUrl = data.success && data.file ? data.file.thumbnail_url : null;
+        
+        // Criar vídeo temporário para gerar frames
+        const tempVideo = document.createElement('video');
+        tempVideo.src = fileUrl;
+        tempVideo.muted = true;
+        tempVideo.preload = 'metadata';
+        tempVideo.crossOrigin = 'anonymous';
+        
+        tempVideo.onloadedmetadata = function() {
+            loadingDiv.remove();
+            generateVideoFramesForExistingVideo(tempVideo, fileId, framesContainer, currentThumbnailUrl);
+        };
+        
+        tempVideo.onerror = function(error) {
+            console.error('Erro ao carregar vídeo:', error, fileUrl);
+            loadingDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar vídeo';
+            loadingDiv.style.color = '#EF4444';
+            showAlert('Erro', 'Não foi possível carregar o vídeo. Verifique se o arquivo está acessível.');
+        };
+        
+        tempVideo.onloadstart = function() {
+            console.log('Iniciando carregamento do vídeo:', fileUrl);
+        };
+        
+        try {
+            tempVideo.load();
+        } catch (error) {
+            console.error('Erro ao tentar carregar vídeo:', error);
+            loadingDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar vídeo';
+            loadingDiv.style.color = '#EF4444';
+            showAlert('Erro', 'Erro ao tentar carregar o vídeo: ' + error.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao buscar arquivo:', error);
+        // Continuar mesmo sem a thumbnail atual
+        const tempVideo = document.createElement('video');
+        tempVideo.src = fileUrl;
+        tempVideo.muted = true;
+        tempVideo.preload = 'metadata';
+        tempVideo.crossOrigin = 'anonymous';
+        
+        tempVideo.onloadedmetadata = function() {
+            loadingDiv.remove();
+            generateVideoFramesForExistingVideo(tempVideo, fileId, framesContainer, null);
+        };
+        
+        tempVideo.onerror = function(error) {
+            console.error('Erro ao carregar vídeo:', error, fileUrl);
+            loadingDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar vídeo';
+            loadingDiv.style.color = '#EF4444';
+        };
+        
+        tempVideo.load();
+    });
+    
+    // Scroll até o container de thumbnails
+    setTimeout(() => {
+        thumbnailContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 200);
+}
     
     // Adicionar loading
     const loadingDiv = document.createElement('div');
