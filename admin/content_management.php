@@ -2238,6 +2238,89 @@ function toggleContentFields() {
     }
 }
 
+// Função para lidar com seleção de arquivo
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const filePreview = document.getElementById('filePreview');
+    const videoPreview = document.getElementById('videoPreview');
+    const pdfPreview = document.getElementById('pdfPreview');
+    const previewVideo = document.getElementById('previewVideo');
+    const pdfFileName = document.getElementById('pdfFileName');
+    
+    // Ocultar previews
+    videoPreview.style.display = 'none';
+    pdfPreview.style.display = 'none';
+    filePreview.style.display = 'none';
+    
+    // Verificar tipo de arquivo
+    if (file.type.startsWith('video/')) {
+        const videoURL = URL.createObjectURL(file);
+        previewVideo.src = videoURL;
+        videoPreview.style.display = 'block';
+        filePreview.style.display = 'block';
+    } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        pdfFileName.textContent = file.name;
+        pdfPreview.style.display = 'block';
+        filePreview.style.display = 'block';
+    }
+}
+
+// Função para limpar preview do arquivo
+function clearFilePreview() {
+    const fileInput = document.getElementById('contentFile');
+    const filePreview = document.getElementById('filePreview');
+    const previewVideo = document.getElementById('previewVideo');
+    
+    if (fileInput) fileInput.value = '';
+    if (filePreview) filePreview.style.display = 'none';
+    if (previewVideo && previewVideo.src) {
+        URL.revokeObjectURL(previewVideo.src);
+        previewVideo.src = '';
+    }
+}
+
+// Função para lidar com seleção de thumbnail
+function handleThumbnailSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione uma imagem válida (JPG, PNG, WebP)');
+        event.target.value = '';
+        return;
+    }
+    
+    // Verificar tamanho (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('A imagem é muito grande. Máximo: 5MB');
+        event.target.value = '';
+        return;
+    }
+    
+    const thumbnailPreview = document.getElementById('thumbnailPreview');
+    const previewThumbnail = document.getElementById('previewThumbnail');
+    
+    if (!thumbnailPreview || !previewThumbnail) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        previewThumbnail.src = e.target.result;
+        thumbnailPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+// Função para limpar preview da thumbnail
+function clearThumbnailPreview() {
+    const thumbnailInput = document.getElementById('contentThumbnail');
+    const thumbnailPreview = document.getElementById('thumbnailPreview');
+    
+    if (thumbnailInput) thumbnailInput.value = '';
+    if (thumbnailPreview) thumbnailPreview.style.display = 'none';
+}
+
 // Função para alternar campos baseado no público-alvo
 function toggleTargetFields() {
     const targetType = document.getElementById('targetType').value;
