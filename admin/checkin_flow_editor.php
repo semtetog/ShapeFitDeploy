@@ -722,12 +722,23 @@ function startDragNode(e, nodeId) {
     selectNode(nodeId);
     
     const nodeEl = document.getElementById(nodeId);
-    const rect = nodeEl.getBoundingClientRect();
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node || !nodeEl) return;
+    
     const canvasRect = canvas.getBoundingClientRect();
     
-    // Calcular offset correto (posição do mouse relativa ao canto superior esquerdo do nó)
-    dragOffset.x = e.clientX - rect.left;
-    dragOffset.y = e.clientY - rect.top;
+    // Calcular offset correto considerando zoom e pan
+    // Posição do mouse em coordenadas do canvas
+    const mouseX = e.clientX - canvasRect.left;
+    const mouseY = e.clientY - canvasRect.top;
+    
+    // Converter para coordenadas do canvas (considerando zoom e pan)
+    const canvasX = (mouseX - canvasOffset.x) / zoomLevel;
+    const canvasY = (mouseY - canvasOffset.y) / zoomLevel;
+    
+    // Offset relativo à posição do nó
+    dragOffset.x = canvasX - node.x;
+    dragOffset.y = canvasY - node.y;
     
     canvas.classList.add('dragging');
     nodeEl.style.zIndex = '1000';
@@ -747,9 +758,18 @@ function dragNode(e) {
     const node = nodes.find(n => n.id === currentDraggingNode);
     if (!node) return;
     
-    // Calcular nova posição considerando o offset (sem canvasOffset para posição absoluta)
-    const newX = e.clientX - canvasRect.left - dragOffset.x;
-    const newY = e.clientY - canvasRect.top - dragOffset.y;
+    // Calcular nova posição considerando zoom e pan
+    // Primeiro, converter coordenadas do mouse para coordenadas do canvas
+    const mouseX = e.clientX - canvasRect.left;
+    const mouseY = e.clientY - canvasRect.top;
+    
+    // Aplicar transformação inversa (considerar zoom e pan)
+    const canvasX = (mouseX - canvasOffset.x) / zoomLevel;
+    const canvasY = (mouseY - canvasOffset.y) / zoomLevel;
+    
+    // Calcular nova posição do nó
+    const newX = canvasX - dragOffset.x / zoomLevel;
+    const newY = canvasY - dragOffset.y / zoomLevel;
     
     // Limitar dentro dos bounds do canvas (opcional)
     node.x = Math.max(0, newX);
