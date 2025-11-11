@@ -617,32 +617,48 @@ function saveContent($conn, $admin_id) {
         }
         
         // Se há arquivo e a tabela de arquivos existe, inserir arquivo na tabela
-        // IMPORTANTE: Só inserir aqui se NÃO foi inserido antes (ou seja, se content_id era 0)
-        // Se content_id > 0, o arquivo já foi inserido na linha 294-299
-        if ($file_path && $content_id > 0) {
-            // Arquivo já foi inserido na tabela de arquivos acima (linha 294-299)
-            // Não inserir novamente para evitar duplicação
-        } elseif ($file_path && $content_id == 0) {
-            // Para novo conteúdo, inserir arquivo na tabela
-            $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
-            if ($check_files_table && $check_files_table->num_rows > 0) {
-                // Inserir arquivo na tabela de arquivos
-                $stmt_file = $conn->prepare("INSERT INTO sf_content_files (content_id, file_path, file_name, file_size, mime_type, thumbnail_url, video_title, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
-                $stmt_file->bind_param("ississs", $content_id, $file_path, $file_name, $file_size, $mime_type, $thumbnail_url, $video_title);
-                if (!$stmt_file->execute()) {
-                    throw new Exception('Erro ao salvar arquivo: ' . $stmt_file->error);
+        // IMPORTANTE: Para novo conteúdo, o content_id foi atualizado acima (linha 615)
+        // Para conteúdo existente, o arquivo já foi inserido na linha 369-374
+        if ($file_path) {
+            // Verificar se arquivo já foi inserido (apenas para edição de conteúdo existente)
+            $file_already_inserted = false;
+            if ($content_id > 0) {
+                // Verificar se já existe um arquivo com este content_id e file_path na tabela
+                $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+                if ($check_files_table && $check_files_table->num_rows > 0) {
+                    $stmt_check = $conn->prepare("SELECT id FROM sf_content_files WHERE content_id = ? AND file_path = ?");
+                    $stmt_check->bind_param("is", $content_id, $file_path);
+                    $stmt_check->execute();
+                    $result_check = $stmt_check->get_result();
+                    if ($result_check->num_rows > 0) {
+                        $file_already_inserted = true;
+                    }
+                    $stmt_check->close();
                 }
-                $stmt_file->close();
-            } else {
-                // Fallback: se tabela não existe, atualizar sf_member_content com file_path
-                $update_file = $conn->prepare("UPDATE sf_member_content SET file_path = ?, file_name = ?, file_size = ?, mime_type = ? WHERE id = ?");
-                $update_file->bind_param("ssisi", $file_path, $file_name, $file_size, $mime_type, $content_id);
-                if ($thumbnail_url) {
-                    $update_file = $conn->prepare("UPDATE sf_member_content SET file_path = ?, file_name = ?, file_size = ?, mime_type = ?, thumbnail_url = ? WHERE id = ?");
-                    $update_file->bind_param("ssissi", $file_path, $file_name, $file_size, $mime_type, $thumbnail_url, $content_id);
+            }
+            
+            // Se arquivo não foi inserido ainda, inserir agora
+            if (!$file_already_inserted) {
+                $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+                if ($check_files_table && $check_files_table->num_rows > 0) {
+                    // Inserir arquivo na tabela de arquivos
+                    $stmt_file = $conn->prepare("INSERT INTO sf_content_files (content_id, file_path, file_name, file_size, mime_type, thumbnail_url, video_title, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
+                    $stmt_file->bind_param("ississs", $content_id, $file_path, $file_name, $file_size, $mime_type, $thumbnail_url, $video_title);
+                    if (!$stmt_file->execute()) {
+                        throw new Exception('Erro ao salvar arquivo: ' . $stmt_file->error);
+                    }
+                    $stmt_file->close();
+                } else {
+                    // Fallback: se tabela não existe, atualizar sf_member_content com file_path
+                    $update_file = $conn->prepare("UPDATE sf_member_content SET file_path = ?, file_name = ?, file_size = ?, mime_type = ? WHERE id = ?");
+                    $update_file->bind_param("ssisi", $file_path, $file_name, $file_size, $mime_type, $content_id);
+                    if ($thumbnail_url) {
+                        $update_file = $conn->prepare("UPDATE sf_member_content SET file_path = ?, file_name = ?, file_size = ?, mime_type = ?, thumbnail_url = ? WHERE id = ?");
+                        $update_file->bind_param("ssissi", $file_path, $file_name, $file_size, $mime_type, $thumbnail_url, $content_id);
+                    }
+                    $update_file->execute();
+                    $update_file->close();
                 }
-                $update_file->execute();
-                $update_file->close();
             }
         }
         
