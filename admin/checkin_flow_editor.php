@@ -157,7 +157,7 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     height: 100%;
     background-color: #1a1a1a;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .flow-canvas {
