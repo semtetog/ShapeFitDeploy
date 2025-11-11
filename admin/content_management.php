@@ -2383,6 +2383,10 @@ function handleFileSelect(event) {
 
 // Função para remover arquivo atual (ao editar)
 function removeCurrentFile() {
+    if (!confirm('Tem certeza que deseja remover este arquivo? Você precisará selecionar um novo arquivo para salvar.')) {
+        return;
+    }
+    
     const currentFileInfo = document.getElementById('currentFileInfo');
     const fileInput = document.getElementById('contentFile');
     
@@ -2393,6 +2397,8 @@ function removeCurrentFile() {
     // Limpar input de arquivo
     if (fileInput) {
         fileInput.value = '';
+        // Tornar obrigatório novamente
+        fileInput.setAttribute('required', 'required');
     }
     
     // Limpar previews
