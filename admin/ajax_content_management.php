@@ -549,16 +549,14 @@ function saveContent($conn, $admin_id) {
             $sql = "INSERT INTO sf_member_content (" . implode(", ", $insert_fields) . ") VALUES (" . implode(", ", $placeholders) . ")";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param($param_types, ...$insert_values);
-        }
-        
-        if (!$stmt->execute()) {
-            throw new Exception('Erro ao salvar conteúdo: ' . $stmt->error);
-        }
-        
-        if ($content_id == 0) {
+            
+            if (!$stmt->execute()) {
+                throw new Exception('Erro ao salvar conteúdo: ' . $stmt->error);
+            }
+            
             $content_id = $stmt->insert_id;
+            $stmt->close();
         }
-        $stmt->close();
         
         // Se há arquivo e a tabela de arquivos existe, inserir arquivo na tabela
         // IMPORTANTE: Só inserir aqui se NÃO foi inserido antes (ou seja, se content_id era 0)
