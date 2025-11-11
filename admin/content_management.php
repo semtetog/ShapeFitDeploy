@@ -2208,6 +2208,36 @@ function editContent(contentId, preserveNewFilePreview = false) {
                         fileItem.appendChild(img);
                     }
                     
+                    // Container para botões de ação (editar e excluir)
+                    const actionButtonsContainer = document.createElement('div');
+                    actionButtonsContainer.style.cssText = 'position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.5rem; z-index: 10;';
+                    
+                    // Botão de editar (lápis) - apenas para vídeos
+                    if (isVideo) {
+                        const editBtn = document.createElement('button');
+                        editBtn.type = 'button';
+                        editBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            editFileThumbnail(file.id || null, content.id, fileUrl);
+                        };
+                        editBtn.style.cssText = 'width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); cursor: pointer; transition: all 0.3s ease;';
+                        editBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+                        
+                        // Adicionar hover com zoom
+                        editBtn.addEventListener('mouseenter', function() {
+                            this.style.transform = 'scale(1.15)';
+                            this.style.background = 'rgba(255, 107, 0, 0.2)';
+                            this.style.borderColor = 'var(--accent-orange)';
+                        });
+                        editBtn.addEventListener('mouseleave', function() {
+                            this.style.transform = 'scale(1)';
+                            this.style.background = 'rgba(255, 107, 0, 0.1)';
+                            this.style.borderColor = 'rgba(255, 107, 0, 0.3)';
+                        });
+                        
+                        actionButtonsContainer.appendChild(editBtn);
+                    }
+                    
                     // Botão de lixeira
                     const deleteBtn = document.createElement('button');
                     deleteBtn.type = 'button';
@@ -2215,7 +2245,7 @@ function editContent(contentId, preserveNewFilePreview = false) {
                         e.stopPropagation();
                         removeCurrentFile(file.id || null, content.id);
                     };
-                    deleteBtn.style.cssText = 'position: absolute; top: 0.5rem; right: 0.5rem; width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; cursor: pointer; transition: all 0.3s ease;';
+                    deleteBtn.style.cssText = 'width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; cursor: pointer; transition: all 0.3s ease;';
                     deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                     
                     // Adicionar hover com zoom
@@ -2230,7 +2260,8 @@ function editContent(contentId, preserveNewFilePreview = false) {
                         this.style.borderColor = 'rgba(239, 68, 68, 0.3)';
                     });
                     
-                    fileItem.appendChild(deleteBtn);
+                    actionButtonsContainer.appendChild(deleteBtn);
+                    fileItem.appendChild(actionButtonsContainer);
                     
                     // Adicionar arquivo ao container
                     fileContainer.appendChild(fileItem);
@@ -3312,6 +3343,55 @@ function selectVideoFrameForExisting(fileId, frameDataUrl, frameElement) {
         selectedThumbnailData.value = frameDataUrl;
         selectedThumbnailData.dataset.fileId = fileId || '';
     }
+}
+
+// Função para editar thumbnail de um arquivo específico
+function editFileThumbnail(fileId, contentId, fileUrl) {
+    if (!fileId || !contentId || !fileUrl) return;
+    
+    // Mostrar grupo de thumbnail
+    const thumbnailGroup = document.getElementById('thumbnailGroup');
+    const videoFramesGallery = document.getElementById('videoFramesGallery');
+    const framesContainer = videoFramesGallery ? videoFramesGallery.querySelector('div') : null;
+    
+    if (!thumbnailGroup || !videoFramesGallery || !framesContainer) return;
+    
+    // Limpar frames anteriores
+    framesContainer.innerHTML = '';
+    
+    // Mostrar grupo de thumbnail
+    thumbnailGroup.style.display = 'block';
+    videoFramesGallery.style.display = 'none';
+    
+    // Adicionar loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.style.cssText = 'text-align: center; padding: 2rem; color: var(--text-secondary);';
+    loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando vídeo...';
+    framesContainer.appendChild(loadingDiv);
+    
+    // Criar vídeo temporário para gerar frames
+    const tempVideo = document.createElement('video');
+    tempVideo.src = fileUrl;
+    tempVideo.muted = true;
+    tempVideo.preload = 'metadata';
+    tempVideo.crossOrigin = 'anonymous';
+    
+    tempVideo.onloadedmetadata = function() {
+        loadingDiv.remove();
+        generateVideoFramesForExistingVideo(tempVideo, fileId);
+    };
+    
+    tempVideo.onerror = function() {
+        loadingDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar vídeo';
+        loadingDiv.style.color = '#EF4444';
+    };
+    
+    tempVideo.load();
+    
+    // Scroll suave até a galeria de thumbnails
+    setTimeout(() => {
+        thumbnailGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
 }
 
 // Função para abrir arquivo atual ao clicar
