@@ -1287,7 +1287,7 @@ require_once __DIR__ . '/includes/header.php';
 #currentFilePreview button[onclick*="removeCurrentFile"]:hover {
     background: rgba(239, 68, 68, 0.2) !important;
     border-color: #EF4444 !important;
-    transform: scale(1.1);
+    transform: scale(1.15);
 }
 
 /* Responsive */
