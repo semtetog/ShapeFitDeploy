@@ -217,17 +217,19 @@ body {
     gap: 16px;
 }
 
-.content-type-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    background: rgba(255, 107, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent-orange);
-    font-size: 1.5rem;
-    flex-shrink: 0;
+.content-thumbnail {
+    position: relative;
+}
+
+.content-thumbnail::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+    pointer-events: none;
 }
 
 .content-info {
@@ -370,22 +372,35 @@ body {
                 $label = $content_labels[$content['content_type']] ?? ucfirst($content['content_type']);
                 ?>
                 <a href="<?php echo BASE_APP_URL; ?>/view_content.php?id=<?php echo $content['id']; ?>" class="content-card">
-                    <div class="content-card-header">
-                        <div class="content-type-icon">
-                            <i class="<?php echo $icon; ?>"></i>
+                    <?php if (!empty($content['thumbnail_url']) && $content['content_type'] === 'videos'): ?>
+                        <!-- Thumbnail do vídeo -->
+                        <?php
+                        $thumbnail_url = $content['thumbnail_url'];
+                        if (!preg_match('/^https?:\/\//', $thumbnail_url) && !preg_match('/^\//', $thumbnail_url)) {
+                            $thumbnail_url = '/' . ltrim($thumbnail_url, '/');
+                        }
+                        ?>
+                        <div class="content-thumbnail" style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; margin-bottom: 16px; background: rgba(0, 0, 0, 0.2);">
+                            <img src="<?php echo htmlspecialchars($thumbnail_url); ?>" 
+                                 alt="<?php echo htmlspecialchars($content['title']); ?>" 
+                                 style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.6); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                                <i class="fas fa-play"></i>
+                            </div>
                         </div>
+                    <?php elseif ($content['content_type'] === 'pdf'): ?>
+                        <!-- Preview de PDF -->
+                        <div class="content-thumbnail" style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; margin-bottom: 16px; background: rgba(255, 107, 0, 0.1); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-pdf" style="font-size: 4rem; color: var(--accent-orange);"></i>
+                        </div>
+                    <?php endif; ?>
+                    <div class="content-card-header">
                         <div class="content-info">
                             <h3><?php echo htmlspecialchars($content['title']); ?></h3>
                             <?php if (!empty($content['description'])): ?>
                                 <p class="content-description"><?php echo htmlspecialchars($content['description']); ?></p>
                             <?php endif; ?>
                         </div>
-                    </div>
-                    <div class="content-meta">
-                        <span class="content-type-badge">
-                            <i class="<?php echo $icon; ?>"></i>
-                            <?php echo $label; ?>
-                        </span>
                     </div>
                 </a>
             <?php endforeach; ?>

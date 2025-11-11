@@ -2533,7 +2533,6 @@ function generateVideoFrames(video) {
     
     const duration = video.duration;
     const numFrames = 4; // 4 frames como no YouTube
-    const frameInterval = duration / (numFrames + 1); // Distribuir frames ao longo do vídeo
     
     // Criar canvas para extrair frames
     const canvas = document.createElement('canvas');
@@ -2544,10 +2543,21 @@ function generateVideoFrames(video) {
     let framesExtracted = 0;
     const frameTimes = [];
     
-    // Calcular tempos dos frames
+    // Calcular tempos dos frames com variação aleatória para evitar sempre os mesmos frames
+    // Usar timestamp atual para variar os tempos
+    const seed = Date.now() % 1000; // Seed baseado no tempo atual
+    const baseInterval = duration / (numFrames + 1);
+    
     for (let i = 1; i <= numFrames; i++) {
-        frameTimes.push(frameInterval * i);
+        // Adicionar variação aleatória baseada no seed
+        const variation = (seed * i) % (baseInterval * 0.3); // Variação de até 30% do intervalo
+        const frameTime = baseInterval * i + variation;
+        // Garantir que está dentro dos limites do vídeo
+        frameTimes.push(Math.max(0.5, Math.min(duration - 0.5, frameTime)));
     }
+    
+    // Ordenar os tempos para garantir ordem crescente
+    frameTimes.sort((a, b) => a - b);
     
     // Criar um vídeo temporário para extrair frames (não interfere com o preview)
     const tempVideo = document.createElement('video');
