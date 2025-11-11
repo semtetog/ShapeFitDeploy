@@ -3131,6 +3131,11 @@ function generateVideoFrames(video) {
         
         framesContainer.appendChild(frameDiv);
         
+        // Se for o primeiro frame, selecionar automaticamente
+        if (currentFrameIndex === 0) {
+            selectVideoFrame(frameDataUrl, frameDiv);
+        }
+        
         framesExtracted++;
         currentFrameIndex++;
         
