@@ -2432,21 +2432,22 @@ function submitFormData(formData) {
             
             // Recarregar dados do conteúdo para mostrar o arquivo salvo (mantém modal aberto)
             if (contentId) {
-                // NÃO limpar previews - manter se houver novo arquivo selecionado
-                // Apenas recarregar dados do conteúdo para atualizar arquivo atual
-                // Mas preservar o preview do novo arquivo se existir
+                // Verificar se há novo arquivo selecionado ANTES de recarregar
                 const fileInput = document.getElementById('contentFile');
                 const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
                 
+                // Se não há novo arquivo, limpar previews e recarregar normalmente
                 if (!hasNewFile) {
-                    // Se não há novo arquivo selecionado, limpar previews e recarregar
                     clearFilePreview();
                     clearThumbnailPreview();
+                    editContent(contentId, false);
+                } else {
+                    // IMPORTANTE: Se há novo arquivo selecionado, preservar o preview
+                    // O editContent vai atualizar o currentFileInfo com o arquivo que acabou de ser salvo
+                    // Mas o filePreview continuará mostrando o novo arquivo selecionado (ainda não salvo)
+                    // Assim o usuário vê: arquivo salvo (currentFileInfo) + novo arquivo selecionado (filePreview)
+                    editContent(contentId, true);
                 }
-                
-                // Recarregar dados do conteúdo (mostra arquivo salvo com título)
-                // Mas preservar o preview do novo arquivo se existir
-                editContent(contentId, hasNewFile);
             }
             
             // Atualizar lista de conteúdos via AJAX (sem recarregar página)
