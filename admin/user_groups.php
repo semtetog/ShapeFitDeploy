@@ -1204,12 +1204,7 @@ require_once __DIR__ . '/includes/header.php';
             <?php foreach ($user_groups as $group): ?>
                 <div class="user-group-card" data-status="<?php echo $group['status']; ?>">
                     <div class="group-card-header">
-                        <div style="flex: 1; min-width: 0;">
-                            <h3 class="group-name"><?php echo htmlspecialchars($group['name']); ?></h3>
-                            <?php if (!empty($group['description'])): ?>
-                                <p class="group-description"><?php echo htmlspecialchars($group['description']); ?></p>
-                            <?php endif; ?>
-                        </div>
+                        <h3 class="group-name"><?php echo htmlspecialchars($group['name']); ?></h3>
                         <div class="toggle-switch-wrapper" onclick="event.stopPropagation()">
                             <?php
                             $is_active = $group['status'] === 'active';
@@ -1226,6 +1221,10 @@ require_once __DIR__ . '/includes/header.php';
                             <span class="toggle-switch-label" id="toggle-label-<?php echo $group['id']; ?>" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
                         </div>
                     </div>
+                    
+                    <?php if (!empty($group['description'])): ?>
+                        <p class="group-description"><?php echo htmlspecialchars($group['description']); ?></p>
+                    <?php endif; ?>
                     
                     <div class="group-info">
                         <div class="group-info-item">
