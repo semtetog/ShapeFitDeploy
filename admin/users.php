@@ -55,14 +55,24 @@ if (!empty($count_conditions)) {
     $count_sql .= " WHERE " . implode(" AND ", $count_conditions);
 }
 
-$stmt_count = $conn->prepare($count_sql);
-if ($stmt_count) {
-    if (!empty($count_params)) { $stmt_count->bind_param($count_types, ...$count_params); }
-    $stmt_count->execute();
-    $total_users = $stmt_count->get_result()->fetch_assoc()['total'] ?? 0;
-    $total_pages = ceil($total_users / $limit);
-    $stmt_count->close();
-} else {
+try {
+    $stmt_count = $conn->prepare($count_sql);
+    if ($stmt_count) {
+        if (!empty($count_params)) { 
+            $stmt_count->bind_param($count_types, ...$count_params); 
+        }
+        $stmt_count->execute();
+        $result = $stmt_count->get_result();
+        $total_users = $result->fetch_assoc()['total'] ?? 0;
+        $total_pages = ceil($total_users / $limit);
+        $stmt_count->close();
+    } else {
+        error_log("Erro ao preparar consulta de contagem: " . $conn->error);
+        $total_users = 0;
+        $total_pages = 1;
+    }
+} catch (Exception $e) {
+    error_log("Erro na consulta de contagem: " . $e->getMessage());
     $total_users = 0;
     $total_pages = 1;
 }
@@ -95,15 +105,28 @@ $params[] = $limit;
 $params[] = $offset;
 $types .= "ii";
 
-$stmt = $conn->prepare($sql);
-if ($stmt) {
-    $stmt->bind_param($types, ...$params);
-    $stmt->execute();
-    $users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
-} else {
-    error_log("Erro ao preparar a consulta de usuários: " . $conn->error);
+try {
+    $stmt = $conn->prepare($sql);
+    if ($stmt) {
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $users = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+    } else {
+        error_log("Erro ao preparar a consulta de usuários: " . $conn->error);
+        $users = [];
+    }
+} catch (Exception $e) {
+    error_log("Erro na consulta de usuários: " . $e->getMessage());
     $users = [];
+    // Se houver erro com filtro de grupo, remover o filtro e recarregar
+    if ($group_filter > 0) {
+        header("Location: users.php");
+        exit;
+    }
 }
 
 require_once __DIR__ . '/includes/header.php';

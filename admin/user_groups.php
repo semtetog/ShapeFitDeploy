@@ -1246,10 +1246,6 @@ require_once __DIR__ . '/includes/header.php';
                             <i class="fas fa-bullseye"></i>
                             <span>Metas</span>
                         </button>
-                        <button class="btn-action btn-patients" onclick="viewGroupPatients(<?php echo $group['id']; ?>)" title="Ver Pacientes">
-                            <i class="fas fa-user-md"></i>
-                            <span>Pacientes</span>
-                        </button>
                         <button class="btn-action btn-edit" onclick="editGroup(<?php echo $group['id']; ?>)">
                             <i class="fas fa-edit"></i>
                             <span>Editar</span>
@@ -2020,9 +2016,6 @@ function applyGoalsToMembers() {
 }
 
 // Ver pacientes do grupo (link para users.php com filtro)
-function viewGroupPatients(groupId) {
-    window.location.href = 'users.php?group=' + groupId;
-}
 
 // Função MD5 simples (para gerar cores)
 function md5(string) {
