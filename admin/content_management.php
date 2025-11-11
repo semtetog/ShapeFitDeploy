@@ -3128,12 +3128,14 @@ function selectVideoFrame(frameDataUrl, frameElement) {
     // Remover seleção anterior
     document.querySelectorAll('.video-frame-thumb').forEach(frame => {
         frame.style.borderColor = 'transparent';
-        frame.querySelector('.frame-check-icon').style.display = 'none';
+        const checkIcon = frame.querySelector('.frame-check-icon');
+        if (checkIcon) checkIcon.style.display = 'none';
     });
     
     // Marcar frame selecionado
     frameElement.style.borderColor = 'var(--accent-orange)';
-    frameElement.querySelector('.frame-check-icon').style.display = 'flex';
+    const checkIcon = frameElement.querySelector('.frame-check-icon');
+    if (checkIcon) checkIcon.style.display = 'flex';
     
     // Atualizar poster do vídeo diretamente
     const previewVideo = document.getElementById('previewVideo');
@@ -3142,7 +3144,12 @@ function selectVideoFrame(frameDataUrl, frameElement) {
     }
     
     // Salvar no hidden input
-    document.getElementById('selectedThumbnailData').value = frameDataUrl;
+    const selectedThumbnailData = document.getElementById('selectedThumbnailData');
+    if (selectedThumbnailData) {
+        selectedThumbnailData.value = frameDataUrl;
+        // Limpar fileId se for para novo vídeo
+        selectedThumbnailData.dataset.fileId = '';
+    }
 }
 
 // Função para abrir arquivo atual ao clicar
