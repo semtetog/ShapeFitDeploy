@@ -1528,7 +1528,7 @@ require_once __DIR__ . '/includes/header.php';
                 <!-- Thumbnail - Extração automática de frames do vídeo -->
                 <div class="challenge-form-group" id="thumbnailGroup" style="display: none;">
                     <label>Thumbnail (Opcional)</label>
-                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block; margin-bottom: 1rem;">Selecione um frame do vídeo como thumbnail ou faça upload de uma imagem personalizada.</small>
+                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block; margin-bottom: 1rem;">Selecione um frame do vídeo como thumbnail.</small>
                     
                     <!-- Galeria de frames do vídeo -->
                     <div id="videoFramesGallery" style="display: none; margin-bottom: 1rem;">
@@ -1538,32 +1538,6 @@ require_once __DIR__ . '/includes/header.php';
                         <button type="button" onclick="regenerateVideoFrames()" style="padding: 0.5rem 1rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.3s ease;">
                             <i class="fas fa-sync-alt"></i> Gerar novos frames
                         </button>
-                    </div>
-                    
-                    <!-- Upload manual de thumbnail (alternativa) -->
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                        <label for="contentThumbnail" style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Ou faça upload de uma imagem personalizada:</label>
-                        <input type="file" id="contentThumbnail" name="thumbnail" class="challenge-form-input" accept="image/*" onchange="handleThumbnailSelect(event)">
-                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Formatos: JPG, PNG, WebP. Máximo: 5MB.</small>
-                    </div>
-                    
-                    <!-- Preview da thumbnail selecionada -->
-                    <div id="thumbnailPreview" style="margin-top: 1rem; display: none;">
-                        <div style="position: relative; width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
-                            <img id="previewThumbnail" style="width: 100%; height: auto; display: block; max-height: 300px; object-fit: cover;" alt="Thumbnail preview">
-                            <button type="button" onclick="clearThumbnailPreview()" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0, 0, 0, 0.7); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Thumbnail selecionada</small>
-                    </div>
-                    
-                    <!-- Thumbnail atual (ao editar) -->
-                    <div id="currentThumbnailInfo" style="margin-top: 0.75rem; display: none;">
-                        <div style="width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
-                            <img id="currentThumbnail" style="width: 100%; height: auto; display: block; max-height: 300px; object-fit: cover;" alt="Thumbnail atual">
-                        </div>
-                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Thumbnail atual. Selecione um novo frame ou imagem para substituir.</small>
                     </div>
                     
                     <!-- Input hidden para armazenar o frame selecionado -->
@@ -2087,18 +2061,17 @@ function editContent(contentId) {
                 currentFileInfo.style.display = 'none';
             }
             
-            // Mostrar thumbnail atual se existir
-            const currentThumbnailInfo = document.getElementById('currentThumbnailInfo');
-            const currentThumbnail = document.getElementById('currentThumbnail');
-            if (content.thumbnail_url) {
+            // Se houver thumbnail, usar como poster do vídeo (se for vídeo)
+            if (content.thumbnail_url && content.content_type === 'videos') {
                 let thumbnailUrl = content.thumbnail_url;
                 if (!thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/')) {
                     thumbnailUrl = '/' + thumbnailUrl;
                 }
-                currentThumbnail.src = thumbnailUrl;
-                currentThumbnailInfo.style.display = 'block';
-            } else {
-                currentThumbnailInfo.style.display = 'none';
+                // Quando o vídeo for carregado, definir o poster
+                const previewVideo = document.getElementById('previewVideo');
+                if (previewVideo) {
+                    previewVideo.poster = thumbnailUrl;
+                }
             }
             
             // Limpar previews de novos arquivos
