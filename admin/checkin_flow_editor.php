@@ -504,7 +504,11 @@ function loadFlow() {
             connections = savedFlow.connections;
         }
         
-        nodeIdCounter = Math.max(...nodes.map(n => parseInt(n.id.split('_')[1]) || 0)) + 1;
+        const maxId = nodes.length > 0 ? Math.max(...nodes.map(n => {
+            const match = n.id.match(/node_(\d+)/);
+            return match ? parseInt(match[1]) : 0;
+        })) : 0;
+        nodeIdCounter = maxId + 1;
     } else {
         // Criar fluxo padrão baseado nas perguntas
         if (questions.length > 0) {
