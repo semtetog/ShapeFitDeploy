@@ -624,65 +624,107 @@ function removeContentFile($conn, $admin_id) {
         throw new Exception('ID do conteúdo inválido');
     }
     
-    // Buscar dados do arquivo e thumbnail
-    $stmt = $conn->prepare("SELECT file_path, thumbnail_url FROM sf_member_content WHERE id = ? AND admin_id = ?");
-    if (!$stmt) {
-        throw new Exception('Erro ao preparar query: ' . $conn->error);
-    }
+    $file_id = (int)($_POST['file_id'] ?? 0); // ID do arquivo específico a remover
     
-    $stmt->bind_param("ii", $content_id, $admin_id);
-    if (!$stmt->execute()) {
-        $stmt->close();
-        throw new Exception('Erro ao executar query: ' . $stmt->error);
-    }
-    
-    $result = $stmt->get_result();
-    if ($result->num_rows === 0) {
-        $stmt->close();
+    // Verificar se o conteúdo pertence ao admin
+    $stmt_check = $conn->prepare("SELECT id FROM sf_member_content WHERE id = ? AND admin_id = ?");
+    $stmt_check->bind_param("ii", $content_id, $admin_id);
+    $stmt_check->execute();
+    $check_result = $stmt_check->get_result();
+    if ($check_result->num_rows === 0) {
+        $stmt_check->close();
         throw new Exception('Conteúdo não encontrado ou você não tem permissão para editá-lo');
     }
-    
-    $content = $result->fetch_assoc();
-    $stmt->close();
+    $stmt_check->close();
     
     // Iniciar transação
     $conn->begin_transaction();
     
     try {
-        // Deletar arquivo do servidor
-        if (!empty($content['file_path'])) {
-            $file_path_full = APP_ROOT_PATH . $content['file_path'];
-            if (file_exists($file_path_full)) {
-                unlink($file_path_full);
+        // Verificar se a tabela de arquivos existe
+        $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+        if ($check_files_table && $check_files_table->num_rows > 0 && $file_id > 0) {
+            // Remover arquivo específico da tabela sf_content_files
+            $stmt_file = $conn->prepare("SELECT file_path, thumbnail_url FROM sf_content_files WHERE id = ? AND content_id = ?");
+            $stmt_file->bind_param("ii", $file_id, $content_id);
+            $stmt_file->execute();
+            $file_result = $stmt_file->get_result();
+            
+            if ($file_result->num_rows === 0) {
+                $stmt_file->close();
+                throw new Exception('Arquivo não encontrado');
             }
-        }
-        
-        // Deletar thumbnail do servidor
-        if (!empty($content['thumbnail_url'])) {
-            $thumb_path_full = APP_ROOT_PATH . $content['thumbnail_url'];
-            if (file_exists($thumb_path_full)) {
-                unlink($thumb_path_full);
+            
+            $file_data = $file_result->fetch_assoc();
+            $stmt_file->close();
+            
+            // Deletar arquivo do servidor
+            if (!empty($file_data['file_path'])) {
+                $file_path_full = APP_ROOT_PATH . $file_data['file_path'];
+                if (file_exists($file_path_full)) {
+                    unlink($file_path_full);
+                }
             }
-        }
-        
-        // Atualizar banco de dados - remover arquivo e thumbnail
-        $update_fields = ["file_path = NULL", "file_name = NULL", "file_size = NULL", "mime_type = NULL", "thumbnail_url = NULL", "updated_at = NOW()"];
-        $update_values = [$content_id, $admin_id];
-        $param_types = "ii";
-        
-        $sql = "UPDATE sf_member_content SET " . implode(", ", $update_fields) . " WHERE id = ? AND admin_id = ?";
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new Exception('Erro ao preparar query de atualização: ' . $conn->error);
-        }
-        
-        $stmt->bind_param($param_types, ...$update_values);
-        if (!$stmt->execute()) {
+            
+            // Deletar thumbnail do servidor
+            if (!empty($file_data['thumbnail_url'])) {
+                $thumb_path_full = APP_ROOT_PATH . $file_data['thumbnail_url'];
+                if (file_exists($thumb_path_full)) {
+                    unlink($thumb_path_full);
+                }
+            }
+            
+            // Remover da tabela
+            $stmt_delete = $conn->prepare("DELETE FROM sf_content_files WHERE id = ? AND content_id = ?");
+            $stmt_delete->bind_param("ii", $file_id, $content_id);
+            if (!$stmt_delete->execute()) {
+                $stmt_delete->close();
+                throw new Exception('Erro ao remover arquivo: ' . $stmt_delete->error);
+            }
+            $stmt_delete->close();
+        } else {
+            // Fallback: método antigo (remover de sf_member_content)
+            $stmt = $conn->prepare("SELECT file_path, thumbnail_url FROM sf_member_content WHERE id = ? AND admin_id = ?");
+            $stmt->bind_param("ii", $content_id, $admin_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $content = $result->fetch_assoc();
             $stmt->close();
-            throw new Exception('Erro ao executar atualização: ' . $stmt->error);
+            
+            // Deletar arquivo do servidor
+            if (!empty($content['file_path'])) {
+                $file_path_full = APP_ROOT_PATH . $content['file_path'];
+                if (file_exists($file_path_full)) {
+                    unlink($file_path_full);
+                }
+            }
+            
+            // Deletar thumbnail do servidor
+            if (!empty($content['thumbnail_url'])) {
+                $thumb_path_full = APP_ROOT_PATH . $content['thumbnail_url'];
+                if (file_exists($thumb_path_full)) {
+                    unlink($thumb_path_full);
+                }
+            }
+            
+            // Atualizar banco de dados - remover arquivo e thumbnail
+            $update_fields = ["file_path = NULL", "file_name = NULL", "file_size = NULL", "mime_type = NULL", "thumbnail_url = NULL", "updated_at = NOW()"];
+            $update_values = [$content_id, $admin_id];
+            $param_types = "ii";
+            
+            $sql = "UPDATE sf_member_content SET " . implode(", ", $update_fields) . " WHERE id = ? AND admin_id = ?";
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                throw new Exception('Erro ao preparar query de atualização: ' . $conn->error);
+            }
+            
+            $stmt->bind_param($param_types, ...$update_values);
+            if (!$stmt->execute()) {
+                $stmt->close();
+                throw new Exception('Erro ao executar atualização: ' . $stmt->error);
+            }
+            $stmt->close();
         }
-        
-        $stmt->close();
         
         // Commit
         $conn->commit();
