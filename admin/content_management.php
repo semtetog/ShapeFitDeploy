@@ -1541,10 +1541,10 @@ require_once __DIR__ . '/includes/header.php';
                             
                             <!-- Galeria de frames do vídeo -->
                             <div id="videoFramesGallery" style="display: none; margin-bottom: 1rem;">
-                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; min-height: 120px;">
                                     <!-- Frames serão inseridos aqui via JavaScript -->
-                    </div>
-                </div>
+                                </div>
+                            </div>
                 
                             <!-- Input hidden para armazenar o frame selecionado -->
                             <input type="hidden" id="selectedThumbnailData" name="thumbnail_data" data-file-id="">
