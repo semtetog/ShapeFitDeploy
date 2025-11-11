@@ -1566,7 +1566,7 @@ input[type="number"] {
                 <i class="fas fa-undo"></i> Reverter Metas
             </button>
             <button type="button" class="btn-save" onclick="saveGroupGoals()">
-                <i class="fas fa-save"></i> Salvar e Aplicar aos Membros
+                <i class="fas fa-save"></i> Salvar e Aplicar
             </button>
         </div>
     </div>
