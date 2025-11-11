@@ -2362,6 +2362,8 @@ function editVideoTitle(titleDiv, fileId, contentId) {
     input.value = currentText;
     input.style.cssText = 'width: 100%; padding: 0.375rem 0.625rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); border-radius: 6px; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; text-align: center; outline: none;';
     input.maxLength = 255;
+    input.dataset.fileId = fileId || '';
+    input.dataset.contentId = contentId || '';
     
     // Substituir texto por input
     titleDiv.innerHTML = '';
@@ -2372,6 +2374,11 @@ function editVideoTitle(titleDiv, fileId, contentId) {
     const restoreTitle = (text) => {
         const displayText = text || 'Clique para adicionar título';
         titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
+        
+        // Atualizar dataset com o valor atual do input (caso tenha sido editado)
+        if (input && input.value.trim() !== currentText) {
+            titleDiv.dataset.originalTitle = input.value.trim();
+        }
         
         // Remover flag de edição
         titleDiv.dataset.editing = 'false';
@@ -2392,60 +2399,26 @@ function editVideoTitle(titleDiv, fileId, contentId) {
         });
     };
     
-    const saveTitle = () => {
+    // Ao perder foco, apenas atualizar o dataset mas não salvar ainda
+    input.addEventListener('blur', () => {
         const newTitle = input.value.trim();
         titleDiv.dataset.originalTitle = newTitle;
-        
-        // Atualizar via AJAX
-        const formData = new FormData();
-        formData.append('action', 'update_video_title');
-        formData.append('file_id', fileId);
-        formData.append('content_id', contentId);
-        formData.append('video_title', newTitle);
-        
-        fetch('ajax_content_management.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                restoreTitle(newTitle);
-            } else {
-                showAlert('Erro', 'Erro ao atualizar título: ' + (data.error || 'Erro desconhecido'));
-                restoreTitle(currentText);
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            showAlert('Erro', 'Erro ao atualizar título. Tente novamente.');
-            restoreTitle(currentText);
-        });
-    };
-    
-    // Usar setTimeout para evitar conflito com click event
-    let blurTimeout;
-    input.addEventListener('blur', () => {
-        blurTimeout = setTimeout(() => {
-            saveTitle();
-        }, 200);
+        restoreTitle(newTitle);
     });
     
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            clearTimeout(blurTimeout);
-            saveTitle();
+            input.blur(); // Isso vai restaurar o título
         } else if (e.key === 'Escape') {
             e.preventDefault();
-            clearTimeout(blurTimeout);
             restoreTitle(currentText);
         }
     });
     
     // Prevenir que o blur seja acionado quando clicar no próprio titleDiv
     titleDiv.addEventListener('mousedown', (e) => {
-        e.preventDefault();
+        e.stopPropagation();
     });
 }
 
@@ -2521,6 +2494,71 @@ function saveContent() {
 
 // Função auxiliar para enviar FormData
 function submitFormData(formData) {
+    // Coletar todos os títulos editados dos arquivos salvos
+    const titleDivs = document.querySelectorAll('[data-file-id][data-content-id]');
+    const titlesToUpdate = [];
+    
+    titleDivs.forEach(titleDiv => {
+        const fileId = titleDiv.dataset.fileId;
+        const contentId = titleDiv.dataset.contentId;
+        
+        if (!fileId || !contentId) return;
+        
+        // Verificar se há um input ativo (em edição)
+        const input = titleDiv.querySelector('input');
+        if (input) {
+            const newTitle = input.value.trim();
+            titlesToUpdate.push({
+                file_id: fileId,
+                content_id: contentId,
+                video_title: newTitle
+            });
+        } else {
+            // Se não há input, usar o valor do dataset (já foi atualizado no blur)
+            const currentTitle = titleDiv.dataset.originalTitle || '';
+            if (currentTitle) {
+                titlesToUpdate.push({
+                    file_id: fileId,
+                    content_id: contentId,
+                    video_title: currentTitle
+                });
+            }
+        }
+    });
+    
+    // Salvar títulos primeiro, depois salvar o conteúdo
+    if (titlesToUpdate.length > 0) {
+        const updatePromises = titlesToUpdate.map(titleData => {
+            const titleFormData = new FormData();
+            titleFormData.append('action', 'update_video_title');
+            titleFormData.append('file_id', titleData.file_id);
+            titleFormData.append('content_id', titleData.content_id);
+            titleFormData.append('video_title', titleData.video_title);
+            
+            return fetch('ajax_content_management.php', {
+                method: 'POST',
+                body: titleFormData
+            }).then(response => response.json());
+        });
+        
+        Promise.all(updatePromises)
+            .then(() => {
+                // Após salvar todos os títulos, salvar o conteúdo
+                sendFormData(formData);
+            })
+            .catch(error => {
+                console.error('Erro ao salvar títulos:', error);
+                // Mesmo com erro nos títulos, tentar salvar o conteúdo
+                sendFormData(formData);
+            });
+    } else {
+        // Se não há títulos para atualizar, salvar o conteúdo diretamente
+        sendFormData(formData);
+    }
+}
+
+// Função para enviar o FormData do conteúdo
+function sendFormData(formData) {
     // Mostrar loading
     const saveButton = document.querySelector('.btn-save');
     const originalText = saveButton.innerHTML;
