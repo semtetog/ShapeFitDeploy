@@ -2400,7 +2400,7 @@ function editContent(contentId, preserveNewFilePreview = false) {
 // Função para visualizar conteúdo
 function viewContent(contentId) {
     // Redirecionar para página de visualização
-    window.open(`view_content.php?id=${contentId}`, '_blank');
+    window.open(`admin/view_content.php?id=${contentId}`, '_blank');
 }
 
 // Função para excluir conteúdo
@@ -2670,8 +2670,8 @@ function sendFormData(formData, silent = false) {
     const saveButton = document.querySelector('.btn-save');
     const originalText = saveButton ? saveButton.innerHTML : '';
     if (!silent && saveButton) {
-        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-        saveButton.disabled = true;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    saveButton.disabled = true;
     }
     
     fetch('ajax_content_management.php', {
@@ -2716,7 +2716,7 @@ function sendFormData(formData, silent = false) {
     .then(data => {
         if (data.success) {
             if (!silent) {
-                showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
+            showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
             }
             
             // Atualizar ID do conteúdo se foi criado
@@ -2739,7 +2739,7 @@ function sendFormData(formData, silent = false) {
             // Recarregar dados do conteúdo para mostrar o arquivo salvo (mantém modal aberto)
             // Usar um pequeno delay para garantir que o servidor processou tudo
             if (contentId && !silent) {
-                setTimeout(() => {
+            setTimeout(() => {
                     editContent(contentId, false);
                 }, 300);
             }
@@ -2759,11 +2759,11 @@ function sendFormData(formData, silent = false) {
             return data;
         } else {
             if (!silent) {
-                showAlert('Erro', 'Erro ao salvar conteúdo: ' + (data.error || 'Erro desconhecido'));
+            showAlert('Erro', 'Erro ao salvar conteúdo: ' + (data.error || 'Erro desconhecido'));
             }
             if (saveButton) {
-                saveButton.innerHTML = originalText;
-                saveButton.disabled = false;
+            saveButton.innerHTML = originalText;
+            saveButton.disabled = false;
             }
             throw new Error(data.error || 'Erro desconhecido');
         }
@@ -2774,8 +2774,8 @@ function sendFormData(formData, silent = false) {
             showAlert('Erro', 'Erro ao salvar conteúdo: ' + error.message);
         }
         if (saveButton) {
-            saveButton.innerHTML = originalText;
-            saveButton.disabled = false;
+        saveButton.innerHTML = originalText;
+        saveButton.disabled = false;
         }
         throw error;
     });
