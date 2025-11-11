@@ -1468,7 +1468,7 @@ require_once __DIR__ . '/includes/header.php';
                 <input type="hidden" id="contentId" name="content_id">
                 
                 <div class="challenge-form-group">
-                    <label for="contentTitle">Título <span style="color: var(--accent-orange);">*</span></label>
+                    <label for="contentTitle" style="display: flex; align-items: center; gap: 0.25rem;">Título <span style="color: var(--accent-orange);">*</span></label>
                     <input type="text" id="contentTitle" name="title" class="challenge-form-input" required placeholder="Ex: Receita de Salada Fit">
                 </div>
                 
@@ -2419,38 +2419,117 @@ function handleFileSelect(event) {
     }
 }
 
-// Função para remover arquivo atual (ao editar)
+// Função para remover arquivo atual (ao editar) - remoção imediata
 function removeCurrentFile() {
-    if (!confirm('Tem certeza que deseja remover este arquivo? Você precisará selecionar um novo arquivo para salvar.')) {
+    const contentId = document.getElementById('contentId').value;
+    
+    if (!contentId || contentId <= 0) {
+        // Se não está editando, apenas limpar visualmente
+        const currentFileInfo = document.getElementById('currentFileInfo');
+        const fileInput = document.getElementById('contentFile');
+        
+        if (currentFileInfo) {
+            currentFileInfo.style.display = 'none';
+        }
+        
+        if (fileInput) {
+            fileInput.value = '';
+            fileInput.setAttribute('required', 'required');
+        }
+        
+        clearFilePreview();
+        clearThumbnailPreview();
+        document.getElementById('contentType').value = '';
+        currentFileData = null;
         return;
     }
     
-    const currentFileInfo = document.getElementById('currentFileInfo');
-    const fileInput = document.getElementById('contentFile');
-    
-    // Marcar que arquivo foi removido
-    fileRemoved = true;
-    
-    if (currentFileInfo) {
-        currentFileInfo.style.display = 'none';
+    if (!confirm('Tem certeza que deseja remover este arquivo permanentemente? Esta ação não pode ser desfeita.')) {
+        return;
     }
     
-    // Limpar input de arquivo
-    if (fileInput) {
-        fileInput.value = '';
-        // Tornar obrigatório novamente
-        fileInput.setAttribute('required', 'required');
-    }
+    // Remover imediatamente via AJAX
+    const formData = new FormData();
+    formData.append('action', 'remove_file');
+    formData.append('content_id', contentId);
     
-    // Limpar previews
-    clearFilePreview();
-    clearThumbnailPreview();
+    // Mostrar loading
+    const removeButton = event.target.closest('button');
+    const originalText = removeButton.innerHTML;
+    removeButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removendo...';
+    removeButton.disabled = true;
     
-    // Resetar tipo de conteúdo
-    document.getElementById('contentType').value = '';
-    
-    // Limpar dados do arquivo atual
-    currentFileData = null;
+    fetch('ajax_content_management.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        const text = await response.text();
+        if (!response.ok) {
+            let errorMsg = 'Erro ao remover arquivo';
+            try {
+                const json = JSON.parse(text);
+                errorMsg = json.error || errorMsg;
+            } catch (e) {
+                errorMsg = text || `Erro HTTP ${response.status}`;
+            }
+            throw new Error(errorMsg);
+        }
+        
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('Resposta inválida do servidor');
+        }
+    })
+    .then(data => {
+        if (data.success) {
+            // Ocultar arquivo atual
+            const currentFileInfo = document.getElementById('currentFileInfo');
+            if (currentFileInfo) {
+                currentFileInfo.style.display = 'none';
+            }
+            
+            // Limpar input de arquivo
+            const fileInput = document.getElementById('contentFile');
+            if (fileInput) {
+                fileInput.value = '';
+                fileInput.setAttribute('required', 'required');
+            }
+            
+            // Limpar previews
+            clearFilePreview();
+            clearThumbnailPreview();
+            
+            // Resetar tipo de conteúdo
+            document.getElementById('contentType').value = '';
+            
+            // Limpar dados do arquivo atual
+            currentFileData = null;
+            fileRemoved = false; // Já foi removido no servidor
+            
+            showAlert('Sucesso', 'Arquivo removido com sucesso!');
+            
+            // Recarregar dados do conteúdo para atualizar a interface
+            const contentId = document.getElementById('contentId').value;
+            if (contentId) {
+                editContent(contentId);
+            }
+        } else {
+            throw new Error(data.error || 'Erro ao remover arquivo');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showAlert('Erro', 'Erro ao remover arquivo: ' + error.message);
+    })
+    .finally(() => {
+        // Restaurar botão
+        if (removeButton) {
+            removeButton.innerHTML = originalText;
+            removeButton.disabled = false;
+        }
+    });
 }
 
 // Função para gerar frames do vídeo

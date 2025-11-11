@@ -58,6 +58,9 @@ try {
         case 'toggle_status':
             toggleContentStatus($conn, $admin_id);
             break;
+        case 'remove_file':
+            removeContentFile($conn, $admin_id);
+            break;
         default:
             throw new Exception('Ação não especificada');
     }
