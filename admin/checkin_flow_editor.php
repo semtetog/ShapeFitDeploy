@@ -60,6 +60,13 @@ if (!$typebot_flow && file_exists(__DIR__ . '/../json.json')) {
     }
 }
 
+// Preparar JSON para JavaScript de forma segura
+$typebot_flow_json = 'null';
+if ($typebot_flow) {
+    $typebot_flow_json = json_encode($typebot_flow, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+}
+$questions_json = json_encode($questions, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -1017,8 +1024,8 @@ function applyViewportTransform() {
 
 // Carregar fluxo existente ou criar padrão - formato Typebot
 function loadFlow() {
-    const typebotFlow = <?php echo isset($typebot_flow) && $typebot_flow ? json_encode($typebot_flow) : 'null'; ?>;
-    const questions = <?php echo json_encode($questions); ?>;
+    const typebotFlow = <?php echo $typebot_flow_json; ?>;
+    const questions = <?php echo $questions_json; ?>;
     
     if (typebotFlow && typebotFlow.groups && typebotFlow.groups.length > 0) {
         // Carregar fluxo Typebot diretamente
