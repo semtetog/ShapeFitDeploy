@@ -815,12 +815,10 @@ function setupCanvasEvents() {
             canvasOffset.x = e.clientX - panStart.x;
             canvasOffset.y = e.clientY - panStart.y;
             
-            // Aplicar transformação ao canvas
+            // Aplicar transformação apenas ao canvas
             canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
-            if (connectionsLayer) {
-                connectionsLayer.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
-            }
             
+            // Atualizar conexões (SVG não precisa de transform)
             updateConnections();
         }
     });
@@ -1386,8 +1384,8 @@ function startConnection(e, nodeId, connectorType) {
         return;
     }
     
-    if (!connectionsLayer) {
-        console.error('connectionsLayer não inicializado');
+    if (!connectionsLayer || !canvas) {
+        console.error('connectionsLayer ou canvas não inicializado');
         return;
     }
     
@@ -1397,15 +1395,26 @@ function startConnection(e, nodeId, connectorType) {
     const nodeEl = document.getElementById(nodeId);
     if (!nodeEl) return;
     
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    
     const connectorEl = nodeEl.querySelector(`[data-connector="${connectorType}"]`);
     if (!connectorEl) return;
     
-    const rect = connectorEl.getBoundingClientRect();
+    // Calcular posição baseada nas coordenadas do nó (não getBoundingClientRect)
+    const connectorLocalX = connectorEl.offsetLeft + connectorEl.offsetWidth / 2;
+    const connectorLocalY = connectorEl.offsetTop + connectorEl.offsetHeight / 2;
+    
+    const canvasRect = canvas.getBoundingClientRect();
     const svgRect = connectionsLayer.getBoundingClientRect();
     
-    // Calcular posição inicial relativa ao SVG
-    connectionStart.x = rect.left + rect.width / 2 - svgRect.left;
-    connectionStart.y = rect.top + rect.height / 2 - svgRect.top;
+    // Posição absoluta no canvas (considerando zoom e pan)
+    const absX = (node.x + connectorLocalX) * zoomLevel + canvasOffset.x;
+    const absY = (node.y + connectorLocalY) * zoomLevel + canvasOffset.y;
+    
+    // Converter para coordenadas do SVG
+    connectionStart.x = absX - svgRect.left;
+    connectionStart.y = absY - svgRect.top;
     
     document.addEventListener('mousemove', drawConnection);
     document.addEventListener('mouseup', endConnection);
@@ -1621,7 +1630,7 @@ function removeConnectionCondition(fromNodeId, toNodeId) {
 }
 
 function updateConnections() {
-    if (!connectionsLayer) return;
+    if (!connectionsLayer || !canvas) return;
     
     // Limpar TODAS as linhas existentes (incluindo temporárias)
     const allLines = connectionsLayer.querySelectorAll('line, path');
@@ -1649,23 +1658,30 @@ function updateConnections() {
         
         if (!fromConnector || !toConnector) return;
         
-        // Calcular posições considerando zoom e pan
-        const fromRect = fromConnector.getBoundingClientRect();
-        const toRect = toConnector.getBoundingClientRect();
+        // Calcular posições baseadas nas coordenadas dos nós (não getBoundingClientRect)
+        // Isso evita problemas com zoom/pan
+        const fromNodeRect = fromEl.getBoundingClientRect();
+        const toNodeRect = toEl.getBoundingClientRect();
         const canvasRect = canvas.getBoundingClientRect();
+        const svgRect = connectionsLayer.getBoundingClientRect();
         
-        // Posições absolutas dos conectores
-        const fromX = fromRect.left + fromRect.width / 2;
-        const fromY = fromRect.top + fromRect.height / 2;
-        const toX = toRect.left + toRect.width / 2;
-        const toY = toRect.top + toRect.height / 2;
+        // Posições dos conectores em coordenadas locais do nó
+        const fromConnectorLocalX = fromConnector.offsetLeft + fromConnector.offsetWidth / 2;
+        const fromConnectorLocalY = fromConnector.offsetTop + fromConnector.offsetHeight / 2;
+        const toConnectorLocalX = toConnector.offsetLeft + toConnector.offsetWidth / 2;
+        const toConnectorLocalY = toConnector.offsetTop + toConnector.offsetHeight / 2;
+        
+        // Posições absolutas no canvas (considerando zoom e pan)
+        const x1 = (fromNode.x + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
+        const y1 = (fromNode.y + fromConnectorLocalY) * zoomLevel + canvasOffset.y;
+        const x2 = (toNode.x + toConnectorLocalX) * zoomLevel + canvasOffset.x;
+        const y2 = (toNode.y + toConnectorLocalY) * zoomLevel + canvasOffset.y;
         
         // Converter para coordenadas do SVG (relativas ao connectionsLayer)
-        const svgRect = connectionsLayer.getBoundingClientRect();
-        const x1 = fromX - svgRect.left;
-        const y1 = fromY - svgRect.top;
-        const x2 = toX - svgRect.left;
-        const y2 = toY - svgRect.top;
+        const svgX1 = x1 - svgRect.left;
+        const svgY1 = y1 - svgRect.top;
+        const svgX2 = x2 - svgRect.left;
+        const svgY2 = y2 - svgRect.top;
         
         // Criar linha única com ID
         const lineId = `connection-${conn.from}-${conn.to}`;
@@ -1675,19 +1691,17 @@ function updateConnections() {
         if (existing) existing.remove();
         
         // Criar linha curva (path) ao invés de linha reta
-        const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2;
-        const curveOffset = Math.abs(x2 - x1) * 0.3;
+        const curveOffset = Math.abs(svgX2 - svgX1) * 0.3;
         
         // Calcular pontos de controle para curva suave
-        const cp1x = x1 + curveOffset;
-        const cp1y = y1;
-        const cp2x = x2 - curveOffset;
-        const cp2y = y2;
+        const cp1x = svgX1 + curveOffset;
+        const cp1y = svgY1;
+        const cp2x = svgX2 - curveOffset;
+        const cp2y = svgY2;
         
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('id', lineId);
-        const pathData = `M ${x1} ${y1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x2} ${y2}`;
+        const pathData = `M ${svgX1} ${svgY1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${svgX2} ${svgY2}`;
         path.setAttribute('d', pathData);
         
         // Estilo baseado em condição
@@ -1804,10 +1818,16 @@ function resetZoom() {
 function applyZoom() {
     if (!canvas || !connectionsLayer) return;
     
+    // Aplicar transform apenas no canvas, não no SVG
+    // O SVG vai calcular as posições baseado nas coordenadas dos nós
     canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
     canvas.style.transformOrigin = 'top left';
-    connectionsLayer.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
+    
+    // SVG não precisa de transform, vamos calcular as posições diretamente
+    connectionsLayer.style.transform = 'none';
     connectionsLayer.style.transformOrigin = 'top left';
+    
+    // Atualizar conexões após mudança de zoom/pan
     updateConnections();
 }
 
