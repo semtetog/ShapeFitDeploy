@@ -1554,16 +1554,16 @@ require_once __DIR__ . '/includes/header.php';
                 
                 <div class="challenge-form-group">
                     <label for="contentStatus">Status</label>
-                    <input type="hidden" id="contentStatus" name="status" value="draft">
+                    <input type="hidden" id="contentStatus" name="status" value="active">
                     <div class="custom-select-wrapper">
                         <div class="custom-select" id="contentStatusSelect">
                             <div class="custom-select-trigger">
-                                <span class="custom-select-value">Rascunho</span>
+                                <span class="custom-select-value">Ativo</span>
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                             <div class="custom-select-options">
-                                <div class="custom-select-option selected" data-value="draft">Rascunho</div>
-                                <div class="custom-select-option" data-value="active">Ativo</div>
+                                <div class="custom-select-option selected" data-value="active">Ativo</div>
+                                <div class="custom-select-option" data-value="draft">Rascunho</div>
                                 <div class="custom-select-option" data-value="inactive">Inativo</div>
                             </div>
                         </div>
@@ -1825,7 +1825,7 @@ function openCreateContentModal() {
     // Resetar custom selects
     resetCustomSelect('contentTypeSelect', 'contentType', '', 'Selecione...');
     resetCustomSelect('targetTypeSelect', 'targetType', '', 'Selecione...');
-    resetCustomSelect('contentStatusSelect', 'contentStatus', 'draft', 'Rascunho');
+    resetCustomSelect('contentStatusSelect', 'contentStatus', 'active', 'Ativo');
     
     const modal = document.getElementById('contentModal');
     modal.classList.add('active');
@@ -1861,7 +1861,7 @@ function editContent(contentId) {
             // Definir valores dos custom selects
             setCustomSelectValue('contentTypeSelect', 'contentType', content.content_type || '');
             setCustomSelectValue('targetTypeSelect', 'targetType', content.target_type || 'all');
-            setCustomSelectValue('contentStatusSelect', 'contentStatus', content.status || 'draft');
+            setCustomSelectValue('contentStatusSelect', 'contentStatus', content.status || 'active');
             
             // Toggle campos baseado no tipo
             toggleContentFields();

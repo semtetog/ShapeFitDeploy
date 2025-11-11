@@ -70,7 +70,7 @@ function saveContent($conn, $admin_id) {
     $content_type = $_POST['content_type'] ?? '';
     $target_type = $_POST['target_type'] ?? 'all';
     $target_id = !empty($_POST['target_id']) ? (int)$_POST['target_id'] : null;
-    $status = $_POST['status'] ?? 'draft';
+    $status = $_POST['status'] ?? 'active';
     $content_text = trim($_POST['content_text'] ?? '');
     $categories = isset($_POST['categories']) ? (is_array($_POST['categories']) ? $_POST['categories'] : [$_POST['categories']]) : [];
     
