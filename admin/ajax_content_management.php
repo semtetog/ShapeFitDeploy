@@ -498,7 +498,13 @@ function saveContent($conn, $admin_id) {
         $stmt->close();
         
         // Se há arquivo e a tabela de arquivos existe, inserir arquivo na tabela
-        if ($file_path) {
+        // IMPORTANTE: Só inserir aqui se NÃO foi inserido antes (ou seja, se content_id era 0)
+        // Se content_id > 0, o arquivo já foi inserido na linha 294-299
+        if ($file_path && $content_id > 0) {
+            // Arquivo já foi inserido na tabela de arquivos acima (linha 294-299)
+            // Não inserir novamente para evitar duplicação
+        } elseif ($file_path && $content_id == 0) {
+            // Para novo conteúdo, inserir arquivo na tabela
             $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
             if ($check_files_table && $check_files_table->num_rows > 0) {
                 // Inserir arquivo na tabela de arquivos
