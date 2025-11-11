@@ -1903,6 +1903,10 @@ function updateConnections() {
         });
         
         connectionsLayer.appendChild(path);
+        });
+        
+        // Resetar rafId após renderização
+        rafId = null;
     });
 }
 
