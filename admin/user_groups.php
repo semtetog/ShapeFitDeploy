@@ -303,13 +303,21 @@ require_once __DIR__ . '/includes/header.php';
     letter-spacing: 0.5px;
 }
 
-/* Search and Filter */
-.search-filter-section {
+/* Filter Card */
+.filter-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    padding: 1.25rem !important;
+    margin-bottom: 2rem !important;
+    box-shadow: none !important;
+}
+
+.filter-row {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
     align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .search-input-wrapper {
@@ -1301,9 +1309,11 @@ input[type="number"] {
                 <div class="stat-label">Inativos</div>
             </div>
         </div>
+    </div>
 
-        <!-- Search and Filter -->
-        <div class="search-filter-section">
+    <!-- Search Bar -->
+    <div class="filter-card">
+        <div class="filter-row">
             <div class="search-input-wrapper">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" 
@@ -1312,9 +1322,9 @@ input[type="number"] {
                        placeholder="Buscar grupos..." 
                        value="<?php echo htmlspecialchars($search_term); ?>"
                        onkeyup="handleSearch()">
-                </div>
             </div>
         </div>
+    </div>
 
     <!-- Groups Grid -->
     <?php if (empty($user_groups)): ?>
