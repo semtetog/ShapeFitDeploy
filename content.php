@@ -203,8 +203,7 @@ html {
 .app-container {
     max-width: 600px;
     margin: 0 auto;
-    padding: calc(env(safe-area-inset-top, 0px) + 20px) 24px 24px;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px) + 80px);
+    padding: calc(env(safe-area-inset-top, 0px) + 20px) 24px calc(60px + 20px + env(safe-area-inset-bottom, 0px)) 24px;
     height: 100vh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;

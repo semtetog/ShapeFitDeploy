@@ -23,13 +23,13 @@ $active_item = $nav_map[$current_page_script] ?? 'home';
 .bottom-nav {
     position: fixed;
     bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
     width: 100%;
     max-width: 480px;
+    margin: 0 auto;
     /* sem height fixa; altura vem do padding + conteúdo + safe-area */
     padding: 12px 0 calc(12px + env(safe-area-inset-bottom)) 0;
-    margin: 0;
     background: rgba(24, 24, 24, 0.85);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
