@@ -2650,8 +2650,6 @@ function removeCurrentFile(fileId = null, contentId = null) {
             if (fileId) {
                 formData.append('file_id', fileId);
             }
-            formData.append('action', 'remove_file');
-            formData.append('content_id', contentId);
             
             // Mostrar loading
             const currentFileInfo = document.getElementById('currentFileInfo');
