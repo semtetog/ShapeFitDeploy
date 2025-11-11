@@ -1529,13 +1529,29 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
                 
-                <!-- Thumbnail -->
-                <div class="challenge-form-group" id="thumbnailGroup">
-                    <label for="contentThumbnail">Thumbnail (Opcional)</label>
-                    <input type="file" id="contentThumbnail" name="thumbnail" class="challenge-form-input" accept="image/*" onchange="handleThumbnailSelect(event)">
-                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Imagem de capa para o conteúdo. Formatos: JPG, PNG, WebP. Máximo: 5MB.</small>
+                <!-- Thumbnail - Extração automática de frames do vídeo -->
+                <div class="challenge-form-group" id="thumbnailGroup" style="display: none;">
+                    <label>Thumbnail (Opcional)</label>
+                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block; margin-bottom: 1rem;">Selecione um frame do vídeo como thumbnail ou faça upload de uma imagem personalizada.</small>
                     
-                    <!-- Preview da thumbnail -->
+                    <!-- Galeria de frames do vídeo -->
+                    <div id="videoFramesGallery" style="display: none; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+                            <!-- Frames serão inseridos aqui via JavaScript -->
+                        </div>
+                        <button type="button" onclick="regenerateVideoFrames()" style="padding: 0.5rem 1rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.3s ease;">
+                            <i class="fas fa-sync-alt"></i> Gerar novos frames
+                        </button>
+                    </div>
+                    
+                    <!-- Upload manual de thumbnail (alternativa) -->
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                        <label for="contentThumbnail" style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Ou faça upload de uma imagem personalizada:</label>
+                        <input type="file" id="contentThumbnail" name="thumbnail" class="challenge-form-input" accept="image/*" onchange="handleThumbnailSelect(event)">
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Formatos: JPG, PNG, WebP. Máximo: 5MB.</small>
+                    </div>
+                    
+                    <!-- Preview da thumbnail selecionada -->
                     <div id="thumbnailPreview" style="margin-top: 1rem; display: none;">
                         <div style="position: relative; width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
                             <img id="previewThumbnail" style="width: 100%; height: auto; display: block; max-height: 300px; object-fit: cover;" alt="Thumbnail preview">
@@ -1543,6 +1559,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Thumbnail selecionada</small>
                     </div>
                     
                     <!-- Thumbnail atual (ao editar) -->
@@ -1550,8 +1567,11 @@ require_once __DIR__ . '/includes/header.php';
                         <div style="width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
                             <img id="currentThumbnail" style="width: 100%; height: auto; display: block; max-height: 300px; object-fit: cover;" alt="Thumbnail atual">
                         </div>
-                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Thumbnail atual. Selecione uma nova imagem para substituir.</small>
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Thumbnail atual. Selecione um novo frame ou imagem para substituir.</small>
                     </div>
+                    
+                    <!-- Input hidden para armazenar o frame selecionado -->
+                    <input type="hidden" id="selectedThumbnailData" name="thumbnail_data">
                 </div>
                 
                 
@@ -2064,6 +2084,15 @@ function editContent(contentId) {
             clearFilePreview();
             clearThumbnailPreview();
             
+            // Se for vídeo e tiver arquivo atual, tentar gerar frames
+            if (content.content_type === 'videos' && content.file_path) {
+                const thumbnailGroup = document.getElementById('thumbnailGroup');
+                if (thumbnailGroup) {
+                    thumbnailGroup.style.display = 'block';
+                }
+                // Não gerar frames automaticamente ao editar (usuário pode escolher manter ou trocar)
+            }
+            
             // Toggle campos baseado no tipo
             toggleContentFields();
             
@@ -2238,6 +2267,10 @@ function toggleContentFields() {
     }
 }
 
+// Variável global para armazenar o vídeo e frames
+let currentVideoFile = null;
+let videoFramesGenerated = false;
+
 // Função para lidar com seleção de arquivo
 function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -2248,23 +2281,164 @@ function handleFileSelect(event) {
     const pdfPreview = document.getElementById('pdfPreview');
     const previewVideo = document.getElementById('previewVideo');
     const pdfFileName = document.getElementById('pdfFileName');
+    const thumbnailGroup = document.getElementById('thumbnailGroup');
+    const videoFramesGallery = document.getElementById('videoFramesGallery');
     
     // Ocultar previews
     videoPreview.style.display = 'none';
     pdfPreview.style.display = 'none';
     filePreview.style.display = 'none';
+    videoFramesGallery.style.display = 'none';
+    thumbnailGroup.style.display = 'none';
+    clearThumbnailPreview();
+    videoFramesGenerated = false;
     
     // Verificar tipo de arquivo
     if (file.type.startsWith('video/')) {
+        currentVideoFile = file;
         const videoURL = URL.createObjectURL(file);
         previewVideo.src = videoURL;
         videoPreview.style.display = 'block';
         filePreview.style.display = 'block';
+        
+        // Mostrar grupo de thumbnail e gerar frames
+        thumbnailGroup.style.display = 'block';
+        
+        // Aguardar o vídeo carregar para extrair frames
+        previewVideo.onloadedmetadata = function() {
+            generateVideoFrames(previewVideo);
+        };
     } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        currentVideoFile = null;
         pdfFileName.textContent = file.name;
         pdfPreview.style.display = 'block';
         filePreview.style.display = 'block';
+        thumbnailGroup.style.display = 'none';
     }
+}
+
+// Função para gerar frames do vídeo
+function generateVideoFrames(video) {
+    if (!video || video.readyState < 2) return;
+    
+    const gallery = document.getElementById('videoFramesGallery');
+    const framesContainer = gallery.querySelector('div');
+    if (!framesContainer) return;
+    
+    // Limpar frames anteriores
+    framesContainer.innerHTML = '';
+    videoFramesGenerated = false;
+    
+    const duration = video.duration;
+    const numFrames = 4; // 4 frames como no YouTube
+    const frameInterval = duration / (numFrames + 1); // Distribuir frames ao longo do vídeo
+    
+    // Criar canvas para extrair frames
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    let framesExtracted = 0;
+    
+    // Extrair frames em diferentes momentos do vídeo
+    for (let i = 1; i <= numFrames; i++) {
+        const time = frameInterval * i;
+        
+        // Criar um novo vídeo element para cada frame (para não interferir no preview)
+        const tempVideo = document.createElement('video');
+        tempVideo.src = video.src;
+        tempVideo.currentTime = time;
+        tempVideo.muted = true;
+        
+        tempVideo.onseeked = function() {
+            // Desenhar frame no canvas
+            ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+            
+            // Converter canvas para imagem
+            const frameDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Criar elemento de frame
+            const frameDiv = document.createElement('div');
+            frameDiv.style.cssText = 'position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent; transition: all 0.3s ease;';
+            frameDiv.className = 'video-frame-thumb';
+            frameDiv.dataset.frameIndex = framesExtracted;
+            
+            const frameImg = document.createElement('img');
+            frameImg.src = frameDataUrl;
+            frameImg.style.cssText = 'width: 100%; height: 120px; object-fit: cover; display: block;';
+            frameImg.alt = `Frame ${i}`;
+            
+            const checkIcon = document.createElement('div');
+            checkIcon.style.cssText = 'position: absolute; top: 0.5rem; right: 0.5rem; background: var(--accent-orange); color: white; width: 24px; height: 24px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 0.75rem;';
+            checkIcon.innerHTML = '<i class="fas fa-check"></i>';
+            checkIcon.className = 'frame-check-icon';
+            
+            frameDiv.appendChild(frameImg);
+            frameDiv.appendChild(checkIcon);
+            
+            // Adicionar evento de clique
+            frameDiv.addEventListener('click', function() {
+                selectVideoFrame(frameDataUrl, frameDiv);
+            });
+            
+            framesContainer.appendChild(frameDiv);
+            
+            framesExtracted++;
+            if (framesExtracted === numFrames) {
+                videoFramesGenerated = true;
+                gallery.style.display = 'block';
+            }
+        };
+        
+        tempVideo.load();
+    }
+}
+
+// Função para regenerar frames
+function regenerateVideoFrames() {
+    const previewVideo = document.getElementById('previewVideo');
+    if (previewVideo && previewVideo.src) {
+        generateVideoFrames(previewVideo);
+    }
+}
+
+// Função para selecionar um frame como thumbnail
+function selectVideoFrame(frameDataUrl, frameElement) {
+    // Remover seleção anterior
+    document.querySelectorAll('.video-frame-thumb').forEach(frame => {
+        frame.style.borderColor = 'transparent';
+        frame.querySelector('.frame-check-icon').style.display = 'none';
+    });
+    
+    // Marcar frame selecionado
+    frameElement.style.borderColor = 'var(--accent-orange)';
+    frameElement.querySelector('.frame-check-icon').style.display = 'flex';
+    
+    // Converter data URL para blob
+    fetch(frameDataUrl)
+        .then(res => res.blob())
+        .then(blob => {
+            // Criar arquivo a partir do blob
+            const file = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
+            
+            // Criar FileList simulada
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            
+            // Atualizar input de thumbnail
+            const thumbnailInput = document.getElementById('contentThumbnail');
+            thumbnailInput.files = dataTransfer.files;
+            
+            // Mostrar preview
+            const thumbnailPreview = document.getElementById('thumbnailPreview');
+            const previewThumbnail = document.getElementById('previewThumbnail');
+            previewThumbnail.src = frameDataUrl;
+            thumbnailPreview.style.display = 'block';
+            
+            // Armazenar data URL no hidden input
+            document.getElementById('selectedThumbnailData').value = frameDataUrl;
+        });
 }
 
 // Função para limpar preview do arquivo
@@ -2272,13 +2446,20 @@ function clearFilePreview() {
     const fileInput = document.getElementById('contentFile');
     const filePreview = document.getElementById('filePreview');
     const previewVideo = document.getElementById('previewVideo');
+    const thumbnailGroup = document.getElementById('thumbnailGroup');
+    const videoFramesGallery = document.getElementById('videoFramesGallery');
     
     if (fileInput) fileInput.value = '';
     if (filePreview) filePreview.style.display = 'none';
+    if (thumbnailGroup) thumbnailGroup.style.display = 'none';
+    if (videoFramesGallery) videoFramesGallery.style.display = 'none';
     if (previewVideo && previewVideo.src) {
         URL.revokeObjectURL(previewVideo.src);
         previewVideo.src = '';
     }
+    
+    currentVideoFile = null;
+    videoFramesGenerated = false;
 }
 
 // Função para lidar com seleção de thumbnail
