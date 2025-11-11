@@ -1165,41 +1165,43 @@ input[type="number"] {
     text-overflow: ellipsis;
 }
 
-.btn-cancel,
-.btn-save {
-    padding: 0.625rem 1.25rem;
-    border-radius: 10px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border: none;
-    font-family: 'Montserrat', sans-serif;
+/* Estilos específicos para botões do footer do modal */
+.challenge-edit-footer .btn-cancel {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-secondary) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-.btn-cancel {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.challenge-edit-footer .btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: var(--text-primary) !important;
 }
 
-.btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
+.challenge-edit-footer .btn-save {
+    background: linear-gradient(135deg, #FF6600, #FF8533) !important;
+    color: white !important;
+    border: none !important;
 }
 
-.btn-save {
-    background: linear-gradient(135deg, #FF6600, #FF8533);
-    color: white;
-}
-
-.btn-save:hover {
-    background: linear-gradient(135deg, #FF8533, #FF6600);
+.challenge-edit-footer .btn-save:hover {
+    background: linear-gradient(135deg, #FF8533, #FF6600) !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+}
+
+.challenge-edit-footer .btn-action {
+    background: transparent !important;
+}
+
+.challenge-edit-footer .btn-action.btn-revert {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.challenge-edit-footer .btn-action.btn-revert:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: #ef4444 !important;
 }
 </style>
 
