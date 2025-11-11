@@ -2233,33 +2233,7 @@ function editContent(contentId, preserveNewFilePreview = false) {
                     const actionButtonsContainer = document.createElement('div');
                     actionButtonsContainer.style.cssText = 'position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.5rem; z-index: 10;';
                     
-                    // Botão de editar (lápis) - apenas para vídeos
-                    if (isVideo) {
-                        const editBtn = document.createElement('button');
-                        editBtn.type = 'button';
-                        editBtn.onclick = (e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            console.log('Botão de editar clicado:', { fileId: file.id, contentId: content.id, fileUrl });
-                            editFileThumbnail(file.id || null, content.id, fileUrl);
-                        };
-                        editBtn.style.cssText = 'width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); cursor: pointer; transition: all 0.3s ease;';
-                        editBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
-                        
-                        // Adicionar hover com zoom
-                        editBtn.addEventListener('mouseenter', function() {
-                            this.style.transform = 'scale(1.15)';
-                            this.style.background = 'rgba(255, 107, 0, 0.2)';
-                            this.style.borderColor = 'var(--accent-orange)';
-                        });
-                        editBtn.addEventListener('mouseleave', function() {
-                            this.style.transform = 'scale(1)';
-                            this.style.background = 'rgba(255, 107, 0, 0.1)';
-                            this.style.borderColor = 'rgba(255, 107, 0, 0.3)';
-                        });
-                        
-                        actionButtonsContainer.appendChild(editBtn);
-                    }
+                    // Botão de editar thumbnail removido - thumbnails só podem ser escolhidas ao criar
                     
                     // Botão de lixeira
                     const deleteBtn = document.createElement('button');
@@ -3243,27 +3217,12 @@ function selectVideoFrame(frameDataUrl, frameElement) {
     }
 }
 
-// Função para gerar frames de um vídeo existente (ao editar)
+// Função para gerar frames de um vídeo existente (ao editar) - REMOVIDA
+// Thumbnails só podem ser escolhidas ao criar novo conteúdo
 function generateVideoFramesForExistingVideo(video, fileId, framesContainer, currentThumbnailUrl = null) {
-    console.log('generateVideoFramesForExistingVideo chamado:', { video: !!video, readyState: video?.readyState, fileId, hasContainer: !!framesContainer, currentThumbnailUrl });
-    
-    if (!video) {
-        console.error('Vídeo não fornecido');
-        return;
-    }
-    
-    if (video.readyState < 2) {
-        console.log('Vídeo ainda não carregado, aguardando...', video.readyState);
-        setTimeout(() => generateVideoFramesForExistingVideo(video, fileId, framesContainer, currentThumbnailUrl), 500);
-        return;
-    }
-    
-    if (!framesContainer) {
-        console.error('framesContainer não fornecido');
-        return;
-    }
-    
-    console.log('Gerando frames para vídeo:', { duration: video.duration, width: video.videoWidth, height: video.videoHeight });
+    // Função desabilitada - thumbnails só podem ser escolhidas ao criar
+    return;
+}
     
     const duration = video.duration;
     const numFrames = 4;
@@ -3296,54 +3255,10 @@ function generateVideoFramesForExistingVideo(video, fileId, framesContainer, cur
     
     function extractNextFrame() {
         if (currentFrameIndex >= frameTimes.length) {
-            console.log('Todos os frames foram extraídos');
-            console.log('Total de frames no container:', framesContainer.children.length);
-            
-            // Se houver thumbnail atual, tentar marcá-la após um pequeno delay
-            if (currentThumbnailUrl && fileId) {
-                setTimeout(() => {
-                    // Tentar encontrar o frame que corresponde à thumbnail atual
-                    const frameDivs = framesContainer.querySelectorAll('.video-frame-thumb');
-                    
-                    // Tentar carregar a thumbnail atual e comparar com os frames
-                    const currentThumbImg = new Image();
-                    currentThumbImg.crossOrigin = 'anonymous';
-                    currentThumbImg.onload = function() {
-                        // Por enquanto, vamos marcar o primeiro frame como selecionado
-                        // TODO: Implementar comparação de imagens mais precisa
-                        const firstFrame = frameDivs[0];
-                        if (firstFrame) {
-                            const frameImg = firstFrame.querySelector('img');
-                            if (frameImg) {
-                                selectVideoFrameForExisting(fileId, frameImg.src, firstFrame, framesContainer);
-                            }
-                        }
-                    };
-                    currentThumbImg.onerror = function() {
-                        // Se não conseguir carregar, marcar o primeiro frame
-                        const firstFrame = frameDivs[0];
-                        if (firstFrame) {
-                            const frameImg = firstFrame.querySelector('img');
-                            if (frameImg) {
-                                selectVideoFrameForExisting(fileId, frameImg.src, firstFrame, framesContainer);
-                            }
-                        }
-                    };
-                    
-                    // Tentar carregar a thumbnail atual
-                    let thumbUrl = currentThumbnailUrl;
-                    if (!thumbUrl.startsWith('http') && !thumbUrl.startsWith('/')) {
-                        thumbUrl = '/' + thumbUrl;
-                    }
-                    currentThumbImg.src = thumbUrl;
-                }, 300);
-            }
-            
             return;
         }
         
         const time = frameTimes[currentFrameIndex];
-        console.log(`Extraindo frame ${currentFrameIndex + 1}/${frameTimes.length} no tempo ${time.toFixed(2)}s`);
         tempVideo.currentTime = time;
     }
     
@@ -3388,7 +3303,6 @@ function generateVideoFramesForExistingVideo(video, fileId, framesContainer, cur
         });
         
         framesContainer.appendChild(frameDiv);
-        console.log('Frame adicionado ao DOM:', currentFrameIndex + 1, frameDiv);
         
         framesExtracted++;
         currentFrameIndex++;
@@ -3396,11 +3310,11 @@ function generateVideoFramesForExistingVideo(video, fileId, framesContainer, cur
     };
     
     tempVideo.onerror = function(error) {
-        console.error('Erro ao gerar frames do vídeo existente:', error);
+        // Erro silencioso
     };
     
     tempVideo.onloadedmetadata = function() {
-        console.log('Vídeo temporário carregado, iniciando extração de frames');
+        // Callback silencioso
     };
     
     try {
@@ -3447,151 +3361,11 @@ function selectVideoFrameForExisting(fileId, frameDataUrl, frameElement, framesC
     }
 }
 
-// Função para editar thumbnail de um arquivo específico
+// Função para editar thumbnail de um arquivo específico - REMOVIDA
+// Thumbnails só podem ser escolhidas ao criar novo conteúdo
 function editFileThumbnail(fileId, contentId, fileUrl) {
-    console.log('editFileThumbnail chamado:', { fileId, contentId, fileUrl });
-    
-    if (!fileId || !contentId || !fileUrl) {
-        console.error('Parâmetros inválidos:', { fileId, contentId, fileUrl });
-        showAlert('Erro', 'Parâmetros inválidos para editar thumbnail');
-        return;
-    }
-    
-    // Verificar se o modal está aberto
-    const modal = document.getElementById('contentModal');
-    if (!modal || !modal.classList.contains('active')) {
-        console.error('Modal não está aberto');
-        showAlert('Erro', 'O modal precisa estar aberto para editar a thumbnail.');
-        return;
-    }
-    
-    // Encontrar o fileItem específico que está sendo editado
-    const fileItem = document.querySelector(`[data-file-id="${fileId}"]`);
-    if (!fileItem) {
-        console.error('FileItem não encontrado para fileId:', fileId);
-        showAlert('Erro', 'Arquivo não encontrado.');
-        return;
-    }
-    
-    // Encontrar o fileContainer (pai do fileItem)
-    const fileContainer = fileItem.closest('.file-container') || fileItem.parentElement;
-    
-    // Remover qualquer galeria de thumbnails existente para este arquivo
-    const existingThumbnailContainer = fileContainer.querySelector(`.thumbnail-container[data-file-id="${fileId}"]`);
-    if (existingThumbnailContainer) {
-        existingThumbnailContainer.remove();
-    }
-    
-    // Criar container de thumbnails abaixo do vídeo
-    const thumbnailContainer = document.createElement('div');
-    thumbnailContainer.className = 'thumbnail-container';
-    thumbnailContainer.dataset.fileId = fileId;
-    thumbnailContainer.style.cssText = 'margin-top: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 12px;';
-    
-    const thumbnailLabel = document.createElement('label');
-    thumbnailLabel.style.cssText = 'display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600; color: var(--text-primary);';
-    thumbnailLabel.textContent = 'Selecione um frame como thumbnail:';
-    thumbnailContainer.appendChild(thumbnailLabel);
-    
-    const framesContainer = document.createElement('div');
-    framesContainer.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; min-height: 120px;';
-    framesContainer.id = `framesContainer_${fileId}`;
-    thumbnailContainer.appendChild(framesContainer);
-    
-    // Adicionar loading
-    const loadingDiv = document.createElement('div');
-    loadingDiv.style.cssText = 'text-align: center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;';
-    loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando vídeo...';
-    framesContainer.appendChild(loadingDiv);
-    
-    // Inserir o container após o fileItem (dentro do fileContainer)
-    if (fileContainer) {
-        // Inserir após o fileItem, mas antes do título (se existir)
-        const titleDiv = fileContainer.querySelector('[data-file-id][data-content-id]');
-        if (titleDiv && titleDiv !== fileItem) {
-            // Inserir antes do título
-            fileContainer.insertBefore(thumbnailContainer, titleDiv);
-        } else {
-            // Inserir após o fileItem
-            if (fileItem.nextSibling) {
-                fileContainer.insertBefore(thumbnailContainer, fileItem.nextSibling);
-            } else {
-                fileContainer.appendChild(thumbnailContainer);
-            }
-        }
-    }
-    
-    // Buscar a thumbnail atual do arquivo para marcá-la depois
-    fetch('ajax_content_management.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `action=get_file&file_id=${fileId}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        const currentThumbnailUrl = data.success && data.file ? data.file.thumbnail_url : null;
-        
-        // Criar vídeo temporário para gerar frames
-        const tempVideo = document.createElement('video');
-        tempVideo.src = fileUrl;
-        tempVideo.muted = true;
-        tempVideo.preload = 'metadata';
-        tempVideo.crossOrigin = 'anonymous';
-        
-        tempVideo.onloadedmetadata = function() {
-            loadingDiv.remove();
-            generateVideoFramesForExistingVideo(tempVideo, fileId, framesContainer, currentThumbnailUrl);
-        };
-        
-        tempVideo.onerror = function(error) {
-            console.error('Erro ao carregar vídeo:', error, fileUrl);
-            loadingDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar vídeo';
-            loadingDiv.style.color = '#EF4444';
-            showAlert('Erro', 'Não foi possível carregar o vídeo. Verifique se o arquivo está acessível.');
-        };
-        
-        tempVideo.onloadstart = function() {
-            console.log('Iniciando carregamento do vídeo:', fileUrl);
-        };
-        
-        try {
-            tempVideo.load();
-        } catch (error) {
-            console.error('Erro ao tentar carregar vídeo:', error);
-            loadingDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar vídeo';
-            loadingDiv.style.color = '#EF4444';
-            showAlert('Erro', 'Erro ao tentar carregar o vídeo: ' + error.message);
-        }
-    })
-    .catch(error => {
-        console.error('Erro ao buscar arquivo:', error);
-        // Continuar mesmo sem a thumbnail atual
-        const tempVideo = document.createElement('video');
-        tempVideo.src = fileUrl;
-        tempVideo.muted = true;
-        tempVideo.preload = 'metadata';
-        tempVideo.crossOrigin = 'anonymous';
-        
-        tempVideo.onloadedmetadata = function() {
-            loadingDiv.remove();
-            generateVideoFramesForExistingVideo(tempVideo, fileId, framesContainer, null);
-        };
-        
-        tempVideo.onerror = function(error) {
-            console.error('Erro ao carregar vídeo:', error, fileUrl);
-            loadingDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao carregar vídeo';
-            loadingDiv.style.color = '#EF4444';
-        };
-        
-        tempVideo.load();
-    });
-    
-    // Scroll até o container de thumbnails
-    setTimeout(() => {
-        thumbnailContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 200);
+    // Função desabilitada - thumbnails só podem ser escolhidas ao criar
+    return;
 }
 
 // Função para salvar thumbnail de um arquivo específico
