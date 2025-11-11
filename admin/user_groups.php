@@ -422,73 +422,97 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
 }
 
-/* Toggle Switch */
+/* Toggle Switch - Igual challenge_groups.php */
 .toggle-switch-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 10px;
     flex-shrink: 0;
 }
 
 .toggle-switch-label {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-secondary);
-    transition: all 0.3s ease;
-}
-
-.toggle-switch-label.active {
-    color: #10b981;
-}
-
-.toggle-switch-label.inactive {
-    color: #ef4444;
+    min-width: 50px;
+    text-align: left;
+    transition: color 0.3s ease;
 }
 
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 44px;
-    height: 24px;
+    width: 50px;
+    height: 26px;
+    cursor: pointer;
     flex-shrink: 0;
 }
 
-.toggle-switch input {
+.toggle-switch-input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-.toggle-slider {
+.toggle-switch-slider {
     position: absolute;
     cursor: pointer;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ef4444;
-    transition: 0.3s;
-    border-radius: 24px;
+    background-color: #EF4444; /* Vermelho quando desativado */
+    transition: all 0.3s ease;
+    border-radius: 26px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.toggle-slider:before {
+.toggle-switch-slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
+    height: 20px;
+    width: 20px;
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: 0.3s;
+    transition: all 0.3s ease;
     border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.toggle-switch input:checked + .toggle-slider {
-    background-color: #10b981;
+/* Quando está ativo (checked) - Verde */
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background-color: #22C55E; /* Verde quando ativado */
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
 }
 
-.toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(20px);
+.toggle-switch-input:checked + .toggle-switch-slider:before {
+    transform: translateX(24px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover effect */
+.toggle-switch:hover .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.toggle-switch-input:checked:hover + .toggle-switch-slider {
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+.toggle-switch-input:not(:checked):hover + .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Atualizar label quando está ativo */
+.toggle-switch-input:checked ~ .toggle-switch-label,
+.toggle-switch-wrapper:has(.toggle-switch-input:checked) .toggle-switch-label {
+    color: #22C55E;
+    font-weight: 700;
+}
+
+.toggle-switch-wrapper:has(.toggle-switch-input:not(:checked)) .toggle-switch-label {
+    color: #EF4444;
 }
 
 .group-info {
@@ -671,31 +695,31 @@ require_once __DIR__ . '/includes/header.php';
     margin-bottom: 1.5rem;
 }
 
-/* Button Create */
+/* Button Create - Igual challenge_groups.php */
 .btn-create-group {
-    background: linear-gradient(135deg, #FF6600, #FF8533);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 600;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
     cursor: pointer;
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-family: 'Montserrat', sans-serif;
+    justify-content: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    flex-shrink: 0;
 }
 
 .btn-create-group:hover {
-    background: linear-gradient(135deg, #FF8533, #FF6600);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+    background: rgba(255, 107, 0, 0.15);
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
 }
 
 .btn-create-group i {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
 }
 
 /* Pagination */
@@ -1129,7 +1153,7 @@ require_once __DIR__ . '/includes/header.php';
                 <p>Organize seus pacientes em grupos para definir metas e missões específicas</p>
             </div>
             <button class="btn-create-group" onclick="openCreateGroupModal()" title="Criar Novo Grupo">
-                <i class="fas fa-plus"></i> Criar Grupo
+                <i class="fas fa-plus"></i>
             </button>
         </div>
 
@@ -1183,16 +1207,20 @@ require_once __DIR__ . '/includes/header.php';
                                 <p class="group-description"><?php echo htmlspecialchars($group['description']); ?></p>
                             <?php endif; ?>
                         </div>
-                        <div class="toggle-switch-wrapper">
-                            <label class="toggle-switch-label <?php echo $group['status']; ?>" id="toggle-label-<?php echo $group['id']; ?>">
-                                <?php echo $group['status'] === 'active' ? 'Ativo' : 'Inativo'; ?>
-                            </label>
+                        <div class="toggle-switch-wrapper" onclick="event.stopPropagation()">
+                            <?php
+                            $is_active = $group['status'] === 'active';
+                            ?>
                             <label class="toggle-switch">
                                 <input type="checkbox" 
-                                       <?php echo $group['status'] === 'active' ? 'checked' : ''; ?>
-                                       onchange="toggleGroupStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>', this)">
-                                <span class="toggle-slider"></span>
+                                       class="toggle-switch-input" 
+                                       <?php echo $is_active ? 'checked' : ''; ?>
+                                       onchange="toggleGroupStatus(<?php echo $group['id']; ?>, '<?php echo $group['status']; ?>', this)"
+                                       data-group-id="<?php echo $group['id']; ?>"
+                                       data-current-status="<?php echo $group['status']; ?>">
+                                <span class="toggle-switch-slider"></span>
                             </label>
+                            <span class="toggle-switch-label" id="toggle-label-<?php echo $group['id']; ?>" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
                         </div>
                     </div>
                     
@@ -1658,16 +1686,32 @@ function deleteGroup(groupId) {
     });
 }
 
-// Toggle status do grupo
+// Toggle status do grupo - Igual challenge_groups.php
 function toggleGroupStatus(groupId, currentStatus, toggleElement) {
-    const newStatus = toggleElement.checked ? 'active' : 'inactive';
-    const label = document.getElementById('toggle-label-' + groupId);
+    const toggle = toggleElement || document.querySelector(`.toggle-switch-input[data-group-id="${groupId}"]`);
+    if (!toggle) return;
     
-    // Atualizar visual imediatamente
-    label.textContent = newStatus === 'active' ? 'Ativo' : 'Inativo';
-    label.className = 'toggle-switch-label ' + newStatus;
-    label.style.color = newStatus === 'active' ? '#10b981' : '#ef4444';
-    label.style.fontWeight = '600';
+    // IMPORTANTE: O checkbox já foi alterado pelo evento onchange
+    // Então toggle.checked já reflete o NOVO estado (não o antigo)
+    const isChecked = toggle.checked;
+    const newStatus = isChecked ? 'active' : 'inactive';
+    const wrapper = toggle.closest('.toggle-switch-wrapper');
+    const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
+    
+    // Atualizar label IMEDIATAMENTE baseado no estado atual do checkbox
+    if (label) {
+        const newText = isChecked ? 'Ativo' : 'Inativo';
+        const newColor = isChecked ? '#22C55E' : '#EF4444';
+        const newWeight = isChecked ? '700' : '600';
+        
+        // Atualizar diretamente
+        label.textContent = newText;
+        label.style.color = newColor;
+        label.style.fontWeight = newWeight;
+        
+        // Forçar reflow para garantir que a atualização seja visível
+        label.offsetHeight;
+    }
     
     fetch('ajax_user_groups.php', {
         method: 'POST',
@@ -1686,26 +1730,30 @@ function toggleGroupStatus(groupId, currentStatus, toggleElement) {
             // Atualizar estatísticas
             updateStats();
             // Atualizar data-status do card
-            const card = toggleElement.closest('.user-group-card');
+            const card = toggle.closest('.user-group-card');
             if (card) {
                 card.setAttribute('data-status', newStatus);
             }
         } else {
             // Reverter toggle
-            toggleElement.checked = currentStatus === 'active';
-            label.textContent = currentStatus === 'active' ? 'Ativo' : 'Inativo';
-            label.className = 'toggle-switch-label ' + currentStatus;
-            label.style.color = currentStatus === 'active' ? '#10b981' : '#ef4444';
+            toggle.checked = !isChecked;
+            if (label) {
+                label.textContent = isChecked ? 'Inativo' : 'Ativo';
+                label.style.color = isChecked ? '#EF4444' : '#22C55E';
+                label.style.fontWeight = isChecked ? '600' : '700';
+            }
             alert('Erro ao atualizar status: ' + (data.message || 'Erro desconhecido'));
         }
     })
     .catch(error => {
         console.error('Erro:', error);
         // Reverter toggle
-        toggleElement.checked = currentStatus === 'active';
-        label.textContent = currentStatus === 'active' ? 'Ativo' : 'Inativo';
-        label.className = 'toggle-switch-label ' + currentStatus;
-        label.style.color = currentStatus === 'active' ? '#10b981' : '#ef4444';
+        toggle.checked = !isChecked;
+        if (label) {
+            label.textContent = isChecked ? 'Inativo' : 'Ativo';
+            label.style.color = isChecked ? '#EF4444' : '#22C55E';
+            label.style.fontWeight = isChecked ? '600' : '700';
+        }
         alert('Erro ao atualizar status. Tente novamente.');
     });
 }
