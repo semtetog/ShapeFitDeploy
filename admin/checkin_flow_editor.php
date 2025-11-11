@@ -838,7 +838,6 @@ let connectionStart = null;
 let zoomLevel = 1;
 let nodeIdCounter = 0;
 let currentDraggingNode = null;
-let updateConnectionsTimeout = null;
 
 // Inicializar canvas - aguardar DOM
 let canvas, connectionsLayer, canvasContainer;
