@@ -458,7 +458,10 @@ require_once __DIR__ . '/includes/header.php';
         <div style="display: flex; gap: 1rem; align-items: center;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span style="padding: 0.5rem 1rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: var(--accent-orange);">
-                    <?php echo $checkin['status'] === 'published' ? 'Publicado' : 'Rascunho'; ?>
+                    <?php 
+                    $status = $checkin['status'] ?? 'draft';
+                    echo $status === 'published' ? 'Publicado' : 'Rascunho'; 
+                    ?>
                 </span>
             </div>
             <button class="btn-toolbar" onclick="openPreview()" title="Preview do Chat">
