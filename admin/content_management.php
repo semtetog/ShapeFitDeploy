@@ -2805,11 +2805,15 @@ function clearFilePreview() {
     const previewVideo = document.getElementById('previewVideo');
     const thumbnailGroup = document.getElementById('thumbnailGroup');
     const videoFramesGallery = document.getElementById('videoFramesGallery');
+    const videoTitleDisplay = document.getElementById('videoTitleDisplay');
+    const videoTitleGroup = document.getElementById('videoTitleGroup');
     
     if (fileInput) fileInput.value = '';
     if (filePreview) filePreview.style.display = 'none';
     if (thumbnailGroup) thumbnailGroup.style.display = 'none';
     if (videoFramesGallery) videoFramesGallery.style.display = 'none';
+    if (videoTitleDisplay) videoTitleDisplay.style.display = 'none';
+    if (videoTitleGroup) videoTitleGroup.style.display = 'none';
     if (previewVideo && previewVideo.src) {
         // Verificar se é blob URL antes de revogar
         if (previewVideo.src.startsWith('blob:')) {
