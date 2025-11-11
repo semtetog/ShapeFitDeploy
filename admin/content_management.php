@@ -3443,7 +3443,7 @@ function selectVideoFrameForExisting(fileId, frameDataUrl, frameElement, framesC
     
     // Salvar automaticamente a thumbnail selecionada
     if (fileId && frameDataUrl) {
-        saveFileThumbnail(fileId, frameDataUrl);
+        saveFileThumbnail(fileId, frameDataUrl, framesContainer);
     }
 }
 
@@ -3595,7 +3595,7 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
 }
 
 // Função para salvar thumbnail de um arquivo específico
-function saveFileThumbnail(fileId, frameDataUrl) {
+function saveFileThumbnail(fileId, frameDataUrl, framesContainer = null) {
     if (!fileId || !frameDataUrl) return;
     
     // Converter data URL para blob
@@ -3624,6 +3624,21 @@ function saveFileThumbnail(fileId, frameDataUrl) {
                         video.poster = frameDataUrl;
                     }
                 }
+                
+                // Se houver container de thumbnails, remover após salvar com sucesso
+                // Isso permite que o usuário possa editar novamente sem problemas
+                if (framesContainer) {
+                    const thumbnailContainer = framesContainer.closest('.thumbnail-container');
+                    if (thumbnailContainer) {
+                        // Adicionar uma pequena animação de fade out antes de remover
+                        thumbnailContainer.style.transition = 'opacity 0.3s ease';
+                        thumbnailContainer.style.opacity = '0';
+                        setTimeout(() => {
+                            thumbnailContainer.remove();
+                        }, 300);
+                    }
+                }
+                
                 // Não mostrar alerta, apenas atualizar silenciosamente
                 // A atualização visual já acontece acima
             } else {
