@@ -2130,15 +2130,22 @@ function editContent(contentId) {
             const currentVideoTitleDisplay = document.getElementById('currentVideoTitleDisplay');
             const currentVideoTitleDisplayText = document.getElementById('currentVideoTitleDisplayText');
             
-            if (content.video_title && videoTitleInput) {
-                videoTitleInput.value = content.video_title;
-                // Mostrar título abaixo do vídeo atual
-                if (currentVideoTitleDisplay && currentVideoTitleDisplayText && content.content_type === 'videos') {
+            if (videoTitleInput) {
+                if (content.video_title) {
+                    videoTitleInput.value = content.video_title;
+                } else {
+                    videoTitleInput.value = '';
+                }
+            }
+            
+            // Mostrar título abaixo do vídeo atual (sempre verificar se é vídeo e se tem título)
+            if (currentVideoTitleDisplay && currentVideoTitleDisplayText) {
+                if (content.content_type === 'videos' && content.video_title && content.video_title.trim() !== '') {
                     currentVideoTitleDisplayText.textContent = content.video_title;
                     currentVideoTitleDisplay.style.display = 'block';
+                } else {
+                    currentVideoTitleDisplay.style.display = 'none';
                 }
-            } else if (currentVideoTitleDisplay) {
-                currentVideoTitleDisplay.style.display = 'none';
             }
             
             // Mostrar campo de mini título se for vídeo
@@ -2345,12 +2352,13 @@ function submitFormData(formData) {
             showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
             
             // Atualizar ID do conteúdo se foi criado
+            let contentId = document.getElementById('contentId').value;
             if (data.content_id) {
-                document.getElementById('contentId').value = data.content_id;
+                contentId = data.content_id;
+                document.getElementById('contentId').value = contentId;
             }
             
             // Recarregar dados do conteúdo para mostrar o arquivo salvo
-            const contentId = document.getElementById('contentId').value;
             if (contentId) {
                 // Limpar previews de novos arquivos
                 clearFilePreview();
