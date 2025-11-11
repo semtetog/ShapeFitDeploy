@@ -2256,8 +2256,8 @@ function editContent(contentId, preserveNewFilePreview = false) {
                 }
             }
             
-            // Mostrar campo de mini título se for vídeo
-            if (content.content_type === 'videos' && videoTitleGroup) {
+            // Mostrar campo de título para vídeos e PDFs
+            if ((content.content_type === 'videos' || content.content_type === 'pdf') && videoTitleGroup) {
                 videoTitleGroup.style.display = 'block';
             } else if (videoTitleGroup) {
                 videoTitleGroup.style.display = 'none';
@@ -2370,7 +2370,7 @@ function editVideoTitle(titleDiv, fileId, contentId) {
     input.select();
     
     const restoreTitle = (text) => {
-        const displayText = text || 'Clique para adicionar título';
+        const displayText = text && text.trim() !== '' ? text : 'Sem título';
         titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${displayText}</p>`;
         
         // Atualizar dataset com o valor atual do input (caso tenha sido editado)
