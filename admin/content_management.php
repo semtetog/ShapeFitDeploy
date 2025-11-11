@@ -1367,12 +1367,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Content Grid -->
         <div class="content-grid" id="contentGrid">
-            <?php 
-            // Se for requisição AJAX, retornar apenas o grid
-            if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
-                // Retornar apenas o HTML do grid
-            }
-            if (empty($contents)): ?>
+            <?php if (empty($contents)): ?>
                 <div class="empty-state">
                     <div class="empty-icon">
                     <i class="fas fa-file-alt"></i>
