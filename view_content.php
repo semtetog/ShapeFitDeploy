@@ -547,9 +547,7 @@ body {
                                 <?php echo htmlspecialchars($pdf_title); ?>
                             </h3>
                             <a href="<?php echo htmlspecialchars($file_url); ?>" 
-                               target="_blank" 
-                               rel="noopener noreferrer"
-                               onclick="window.open(this.href, '_blank', 'noopener,noreferrer'); return false;"
+                               onclick="event.preventDefault(); var link = document.createElement('a'); link.href = this.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; document.body.appendChild(link); link.click(); document.body.removeChild(link); return false;"
                                class="content-pdf-card">
                                 <i class="fas fa-file-pdf content-pdf-icon"></i>
                                 <div class="content-pdf-label">
