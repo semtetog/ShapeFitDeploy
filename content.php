@@ -104,19 +104,37 @@ try {
             $where_conditions[] = "(" . implode(" OR ", $target_conditions) . ")";
         }
         
-        $content_query = "SELECT mc.*, a.full_name as author_name, a.profile_image_filename 
-                          FROM sf_member_content mc 
-                          LEFT JOIN sf_admins a ON mc.admin_id = a.id";
-        if (!empty($where_conditions)) {
-            $content_query .= " WHERE " . implode(" AND ", $where_conditions);
+        // Verificar se a tabela de arquivos existe
+        $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+        $has_files_table = ($check_files_table && $check_files_table->num_rows > 0);
+        
+        if ($has_files_table) {
+            // Usar JOIN com sf_content_files para buscar apenas conteúdos com arquivos
+            $content_query = "SELECT DISTINCT mc.*, a.full_name as author_name, a.profile_image_filename 
+                              FROM sf_member_content mc 
+                              LEFT JOIN sf_admins a ON mc.admin_id = a.id
+                              INNER JOIN sf_content_files cf ON mc.id = cf.content_id";
+            if (!empty($where_conditions)) {
+                $content_query .= " WHERE " . implode(" AND ", $where_conditions);
+            } else {
+                $content_query .= " WHERE 1=1";
+            }
         } else {
-            $content_query .= " WHERE ";
-        }
-        // Garantir que apenas conteúdos com arquivo sejam mostrados
-        if (!empty($where_conditions)) {
-            $content_query .= " AND mc.file_path IS NOT NULL AND mc.file_path != ''";
-        } else {
-            $content_query .= " mc.file_path IS NOT NULL AND mc.file_path != ''";
+            // Método antigo: verificar file_path em sf_member_content
+            $content_query = "SELECT mc.*, a.full_name as author_name, a.profile_image_filename 
+                              FROM sf_member_content mc 
+                              LEFT JOIN sf_admins a ON mc.admin_id = a.id";
+            if (!empty($where_conditions)) {
+                $content_query .= " WHERE " . implode(" AND ", $where_conditions);
+            } else {
+                $content_query .= " WHERE ";
+            }
+            // Garantir que apenas conteúdos com arquivo sejam mostrados
+            if (!empty($where_conditions)) {
+                $content_query .= " AND mc.file_path IS NOT NULL AND mc.file_path != ''";
+            } else {
+                $content_query .= " mc.file_path IS NOT NULL AND mc.file_path != ''";
+            }
         }
         $content_query .= " ORDER BY mc.created_at DESC";
         
