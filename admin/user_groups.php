@@ -1054,10 +1054,7 @@ require_once __DIR__ . '/includes/header.php';
     margin-bottom: 18px;
 }
 
-#goalsModal .challenge-form-row:last-child {
-    margin-bottom: 0;
-}
-
+/* Os grupos dentro das linhas não devem ter margin-bottom, apenas gap */
 #goalsModal .challenge-form-row .challenge-form-group {
     margin-bottom: 0;
 }
