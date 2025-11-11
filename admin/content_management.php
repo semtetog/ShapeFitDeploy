@@ -3433,7 +3433,8 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
     
     // Mostrar grupo de thumbnail
     thumbnailGroup.style.display = 'block';
-    videoFramesGallery.style.display = 'block'; // Mostrar a galeria para que os frames possam ser exibidos
+    // A galeria será exibida quando os frames forem gerados
+    videoFramesGallery.style.display = 'none'; // Inicialmente escondida, será mostrada quando os frames estiverem prontos
     
     // Adicionar loading
     const loadingDiv = document.createElement('div');
