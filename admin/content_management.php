@@ -2191,12 +2191,12 @@ function editContent(contentId, preserveNewFilePreview = false) {
                     
                     currentFilesList.appendChild(fileItem);
                     
-                    // Título do vídeo (se existir)
+                    // Título do vídeo (se existir) - mais compacto
                     if (isVideo && file.video_title && file.video_title.trim() !== '') {
                         const titleDiv = document.createElement('div');
-                        titleDiv.style.cssText = 'margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(255, 107, 0, 0.1); border-radius: 8px; border-left: 3px solid var(--accent-orange); max-width: 300px;';
-                        titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 600; font-size: 0.875rem;">${file.video_title}</p>`;
-                        currentFilesList.appendChild(titleDiv);
+                        titleDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.375rem 0.5rem; background: rgba(255, 107, 0, 0.08); border-radius: 6px; max-width: 300px;';
+                        titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.3;">${file.video_title}</p>`;
+                        fileItem.parentNode.insertBefore(titleDiv, fileItem.nextSibling);
                     }
                 });
                 
