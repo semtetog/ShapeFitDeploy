@@ -163,17 +163,20 @@ require_once __DIR__ . '/includes/header.php';
 .flow-canvas {
     width: 100%;
     height: 100%;
+    min-width: 2000px;
+    min-height: 2000px;
     position: relative;
     cursor: grab;
     transform-origin: top left;
     transition: transform 0.1s ease-out;
     background-color: #1a1a1a;
-    /* Grid cinza clarinho que se move com zoom/pan */
+    /* Grid cinza mais escuro que cobre todo o canvas */
     background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
     background-size: 20px 20px;
     background-position: 0 0;
+    background-repeat: repeat;
 }
 
 .flow-canvas.dragging {
@@ -188,6 +191,7 @@ require_once __DIR__ . '/includes/header.php';
     position: absolute;
     min-width: 200px;
     max-width: 300px;
+    width: auto;
     background: rgba(255, 255, 255, 0.08);
     border: 2px solid var(--glass-border);
     border-radius: 12px;
@@ -196,6 +200,8 @@ require_once __DIR__ . '/includes/header.php';
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     user-select: none;
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
 .flow-node:hover {
