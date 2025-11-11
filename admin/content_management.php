@@ -2196,31 +2196,29 @@ function editContent(contentId, preserveNewFilePreview = false) {
                     // Adicionar arquivo ao container
                     fileContainer.appendChild(fileItem);
                     
-                    // Título do vídeo (se existir) - diretamente abaixo do vídeo - EDITÁVEL
-                    if (isVideo) {
-                        const titleDiv = document.createElement('div');
-                        titleDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.375rem 0.625rem; background: rgba(255, 107, 0, 0.06); border-radius: 6px; border: 1px solid rgba(255, 107, 0, 0.15); cursor: pointer; transition: all 0.2s ease;';
-                        titleDiv.dataset.fileId = file.id || '';
-                        titleDiv.dataset.contentId = content.id;
-                        titleDiv.dataset.originalTitle = file.video_title || '';
-                        
-                        const titleText = file.video_title && file.video_title.trim() !== '' ? file.video_title : 'Clique para adicionar título';
-                        titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${titleText}</p>`;
-                        
-                        // Anexar event listeners usando addEventListener para garantir que funcionem
-                        titleDiv.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            editVideoTitle(titleDiv, file.id || null, content.id);
-                        });
-                        titleDiv.addEventListener('mouseenter', () => {
-                            titleDiv.style.background = 'rgba(255, 107, 0, 0.1)';
-                        });
-                        titleDiv.addEventListener('mouseleave', () => {
-                            titleDiv.style.background = 'rgba(255, 107, 0, 0.06)';
-                        });
-                        
-                        fileContainer.appendChild(titleDiv);
-                    }
+                    // Título do arquivo (vídeo ou PDF) - diretamente abaixo do arquivo - EDITÁVEL
+                    const titleDiv = document.createElement('div');
+                    titleDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.375rem 0.625rem; background: rgba(255, 107, 0, 0.06); border-radius: 6px; border: 1px solid rgba(255, 107, 0, 0.15); cursor: pointer; transition: all 0.2s ease;';
+                    titleDiv.dataset.fileId = file.id || '';
+                    titleDiv.dataset.contentId = content.id;
+                    titleDiv.dataset.originalTitle = file.video_title || '';
+                    
+                    const titleText = file.video_title && file.video_title.trim() !== '' ? file.video_title : 'Sem título';
+                    titleDiv.innerHTML = `<p style="margin: 0; color: var(--accent-orange); font-weight: 500; font-size: 0.75rem; line-height: 1.4; text-align: center; user-select: none;">${titleText}</p>`;
+                    
+                    // Anexar event listeners usando addEventListener para garantir que funcionem
+                    titleDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        editVideoTitle(titleDiv, file.id || null, content.id);
+                    });
+                    titleDiv.addEventListener('mouseenter', () => {
+                        titleDiv.style.background = 'rgba(255, 107, 0, 0.1)';
+                    });
+                    titleDiv.addEventListener('mouseleave', () => {
+                        titleDiv.style.background = 'rgba(255, 107, 0, 0.06)';
+                    });
+                    
+                    fileContainer.appendChild(titleDiv);
                     
                     // Adicionar container completo à lista
                     currentFilesList.appendChild(fileContainer);
@@ -2778,11 +2776,12 @@ function handleFileSelect(event) {
         pdfPreview.style.display = 'block';
         filePreview.style.display = 'block';
         
-        // Ocultar campo de título e thumbnails para PDF
+        // Mostrar campo de título para PDF também
         const videoTitleGroup = document.getElementById('videoTitleGroup');
         if (videoTitleGroup) {
-            videoTitleGroup.style.display = 'none';
+            videoTitleGroup.style.display = 'block';
         }
+        // Ocultar apenas thumbnails para PDF
         thumbnailGroup.style.display = 'none';
     }
 }
