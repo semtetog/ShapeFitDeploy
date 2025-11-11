@@ -42,18 +42,14 @@ try {
 
 // Buscar conteúdos disponíveis (apenas ativos)
 $content_query = "
-    SELECT mc.*, 
-           GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories
+    SELECT mc.*
     FROM sf_member_content mc
-    LEFT JOIN sf_content_category_relations ccr ON mc.id = ccr.content_id
-    LEFT JOIN sf_categories c ON ccr.category_id = c.id
     WHERE mc.status = 'active'
     AND (
         mc.target_type = 'all'
         OR (mc.target_type = 'user' AND mc.target_id = ?)
         " . (!empty($user_group_ids) ? "OR (mc.target_type = 'group' AND mc.target_id IN (" . implode(',', array_fill(0, count($user_group_ids), '?')) . "))" : "") . "
     )
-    GROUP BY mc.id
     ORDER BY mc.created_at DESC
 ";
 
@@ -342,12 +338,6 @@ body {
                             <i class="<?php echo $icon; ?>"></i>
                             <?php echo $label; ?>
                         </span>
-                        <?php if (!empty($content['categories'])): ?>
-                            <span class="content-categories">
-                                <i class="fas fa-tag"></i>
-                                <?php echo htmlspecialchars($content['categories']); ?>
-                            </span>
-                        <?php endif; ?>
                     </div>
                 </a>
             <?php endforeach; ?>

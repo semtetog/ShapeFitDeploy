@@ -1500,6 +1500,15 @@ require_once __DIR__ . '/includes/header.php';
                     <label for="contentFile">Arquivo</label>
                     <input type="file" id="contentFile" name="file" class="challenge-form-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf">
                     <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Formatos aceitos: Vídeos (MP4, MOV, AVI, WebM) ou PDF. Máximo: 100MB para vídeos, 10MB para PDF.</small>
+                    <div id="currentFileInfo" style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px; display: none;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;">
+                            <i class="fas fa-file"></i>
+                            <span id="currentFileName"></span>
+                            <a href="#" id="currentFileLink" target="_blank" style="margin-left: auto; color: var(--accent-orange); text-decoration: none;">
+                                <i class="fas fa-external-link-alt"></i> Ver arquivo
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 
@@ -1773,6 +1782,7 @@ function openCreateContentModal() {
     document.getElementById('contentId').value = '';
     document.getElementById('fileUploadGroup').style.display = 'block';
     document.getElementById('targetIdGroup').style.display = 'none';
+    document.getElementById('currentFileInfo').style.display = 'none';
     
     // Resetar custom selects
     resetCustomSelect('contentTypeSelect', 'contentType', '', 'Selecione...');
@@ -1933,6 +1943,23 @@ function editContent(contentId) {
             setCustomSelectValue('contentTypeSelect', 'contentType', content.content_type || '');
             setCustomSelectValue('targetTypeSelect', 'targetType', content.target_type || 'all');
             // Status não é editado no modal, apenas via toggle no card
+            
+            // Mostrar arquivo atual se existir
+            const currentFileInfo = document.getElementById('currentFileInfo');
+            const currentFileName = document.getElementById('currentFileName');
+            const currentFileLink = document.getElementById('currentFileLink');
+            if (content.file_path && content.file_name) {
+                currentFileName.textContent = content.file_name;
+                // Construir URL do arquivo
+                let fileUrl = content.file_path;
+                if (!fileUrl.startsWith('http') && !fileUrl.startsWith('/')) {
+                    fileUrl = '/' + fileUrl;
+                }
+                currentFileLink.href = fileUrl;
+                currentFileInfo.style.display = 'block';
+            } else {
+                currentFileInfo.style.display = 'none';
+            }
             
             // Toggle campos baseado no tipo
             toggleContentFields();
