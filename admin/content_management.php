@@ -1868,7 +1868,11 @@ function openCreateContentModal() {
     document.getElementById('contentId').value = '';
     document.getElementById('fileUploadGroup').style.display = 'block';
     document.getElementById('targetIdGroup').style.display = 'none';
-    document.getElementById('currentFileInfo').style.display = 'none';
+    // Ocultar currentFileInfo apenas ao criar novo (não ao editar)
+    const currentFileInfo = document.getElementById('currentFileInfo');
+    if (currentFileInfo) {
+        currentFileInfo.style.display = 'none';
+    }
     clearFilePreview();
     clearThumbnailPreview();
     
