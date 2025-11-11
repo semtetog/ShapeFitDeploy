@@ -32,3 +32,4 @@ CREATE TABLE IF NOT EXISTS `sf_user_group_goals` (
   CONSTRAINT `fk_group_goals_admin` FOREIGN KEY (`admin_id`) REFERENCES `sf_admins` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Metas padrão dos grupos de usuários';
 
+

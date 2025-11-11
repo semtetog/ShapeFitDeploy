@@ -20,3 +20,4 @@ MODIFY COLUMN `notification_type` enum('rank_change','overtake','milestone','dai
 
 -- PRONTO! Os dados e tipos estão corretos agora.
 
+

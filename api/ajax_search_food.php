@@ -59,7 +59,7 @@ try {
         if ($user_id) {
             $stmt_local->bind_param("sis", $local_term, $user_id, $start_term);
         } else {
-            $stmt_local->bind_param("ss", $local_term, $start_term);
+        $stmt_local->bind_param("ss", $local_term, $start_term);
         }
         $stmt_local->execute();
         $result_set = $stmt_local->get_result();

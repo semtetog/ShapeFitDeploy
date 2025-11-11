@@ -20,3 +20,4 @@ AND REFERENCED_TABLE_NAME IS NOT NULL;
 -- Ver índices
 SHOW INDEX FROM `sf_challenge_notifications`;
 
+

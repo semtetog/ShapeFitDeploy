@@ -109,6 +109,14 @@ try {
                           LEFT JOIN sf_admins a ON mc.admin_id = a.id";
         if (!empty($where_conditions)) {
             $content_query .= " WHERE " . implode(" AND ", $where_conditions);
+        } else {
+            $content_query .= " WHERE ";
+        }
+        // Garantir que apenas conteúdos com arquivo sejam mostrados
+        if (!empty($where_conditions)) {
+            $content_query .= " AND mc.file_path IS NOT NULL AND mc.file_path != ''";
+        } else {
+            $content_query .= " mc.file_path IS NOT NULL AND mc.file_path != ''";
         }
         $content_query .= " ORDER BY mc.created_at DESC";
         
@@ -328,6 +336,11 @@ body {
 .empty-state {
     text-align: center;
     padding: 60px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
 }
 
 .empty-state-icon {

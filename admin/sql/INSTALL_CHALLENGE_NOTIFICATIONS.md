@@ -27,3 +27,4 @@ O sistema funcionará completamente:
 - Os pontos ainda serão calculados e atualizados
 - O dashboard de progresso funcionará normalmente
 
+

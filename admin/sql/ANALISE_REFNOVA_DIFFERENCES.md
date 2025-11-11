@@ -64,3 +64,4 @@ Execute o arquivo `FIX_CHALLENGE_NOTIFICATIONS_STRUCTURE.sql` para ajustar a est
 - **Tabelas a ajustar**: 1 tabela (sf_challenge_notifications)
 - **Ação necessária**: Executar script de migração para ajustar estrutura
 
+

@@ -117,3 +117,4 @@ O sistema está **funcional e completo** para uso em produção. As melhorias su
 - ⚠️ Logs de auditoria
 - ⚠️ Exportação de dados
 
+

@@ -32,3 +32,4 @@ CREATE TABLE IF NOT EXISTS `sf_challenge_user_rank_snapshot` (
   CONSTRAINT `fk_challenge_rank_snapshot_user` FOREIGN KEY (`user_id`) REFERENCES `sf_users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+

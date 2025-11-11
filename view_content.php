@@ -383,10 +383,6 @@ body {
                 <i class="fas fa-calendar"></i>
                 <span><?php echo date('d/m/Y', strtotime($content['created_at'])); ?></span>
             </div>
-            <div class="content-meta-item">
-                <i class="fas fa-file"></i>
-                <span><?php echo ucfirst($content['content_type']); ?></span>
-            </div>
         </div>
     </div>
 </div>

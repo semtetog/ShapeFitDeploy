@@ -1516,10 +1516,6 @@ require_once __DIR__ . '/includes/header.php';
                         <div style="position: relative; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); max-width: 400px;">
                             <div id="videoPreview" style="display: none;">
                                 <video id="previewVideo" style="width: 100%; max-height: 200px; display: block;" controls></video>
-                                <!-- Título do vídeo abaixo do vídeo (se preenchido) -->
-                                <div id="videoTitleDisplay" style="display: none; margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(255, 107, 0, 0.1); border-radius: 8px; border-left: 3px solid var(--accent-orange);">
-                                    <p style="margin: 0; color: var(--accent-orange); font-weight: 600; font-size: 0.875rem;" id="videoTitleDisplayText"></p>
-                                </div>
                             </div>
                             <div id="pdfPreview" style="display: none; padding: 1.5rem; text-align: center;">
                                 <i class="fas fa-file-pdf" style="font-size: 2.5rem; color: var(--accent-orange); margin-bottom: 0.75rem;"></i>
@@ -2470,9 +2466,6 @@ function handleFileSelect(event) {
         }
         thumbnailGroup.style.display = 'block';
         
-        // Atualizar display do título se já houver valor
-        updateVideoTitleDisplay();
-        
         // Aguardar o vídeo carregar para extrair frames
         previewVideo.onloadedmetadata = function() {
             generateVideoFrames(previewVideo);
@@ -2517,92 +2510,96 @@ function removeCurrentFile() {
         return;
     }
     
-    if (!confirm('Tem certeza que deseja remover este arquivo permanentemente? Esta ação não pode ser desfeita.')) {
-        return;
-    }
-    
-    // Remover imediatamente via AJAX
-    const formData = new FormData();
-    formData.append('action', 'remove_file');
-    formData.append('content_id', contentId);
-    
-    // Mostrar loading
-    const removeButton = event.target.closest('button');
-    const originalText = removeButton.innerHTML;
-    removeButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removendo...';
-    removeButton.disabled = true;
-    
-    fetch('ajax_content_management.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
-        const text = await response.text();
-        if (!response.ok) {
-            let errorMsg = 'Erro ao remover arquivo';
-            try {
-                const json = JSON.parse(text);
-                errorMsg = json.error || errorMsg;
-            } catch (e) {
-                errorMsg = text || `Erro HTTP ${response.status}`;
-            }
-            throw new Error(errorMsg);
-        }
-        
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            throw new Error('Resposta inválida do servidor');
-        }
-    })
-    .then(data => {
-        if (data.success) {
-            // Ocultar arquivo atual
+    // Mostrar modal de confirmação
+    showConfirm(
+        'Remover Arquivo',
+        'Tem certeza que deseja remover este arquivo permanentemente? Esta ação não pode ser desfeita.',
+        function() {
+            // Remover imediatamente via AJAX
+            const formData = new FormData();
+            formData.append('action', 'remove_file');
+            formData.append('content_id', contentId);
+            
+            // Mostrar loading
             const currentFileInfo = document.getElementById('currentFileInfo');
-            if (currentFileInfo) {
-                currentFileInfo.style.display = 'none';
+            const currentFilePreview = document.getElementById('currentFilePreview');
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.style.cssText = 'position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 20; border-radius: 12px;';
+            loadingOverlay.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: white;"></i>';
+            if (currentFilePreview) {
+                currentFilePreview.style.position = 'relative';
+                currentFilePreview.appendChild(loadingOverlay);
             }
             
-            // Limpar input de arquivo
-            const fileInput = document.getElementById('contentFile');
-            if (fileInput) {
-                fileInput.value = '';
-                fileInput.setAttribute('required', 'required');
-            }
-            
-            // Limpar previews
-            clearFilePreview();
-            clearThumbnailPreview();
-            
-            // Resetar tipo de conteúdo
-            document.getElementById('contentType').value = '';
-            
-            // Limpar dados do arquivo atual
-            currentFileData = null;
-            fileRemoved = false; // Já foi removido no servidor
-            
-            showAlert('Sucesso', 'Arquivo removido com sucesso!');
-            
-            // Recarregar dados do conteúdo para atualizar a interface
-            const contentId = document.getElementById('contentId').value;
-            if (contentId) {
-                editContent(contentId);
-            }
-        } else {
-            throw new Error(data.error || 'Erro ao remover arquivo');
+            fetch('ajax_content_management.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(async response => {
+                const text = await response.text();
+                if (loadingOverlay && loadingOverlay.parentNode) {
+                    loadingOverlay.remove();
+                }
+                
+                if (!response.ok) {
+                    let errorMsg = 'Erro ao remover arquivo';
+                    try {
+                        const json = JSON.parse(text);
+                        errorMsg = json.error || errorMsg;
+                    } catch (e) {
+                        errorMsg = text || `Erro HTTP ${response.status}`;
+                    }
+                    throw new Error(errorMsg);
+                }
+                
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    throw new Error('Resposta inválida do servidor');
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    // Ocultar arquivo atual
+                    if (currentFileInfo) {
+                        currentFileInfo.style.display = 'none';
+                    }
+                    
+                    // Limpar input de arquivo
+                    const fileInput = document.getElementById('contentFile');
+                    if (fileInput) {
+                        fileInput.value = '';
+                        fileInput.setAttribute('required', 'required');
+                    }
+                    
+                    // Limpar previews
+                    clearFilePreview();
+                    clearThumbnailPreview();
+                    
+                    // Resetar tipo de conteúdo
+                    document.getElementById('contentType').value = '';
+                    
+                    // Limpar dados do arquivo atual
+                    currentFileData = null;
+                    fileRemoved = false; // Já foi removido no servidor
+                    
+                    showAlert('Sucesso', 'Arquivo removido com sucesso!');
+                    
+                    // Recarregar dados do conteúdo para atualizar a interface
+                    const contentIdValue = document.getElementById('contentId').value;
+                    if (contentIdValue) {
+                        editContent(contentIdValue);
+                    }
+                } else {
+                    throw new Error(data.error || 'Erro ao remover arquivo');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                showAlert('Erro', error.message || 'Erro ao remover arquivo. Tente novamente.');
+            });
         }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        showAlert('Erro', 'Erro ao remover arquivo: ' + error.message);
-    })
-    .finally(() => {
-        // Restaurar botão
-        if (removeButton) {
-            removeButton.innerHTML = originalText;
-            removeButton.disabled = false;
-        }
-    });
+    );
 }
 
 // Função para gerar frames do vídeo
@@ -2781,21 +2778,9 @@ function openCurrentFile() {
     window.open(fileUrl, '_blank');
 }
 
-// Função para atualizar display do título do vídeo
+// Função para atualizar display do título do vídeo (não usado no preview, só após salvar)
 function updateVideoTitleDisplay() {
-    const videoTitleInput = document.getElementById('videoTitle');
-    const videoTitleDisplay = document.getElementById('videoTitleDisplay');
-    const videoTitleDisplayText = document.getElementById('videoTitleDisplayText');
-    
-    if (!videoTitleInput || !videoTitleDisplay || !videoTitleDisplayText) return;
-    
-    const title = videoTitleInput.value.trim();
-    if (title) {
-        videoTitleDisplayText.textContent = title;
-        videoTitleDisplay.style.display = 'block';
-    } else {
-        videoTitleDisplay.style.display = 'none';
-    }
+    // Não fazer nada - título só aparece após salvar
 }
 
 // Função para limpar preview do arquivo
@@ -2805,14 +2790,12 @@ function clearFilePreview() {
     const previewVideo = document.getElementById('previewVideo');
     const thumbnailGroup = document.getElementById('thumbnailGroup');
     const videoFramesGallery = document.getElementById('videoFramesGallery');
-    const videoTitleDisplay = document.getElementById('videoTitleDisplay');
     const videoTitleGroup = document.getElementById('videoTitleGroup');
     
     if (fileInput) fileInput.value = '';
     if (filePreview) filePreview.style.display = 'none';
     if (thumbnailGroup) thumbnailGroup.style.display = 'none';
     if (videoFramesGallery) videoFramesGallery.style.display = 'none';
-    if (videoTitleDisplay) videoTitleDisplay.style.display = 'none';
     if (videoTitleGroup) videoTitleGroup.style.display = 'none';
     if (previewVideo && previewVideo.src) {
         // Verificar se é blob URL antes de revogar

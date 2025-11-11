@@ -79,3 +79,4 @@ ADD INDEX `idx_challenge_user_type_created` (`challenge_group_id`, `user_id`, `n
 -- ============================================================================
 SHOW COLUMNS FROM `sf_challenge_notifications`;
 
+

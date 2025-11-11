@@ -59,3 +59,4 @@ ADD INDEX `idx_user_read` (`user_id`, `is_read`);
 ALTER TABLE `sf_challenge_notifications` 
 ADD INDEX `idx_challenge_user_type_created` (`challenge_group_id`, `user_id`, `notification_type`, `created_at`);
 
+

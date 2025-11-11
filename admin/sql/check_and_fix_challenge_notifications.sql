@@ -50,3 +50,4 @@ ALTER TABLE `sf_challenge_notifications`
 ADD INDEX IF NOT EXISTS `idx_challenge_notifications_group` (`challenge_group_id`),
 ADD INDEX IF NOT EXISTS `idx_challenge_notifications_type` (`notification_type`);
 
+

@@ -65,8 +65,8 @@ if (!empty($source_filter)) {
     } else {
         // Para outras fontes, mostrar apenas alimentos globais (added_by_user_id IS NULL)
         $conditions[] = "source_table = ? AND added_by_user_id IS NULL";
-        $params[] = $source_filter;
-        $types .= 's';
+    $params[] = $source_filter;
+    $types .= 's';
     }
 } else {
     // Se não há filtro, mostrar apenas alimentos globais (não mostrar alimentos criados por usuários)
@@ -117,8 +117,8 @@ if (!empty($source_filter)) {
     } else {
         // Para outras fontes, mostrar apenas alimentos globais (added_by_user_id IS NULL)
         $count_conditions[] = "source_table = ? AND added_by_user_id IS NULL";
-        $count_params[] = $source_filter;
-        $count_types .= 's';
+    $count_params[] = $source_filter;
+    $count_types .= 's';
     }
 } else {
     // Se não há filtro, mostrar apenas alimentos globais (não mostrar alimentos criados por usuários)
@@ -1410,8 +1410,8 @@ require_once __DIR__ . '/includes/header.php';
     const valueDisplay = customSelect.querySelector('.custom-select-value');
 
     // Abre/fecha o dropdown - COPIADO DO food_classification.php
-    trigger.addEventListener('click', function(e) {
-        e.stopPropagation();
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
         const isOpening = !customSelect.classList.contains('active');
         
         // Se estiver abrindo, fecha todos os outros primeiro
@@ -1457,7 +1457,7 @@ require_once __DIR__ . '/includes/header.php';
     });
 
     // Seleciona uma opção
-    options.forEach(option => {
+        options.forEach(option => {
         option.addEventListener('click', function(e) {
             e.stopPropagation();
             
@@ -1468,7 +1468,7 @@ require_once __DIR__ . '/includes/header.php';
             
             // Remove a classe 'selected' de todos e adiciona na clicada
             options.forEach(opt => opt.classList.remove('selected'));
-            this.classList.add('selected');
+                this.classList.add('selected');
 
             // Fecha o dropdown
             customSelect.classList.remove('active');
@@ -1486,9 +1486,9 @@ require_once __DIR__ . '/includes/header.php';
             if (form) {
                 form.submit();
             }
+            });
         });
-    });
-
+        
     // Função para fechar dropdown
     function closeDropdown() {
         customSelect.classList.remove('active');
@@ -1503,18 +1503,18 @@ require_once __DIR__ . '/includes/header.php';
     }
 
     // Fecha o dropdown se clicar fora
-    document.addEventListener('click', function(e) {
+        document.addEventListener('click', function(e) {
         if (!customSelect.contains(e.target)) {
             closeDropdown();
-        }
-    });
+            }
+        });
 
     // Fecha com a tecla Esc
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeDropdown();
-        }
-    });
+    }
+});
 })();
 
 // Modal de Edição de Alimento
@@ -1578,8 +1578,8 @@ function openEditFoodModal(foodId) {
                 const sourceValue = food.source_table || 'Manual';
                 const sourceInput = document.getElementById('food-source');
                 if (sourceInput) {
-                    sourceInput.value = sourceValue;
-                }
+                sourceInput.value = sourceValue;
+                    }
                 
                 // Aguarda o modal abrir para atualizar as tags
                 document.getElementById('food-delete-btn').style.display = food.id ? 'flex' : 'none';
@@ -1711,7 +1711,7 @@ function closeApproveFoodModal() {
     }
     document.body.style.overflow = '';
     currentFoodIdToApprove = null;
-}
+        }
 
 function confirmApproveFood() {
     if (!currentFoodIdToApprove) {
@@ -1751,7 +1751,7 @@ function confirmApproveFood() {
 // Inicializar tags de fonte no modal
 document.addEventListener('DOMContentLoaded', function() {
     const sourceTags = document.querySelectorAll('.source-tag');
-    const sourceInput = document.getElementById('food-source');
+        const sourceInput = document.getElementById('food-source');
     
     if (sourceTags.length > 0 && sourceInput) {
         sourceTags.forEach(tag => {
@@ -1797,25 +1797,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-info-circle"></i>
                         <span>Valores nutricionais por 100 gramas</span>
                     </div>
-                </div>
-                
+                    </div>
+                    
                 <div class="food-macros-section">
                     <div class="food-macros-grid">
                         <div class="food-form-group">
                             <label for="food-energy">Calorias</label>
                             <input type="number" step="0.1" id="food-energy" name="energy_kcal_100g" class="food-form-input" required placeholder="0.0">
-                        </div>
+                    </div>
                         
                         <div class="food-form-group">
                             <label for="food-protein">Proteína</label>
                             <input type="number" step="0.1" id="food-protein" name="protein_g_100g" class="food-form-input" required placeholder="0.0">
-                        </div>
-                        
+                </div>
+                
                         <div class="food-form-group">
                             <label for="food-carbs">Carboidratos</label>
                             <input type="number" step="0.1" id="food-carbs" name="carbohydrate_g_100g" class="food-form-input" required placeholder="0.0">
-                        </div>
-                        
+                    </div>
+                    
                         <div class="food-form-group">
                             <label for="food-fat">Gorduras</label>
                             <input type="number" step="0.1" id="food-fat" name="fat_g_100g" class="food-form-input" required placeholder="0.0">
@@ -1825,7 +1825,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 <div class="food-form-group">
                     <label for="food-source">Fonte</label>
-                    <input type="hidden" id="food-source" name="source_table" value="Manual">
+                        <input type="hidden" id="food-source" name="source_table" value="Manual">
                     <div class="food-source-tags">
                         <span class="source-badge source-tag manual active" data-value="Manual">Manual</span>
                         <span class="source-badge source-tag taco" data-value="TACO">TACO</span>
@@ -1834,11 +1834,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="source-badge source-tag usda" data-value="USDA">USDA</span>
                         <span class="source-badge source-tag fatsecret" data-value="FatSecret">FatSecret</span>
                         <span class="source-badge source-tag user-created" data-value="user_created">Criado por Usuário</span>
-                    </div>
-                </div>
+                            </div>
+                            </div>
             </form>
-        </div>
-        
+                </div>
+                
         <div class="food-edit-footer">
             <button type="button" class="btn-cancel" onclick="closeFoodEditModal()">Cancelar</button>
             <button type="button" id="food-delete-btn" class="btn-delete" onclick="deleteFood()" style="display: none;">
@@ -1847,10 +1847,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <button type="button" class="btn-save" onclick="saveFood()">
                 <i class="fas fa-save"></i> Salvar
             </button>
+                    </div>
+                    </div>
         </div>
-    </div>
-</div>
-
+        
 <!-- Modal de Confirmação de Aprovação -->
 <div id="approveFoodModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeApproveFoodModal()"></div>
