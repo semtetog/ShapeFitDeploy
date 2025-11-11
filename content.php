@@ -289,7 +289,6 @@ body {
             <i class="fas fa-arrow-left"></i>
         </a>
         <h1 class="page-title">
-            <i class="fas fa-file-alt"></i>
             Conteúdos
         </h1>
     </div>
