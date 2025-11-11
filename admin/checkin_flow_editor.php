@@ -1401,11 +1401,20 @@ function startConnection(e, nodeId, connectorType) {
     const connectorEl = nodeEl.querySelector(`[data-connector="${connectorType}"]`);
     if (!connectorEl) return;
     
-    // Calcular posição baseada nas coordenadas do nó (não getBoundingClientRect)
-    const connectorLocalX = connectorEl.offsetLeft + connectorEl.offsetWidth / 2;
-    const connectorLocalY = connectorEl.offsetTop + connectorEl.offsetHeight / 2;
+    // Calcular posição baseada nas coordenadas do nó
+    const nodeWidth = nodeEl.offsetWidth || 200;
+    const nodeHeight = nodeEl.offsetHeight || 100;
     
-    const canvasRect = canvas.getBoundingClientRect();
+    // Posição do conector em coordenadas locais do nó
+    let connectorLocalX, connectorLocalY;
+    if (connectorType === 'output') {
+        connectorLocalX = nodeWidth / 2;
+        connectorLocalY = nodeHeight; // bottom
+    } else {
+        connectorLocalX = nodeWidth / 2;
+        connectorLocalY = 0; // top
+    }
+    
     const svgRect = connectionsLayer.getBoundingClientRect();
     
     // Posição absoluta no canvas (considerando zoom e pan)
@@ -1658,18 +1667,19 @@ function updateConnections() {
         
         if (!fromConnector || !toConnector) return;
         
-        // Calcular posições baseadas nas coordenadas dos nós (não getBoundingClientRect)
-        // Isso evita problemas com zoom/pan
-        const fromNodeRect = fromEl.getBoundingClientRect();
-        const toNodeRect = toEl.getBoundingClientRect();
-        const canvasRect = canvas.getBoundingClientRect();
-        const svgRect = connectionsLayer.getBoundingClientRect();
+        // Calcular posições baseadas nas coordenadas dos nós
+        // Os conectores estão sempre no centro horizontal e nas bordas verticais
+        const fromNodeWidth = fromEl.offsetWidth || 200;
+        const toNodeWidth = toEl.offsetWidth || 200;
+        const fromNodeHeight = fromEl.offsetHeight || 100;
+        const toNodeHeight = toEl.offsetHeight || 100;
         
         // Posições dos conectores em coordenadas locais do nó
-        const fromConnectorLocalX = fromConnector.offsetLeft + fromConnector.offsetWidth / 2;
-        const fromConnectorLocalY = fromConnector.offsetTop + fromConnector.offsetHeight / 2;
-        const toConnectorLocalX = toConnector.offsetLeft + toConnector.offsetWidth / 2;
-        const toConnectorLocalY = toConnector.offsetTop + toConnector.offsetHeight / 2;
+        // Input: top center, Output: bottom center
+        const fromConnectorLocalX = fromNodeWidth / 2;
+        const fromConnectorLocalY = fromNodeHeight; // bottom
+        const toConnectorLocalX = toNodeWidth / 2;
+        const toConnectorLocalY = 0; // top
         
         // Posições absolutas no canvas (considerando zoom e pan)
         const x1 = (fromNode.x + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
@@ -1678,6 +1688,7 @@ function updateConnections() {
         const y2 = (toNode.y + toConnectorLocalY) * zoomLevel + canvasOffset.y;
         
         // Converter para coordenadas do SVG (relativas ao connectionsLayer)
+        const svgRect = connectionsLayer.getBoundingClientRect();
         const svgX1 = x1 - svgRect.left;
         const svgY1 = y1 - svgRect.top;
         const svgX2 = x2 - svgRect.left;
