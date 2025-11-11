@@ -800,49 +800,63 @@ function stopDragNode() {
 }
 
 function startConnection(e, nodeId, connectorType) {
+    // Só permitir conectar de output para input
+    if (connectorType !== 'output') {
+        return;
+    }
+    
     isConnecting = true;
     connectionStart = { nodeId, connectorType };
     
-    const node = nodes.find(n => n.id === nodeId);
     const nodeEl = document.getElementById(nodeId);
     const connectorEl = nodeEl.querySelector(`[data-connector="${connectorType}"]`);
     const rect = connectorEl.getBoundingClientRect();
-    const canvasRect = canvas.getBoundingClientRect();
+    const svgRect = connectionsLayer.getBoundingClientRect();
     
-    connectionStart.x = rect.left - canvasRect.left + rect.width / 2;
-    connectionStart.y = rect.top - canvasRect.top + rect.height / 2;
+    // Calcular posição inicial relativa ao SVG
+    connectionStart.x = rect.left + rect.width / 2 - svgRect.left;
+    connectionStart.y = rect.top + rect.height / 2 - svgRect.top;
     
     canvas.addEventListener('mousemove', drawConnection);
     canvas.addEventListener('mouseup', endConnection);
+    document.addEventListener('mouseup', endConnection); // Também no document para garantir
     
     e.stopPropagation();
+    e.preventDefault();
 }
 
 function drawConnection(e) {
-    if (!isConnecting) return;
-    
-    const canvasRect = canvas.getBoundingClientRect();
-    const x = e.clientX - canvasRect.left;
-    const y = e.clientY - canvasRect.top;
+    if (!isConnecting || !connectionStart) return;
     
     // Remover linha temporária anterior
-    const existing = connectionsLayer.querySelector('.temp-connection');
+    const existing = connectionsLayer.querySelector('#temp-connection');
     if (existing) existing.remove();
+    
+    // Calcular posição do mouse relativa ao SVG
+    const svgRect = connectionsLayer.getBoundingClientRect();
+    const x = e.clientX - svgRect.left;
+    const y = e.clientY - svgRect.top;
     
     // Criar linha temporária
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('id', 'temp-connection');
     line.setAttribute('x1', connectionStart.x);
     line.setAttribute('y1', connectionStart.y);
     line.setAttribute('x2', x);
     line.setAttribute('y2', y);
-    line.setAttribute('class', 'flow-connection-line connecting temp-connection');
+    line.setAttribute('class', 'flow-connection-line connecting');
+    line.setAttribute('stroke', 'var(--accent-orange)');
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('stroke-dasharray', '5,5');
+    line.setAttribute('fill', 'none');
     connectionsLayer.appendChild(line);
 }
 
 function endConnection(e) {
     if (!isConnecting) return;
     
-    const tempLine = connectionsLayer.querySelector('.temp-connection');
+    // Remover linha temporária
+    const tempLine = connectionsLayer.querySelector('#temp-connection');
     if (tempLine) tempLine.remove();
     
     const target = e.target.closest('.flow-node-connector');
@@ -850,8 +864,9 @@ function endConnection(e) {
         const targetNodeId = target.dataset.node;
         const targetConnector = target.dataset.connector;
         
-        // Só conectar output -> input
-        if (connectionStart.connectorType === 'output' && targetConnector === 'input' && 
+        // Só conectar output -> input e não conectar consigo mesmo
+        if (connectionStart.connectorType === 'output' && 
+            targetConnector === 'input' && 
             connectionStart.nodeId !== targetNodeId) {
             addConnection(connectionStart.nodeId, targetNodeId);
         }
@@ -861,11 +876,19 @@ function endConnection(e) {
     connectionStart = null;
     canvas.removeEventListener('mousemove', drawConnection);
     canvas.removeEventListener('mouseup', endConnection);
+    document.removeEventListener('mouseup', endConnection);
 }
 
 function addConnection(fromNodeId, toNodeId) {
     // Verificar se já existe
     if (connections.some(c => c.from === fromNodeId && c.to === toNodeId)) {
+        console.log('Conexão já existe');
+        return;
+    }
+    
+    // Verificar se os nós existem
+    if (!nodes.some(n => n.id === fromNodeId) || !nodes.some(n => n.id === toNodeId)) {
+        console.log('Nós não encontrados');
         return;
     }
     
@@ -874,11 +897,17 @@ function addConnection(fromNodeId, toNodeId) {
 }
 
 function updateConnections() {
-    // Limpar conexões existentes
-    connectionsLayer.querySelectorAll('.flow-connection').forEach(el => el.remove());
+    // Limpar TODAS as linhas existentes (incluindo temporárias)
+    const allLines = connectionsLayer.querySelectorAll('line');
+    allLines.forEach(el => el.remove());
+    
+    // Remover conexões inválidas (nós que não existem mais)
+    connections = connections.filter(conn => {
+        return nodes.some(n => n.id === conn.from) && nodes.some(n => n.id === conn.to);
+    });
     
     // Desenhar novas conexões
-    connections.forEach(conn => {
+    connections.forEach((conn, index) => {
         const fromNode = nodes.find(n => n.id === conn.from);
         const toNode = nodes.find(n => n.id === conn.to);
         
@@ -894,25 +923,48 @@ function updateConnections() {
         
         if (!fromConnector || !toConnector) return;
         
+        // Calcular posições considerando zoom e pan
         const fromRect = fromConnector.getBoundingClientRect();
         const toRect = toConnector.getBoundingClientRect();
         const canvasRect = canvas.getBoundingClientRect();
         
-        const x1 = fromRect.left - canvasRect.left + fromRect.width / 2;
-        const y1 = fromRect.top - canvasRect.top + fromRect.height / 2;
-        const x2 = toRect.left - canvasRect.left + toRect.width / 2;
-        const y2 = toRect.top - canvasRect.top + toRect.height / 2;
+        // Posições absolutas dos conectores
+        const fromX = fromRect.left + fromRect.width / 2;
+        const fromY = fromRect.top + fromRect.height / 2;
+        const toX = toRect.left + toRect.width / 2;
+        const toY = toRect.top + toRect.height / 2;
+        
+        // Converter para coordenadas do SVG (relativas ao connectionsLayer)
+        const svgRect = connectionsLayer.getBoundingClientRect();
+        const x1 = fromX - svgRect.left;
+        const y1 = fromY - svgRect.top;
+        const x2 = toX - svgRect.left;
+        const y2 = toY - svgRect.top;
+        
+        // Criar linha única com ID
+        const lineId = `connection-${conn.from}-${conn.to}`;
+        
+        // Verificar se já existe (não deveria, mas por segurança)
+        const existing = connectionsLayer.querySelector(`#${lineId}`);
+        if (existing) existing.remove();
         
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('id', lineId);
         line.setAttribute('x1', x1);
         line.setAttribute('y1', y1);
         line.setAttribute('x2', x2);
         line.setAttribute('y2', y2);
         line.setAttribute('class', 'flow-connection-line');
+        line.setAttribute('stroke', 'var(--accent-orange)');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('fill', 'none');
+        line.setAttribute('marker-end', 'url(#arrowhead)');
         line.dataset.from = conn.from;
         line.dataset.to = conn.to;
+        line.style.cursor = 'pointer';
         
-        line.addEventListener('click', () => {
+        line.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (confirm('Deseja remover esta conexão?')) {
                 connections = connections.filter(c => !(c.from === conn.from && c.to === conn.to));
                 updateConnections();
