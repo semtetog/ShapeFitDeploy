@@ -155,6 +155,8 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     height: 100%;
     position: relative;
+    transform-origin: top left;
+    transition: transform 0.1s ease-out;
     cursor: grab;
     transform-origin: top left;
     transition: transform 0.1s ease-out;
@@ -631,22 +633,132 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Modal de Preview/Chat Simulado -->
-<div id="previewModal" class="modal">
-    <div class="modal-content" style="max-width: 500px; height: 90vh;">
+<div id="previewModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px; height: 90vh; max-height: 90vh;">
         <div class="modal-header">
             <h3><i class="fas fa-comments"></i> Preview - Chat Simulado</h3>
-            <button class="modal-close" onclick="closePreview()">&times;</button>
+            <button class="close" onclick="closePreview()" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">&times;</button>
         </div>
-        <div class="modal-body" style="padding: 0; height: calc(100% - 60px); display: flex; flex-direction: column;">
-            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 1rem; background: #0b141a;">
+        <div class="modal-body" style="padding: 0; height: calc(100% - 60px); display: flex; flex-direction: column; overflow: hidden;">
+            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 1rem; background: #0b141a; -webkit-overflow-scrolling: touch;">
                 <!-- Mensagens do chat aparecerão aqui -->
             </div>
-            <div id="chatInputContainer" style="padding: 1rem; background: #202c33; border-top: 1px solid var(--glass-border);">
+            <div id="chatInputContainer" style="padding: 1rem; background: #202c33; border-top: 1px solid var(--glass-border); flex-shrink: 0;">
                 <!-- Inputs dinâmicos aparecerão aqui -->
             </div>
         </div>
     </div>
 </div>
+
+<style>
+/* Estilos do modal de preview */
+#previewModal.active {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+#previewModal .modal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos responsivos para mobile */
+@media (max-width: 768px) {
+    #previewModal .modal-content {
+        max-width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+    
+    .flow-editor-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+    }
+    
+    .flow-blocks-sidebar {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .flow-blocks-sidebar.open {
+        display: block;
+        transform: translateX(0);
+    }
+    
+    .flow-properties-sidebar {
+        display: none;
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 320px;
+        height: 100vh;
+        z-index: 1000;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .flow-properties-sidebar.open {
+        display: block;
+        transform: translateX(0);
+    }
+}
+
+/* Estilos para formulários */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.form-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.5rem;
+}
+</style>
 
 <script>
 // Estado do editor
@@ -665,65 +777,101 @@ let nodeIdCounter = 0;
 let currentDraggingNode = null;
 let updateConnectionsTimeout = null;
 
-// Inicializar canvas
-const canvas = document.getElementById('flowCanvas');
-const connectionsLayer = document.getElementById('connectionsLayer');
-const canvasContainer = document.querySelector('.flow-canvas-container');
+// Inicializar canvas - aguardar DOM
+let canvas, connectionsLayer, canvasContainer;
 
-// Pan do canvas (arrastar o canvas inteiro com botão direito ou espaço)
-canvas.addEventListener('mousedown', (e) => {
-    // Se clicou em um nó ou conector, não fazer pan
-    if (e.target.closest('.flow-node') || e.target.closest('.flow-node-connector')) {
-        return;
+function initCanvas() {
+    canvas = document.getElementById('flowCanvas');
+    connectionsLayer = document.getElementById('connectionsLayer');
+    canvasContainer = document.querySelector('.flow-canvas-wrapper') || document.querySelector('.flow-canvas-container');
+    
+    if (!canvas || !connectionsLayer) {
+        console.error('Canvas ou connectionsLayer não encontrado!');
+        return false;
     }
     
-    // Pan com botão direito ou botão do meio ou Ctrl/Cmd
-    if (e.button === 2 || e.button === 1 || e.ctrlKey || e.metaKey) {
-        isPanning = true;
-        panStart.x = e.clientX - canvasOffset.x;
-        panStart.y = e.clientY - canvasOffset.y;
-        canvas.style.cursor = 'grabbing';
-        canvas.classList.add('panning');
+    return true;
+}
+
+// Configurar eventos do canvas após inicialização
+function setupCanvasEvents() {
+    if (!canvas) return;
+    
+    // Pan do canvas (arrastar o canvas inteiro com botão direito ou espaço)
+    canvas.addEventListener('mousedown', (e) => {
+        // Se clicou em um nó ou conector, não fazer pan
+        if (e.target.closest('.flow-node') || e.target.closest('.flow-node-connector')) {
+            return;
+        }
+        
+        // Pan com botão direito ou botão do meio ou Ctrl/Cmd
+        if (e.button === 2 || e.button === 1 || e.ctrlKey || e.metaKey) {
+            isPanning = true;
+            panStart.x = e.clientX - canvasOffset.x;
+            panStart.y = e.clientY - canvasOffset.y;
+            canvas.style.cursor = 'grabbing';
+            canvas.classList.add('panning');
+            e.preventDefault();
+        }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (isPanning) {
+            canvasOffset.x = e.clientX - panStart.x;
+            canvasOffset.y = e.clientY - panStart.y;
+            
+            // Aplicar transformação ao canvas
+            canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
+            if (connectionsLayer) {
+                connectionsLayer.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
+            }
+            
+            updateConnections();
+        }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        if (isPanning) {
+            isPanning = false;
+            canvas.style.cursor = 'grab';
+            canvas.classList.remove('panning');
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        if (isPanning) {
+            isPanning = false;
+            canvas.style.cursor = 'grab';
+            canvas.classList.remove('panning');
+        }
+    });
+
+    // Prevenir menu de contexto no canvas
+    canvas.addEventListener('contextmenu', (e) => {
         e.preventDefault();
-    }
-});
+    });
 
-canvas.addEventListener('mousemove', (e) => {
-    if (isPanning) {
-        canvasOffset.x = e.clientX - panStart.x;
-        canvasOffset.y = e.clientY - panStart.y;
+    // Atualizar cursor
+    canvas.style.cursor = 'grab';
+    
+    // Drag & Drop do canvas
+    canvas.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+
+    canvas.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const nodeType = e.dataTransfer.getData('nodeType');
+        const nodeSubtype = e.dataTransfer.getData('nodeSubtype');
+        if (!nodeType) return;
         
-        // Aplicar transformação ao canvas
-        canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
-        connectionsLayer.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
+        const canvasRect = canvas.getBoundingClientRect();
+        const x = (e.clientX - canvasRect.left - canvasOffset.x) / zoomLevel;
+        const y = (e.clientY - canvasRect.top - canvasOffset.y) / zoomLevel;
         
-        updateConnections();
-    }
-});
-
-canvas.addEventListener('mouseup', () => {
-    if (isPanning) {
-        isPanning = false;
-        canvas.style.cursor = 'grab';
-        canvas.classList.remove('panning');
-    }
-});
-
-canvas.addEventListener('mouseleave', () => {
-    if (isPanning) {
-        isPanning = false;
-        canvas.style.cursor = 'grab';
-        canvas.classList.remove('panning');
-    }
-});
-
-// Prevenir menu de contexto no canvas
-canvas.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-});
-
-// Atualizar cursor
-canvas.style.cursor = 'grab';
+        addNode(nodeType, x, y, {}, nodeSubtype);
+    });
+}
 
 // Carregar fluxo existente ou criar padrão
 function loadFlow() {
@@ -855,7 +1003,9 @@ function renderNode(node) {
         <div class="flow-node-connector output" data-connector="output" data-node="${node.id}"></div>
     `;
     
-    canvas.appendChild(nodeEl);
+    if (canvas) {
+        canvas.appendChild(nodeEl);
+    }
     
     // Event listeners
     nodeEl.addEventListener('mousedown', (e) => {
@@ -1253,16 +1403,15 @@ function startConnection(e, nodeId, connectorType) {
     connectionStart.x = rect.left + rect.width / 2 - svgRect.left;
     connectionStart.y = rect.top + rect.height / 2 - svgRect.top;
     
-    canvas.addEventListener('mousemove', drawConnection);
-    canvas.addEventListener('mouseup', endConnection);
-    document.addEventListener('mouseup', endConnection); // Também no document para garantir
+    document.addEventListener('mousemove', drawConnection);
+    document.addEventListener('mouseup', endConnection);
     
     e.stopPropagation();
     e.preventDefault();
 }
 
 function drawConnection(e) {
-    if (!isConnecting || !connectionStart) return;
+    if (!isConnecting || !connectionStart || !connectionsLayer) return;
     
     // Remover linha temporária anterior
     const existing = connectionsLayer.querySelector('#temp-connection');
@@ -1273,19 +1422,26 @@ function drawConnection(e) {
     const x = e.clientX - svgRect.left;
     const y = e.clientY - svgRect.top;
     
-    // Criar linha temporária
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('id', 'temp-connection');
-    line.setAttribute('x1', connectionStart.x);
-    line.setAttribute('y1', connectionStart.y);
-    line.setAttribute('x2', x);
-    line.setAttribute('y2', y);
-    line.setAttribute('class', 'flow-connection-line connecting');
-    line.setAttribute('stroke', 'var(--accent-orange)');
-    line.setAttribute('stroke-width', '2');
-    line.setAttribute('stroke-dasharray', '5,5');
-    line.setAttribute('fill', 'none');
-    connectionsLayer.appendChild(line);
+    // Criar linha temporária curva
+    const midX = (connectionStart.x + x) / 2;
+    const midY = (connectionStart.y + y) / 2;
+    const curveOffset = Math.abs(x - connectionStart.x) * 0.3;
+    
+    const cp1x = connectionStart.x + curveOffset;
+    const cp1y = connectionStart.y;
+    const cp2x = x - curveOffset;
+    const cp2y = y;
+    
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('id', 'temp-connection');
+    const pathData = `M ${connectionStart.x} ${connectionStart.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x} ${y}`;
+    path.setAttribute('d', pathData);
+    path.setAttribute('class', 'flow-connection-line connecting');
+    path.setAttribute('stroke', 'var(--accent-orange)');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-dasharray', '5,5');
+    path.setAttribute('fill', 'none');
+    connectionsLayer.appendChild(path);
 }
 
 function endConnection(e) {
@@ -1310,8 +1466,7 @@ function endConnection(e) {
     
     isConnecting = false;
     connectionStart = null;
-    canvas.removeEventListener('mousemove', drawConnection);
-    canvas.removeEventListener('mouseup', endConnection);
+    document.removeEventListener('mousemove', drawConnection);
     document.removeEventListener('mouseup', endConnection);
 }
 
@@ -1457,8 +1612,10 @@ function removeConnectionCondition(fromNodeId, toNodeId) {
 }
 
 function updateConnections() {
+    if (!connectionsLayer) return;
+    
     // Limpar TODAS as linhas existentes (incluindo temporárias)
-    const allLines = connectionsLayer.querySelectorAll('line');
+    const allLines = connectionsLayer.querySelectorAll('line, path');
     allLines.forEach(el => el.remove());
     
     // Remover conexões inválidas (nós que não existem mais)
@@ -1508,28 +1665,38 @@ function updateConnections() {
         const existing = connectionsLayer.querySelector(`#${lineId}`);
         if (existing) existing.remove();
         
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('id', lineId);
-        line.setAttribute('x1', x1);
-        line.setAttribute('y1', y1);
-        line.setAttribute('x2', x2);
-        line.setAttribute('y2', y2);
-        line.setAttribute('class', 'flow-connection-line');
+        // Criar linha curva (path) ao invés de linha reta
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+        const curveOffset = Math.abs(x2 - x1) * 0.3;
+        
+        // Calcular pontos de controle para curva suave
+        const cp1x = x1 + curveOffset;
+        const cp1y = y1;
+        const cp2x = x2 - curveOffset;
+        const cp2y = y2;
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('id', lineId);
+        const pathData = `M ${x1} ${y1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x2} ${y2}`;
+        path.setAttribute('d', pathData);
+        
         // Estilo baseado em condição
         const hasCondition = conn.condition && conn.condition.var;
-        line.setAttribute('stroke', 'var(--accent-orange)');
-        line.setAttribute('stroke-width', '2');
-        line.setAttribute('fill', 'none');
-        line.setAttribute('marker-end', 'url(#arrowhead)');
+        const lineClass = hasCondition ? 'flow-connection-line conditional' : 'flow-connection-line';
+        path.setAttribute('class', lineClass);
+        path.setAttribute('stroke', 'var(--accent-orange)');
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('marker-end', 'url(#arrowhead)');
         if (hasCondition) {
-            line.setAttribute('class', 'flow-connection-line conditional');
-            line.setAttribute('stroke-dasharray', '5,5');
+            path.setAttribute('stroke-dasharray', '5,5');
         }
-        line.dataset.from = conn.from;
-        line.dataset.to = conn.to;
-        line.style.cursor = 'pointer';
+        path.dataset.from = conn.from;
+        path.dataset.to = conn.to;
+        path.style.cursor = 'pointer';
         
-        line.addEventListener('click', (e) => {
+        path.addEventListener('click', (e) => {
             e.stopPropagation();
             // Mostrar menu de contexto
             const menu = document.createElement('div');
@@ -1566,7 +1733,7 @@ function updateConnections() {
             }, 100);
         });
         
-        connectionsLayer.appendChild(line);
+        connectionsLayer.appendChild(path);
     });
 }
 
@@ -1625,6 +1792,8 @@ function resetZoom() {
 }
 
 function applyZoom() {
+    if (!canvas || !connectionsLayer) return;
+    
     canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
     canvas.style.transformOrigin = 'top left';
     connectionsLayer.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
@@ -1784,20 +1953,31 @@ function openPreview() {
         return;
     }
     
-    document.getElementById('previewModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Iniciar simulação do chat
-    startChatSimulation();
+    const modal = document.getElementById('previewModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Iniciar simulação do chat
+        startChatSimulation();
+    }
 }
 
 function closePreview() {
-    document.getElementById('previewModal').classList.remove('active');
-    document.body.style.overflow = '';
+    const modal = document.getElementById('previewModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
     // Limpar estado do chat
     chatState = null;
-    document.getElementById('chatMessages').innerHTML = '';
-    document.getElementById('chatInputContainer').innerHTML = '';
+    const messagesDiv = document.getElementById('chatMessages');
+    const inputDiv = document.getElementById('chatInputContainer');
+    if (messagesDiv) messagesDiv.innerHTML = '';
+    if (inputDiv) inputDiv.innerHTML = '';
 }
 
 let chatState = null;
@@ -2168,32 +2348,37 @@ function evaluateCondition(condition, answers) {
 }
 
 // Drag & Drop da paleta
-document.querySelectorAll('.palette-item').forEach(item => {
-    item.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('nodeType', item.dataset.type);
-        e.dataTransfer.setData('nodeSubtype', item.dataset.subtype || '');
+function setupPaletteDragDrop() {
+    document.querySelectorAll('.palette-item').forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('nodeType', item.dataset.type);
+            e.dataTransfer.setData('nodeSubtype', item.dataset.subtype || '');
+        });
     });
+}
+
+// Inicializar tudo quando DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+    if (initCanvas()) {
+        setupCanvasEvents();
+        setupPaletteDragDrop();
+        loadFlow();
+    } else {
+        console.error('Erro ao inicializar canvas');
+    }
 });
 
-canvas.addEventListener('dragover', (e) => {
-    e.preventDefault();
-});
-
-canvas.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const nodeType = e.dataTransfer.getData('nodeType');
-    const nodeSubtype = e.dataTransfer.getData('nodeSubtype');
-    if (!nodeType) return;
-    
-    const canvasRect = canvas.getBoundingClientRect();
-    const x = e.clientX - canvasRect.left;
-    const y = e.clientY - canvasRect.top;
-    
-    addNode(nodeType, x, y, {}, nodeSubtype);
-});
-
-// Inicializar
-loadFlow();
+// Fallback caso DOMContentLoaded já tenha disparado
+if (document.readyState === 'loading') {
+    // DOM ainda não carregou, aguardar
+} else {
+    // DOM já carregou
+    if (initCanvas()) {
+        setupCanvasEvents();
+        setupPaletteDragDrop();
+        loadFlow();
+    }
+}
 
 // Atualizar conexões quando o canvas é redimensionado
 window.addEventListener('resize', updateConnections);
