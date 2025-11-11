@@ -2351,27 +2351,58 @@ function submitFormData(formData) {
         if (data.success) {
             showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
             
-            // Atualizar ID do conteúdo se foi criado
-            let contentId = document.getElementById('contentId').value;
-            if (data.content_id) {
-                contentId = data.content_id;
-                document.getElementById('contentId').value = contentId;
-            }
-            
-            // Recarregar dados do conteúdo para mostrar o arquivo salvo
-            if (contentId) {
-                // Limpar previews de novos arquivos
+            // Resetar formulário para criar novo conteúdo (não recarregar o salvo)
+            // Isso permite criar múltiplos conteúdos rapidamente
+            setTimeout(() => {
+                // Resetar formulário completamente
+                document.getElementById('contentForm').reset();
+                document.getElementById('contentId').value = '';
+                document.getElementById('contentType').value = '';
+                
+                // Limpar todos os previews
                 clearFilePreview();
                 clearThumbnailPreview();
                 
-                // Recarregar dados do conteúdo
-                editContent(contentId);
-            } else {
-                // Se não tem ID, recarregar página
+                // Ocultar arquivo atual
+                const currentFileInfo = document.getElementById('currentFileInfo');
+                if (currentFileInfo) {
+                    currentFileInfo.style.display = 'none';
+                }
+                
+                // Limpar título do vídeo
+                const videoTitleInput = document.getElementById('videoTitle');
+                if (videoTitleInput) {
+                    videoTitleInput.value = '';
+                }
+                const currentVideoTitleDisplay = document.getElementById('currentVideoTitleDisplay');
+                if (currentVideoTitleDisplay) {
+                    currentVideoTitleDisplay.style.display = 'none';
+                }
+                
+                // Ocultar campo de título do vídeo
+                const videoTitleGroup = document.getElementById('videoTitleGroup');
+                if (videoTitleGroup) {
+                    videoTitleGroup.style.display = 'none';
+                }
+                
+                // Resetar custom selects
+                resetCustomSelect('targetTypeSelect', 'targetType', '', 'Selecione...');
+                resetCustomSelect('targetIdSelect', 'targetId', '', 'Selecione...');
+                
+                // Limpar variáveis globais
+                currentVideoFile = null;
+                videoFramesGenerated = false;
+                fileRemoved = false;
+                currentFileData = null;
+                
+                // Atualizar título do modal
+                document.getElementById('modalTitle').textContent = 'Criar Conteúdo';
+                
+                // Recarregar lista de conteúdos para mostrar o novo
                 setTimeout(() => {
                     location.reload();
-                }, 1500);
-            }
+                }, 500);
+            }, 1000);
             
             // Restaurar botão
             saveButton.innerHTML = originalText;
