@@ -1310,63 +1310,17 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="stat-number" id="statInactive"><?php echo $stats['inactive']; ?></div>
                 <div class="stat-label">Inativos</div>
             </div>
-            <div class="stat-card" onclick="filterByStatus('draft')">
-                <div class="stat-number" id="statDraft"><?php echo $stats['draft']; ?></div>
-                <div class="stat-label">Rascunhos</div>
-            </div>
             </div>
         </div>
 
-    <!-- Filter Card -->
+    <!-- Search Bar -->
     <div class="filter-card">
         <div class="filter-row">
             <input type="text" class="search-input" placeholder="Buscar por título ou descrição..." 
                    value="<?php echo htmlspecialchars($search_term); ?>" 
                    onkeyup="handleSearch(event)" id="searchInput">
-            
-            <div class="custom-select-wrapper" id="typeSelectWrapper">
-                <div class="custom-select" id="typeSelect">
-                    <div class="custom-select-trigger" onclick="toggleSelect('typeSelect')">
-                        <span><?php echo $type_filter ? ucfirst($type_filter) : 'Todos os tipos'; ?></span>
-                        <i class="fas fa-chevron-down"></i>
-            </div>
-                    <div class="custom-select-options">
-                        <div class="custom-select-option <?php echo !$type_filter ? 'selected' : ''; ?>" 
-                             onclick="selectType('')">Todos os tipos</div>
-                        <div class="custom-select-option <?php echo $type_filter === 'chef' ? 'selected' : ''; ?>" 
-                             onclick="selectType('chef')">Chef</div>
-                        <div class="custom-select-option <?php echo $type_filter === 'supplements' ? 'selected' : ''; ?>" 
-                             onclick="selectType('supplements')">Suplementos</div>
-                        <div class="custom-select-option <?php echo $type_filter === 'videos' ? 'selected' : ''; ?>" 
-                             onclick="selectType('videos')">Vídeos</div>
-                        <div class="custom-select-option <?php echo $type_filter === 'articles' ? 'selected' : ''; ?>" 
-                             onclick="selectType('articles')">Artigos</div>
-                        <div class="custom-select-option <?php echo $type_filter === 'pdf' ? 'selected' : ''; ?>" 
-                             onclick="selectType('pdf')">PDF</div>
-                </div>
-                </div>
-                </div>
-            
-            <div class="custom-select-wrapper" id="statusSelectWrapper">
-                <div class="custom-select" id="statusSelect">
-                    <div class="custom-select-trigger" onclick="toggleSelect('statusSelect')">
-                        <span><?php echo $status_filter ? ucfirst($status_filter) : 'Todos os status'; ?></span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="custom-select-options">
-                        <div class="custom-select-option <?php echo !$status_filter ? 'selected' : ''; ?>" 
-                             onclick="selectStatus('')">Todos os status</div>
-                        <div class="custom-select-option <?php echo $status_filter === 'active' ? 'selected' : ''; ?>" 
-                             onclick="selectStatus('active')">Ativo</div>
-                        <div class="custom-select-option <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>" 
-                             onclick="selectStatus('inactive')">Inativo</div>
-                        <div class="custom-select-option <?php echo $status_filter === 'draft' ? 'selected' : ''; ?>" 
-                             onclick="selectStatus('draft')">Rascunho</div>
-                    </div>
-                </div>
-            </div>
-            </div>
         </div>
+    </div>
 
     <!-- Content Grid -->
         <div class="content-grid" id="contentGrid">
@@ -1387,17 +1341,8 @@ require_once __DIR__ . '/includes/header.php';
                                 <?php
                                 $icon = 'fas fa-file';
                                 switch($content['content_type']) {
-                                    case 'chef':
-                                        $icon = 'fas fa-utensils';
-                                        break;
-                                    case 'supplements':
-                                        $icon = 'fas fa-pills';
-                                        break;
                                     case 'videos':
                                         $icon = 'fas fa-play';
-                                        break;
-                                    case 'articles':
-                                        $icon = 'fas fa-file-alt';
                                         break;
                                     case 'pdf':
                                         $icon = 'fas fa-file-pdf';
@@ -1521,10 +1466,7 @@ require_once __DIR__ . '/includes/header.php';
                                 </div>
                                 <div class="custom-select-options">
                                     <div class="custom-select-option" data-value="">Selecione...</div>
-                                    <div class="custom-select-option" data-value="chef">Chef</div>
-                                    <div class="custom-select-option" data-value="supplements">Suplementos</div>
                                     <div class="custom-select-option" data-value="videos">Vídeos</div>
-                                    <div class="custom-select-option" data-value="articles">Artigos</div>
                                     <div class="custom-select-option" data-value="pdf">PDF</div>
                                 </div>
                             </div>
@@ -1539,14 +1481,10 @@ require_once __DIR__ . '/includes/header.php';
                 
                 <div class="challenge-form-group" id="fileUploadGroup">
                     <label for="contentFile">Arquivo</label>
-                    <input type="file" id="contentFile" name="file" class="challenge-form-input" accept="image/*,video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf">
-                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Formatos aceitos: Imagens (JPG, PNG, GIF, WebP), Vídeos (MP4, MOV, AVI, WebM), PDF. Máximo: 100MB para vídeos, 10MB para outros.</small>
+                    <input type="file" id="contentFile" name="file" class="challenge-form-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf">
+                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Formatos aceitos: Vídeos (MP4, MOV, AVI, WebM) ou PDF. Máximo: 100MB para vídeos, 10MB para PDF.</small>
                 </div>
                 
-                <div class="challenge-form-group" id="contentTextGroup" style="display: none;">
-                    <label for="contentText">Conteúdo do Artigo</label>
-                    <textarea id="contentText" name="content_text" class="challenge-form-textarea" rows="10" placeholder="Digite o conteúdo do artigo aqui..."></textarea>
-                </div>
                 
                 <div class="challenge-form-row">
                     <div class="challenge-form-group">
@@ -1735,24 +1673,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Target ID (será populado dinamicamente)
     initCustomSelect('targetIdSelect', 'targetId', null);
     
-    // Status
-    initCustomSelect('contentStatusSelect', 'contentStatus', null);
 });
 
-// Select type filter
-function selectType(type) {
-    const url = new URL(window.location);
-    if (type) {
-        url.searchParams.set('type', type);
-    } else {
-        url.searchParams.delete('type');
-    }
-    url.searchParams.delete('page');
-    window.location.href = url.toString();
-}
-
-// Select status filter
-function selectStatus(status) {
+// Filter by status from stat card
+function filterByStatus(status) {
     const url = new URL(window.location);
     if (status) {
         url.searchParams.set('status', status);
@@ -1761,11 +1685,6 @@ function selectStatus(status) {
     }
     url.searchParams.delete('page');
     window.location.href = url.toString();
-}
-
-// Filter by status from stat card
-function filterByStatus(status) {
-    selectStatus(status);
 }
 
 // Handle search
@@ -1836,7 +1755,6 @@ function openCreateContentModal() {
     document.getElementById('contentForm').reset();
     document.getElementById('contentId').value = '';
     document.getElementById('fileUploadGroup').style.display = 'block';
-    document.getElementById('contentTextGroup').style.display = 'none';
     document.getElementById('targetIdGroup').style.display = 'none';
     
     // Resetar custom selects
@@ -1993,7 +1911,6 @@ function editContent(contentId) {
             document.getElementById('contentId').value = content.id;
             document.getElementById('contentTitle').value = content.title || '';
             document.getElementById('contentDescription').value = content.description || '';
-            document.getElementById('contentText').value = content.content_text || '';
             
             // Definir valores dos custom selects
             setCustomSelectValue('contentTypeSelect', 'contentType', content.content_type || '');
@@ -2082,20 +1999,12 @@ function saveContent() {
         return;
     }
     
-    // Validar se há arquivo ou texto para artigos
-    if (contentType === 'articles') {
-        const contentText = document.getElementById('contentText').value.trim();
-        if (!contentText) {
-            showAlert('Validação', 'Conteúdo do artigo é obrigatório');
-            return;
-        }
-    } else {
-        const fileInput = document.getElementById('contentFile');
-        const contentId = document.getElementById('contentId').value;
-        if (!fileInput.files[0] && !contentId) {
-            showAlert('Validação', 'Arquivo é obrigatório para este tipo de conteúdo');
-            return;
-        }
+    // Validar se há arquivo (obrigatório para vídeos e PDF)
+    const fileInput = document.getElementById('contentFile');
+    const contentId = document.getElementById('contentId').value;
+    if (!fileInput.files[0] && !contentId) {
+        showAlert('Validação', 'Arquivo é obrigatório para este tipo de conteúdo');
+        return;
     }
     
     // Mostrar loading
@@ -2167,21 +2076,11 @@ function saveContent() {
 // Função para alternar campos baseado no tipo de conteúdo
 function toggleContentFields() {
     const contentType = document.getElementById('contentType').value;
-    const fileUploadGroup = document.getElementById('fileUploadGroup');
-    const contentTextGroup = document.getElementById('contentTextGroup');
     const fileInput = document.getElementById('contentFile');
     
-    if (contentType === 'articles') {
-        fileUploadGroup.style.display = 'none';
-        contentTextGroup.style.display = 'block';
-        fileInput.removeAttribute('required');
-    } else {
-        fileUploadGroup.style.display = 'block';
-        contentTextGroup.style.display = 'none';
-        const contentId = document.getElementById('contentId').value;
-        if (!contentId) {
-            fileInput.setAttribute('required', 'required');
-        }
+    const contentId = document.getElementById('contentId').value;
+    if (!contentId) {
+        fileInput.setAttribute('required', 'required');
     }
     
     // Atualizar accept do input baseado no tipo
@@ -2189,8 +2088,6 @@ function toggleContentFields() {
         fileInput.setAttribute('accept', 'video/mp4,video/quicktime,video/x-msvideo,video/webm');
     } else if (contentType === 'pdf') {
         fileInput.setAttribute('accept', '.pdf');
-    } else if (contentType === 'chef' || contentType === 'supplements') {
-        fileInput.setAttribute('accept', 'image/*,video/*,.pdf');
     }
 }
 

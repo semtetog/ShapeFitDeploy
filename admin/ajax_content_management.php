@@ -118,15 +118,10 @@ function saveContent($conn, $admin_id) {
         throw new Exception('Tipo de conteúdo é obrigatório');
     }
     
-    // Validar tipos permitidos
-    $allowed_types = ['chef', 'supplements', 'videos', 'articles', 'pdf'];
+    // Validar tipos permitidos - apenas vídeos e PDF
+    $allowed_types = ['videos', 'pdf'];
     if (!in_array($content_type, $allowed_types)) {
-        throw new Exception('Tipo de conteúdo inválido');
-    }
-    
-    // Validar conteúdo para artigos
-    if ($content_type === 'articles' && empty($content_text) && $content_id == 0) {
-        throw new Exception('Conteúdo do artigo é obrigatório');
+        throw new Exception('Tipo de conteúdo inválido. Use apenas "videos" ou "pdf"');
     }
     
     // Processar upload de arquivo
@@ -153,10 +148,8 @@ function saveContent($conn, $admin_id) {
             throw new Exception($error_msg);
         }
         
-        // Validar tipo de arquivo
+        // Validar tipo de arquivo - apenas vídeos e PDF
         $allowed_mime_types = [
-            // Imagens
-            'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
             // Vídeos
             'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo', 'video/webm',
             // PDFs
@@ -173,13 +166,13 @@ function saveContent($conn, $admin_id) {
         }
         $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         
-        // Validar extensão também
-        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi', 'webm', 'pdf'];
+        // Validar extensão também - apenas vídeos e PDF
+        $allowed_extensions = ['mp4', 'mov', 'avi', 'webm', 'pdf'];
         if (!in_array($file_extension, $allowed_extensions)) {
-            throw new Exception('Formato de arquivo não permitido. Use: JPG, PNG, GIF, WebP, MP4, MOV, AVI, WebM ou PDF');
+            throw new Exception('Formato de arquivo não permitido. Use apenas: MP4, MOV, AVI, WebM ou PDF');
         }
         
-        // Validar tamanho (máximo 100MB para vídeos, 10MB para outros)
+        // Validar tamanho (máximo 100MB para vídeos, 10MB para PDF)
         $max_size = in_array($file_extension, ['mp4', 'mov', 'avi', 'webm']) ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
         if ($file['size'] > $max_size) {
             throw new Exception('Arquivo muito grande. Máximo: ' . ($max_size / (1024 * 1024)) . 'MB');
@@ -213,8 +206,8 @@ function saveContent($conn, $admin_id) {
         $file_path = $file_path_db;
         $file_size = $file['size'];
         $mime_type = $file_mime;
-    } elseif ($content_type !== 'articles' && $content_id == 0) {
-        // Para novos conteúdos (exceto artigos), arquivo é obrigatório
+    } elseif ($content_id == 0) {
+        // Para novos conteúdos, arquivo é obrigatório
         throw new Exception('Arquivo é obrigatório para este tipo de conteúdo');
     }
     
@@ -297,7 +290,7 @@ function saveContent($conn, $admin_id) {
             }
         } else {
             // Criar novo conteúdo
-            if (!$file_path && $content_type !== 'articles') {
+            if (!$file_path) {
                 throw new Exception('Arquivo é obrigatório para este tipo de conteúdo');
             }
             
