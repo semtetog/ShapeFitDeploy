@@ -387,12 +387,6 @@ body {
                 <i class="fas fa-file"></i>
                 <span><?php echo ucfirst($content['content_type']); ?></span>
             </div>
-            <?php if (!empty($content['file_name'])): ?>
-                <div class="content-meta-item">
-                    <i class="fas fa-info-circle"></i>
-                    <span><?php echo htmlspecialchars($content['file_name']); ?></span>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>

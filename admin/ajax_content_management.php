@@ -120,6 +120,9 @@ function saveContent($conn, $admin_id) {
         $status = 'active'; // Apenas para validação local
     }
     
+    // Buscar video_title se fornecido
+    $video_title = trim($_POST['video_title'] ?? '');
+    
     // Validar campos obrigatórios
     if (empty($title)) {
         throw new Exception('Título é obrigatório');
@@ -294,6 +297,14 @@ function saveContent($conn, $admin_id) {
                 $update_values = [$title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, $content_text];
                 $param_types = "sssssiss"; // 8 tipos: title(s), description(s), content_type(s), file_path(s), file_name(s), file_size(i), mime_type(s), content_text(s)
                 
+                // Adicionar video_title se a coluna existir
+                $check_video_title = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'video_title'");
+                if ($check_video_title && $check_video_title->num_rows > 0) {
+                    $update_fields[] = "video_title = ?";
+                    $update_values[] = $video_title ?: null;
+                    $param_types .= "s";
+                }
+                
                 // Adicionar thumbnail se foi enviada
                 if ($thumbnail_url) {
                     $update_fields[] = "thumbnail_url = ?";
@@ -353,6 +364,14 @@ function saveContent($conn, $admin_id) {
                 $update_values = [$title, $description, $content_type, $content_text];
                 $param_types = "ssss";
                 
+                // Adicionar video_title se a coluna existir
+                $check_video_title = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'video_title'");
+                if ($check_video_title && $check_video_title->num_rows > 0) {
+                    $update_fields[] = "video_title = ?";
+                    $update_values[] = $video_title ?: null;
+                    $param_types .= "s";
+                }
+                
                 if ($has_target_type && $has_target_id) {
                     $update_fields[] = "target_type = ?";
                     $update_fields[] = "target_id = ?";
@@ -380,6 +399,14 @@ function saveContent($conn, $admin_id) {
                 $update_fields = ["title = ?", "description = ?", "content_type = ?", "content_text = ?"];
                 $update_values = [$title, $description, $content_type, $content_text];
                 $param_types = "ssss";
+                
+                // Adicionar video_title se a coluna existir
+                $check_video_title = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'video_title'");
+                if ($check_video_title && $check_video_title->num_rows > 0) {
+                    $update_fields[] = "video_title = ?";
+                    $update_values[] = $video_title ?: null;
+                    $param_types .= "s";
+                }
                 
                 // Adicionar thumbnail se foi enviada
                 if ($thumbnail_url) {
@@ -422,6 +449,15 @@ function saveContent($conn, $admin_id) {
             $insert_values = [$admin_id, $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, $content_text];
             $param_types = "isssssiss"; // 9 tipos: admin_id(i), title(s), description(s), content_type(s), file_path(s), file_name(s), file_size(i), mime_type(s), content_text(s)
             $placeholders = ["?", "?", "?", "?", "?", "?", "?", "?", "?"];
+            
+            // Adicionar video_title se a coluna existir
+            $check_video_title = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'video_title'");
+            if ($check_video_title && $check_video_title->num_rows > 0) {
+                $insert_fields[] = "video_title";
+                $insert_values[] = $video_title ?: null;
+                $param_types .= "s";
+                $placeholders[] = "?";
+            }
             
             // Adicionar thumbnail se foi enviada
             if ($thumbnail_url) {
@@ -520,6 +556,7 @@ function getContent($conn, $admin_id) {
         $content['target_type'] = $content['target_type'] ?? 'all';
         $content['target_id'] = $content['target_id'] ?? null;
         $content['status'] = $content['status'] ?? 'active';
+        $content['video_title'] = $content['video_title'] ?? null;
         
         ob_clean();
         echo json_encode(['success' => true, 'content' => $content]);

@@ -94,12 +94,12 @@ try {
                 $placeholders = implode(',', array_fill(0, count($user_group_ids), '?'));
                 $target_conditions[] = "(mc.target_type = 'user' AND mc.target_id = ?)";
                 $target_conditions[] = "(mc.target_type = 'group' AND mc.target_id IN ($placeholders))";
-                $params = array_merge([$user_id], $user_group_ids);
-                $types = str_repeat('i', count($params));
+                $params = array_merge($params, [$user_id], $user_group_ids);
+                $types .= str_repeat('i', count($user_group_ids) + 1);
             } else {
                 $target_conditions[] = "(mc.target_type = 'user' AND mc.target_id = ?)";
-                $params = [$user_id];
-                $types = 'i';
+                $params[] = $user_id;
+                $types .= 'i';
             }
             $where_conditions[] = "(" . implode(" OR ", $target_conditions) . ")";
         }

@@ -1490,6 +1490,13 @@ require_once __DIR__ . '/includes/header.php';
                     <input type="file" id="contentFile" name="file" class="challenge-form-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf" onchange="handleFileSelect(event)">
                     <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Formatos aceitos: Vídeos (MP4, MOV, AVI, WebM) ou PDF. Máximo: 100MB para vídeos, 10MB para PDF.</small>
                     
+                    <!-- Campo de mini título para vídeos -->
+                    <div id="videoTitleGroup" class="challenge-form-group" style="display: none; margin-top: 1rem;">
+                        <label for="videoTitle">Título do Vídeo (Opcional)</label>
+                        <input type="text" id="videoTitle" name="video_title" class="challenge-form-input" placeholder="Ex: Preparo da receita, Dicas finais, etc.">
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Útil quando há múltiplos vídeos em uma receita.</small>
+                    </div>
+                    
                     <!-- Preview do arquivo selecionado -->
                     <div id="filePreview" style="margin-top: 1rem; display: none;">
                         <div style="position: relative; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); max-width: 400px;">
@@ -1508,19 +1515,21 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <!-- Arquivo atual (ao editar) -->
                     <div id="currentFileInfo" style="margin-top: 0.75rem; display: none;">
-                        <!-- Mostrar thumbnail se existir, senão mostrar nome do arquivo -->
-                        <div id="currentFileThumbnail" style="display: none; width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); margin-bottom: 0.75rem;">
-                            <img id="currentFileThumbnailImg" style="width: 100%; height: auto; display: block; max-height: 200px; object-fit: cover;" alt="Thumbnail do arquivo">
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px; color: var(--text-secondary); font-size: 0.875rem;">
-                            <i class="fas fa-file"></i>
-                            <span id="currentFileName"></span>
-                            <a href="#" id="currentFileLink" target="_blank" style="margin-left: auto; color: var(--accent-orange); text-decoration: none; margin-right: 0.5rem;">
-                                <i class="fas fa-external-link-alt"></i> Ver arquivo
-                            </a>
-                            <button type="button" onclick="removeCurrentFile()" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; padding: 0.375rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.3s ease;">
-                                <i class="fas fa-trash"></i> Remover
+                        <div id="currentFilePreview" style="position: relative; width: 100%; max-width: 300px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); cursor: pointer;" onclick="openCurrentFile()">
+                            <!-- Vídeo ou thumbnail -->
+                            <video id="currentFileVideo" style="width: 100%; height: auto; max-height: 150px; display: none; object-fit: cover;" poster=""></video>
+                            <img id="currentFileThumbnailImg" style="width: 100%; height: auto; max-height: 150px; display: none; object-fit: cover;" alt="Preview do arquivo">
+                            <div id="currentFilePDFIcon" style="display: none; width: 100%; height: 150px; background: rgba(255, 107, 0, 0.1); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--accent-orange);"></i>
+                            </div>
+                            <!-- Botão de lixeira -->
+                            <button type="button" onclick="event.stopPropagation(); removeCurrentFile();" class="btn-action btn-delete" style="position: absolute; top: 0.5rem; right: 0.5rem; width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);">
+                                <i class="fas fa-trash"></i>
                             </button>
+                            <!-- Overlay de play para vídeo -->
+                            <div id="currentFilePlayOverlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.6); border-radius: 50%; width: 50px; height: 50px; display: none; align-items: center; justify-content: center; color: white; font-size: 1.25rem; pointer-events: none;">
+                                <i class="fas fa-play"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2021,63 +2030,91 @@ function editContent(contentId) {
             
             // Mostrar arquivo atual se existir
             const currentFileInfo = document.getElementById('currentFileInfo');
-            const currentFileName = document.getElementById('currentFileName');
-            const currentFileLink = document.getElementById('currentFileLink');
-            const currentFileThumbnail = document.getElementById('currentFileThumbnail');
+            const currentFilePreview = document.getElementById('currentFilePreview');
+            const currentFileVideo = document.getElementById('currentFileVideo');
             const currentFileThumbnailImg = document.getElementById('currentFileThumbnailImg');
+            const currentFilePDFIcon = document.getElementById('currentFilePDFIcon');
+            const currentFilePlayOverlay = document.getElementById('currentFilePlayOverlay');
             
             // Armazenar dados do arquivo atual
             currentFileData = {
                 file_path: content.file_path,
                 file_name: content.file_name,
-                thumbnail_url: content.thumbnail_url
+                thumbnail_url: content.thumbnail_url,
+                content_type: content.content_type
             };
             fileRemoved = false;
             
             if (content.file_path && content.file_name) {
-                currentFileName.textContent = content.file_name;
                 // Construir URL do arquivo
                 let fileUrl = content.file_path;
                 if (!fileUrl.startsWith('http') && !fileUrl.startsWith('/')) {
                     fileUrl = '/' + fileUrl;
                 }
-                currentFileLink.href = fileUrl;
                 
-                // Mostrar thumbnail se existir
-                if (content.thumbnail_url) {
-                    let thumbnailUrl = content.thumbnail_url;
-                    if (!thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/')) {
-                        thumbnailUrl = '/' + thumbnailUrl;
+                // Mostrar preview baseado no tipo
+                if (content.content_type === 'videos') {
+                    currentFileVideo.style.display = 'block';
+                    currentFileThumbnailImg.style.display = 'none';
+                    currentFilePDFIcon.style.display = 'none';
+                    currentFilePlayOverlay.style.display = 'flex';
+                    
+                    // Definir src e poster do vídeo
+                    currentFileVideo.src = fileUrl;
+                    if (content.thumbnail_url) {
+                        let thumbnailUrl = content.thumbnail_url;
+                        if (!thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/')) {
+                            thumbnailUrl = '/' + thumbnailUrl;
+                        }
+                        currentFileVideo.poster = thumbnailUrl;
                     }
-                    currentFileThumbnailImg.src = thumbnailUrl;
-                    currentFileThumbnail.style.display = 'block';
+                } else if (content.content_type === 'pdf') {
+                    currentFileVideo.style.display = 'none';
+                    currentFileThumbnailImg.style.display = 'none';
+                    currentFilePDFIcon.style.display = 'flex';
+                    currentFilePlayOverlay.style.display = 'none';
                 } else {
-                    currentFileThumbnail.style.display = 'none';
+                    // Fallback para thumbnail se existir
+                    if (content.thumbnail_url) {
+                        let thumbnailUrl = content.thumbnail_url;
+                        if (!thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/')) {
+                            thumbnailUrl = '/' + thumbnailUrl;
+                        }
+                        currentFileThumbnailImg.src = thumbnailUrl;
+                        currentFileThumbnailImg.style.display = 'block';
+                        currentFileVideo.style.display = 'none';
+                        currentFilePDFIcon.style.display = 'none';
+                        currentFilePlayOverlay.style.display = 'none';
+                    }
                 }
+                
+                // Armazenar URL para abrir ao clicar
+                currentFilePreview.dataset.fileUrl = fileUrl;
                 
                 currentFileInfo.style.display = 'block';
             } else {
                 currentFileInfo.style.display = 'none';
             }
             
-            // Se houver thumbnail, usar como poster do vídeo (se for vídeo)
-            if (content.thumbnail_url && content.content_type === 'videos') {
-                let thumbnailUrl = content.thumbnail_url;
-                if (!thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/')) {
-                    thumbnailUrl = '/' + thumbnailUrl;
-                }
-                // Quando o vídeo for carregado, definir o poster
-                const previewVideo = document.getElementById('previewVideo');
-                if (previewVideo) {
-                    previewVideo.poster = thumbnailUrl;
-                }
+            // Carregar mini título se existir
+            const videoTitleInput = document.getElementById('videoTitle');
+            const videoTitleGroup = document.getElementById('videoTitleGroup');
+            if (content.video_title && videoTitleInput) {
+                videoTitleInput.value = content.video_title;
+            }
+            
+            // Mostrar campo de mini título se for vídeo
+            if (content.content_type === 'videos' && videoTitleGroup) {
+                videoTitleGroup.style.display = 'block';
+            } else if (videoTitleGroup) {
+                videoTitleGroup.style.display = 'none';
             }
             
             // Limpar previews de novos arquivos
             clearFilePreview();
             clearThumbnailPreview();
             
-            // Se for vídeo e tiver arquivo atual, tentar gerar frames
+            // Se for vídeo e tiver arquivo atual, mostrar opção de gerar frames
             if (content.content_type === 'videos' && content.file_path) {
                 const thumbnailGroup = document.getElementById('thumbnailGroup');
                 if (thumbnailGroup) {
@@ -2346,6 +2383,12 @@ function handleFileSelect(event) {
         const contentTypeDisplay = document.querySelector('[data-content-type-display]');
         if (contentTypeDisplay) {
             contentTypeDisplay.textContent = detectedType === 'videos' ? 'Vídeo' : 'PDF';
+        }
+        
+        // Mostrar/ocultar campo de mini título para vídeos
+        const videoTitleGroup = document.getElementById('videoTitleGroup');
+        if (videoTitleGroup) {
+            videoTitleGroup.style.display = detectedType === 'videos' ? 'block' : 'none';
         }
     }
     
@@ -2674,6 +2717,15 @@ function selectVideoFrame(frameDataUrl, frameElement) {
     
     // Salvar no hidden input
     document.getElementById('selectedThumbnailData').value = frameDataUrl;
+}
+
+// Função para abrir arquivo atual ao clicar
+function openCurrentFile() {
+    const currentFilePreview = document.getElementById('currentFilePreview');
+    if (!currentFilePreview || !currentFilePreview.dataset.fileUrl) return;
+    
+    const fileUrl = currentFilePreview.dataset.fileUrl;
+    window.open(fileUrl, '_blank');
 }
 
 // Função para limpar preview do arquivo
