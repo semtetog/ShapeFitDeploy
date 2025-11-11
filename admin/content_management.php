@@ -1472,23 +1472,8 @@ require_once __DIR__ . '/includes/header.php';
                         <label for="contentTitle">Título *</label>
                         <input type="text" id="contentTitle" name="title" class="challenge-form-input" required placeholder="Ex: Receita de Salada Fit">
                     </div>
-                    <div class="challenge-form-group">
-                        <label for="contentType">Tipo de Conteúdo *</label>
-                        <input type="hidden" id="contentType" name="content_type" value="">
-                        <div class="custom-select-wrapper">
-                            <div class="custom-select" id="contentTypeSelect">
-                                <div class="custom-select-trigger">
-                                    <span class="custom-select-value">Selecione...</span>
-                                    <i class="fas fa-chevron-down"></i>
-                                </div>
-                                <div class="custom-select-options">
-                                    <div class="custom-select-option" data-value="">Selecione...</div>
-                                    <div class="custom-select-option" data-value="videos">Vídeos</div>
-                                    <div class="custom-select-option" data-value="pdf">PDF</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Tipo de conteúdo será detectado automaticamente -->
+                <input type="hidden" id="contentType" name="content_type" value="">
                 </div>
                 
                 <div class="challenge-form-group">
@@ -1503,15 +1488,15 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <!-- Preview do arquivo selecionado -->
                     <div id="filePreview" style="margin-top: 1rem; display: none;">
-                        <div style="position: relative; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
+                        <div style="position: relative; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); max-width: 400px;">
                             <div id="videoPreview" style="display: none;">
-                                <video id="previewVideo" style="width: 100%; max-height: 300px; display: block;" controls></video>
+                                <video id="previewVideo" style="width: 100%; max-height: 200px; display: block;" controls></video>
                             </div>
-                            <div id="pdfPreview" style="display: none; padding: 2rem; text-align: center;">
-                                <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--accent-orange); margin-bottom: 1rem;"></i>
-                                <p style="color: var(--text-primary); font-weight: 600; margin: 0;" id="pdfFileName"></p>
+                            <div id="pdfPreview" style="display: none; padding: 1.5rem; text-align: center;">
+                                <i class="fas fa-file-pdf" style="font-size: 2.5rem; color: var(--accent-orange); margin-bottom: 0.75rem;"></i>
+                                <p style="color: var(--text-primary); font-weight: 600; margin: 0; font-size: 0.875rem;" id="pdfFileName"></p>
                             </div>
-                            <button type="button" onclick="clearFilePreview()" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0, 0, 0, 0.7); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                            <button type="button" onclick="clearFilePreview()" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0, 0, 0, 0.8); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; z-index: 10;">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -1522,9 +1507,12 @@ require_once __DIR__ . '/includes/header.php';
                         <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;">
                             <i class="fas fa-file"></i>
                             <span id="currentFileName"></span>
-                            <a href="#" id="currentFileLink" target="_blank" style="margin-left: auto; color: var(--accent-orange); text-decoration: none;">
+                            <a href="#" id="currentFileLink" target="_blank" style="margin-left: auto; color: var(--accent-orange); text-decoration: none; margin-right: 0.5rem;">
                                 <i class="fas fa-external-link-alt"></i> Ver arquivo
                             </a>
+                            <button type="button" onclick="removeCurrentFile()" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; padding: 0.375rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.3s ease;">
+                                <i class="fas fa-trash"></i> Remover
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1876,8 +1864,10 @@ function openCreateContentModal() {
     clearFilePreview();
     clearThumbnailPreview();
     
+    // Resetar tipo de conteúdo
+    document.getElementById('contentType').value = '';
+    
     // Resetar custom selects
-    resetCustomSelect('contentTypeSelect', 'contentType', '', 'Selecione...');
     resetCustomSelect('targetTypeSelect', 'targetType', '', 'Selecione...');
     // Status sempre será 'active' por padrão (definido no hidden input)
     
@@ -2044,8 +2034,10 @@ function editContent(contentId) {
             document.getElementById('contentTitle').value = content.title || '';
             document.getElementById('contentDescription').value = content.description || '';
             
+            // Definir tipo de conteúdo (detecção automática, não precisa de select)
+            document.getElementById('contentType').value = content.content_type || '';
+            
             // Definir valores dos custom selects
-            setCustomSelectValue('contentTypeSelect', 'contentType', content.content_type || '');
             setCustomSelectValue('targetTypeSelect', 'targetType', content.target_type || 'all');
             // Status não é editado no modal, apenas via toggle no card
             
@@ -2170,9 +2162,25 @@ function saveContent() {
         return;
     }
     
+    // Detectar tipo de conteúdo automaticamente se não estiver definido
     if (!contentType) {
-        showAlert('Validação', 'Tipo de conteúdo é obrigatório');
-        return;
+        const fileInput = document.getElementById('contentFile');
+        if (fileInput.files[0]) {
+            const detectedType = detectContentType(fileInput.files[0]);
+            if (detectedType) {
+                document.getElementById('contentType').value = detectedType;
+                contentType = detectedType;
+            } else {
+                showAlert('Validação', 'Tipo de arquivo não suportado. Use apenas vídeos (MP4, MOV, AVI, WebM) ou PDF.');
+                return;
+            }
+        } else if (contentId) {
+            // Ao editar, se não há arquivo novo, manter o tipo existente
+            // O tipo já deve estar definido no hidden input
+        } else {
+            showAlert('Validação', 'Selecione um arquivo (vídeo ou PDF)');
+            return;
+        }
     }
     
     // Validar se há arquivo (obrigatório para vídeos e PDF)
@@ -2282,22 +2290,52 @@ function toggleContentFields() {
         fileInput.setAttribute('required', 'required');
     }
     
-    // Atualizar accept do input baseado no tipo
-    if (contentType === 'videos') {
-        fileInput.setAttribute('accept', 'video/mp4,video/quicktime,video/x-msvideo,video/webm');
-    } else if (contentType === 'pdf') {
-        fileInput.setAttribute('accept', '.pdf');
-    }
+    // Aceitar vídeos e PDFs (detecção automática)
+    fileInput.setAttribute('accept', 'video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf');
 }
 
 // Variável global para armazenar o vídeo e frames
 let currentVideoFile = null;
 let videoFramesGenerated = false;
 
+// Função para detectar tipo de conteúdo automaticamente
+function detectContentType(file) {
+    if (!file) return '';
+    
+    // Verificar por MIME type primeiro
+    if (file.type.startsWith('video/')) {
+        return 'videos';
+    } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        return 'pdf';
+    }
+    
+    // Verificar por extensão como fallback
+    const extension = file.name.toLowerCase().split('.').pop();
+    const videoExtensions = ['mp4', 'mov', 'avi', 'webm', 'mkv', 'flv', 'wmv'];
+    if (videoExtensions.includes(extension)) {
+        return 'videos';
+    } else if (extension === 'pdf') {
+        return 'pdf';
+    }
+    
+    return '';
+}
+
 // Função para lidar com seleção de arquivo
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
+    
+    // Detectar tipo de conteúdo automaticamente
+    const detectedType = detectContentType(file);
+    if (detectedType) {
+        document.getElementById('contentType').value = detectedType;
+        // Atualizar visual do tipo (se houver display)
+        const contentTypeDisplay = document.querySelector('[data-content-type-display]');
+        if (contentTypeDisplay) {
+            contentTypeDisplay.textContent = detectedType === 'videos' ? 'Vídeo' : 'PDF';
+        }
+    }
     
     const filePreview = document.getElementById('filePreview');
     const videoPreview = document.getElementById('videoPreview');
@@ -2306,6 +2344,12 @@ function handleFileSelect(event) {
     const pdfFileName = document.getElementById('pdfFileName');
     const thumbnailGroup = document.getElementById('thumbnailGroup');
     const videoFramesGallery = document.getElementById('videoFramesGallery');
+    const currentFileInfo = document.getElementById('currentFileInfo');
+    
+    // Ocultar arquivo atual se estiver editando
+    if (currentFileInfo) {
+        currentFileInfo.style.display = 'none';
+    }
     
     // Ocultar previews
     videoPreview.style.display = 'none';
@@ -2317,7 +2361,7 @@ function handleFileSelect(event) {
     videoFramesGenerated = false;
     
     // Verificar tipo de arquivo
-    if (file.type.startsWith('video/')) {
+    if (file.type.startsWith('video/') || detectedType === 'videos') {
         currentVideoFile = file;
         const videoURL = URL.createObjectURL(file);
         previewVideo.src = videoURL;
@@ -2331,13 +2375,35 @@ function handleFileSelect(event) {
         previewVideo.onloadedmetadata = function() {
             generateVideoFrames(previewVideo);
         };
-    } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+    } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf') || detectedType === 'pdf') {
         currentVideoFile = null;
         pdfFileName.textContent = file.name;
         pdfPreview.style.display = 'block';
         filePreview.style.display = 'block';
         thumbnailGroup.style.display = 'none';
     }
+}
+
+// Função para remover arquivo atual (ao editar)
+function removeCurrentFile() {
+    const currentFileInfo = document.getElementById('currentFileInfo');
+    const fileInput = document.getElementById('contentFile');
+    
+    if (currentFileInfo) {
+        currentFileInfo.style.display = 'none';
+    }
+    
+    // Limpar input de arquivo
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    
+    // Limpar previews
+    clearFilePreview();
+    clearThumbnailPreview();
+    
+    // Resetar tipo de conteúdo
+    document.getElementById('contentType').value = '';
 }
 
 // Função para gerar frames do vídeo
