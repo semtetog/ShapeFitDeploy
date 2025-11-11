@@ -3403,7 +3403,7 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
     
     // Mostrar grupo de thumbnail
     thumbnailGroup.style.display = 'block';
-    videoFramesGallery.style.display = 'none';
+    videoFramesGallery.style.display = 'block'; // Mostrar a galeria para que os frames possam ser exibidos
     
     // Adicionar loading
     const loadingDiv = document.createElement('div');
