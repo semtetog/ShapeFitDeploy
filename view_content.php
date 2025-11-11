@@ -530,7 +530,7 @@ body {
                                     }
                                 }
                                 ?>
-                                <video class="content-video" controls <?php echo !empty($poster) ? 'poster="' . htmlspecialchars($poster) . '"' : ''; ?>>
+                                <video class="content-video" controls preload="none" <?php echo !empty($poster) ? 'poster="' . htmlspecialchars($poster) . '"' : ''; ?>>
                                     <source src="<?php echo htmlspecialchars($file_url); ?>" type="<?php echo htmlspecialchars($file['mime_type'] ?? 'video/mp4'); ?>">
                                     Seu navegador não suporta a reprodução de vídeos.
                                 </video>
@@ -539,12 +539,18 @@ body {
                     <?php elseif ($is_pdf): ?>
                         <!-- PDF -->
                         <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <?php if (!empty($file['video_title'])): ?>
-                                <h3 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-orange);">
-                                    <?php echo htmlspecialchars($file['video_title']); ?>
-                                </h3>
-                            <?php endif; ?>
-                            <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank" class="content-pdf-card">
+                            <?php 
+                            // Mostrar título do PDF (video_title ou file_name)
+                            $pdf_title = !empty($file['video_title']) ? $file['video_title'] : (!empty($file['file_name']) ? $file['file_name'] : 'PDF');
+                            ?>
+                            <h3 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-orange);">
+                                <?php echo htmlspecialchars($pdf_title); ?>
+                            </h3>
+                            <a href="<?php echo htmlspecialchars($file_url); ?>" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               onclick="window.open(this.href, '_blank', 'noopener,noreferrer'); return false;"
+                               class="content-pdf-card">
                                 <i class="fas fa-file-pdf content-pdf-icon"></i>
                                 <div class="content-pdf-label">
                                     <span>Abrir PDF</span>
