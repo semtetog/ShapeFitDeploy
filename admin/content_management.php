@@ -1751,10 +1751,7 @@ function initCustomSelect(selectId, hiddenInputId, onChangeCallback) {
 
 // Inicializar todos os custom selects quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', function() {
-    // Tipo de conteúdo
-    initCustomSelect('contentTypeSelect', 'contentType', function(value) {
-        toggleContentFields();
-    });
+    // Tipo de conteúdo é detectado automaticamente, não precisa de select
     
     // Público-alvo
     initCustomSelect('targetTypeSelect', 'targetType', function(value) {
