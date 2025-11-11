@@ -3283,11 +3283,24 @@ function generateVideoFramesForExistingVideo(video, fileId) {
         if (currentFrameIndex >= frameTimes.length) {
             console.log('Todos os frames foram extraídos');
             console.log('Total de frames no container:', framesContainer.children.length);
+            console.log('Estado da galeria antes:', { display: gallery.style.display, offsetParent: gallery.offsetParent });
+            
+            // Garantir que o thumbnailGroup está visível
+            const thumbnailGroup = document.getElementById('thumbnailGroup');
+            if (thumbnailGroup) {
+                thumbnailGroup.style.display = 'block';
+                console.log('thumbnailGroup exibido');
+            }
+            
+            // Exibir a galeria
             gallery.style.display = 'block';
             console.log('Galeria exibida:', gallery.style.display, 'Visível:', gallery.offsetParent !== null);
+            console.log('Estado da galeria depois:', { display: gallery.style.display, offsetParent: gallery.offsetParent, offsetHeight: gallery.offsetHeight });
+            
             // Scroll até a galeria
             setTimeout(() => {
                 gallery.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                console.log('Scroll executado');
             }, 100);
             return;
         }
