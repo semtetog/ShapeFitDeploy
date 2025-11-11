@@ -172,6 +172,12 @@ require_once __DIR__ . '/includes/header.php';
     cursor: grab;
     transform-origin: top left;
     transition: transform 0.1s ease-out;
+    background-color: #1a1a1a;
+    background-image: 
+        linear-gradient(rgba(255, 107, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 107, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0;
 }
 
 .flow-canvas.dragging {
