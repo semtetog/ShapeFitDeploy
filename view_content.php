@@ -514,11 +514,9 @@ body {
                     <?php if ($is_video): ?>
                         <!-- Vídeo -->
                         <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <?php if (!empty($file['video_title'])): ?>
-                                <h3 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-orange);">
-                                    <?php echo htmlspecialchars($file['video_title']); ?>
-                                </h3>
-                            <?php endif; ?>
+                            <h3 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-orange);">
+                                <?php echo htmlspecialchars($file['video_title'] ?? 'Sem título'); ?>
+                            </h3>
                             <div class="content-media">
                                 <?php
                                 // Se tiver thumbnail, usar como poster
@@ -539,12 +537,8 @@ body {
                     <?php elseif ($is_pdf): ?>
                         <!-- PDF -->
                         <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <?php 
-                            // Mostrar título do PDF (video_title ou file_name)
-                            $pdf_title = !empty($file['video_title']) ? $file['video_title'] : (!empty($file['file_name']) ? $file['file_name'] : 'PDF');
-                            ?>
                             <h3 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-orange);">
-                                <?php echo htmlspecialchars($pdf_title); ?>
+                                <?php echo htmlspecialchars($file['video_title'] ?? 'Sem título'); ?>
                             </h3>
                             <a href="<?php echo htmlspecialchars($file_url); ?>" 
                                onclick="event.preventDefault(); var link = document.createElement('a'); link.href = this.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; document.body.appendChild(link); link.click(); document.body.removeChild(link); return false;"

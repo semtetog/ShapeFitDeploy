@@ -1362,8 +1362,8 @@ require_once __DIR__ . '/includes/header.php';
             <input type="text" class="search-input" placeholder="Buscar por título ou descrição..." 
                    value="<?php echo htmlspecialchars($search_term); ?>" 
                    onkeyup="handleSearch(event)" id="searchInput">
+            </div>
         </div>
-    </div>
 
     <!-- Content Grid -->
         <div class="content-grid" id="contentGrid">
@@ -1422,23 +1422,23 @@ require_once __DIR__ . '/includes/header.php';
                         <!-- Informações extras (opcionais) - aparecem antes do spacer -->
                         <?php if (isset($content['target_type']) && $content['target_type'] !== 'all'): ?>
                             <div class="content-extra-info">
-                                <div class="content-info-item">
-                                    <i class="fas fa-users"></i>
-                                    <span>
-                                        <?php
-                                        switch($content['target_type']) {
-                                            case 'user':
-                                                echo 'Usuário específico';
-                                                break;
-                                            case 'group':
-                                                echo 'Grupo específico';
-                                                break;
-                                            default:
-                                                echo 'Todos os usuários';
-                                        }
-                                        ?>
-                                    </span>
-                                </div>
+                                    <div class="content-info-item">
+                                        <i class="fas fa-users"></i>
+                                        <span>
+                                            <?php
+                                            switch($content['target_type']) {
+                                                case 'user':
+                                                    echo 'Usuário específico';
+                                                    break;
+                                                case 'group':
+                                                    echo 'Grupo específico';
+                                                    break;
+                                                default:
+                                                    echo 'Todos os usuários';
+                                            }
+                                            ?>
+                                        </span>
+                                    </div>
                             </div>
                         <?php endif; ?>
                         
@@ -1500,18 +1500,18 @@ require_once __DIR__ . '/includes/header.php';
             <form id="contentForm" enctype="multipart/form-data">
                 <input type="hidden" id="contentId" name="content_id">
                 
-                <div class="challenge-form-group">
+                    <div class="challenge-form-group">
                     <label for="contentTitle" style="display: flex; align-items: center; gap: 0.25rem;">Título <span style="color: var(--accent-orange);">*</span></label>
-                    <input type="text" id="contentTitle" name="title" class="challenge-form-input" required placeholder="Ex: Receita de Salada Fit">
-                </div>
+                        <input type="text" id="contentTitle" name="title" class="challenge-form-input" required placeholder="Ex: Receita de Salada Fit">
+                    </div>
                 
                 <!-- Tipo de conteúdo será detectado automaticamente -->
-                <input type="hidden" id="contentType" name="content_type" value="">
+                        <input type="hidden" id="contentType" name="content_type" value="">
                 
                 <div class="challenge-form-group">
                     <label for="contentDescription">Descrição</label>
                     <textarea id="contentDescription" name="description" class="challenge-form-textarea" rows="3" placeholder="Descreva o conteúdo"></textarea>
-                </div>
+                                </div>
                 
                 <div class="challenge-form-group" id="fileUploadGroup">
                     <label for="contentFile">Arquivo <span style="color: var(--accent-orange);">*</span></label>
@@ -1523,7 +1523,7 @@ require_once __DIR__ . '/includes/header.php';
                         <div style="position: relative; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); max-width: 400px;">
                             <div id="videoPreview" style="display: none;">
                                 <video id="previewVideo" style="width: 100%; max-height: 200px; display: block;" controls></video>
-                            </div>
+                                </div>
                             <div id="pdfPreview" style="display: none; padding: 1.5rem; text-align: center;">
                                 <i class="fas fa-file-pdf" style="font-size: 2.5rem; color: var(--accent-orange); margin-bottom: 0.75rem;"></i>
                                 <p style="color: var(--text-primary); font-weight: 600; margin: 0; font-size: 0.875rem;" id="pdfFileName"></p>
@@ -1542,9 +1542,9 @@ require_once __DIR__ . '/includes/header.php';
                             <div id="videoFramesGallery" style="display: none; margin-bottom: 1rem;">
                                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
                                     <!-- Frames serão inseridos aqui via JavaScript -->
-                                </div>
-                            </div>
-                            
+                    </div>
+                </div>
+                
                             <!-- Input hidden para armazenar o frame selecionado -->
                             <input type="hidden" id="selectedThumbnailData" name="thumbnail_data">
                         </div>
@@ -1553,9 +1553,9 @@ require_once __DIR__ . '/includes/header.php';
                 
                 <!-- Campo de mini título para vídeos (movido para fora do fileUploadGroup) -->
                 <div id="videoTitleGroup" class="challenge-form-group" style="display: none;">
-                    <label for="videoTitle">Título do Vídeo (Opcional)</label>
-                    <input type="text" id="videoTitle" name="video_title" class="challenge-form-input" placeholder="Ex: Preparo da receita, Dicas finais, etc." oninput="updateVideoTitleDisplay()">
-                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Útil quando há múltiplos vídeos em uma receita ou conteúdo.</small>
+                    <label for="videoTitle">Título do Arquivo <span style="color: var(--accent-orange);">*</span></label>
+                    <input type="text" id="videoTitle" name="video_title" class="challenge-form-input" placeholder="Ex: Preparo da receita, Dicas finais, etc." required oninput="updateVideoTitleDisplay()">
+                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Obrigatório para vídeos e PDFs.</small>
                 </div>
                 
                 <!-- Arquivos salvos (ao editar) - mais abaixo -->
@@ -2448,8 +2448,8 @@ function saveContent() {
                 contentType = detectedType;
             } else {
                 showAlert('Validação', 'Tipo de arquivo não suportado. Use apenas vídeos (MP4, MOV, AVI, WebM) ou PDF.');
-                return;
-            }
+        return;
+    }
         } else if (contentId) {
             // Ao editar, se não há arquivo novo, manter o tipo existente
             // O tipo já deve estar definido no hidden input
@@ -2463,6 +2463,17 @@ function saveContent() {
     if (!fileInput.files[0] && !contentId) {
         showAlert('Validação', 'Arquivo é obrigatório para este tipo de conteúdo');
         return;
+    }
+    
+    // Validar título do arquivo (obrigatório para vídeos e PDFs)
+    const videoTitleInput = document.getElementById('videoTitle');
+    if (videoTitleInput && videoTitleInput.offsetParent !== null) { // Se o campo está visível
+        const videoTitle = videoTitleInput.value.trim();
+        if (!videoTitle) {
+            showAlert('Validação', 'Título do arquivo é obrigatório');
+            videoTitleInput.focus();
+            return;
+        }
     }
     
     // Se arquivo foi removido, adicionar flag
@@ -2657,10 +2668,10 @@ function toggleContentFields() {
     const contentType = document.getElementById('contentType').value;
     const fileInput = document.getElementById('contentFile');
     
-    const contentId = document.getElementById('contentId').value;
-    if (!contentId) {
-        fileInput.setAttribute('required', 'required');
-    }
+        const contentId = document.getElementById('contentId').value;
+        if (!contentId) {
+            fileInput.setAttribute('required', 'required');
+        }
     
     // Aceitar vídeos e PDFs (detecção automática)
     fileInput.setAttribute('accept', 'video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf');
@@ -2714,8 +2725,11 @@ function handleFileSelect(event) {
             contentTypeDisplay.textContent = detectedType === 'videos' ? 'Vídeo' : 'PDF';
         }
         
-        // Mostrar/ocultar campo de mini título para vídeos (será mostrado quando arquivo for selecionado)
-        // Não fazer nada aqui, será controlado em handleFileSelect
+        // Mostrar campo de título para vídeos e PDFs
+        const videoTitleGroup = document.getElementById('videoTitleGroup');
+        if (videoTitleGroup) {
+            videoTitleGroup.style.display = 'block';
+        }
     }
     
     const filePreview = document.getElementById('filePreview');

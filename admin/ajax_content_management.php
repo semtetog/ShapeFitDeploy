@@ -123,8 +123,15 @@ function saveContent($conn, $admin_id) {
         $status = 'active'; // Apenas para validação local
     }
     
-    // Buscar video_title se fornecido
+    // Buscar video_title (obrigatório para vídeos e PDFs)
     $video_title = trim($_POST['video_title'] ?? '');
+    
+    // Validar video_title se há arquivo sendo enviado
+    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+        if (empty($video_title)) {
+            throw new Exception('Título do arquivo é obrigatório');
+        }
+    }
     
     // Validar campos obrigatórios
     if (empty($title)) {
