@@ -181,6 +181,8 @@ function saveContent($conn, $admin_id) {
     }
     
     // Processar upload de thumbnail
+    $thumbnail_file_id = isset($_POST['thumbnail_file_id']) ? intval($_POST['thumbnail_file_id']) : 0;
+    
     if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
         $thumbnail = $_FILES['thumbnail'];
         
@@ -218,6 +220,37 @@ function saveContent($conn, $admin_id) {
         }
         
         $thumbnail_url = '/assets/content/thumbnails/' . $thumbnail_name;
+        
+        // Se há thumbnail_file_id, atualizar thumbnail de um arquivo específico
+        if ($thumbnail_file_id > 0) {
+            $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+            if ($check_files_table && $check_files_table->num_rows > 0) {
+                // Deletar thumbnail antiga se existir
+                $stmt_old = $conn->prepare("SELECT thumbnail_url FROM sf_content_files WHERE id = ? AND content_id = ?");
+                $stmt_old->bind_param("ii", $thumbnail_file_id, $content_id);
+                $stmt_old->execute();
+                $old_thumb = $stmt_old->get_result()->fetch_assoc();
+                $stmt_old->close();
+                
+                if ($old_thumb && !empty($old_thumb['thumbnail_url'])) {
+                    $old_thumb_full = APP_ROOT_PATH . $old_thumb['thumbnail_url'];
+                    if (file_exists($old_thumb_full)) {
+                        unlink($old_thumb_full);
+                    }
+                }
+                
+                // Atualizar thumbnail do arquivo específico
+                $stmt_update_thumb = $conn->prepare("UPDATE sf_content_files SET thumbnail_url = ? WHERE id = ? AND content_id = ?");
+                $stmt_update_thumb->bind_param("sii", $thumbnail_url, $thumbnail_file_id, $content_id);
+                if (!$stmt_update_thumb->execute()) {
+                    throw new Exception('Erro ao atualizar thumbnail do arquivo: ' . $stmt_update_thumb->error);
+                }
+                $stmt_update_thumb->close();
+                
+                // Não usar esta thumbnail_url para o conteúdo principal
+                $thumbnail_url = null;
+            }
+        }
     }
     
     if (isset($_FILES['file']) && $_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {

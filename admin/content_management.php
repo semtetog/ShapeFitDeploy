@@ -1546,7 +1546,10 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 
                             <!-- Input hidden para armazenar o frame selecionado -->
-                            <input type="hidden" id="selectedThumbnailData" name="thumbnail_data">
+                            <input type="hidden" id="selectedThumbnailData" name="thumbnail_data" data-file-id="">
+                            <button type="button" onclick="regenerateVideoFrames()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--accent-orange); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all 0.3s ease;">
+                                <i class="fas fa-sync-alt"></i> Gerar novos frames
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2271,13 +2274,39 @@ function editContent(contentId, preserveNewFilePreview = false) {
             // Se preserveNewFilePreview for true, o preview do novo arquivo já está visível
             // e não deve ser limpo
             
-            // Se for vídeo e tiver arquivo atual, mostrar opção de gerar frames
-            if (content.content_type === 'videos' && content.file_path) {
+            // Se for vídeo e tiver arquivo atual, mostrar opção de gerar frames para trocar thumbnail
+            if (content.content_type === 'videos' && files.length > 0) {
                 const thumbnailGroup = document.getElementById('thumbnailGroup');
                 if (thumbnailGroup) {
                     thumbnailGroup.style.display = 'block';
                 }
-                // Não gerar frames automaticamente ao editar (usuário pode escolher manter ou trocar)
+                
+                // Para cada vídeo salvo, carregar e gerar frames para permitir trocar thumbnail
+                files.forEach((file) => {
+                    if (file.mime_type && file.mime_type.startsWith('video/')) {
+                        const fileUrl = file.file_path.startsWith('http') || file.file_path.startsWith('/') 
+                            ? file.file_path 
+                            : '/' + file.file_path;
+                        
+                        // Criar vídeo temporário para gerar frames
+                        const tempVideo = document.createElement('video');
+                        tempVideo.src = fileUrl;
+                        tempVideo.muted = true;
+                        tempVideo.preload = 'metadata';
+                        tempVideo.crossOrigin = 'anonymous';
+                        
+                        tempVideo.onloadedmetadata = function() {
+                            // Gerar frames para este vídeo específico
+                            generateVideoFramesForExistingVideo(tempVideo, file.id || null);
+                        };
+                        
+                        tempVideo.onerror = function() {
+                            console.error('Erro ao carregar vídeo para gerar frames:', fileUrl);
+                        };
+                        
+                        tempVideo.load();
+                    }
+                });
             }
             
             // Toggle campos baseado no tipo
@@ -2480,14 +2509,20 @@ function saveContent() {
     }
     
     // Se houver thumbnail selecionada de um frame do vídeo, converter e adicionar
-    const selectedThumbnailData = document.getElementById('selectedThumbnailData').value;
-    if (selectedThumbnailData && !formData.has('thumbnail')) {
+    const selectedThumbnailData = document.getElementById('selectedThumbnailData');
+    const thumbnailData = selectedThumbnailData ? selectedThumbnailData.value : '';
+    const fileIdForThumbnail = selectedThumbnailData ? (selectedThumbnailData.dataset.fileId || '') : '';
+    
+    if (thumbnailData && !formData.has('thumbnail')) {
         // Converter data URL para blob e adicionar ao FormData
-        fetch(selectedThumbnailData)
+        fetch(thumbnailData)
             .then(res => res.blob())
             .then(blob => {
                 const file = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
                 formData.append('thumbnail', file);
+                if (fileIdForThumbnail) {
+                    formData.append('thumbnail_file_id', fileIdForThumbnail);
+                }
                 submitFormData(formData);
             })
             .catch(() => {
@@ -2495,6 +2530,40 @@ function saveContent() {
                 submitFormData(formData);
             });
         return;
+    }
+    
+    // Se não houver thumbnail selecionada mas há vídeo novo, gerar automaticamente do primeiro frame
+    const fileInput = document.getElementById('contentFile');
+    if (fileInput && fileInput.files[0] && fileInput.files[0].type.startsWith('video/') && !thumbnailData) {
+        const previewVideo = document.getElementById('previewVideo');
+        if (previewVideo && previewVideo.readyState >= 2) {
+            // Extrair primeiro frame automaticamente
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = previewVideo.videoWidth;
+            canvas.height = previewVideo.videoHeight;
+            
+            // Ir para o primeiro frame (0.1 segundos)
+            previewVideo.currentTime = 0.1;
+            previewVideo.onseeked = function() {
+                ctx.drawImage(previewVideo, 0, 0, canvas.width, canvas.height);
+                const frameDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                
+                // Converter para blob e adicionar
+                fetch(frameDataUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], 'thumbnail_auto.jpg', { type: 'image/jpeg' });
+                        formData.append('thumbnail', file);
+                        submitFormData(formData);
+                    })
+                    .catch(() => {
+                        submitFormData(formData);
+                    });
+            };
+            previewVideo.load();
+            return;
+        }
     }
     
     submitFormData(formData);

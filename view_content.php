@@ -520,6 +520,7 @@ body {
                             <div class="content-media">
                                 <?php
                                 // Se tiver thumbnail, usar como poster
+                                // Se não tiver, o navegador vai mostrar a primeira frame automaticamente
                                 $poster = '';
                                 if (!empty($file['thumbnail_url'])) {
                                     $poster = $file['thumbnail_url'];
@@ -528,7 +529,7 @@ body {
                                     }
                                 }
                                 ?>
-                                <video class="content-video" controls preload="none" <?php echo !empty($poster) ? 'poster="' . htmlspecialchars($poster) . '"' : ''; ?>>
+                                <video class="content-video" controls preload="metadata" <?php echo !empty($poster) ? 'poster="' . htmlspecialchars($poster) . '"' : ''; ?>>
                                     <source src="<?php echo htmlspecialchars($file_url); ?>" type="<?php echo htmlspecialchars($file['mime_type'] ?? 'video/mp4'); ?>">
                                     Seu navegador não suporta a reprodução de vídeos.
                                 </video>
