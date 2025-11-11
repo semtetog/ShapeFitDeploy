@@ -3282,7 +3282,13 @@ function generateVideoFramesForExistingVideo(video, fileId) {
     function extractNextFrame() {
         if (currentFrameIndex >= frameTimes.length) {
             console.log('Todos os frames foram extraídos');
+            console.log('Total de frames no container:', framesContainer.children.length);
             gallery.style.display = 'block';
+            console.log('Galeria exibida:', gallery.style.display, 'Visível:', gallery.offsetParent !== null);
+            // Scroll até a galeria
+            setTimeout(() => {
+                gallery.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
             return;
         }
         
@@ -3332,6 +3338,7 @@ function generateVideoFramesForExistingVideo(video, fileId) {
         });
         
         framesContainer.appendChild(frameDiv);
+        console.log('Frame adicionado ao DOM:', currentFrameIndex + 1, frameDiv);
         
         framesExtracted++;
         currentFrameIndex++;
