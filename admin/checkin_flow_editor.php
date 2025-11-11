@@ -958,6 +958,34 @@ function setupCanvasEvents() {
         
         addNode(nodeType, logicalX, logicalY, {}, nodeSubtype);
     });
+    
+    // Zoom com scroll (Ctrl+scroll ou só scroll)
+    if (canvasWrapper) {
+        canvasWrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = Math.sign(e.deltaY);
+            const prev = zoomLevel;
+            zoomLevel = Math.min(2, Math.max(0.5, zoomLevel + (delta > 0 ? -0.1 : 0.1)));
+            
+            // zoom focal no mouse (ajusta pan para "ancorar" o ponto)
+            const rect = canvasWrapper.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            canvasOffset.x = mx - (mx - canvasOffset.x) * (zoomLevel / prev);
+            canvasOffset.y = my - (my - canvasOffset.y) * (zoomLevel / prev);
+            applyViewportTransform();
+        }, { passive: false });
+        
+        // Pan com botão do meio
+        canvasWrapper.addEventListener('mousedown', (e) => {
+            if (e.button !== 1) return;
+            isPanning = true;
+            panStart.x = e.clientX - canvasOffset.x;
+            panStart.y = e.clientY - canvasOffset.y;
+            viewport.classList.add('panning');
+            e.preventDefault();
+        });
+    }
 }
 
 // Aplicar transform no viewport (único elemento que recebe transform)
