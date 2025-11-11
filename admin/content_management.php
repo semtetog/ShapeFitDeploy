@@ -444,6 +444,7 @@ require_once __DIR__ . '/includes/header.php';
     gap: 0.75rem !important;
     box-shadow: none !important;
     cursor: pointer;
+    min-height: 320px;
 }
 
 .content-card:hover {
