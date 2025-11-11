@@ -547,7 +547,7 @@ function applyGoalsToMembers($data, $admin_id) {
     }
     
     // Buscar metas do grupo
-    $stmt_goals = $conn->prepare("SELECT * FROM sf_user_group_goals WHERE group_id = ? AND admin_id = ?");
+    $stmt_goals = $conn->prepare("SELECT target_kcal, target_water_ml, target_protein_g, target_carbs_g, target_fat_g, target_exercise_minutes, target_sleep_hours FROM sf_user_group_goals WHERE group_id = ? AND admin_id = ?");
     $stmt_goals->bind_param("ii", $group_id, $admin_id);
     $stmt_goals->execute();
     $result_goals = $stmt_goals->get_result();
@@ -630,31 +630,33 @@ function applyGoalsToMembers($data, $admin_id) {
             }
             $stmt_update->close();
             
-            // Atualizar/inserir metas de atividade
-            $stmt_check_activity = $conn->prepare("SELECT id FROM sf_user_goals WHERE user_id = ? AND goal_type = 'activity'");
-            $stmt_check_activity->bind_param("i", $user_id);
-            $stmt_check_activity->execute();
-            $result_check_activity = $stmt_check_activity->get_result();
-            $stmt_check_activity->close();
-            
-            if ($result_check_activity->num_rows > 0) {
-                $stmt_update_activity = $conn->prepare("
-                    UPDATE sf_user_goals 
-                    SET target_steps_daily = ?, updated_at = NOW()
-                    WHERE user_id = ? AND goal_type = 'activity'
-                ");
-                $stmt_update_activity->bind_param("ii", $goals['target_steps_daily'], $user_id);
-                $stmt_update_activity->execute();
-                $stmt_update_activity->close();
-            } else {
-                $stmt_insert_activity = $conn->prepare("
-                    INSERT INTO sf_user_goals 
-                    (user_id, goal_type, target_steps_daily, created_at, updated_at)
-                    VALUES (?, 'activity', ?, NOW(), NOW())
-                ");
-                $stmt_insert_activity->bind_param("ii", $user_id, $goals['target_steps_daily']);
-                $stmt_insert_activity->execute();
-                $stmt_insert_activity->close();
+            // Atualizar/inserir metas de atividade (apenas exercício)
+            if (!empty($goals['target_exercise_minutes'])) {
+                $stmt_check_activity = $conn->prepare("SELECT id FROM sf_user_goals WHERE user_id = ? AND goal_type = 'activity'");
+                $stmt_check_activity->bind_param("i", $user_id);
+                $stmt_check_activity->execute();
+                $result_check_activity = $stmt_check_activity->get_result();
+                $stmt_check_activity->close();
+                
+                if ($result_check_activity->num_rows > 0) {
+                    $stmt_update_activity = $conn->prepare("
+                        UPDATE sf_user_goals 
+                        SET target_exercise_minutes = ?, updated_at = NOW()
+                        WHERE user_id = ? AND goal_type = 'activity'
+                    ");
+                    $stmt_update_activity->bind_param("ii", $goals['target_exercise_minutes'], $user_id);
+                    $stmt_update_activity->execute();
+                    $stmt_update_activity->close();
+                } else {
+                    $stmt_insert_activity = $conn->prepare("
+                        INSERT INTO sf_user_goals 
+                        (user_id, goal_type, target_exercise_minutes, created_at, updated_at)
+                        VALUES (?, 'activity', ?, NOW(), NOW())
+                    ");
+                    $stmt_insert_activity->bind_param("ii", $user_id, $goals['target_exercise_minutes']);
+                    $stmt_insert_activity->execute();
+                    $stmt_insert_activity->close();
+                }
             }
             
             // Atualizar/inserir metas de sono
