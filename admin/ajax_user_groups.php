@@ -698,6 +698,67 @@ function applyGoalsToMembers($data, $admin_id) {
     }
 }
 
+function revertGoalsFromMembers($data, $admin_id) {
+    global $conn;
+    
+    $group_id = (int)($data['group_id'] ?? 0);
+    
+    if ($group_id <= 0) {
+        throw new Exception('ID do grupo inválido');
+    }
+    
+    // Verificar se o grupo pertence ao admin
+    $stmt_check = $conn->prepare("SELECT id FROM sf_user_groups WHERE id = ? AND admin_id = ?");
+    $stmt_check->bind_param("ii", $group_id, $admin_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    
+    if ($result_check->num_rows === 0) {
+        $stmt_check->close();
+        throw new Exception('Grupo não encontrado ou sem permissão');
+    }
+    $stmt_check->close();
+    
+    // Buscar membros do grupo
+    $stmt_members = $conn->prepare("SELECT user_id FROM sf_user_group_members WHERE group_id = ?");
+    $stmt_members->bind_param("i", $group_id);
+    $stmt_members->execute();
+    $result_members = $stmt_members->get_result();
+    
+    $user_ids = [];
+    while ($row = $result_members->fetch_assoc()) {
+        $user_ids[] = (int)$row['user_id'];
+    }
+    $stmt_members->close();
+    
+    if (empty($user_ids)) {
+        echo json_encode(['success' => true, 'message' => 'Nenhum membro encontrado no grupo.']);
+        return;
+    }
+    
+    // Verificar se a tabela de metas de usuário existe
+    $check_table = $conn->query("SHOW TABLES LIKE 'sf_user_goals'");
+    if (!$check_table || $check_table->num_rows === 0) {
+        throw new Exception('Tabela de metas de usuário não existe.');
+    }
+    
+    // Deletar metas aplicadas do grupo para cada membro
+    // Remover todas as metas dos usuários do grupo
+    $placeholders = str_repeat('?,', count($user_ids) - 1) . '?';
+    $stmt_delete = $conn->prepare("DELETE FROM sf_user_goals WHERE user_id IN ($placeholders)");
+    $stmt_delete->bind_param(str_repeat('i', count($user_ids)), ...$user_ids);
+    
+    if (!$stmt_delete->execute()) {
+        $stmt_delete->close();
+        throw new Exception('Erro ao reverter metas: ' . $stmt_delete->error);
+    }
+    
+    $affected_rows = $stmt_delete->affected_rows;
+    $stmt_delete->close();
+    
+    echo json_encode(['success' => true, 'message' => "Metas revertidas para {$affected_rows} membro(s) com sucesso!"]);
+}
+
 $conn->close();
 ?>
 
