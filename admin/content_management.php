@@ -2704,44 +2704,13 @@ function clearFilePreview() {
     videoFramesGenerated = false;
 }
 
-// Função para lidar com seleção de thumbnail
-function handleThumbnailSelect(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    if (!file.type.startsWith('image/')) {
-        alert('Por favor, selecione uma imagem válida (JPG, PNG, WebP)');
-        event.target.value = '';
-        return;
-    }
-    
-    // Verificar tamanho (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        alert('A imagem é muito grande. Máximo: 5MB');
-        event.target.value = '';
-        return;
-    }
-    
-    const thumbnailPreview = document.getElementById('thumbnailPreview');
-    const previewThumbnail = document.getElementById('previewThumbnail');
-    
-    if (!thumbnailPreview || !previewThumbnail) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        previewThumbnail.src = e.target.result;
-        thumbnailPreview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-}
-
-// Função para limpar preview da thumbnail
+// Função para limpar preview da thumbnail (apenas limpar o poster do vídeo)
 function clearThumbnailPreview() {
-    const thumbnailInput = document.getElementById('contentThumbnail');
-    const thumbnailPreview = document.getElementById('thumbnailPreview');
-    
-    if (thumbnailInput) thumbnailInput.value = '';
-    if (thumbnailPreview) thumbnailPreview.style.display = 'none';
+    const previewVideo = document.getElementById('previewVideo');
+    if (previewVideo) {
+        previewVideo.poster = '';
+    }
+    document.getElementById('selectedThumbnailData').value = '';
 }
 
 // Função para alternar campos baseado no público-alvo
