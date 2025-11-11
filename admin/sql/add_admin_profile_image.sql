@@ -1,25 +1,26 @@
 -- Script para adicionar coluna profile_image_filename na tabela sf_admins
 -- Execute este SQL no phpMyAdmin
 
--- Verificar se a coluna já existe
-SELECT COLUMN_NAME 
-FROM INFORMATION_SCHEMA.COLUMNS 
-WHERE TABLE_SCHEMA = DATABASE() 
-  AND TABLE_NAME = 'sf_admins' 
-  AND COLUMN_NAME = 'profile_image_filename';
+-- IMPORTANTE: Se a coluna já existir, você verá um erro. Isso é normal, ignore e continue.
 
--- Se não existir, adicionar a coluna
+-- ============================================
+-- PASSO 1: Adicionar coluna profile_image_filename
+-- ============================================
+-- Se der erro de coluna já existir, ignore e vá para o PASSO 2
 ALTER TABLE `sf_admins` 
 ADD COLUMN `profile_image_filename` VARCHAR(255) NULL 
 AFTER `password_hash`;
 
--- Verificar se a coluna full_name existe (pode ser name em alguns casos)
-SELECT COLUMN_NAME 
-FROM INFORMATION_SCHEMA.COLUMNS 
-WHERE TABLE_SCHEMA = DATABASE() 
-  AND TABLE_NAME = 'sf_admins' 
-  AND COLUMN_NAME IN ('full_name', 'name');
+-- ============================================
+-- PASSO 2: Verificar se precisa adicionar coluna full_name
+-- ============================================
+-- Se sua tabela já tem 'full_name', ignore este passo
+-- Se sua tabela só tem 'name' e você quer usar 'full_name', descomente a linha abaixo:
+-- ALTER TABLE `sf_admins` ADD COLUMN `full_name` VARCHAR(255) NULL AFTER `name`;
 
--- Se não tiver full_name mas tiver name, criar uma coluna full_name ou usar name
--- (Isso depende da estrutura atual da tabela)
+-- ============================================
+-- VERIFICAÇÃO (Opcional - apenas para confirmar)
+-- ============================================
+-- Execute este comando para ver a estrutura da tabela:
+-- DESCRIBE `sf_admins`;
 
