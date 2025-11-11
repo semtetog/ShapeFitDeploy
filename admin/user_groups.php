@@ -579,6 +579,15 @@ require_once __DIR__ . '/includes/header.php';
     text-align: center;
 }
 
+/* Sobrescrever estilos de btn-action dentro do footer do modal */
+.challenge-edit-footer .btn-action {
+    min-width: 140px !important;
+    width: auto !important;
+    padding: 0.625rem 1.25rem !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
 .btn-action i {
     flex-shrink: 0;
     font-size: 0.875rem;
