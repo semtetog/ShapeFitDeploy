@@ -45,10 +45,19 @@ if (!empty($search_term)) {
 }
 
 if ($group_filter > 0) {
-    $count_sql .= " INNER JOIN sf_user_group_members ugm ON u.id = ugm.user_id";
-    $count_conditions[] = "ugm.group_id = ?";
-    $count_params[] = $group_filter;
-    $count_types .= "i";
+    // Verificar se a tabela existe antes de usar
+    $table_check = $conn->query("SHOW TABLES LIKE 'sf_user_group_members'");
+    if ($table_check && $table_check->num_rows > 0) {
+        $count_sql .= " INNER JOIN sf_user_group_members ugm ON u.id = ugm.user_id";
+        $count_conditions[] = "ugm.group_id = ?";
+        $count_params[] = $group_filter;
+        $count_types .= "i";
+    } else {
+        // Se a tabela não existir, remover o filtro
+        $group_filter = 0;
+        $group_name = '';
+    }
+    if ($table_check) $table_check->free();
 }
 
 if (!empty($count_conditions)) {
@@ -90,10 +99,19 @@ if (!empty($search_term)) {
 }
 
 if ($group_filter > 0) {
-    $sql .= " INNER JOIN sf_user_group_members ugm ON u.id = ugm.user_id";
-    $conditions[] = "ugm.group_id = ?";
-    $params[] = $group_filter;
-    $types .= "i";
+    // Verificar se a tabela existe antes de usar
+    $table_check = $conn->query("SHOW TABLES LIKE 'sf_user_group_members'");
+    if ($table_check && $table_check->num_rows > 0) {
+        $sql .= " INNER JOIN sf_user_group_members ugm ON u.id = ugm.user_id";
+        $conditions[] = "ugm.group_id = ?";
+        $params[] = $group_filter;
+        $types .= "i";
+    } else {
+        // Se a tabela não existir, remover o filtro
+        $group_filter = 0;
+        $group_name = '';
+    }
+    if ($table_check) $table_check->free();
 }
 
 if (!empty($conditions)) {

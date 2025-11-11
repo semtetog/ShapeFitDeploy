@@ -2015,8 +2015,6 @@ function applyGoalsToMembers() {
     });
 }
 
-// Ver pacientes do grupo (link para users.php com filtro)
-
 // Função MD5 simples (para gerar cores)
 function md5(string) {
     function md5_RotateLeft(lValue, iShiftBits) {
