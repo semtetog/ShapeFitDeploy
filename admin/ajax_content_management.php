@@ -72,7 +72,11 @@ function saveContent($conn, $admin_id) {
     $target_id = !empty($_POST['target_id']) ? (int)$_POST['target_id'] : null;
     $status = $_POST['status'] ?? 'active';
     $content_text = trim($_POST['content_text'] ?? '');
-    $categories = isset($_POST['categories']) ? (is_array($_POST['categories']) ? $_POST['categories'] : [$_POST['categories']]) : [];
+    
+    // Validar status - apenas active ou inactive
+    if ($status !== 'active' && $status !== 'inactive') {
+        $status = 'active';
+    }
     
     // Verificar se as colunas target_type, target_id e status existem
     $has_target_type = false;
@@ -331,26 +335,6 @@ function saveContent($conn, $admin_id) {
         }
         $stmt->close();
         
-        // Salvar categorias (sempre deletar e reinserir para garantir consistência)
-        // Deletar categorias antigas
-        $stmt_del = $conn->prepare("DELETE FROM sf_content_category_relations WHERE content_id = ?");
-        $stmt_del->bind_param("i", $content_id);
-        $stmt_del->execute();
-        $stmt_del->close();
-        
-        // Inserir novas categorias se houver
-        if (!empty($categories)) {
-            $stmt_cat = $conn->prepare("INSERT INTO sf_content_category_relations (content_id, category_id) VALUES (?, ?)");
-            foreach ($categories as $category_id) {
-                $cat_id = (int)$category_id;
-                if ($cat_id > 0) {
-                    $stmt_cat->bind_param("ii", $content_id, $cat_id);
-                    $stmt_cat->execute();
-                }
-            }
-            $stmt_cat->close();
-        }
-        
         $conn->commit();
         
         ob_clean();
@@ -391,23 +375,6 @@ function getContent($conn, $admin_id) {
     
     $content = $result->fetch_assoc();
     $stmt->close();
-    
-    // Buscar categorias
-    $stmt_cat = $conn->prepare("
-        SELECT category_id 
-        FROM sf_content_category_relations 
-        WHERE content_id = ?
-    ");
-    $stmt_cat->bind_param("i", $content_id);
-    $stmt_cat->execute();
-    $categories_result = $stmt_cat->get_result();
-    $categories = [];
-    while ($row = $categories_result->fetch_assoc()) {
-        $categories[] = $row['category_id'];
-    }
-    $stmt_cat->close();
-    
-    $content['categories'] = $categories;
     
     ob_clean();
     echo json_encode(['success' => true, 'content' => $content]);

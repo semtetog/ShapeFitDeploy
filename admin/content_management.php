@@ -102,12 +102,9 @@ $contents = [];
 if ($table_exists) {
     $sql = "SELECT 
         mc.*,
-        a.full_name as author_name,
-        GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories
+        a.full_name as author_name
                   FROM sf_member_content mc
                   LEFT JOIN sf_admins a ON mc.admin_id = a.id
-        LEFT JOIN sf_content_category_relations ccr ON mc.id = ccr.content_id
-        LEFT JOIN sf_categories c ON ccr.category_id = c.id
         WHERE mc.admin_id = ?";
     $conditions = [];
     $params = [$admin_id];
@@ -136,7 +133,7 @@ if ($table_exists) {
         $sql .= " AND " . implode(" AND ", $conditions);
     }
 
-    $sql .= " GROUP BY mc.id ORDER BY mc.created_at DESC LIMIT ? OFFSET ?";
+    $sql .= " ORDER BY mc.created_at DESC LIMIT ? OFFSET ?";
     $params[] = $per_page;
     $params[] = $offset;
     $types .= 'ii';
@@ -154,11 +151,6 @@ if ($table_exists) {
         $contents = [];
     }
 }
-
-// Buscar categorias (usando sf_categories existente)
-$categories_query = "SELECT * FROM sf_categories ORDER BY name";
-$categories_result = $conn->query($categories_query);
-$categories = $categories_result->fetch_all(MYSQLI_ASSOC);
 
 // Buscar usuários para conteúdo específico
 $users_query = "SELECT id, name, email FROM sf_users ORDER BY name";
@@ -1138,40 +1130,97 @@ require_once __DIR__ . '/includes/header.php';
     gap: 1rem;
 }
 
-.categories-selection {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-}
-
-.category-item label {
+/* Toggle Switch - Igual user_groups.php */
+.toggle-switch-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.toggle-switch-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 50px;
+    text-align: left;
+    transition: color 0.3s ease;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
     cursor: pointer;
+    flex-shrink: 0;
+}
+
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #EF4444; /* Vermelho quando desativado */
     transition: all 0.3s ease;
-    font-weight: 500;
+    border-radius: 26px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.category-item label:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--accent-orange);
+.toggle-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.category-item input[type="checkbox"] {
-    display: none;
+/* Quando está ativo (checked) - Verde */
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background-color: #22C55E; /* Verde quando ativado */
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
 }
 
-.category-item input[type="checkbox"]:checked + i {
-    color: var(--accent-orange);
+.toggle-switch-input:checked + .toggle-switch-slider:before {
+    transform: translateX(24px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.category-item input[type="checkbox"]:checked ~ span {
-    color: var(--accent-orange);
+/* Hover effect */
+.toggle-switch:hover .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.toggle-switch-input:checked:hover + .toggle-switch-slider {
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+.toggle-switch-input:not(:checked):hover + .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Atualizar label quando está ativo */
+.toggle-switch-input:checked ~ .toggle-switch-label,
+.toggle-switch-wrapper:has(.toggle-switch-input:checked) .toggle-switch-label {
+    color: #22C55E;
+    font-weight: 700;
+}
+
+.toggle-switch-wrapper:has(.toggle-switch-input:not(:checked)) .toggle-switch-label {
+    color: #EF4444;
 }
 
 /* File Input */
@@ -1368,15 +1417,8 @@ require_once __DIR__ . '/includes/header.php';
                         </p>
                         
                         <!-- Informações extras (opcionais) - aparecem antes do spacer -->
-                        <?php if (!empty($content['categories']) || (isset($content['target_type']) && $content['target_type'] !== 'all') || isset($content['status'])): ?>
+                        <?php if ((isset($content['target_type']) && $content['target_type'] !== 'all') || isset($content['status'])): ?>
                             <div class="content-extra-info">
-                                <?php if (!empty($content['categories'])): ?>
-                                    <div class="content-info-item">
-                                        <i class="fas fa-tag"></i>
-                                        <span><?php echo htmlspecialchars($content['categories']); ?></span>
-                                    </div>
-                                <?php endif; ?>
-                                
                                 <?php if (isset($content['target_type']) && $content['target_type'] !== 'all'): ?>
                                     <div class="content-info-item">
                                         <i class="fas fa-users"></i>
@@ -1538,35 +1580,18 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 
                 <div class="challenge-form-group">
-                    <label>Categorias</label>
-                    <div class="categories-selection">
-                        <?php foreach ($categories as $category): ?>
-                            <div class="category-item">
-                                <label>
-                                    <input type="checkbox" name="categories[]" value="<?php echo $category['id']; ?>">
-                                    <i class="fas fa-tag"></i>
-                                    <span><?php echo htmlspecialchars($category['name']); ?></span>
-                                </label>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                
-                <div class="challenge-form-group">
-                    <label for="contentStatus">Status</label>
+                    <label>Status</label>
                     <input type="hidden" id="contentStatus" name="status" value="active">
-                    <div class="custom-select-wrapper">
-                        <div class="custom-select" id="contentStatusSelect">
-                            <div class="custom-select-trigger">
-                                <span class="custom-select-value">Ativo</span>
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                            <div class="custom-select-options">
-                                <div class="custom-select-option selected" data-value="active">Ativo</div>
-                                <div class="custom-select-option" data-value="draft">Rascunho</div>
-                                <div class="custom-select-option" data-value="inactive">Inativo</div>
-                            </div>
-                        </div>
+                    <div class="toggle-switch-wrapper">
+                        <label class="toggle-switch">
+                            <input type="checkbox" 
+                                   class="toggle-switch-input" 
+                                   id="contentStatusToggle"
+                                   checked
+                                   onchange="updateContentStatus(this)">
+                            <span class="toggle-switch-slider"></span>
+                        </label>
+                        <span class="toggle-switch-label" id="contentStatusLabel" style="color: #22C55E; font-weight: 700;">Ativo</span>
                     </div>
                 </div>
             </form>
@@ -1825,11 +1850,43 @@ function openCreateContentModal() {
     // Resetar custom selects
     resetCustomSelect('contentTypeSelect', 'contentType', '', 'Selecione...');
     resetCustomSelect('targetTypeSelect', 'targetType', '', 'Selecione...');
-    resetCustomSelect('contentStatusSelect', 'contentStatus', 'active', 'Ativo');
+    // Resetar toggle de status
+    const statusToggle = document.getElementById('contentStatusToggle');
+    const statusLabel = document.getElementById('contentStatusLabel');
+    const statusInput = document.getElementById('contentStatus');
+    if (statusToggle) {
+        statusToggle.checked = true;
+        statusInput.value = 'active';
+        if (statusLabel) {
+            statusLabel.textContent = 'Ativo';
+            statusLabel.style.color = '#22C55E';
+            statusLabel.style.fontWeight = '700';
+        }
+    }
     
     const modal = document.getElementById('contentModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+}
+
+// Função para atualizar status do conteúdo via toggle
+function updateContentStatus(toggleElement) {
+    const toggle = toggleElement || document.getElementById('contentStatusToggle');
+    const label = document.getElementById('contentStatusLabel');
+    const input = document.getElementById('contentStatus');
+    
+    if (!toggle || !label || !input) return;
+    
+    const isChecked = toggle.checked;
+    const newStatus = isChecked ? 'active' : 'inactive';
+    const newText = isChecked ? 'Ativo' : 'Inativo';
+    const newColor = isChecked ? '#22C55E' : '#EF4444';
+    const newWeight = isChecked ? '700' : '600';
+    
+    input.value = newStatus;
+    label.textContent = newText;
+    label.style.color = newColor;
+    label.style.fontWeight = newWeight;
 }
 
 // Função para fechar modal
@@ -1861,7 +1918,20 @@ function editContent(contentId) {
             // Definir valores dos custom selects
             setCustomSelectValue('contentTypeSelect', 'contentType', content.content_type || '');
             setCustomSelectValue('targetTypeSelect', 'targetType', content.target_type || 'all');
-            setCustomSelectValue('contentStatusSelect', 'contentStatus', content.status || 'active');
+            // Atualizar toggle de status
+            const statusToggle = document.getElementById('contentStatusToggle');
+            const statusLabel = document.getElementById('contentStatusLabel');
+            const statusInput = document.getElementById('contentStatus');
+            const isActive = (content.status || 'active') === 'active';
+            if (statusToggle) {
+                statusToggle.checked = isActive;
+                statusInput.value = isActive ? 'active' : 'inactive';
+                if (statusLabel) {
+                    statusLabel.textContent = isActive ? 'Ativo' : 'Inativo';
+                    statusLabel.style.color = isActive ? '#22C55E' : '#EF4444';
+                    statusLabel.style.fontWeight = isActive ? '700' : '600';
+                }
+            }
             
             // Toggle campos baseado no tipo
             toggleContentFields();
@@ -1876,15 +1946,6 @@ function editContent(contentId) {
                 }, 200);
             }
             
-            // Selecionar categorias
-            if (content.categories && Array.isArray(content.categories)) {
-                content.categories.forEach(catId => {
-                    const checkbox = document.querySelector(`input[name="categories[]"][value="${catId}"]`);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                    }
-                });
-            }
             
             // Abrir modal
             const modal = document.getElementById('contentModal');
