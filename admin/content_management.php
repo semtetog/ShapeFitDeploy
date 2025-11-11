@@ -2600,7 +2600,7 @@ function saveContent() {
 }
 
 // Função auxiliar para enviar FormData
-function submitFormData(formData) {
+function submitFormData(formData, silent = false) {
     // Coletar todos os títulos editados dos arquivos salvos
     const titleDivs = document.querySelectorAll('[data-file-id][data-content-id]');
     const titlesToUpdate = [];
@@ -2651,26 +2651,28 @@ function submitFormData(formData) {
         Promise.all(updatePromises)
             .then(() => {
                 // Após salvar todos os títulos, salvar o conteúdo
-                sendFormData(formData);
+                sendFormData(formData, silent);
             })
             .catch(error => {
                 console.error('Erro ao salvar títulos:', error);
                 // Mesmo com erro nos títulos, tentar salvar o conteúdo
-                sendFormData(formData);
+                sendFormData(formData, silent);
             });
     } else {
         // Se não há títulos para atualizar, salvar o conteúdo diretamente
-        sendFormData(formData);
+        sendFormData(formData, silent);
     }
 }
 
 // Função para enviar o FormData do conteúdo
-function sendFormData(formData) {
-    // Mostrar loading
+function sendFormData(formData, silent = false) {
+    // Mostrar loading apenas se não for silencioso
     const saveButton = document.querySelector('.btn-save');
-    const originalText = saveButton.innerHTML;
-    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-    saveButton.disabled = true;
+    const originalText = saveButton ? saveButton.innerHTML : '';
+    if (!silent && saveButton) {
+        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+        saveButton.disabled = true;
+    }
     
     fetch('ajax_content_management.php', {
         method: 'POST',
@@ -2713,7 +2715,9 @@ function sendFormData(formData) {
     })
     .then(data => {
         if (data.success) {
-            showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
+            if (!silent) {
+                showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
+            }
             
             // Atualizar ID do conteúdo se foi criado
             let contentId = document.getElementById('contentId').value;
@@ -2734,32 +2738,46 @@ function sendFormData(formData) {
             
             // Recarregar dados do conteúdo para mostrar o arquivo salvo (mantém modal aberto)
             // Usar um pequeno delay para garantir que o servidor processou tudo
-            if (contentId) {
+            if (contentId && !silent) {
                 setTimeout(() => {
                     editContent(contentId, false);
                 }, 300);
             }
             
             // Atualizar lista de conteúdos via AJAX (sem recarregar página)
-            updateContentList();
-            
-            // Atualizar estatísticas
-            updateStats();
+            if (!silent) {
+                updateContentList();
+                updateStats();
+            }
             
             // Restaurar botão
-            saveButton.innerHTML = originalText;
-            saveButton.disabled = false;
+            if (saveButton) {
+                saveButton.innerHTML = originalText;
+                saveButton.disabled = false;
+            }
+            
+            return data;
         } else {
-            showAlert('Erro', 'Erro ao salvar conteúdo: ' + (data.error || 'Erro desconhecido'));
-            saveButton.innerHTML = originalText;
-            saveButton.disabled = false;
+            if (!silent) {
+                showAlert('Erro', 'Erro ao salvar conteúdo: ' + (data.error || 'Erro desconhecido'));
+            }
+            if (saveButton) {
+                saveButton.innerHTML = originalText;
+                saveButton.disabled = false;
+            }
+            throw new Error(data.error || 'Erro desconhecido');
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        showAlert('Erro', 'Erro ao salvar conteúdo: ' + error.message);
-        saveButton.innerHTML = originalText;
-        saveButton.disabled = false;
+        if (!silent) {
+            showAlert('Erro', 'Erro ao salvar conteúdo: ' + error.message);
+        }
+        if (saveButton) {
+            saveButton.innerHTML = originalText;
+            saveButton.disabled = false;
+        }
+        throw error;
     });
 }
 
@@ -2780,6 +2798,7 @@ function toggleContentFields() {
 // Variável global para armazenar o vídeo e frames
 let currentVideoFile = null;
 let videoFramesGenerated = false;
+let pendingFileData = null; // Armazena dados do arquivo anterior quando um novo é selecionado
 
 // Variável global para controlar se arquivo foi removido
 let fileRemoved = false;
@@ -2810,11 +2829,167 @@ function detectContentType(file) {
     return '';
 }
 
+// Função para salvar arquivo pendente automaticamente
+function savePendingFile(callback) {
+    const fileInput = document.getElementById('contentFile');
+    const videoTitleInput = document.getElementById('videoTitle');
+    const contentTitle = document.getElementById('contentTitle').value.trim();
+    const contentId = document.getElementById('contentId').value;
+    
+    // Verificar se há arquivo pendente com título
+    if (!pendingFileData || !pendingFileData.file) {
+        if (callback) callback();
+        return;
+    }
+    
+    const pendingTitle = pendingFileData.videoTitle ? pendingFileData.videoTitle.trim() : '';
+    
+    // Se não tem título, não salvar - apenas trocar para o novo arquivo
+    if (!pendingTitle) {
+        pendingFileData = null;
+        if (callback) callback();
+        return;
+    }
+    
+    // Verificar se o título do conteúdo está preenchido (obrigatório)
+    if (!contentTitle) {
+        // Se não tem título do conteúdo, não pode salvar
+        pendingFileData = null;
+        if (callback) callback();
+        return;
+    }
+    
+    // Armazenar o arquivo atual do input para restaurar depois
+    const currentFile = fileInput.files[0];
+    
+    // Criar um DataTransfer para definir o arquivo pendente no input
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(pendingFileData.file);
+    fileInput.files = dataTransfer.files;
+    
+    // Armazenar título atual e definir o título pendente
+    const currentTitle = videoTitleInput ? videoTitleInput.value : '';
+    if (videoTitleInput) {
+        videoTitleInput.value = pendingTitle;
+    }
+    
+    // Salvar o arquivo pendente chamando saveContent diretamente
+    // Mas precisamos garantir que não interfira com o novo arquivo
+    const form = document.getElementById('contentForm');
+    const formData = new FormData(form);
+    formData.append('action', 'save_content');
+    
+    // Se houver thumbnail pendente, adicionar
+    if (pendingFileData.thumbnailData) {
+        fetch(pendingFileData.thumbnailData)
+            .then(res => res.blob())
+            .then(blob => {
+                const thumbnailFile = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
+                formData.append('thumbnail', thumbnailFile);
+                return submitFormData(formData, true); // true = salvar silenciosamente
+            })
+            .then(() => {
+                // Restaurar input e limpar dados pendentes
+                fileInput.value = '';
+                if (videoTitleInput) {
+                    videoTitleInput.value = '';
+                }
+                pendingFileData = null;
+                if (callback) callback();
+            })
+            .catch(() => {
+                submitFormData(formData, true).then(() => {
+                    fileInput.value = '';
+                    if (videoTitleInput) {
+                        videoTitleInput.value = '';
+                    }
+                    pendingFileData = null;
+                    if (callback) callback();
+                }).catch(() => {
+                    fileInput.value = '';
+                    if (videoTitleInput) {
+                        videoTitleInput.value = '';
+                    }
+                    pendingFileData = null;
+                    if (callback) callback();
+                });
+            });
+    } else {
+        submitFormData(formData, true).then(() => {
+            // Restaurar input e limpar dados pendentes
+            fileInput.value = '';
+            if (videoTitleInput) {
+                videoTitleInput.value = '';
+            }
+            pendingFileData = null;
+            if (callback) callback();
+        }).catch(() => {
+            fileInput.value = '';
+            if (videoTitleInput) {
+                videoTitleInput.value = '';
+            }
+            pendingFileData = null;
+            if (callback) callback();
+        });
+    }
+}
+
 // Função para lidar com seleção de arquivo
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
     
+    const fileInput = document.getElementById('contentFile');
+    const videoTitleInput = document.getElementById('videoTitle');
+    const filePreview = document.getElementById('filePreview');
+    const previewVideo = document.getElementById('previewVideo');
+    const selectedThumbnailData = document.getElementById('selectedThumbnailData');
+    
+    // Verificar se há um arquivo anterior no preview com título preenchido
+    const hasPreviousFile = filePreview && filePreview.style.display !== 'none';
+    const previousTitle = videoTitleInput ? videoTitleInput.value.trim() : '';
+    const previousThumbnail = selectedThumbnailData ? selectedThumbnailData.value : '';
+    
+    // Se há arquivo anterior, armazenar dados pendentes
+    if (hasPreviousFile && currentVideoFile) {
+        pendingFileData = {
+            file: currentVideoFile,
+            videoTitle: previousTitle,
+            thumbnailData: previousThumbnail
+        };
+        
+        // Se tem título, salvar automaticamente antes de trocar
+        if (previousTitle) {
+            // Salvar arquivo pendente e depois processar o novo
+            savePendingFile(() => {
+                processNewFile(file);
+            });
+            return;
+        } else {
+            // Se não tem título, apenas trocar para o novo arquivo
+            pendingFileData = null;
+        }
+    } else if (hasPreviousFile && !currentVideoFile) {
+        // PDF anterior
+        pendingFileData = {
+            file: null, // PDF não tem currentVideoFile
+            videoTitle: previousTitle,
+            thumbnailData: null
+        };
+        
+        if (previousTitle) {
+            // Tentar encontrar o arquivo PDF anterior (não temos referência direta)
+            // Por enquanto, apenas processar o novo arquivo
+            pendingFileData = null;
+        }
+    }
+    
+    // Processar novo arquivo
+    processNewFile(file);
+}
+
+// Função auxiliar para processar novo arquivo
+function processNewFile(file) {
     // Detectar tipo de conteúdo automaticamente
     const detectedType = detectContentType(file);
     if (detectedType) {
@@ -2839,10 +3014,11 @@ function handleFileSelect(event) {
     const pdfFileName = document.getElementById('pdfFileName');
     const thumbnailGroup = document.getElementById('thumbnailGroup');
     const videoFramesGallery = document.getElementById('videoFramesGallery');
-    const currentFileInfo = document.getElementById('currentFileInfo');
     
-    // NÃO ocultar arquivo atual - manter visível para referência
-    // O usuário pode ver o arquivo antigo enquanto seleciona o novo
+    // Limpar preview anterior
+    if (previewVideo && previewVideo.src && previewVideo.src.startsWith('blob:')) {
+        URL.revokeObjectURL(previewVideo.src);
+    }
     
     // Ocultar previews de novos arquivos (serão mostrados quando arquivo for selecionado)
     videoPreview.style.display = 'none';
@@ -2852,6 +3028,12 @@ function handleFileSelect(event) {
     thumbnailGroup.style.display = 'none';
     clearThumbnailPreview();
     videoFramesGenerated = false;
+    
+    // Limpar título anterior
+    const videoTitleInput = document.getElementById('videoTitle');
+    if (videoTitleInput) {
+        videoTitleInput.value = '';
+    }
     
     // Verificar tipo de arquivo
     if (file.type.startsWith('video/') || detectedType === 'videos') {
