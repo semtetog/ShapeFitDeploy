@@ -3456,11 +3456,23 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
         return;
     }
     
+    // Verificar se o modal está aberto
+    const modal = document.getElementById('contentModal');
+    if (!modal || !modal.classList.contains('active')) {
+        console.error('Modal não está aberto');
+        showAlert('Erro', 'O modal precisa estar aberto para editar a thumbnail.');
+        return;
+    }
+    
+    console.log('Modal está ativo:', modal.classList.contains('active'));
+    
     // Limpar frames anteriores
     framesContainer.innerHTML = '';
     
     // Mostrar grupo de thumbnail
     thumbnailGroup.style.display = 'block';
+    thumbnailGroup.style.visibility = 'visible';
+    thumbnailGroup.style.opacity = '1';
     // A galeria será exibida quando os frames forem gerados
     videoFramesGallery.style.display = 'none'; // Inicialmente escondida, será mostrada quando os frames estiverem prontos
     
