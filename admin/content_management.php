@@ -1675,6 +1675,10 @@ function initCustomSelect(selectId, hiddenInputId, onChangeCallback) {
             
             // Fecha o dropdown
             customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
             
             // Chama callback se fornecido
             if (onChangeCallback) {
