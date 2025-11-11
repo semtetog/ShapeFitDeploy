@@ -481,14 +481,11 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="flow-editor-toolbar">
         <div class="toolbar-section">
-            <button class="btn-toolbar" onclick="addNode('text')" title="Adicionar Mensagem de Texto">
+            <button class="btn-toolbar" onclick="addNode('bot_message', null, null, {}, 'text')" title="Adicionar Mensagem de Texto">
                 <i class="fas fa-comment"></i> Texto
             </button>
-            <button class="btn-toolbar" onclick="addNode('question')" title="Adicionar Pergunta">
+            <button class="btn-toolbar" onclick="addNode('question', null, null, {}, 'text')" title="Adicionar Pergunta">
                 <i class="fas fa-question"></i> Pergunta
-            </button>
-            <button class="btn-toolbar" onclick="addNode('condition')" title="Adicionar Condição">
-                <i class="fas fa-code-branch"></i> Condição
             </button>
         </div>
         <div class="toolbar-divider"></div>
