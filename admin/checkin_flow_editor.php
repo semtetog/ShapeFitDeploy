@@ -2285,79 +2285,79 @@ function updateConnections() {
                 
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 path.setAttribute('id', lineId);
-            const pathData = `M ${svgX1} ${svgY1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${svgX2} ${svgY2}`;
-            path.setAttribute('d', pathData);
-            
-            // Estilo baseado em condição
-            const hasCondition = conn.condition && conn.condition.var;
-            const lineClass = hasCondition ? 'flow-connection-line conditional' : 'flow-connection-line';
-            path.setAttribute('class', lineClass);
-            // Linha mais visível e sem setinha
-            path.setAttribute('stroke', 'var(--accent-orange)');
-            path.setAttribute('stroke-width', '3');
-            path.setAttribute('fill', 'none');
-            path.setAttribute('opacity', '0.8');
-            
-            // Sem setinha (removido marker-end)
-            
-            if (hasCondition) {
-                path.setAttribute('stroke-dasharray', '8,4');
-                path.setAttribute('opacity', '0.6');
-            }
-            
-            path.dataset.from = conn.from;
-            path.dataset.to = conn.to;
-            path.style.cursor = 'pointer';
-            path.style.pointerEvents = 'stroke';
-            
-            // Efeito hover
-            path.addEventListener('mouseenter', () => {
-                path.setAttribute('stroke-width', '4');
-                path.setAttribute('opacity', '1');
-            });
-            path.addEventListener('mouseleave', () => {
-                path.setAttribute('stroke-width', hasCondition ? '3' : '3');
-                path.setAttribute('opacity', hasCondition ? '0.6' : '0.8');
-            });
-            
-            path.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Mostrar menu de contexto
-                const menu = document.createElement('div');
-                menu.style.cssText = `
-                    position: fixed;
-                    top: ${e.clientY}px;
-                    left: ${e.clientX}px;
-                    background: rgba(20, 20, 20, 0.95);
-                    border: 1px solid var(--glass-border);
-                    border-radius: 8px;
-                    padding: 0.5rem;
-                    z-index: 10000;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-                `;
-                menu.innerHTML = `
-                    <button onclick="selectConnection('${conn.from}', '${conn.to}'); this.parentElement.remove();" style="width: 100%; padding: 0.5rem; background: transparent; border: none; color: var(--text-primary); cursor: pointer; text-align: left; border-radius: 4px; margin-bottom: 0.25rem;">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button onclick="if(confirm('Deseja remover esta conexão?')) { connections = connections.filter(c => !(c.from === '${conn.from}' && c.to === '${conn.to}')); updateConnections(); } this.parentElement.remove();" style="width: 100%; padding: 0.5rem; background: transparent; border: none; color: #ef4444; cursor: pointer; text-align: left; border-radius: 4px;">
-                        <i class="fas fa-trash"></i> Remover
-                    </button>
-                `;
-                document.body.appendChild(menu);
+                const pathData = `M ${svgX1} ${svgY1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${svgX2} ${svgY2}`;
+                path.setAttribute('d', pathData);
                 
-                // Remover menu ao clicar fora
-                setTimeout(() => {
-                    const removeMenu = (e) => {
-                        if (!menu.contains(e.target)) {
-                            menu.remove();
-                            document.removeEventListener('click', removeMenu);
-                        }
-                    };
-                    setTimeout(() => document.addEventListener('click', removeMenu), 100);
-                }, 100);
-            });
-            
-            connectionsLayer.appendChild(path);
+                // Estilo baseado em condição
+                const hasCondition = conn.condition && conn.condition.var;
+                const lineClass = hasCondition ? 'flow-connection-line conditional' : 'flow-connection-line';
+                path.setAttribute('class', lineClass);
+                // Linha mais visível e sem setinha
+                path.setAttribute('stroke', 'var(--accent-orange)');
+                path.setAttribute('stroke-width', '3');
+                path.setAttribute('fill', 'none');
+                path.setAttribute('opacity', '0.8');
+                
+                // Sem setinha (removido marker-end)
+                
+                if (hasCondition) {
+                    path.setAttribute('stroke-dasharray', '8,4');
+                    path.setAttribute('opacity', '0.6');
+                }
+                
+                path.dataset.from = conn.from;
+                path.dataset.to = conn.to;
+                path.style.cursor = 'pointer';
+                path.style.pointerEvents = 'stroke';
+                
+                // Efeito hover
+                path.addEventListener('mouseenter', () => {
+                    path.setAttribute('stroke-width', '4');
+                    path.setAttribute('opacity', '1');
+                });
+                path.addEventListener('mouseleave', () => {
+                    path.setAttribute('stroke-width', hasCondition ? '3' : '3');
+                    path.setAttribute('opacity', hasCondition ? '0.6' : '0.8');
+                });
+                
+                path.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Mostrar menu de contexto
+                    const menu = document.createElement('div');
+                    menu.style.cssText = `
+                        position: fixed;
+                        top: ${e.clientY}px;
+                        left: ${e.clientX}px;
+                        background: rgba(20, 20, 20, 0.95);
+                        border: 1px solid var(--glass-border);
+                        border-radius: 8px;
+                        padding: 0.5rem;
+                        z-index: 10000;
+                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+                    `;
+                    menu.innerHTML = `
+                        <button onclick="selectConnection('${conn.from}', '${conn.to}'); this.parentElement.remove();" style="width: 100%; padding: 0.5rem; background: transparent; border: none; color: var(--text-primary); cursor: pointer; text-align: left; border-radius: 4px; margin-bottom: 0.25rem;">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button onclick="if(confirm('Deseja remover esta conexão?')) { connections = connections.filter(c => !(c.from === '${conn.from}' && c.to === '${conn.to}')); updateConnections(); } this.parentElement.remove();" style="width: 100%; padding: 0.5rem; background: transparent; border: none; color: #ef4444; cursor: pointer; text-align: left; border-radius: 4px;">
+                            <i class="fas fa-trash"></i> Remover
+                        </button>
+                    `;
+                    document.body.appendChild(menu);
+                    
+                    // Remover menu ao clicar fora
+                    setTimeout(() => {
+                        const removeMenu = (e) => {
+                            if (!menu.contains(e.target)) {
+                                menu.remove();
+                                document.removeEventListener('click', removeMenu);
+                            }
+                        };
+                        setTimeout(() => document.addEventListener('click', removeMenu), 100);
+                    }, 100);
+                });
+                
+                connectionsLayer.appendChild(path);
         });
         
         // Resetar rafId após renderização
@@ -2624,7 +2624,11 @@ function getVariableType(subtype) {
 }
 
 function openPreview() {
-    if (nodes.length === 0) {
+    // Verificar se há fluxo carregado (formato Typebot ou antigo)
+    const hasFlow = (window.typebotFlow && window.typebotFlow.groups && window.typebotFlow.groups.length > 0) || 
+                    (nodes && nodes.length > 0);
+    
+    if (!hasFlow) {
         alert('Adicione blocos ao fluxo antes de visualizar');
         return;
     }
