@@ -973,6 +973,11 @@ require_once __DIR__ . '/includes/header.php';
     margin-left: 0.25rem;
 }
 
+/* Remover asterisco automático se já tiver um span com asterisco */
+.challenge-form-group label:has(span[style*="accent-orange"])::after {
+    content: none;
+}
+
 .challenge-form-input,
 .challenge-form-textarea {
     width: 100%;
