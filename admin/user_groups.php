@@ -990,16 +990,17 @@ require_once __DIR__ . '/includes/header.php';
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 0.5rem !important;
     white-space: nowrap;
-    min-width: 140px !important;
-    width: auto !important;
-    height: auto !important;
+    min-width: 160px !important;
+    width: 160px !important;
+    height: 42px !important;
     box-sizing: border-box !important;
     flex-shrink: 0;
+    text-align: center;
 }
 
 .challenge-form-group {
