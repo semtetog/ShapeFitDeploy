@@ -792,15 +792,18 @@ function initCanvas() {
 function setupCanvasEvents() {
     if (!canvas) return;
     
-    // Pan do canvas (arrastar o canvas inteiro com botão direito ou espaço)
+    // Pan do canvas (arrastar o canvas inteiro quando clicar no fundo)
     canvas.addEventListener('mousedown', (e) => {
-        // Se clicou em um nó ou conector, não fazer pan
-        if (e.target.closest('.flow-node') || e.target.closest('.flow-node-connector')) {
+        // Se clicou em um nó, conector ou botão, não fazer pan
+        if (e.target.closest('.flow-node') || 
+            e.target.closest('.flow-node-connector') || 
+            e.target.closest('.btn-node-action') ||
+            e.target.closest('button')) {
             return;
         }
         
-        // Pan com botão direito ou botão do meio ou Ctrl/Cmd
-        if (e.button === 2 || e.button === 1 || e.ctrlKey || e.metaKey) {
+        // Se clicou diretamente no canvas (fundo), fazer pan
+        if (e.target === canvas || e.target === connectionsLayer || e.target.closest('.flow-canvas-wrapper')) {
             isPanning = true;
             panStart.x = e.clientX - canvasOffset.x;
             panStart.y = e.clientY - canvasOffset.y;
@@ -810,7 +813,8 @@ function setupCanvasEvents() {
         }
     });
 
-    canvas.addEventListener('mousemove', (e) => {
+    // Mousemove no document para capturar mesmo quando sair do canvas
+    document.addEventListener('mousemove', (e) => {
         if (isPanning) {
             canvasOffset.x = e.clientX - panStart.x;
             canvasOffset.y = e.clientY - panStart.y;
@@ -823,7 +827,8 @@ function setupCanvasEvents() {
         }
     });
 
-    canvas.addEventListener('mouseup', () => {
+    // Mouseup no document para garantir que pare o pan mesmo se soltar fora do canvas
+    document.addEventListener('mouseup', () => {
         if (isPanning) {
             isPanning = false;
             canvas.style.cursor = 'grab';
@@ -832,20 +837,59 @@ function setupCanvasEvents() {
     });
 
     canvas.addEventListener('mouseleave', () => {
-        if (isPanning) {
-            isPanning = false;
+        // Não parar o pan ao sair do canvas, apenas mudar cursor se não estiver panning
+        if (!isPanning) {
             canvas.style.cursor = 'grab';
-            canvas.classList.remove('panning');
+        }
+    });
+    
+    // Mudar cursor quando entrar no canvas
+    canvas.addEventListener('mouseenter', () => {
+        if (!isPanning && !isDragging) {
+            canvas.style.cursor = 'grab';
         }
     });
 
-    // Prevenir menu de contexto no canvas
+    // Prevenir menu de contexto no canvas (opcional - pode remover se quiser o menu)
     canvas.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
+        // Permitir menu de contexto apenas se não estiver em um nó
+        if (!e.target.closest('.flow-node')) {
+            e.preventDefault();
+        }
     });
 
-    // Atualizar cursor
+    // Atualizar cursor inicial
     canvas.style.cursor = 'grab';
+    
+    // Adicionar evento de mousedown no wrapper também para facilitar o pan
+    const canvasWrapper = document.querySelector('.flow-canvas-wrapper');
+    if (canvasWrapper) {
+        canvasWrapper.addEventListener('mousedown', (e) => {
+            // Se clicou diretamente no wrapper (fundo), fazer pan
+            if (e.target === canvasWrapper || e.target === connectionsLayer) {
+                if (!e.target.closest('.flow-node') && 
+                    !e.target.closest('.flow-node-connector') && 
+                    !e.target.closest('.btn-node-action')) {
+                    isPanning = true;
+                    panStart.x = e.clientX - canvasOffset.x;
+                    panStart.y = e.clientY - canvasOffset.y;
+                    canvasWrapper.style.cursor = 'grabbing';
+                    canvas.style.cursor = 'grabbing';
+                    canvas.classList.add('panning');
+                    e.preventDefault();
+                }
+            }
+        });
+        
+        canvasWrapper.addEventListener('mouseup', () => {
+            if (isPanning) {
+                isPanning = false;
+                canvasWrapper.style.cursor = 'grab';
+                canvas.style.cursor = 'grab';
+                canvas.classList.remove('panning');
+            }
+        });
+    }
     
     // Drag & Drop do canvas
     canvas.addEventListener('dragover', (e) => {
