@@ -3223,14 +3223,32 @@ function selectVideoFrame(frameDataUrl, frameElement) {
 
 // Função para gerar frames de um vídeo existente (ao editar)
 function generateVideoFramesForExistingVideo(video, fileId) {
-    if (!video || video.readyState < 2) {
+    console.log('generateVideoFramesForExistingVideo chamado:', { video: !!video, readyState: video?.readyState, fileId });
+    
+    if (!video) {
+        console.error('Vídeo não fornecido');
+        return;
+    }
+    
+    if (video.readyState < 2) {
+        console.log('Vídeo ainda não carregado, aguardando...', video.readyState);
         setTimeout(() => generateVideoFramesForExistingVideo(video, fileId), 500);
         return;
     }
     
     const gallery = document.getElementById('videoFramesGallery');
+    if (!gallery) {
+        console.error('videoFramesGallery não encontrado');
+        return;
+    }
+    
     const framesContainer = gallery.querySelector('div');
-    if (!framesContainer) return;
+    if (!framesContainer) {
+        console.error('framesContainer não encontrado dentro de videoFramesGallery');
+        return;
+    }
+    
+    console.log('Gerando frames para vídeo:', { duration: video.duration, width: video.videoWidth, height: video.videoHeight });
     
     const duration = video.duration;
     const numFrames = 4;
