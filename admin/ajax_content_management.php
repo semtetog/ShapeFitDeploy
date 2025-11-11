@@ -454,8 +454,20 @@ function saveContent($conn, $admin_id) {
                 $param_types .= "ii";
                 
                 $sql = "UPDATE sf_member_content SET " . implode(", ", $update_fields) . " WHERE id = ? AND admin_id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param($param_types, ...$update_values);
+                $stmt_remove = $conn->prepare($sql);
+                if (!$stmt_remove) {
+                    throw new Exception('Erro ao preparar query de atualização: ' . $conn->error);
+                }
+                $stmt_remove->bind_param($param_types, ...$update_values);
+                
+                if (!$stmt_remove->execute()) {
+                    $stmt_remove->close();
+                    throw new Exception('Erro ao atualizar conteúdo: ' . $stmt_remove->error);
+                }
+                
+                $affected_rows = $stmt_remove->affected_rows;
+                $stmt_remove->close();
+                $has_changes = ($affected_rows > 0);
             } else {
                 // Atualizar sem alterar arquivo (mantém arquivo existente)
                 $update_fields = ["title = ?", "description = ?", "content_type = ?", "content_text = ?"];
