@@ -134,19 +134,21 @@ require_once __DIR__ . '/includes/header.php';
     transform: translateY(-2px);
 }
 
-.flow-canvas-container {
+.flow-canvas-wrapper {
     position: relative;
     width: 100%;
-    height: calc(100vh - 300px);
-    min-height: 600px;
+    height: 100%;
     background: 
         linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     background-size: 20px 20px;
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    overflow: hidden;
     background-color: rgba(20, 20, 20, 0.5);
+}
+
+.flow-canvas-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .flow-canvas {
@@ -295,18 +297,85 @@ require_once __DIR__ . '/includes/header.php';
     }
 }
 
-.node-palette {
-    position: fixed;
-    right: 2rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 200px;
-    background: rgba(20, 20, 20, 0.95);
+/* Layout principal - 3 colunas */
+.flow-editor-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: 1rem;
+    height: calc(100vh - 200px);
+    min-height: 600px;
+}
+
+/* Sidebar esquerda - Biblioteca de blocos */
+.flow-blocks-sidebar {
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 1rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    z-index: 100;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.flow-blocks-sidebar h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.blocks-category {
+    margin-bottom: 1.5rem;
+}
+
+.blocks-category-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* Canvas central */
+.flow-canvas-wrapper {
+    position: relative;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+}
+
+/* Sidebar direita - Propriedades */
+.flow-properties-sidebar {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.flow-properties-sidebar h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.properties-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.node-palette {
+    display: none; /* Substituído pela sidebar */
 }
 
 .node-palette h3 {
@@ -386,12 +455,23 @@ require_once __DIR__ . '/includes/header.php';
                 Arraste blocos para criar o fluxo de conversa do check-in
             </p>
         </div>
-        <div style="display: flex; gap: 1rem;">
-            <button class="btn-toolbar" onclick="window.location.href='checkin.php'">
-                <i class="fas fa-arrow-left"></i> Voltar
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="padding: 0.5rem 1rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: var(--accent-orange);">
+                    <?php echo $checkin['status'] === 'published' ? 'Publicado' : 'Rascunho'; ?>
+                </span>
+            </div>
+            <button class="btn-toolbar" onclick="openPreview()" title="Preview do Chat">
+                <i class="fas fa-eye"></i> Preview
+            </button>
+            <button class="btn-toolbar" onclick="publishFlow()" title="Publicar Fluxo">
+                <i class="fas fa-rocket"></i> Publicar
             </button>
             <button class="btn-toolbar primary" onclick="saveFlow()">
-                <i class="fas fa-save"></i> Salvar Fluxo
+                <i class="fas fa-save"></i> Salvar
+            </button>
+            <button class="btn-toolbar" onclick="window.location.href='checkin.php'">
+                <i class="fas fa-arrow-left"></i> Voltar
             </button>
         </div>
     </div>
@@ -431,50 +511,137 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <div class="flow-canvas-container">
-        <svg id="connectionsLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: stroke; z-index: 1; overflow: visible;">
-            <defs>
-                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                    <polygon points="0 0, 10 3, 0 6" fill="var(--accent-orange)" />
-                </marker>
-            </defs>
-        </svg>
-        <div id="flowCanvas" class="flow-canvas"></div>
-        <div class="zoom-controls">
-            <button class="btn-zoom" onclick="zoomIn()" title="Zoom In">
-                <i class="fas fa-plus"></i>
-            </button>
-            <button class="btn-zoom" onclick="zoomOut()" title="Zoom Out">
-                <i class="fas fa-minus"></i>
-            </button>
-            <button class="btn-zoom" onclick="resetZoom()" title="Resetar Zoom">
-                <i class="fas fa-expand"></i>
-            </button>
+    <div class="flow-editor-layout">
+        <!-- Sidebar Esquerda - Biblioteca de Blocos -->
+        <div class="flow-blocks-sidebar">
+            <h3><i class="fas fa-cubes"></i> Blocos</h3>
+            
+            <div class="blocks-category">
+                <div class="blocks-category-title">Mensagens</div>
+                <div class="palette-item" draggable="true" data-type="bot_message" data-subtype="text">
+                    <i class="fas fa-comment"></i>
+                    <span>Mensagem do Bot</span>
+                </div>
+            </div>
+            
+            <div class="blocks-category">
+                <div class="blocks-category-title">Perguntas</div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="text">
+                    <i class="fas fa-keyboard"></i>
+                    <span>Texto</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="textarea">
+                    <i class="fas fa-align-left"></i>
+                    <span>Texto Longo</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="multiple_choice">
+                    <i class="fas fa-list"></i>
+                    <span>Múltipla Escolha</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="checkbox">
+                    <i class="fas fa-check-square"></i>
+                    <span>Checkbox</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="number">
+                    <i class="fas fa-hashtag"></i>
+                    <span>Número</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="email">
+                    <i class="fas fa-envelope"></i>
+                    <span>Email</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="phone">
+                    <i class="fas fa-phone"></i>
+                    <span>Telefone</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="date">
+                    <i class="fas fa-calendar"></i>
+                    <span>Data</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="time">
+                    <i class="fas fa-clock"></i>
+                    <span>Hora</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="rating">
+                    <i class="fas fa-star"></i>
+                    <span>Avaliação</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="slider">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Slider</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="yesno">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Sim/Não</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="question" data-subtype="chips">
+                    <i class="fas fa-tags"></i>
+                    <span>Chips</span>
+                </div>
+            </div>
+            
+            <div class="blocks-category">
+                <div class="blocks-category-title">Ações</div>
+                <div class="palette-item" draggable="true" data-type="action" data-subtype="end">
+                    <i class="fas fa-stop-circle"></i>
+                    <span>Finalizar</span>
+                </div>
+                <div class="palette-item" draggable="true" data-type="action" data-subtype="jump">
+                    <i class="fas fa-forward"></i>
+                    <span>Pular para</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Canvas Central -->
+        <div class="flow-canvas-wrapper">
+            <svg id="connectionsLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: stroke; z-index: 1; overflow: visible;">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <polygon points="0 0, 10 3, 0 6" fill="var(--accent-orange)" />
+                    </marker>
+                </defs>
+            </svg>
+            <div id="flowCanvas" class="flow-canvas"></div>
+            <div class="zoom-controls">
+                <button class="btn-zoom" onclick="zoomIn()" title="Zoom In">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="btn-zoom" onclick="zoomOut()" title="Zoom Out">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="btn-zoom" onclick="resetZoom()" title="Resetar Zoom">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Sidebar Direita - Propriedades -->
+        <div class="flow-properties-sidebar">
+            <h3><i class="fas fa-cog"></i> Propriedades</h3>
+            <div id="propertiesContent" class="properties-empty">
+                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>Selecione um bloco para editar suas propriedades</p>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="node-palette">
-    <h3>Blocos</h3>
-    <div class="palette-item" draggable="true" data-type="text">
-        <i class="fas fa-comment"></i>
-        <span>Mensagem</span>
-    </div>
-    <div class="palette-item" draggable="true" data-type="question">
-        <i class="fas fa-question-circle"></i>
-        <span>Pergunta</span>
-    </div>
-    <div class="palette-item" draggable="true" data-type="condition">
-        <i class="fas fa-code-branch"></i>
-        <span>Condição</span>
-    </div>
-    <div class="palette-item" draggable="true" data-type="delay">
-        <i class="fas fa-clock"></i>
-        <span>Aguardar</span>
-    </div>
-    <div class="palette-item" draggable="true" data-type="end">
-        <i class="fas fa-stop-circle"></i>
-        <span>Finalizar</span>
+<!-- Modal de Preview/Chat Simulado -->
+<div id="previewModal" class="modal">
+    <div class="modal-content" style="max-width: 500px; height: 90vh;">
+        <div class="modal-header">
+            <h3><i class="fas fa-comments"></i> Preview - Chat Simulado</h3>
+            <button class="modal-close" onclick="closePreview()">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 0; height: calc(100% - 60px); display: flex; flex-direction: column;">
+            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 1rem; background: #0b141a;">
+                <!-- Mensagens do chat aparecerão aqui -->
+            </div>
+            <div id="chatInputContainer" style="padding: 1rem; background: #202c33; border-top: 1px solid var(--glass-border);">
+                <!-- Inputs dinâmicos aparecerão aqui -->
+            </div>
+        </div>
     </div>
 </div>
 
@@ -597,18 +764,28 @@ function loadFlow() {
     updateConnections();
 }
 
-function addNode(type, x = null, y = null, data = {}) {
+function addNode(type, x = null, y = null, data = {}, subtype = null) {
     const nodeId = `node_${nodeIdCounter++}`;
+    
+    // Dados padrão baseado no tipo
+    const defaultData = {
+        bot_message: { prompt: 'Nova mensagem do bot', delay: 0, auto_continue: false },
+        question: { prompt: 'Nova pergunta', variable_name: '', required: true, placeholder: '' },
+        action: { action_type: 'end' }
+    };
+    
     const node = {
         id: nodeId,
         type: type,
+        subtype: subtype || (type === 'question' ? 'text' : null),
         x: x || Math.random() * 400 + 100,
         y: y || Math.random() * 300 + 100,
-        data: data
+        data: { ...defaultData[type], ...data }
     };
     
     nodes.push(node);
     renderNode(node);
+    selectNode(nodeId);
     return node;
 }
 
@@ -621,26 +798,43 @@ function renderNode(node) {
     nodeEl.dataset.nodeId = node.id;
     
     const typeLabels = {
-        'text': 'Mensagem',
+        'bot_message': 'Mensagem',
         'question': 'Pergunta',
-        'condition': 'Condição',
-        'delay': 'Aguardar',
-        'end': 'Finalizar'
+        'action': 'Ação'
     };
     
     const typeIcons = {
-        'text': 'fa-comment',
+        'bot_message': 'fa-comment',
         'question': 'fa-question-circle',
-        'condition': 'fa-code-branch',
-        'delay': 'fa-clock',
-        'end': 'fa-stop-circle'
+        'action': 'fa-cog'
     };
+    
+    const subtypeLabels = {
+        'text': 'Texto',
+        'textarea': 'Texto Longo',
+        'multiple_choice': 'Múltipla Escolha',
+        'checkbox': 'Checkbox',
+        'number': 'Número',
+        'email': 'Email',
+        'phone': 'Telefone',
+        'date': 'Data',
+        'time': 'Hora',
+        'rating': 'Avaliação',
+        'slider': 'Slider',
+        'yesno': 'Sim/Não',
+        'chips': 'Chips'
+    };
+    
+    let displayLabel = typeLabels[node.type] || node.type;
+    if (node.subtype && subtypeLabels[node.subtype]) {
+        displayLabel = `${displayLabel}: ${subtypeLabels[node.subtype]}`;
+    }
     
     nodeEl.innerHTML = `
         <div class="flow-node-header">
             <div class="flow-node-type">
-                <i class="fas ${typeIcons[node.type]}"></i>
-                <span>${typeLabels[node.type]}</span>
+                <i class="fas ${typeIcons[node.type] || 'fa-cube'}"></i>
+                <span>${displayLabel}</span>
             </div>
             <div class="flow-node-actions">
                 <button class="btn-node-action" onclick="editNode('${node.id}')" title="Editar">
@@ -686,16 +880,17 @@ function renderNode(node) {
 
 function getNodeContent(node) {
     switch(node.type) {
-        case 'text':
-            return node.data.text || 'Nova mensagem';
+        case 'bot_message':
+            return node.data.prompt || node.data.title || 'Nova mensagem do bot';
         case 'question':
-            return node.data.text || 'Nova pergunta';
-        case 'condition':
-            return node.data.condition || 'Nova condição';
-        case 'delay':
-            return `Aguardar ${node.data.delay || 0} segundos`;
-        case 'end':
-            return 'Finalizar check-in';
+            return node.data.prompt || `Nova pergunta (${node.subtype || 'text'})`;
+        case 'action':
+            if (node.data.action_type === 'end') {
+                return 'Finalizar check-in';
+            } else if (node.data.action_type === 'jump') {
+                return `Pular para: ${node.data.jump_to || '...'}`;
+            }
+            return 'Ação';
         default:
             return '';
     }
@@ -710,7 +905,218 @@ function selectNode(nodeId) {
     if (nodeEl) {
         nodeEl.classList.add('selected');
         selectedNode = nodeId;
+        renderPropertiesPanel(nodeId);
     }
+}
+
+function renderPropertiesPanel(nodeId) {
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node) {
+        document.getElementById('propertiesContent').innerHTML = `
+            <div class="properties-empty">
+                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>Selecione um bloco para editar suas propriedades</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const propsContent = document.getElementById('propertiesContent');
+    
+    if (node.type === 'bot_message') {
+        propsContent.innerHTML = `
+            <div class="form-group">
+                <label>Título (opcional)</label>
+                <input type="text" id="prop-title" value="${node.data.title || ''}" placeholder="Título da mensagem" onchange="updateNodeProperty('${nodeId}', 'title', this.value)">
+            </div>
+            <div class="form-group">
+                <label>Mensagem *</label>
+                <textarea id="prop-prompt" rows="4" placeholder="Digite a mensagem do bot..." onchange="updateNodeProperty('${nodeId}', 'prompt', this.value)">${node.data.prompt || ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Delay (ms)</label>
+                <input type="number" id="prop-delay" value="${node.data.delay || 0}" min="0" onchange="updateNodeProperty('${nodeId}', 'delay', parseInt(this.value))">
+            </div>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" id="prop-auto-continue" ${node.data.auto_continue ? 'checked' : ''} onchange="updateNodeProperty('${nodeId}', 'auto_continue', this.checked)">
+                    <span>Avançar automaticamente</span>
+                </label>
+            </div>
+        `;
+    } else if (node.type === 'question') {
+        const subtypes = {
+            'text': 'Texto',
+            'textarea': 'Texto Longo',
+            'multiple_choice': 'Múltipla Escolha',
+            'checkbox': 'Checkbox',
+            'number': 'Número',
+            'email': 'Email',
+            'phone': 'Telefone',
+            'date': 'Data',
+            'time': 'Hora',
+            'rating': 'Avaliação',
+            'slider': 'Slider',
+            'yesno': 'Sim/Não',
+            'chips': 'Chips'
+        };
+        
+        let optionsHTML = '';
+        if (['multiple_choice', 'checkbox', 'chips'].includes(node.subtype)) {
+            const options = node.data.options || [];
+            optionsHTML = `
+                <div class="form-group">
+                    <label>Opções</label>
+                    <div id="options-list">
+                        ${options.map((opt, idx) => `
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="text" value="${opt.label || ''}" placeholder="Label" onchange="updateOption('${nodeId}', ${idx}, 'label', this.value)" style="flex: 1;">
+                                <input type="text" value="${opt.value || ''}" placeholder="Value" onchange="updateOption('${nodeId}', ${idx}, 'value', this.value)" style="flex: 1;">
+                                <button onclick="removeOption('${nodeId}', ${idx})" style="padding: 0.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; color: #ef4444; cursor: pointer;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button onclick="addOption('${nodeId}')" style="width: 100%; padding: 0.5rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); border-radius: 6px; color: var(--accent-orange); cursor: pointer; margin-top: 0.5rem;">
+                        <i class="fas fa-plus"></i> Adicionar Opção
+                    </button>
+                </div>
+            `;
+        }
+        
+        propsContent.innerHTML = `
+            <div class="form-group">
+                <label>Tipo de Pergunta</label>
+                <select id="prop-subtype" onchange="updateNodeProperty('${nodeId}', 'subtype', this.value)">
+                    ${Object.entries(subtypes).map(([val, label]) => `
+                        <option value="${val}" ${node.subtype === val ? 'selected' : ''}>${label}</option>
+                    `).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Pergunta/Prompt *</label>
+                <textarea id="prop-prompt" rows="3" placeholder="Digite a pergunta..." onchange="updateNodeProperty('${nodeId}', 'prompt', this.value)">${node.data.prompt || ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Nome da Variável *</label>
+                <input type="text" id="prop-variable" value="${node.data.variable_name || ''}" placeholder="ex: nome_completo" pattern="[a-z0-9_]+" onchange="updateNodeProperty('${nodeId}', 'variable_name', this.value)">
+                <small style="color: var(--text-secondary); font-size: 0.75rem;">Apenas letras minúsculas, números e underscore</small>
+            </div>
+            <div class="form-group">
+                <label>Placeholder</label>
+                <input type="text" id="prop-placeholder" value="${node.data.placeholder || ''}" placeholder="Texto de ajuda..." onchange="updateNodeProperty('${nodeId}', 'placeholder', this.value)">
+            </div>
+            ${optionsHTML}
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" id="prop-required" ${node.data.required !== false ? 'checked' : ''} onchange="updateNodeProperty('${nodeId}', 'required', this.checked)">
+                    <span>Obrigatório</span>
+                </label>
+            </div>
+            ${node.subtype === 'number' ? `
+                <div class="form-group">
+                    <label>Valor Mínimo</label>
+                    <input type="number" id="prop-min" value="${node.data.min || ''}" onchange="updateNodeProperty('${nodeId}', 'min', this.value ? parseFloat(this.value) : null)">
+                </div>
+                <div class="form-group">
+                    <label>Valor Máximo</label>
+                    <input type="number" id="prop-max" value="${node.data.max || ''}" onchange="updateNodeProperty('${nodeId}', 'max', this.value ? parseFloat(this.value) : null)">
+                </div>
+            ` : ''}
+            ${node.subtype === 'slider' ? `
+                <div class="form-group">
+                    <label>Valor Mínimo</label>
+                    <input type="number" id="prop-min" value="${node.data.min || 0}" onchange="updateNodeProperty('${nodeId}', 'min', parseFloat(this.value))">
+                </div>
+                <div class="form-group">
+                    <label>Valor Máximo</label>
+                    <input type="number" id="prop-max" value="${node.data.max || 100}" onchange="updateNodeProperty('${nodeId}', 'max', parseFloat(this.value))">
+                </div>
+                <div class="form-group">
+                    <label>Passo</label>
+                    <input type="number" id="prop-step" value="${node.data.step || 1}" min="0.1" step="0.1" onchange="updateNodeProperty('${nodeId}', 'step', parseFloat(this.value))">
+                </div>
+            ` : ''}
+            ${node.subtype === 'rating' ? `
+                <div class="form-group">
+                    <label>Máximo de Estrelas</label>
+                    <input type="number" id="prop-max" value="${node.data.max || 5}" min="1" max="10" onchange="updateNodeProperty('${nodeId}', 'max', parseInt(this.value))">
+                </div>
+            ` : ''}
+        `;
+    } else if (node.type === 'action') {
+        propsContent.innerHTML = `
+            <div class="form-group">
+                <label>Tipo de Ação</label>
+                <select id="prop-action-type" onchange="updateNodeProperty('${nodeId}', 'action_type', this.value)">
+                    <option value="end" ${node.data.action_type === 'end' ? 'selected' : ''}>Finalizar</option>
+                    <option value="jump" ${node.data.action_type === 'jump' ? 'selected' : ''}>Pular para Bloco</option>
+                </select>
+            </div>
+            ${node.data.action_type === 'jump' ? `
+                <div class="form-group">
+                    <label>Bloco de Destino</label>
+                    <select id="prop-jump-to" onchange="updateNodeProperty('${nodeId}', 'jump_to', this.value)">
+                        <option value="">Selecione...</option>
+                        ${nodes.filter(n => n.id !== nodeId).map(n => `
+                            <option value="${n.id}" ${node.data.jump_to === n.id ? 'selected' : ''}>${n.data.title || n.data.prompt || n.id}</option>
+                        `).join('')}
+                    </select>
+                </div>
+            ` : ''}
+        `;
+    }
+}
+
+function updateNodeProperty(nodeId, prop, value) {
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    
+    if (prop === 'subtype') {
+        node.subtype = value;
+        // Resetar opções se mudar de tipo
+        if (!['multiple_choice', 'checkbox', 'chips'].includes(value)) {
+            node.data.options = null;
+        }
+    } else {
+        node.data[prop] = value;
+    }
+    
+    // Atualizar visual do nó
+    const nodeEl = document.getElementById(nodeId);
+    if (nodeEl) {
+        const contentEl = nodeEl.querySelector('.flow-node-content');
+        if (contentEl) {
+            contentEl.textContent = getNodeContent(node);
+        }
+    }
+    
+    updateConnections();
+}
+
+function addOption(nodeId) {
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    
+    if (!node.data.options) node.data.options = [];
+    node.data.options.push({ label: '', value: '' });
+    renderPropertiesPanel(nodeId);
+}
+
+function updateOption(nodeId, index, prop, value) {
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node || !node.data.options) return;
+    
+    node.data.options[index][prop] = value;
+}
+
+function removeOption(nodeId, index) {
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node || !node.data.options) return;
+    
+    node.data.options.splice(index, 1);
+    renderPropertiesPanel(nodeId);
 }
 
 function startDragNode(e, nodeId) {
@@ -1000,15 +1406,18 @@ function deleteNode(nodeId) {
     const nodeEl = document.getElementById(nodeId);
     if (nodeEl) nodeEl.remove();
     
+    // Limpar painel de propriedades se era o selecionado
+    if (selectedNode === nodeId) {
+        selectedNode = null;
+        renderPropertiesPanel(null);
+    }
+    
     updateConnections();
 }
 
 function editNode(nodeId) {
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node) return;
-    
-    // TODO: Abrir modal de edição
-    alert('Editar nó: ' + nodeId);
+    // Selecionar o nó (já abre o painel de propriedades)
+    selectNode(nodeId);
 }
 
 function clearCanvas() {
@@ -1049,12 +1458,17 @@ function applyZoom() {
 }
 
 function saveFlow() {
+    // Validar fluxo antes de salvar
+    if (!validateFlow()) {
+        return;
+    }
+    
     const flowData = {
         nodes: nodes,
-        connections: connections
+        connections: connections,
+        variables: extractVariables()
     };
     
-    // TODO: Salvar no banco de dados via AJAX
     fetch('ajax_checkin.php', {
         method: 'POST',
         headers: {
@@ -1080,10 +1494,356 @@ function saveFlow() {
     });
 }
 
+function publishFlow() {
+    if (!validateFlow()) {
+        return;
+    }
+    
+    if (!confirm('Deseja publicar este fluxo? Isso criará uma versão imutável que será usada pelos usuários.')) {
+        return;
+    }
+    
+    const flowData = {
+        nodes: nodes,
+        connections: connections,
+        variables: extractVariables()
+    };
+    
+    fetch('ajax_checkin.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'publish_flow',
+            checkin_id: <?php echo $checkin_id; ?>,
+            flow: flowData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Fluxo publicado com sucesso!');
+            location.reload();
+        } else {
+            alert('Erro ao publicar: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao publicar fluxo');
+    });
+}
+
+function validateFlow() {
+    // Verificar se há pelo menos um nó
+    if (nodes.length === 0) {
+        alert('Adicione pelo menos um bloco ao fluxo');
+        return false;
+    }
+    
+    // Verificar se há variáveis duplicadas
+    const variables = extractVariables();
+    const varNames = variables.map(v => v.name);
+    const duplicates = varNames.filter((name, index) => varNames.indexOf(name) !== index);
+    if (duplicates.length > 0) {
+        alert(`Variáveis duplicadas encontradas: ${duplicates.join(', ')}`);
+        return false;
+    }
+    
+    // Verificar se todas as perguntas têm variável
+    const questionsWithoutVar = nodes.filter(n => 
+        n.type === 'question' && (!n.data.variable_name || n.data.variable_name.trim() === '')
+    );
+    if (questionsWithoutVar.length > 0) {
+        alert('Todas as perguntas devem ter um nome de variável definido');
+        return false;
+    }
+    
+    return true;
+}
+
+function extractVariables() {
+    const vars = [];
+    const seen = new Set();
+    
+    nodes.forEach(node => {
+        if (node.type === 'question' && node.data.variable_name) {
+            const varName = node.data.variable_name.trim();
+            if (varName && !seen.has(varName)) {
+                seen.add(varName);
+                vars.push({
+                    name: varName,
+                    type: getVariableType(node.subtype),
+                    required: node.data.required !== false
+                });
+            }
+        }
+    });
+    
+    return vars;
+}
+
+function getVariableType(subtype) {
+    const typeMap = {
+        'text': 'string',
+        'textarea': 'string',
+        'number': 'number',
+        'email': 'string',
+        'phone': 'string',
+        'date': 'date',
+        'time': 'time',
+        'rating': 'number',
+        'slider': 'number',
+        'yesno': 'boolean',
+        'multiple_choice': 'string',
+        'checkbox': 'json',
+        'chips': 'json'
+    };
+    return typeMap[subtype] || 'string';
+}
+
+function openPreview() {
+    if (nodes.length === 0) {
+        alert('Adicione blocos ao fluxo antes de visualizar');
+        return;
+    }
+    
+    document.getElementById('previewModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Iniciar simulação do chat
+    startChatSimulation();
+}
+
+function closePreview() {
+    document.getElementById('previewModal').classList.remove('active');
+    document.body.style.overflow = '';
+    // Limpar estado do chat
+    chatState = null;
+    document.getElementById('chatMessages').innerHTML = '';
+    document.getElementById('chatInputContainer').innerHTML = '';
+}
+
+let chatState = null;
+
+function startChatSimulation() {
+    chatState = {
+        currentBlock: findStartBlock(),
+        answers: {},
+        history: []
+    };
+    
+    if (!chatState.currentBlock) {
+        // Se não há bloco inicial, usar o primeiro
+        chatState.currentBlock = nodes[0];
+    }
+    
+    renderNextBlock();
+}
+
+function findStartBlock() {
+    // Encontrar bloco sem conexões de entrada (start)
+    const blocksWithInputs = new Set();
+    connections.forEach(conn => {
+        blocksWithInputs.add(conn.to);
+    });
+    
+    return nodes.find(n => !blocksWithInputs.has(n.id)) || nodes[0];
+}
+
+function renderNextBlock() {
+    if (!chatState || !chatState.currentBlock) {
+        addChatMessage('Fluxo finalizado!', 'bot');
+        return;
+    }
+    
+    const block = chatState.currentBlock;
+    const messagesDiv = document.getElementById('chatMessages');
+    const inputDiv = document.getElementById('chatInputContainer');
+    
+    if (block.type === 'bot_message') {
+        // Mostrar mensagem do bot
+        addChatMessage(block.data.prompt || '...', 'bot');
+        
+        // Aguardar delay e avançar
+        setTimeout(() => {
+            moveToNextBlock();
+        }, block.data.delay || 500);
+        
+    } else if (block.type === 'question') {
+        // Mostrar pergunta e input
+        addChatMessage(block.data.prompt || '...', 'bot');
+        renderQuestionInput(block);
+        
+    } else if (block.type === 'action') {
+        if (block.data.action_type === 'end') {
+            addChatMessage('Check-in finalizado! Obrigado pelas suas respostas.', 'bot');
+            return;
+        } else if (block.data.action_type === 'jump') {
+            const targetBlock = nodes.find(n => n.id === block.data.jump_to);
+            if (targetBlock) {
+                chatState.currentBlock = targetBlock;
+                renderNextBlock();
+            }
+        }
+    }
+}
+
+function addChatMessage(text, type) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${type}`;
+    messageDiv.style.cssText = `
+        margin-bottom: 1rem;
+        display: flex;
+        ${type === 'bot' ? 'justify-content: flex-start;' : 'justify-content: flex-end;'}
+    `;
+    
+    const bubble = document.createElement('div');
+    bubble.style.cssText = `
+        max-width: 70%;
+        padding: 0.75rem 1rem;
+        border-radius: ${type === 'bot' ? '0 12px 12px 12px' : '12px 0 12px 12px'};
+        background: ${type === 'bot' ? 'rgba(255, 255, 255, 0.1)' : 'var(--accent-orange)'};
+        color: ${type === 'bot' ? 'var(--text-primary)' : 'white'};
+        word-wrap: break-word;
+    `;
+    bubble.textContent = text;
+    
+    messageDiv.appendChild(bubble);
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function renderQuestionInput(block) {
+    const inputDiv = document.getElementById('chatInputContainer');
+    inputDiv.innerHTML = '';
+    
+    if (block.subtype === 'multiple_choice' || block.subtype === 'chips') {
+        const options = block.data.options || [];
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.textContent = opt.label || opt.value;
+            btn.style.cssText = `
+                width: 100%;
+                padding: 0.75rem;
+                margin-bottom: 0.5rem;
+                background: rgba(255, 107, 0, 0.1);
+                border: 1px solid rgba(255, 107, 0, 0.3);
+                border-radius: 8px;
+                color: var(--accent-orange);
+                cursor: pointer;
+                font-weight: 600;
+            `;
+            btn.onclick = () => submitAnswer(block, opt.value);
+            inputDiv.appendChild(btn);
+        });
+    } else if (block.subtype === 'yesno') {
+        ['Sim', 'Não'].forEach(val => {
+            const btn = document.createElement('button');
+            btn.textContent = val;
+            btn.style.cssText = `
+                flex: 1;
+                padding: 0.75rem;
+                margin: 0 0.25rem;
+                background: rgba(255, 107, 0, 0.1);
+                border: 1px solid rgba(255, 107, 0, 0.3);
+                border-radius: 8px;
+                color: var(--accent-orange);
+                cursor: pointer;
+                font-weight: 600;
+            `;
+            btn.onclick = () => submitAnswer(block, val === 'Sim' ? 'true' : 'false');
+            inputDiv.appendChild(btn);
+        });
+        inputDiv.style.display = 'flex';
+    } else {
+        const input = document.createElement('input');
+        input.type = block.subtype === 'number' ? 'number' : 
+                    block.subtype === 'email' ? 'email' :
+                    block.subtype === 'date' ? 'date' :
+                    block.subtype === 'time' ? 'time' : 'text';
+        input.placeholder = block.data.placeholder || 'Digite sua resposta...';
+        input.style.cssText = `
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        `;
+        input.onkeypress = (e) => {
+            if (e.key === 'Enter') {
+                submitAnswer(block, input.value);
+            }
+        };
+        const sendBtn = document.createElement('button');
+        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        sendBtn.style.cssText = `
+            margin-top: 0.5rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--accent-orange);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        `;
+        sendBtn.onclick = () => submitAnswer(block, input.value);
+        inputDiv.appendChild(input);
+        inputDiv.appendChild(sendBtn);
+    }
+}
+
+function submitAnswer(block, value) {
+    if (!value || value.trim() === '') {
+        if (block.data.required !== false) {
+            alert('Esta pergunta é obrigatória');
+            return;
+        }
+    }
+    
+    // Salvar resposta
+    chatState.answers[block.data.variable_name] = value;
+    addChatMessage(value, 'user');
+    
+    // Mover para próximo bloco
+    moveToNextBlock();
+}
+
+function moveToNextBlock() {
+    if (!chatState) return;
+    
+    const currentBlockId = chatState.currentBlock.id;
+    
+    // Encontrar próximo bloco baseado nas conexões
+    const nextConnections = connections.filter(c => c.from === currentBlockId);
+    
+    if (nextConnections.length === 0) {
+        // Fim do fluxo
+        addChatMessage('Fluxo finalizado!', 'bot');
+        return;
+    }
+    
+    // Por enquanto, pegar a primeira conexão (depois implementar condições)
+    const nextBlock = nodes.find(n => n.id === nextConnections[0].to);
+    
+    if (nextBlock) {
+        chatState.currentBlock = nextBlock;
+        setTimeout(() => renderNextBlock(), 300);
+    } else {
+        addChatMessage('Fluxo finalizado!', 'bot');
+    }
+}
+
 // Drag & Drop da paleta
 document.querySelectorAll('.palette-item').forEach(item => {
     item.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('nodeType', item.dataset.type);
+        e.dataTransfer.setData('nodeSubtype', item.dataset.subtype || '');
     });
 });
 
@@ -1094,13 +1854,14 @@ canvas.addEventListener('dragover', (e) => {
 canvas.addEventListener('drop', (e) => {
     e.preventDefault();
     const nodeType = e.dataTransfer.getData('nodeType');
+    const nodeSubtype = e.dataTransfer.getData('nodeSubtype');
     if (!nodeType) return;
     
     const canvasRect = canvas.getBoundingClientRect();
     const x = e.clientX - canvasRect.left;
     const y = e.clientY - canvasRect.top;
     
-    addNode(nodeType, x, y);
+    addNode(nodeType, x, y, {}, nodeSubtype);
 });
 
 // Inicializar

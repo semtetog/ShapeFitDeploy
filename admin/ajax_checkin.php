@@ -42,6 +42,9 @@ try {
         case 'save_flow':
             saveFlow($data, $admin_id);
             break;
+        case 'publish_flow':
+            publishFlow($data, $admin_id);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -341,9 +344,9 @@ function saveFlow($data, $admin_id) {
         $conn->query("ALTER TABLE sf_checkin_configs ADD COLUMN flow_data JSON NULL AFTER description");
     }
     
-    // Salvar fluxo
+    // Salvar fluxo como rascunho
     $flow_json = json_encode($flow);
-    $update_query = "UPDATE sf_checkin_configs SET flow_data = ? WHERE id = ? AND admin_id = ?";
+    $update_query = "UPDATE sf_checkin_configs SET flow_data = ?, status = 'draft' WHERE id = ? AND admin_id = ?";
     $stmt = $conn->prepare($update_query);
     $stmt->bind_param("sii", $flow_json, $checkin_id, $admin_id);
     
@@ -358,6 +361,89 @@ function saveFlow($data, $admin_id) {
         echo json_encode([
             'success' => false,
             'message' => 'Erro ao salvar fluxo: ' . $conn->error
+        ]);
+    }
+}
+
+function publishFlow($data, $admin_id) {
+    global $conn;
+    
+    $checkin_id = (int)($data['checkin_id'] ?? 0);
+    $flow = $data['flow'] ?? null;
+    
+    if ($checkin_id === 0) {
+        echo json_encode(['success' => false, 'message' => 'ID do check-in inválido']);
+        exit;
+    }
+    
+    // Verificar se o check-in pertence ao admin
+    $check_query = "SELECT id, version FROM sf_checkin_configs WHERE id = ? AND admin_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("ii", $checkin_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $checkin = $result->fetch_assoc();
+    $stmt->close();
+    
+    if (!$checkin) {
+        echo json_encode(['success' => false, 'message' => 'Check-in não encontrado ou sem permissão']);
+        exit;
+    }
+    
+    // Verificar se tabela de versões existe
+    $tables = $conn->query("SHOW TABLES LIKE 'sf_checkin_flow_versions'");
+    if ($tables->num_rows === 0) {
+        // Criar tabela se não existir
+        $conn->query("CREATE TABLE IF NOT EXISTS `sf_checkin_flow_versions` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `config_id` int(11) NOT NULL,
+            `version` int(11) NOT NULL,
+            `snapshot` JSON NOT NULL,
+            `published_at` timestamp NOT NULL DEFAULT current_timestamp(),
+            `published_by` int(11) NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `unique_config_version` (`config_id`, `version`),
+            KEY `config_id` (`config_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    
+    // Calcular próxima versão
+    $version_query = "SELECT MAX(version) as max_version FROM sf_checkin_flow_versions WHERE config_id = ?";
+    $stmt = $conn->prepare($version_query);
+    $stmt->bind_param("i", $checkin_id);
+    $stmt->execute();
+    $version_result = $stmt->get_result();
+    $version_row = $version_result->fetch_assoc();
+    $next_version = ($version_row['max_version'] ?? 0) + 1;
+    $stmt->close();
+    
+    // Criar snapshot
+    $snapshot = json_encode($flow);
+    
+    // Inserir versão
+    $insert_version = "INSERT INTO sf_checkin_flow_versions (config_id, version, snapshot, published_by) VALUES (?, ?, ?, ?)";
+    $stmt = $conn->prepare($insert_version);
+    $stmt->bind_param("iisi", $checkin_id, $next_version, $snapshot, $admin_id);
+    
+    if ($stmt->execute()) {
+        // Atualizar status do check-in para publicado
+        $update_status = "UPDATE sf_checkin_configs SET status = 'published', version = ? WHERE id = ? AND admin_id = ?";
+        $stmt2 = $conn->prepare($update_status);
+        $stmt2->bind_param("iii", $next_version, $checkin_id, $admin_id);
+        $stmt2->execute();
+        $stmt2->close();
+        
+        $stmt->close();
+        echo json_encode([
+            'success' => true,
+            'message' => 'Fluxo publicado com sucesso',
+            'version' => $next_version
+        ]);
+    } else {
+        $stmt->close();
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erro ao publicar fluxo: ' . $conn->error
         ]);
     }
 }
