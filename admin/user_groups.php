@@ -817,21 +817,23 @@ require_once __DIR__ . '/includes/header.php';
     }
     
     .group-card-actions {
-        flex-direction: column;
+        grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
     }
     
     .btn-action {
-        flex: 1;
         width: 100%;
-        min-width: 0;
-        max-width: 100%;
-        padding: 0.5rem 0.75rem;
+        padding: 0.625rem 0.5rem;
+        font-size: 0.75rem;
     }
     
     .btn-action i {
         font-size: 0.75rem;
         flex-shrink: 0;
+    }
+    
+    .btn-action span {
+        font-size: 0.7rem;
     }
     
     .group-info {
