@@ -2002,7 +2002,20 @@ function editContent(contentId) {
         },
         body: `action=get_content&content_id=${contentId}`
     })
-    .then(response => response.json())
+    .then(async response => {
+        const text = await response.text();
+        if (!response.ok) {
+            throw new Error(text || `Erro HTTP ${response.status}`);
+        }
+        if (!text || text.trim() === '') {
+            throw new Error('Resposta vazia do servidor');
+        }
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('Resposta inválida do servidor: ' + text.substring(0, 100));
+        }
+    })
     .then(data => {
         if (data.success && data.content) {
             const content = data.content;
