@@ -380,11 +380,11 @@ body {
                             $thumbnail_url = '/' . ltrim($thumbnail_url, '/');
                         }
                         ?>
-                        <div class="content-thumbnail" style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; margin-bottom: 16px; background: rgba(0, 0, 0, 0.2);">
+                        <div class="content-thumbnail" style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; margin-bottom: 16px; background: rgba(0, 0, 0, 0.2); position: relative;">
                             <img src="<?php echo htmlspecialchars($thumbnail_url); ?>" 
                                  alt="<?php echo htmlspecialchars($content['title']); ?>" 
                                  style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.6); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.6); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; pointer-events: none;">
                                 <i class="fas fa-play"></i>
                             </div>
                         </div>
