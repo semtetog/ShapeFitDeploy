@@ -423,27 +423,50 @@ function getContent($conn, $admin_id) {
         throw new Exception('ID do conteúdo inválido');
     }
     
-    // Buscar conteúdo
-    $stmt = $conn->prepare("
-        SELECT mc.*, a.full_name as author_name
-        FROM sf_member_content mc
-        LEFT JOIN sf_admins a ON mc.admin_id = a.id
-        WHERE mc.id = ? AND mc.admin_id = ?
-    ");
-    $stmt->bind_param("ii", $content_id, $admin_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows === 0) {
+    // Buscar conteúdo - usar query mais simples que funciona mesmo sem todas as colunas
+    try {
+        $stmt = $conn->prepare("
+            SELECT mc.*, a.full_name as author_name
+            FROM sf_member_content mc
+            LEFT JOIN sf_admins a ON mc.admin_id = a.id
+            WHERE mc.id = ? AND mc.admin_id = ?
+        ");
+        
+        if (!$stmt) {
+            throw new Exception('Erro ao preparar query: ' . $conn->error);
+        }
+        
+        $stmt->bind_param("ii", $content_id, $admin_id);
+        
+        if (!$stmt->execute()) {
+            throw new Exception('Erro ao executar query: ' . $stmt->error);
+        }
+        
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            $stmt->close();
+            throw new Exception('Conteúdo não encontrado ou você não tem permissão para editá-lo');
+        }
+        
+        $content = $result->fetch_assoc();
         $stmt->close();
-        throw new Exception('Conteúdo não encontrado');
+        
+        // Garantir que campos opcionais existam
+        $content['file_path'] = $content['file_path'] ?? null;
+        $content['file_name'] = $content['file_name'] ?? null;
+        $content['thumbnail_url'] = $content['thumbnail_url'] ?? null;
+        $content['target_type'] = $content['target_type'] ?? 'all';
+        $content['target_id'] = $content['target_id'] ?? null;
+        $content['status'] = $content['status'] ?? 'active';
+        
+        ob_clean();
+        echo json_encode(['success' => true, 'content' => $content]);
+    } catch (mysqli_sql_exception $e) {
+        throw new Exception('Erro de banco de dados: ' . $e->getMessage());
+    } catch (Exception $e) {
+        throw $e;
     }
-    
-    $content = $result->fetch_assoc();
-    $stmt->close();
-    
-    ob_clean();
-    echo json_encode(['success' => true, 'content' => $content]);
 }
 
 function deleteContent($conn, $admin_id) {
