@@ -595,9 +595,9 @@ require_once __DIR__ . '/includes/header.php';
         
         <!-- Canvas Central -->
         <div class="flow-canvas-wrapper">
-            <svg id="connectionsLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: stroke; z-index: 1; overflow: visible;">
+            <svg id="connectionsLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; transform-origin: top left;">
                 <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
                         <polygon points="0 0, 10 3, 0 6" fill="var(--accent-orange)" />
                     </marker>
                 </defs>
