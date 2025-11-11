@@ -204,6 +204,11 @@ html {
     max-width: 600px;
     margin: 0 auto;
     padding: calc(env(safe-area-inset-top, 0px) + 20px) 24px 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px) + 80px);
+    height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
 }
 
 .page-header {
