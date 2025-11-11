@@ -1515,7 +1515,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div id="videoTitleGroup" class="challenge-form-group" style="display: none; margin-top: 1rem;">
                         <label for="videoTitle">Título do Vídeo (Opcional)</label>
                         <input type="text" id="videoTitle" name="video_title" class="challenge-form-input" placeholder="Ex: Preparo da receita, Dicas finais, etc.">
-                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Útil quando há múltiplos vídeos em uma receita.</small>
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Útil quando há múltiplos vídeos em uma receita ou conteúdo.</small>
                     </div>
                     
                     <!-- Preview do arquivo selecionado -->
@@ -2423,12 +2423,10 @@ function handleFileSelect(event) {
     const videoFramesGallery = document.getElementById('videoFramesGallery');
     const currentFileInfo = document.getElementById('currentFileInfo');
     
-    // Ocultar arquivo atual se estiver editando
-    if (currentFileInfo) {
-        currentFileInfo.style.display = 'none';
-    }
+    // NÃO ocultar arquivo atual - manter visível para referência
+    // O usuário pode ver o arquivo antigo enquanto seleciona o novo
     
-    // Ocultar previews
+    // Ocultar previews de novos arquivos (serão mostrados quando arquivo for selecionado)
     videoPreview.style.display = 'none';
     pdfPreview.style.display = 'none';
     filePreview.style.display = 'none';
@@ -2763,12 +2761,17 @@ function clearFilePreview() {
     if (thumbnailGroup) thumbnailGroup.style.display = 'none';
     if (videoFramesGallery) videoFramesGallery.style.display = 'none';
     if (previewVideo && previewVideo.src) {
-        URL.revokeObjectURL(previewVideo.src);
+        // Verificar se é blob URL antes de revogar
+        if (previewVideo.src.startsWith('blob:')) {
+            URL.revokeObjectURL(previewVideo.src);
+        }
         previewVideo.src = '';
     }
     
     currentVideoFile = null;
     videoFramesGenerated = false;
+    
+    // NÃO ocultar currentFileInfo - manter arquivo antigo visível
 }
 
 // Função para limpar preview da thumbnail (apenas limpar o poster do vídeo)
