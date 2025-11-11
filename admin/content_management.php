@@ -1895,6 +1895,64 @@ function openCreateContentModal() {
     document.body.style.overflow = 'hidden';
 }
 
+// Função para atualizar lista de conteúdos via AJAX
+function updateContentList() {
+    const searchTerm = document.getElementById('searchInput')?.value || '';
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusFilter = urlParams.get('status') || '';
+    
+    // Construir URL
+    let url = window.location.pathname + '?ajax=1';
+    if (searchTerm) {
+        url += '&search=' + encodeURIComponent(searchTerm);
+    }
+    if (statusFilter) {
+        url += '&status=' + statusFilter;
+    }
+    
+    // Buscar conteúdos atualizados
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            // Extrair apenas o grid de conteúdos
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newGrid = doc.getElementById('contentGrid');
+            if (newGrid) {
+                const currentGrid = document.getElementById('contentGrid');
+                if (currentGrid) {
+                    currentGrid.innerHTML = newGrid.innerHTML;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao atualizar lista:', error);
+            // Fallback: recarregar página se AJAX falhar
+            setTimeout(() => location.reload(), 2000);
+        });
+}
+
+// Função para atualizar estatísticas via AJAX
+function updateStats() {
+    fetch('ajax_content_management.php?action=get_stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.stats) {
+                const stats = data.stats;
+                const statTotal = document.getElementById('statTotal');
+                const statActive = document.getElementById('statActive');
+                const statInactive = document.getElementById('statInactive');
+                
+                if (statTotal) statTotal.textContent = stats.total || 0;
+                if (statActive) statActive.textContent = stats.active || 0;
+                if (statInactive) statInactive.textContent = stats.inactive || 0;
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao atualizar estatísticas:', error);
+        });
+}
+
 // Toggle status do conteúdo - Igual user_groups.php
 function toggleContentStatus(contentId, currentStatus, toggleElement) {
     const toggle = toggleElement || document.querySelector(`.toggle-switch-input[data-content-id="${contentId}"]`);
