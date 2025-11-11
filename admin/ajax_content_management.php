@@ -278,35 +278,50 @@ function saveContent($conn, $admin_id) {
         if ($content_id > 0) {
             // Atualizar conteúdo existente
             if ($file_path) {
-                // Novo arquivo foi enviado - deletar arquivo antigo
-                $stmt_old = $conn->prepare("SELECT file_path FROM sf_member_content WHERE id = ? AND admin_id = ?");
-                $stmt_old->bind_param("ii", $content_id, $admin_id);
-                $stmt_old->execute();
-                $old_file = $stmt_old->get_result()->fetch_assoc();
-                $stmt_old->close();
-                
-                if ($old_file && $old_file['file_path']) {
-                    $old_file_full = APP_ROOT_PATH . $old_file['file_path'];
-                    if (file_exists($old_file_full)) {
-                        unlink($old_file_full);
+                // NOVO: Inserir arquivo na tabela sf_content_files (não substituir)
+                // Verificar se a tabela existe
+                $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+                if ($check_files_table && $check_files_table->num_rows > 0) {
+                    // Buscar ordem máxima para o novo arquivo
+                    $stmt_order = $conn->prepare("SELECT COALESCE(MAX(display_order), -1) + 1 as next_order FROM sf_content_files WHERE content_id = ?");
+                    $stmt_order->bind_param("i", $content_id);
+                    $stmt_order->execute();
+                    $order_result = $stmt_order->get_result()->fetch_assoc();
+                    $display_order = $order_result['next_order'] ?? 0;
+                    $stmt_order->close();
+                    
+                    // Inserir novo arquivo na tabela de arquivos
+                    $stmt_file = $conn->prepare("INSERT INTO sf_content_files (content_id, file_path, file_name, file_size, mime_type, thumbnail_url, video_title, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt_file->bind_param("ississsi", $content_id, $file_path, $file_name, $file_size, $mime_type, $thumbnail_url, $video_title, $display_order);
+                    if (!$stmt_file->execute()) {
+                        throw new Exception('Erro ao salvar arquivo: ' . $stmt_file->error);
+                    }
+                    $stmt_file->close();
+                } else {
+                    // Fallback: se tabela não existe, usar método antigo (substituir)
+                    // Deletar arquivo antigo
+                    $stmt_old = $conn->prepare("SELECT file_path FROM sf_member_content WHERE id = ? AND admin_id = ?");
+                    $stmt_old->bind_param("ii", $content_id, $admin_id);
+                    $stmt_old->execute();
+                    $old_file = $stmt_old->get_result()->fetch_assoc();
+                    $stmt_old->close();
+                    
+                    if ($old_file && $old_file['file_path']) {
+                        $old_file_full = APP_ROOT_PATH . $old_file['file_path'];
+                        if (file_exists($old_file_full)) {
+                            unlink($old_file_full);
+                        }
                     }
                 }
                 
-                // Construir query dinamicamente baseado nas colunas existentes
-                $update_fields = ["title = ?", "description = ?", "content_type = ?", "file_path = ?", "file_name = ?", "file_size = ?", "mime_type = ?", "content_text = ?"];
-                $update_values = [$title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, $content_text];
-                $param_types = "sssssiss"; // 8 tipos: title(s), description(s), content_type(s), file_path(s), file_name(s), file_size(i), mime_type(s), content_text(s)
+                // Atualizar informações do conteúdo (sem file_path, file_name, etc - agora estão na tabela de arquivos)
+                $update_fields = ["title = ?", "description = ?", "content_type = ?", "content_text = ?"];
+                $update_values = [$title, $description, $content_type, $content_text];
+                $param_types = "ssss";
                 
-                // Adicionar video_title se a coluna existir
-                $check_video_title = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'video_title'");
-                if ($check_video_title && $check_video_title->num_rows > 0) {
-                    $update_fields[] = "video_title = ?";
-                    $update_values[] = $video_title ?: null;
-                    $param_types .= "s";
-                }
-                
-                // Adicionar thumbnail se foi enviada
-                if ($thumbnail_url) {
+                // Adicionar thumbnail apenas se não estiver usando tabela de arquivos
+                $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+                if (!($check_files_table && $check_files_table->num_rows > 0) && $thumbnail_url) {
                     $update_fields[] = "thumbnail_url = ?";
                     $update_values[] = $thumbnail_url;
                     $param_types .= "s";
@@ -445,27 +460,11 @@ function saveContent($conn, $admin_id) {
             }
             
             // Construir query dinamicamente baseado nas colunas existentes
-            $insert_fields = ["admin_id", "title", "description", "content_type", "file_path", "file_name", "file_size", "mime_type", "content_text"];
-            $insert_values = [$admin_id, $title, $description, $content_type, $file_path, $file_name, $file_size, $mime_type, $content_text];
-            $param_types = "isssssiss"; // 9 tipos: admin_id(i), title(s), description(s), content_type(s), file_path(s), file_name(s), file_size(i), mime_type(s), content_text(s)
-            $placeholders = ["?", "?", "?", "?", "?", "?", "?", "?", "?"];
-            
-            // Adicionar video_title se a coluna existir
-            $check_video_title = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'video_title'");
-            if ($check_video_title && $check_video_title->num_rows > 0) {
-                $insert_fields[] = "video_title";
-                $insert_values[] = $video_title ?: null;
-                $param_types .= "s";
-                $placeholders[] = "?";
-            }
-            
-            // Adicionar thumbnail se foi enviada
-            if ($thumbnail_url) {
-                $insert_fields[] = "thumbnail_url";
-                $insert_values[] = $thumbnail_url;
-                $param_types .= "s";
-                $placeholders[] = "?";
-            }
+            // NÃO incluir file_path, file_name, etc - serão salvos na tabela de arquivos
+            $insert_fields = ["admin_id", "title", "description", "content_type", "content_text"];
+            $insert_values = [$admin_id, $title, $description, $content_type, $content_text];
+            $param_types = "issss"; // admin_id(i), title(s), description(s), content_type(s), content_text(s)
+            $placeholders = ["?", "?", "?", "?", "?"];
             
             if ($has_target_type && $has_target_id) {
                 $insert_fields[] = "target_type";
@@ -497,6 +496,30 @@ function saveContent($conn, $admin_id) {
             $content_id = $stmt->insert_id;
         }
         $stmt->close();
+        
+        // Se há arquivo e a tabela de arquivos existe, inserir arquivo na tabela
+        if ($file_path) {
+            $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+            if ($check_files_table && $check_files_table->num_rows > 0) {
+                // Inserir arquivo na tabela de arquivos
+                $stmt_file = $conn->prepare("INSERT INTO sf_content_files (content_id, file_path, file_name, file_size, mime_type, thumbnail_url, video_title, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
+                $stmt_file->bind_param("ississs", $content_id, $file_path, $file_name, $file_size, $mime_type, $thumbnail_url, $video_title);
+                if (!$stmt_file->execute()) {
+                    throw new Exception('Erro ao salvar arquivo: ' . $stmt_file->error);
+                }
+                $stmt_file->close();
+            } else {
+                // Fallback: se tabela não existe, atualizar sf_member_content com file_path
+                $update_file = $conn->prepare("UPDATE sf_member_content SET file_path = ?, file_name = ?, file_size = ?, mime_type = ? WHERE id = ?");
+                $update_file->bind_param("ssisi", $file_path, $file_name, $file_size, $mime_type, $content_id);
+                if ($thumbnail_url) {
+                    $update_file = $conn->prepare("UPDATE sf_member_content SET file_path = ?, file_name = ?, file_size = ?, mime_type = ?, thumbnail_url = ? WHERE id = ?");
+                    $update_file->bind_param("ssissi", $file_path, $file_name, $file_size, $mime_type, $thumbnail_url, $content_id);
+                }
+                $update_file->execute();
+                $update_file->close();
+            }
+        }
         
         $conn->commit();
         
@@ -549,14 +572,41 @@ function getContent($conn, $admin_id) {
         $content = $result->fetch_assoc();
         $stmt->close();
         
+        // Buscar arquivos da tabela sf_content_files se existir
+        $content_files = [];
+        $check_files_table = $conn->query("SHOW TABLES LIKE 'sf_content_files'");
+        if ($check_files_table && $check_files_table->num_rows > 0) {
+            $stmt_files = $conn->prepare("SELECT * FROM sf_content_files WHERE content_id = ? ORDER BY display_order ASC, created_at ASC");
+            $stmt_files->bind_param("i", $content_id);
+            $stmt_files->execute();
+            $files_result = $stmt_files->get_result();
+            while ($file_row = $files_result->fetch_assoc()) {
+                $content_files[] = $file_row;
+            }
+            $stmt_files->close();
+        }
+        
+        // Se não há arquivos na tabela, usar campos antigos do sf_member_content (compatibilidade)
+        if (empty($content_files)) {
+            if (!empty($content['file_path'])) {
+                $content_files[] = [
+                    'id' => null,
+                    'file_path' => $content['file_path'],
+                    'file_name' => $content['file_name'] ?? null,
+                    'file_size' => $content['file_size'] ?? null,
+                    'mime_type' => $content['mime_type'] ?? null,
+                    'thumbnail_url' => $content['thumbnail_url'] ?? null,
+                    'video_title' => $content['video_title'] ?? null,
+                    'display_order' => 0
+                ];
+            }
+        }
+        
         // Garantir que campos opcionais existam
-        $content['file_path'] = $content['file_path'] ?? null;
-        $content['file_name'] = $content['file_name'] ?? null;
-        $content['thumbnail_url'] = $content['thumbnail_url'] ?? null;
         $content['target_type'] = $content['target_type'] ?? 'all';
         $content['target_id'] = $content['target_id'] ?? null;
         $content['status'] = $content['status'] ?? 'active';
-        $content['video_title'] = $content['video_title'] ?? null;
+        $content['files'] = $content_files; // Array de arquivos
         
         ob_clean();
         echo json_encode(['success' => true, 'content' => $content]);
