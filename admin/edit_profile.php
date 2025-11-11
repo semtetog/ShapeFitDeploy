@@ -11,23 +11,39 @@ $admin_id = $_SESSION['admin_id'];
 $success_message = '';
 $error_message = '';
 
-// Buscar dados do admin (verificar se coluna profile_image_filename existe)
+// Buscar dados do admin (verificar quais colunas existem)
 $admin_data = null;
-// Verificar se a coluna existe
-$check_column = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'profile_image_filename'");
-$has_profile_image = $check_column && $check_column->num_rows > 0;
 
-// Verificar se tem full_name ou name
-$check_full_name = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'full_name'");
-$has_full_name = $check_full_name && $check_full_name->num_rows > 0;
-
-$name_field = $has_full_name ? 'full_name' : 'name';
-$select_fields = "id, $name_field as full_name, username, email";
-if ($has_profile_image) {
-    $select_fields .= ", profile_image_filename";
+// Verificar quais colunas existem na tabela
+$columns_result = $conn->query("SHOW COLUMNS FROM sf_admins");
+$available_columns = [];
+if ($columns_result) {
+    while ($row = $columns_result->fetch_assoc()) {
+        $available_columns[] = $row['Field'];
+    }
 }
 
-$stmt = $conn->prepare("SELECT $select_fields FROM sf_admins WHERE id = ?");
+$has_profile_image = in_array('profile_image_filename', $available_columns);
+$has_full_name = in_array('full_name', $available_columns);
+$has_name = in_array('name', $available_columns);
+$has_username = in_array('username', $available_columns);
+$has_email = in_array('email', $available_columns);
+
+$name_field = $has_full_name ? 'full_name' : ($has_name ? 'name' : 'full_name');
+$select_fields = ["id", "$name_field as full_name"];
+
+if ($has_username) {
+    $select_fields[] = "username";
+}
+if ($has_email) {
+    $select_fields[] = "email";
+}
+if ($has_profile_image) {
+    $select_fields[] = "profile_image_filename";
+}
+
+$select_sql = "SELECT " . implode(", ", $select_fields) . " FROM sf_admins WHERE id = ?";
+$stmt = $conn->prepare($select_sql);
 if ($stmt) {
     $stmt->bind_param("i", $admin_id);
     $stmt->execute();
@@ -56,9 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $conn->begin_transaction();
             
             // Verificar qual campo de nome usar
-            $check_full_name = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'full_name'");
-            $has_full_name = $check_full_name && $check_full_name->num_rows > 0;
-            $name_field = $has_full_name ? 'full_name' : 'name';
+            $columns_result = $conn->query("SHOW COLUMNS FROM sf_admins");
+            $available_columns = [];
+            if ($columns_result) {
+                while ($row = $columns_result->fetch_assoc()) {
+                    $available_columns[] = $row['Field'];
+                }
+            }
+            $has_full_name = in_array('full_name', $available_columns);
+            $has_name = in_array('name', $available_columns);
+            $name_field = $has_full_name ? 'full_name' : ($has_name ? 'name' : 'full_name');
             
             // Atualizar nome
             $update_fields = ["$name_field = ?"];
@@ -79,9 +102,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $param_types .= "s";
             }
             
-            // Processar upload de foto (apenas se a coluna existir)
-            $check_column = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'profile_image_filename'");
-            $has_profile_image = $check_column && $check_column->num_rows > 0;
+            // Verificar se coluna profile_image_filename existe
+            $columns_result = $conn->query("SHOW COLUMNS FROM sf_admins");
+            $available_columns = [];
+            if ($columns_result) {
+                while ($row = $columns_result->fetch_assoc()) {
+                    $available_columns[] = $row['Field'];
+                }
+            }
+            $has_profile_image = in_array('profile_image_filename', $available_columns);
             
             if ($has_profile_image && isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
                 $file = $_FILES['profile_image'];
@@ -154,16 +183,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success_message = 'Perfil atualizado com sucesso!';
             
             // Recarregar dados do admin
-            $check_column = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'profile_image_filename'");
-            $has_profile_image = $check_column && $check_column->num_rows > 0;
-            $check_full_name = $conn->query("SHOW COLUMNS FROM sf_admins LIKE 'full_name'");
-            $has_full_name = $check_full_name && $check_full_name->num_rows > 0;
-            $name_field = $has_full_name ? 'full_name' : 'name';
-            $select_fields = "id, $name_field as full_name, username, email";
-            if ($has_profile_image) {
-                $select_fields .= ", profile_image_filename";
+            $columns_result = $conn->query("SHOW COLUMNS FROM sf_admins");
+            $available_columns = [];
+            if ($columns_result) {
+                while ($row = $columns_result->fetch_assoc()) {
+                    $available_columns[] = $row['Field'];
+                }
             }
-            $stmt = $conn->prepare("SELECT $select_fields FROM sf_admins WHERE id = ?");
+            
+            $has_profile_image = in_array('profile_image_filename', $available_columns);
+            $has_full_name = in_array('full_name', $available_columns);
+            $has_name = in_array('name', $available_columns);
+            $has_username = in_array('username', $available_columns);
+            $has_email = in_array('email', $available_columns);
+            
+            $name_field = $has_full_name ? 'full_name' : ($has_name ? 'name' : 'full_name');
+            $select_fields = ["id", "$name_field as full_name"];
+            
+            if ($has_username) {
+                $select_fields[] = "username";
+            }
+            if ($has_email) {
+                $select_fields[] = "email";
+            }
+            if ($has_profile_image) {
+                $select_fields[] = "profile_image_filename";
+            }
+            
+            $select_sql = "SELECT " . implode(", ", $select_fields) . " FROM sf_admins WHERE id = ?";
+            $stmt = $conn->prepare($select_sql);
             $stmt->bind_param("i", $admin_id);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -408,17 +456,21 @@ require_once __DIR__ . '/includes/header.php';
                 <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($admin_data['full_name']); ?>" required>
             </div>
             
-            <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($admin_data['email']); ?>" disabled>
-                <small>O e-mail não pode ser alterado</small>
-            </div>
+            <?php if (!empty($admin_data['email'])): ?>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($admin_data['email']); ?>" disabled>
+                    <small>O e-mail não pode ser alterado</small>
+                </div>
+            <?php endif; ?>
             
-            <div class="form-group">
-                <label for="username">Usuário</label>
-                <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($admin_data['username']); ?>" disabled>
-                <small>O nome de usuário não pode ser alterado</small>
-            </div>
+            <?php if (!empty($admin_data['username'])): ?>
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($admin_data['username']); ?>" disabled>
+                    <small>O nome de usuário não pode ser alterado</small>
+                </div>
+            <?php endif; ?>
             
             <div class="form-group">
                 <label for="profile_image">Foto de Perfil</label>
