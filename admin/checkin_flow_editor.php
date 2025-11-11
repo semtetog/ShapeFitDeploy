@@ -157,20 +157,32 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     height: 100%;
     background-color: #1a1a1a;
-    overflow: auto;
+    overflow: hidden;
 }
 
-.flow-canvas {
-    width: 5000px;
-    height: 5000px;
-    min-width: 5000px;
-    min-height: 5000px;
+/* Viewport único que recebe transform (zoom + pan) */
+.flow-viewport {
     position: absolute;
     top: 0;
     left: 0;
-    cursor: grab;
+    width: 100%;
+    height: 100%;
     transform-origin: top left;
-    transition: transform 0.1s ease-out;
+    cursor: grab;
+}
+
+.flow-viewport.panning {
+    cursor: grabbing !important;
+}
+
+/* Canvas onde ficam os nodes */
+.flow-canvas {
+    width: 5000px;
+    height: 5000px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: inherit;
     background-color: #1a1a1a;
     /* Grid cinza mais escuro que cobre todo o canvas */
     background-image: 
@@ -179,6 +191,18 @@ require_once __DIR__ . '/includes/header.php';
     background-size: 20px 20px;
     background-position: 0 0;
     background-repeat: repeat;
+}
+
+/* SVG onde ficam as linhas */
+.flow-connections-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: visible;
 }
 
 .flow-canvas.dragging {
@@ -638,10 +662,15 @@ require_once __DIR__ . '/includes/header.php';
         
         <!-- Canvas Central -->
         <div class="flow-canvas-wrapper">
-            <svg id="connectionsLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; transform-origin: top left; background: transparent;">
-                <!-- Conexões sem setinhas - linhas conectam diretamente nos cards -->
-            </svg>
-            <div id="flowCanvas" class="flow-canvas"></div>
+            <!-- Viewport único que recebe transform (zoom + pan) -->
+            <div id="viewport" class="flow-viewport">
+                <!-- Canvas onde ficam os nodes -->
+                <div id="flowCanvas" class="flow-canvas"></div>
+                <!-- SVG onde ficam as linhas de conexão -->
+                <svg id="connectionsLayer" class="flow-connections-layer">
+                    <!-- Conexões sem setinhas - linhas conectam diretamente nos cards -->
+                </svg>
+            </div>
             <div class="zoom-controls">
                 <button class="btn-zoom" onclick="zoomIn()" title="Zoom In">
                     <i class="fas fa-plus"></i>
@@ -829,10 +858,10 @@ function initCanvas() {
 
 // Configurar eventos do canvas após inicialização
 function setupCanvasEvents() {
-    if (!canvas) return;
+    if (!viewport || !canvas) return;
     
-    // Pan do canvas (arrastar o canvas inteiro quando clicar no fundo)
-    canvas.addEventListener('mousedown', (e) => {
+    // Pan do viewport (arrastar o canvas inteiro quando clicar no fundo)
+    viewport.addEventListener('mousedown', (e) => {
         // Se clicou em um nó, conector ou botão, não fazer pan
         if (e.target.closest('.flow-node') || 
             e.target.closest('.flow-node-connector') || 
@@ -841,61 +870,58 @@ function setupCanvasEvents() {
             return;
         }
         
-        // Se clicou diretamente no canvas (fundo vazio), fazer pan
-        if (e.target === canvas) {
+        // Se clicou diretamente no viewport/canvas (fundo vazio), fazer pan
+        if (e.target === viewport || e.target === canvas || e.target === connectionsLayer) {
+            // Se clicou em uma conexão (path), não fazer pan
+            if (e.target.tagName === 'path' && e.target.classList.contains('flow-connection-line')) {
+                return;
+            }
+            
             isPanning = true;
             panStart.x = e.clientX - canvasOffset.x;
             panStart.y = e.clientY - canvasOffset.y;
-            canvas.style.cursor = 'grabbing';
-            canvas.classList.add('panning');
+            viewport.style.cursor = 'grabbing';
+            viewport.classList.add('panning');
             e.preventDefault();
         }
     });
 
-    // Mousemove no document para capturar mesmo quando sair do canvas
+    // Mousemove no document para capturar mesmo quando sair do viewport
     document.addEventListener('mousemove', (e) => {
         if (isPanning) {
             canvasOffset.x = e.clientX - panStart.x;
             canvasOffset.y = e.clientY - panStart.y;
             
-            // Aplicar transformação apenas ao canvas
-            canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
-            
-            // Mover o grid junto com o pan
-            const gridOffsetX = canvasOffset.x % 20;
-            const gridOffsetY = canvasOffset.y % 20;
-            canvas.style.backgroundPosition = `${gridOffsetX}px ${gridOffsetY}px`;
-            
-            // Atualizar conexões (SVG não precisa de transform)
-            updateConnections();
+            // Aplicar transformação no viewport (único elemento que recebe transform)
+            applyViewportTransform();
         }
     });
 
-    // Mouseup no document para garantir que pare o pan mesmo se soltar fora do canvas
+    // Mouseup no document para garantir que pare o pan mesmo se soltar fora do viewport
     document.addEventListener('mouseup', () => {
         if (isPanning) {
             isPanning = false;
-            canvas.style.cursor = 'grab';
-            canvas.classList.remove('panning');
+            viewport.style.cursor = 'grab';
+            viewport.classList.remove('panning');
         }
     });
 
-    canvas.addEventListener('mouseleave', () => {
-        // Não parar o pan ao sair do canvas, apenas mudar cursor se não estiver panning
+    viewport.addEventListener('mouseleave', () => {
+        // Não parar o pan ao sair do viewport, apenas mudar cursor se não estiver panning
         if (!isPanning) {
-            canvas.style.cursor = 'grab';
+            viewport.style.cursor = 'grab';
         }
     });
     
-    // Mudar cursor quando entrar no canvas
-    canvas.addEventListener('mouseenter', () => {
+    // Mudar cursor quando entrar no viewport
+    viewport.addEventListener('mouseenter', () => {
         if (!isPanning && !isDragging) {
-            canvas.style.cursor = 'grab';
+            viewport.style.cursor = 'grab';
         }
     });
 
-    // Prevenir menu de contexto no canvas (opcional - pode remover se quiser o menu)
-    canvas.addEventListener('contextmenu', (e) => {
+    // Prevenir menu de contexto no viewport (opcional - pode remover se quiser o menu)
+    viewport.addEventListener('contextmenu', (e) => {
         // Permitir menu de contexto apenas se não estiver em um nó
         if (!e.target.closest('.flow-node')) {
             e.preventDefault();
@@ -903,68 +929,48 @@ function setupCanvasEvents() {
     });
 
     // Atualizar cursor inicial
-    canvas.style.cursor = 'grab';
+    viewport.style.cursor = 'grab';
     
-    // Adicionar evento de mousedown no wrapper também para facilitar o pan
-    const canvasWrapper = document.querySelector('.flow-canvas-wrapper');
-    if (canvasWrapper) {
-        canvasWrapper.addEventListener('mousedown', (e) => {
-            // Se clicou diretamente no wrapper ou SVG (fundo), fazer pan
-            // Mas não se clicou em um nó, conector ou botão
-            const clickedNode = e.target.closest('.flow-node');
-            const clickedConnector = e.target.closest('.flow-node-connector');
-            const clickedButton = e.target.closest('.btn-node-action') || e.target.closest('button');
-            
-            if (!clickedNode && !clickedConnector && !clickedButton) {
-                // Clique no fundo - fazer pan
-                if (e.target === canvasWrapper || 
-                    e.target === connectionsLayer || 
-                    e.target === canvas ||
-                    e.target.tagName === 'svg' ||
-                    e.target.tagName === 'path') {
-                    // Se clicou em uma conexão (path), não fazer pan, mas sim selecionar
-                    if (e.target.tagName === 'path' && e.target.classList.contains('flow-connection-line')) {
-                        return; // Deixa o handler da conexão lidar com isso
-                    }
-                    
-                    isPanning = true;
-                    panStart.x = e.clientX - canvasOffset.x;
-                    panStart.y = e.clientY - canvasOffset.y;
-                    canvasWrapper.style.cursor = 'grabbing';
-                    canvas.style.cursor = 'grabbing';
-                    canvas.classList.add('panning');
-                    e.preventDefault();
-                }
-            }
-        });
-        
-        canvasWrapper.addEventListener('mouseup', () => {
-            if (isPanning) {
-                isPanning = false;
-                canvasWrapper.style.cursor = 'grab';
-                canvas.style.cursor = 'grab';
-                canvas.classList.remove('panning');
-            }
-        });
-    }
-    
-    // Drag & Drop do canvas
-    canvas.addEventListener('dragover', (e) => {
+    // Drag & Drop no viewport
+    viewport.addEventListener('dragover', (e) => {
         e.preventDefault();
     });
 
-    canvas.addEventListener('drop', (e) => {
+    viewport.addEventListener('drop', (e) => {
         e.preventDefault();
         const nodeType = e.dataTransfer.getData('nodeType');
         const nodeSubtype = e.dataTransfer.getData('nodeSubtype');
         if (!nodeType) return;
         
-        const canvasRect = canvas.getBoundingClientRect();
-        const x = (e.clientX - canvasRect.left - canvasOffset.x) / zoomLevel;
-        const y = (e.clientY - canvasRect.top - canvasOffset.y) / zoomLevel;
+        // Calcular posição lógica (sem zoom/pan) baseada no mouse
+        const viewportRect = viewport.getBoundingClientRect();
+        const mouseX = e.clientX - viewportRect.left;
+        const mouseY = e.clientY - viewportRect.top;
         
-        addNode(nodeType, x, y, {}, nodeSubtype);
+        // Converter para coordenadas lógicas (remover zoom e pan)
+        const logicalX = (mouseX - canvasOffset.x) / zoomLevel;
+        const logicalY = (mouseY - canvasOffset.y) / zoomLevel;
+        
+        addNode(nodeType, logicalX, logicalY, {}, nodeSubtype);
     });
+}
+
+// Aplicar transform no viewport (único elemento que recebe transform)
+function applyViewportTransform() {
+    if (!viewport) return;
+    
+    // Aplicar transform no viewport (zoom + pan)
+    viewport.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
+    
+    // Mover o grid junto com o pan
+    const gridOffsetX = canvasOffset.x % 20;
+    const gridOffsetY = canvasOffset.y % 20;
+    if (canvas) {
+        canvas.style.backgroundPosition = `${gridOffsetX}px ${gridOffsetY}px`;
+    }
+    
+    // Atualizar conexões usando requestAnimationFrame
+    updateConnections();
 }
 
 // Carregar fluxo existente ou criar padrão
@@ -1387,8 +1393,9 @@ function removeOption(nodeId, index) {
 function startDragNode(e, nodeId) {
     if (e.target.closest('.flow-node-connector')) return;
     if (e.target.closest('.btn-node-action')) return;
-    if (!canvas) return;
+    if (!viewport || !canvas) return;
     
+    // Prevenir pan quando arrastando node
     isDragging = true;
     currentDraggingNode = nodeId;
     selectedNode = nodeId;
@@ -1398,22 +1405,21 @@ function startDragNode(e, nodeId) {
     const node = nodes.find(n => n.id === nodeId);
     if (!node || !nodeEl) return;
     
-    const canvasRect = canvas.getBoundingClientRect();
+    const viewportRect = viewport.getBoundingClientRect();
     
-    // Calcular offset correto considerando zoom e pan
-    // Posição do mouse em coordenadas do canvas
-    const mouseX = e.clientX - canvasRect.left;
-    const mouseY = e.clientY - canvasRect.top;
+    // Calcular offset em coordenadas lógicas (sem zoom/pan)
+    const mouseX = e.clientX - viewportRect.left;
+    const mouseY = e.clientY - viewportRect.top;
     
-    // Converter para coordenadas do canvas (considerando zoom e pan)
-    const canvasX = (mouseX - canvasOffset.x) / zoomLevel;
-    const canvasY = (mouseY - canvasOffset.y) / zoomLevel;
+    // Converter para coordenadas lógicas (remover zoom e pan)
+    const logicalX = (mouseX - canvasOffset.x) / zoomLevel;
+    const logicalY = (mouseY - canvasOffset.y) / zoomLevel;
     
-    // Offset relativo à posição do nó
-    dragOffset.x = canvasX - node.x;
-    dragOffset.y = canvasY - node.y;
+    // Offset relativo à posição do nó (em coordenadas lógicas)
+    dragOffset.x = logicalX - node.x;
+    dragOffset.y = logicalY - node.y;
     
-    canvas.classList.add('dragging');
+    viewport.classList.add('dragging');
     nodeEl.style.zIndex = '1000';
     
     document.addEventListener('mousemove', dragNode);
@@ -1424,35 +1430,39 @@ function startDragNode(e, nodeId) {
 }
 
 function dragNode(e) {
-    if (!isDragging || !currentDraggingNode || !canvas) return;
+    if (!isDragging || !currentDraggingNode || !viewport) return;
     if (isPanning) return; // Não arrastar nó se estiver fazendo pan
     
     const node = nodes.find(n => n.id === currentDraggingNode);
     if (!node) return;
     
-    const canvasRect = canvas.getBoundingClientRect();
+    const viewportRect = viewport.getBoundingClientRect();
     
-    // Calcular nova posição considerando zoom e pan
-    node.x = (e.clientX - canvasRect.left - canvasOffset.x) / zoomLevel - dragOffset.x;
-    node.y = (e.clientY - canvasRect.top - canvasOffset.y) / zoomLevel - dragOffset.y;
+    // Calcular nova posição em coordenadas lógicas (sem zoom/pan)
+    const mouseX = e.clientX - viewportRect.left;
+    const mouseY = e.clientY - viewportRect.top;
+    
+    // Converter para coordenadas lógicas (remover zoom e pan)
+    const logicalX = (mouseX - canvasOffset.x) / zoomLevel;
+    const logicalY = (mouseY - canvasOffset.y) / zoomLevel;
+    
+    // Atualizar posição do nó (em coordenadas lógicas)
+    node.x = logicalX - dragOffset.x;
+    node.y = logicalY - dragOffset.y;
     
     // Limitar dentro dos bounds do canvas (opcional)
     node.x = Math.max(0, node.x);
     node.y = Math.max(0, node.y);
     
+    // Renderizar posição do nó (em pixels, sem zoom)
     const nodeEl = document.getElementById(currentDraggingNode);
     if (nodeEl) {
         nodeEl.style.left = node.x + 'px';
         nodeEl.style.top = node.y + 'px';
     }
     
-    // Atualizar conexões durante o drag (debounced)
-    if (!updateConnectionsTimeout) {
-        updateConnectionsTimeout = setTimeout(() => {
-            updateConnections();
-            updateConnectionsTimeout = null;
-        }, 16); // ~60fps
-    }
+    // Atualizar conexões usando requestAnimationFrame
+    updateConnections();
 }
 
 function stopDragNode() {
@@ -1464,16 +1474,12 @@ function stopDragNode() {
     }
     
     // Garantir que as conexões sejam atualizadas ao final do drag
-    if (updateConnectionsTimeout) {
-        clearTimeout(updateConnectionsTimeout);
-        updateConnectionsTimeout = null;
-    }
     updateConnections();
     
     isDragging = false;
     currentDraggingNode = null;
-    if (canvas) {
-        canvas.classList.remove('dragging');
+    if (viewport) {
+        viewport.classList.remove('dragging');
     }
     document.removeEventListener('mousemove', dragNode);
     document.removeEventListener('mouseup', stopDragNode);
@@ -1485,8 +1491,8 @@ function startConnection(e, nodeId, connectorType) {
         return;
     }
     
-    if (!connectionsLayer || !canvas) {
-        console.error('connectionsLayer ou canvas não inicializado');
+    if (!connectionsLayer || !viewport) {
+        console.error('connectionsLayer ou viewport não inicializado');
         return;
     }
     
@@ -1502,7 +1508,7 @@ function startConnection(e, nodeId, connectorType) {
     const connectorEl = nodeEl.querySelector(`[data-connector="${connectorType}"]`);
     if (!connectorEl) return;
     
-    // Calcular posição baseada nas coordenadas do nó
+    // Calcular posição baseada nas coordenadas do nó (lógicas)
     const nodeWidth = nodeEl.offsetWidth || 200;
     const nodeHeight = nodeEl.offsetHeight || 100;
     
@@ -1510,27 +1516,21 @@ function startConnection(e, nodeId, connectorType) {
     let connectorLocalX, connectorLocalY;
     if (connectorType === 'output') {
         connectorLocalX = nodeWidth / 2;
-        connectorLocalY = nodeHeight; // bottom
+        connectorLocalY = nodeHeight; // bottom edge
     } else {
         connectorLocalX = nodeWidth / 2;
-        connectorLocalY = 0; // top
+        connectorLocalY = 0; // top edge
     }
     
-    const svgRect = connectionsLayer.getBoundingClientRect();
-    const canvasRect = canvas.getBoundingClientRect();
-    
-    // Calcular posição absoluta no viewport (considerando zoom e pan)
-    // Primeiro: posição no canvas com zoom
-    const canvasX = (node.x + connectorLocalX) * zoomLevel;
-    const canvasY = (node.y + connectorLocalY) * zoomLevel;
-    
-    // Segundo: adicionar offset do pan e posição do canvas no viewport
-    const viewportX = canvasX + canvasOffset.x + canvasRect.left;
-    const viewportY = canvasY + canvasOffset.y + canvasRect.top;
+    // Calcular posição em coordenadas de tela (screen)
+    // screenX = (node.x + connectorLocalX) * zoom + pan.x
+    const screenX = (node.x + connectorLocalX) * zoomLevel + canvasOffset.x;
+    const screenY = (node.y + connectorLocalY) * zoomLevel + canvasOffset.y;
     
     // Converter para coordenadas do SVG (relativas ao connectionsLayer)
-    connectionStart.x = viewportX - svgRect.left;
-    connectionStart.y = viewportY - svgRect.top;
+    // O SVG está no mesmo viewport, então as coordenadas são diretas
+    connectionStart.x = screenX;
+    connectionStart.y = screenY;
     
     document.addEventListener('mousemove', drawConnection);
     document.addEventListener('mouseup', endConnection);
@@ -1540,30 +1540,27 @@ function startConnection(e, nodeId, connectorType) {
 }
 
 function drawConnection(e) {
-    if (!isConnecting || !connectionStart || !connectionsLayer) return;
+    if (!isConnecting || !connectionStart || !connectionsLayer || !viewport) return;
     
     // Remover linha temporária anterior
     const existing = connectionsLayer.querySelector('#temp-connection');
     if (existing) existing.remove();
     
-    // Calcular posição do mouse relativa ao SVG
-    const svgRect = connectionsLayer.getBoundingClientRect();
-    const x = e.clientX - svgRect.left;
-    const y = e.clientY - svgRect.top;
+    // Calcular posição do mouse em coordenadas de tela (screen)
+    const viewportRect = viewport.getBoundingClientRect();
+    const screenX = e.clientX - viewportRect.left;
+    const screenY = e.clientY - viewportRect.top;
     
     // Criar linha temporária curva
-    const midX = (connectionStart.x + x) / 2;
-    const midY = (connectionStart.y + y) / 2;
-    const curveOffset = Math.abs(x - connectionStart.x) * 0.3;
-    
+    const curveOffset = Math.abs(screenX - connectionStart.x) * 0.3;
     const cp1x = connectionStart.x + curveOffset;
     const cp1y = connectionStart.y;
-    const cp2x = x - curveOffset;
-    const cp2y = y;
+    const cp2x = screenX - curveOffset;
+    const cp2y = screenY;
     
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('id', 'temp-connection');
-    const pathData = `M ${connectionStart.x} ${connectionStart.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x} ${y}`;
+    const pathData = `M ${connectionStart.x} ${connectionStart.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${screenX} ${screenY}`;
     path.setAttribute('d', pathData);
     path.setAttribute('class', 'flow-connection-line connecting');
     path.setAttribute('stroke', 'var(--accent-orange)');
@@ -1962,26 +1959,8 @@ function resetZoom() {
 }
 
 function applyZoom() {
-    if (!canvas || !connectionsLayer) return;
-    
-    // Aplicar transform apenas no canvas, não no SVG
-    // O SVG vai calcular as posições baseado nas coordenadas dos nós
-    canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
-    canvas.style.transformOrigin = 'top left';
-    
-    // Mover o grid junto com o pan (background-position)
-    // O grid se move naturalmente com o transform, mas precisamos ajustar o background-position
-    // para que fique alinhado corretamente
-    const gridOffsetX = canvasOffset.x % 20;
-    const gridOffsetY = canvasOffset.y % 20;
-    canvas.style.backgroundPosition = `${gridOffsetX}px ${gridOffsetY}px`;
-    
-    // SVG não precisa de transform, vamos calcular as posições diretamente
-    connectionsLayer.style.transform = 'none';
-    connectionsLayer.style.transformOrigin = 'top left';
-    
-    // Atualizar conexões após mudança de zoom/pan
-    updateConnections();
+    // Aplicar transform no viewport (único elemento que recebe transform)
+    applyViewportTransform();
 }
 
 function saveFlow() {
