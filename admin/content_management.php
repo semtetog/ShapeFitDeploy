@@ -1511,18 +1511,15 @@ require_once __DIR__ . '/includes/header.php';
                     <input type="file" id="contentFile" name="file" class="challenge-form-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,.pdf" onchange="handleFileSelect(event)">
                     <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Formatos aceitos: Vídeos (MP4, MOV, AVI, WebM) ou PDF. Máximo: 100MB para vídeos, 10MB para PDF.</small>
                     
-                    <!-- Campo de mini título para vídeos -->
-                    <div id="videoTitleGroup" class="challenge-form-group" style="display: none; margin-top: 1rem;">
-                        <label for="videoTitle">Título do Vídeo (Opcional)</label>
-                        <input type="text" id="videoTitle" name="video_title" class="challenge-form-input" placeholder="Ex: Preparo da receita, Dicas finais, etc.">
-                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Útil quando há múltiplos vídeos em uma receita ou conteúdo.</small>
-                    </div>
-                    
                     <!-- Preview do arquivo selecionado -->
                     <div id="filePreview" style="margin-top: 1rem; display: none;">
                         <div style="position: relative; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); max-width: 400px;">
                             <div id="videoPreview" style="display: none;">
                                 <video id="previewVideo" style="width: 100%; max-height: 200px; display: block;" controls></video>
+                                <!-- Título do vídeo abaixo do vídeo (se preenchido) -->
+                                <div id="videoTitleDisplay" style="display: none; margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(255, 107, 0, 0.1); border-radius: 8px; border-left: 3px solid var(--accent-orange);">
+                                    <p style="margin: 0; color: var(--accent-orange); font-weight: 600; font-size: 0.875rem;" id="videoTitleDisplayText"></p>
+                                </div>
                             </div>
                             <div id="pdfPreview" style="display: none; padding: 1.5rem; text-align: center;">
                                 <i class="fas fa-file-pdf" style="font-size: 2.5rem; color: var(--accent-orange); margin-bottom: 0.75rem;"></i>
@@ -1532,46 +1529,58 @@ require_once __DIR__ . '/includes/header.php';
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
-                    </div>
-                    
-                    <!-- Arquivo atual (ao editar) -->
-                    <div id="currentFileInfo" style="margin-top: 0.75rem; display: none;">
-                        <div id="currentFilePreview" style="position: relative; width: 100%; max-width: 300px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); cursor: pointer;" onclick="openCurrentFile()">
-                            <!-- Vídeo ou thumbnail -->
-                            <video id="currentFileVideo" style="width: 100%; height: auto; max-height: 150px; display: none; object-fit: cover;" poster=""></video>
-                            <img id="currentFileThumbnailImg" style="width: 100%; height: auto; max-height: 150px; display: none; object-fit: cover;" alt="Preview do arquivo">
-                            <div id="currentFilePDFIcon" style="display: none; width: 100%; height: 150px; background: rgba(255, 107, 0, 0.1); flex: 1; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--accent-orange);"></i>
+                        
+                        <!-- Thumbnail - Extração automática de frames do vídeo (abaixo do vídeo) -->
+                        <div class="challenge-form-group" id="thumbnailGroup" style="display: none; margin-top: 1rem;">
+                            <label>Thumbnail (Opcional)</label>
+                            <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block; margin-bottom: 1rem;">Selecione um frame do vídeo como thumbnail.</small>
+                            
+                            <!-- Galeria de frames do vídeo -->
+                            <div id="videoFramesGallery" style="display: none; margin-bottom: 1rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+                                    <!-- Frames serão inseridos aqui via JavaScript -->
+                                </div>
+                                <button type="button" onclick="regenerateVideoFrames()" style="padding: 0.5rem 1rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.3s ease;">
+                                    <i class="fas fa-sync-alt"></i> Gerar novos frames
+                                </button>
                             </div>
-                            <!-- Botão de lixeira -->
-                            <button type="button" onclick="event.stopPropagation(); removeCurrentFile();" style="position: absolute; top: 0.5rem; right: 0.5rem; width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; cursor: pointer; transition: all 0.3s ease;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <!-- Overlay de play para vídeo -->
-                            <div id="currentFilePlayOverlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.6); border-radius: 50%; width: 50px; height: 50px; display: none; align-items: center; justify-content: center; color: white; font-size: 1.25rem; pointer-events: none;">
-                                <i class="fas fa-play"></i>
-                            </div>
+                            
+                            <!-- Input hidden para armazenar o frame selecionado -->
+                            <input type="hidden" id="selectedThumbnailData" name="thumbnail_data">
                         </div>
                     </div>
                 </div>
                 
-                <!-- Thumbnail - Extração automática de frames do vídeo -->
-                <div class="challenge-form-group" id="thumbnailGroup" style="display: none;">
-                    <label>Thumbnail (Opcional)</label>
-                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block; margin-bottom: 1rem;">Selecione um frame do vídeo como thumbnail.</small>
-                    
-                    <!-- Galeria de frames do vídeo -->
-                    <div id="videoFramesGallery" style="display: none; margin-bottom: 1rem;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
-                            <!-- Frames serão inseridos aqui via JavaScript -->
+                <!-- Campo de mini título para vídeos (movido para fora do fileUploadGroup) -->
+                <div id="videoTitleGroup" class="challenge-form-group" style="display: none;">
+                    <label for="videoTitle">Título do Vídeo (Opcional)</label>
+                    <input type="text" id="videoTitle" name="video_title" class="challenge-form-input" placeholder="Ex: Preparo da receita, Dicas finais, etc." oninput="updateVideoTitleDisplay()">
+                    <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Útil quando há múltiplos vídeos em uma receita ou conteúdo.</small>
+                </div>
+                
+                <!-- Arquivo atual (ao editar) - mais abaixo -->
+                <div id="currentFileInfo" class="challenge-form-group" style="margin-top: 1.5rem; display: none;">
+                    <label style="margin-bottom: 0.75rem; display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary);">Arquivo Atual</label>
+                    <div id="currentFilePreview" style="position: relative; width: 100%; max-width: 300px; border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); cursor: pointer;" onclick="openCurrentFile()">
+                        <!-- Vídeo ou thumbnail -->
+                        <video id="currentFileVideo" style="width: 100%; height: auto; max-height: 150px; display: none; object-fit: cover;" poster=""></video>
+                        <img id="currentFileThumbnailImg" style="width: 100%; height: auto; max-height: 150px; display: none; object-fit: cover;" alt="Preview do arquivo">
+                        <div id="currentFilePDFIcon" style="display: none; width: 100%; height: 150px; background: rgba(255, 107, 0, 0.1); flex: 1; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--accent-orange);"></i>
                         </div>
-                        <button type="button" onclick="regenerateVideoFrames()" style="padding: 0.5rem 1rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); color: var(--accent-orange); border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.3s ease;">
-                            <i class="fas fa-sync-alt"></i> Gerar novos frames
+                        <!-- Botão de lixeira -->
+                        <button type="button" onclick="event.stopPropagation(); removeCurrentFile();" style="position: absolute; top: 0.5rem; right: 0.5rem; width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; cursor: pointer; transition: all 0.3s ease;">
+                            <i class="fas fa-trash"></i>
                         </button>
+                        <!-- Overlay de play para vídeo -->
+                        <div id="currentFilePlayOverlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.6); border-radius: 50%; width: 50px; height: 50px; display: none; align-items: center; justify-content: center; color: white; font-size: 1.25rem; pointer-events: none;">
+                            <i class="fas fa-play"></i>
+                        </div>
                     </div>
-                    
-                    <!-- Input hidden para armazenar o frame selecionado -->
-                    <input type="hidden" id="selectedThumbnailData" name="thumbnail_data">
+                    <!-- Título do vídeo atual (se existir) -->
+                    <div id="currentVideoTitleDisplay" style="display: none; margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(255, 107, 0, 0.1); border-radius: 8px; border-left: 3px solid var(--accent-orange); max-width: 300px;">
+                        <p style="margin: 0; color: var(--accent-orange); font-weight: 600; font-size: 0.875rem;" id="currentVideoTitleDisplayText"></p>
+                    </div>
                 </div>
                 
                 
@@ -2125,8 +2134,18 @@ function editContent(contentId) {
             // Carregar mini título se existir
             const videoTitleInput = document.getElementById('videoTitle');
             const videoTitleGroup = document.getElementById('videoTitleGroup');
+            const currentVideoTitleDisplay = document.getElementById('currentVideoTitleDisplay');
+            const currentVideoTitleDisplayText = document.getElementById('currentVideoTitleDisplayText');
+            
             if (content.video_title && videoTitleInput) {
                 videoTitleInput.value = content.video_title;
+                // Mostrar título abaixo do vídeo atual
+                if (currentVideoTitleDisplay && currentVideoTitleDisplayText && content.content_type === 'videos') {
+                    currentVideoTitleDisplayText.textContent = content.video_title;
+                    currentVideoTitleDisplay.style.display = 'block';
+                }
+            } else if (currentVideoTitleDisplay) {
+                currentVideoTitleDisplay.style.display = 'none';
             }
             
             // Mostrar campo de mini título se for vídeo
@@ -2411,11 +2430,8 @@ function handleFileSelect(event) {
             contentTypeDisplay.textContent = detectedType === 'videos' ? 'Vídeo' : 'PDF';
         }
         
-        // Mostrar/ocultar campo de mini título para vídeos
-        const videoTitleGroup = document.getElementById('videoTitleGroup');
-        if (videoTitleGroup) {
-            videoTitleGroup.style.display = detectedType === 'videos' ? 'block' : 'none';
-        }
+        // Mostrar/ocultar campo de mini título para vídeos (será mostrado quando arquivo for selecionado)
+        // Não fazer nada aqui, será controlado em handleFileSelect
     }
     
     const filePreview = document.getElementById('filePreview');
@@ -2447,8 +2463,15 @@ function handleFileSelect(event) {
         videoPreview.style.display = 'block';
         filePreview.style.display = 'block';
         
-        // Mostrar grupo de thumbnail e gerar frames
+        // Mostrar campo de título e grupo de thumbnail
+        const videoTitleGroup = document.getElementById('videoTitleGroup');
+        if (videoTitleGroup) {
+            videoTitleGroup.style.display = 'block';
+        }
         thumbnailGroup.style.display = 'block';
+        
+        // Atualizar display do título se já houver valor
+        updateVideoTitleDisplay();
         
         // Aguardar o vídeo carregar para extrair frames
         previewVideo.onloadedmetadata = function() {
@@ -2459,6 +2482,12 @@ function handleFileSelect(event) {
         pdfFileName.textContent = file.name;
         pdfPreview.style.display = 'block';
         filePreview.style.display = 'block';
+        
+        // Ocultar campo de título e thumbnails para PDF
+        const videoTitleGroup = document.getElementById('videoTitleGroup');
+        if (videoTitleGroup) {
+            videoTitleGroup.style.display = 'none';
+        }
         thumbnailGroup.style.display = 'none';
     }
 }
@@ -2750,6 +2779,23 @@ function openCurrentFile() {
     
     const fileUrl = currentFilePreview.dataset.fileUrl;
     window.open(fileUrl, '_blank');
+}
+
+// Função para atualizar display do título do vídeo
+function updateVideoTitleDisplay() {
+    const videoTitleInput = document.getElementById('videoTitle');
+    const videoTitleDisplay = document.getElementById('videoTitleDisplay');
+    const videoTitleDisplayText = document.getElementById('videoTitleDisplayText');
+    
+    if (!videoTitleInput || !videoTitleDisplay || !videoTitleDisplayText) return;
+    
+    const title = videoTitleInput.value.trim();
+    if (title) {
+        videoTitleDisplayText.textContent = title;
+        videoTitleDisplay.style.display = 'block';
+    } else {
+        videoTitleDisplay.style.display = 'none';
+    }
 }
 
 // Função para limpar preview do arquivo
