@@ -849,6 +849,11 @@ function setupCanvasEvents() {
             // Aplicar transformação apenas ao canvas
             canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
             
+            // Mover o grid junto com o pan
+            const gridOffsetX = canvasOffset.x % 20;
+            const gridOffsetY = canvasOffset.y % 20;
+            canvas.style.backgroundPosition = `${gridOffsetX}px ${gridOffsetY}px`;
+            
             // Atualizar conexões (SVG não precisa de transform)
             updateConnections();
         }
