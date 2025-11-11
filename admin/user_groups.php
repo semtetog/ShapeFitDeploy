@@ -974,20 +974,23 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Garantir que todos os botões do footer tenham o mesmo tamanho */
 .challenge-edit-footer button {
-    padding: 0.625rem 1.25rem;
-    border-radius: 10px;
-    font-size: 0.875rem;
-    font-weight: 600;
+    padding: 0.625rem 1.25rem !important;
+    border-radius: 10px !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
     white-space: nowrap;
-    min-width: 120px;
-    box-sizing: border-box;
+    min-width: 140px !important;
+    width: auto !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0;
 }
 
 .challenge-form-group {
