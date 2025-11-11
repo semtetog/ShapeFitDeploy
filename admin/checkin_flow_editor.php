@@ -1753,10 +1753,11 @@ function updateConnections() {
         
         // Posições dos conectores em coordenadas locais do nó
         // Input: top center, Output: bottom center
+        // Conectar exatamente nas bordas dos cards
         const fromConnectorLocalX = fromNodeWidth / 2;
-        const fromConnectorLocalY = fromNodeHeight; // bottom
+        const fromConnectorLocalY = fromNodeHeight; // bottom edge
         const toConnectorLocalX = toNodeWidth / 2;
-        const toConnectorLocalY = 0; // top
+        const toConnectorLocalY = 0; // top edge
         
         // Posições absolutas no canvas (considerando zoom e pan)
         const x1 = (fromNode.x + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
