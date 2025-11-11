@@ -842,6 +842,9 @@ require_once __DIR__ . '/includes/header.php';
                         <button class="btn-action" onclick="viewResponses(<?php echo $checkin['id']; ?>)">
                             <i class="fas fa-eye"></i> Ver Respostas
                         </button>
+                        <button class="btn-action" onclick="editCheckinFlow(<?php echo $checkin['id']; ?>)">
+                            <i class="fas fa-project-diagram"></i> Editor de Fluxo
+                        </button>
                         <button class="btn-action" onclick="editCheckin(<?php echo $checkin['id']; ?>)">
                             <i class="fas fa-edit"></i> Editar
                         </button>
@@ -1163,6 +1166,10 @@ function deleteCheckin(id) {
 
 function viewResponses(id) {
     window.location.href = 'checkin_responses.php?id=' + id;
+}
+
+function editCheckinFlow(id) {
+    window.location.href = 'checkin_flow_editor.php?id=' + id;
 }
 
 function searchCheckins(term) {

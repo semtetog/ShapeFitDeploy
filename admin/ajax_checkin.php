@@ -39,6 +39,9 @@ try {
         case 'get_stats':
             getCheckinStats($admin_id);
             break;
+        case 'save_flow':
+            saveFlow($data, $admin_id);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -305,5 +308,57 @@ function getCheckinStats($admin_id) {
         'success' => true,
         'stats' => $stats
     ]);
+}
+
+function saveFlow($data, $admin_id) {
+    global $conn;
+    
+    $checkin_id = (int)($data['checkin_id'] ?? 0);
+    $flow = $data['flow'] ?? null;
+    
+    if ($checkin_id === 0) {
+        echo json_encode(['success' => false, 'message' => 'ID do check-in inválido']);
+        exit;
+    }
+    
+    // Verificar se o check-in pertence ao admin
+    $check_query = "SELECT id FROM sf_checkin_configs WHERE id = ? AND admin_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("ii", $checkin_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        echo json_encode(['success' => false, 'message' => 'Check-in não encontrado ou sem permissão']);
+        exit;
+    }
+    $stmt->close();
+    
+    // Verificar se a coluna flow_data existe, se não, criar
+    $columns = $conn->query("SHOW COLUMNS FROM sf_checkin_configs LIKE 'flow_data'");
+    if ($columns->num_rows === 0) {
+        $conn->query("ALTER TABLE sf_checkin_configs ADD COLUMN flow_data JSON NULL AFTER description");
+    }
+    
+    // Salvar fluxo
+    $flow_json = json_encode($flow);
+    $update_query = "UPDATE sf_checkin_configs SET flow_data = ? WHERE id = ? AND admin_id = ?";
+    $stmt = $conn->prepare($update_query);
+    $stmt->bind_param("sii", $flow_json, $checkin_id, $admin_id);
+    
+    if ($stmt->execute()) {
+        $stmt->close();
+        echo json_encode([
+            'success' => true,
+            'message' => 'Fluxo salvo com sucesso'
+        ]);
+    } else {
+        $stmt->close();
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erro ao salvar fluxo: ' . $conn->error
+        ]);
+    }
 }
 

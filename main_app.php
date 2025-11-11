@@ -367,7 +367,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 .card-meal-cta,
 .card-suggestions,
 .card-challenges,
-.card-action-item {
+.card-action-item,
+.card-checkin {
     grid-column: 1 / -1;
 }
 
@@ -2318,67 +2319,115 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 <style>
 /* Check-in Card Styles */
 .card-checkin {
-    margin-bottom: 24px;
-    padding: 20px;
+    margin-bottom: 20px;
+    padding: 24px;
     animation: pulse 2s infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-checkin::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-orange), #ff8533);
+    opacity: 0.8;
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 8px 32px rgba(255, 107, 0, 0.1);
+    }
+    50% { 
+        transform: scale(1.01);
+        box-shadow: 0 8px 32px rgba(255, 107, 0, 0.2);
+    }
 }
 
 .checkin-card-content {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
+    max-width: 100%;
 }
 
 .checkin-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--accent-orange);
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent-orange), #ff8533);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3);
 }
 
 .checkin-info {
     flex: 1;
+    min-width: 0;
 }
 
 .checkin-info h3 {
-    margin: 0 0 4px 0;
-    font-size: 1.25rem;
+    margin: 0 0 8px 0;
+    font-size: 1.35rem;
     font-weight: 700;
     color: var(--text-primary);
+    line-height: 1.3;
 }
 
 .checkin-info p {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 1rem;
     color: var(--text-secondary);
+    line-height: 1.4;
 }
 
 .checkin-btn {
-    padding: 12px 24px;
-    background: var(--accent-orange);
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--accent-orange), #ff8533);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-weight: 600;
+    border-radius: 14px;
+    font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3);
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .checkin-btn:hover {
-    background: #e55a00;
+    background: linear-gradient(135deg, #e55a00, #ff6600);
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+}
+
+.checkin-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .checkin-card-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+    
+    .checkin-info {
+        text-align: center;
+    }
+    
+    .checkin-btn {
+        width: 100%;
+    }
 }
 
 /* Check-in Modal (WhatsApp Style) */
