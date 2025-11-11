@@ -3598,7 +3598,17 @@ function editFileThumbnail(fileId, contentId, fileUrl) {
 function saveFileThumbnail(fileId, frameDataUrl, framesContainer = null) {
     if (!fileId || !frameDataUrl) return;
     
-    // Converter data URL para blob
+    // Atualizar preview do arquivo na lista IMEDIATAMENTE (antes de salvar no servidor)
+    // Isso dá feedback visual instantâneo ao usuário
+    const fileItem = document.querySelector(`[data-file-id="${fileId}"]`);
+    if (fileItem) {
+        const video = fileItem.querySelector('video');
+        if (video) {
+            video.poster = frameDataUrl;
+        }
+    }
+    
+    // Converter data URL para blob e salvar no servidor
     fetch(frameDataUrl)
         .then(res => res.blob())
         .then(blob => {
@@ -3616,15 +3626,6 @@ function saveFileThumbnail(fileId, frameDataUrl, framesContainer = null) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Atualizar preview do arquivo na lista
-                const fileItem = document.querySelector(`[data-file-id="${fileId}"]`);
-                if (fileItem) {
-                    const video = fileItem.querySelector('video');
-                    if (video) {
-                        video.poster = frameDataUrl;
-                    }
-                }
-                
                 // Se houver container de thumbnails, remover após salvar com sucesso
                 // Isso permite que o usuário possa editar novamente sem problemas
                 if (framesContainer) {
@@ -3643,6 +3644,14 @@ function saveFileThumbnail(fileId, frameDataUrl, framesContainer = null) {
                 // A atualização visual já acontece acima
             } else {
                 console.error('Erro ao salvar thumbnail:', data.error);
+                // Reverter o preview se houver erro
+                if (fileItem) {
+                    const video = fileItem.querySelector('video');
+                    if (video && data.thumbnail_url) {
+                        // Tentar usar a thumbnail original do servidor
+                        video.poster = data.thumbnail_url;
+                    }
+                }
                 showAlert('Erro', data.error || 'Erro ao salvar thumbnail');
             }
         })
