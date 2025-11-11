@@ -2199,7 +2199,7 @@ function editContent(contentId, preserveNewFilePreview = false) {
                     // Título do vídeo (se existir) - diretamente abaixo do vídeo - EDITÁVEL
                     if (isVideo) {
                         const titleDiv = document.createElement('div');
-                        titleDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.375rem 0.625rem; background: rgba(255, 107, 0, 0.06); border-radius: 6px; border: 1px solid rgba(255, 107, 0, 0.15); cursor: pointer; transition: all 0.2s ease;';
+                        titleDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.375rem 0.625rem; background: rgba(255, 107, 0, 0.06); border-radius: 6px; border: 1px solid rgba(255, 107, 0, 0.2); cursor: pointer; transition: all 0.2s ease;';
                         titleDiv.dataset.fileId = file.id || '';
                         titleDiv.dataset.contentId = content.id;
                         titleDiv.dataset.originalTitle = file.video_title || '';
