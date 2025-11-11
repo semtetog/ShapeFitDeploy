@@ -354,7 +354,7 @@ require_once __DIR__ . '/includes/header.php';
 /* Groups Grid */
 .user-groups-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
     width: 100%;
@@ -546,39 +546,26 @@ require_once __DIR__ . '/includes/header.php';
 .group-card-actions {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+    gap: 0.75rem;
     width: 100%;
     box-sizing: border-box;
     min-width: 0;
     margin-top: auto;
 }
 
-@media (min-width: 768px) {
-    .group-card-actions {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (min-width: 1024px) {
-    .group-card-actions {
-        grid-template-columns: repeat(5, 1fr);
-    }
-}
-
 .btn-action {
-    flex: 1;
     min-width: 0;
-    max-width: 100%;
-    padding: 0.625rem 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     white-space: nowrap;
-    overflow: visible;
-    text-overflow: clip;
+    overflow: hidden;
+    text-overflow: ellipsis;
     box-sizing: border-box;
     border: 1px solid;
     background: transparent;
@@ -588,17 +575,21 @@ require_once __DIR__ . '/includes/header.php';
     transition: all 0.3s ease;
     font-family: 'Montserrat', sans-serif;
     position: relative;
-    line-height: 1.2;
+    line-height: 1.3;
+    text-align: center;
 }
 
 .btn-action i {
     flex-shrink: 0;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
 }
 
-/* Garantir que o texto dos botões não seja cortado */
-.btn-action {
-    text-align: center;
+.btn-action span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .btn-view {
