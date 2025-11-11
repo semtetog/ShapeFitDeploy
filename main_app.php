@@ -997,6 +997,34 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     font-size: 0.7rem;
 }
 
+.content-more {
+    text-align: center;
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-view-all-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 8px;
+    color: var(--accent-orange);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-view-all-content:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+    transform: translateY(-2px);
+}
+
 /* Notificações de Desafios */
 .card-notifications {
     padding: 24px;
@@ -1768,9 +1796,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         <div class="glass-card card-content">
             <div class="card-header">
                 <h3><i class="fas fa-file-alt"></i> Conteúdos para Você</h3>
-                <?php if (!empty($user_contents)): ?>
-                    <a href="<?php echo BASE_APP_URL; ?>/content.php" class="view-all-link">Ver todos</a>
-                <?php endif; ?>
+                <a href="<?php echo BASE_APP_URL; ?>/content.php" class="view-all-link">Ver todos</a>
             </div>
             
             <?php if (empty($user_contents)): ?>
@@ -1783,10 +1809,11 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                     <p>Nenhum conteúdo disponível no momento. Volte mais tarde!</p>
                 </div>
             <?php else: ?>
-                <!-- Lista de conteúdos -->
+                <!-- Resumo de conteúdos (apenas 3 primeiros) -->
                 <div class="content-list">
-                    <?php foreach ($user_contents as $content): ?>
-                        <?php
+                    <?php 
+                    $display_contents = array_slice($user_contents, 0, 3);
+                    foreach ($display_contents as $content): 
                         // Determinar ícone e tipo
                         $content_icons = [
                             'chef' => 'fas fa-utensils',
@@ -1804,7 +1831,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                         ];
                         $icon = $content_icons[$content['content_type']] ?? 'fas fa-file-alt';
                         $label = $content_labels[$content['content_type']] ?? ucfirst($content['content_type']);
-                        ?>
+                    ?>
                         <a href="<?php echo BASE_APP_URL; ?>/view_content.php?id=<?php echo $content['id']; ?>" class="content-item">
                             <div class="content-item-header">
                                 <div class="content-type-icon-small">
@@ -1813,7 +1840,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                                 <div class="content-item-info">
                                     <h4><?php echo htmlspecialchars($content['title']); ?></h4>
                                     <?php if (!empty($content['description'])): ?>
-                                        <p class="content-item-description"><?php echo htmlspecialchars(mb_substr($content['description'], 0, 100)); ?><?php echo mb_strlen($content['description']) > 100 ? '...' : ''; ?></p>
+                                        <p class="content-item-description"><?php echo htmlspecialchars(mb_substr($content['description'], 0, 80)); ?><?php echo mb_strlen($content['description']) > 80 ? '...' : ''; ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -1825,12 +1852,19 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                                 <?php if (!empty($content['categories'])): ?>
                                     <span class="content-categories">
                                         <i class="fas fa-tag"></i>
-                                        <?php echo htmlspecialchars($content['categories']); ?>
+                                        <?php echo htmlspecialchars(mb_substr($content['categories'], 0, 30)); ?><?php echo mb_strlen($content['categories']) > 30 ? '...' : ''; ?>
                                     </span>
                                 <?php endif; ?>
                             </div>
                         </a>
                     <?php endforeach; ?>
+                    <?php if (count($user_contents) > 3): ?>
+                        <div class="content-more">
+                            <a href="<?php echo BASE_APP_URL; ?>/content.php" class="btn-view-all-content">
+                                Ver mais <?php echo count($user_contents) - 3; ?> conteúdo(s)
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
         </div>

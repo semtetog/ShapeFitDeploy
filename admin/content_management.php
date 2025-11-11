@@ -20,77 +20,139 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $per_page = 12;
 $offset = ($page - 1) * $per_page;
 
+// --- Verificar se a tabela existe e tem as colunas necessárias ---
+$table_exists = false;
+$has_status_column = false;
+
+try {
+    // Verificar se a tabela existe
+    $check_table = $conn->query("SHOW TABLES LIKE 'sf_member_content'");
+    if ($check_table && $check_table->num_rows > 0) {
+        $table_exists = true;
+        
+        // Verificar se a coluna status existe
+        $check_status = $conn->query("SHOW COLUMNS FROM sf_member_content LIKE 'status'");
+        if ($check_status && $check_status->num_rows > 0) {
+            $has_status_column = true;
+        }
+    }
+} catch (Exception $e) {
+    // Tabela não existe ou erro
+    $table_exists = false;
+    $has_status_column = false;
+}
+
 // --- Estatísticas gerais ---
 $stats = [];
 
-// Total de conteúdos
-$stats['total'] = $conn->query("SELECT COUNT(*) as count FROM sf_member_content WHERE admin_id = $admin_id")->fetch_assoc()['count'];
+if ($table_exists) {
+    // Total de conteúdos
+    try {
+        $total_result = $conn->query("SELECT COUNT(*) as count FROM sf_member_content WHERE admin_id = $admin_id");
+        if ($total_result) {
+            $stats['total'] = $total_result->fetch_assoc()['count'];
+        } else {
+            $stats['total'] = 0;
+        }
+    } catch (Exception $e) {
+        $stats['total'] = 0;
+    }
 
-// Por status
-$stats_query = "SELECT status, COUNT(*) as count 
-                FROM sf_member_content 
-                WHERE admin_id = $admin_id
-                GROUP BY status";
-$stats_result = $conn->query($stats_query);
-$stats_by_status = ['active' => 0, 'inactive' => 0, 'draft' => 0];
-while ($row = $stats_result->fetch_assoc()) {
-    $stats_by_status[$row['status']] = $row['count'];
+    // Por status (só se a coluna existir)
+    if ($has_status_column) {
+        try {
+            $stats_query = "SELECT status, COUNT(*) as count 
+                            FROM sf_member_content 
+                            WHERE admin_id = $admin_id
+                            GROUP BY status";
+            $stats_result = $conn->query($stats_query);
+            $stats_by_status = ['active' => 0, 'inactive' => 0, 'draft' => 0];
+            if ($stats_result) {
+                while ($row = $stats_result->fetch_assoc()) {
+                    if (isset($stats_by_status[$row['status']])) {
+                        $stats_by_status[$row['status']] = $row['count'];
+                    }
+                }
+            }
+            $stats['active'] = $stats_by_status['active'];
+            $stats['inactive'] = $stats_by_status['inactive'];
+            $stats['draft'] = $stats_by_status['draft'];
+        } catch (Exception $e) {
+            $stats['active'] = 0;
+            $stats['inactive'] = 0;
+            $stats['draft'] = 0;
+        }
+    } else {
+        // Se não tem coluna status, assume que todos são ativos
+        $stats['active'] = $stats['total'];
+        $stats['inactive'] = 0;
+        $stats['draft'] = 0;
+    }
+} else {
+    // Tabela não existe
+    $stats['total'] = 0;
+    $stats['active'] = 0;
+    $stats['inactive'] = 0;
+    $stats['draft'] = 0;
 }
-$stats['active'] = $stats_by_status['active'];
-$stats['inactive'] = $stats_by_status['inactive'];
-$stats['draft'] = $stats_by_status['draft'];
 
 // --- Construir query de busca ---
-$sql = "SELECT 
-    mc.*,
-    a.full_name as author_name,
-    GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories
-                  FROM sf_member_content mc
-                  LEFT JOIN sf_admins a ON mc.admin_id = a.id
-    LEFT JOIN sf_content_category_relations ccr ON mc.id = ccr.content_id
-    LEFT JOIN sf_categories c ON ccr.category_id = c.id
-    WHERE mc.admin_id = ?";
-$conditions = [];
-$params = [$admin_id];
-$types = 'i';
+$contents = [];
 
-if (!empty($search_term)) {
-    $conditions[] = "(mc.title LIKE ? OR mc.description LIKE ?)";
-    $params[] = '%' . $search_term . '%';
-    $params[] = '%' . $search_term . '%';
-    $types .= 'ss';
-}
+if ($table_exists) {
+    $sql = "SELECT 
+        mc.*,
+        a.full_name as author_name,
+        GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as categories
+                      FROM sf_member_content mc
+                      LEFT JOIN sf_admins a ON mc.admin_id = a.id
+        LEFT JOIN sf_content_category_relations ccr ON mc.id = ccr.content_id
+        LEFT JOIN sf_categories c ON ccr.category_id = c.id
+        WHERE mc.admin_id = ?";
+    $conditions = [];
+    $params = [$admin_id];
+    $types = 'i';
 
-if (!empty($status_filter)) {
-    $conditions[] = "mc.status = ?";
-    $params[] = $status_filter;
-    $types .= 's';
-}
+    if (!empty($search_term)) {
+        $conditions[] = "(mc.title LIKE ? OR mc.description LIKE ?)";
+        $params[] = '%' . $search_term . '%';
+        $params[] = '%' . $search_term . '%';
+        $types .= 'ss';
+    }
 
-if (!empty($type_filter)) {
-    $conditions[] = "mc.content_type = ?";
-    $params[] = $type_filter;
-    $types .= 's';
-}
+    if (!empty($status_filter) && $has_status_column) {
+        $conditions[] = "mc.status = ?";
+        $params[] = $status_filter;
+        $types .= 's';
+    }
 
-if (!empty($conditions)) {
-    $sql .= " AND " . implode(" AND ", $conditions);
-}
+    if (!empty($type_filter)) {
+        $conditions[] = "mc.content_type = ?";
+        $params[] = $type_filter;
+        $types .= 's';
+    }
 
-$sql .= " GROUP BY mc.id ORDER BY mc.created_at DESC LIMIT ? OFFSET ?";
-$params[] = $per_page;
-$params[] = $offset;
-$types .= 'ii';
+    if (!empty($conditions)) {
+        $sql .= " AND " . implode(" AND ", $conditions);
+    }
 
-// Executar query
-$stmt = $conn->prepare($sql);
-if ($stmt) {
-    $stmt->bind_param($types, ...$params);
-    $stmt->execute();
-    $contents = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
-} else {
-    $contents = [];
+    $sql .= " GROUP BY mc.id ORDER BY mc.created_at DESC LIMIT ? OFFSET ?";
+    $params[] = $per_page;
+    $params[] = $offset;
+    $types .= 'ii';
+
+    // Executar query
+    try {
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $contents = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+        }
+    } catch (Exception $e) {
+        $contents = [];
+    }
 }
 
 // Buscar categorias (usando sf_categories existente)
