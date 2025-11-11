@@ -493,6 +493,7 @@ let connectionStart = null;
 let zoomLevel = 1;
 let nodeIdCounter = 0;
 let currentDraggingNode = null;
+let updateConnectionsTimeout = null;
 
 // Inicializar canvas
 const canvas = document.getElementById('flowCanvas');
@@ -789,8 +790,6 @@ function dragNode(e) {
         }, 16); // ~60fps
     }
 }
-
-let updateConnectionsTimeout = null;
 
 function stopDragNode() {
     if (currentDraggingNode) {
