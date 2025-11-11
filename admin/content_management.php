@@ -2412,11 +2412,7 @@ function editContent(contentId, preserveNewFilePreview = false) {
                 }, 200);
             }
             
-            
-            // Abrir modal
-            const modal = document.getElementById('contentModal');
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            // Modal já foi aberto no início da função editContent, não precisa fazer nada aqui
         } else {
             showAlert('Erro', 'Erro ao carregar conteúdo: ' + (data.error || 'Erro desconhecido'));
         }
@@ -2795,8 +2791,11 @@ function sendFormData(formData) {
             }
             
             // Recarregar dados do conteúdo para mostrar o arquivo salvo (mantém modal aberto)
+            // Usar um pequeno delay para garantir que o servidor processou tudo
             if (contentId) {
-                editContent(contentId, false);
+                setTimeout(() => {
+                    editContent(contentId, false);
+                }, 300);
             }
             
             // Atualizar lista de conteúdos via AJAX (sem recarregar página)
