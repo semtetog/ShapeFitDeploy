@@ -35,6 +35,11 @@ if (isset($_SESSION['admin_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? htmlspecialchars($page_title) . ' - ' : ''; ?>Painel Admin ShapeFIT</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?php echo BASE_APP_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="shortcut icon" type="image/png" href="<?php echo BASE_APP_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    <link rel="apple-touch-icon" href="<?php echo BASE_APP_URL; ?>/assets/images/SHAPE-FIT-LOGO.png">
+    
     <!-- Fonte Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
