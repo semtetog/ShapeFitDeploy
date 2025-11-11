@@ -1367,7 +1367,12 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Content Grid -->
         <div class="content-grid" id="contentGrid">
-            <?php if (empty($contents)): ?>
+            <?php 
+            // Se for requisição AJAX, retornar apenas o grid
+            if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
+                // Retornar apenas o HTML do grid
+            }
+            if (empty($contents)): ?>
                 <div class="empty-state">
                     <div class="empty-icon">
                     <i class="fas fa-file-alt"></i>
@@ -2351,58 +2356,28 @@ function submitFormData(formData) {
         if (data.success) {
             showAlert('Sucesso', data.message || 'Conteúdo salvo com sucesso!');
             
-            // Resetar formulário para criar novo conteúdo (não recarregar o salvo)
-            // Isso permite criar múltiplos conteúdos rapidamente
-            setTimeout(() => {
-                // Resetar formulário completamente
-                document.getElementById('contentForm').reset();
-                document.getElementById('contentId').value = '';
-                document.getElementById('contentType').value = '';
-                
-                // Limpar todos os previews
+            // Atualizar ID do conteúdo se foi criado
+            let contentId = document.getElementById('contentId').value;
+            if (data.content_id) {
+                contentId = data.content_id;
+                document.getElementById('contentId').value = contentId;
+            }
+            
+            // Recarregar dados do conteúdo para mostrar o arquivo salvo (mantém modal aberto)
+            if (contentId) {
+                // Limpar previews de novos arquivos
                 clearFilePreview();
                 clearThumbnailPreview();
                 
-                // Ocultar arquivo atual
-                const currentFileInfo = document.getElementById('currentFileInfo');
-                if (currentFileInfo) {
-                    currentFileInfo.style.display = 'none';
-                }
-                
-                // Limpar título do vídeo
-                const videoTitleInput = document.getElementById('videoTitle');
-                if (videoTitleInput) {
-                    videoTitleInput.value = '';
-                }
-                const currentVideoTitleDisplay = document.getElementById('currentVideoTitleDisplay');
-                if (currentVideoTitleDisplay) {
-                    currentVideoTitleDisplay.style.display = 'none';
-                }
-                
-                // Ocultar campo de título do vídeo
-                const videoTitleGroup = document.getElementById('videoTitleGroup');
-                if (videoTitleGroup) {
-                    videoTitleGroup.style.display = 'none';
-                }
-                
-                // Resetar custom selects
-                resetCustomSelect('targetTypeSelect', 'targetType', '', 'Selecione...');
-                resetCustomSelect('targetIdSelect', 'targetId', '', 'Selecione...');
-                
-                // Limpar variáveis globais
-                currentVideoFile = null;
-                videoFramesGenerated = false;
-                fileRemoved = false;
-                currentFileData = null;
-                
-                // Atualizar título do modal
-                document.getElementById('modalTitle').textContent = 'Criar Conteúdo';
-                
-                // Recarregar lista de conteúdos para mostrar o novo
-                setTimeout(() => {
-                    location.reload();
-                }, 500);
-            }, 1000);
+                // Recarregar dados do conteúdo (mostra arquivo salvo com título)
+                editContent(contentId);
+            }
+            
+            // Atualizar lista de conteúdos via AJAX (sem recarregar página)
+            updateContentList();
+            
+            // Atualizar estatísticas
+            updateStats();
             
             // Restaurar botão
             saveButton.innerHTML = originalText;
