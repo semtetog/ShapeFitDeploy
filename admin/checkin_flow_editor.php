@@ -2178,38 +2178,61 @@ function startConnection(e, nodeId, connectorType) {
     isConnecting = true;
     connectionStart = { nodeId, connectorType };
     
-    const nodeEl = document.getElementById(nodeId);
-    if (!nodeEl) return;
-    
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node) return;
-    
-    const connectorEl = nodeEl.querySelector(`[data-connector="${connectorType}"]`);
-    if (!connectorEl) return;
-    
-    // Calcular posição baseada nas coordenadas do nó (lógicas)
-    const nodeWidth = nodeEl.offsetWidth || 200;
-    const nodeHeight = nodeEl.offsetHeight || 100;
-    
-    // Posição do conector em coordenadas locais do nó
-    let connectorLocalX, connectorLocalY;
-    if (connectorType === 'output') {
-        connectorLocalX = nodeWidth / 2;
-        connectorLocalY = nodeHeight; // bottom edge
+    // Verificar se é grupo Typebot
+    if (nodeId.startsWith('group_')) {
+        const groupEl = document.getElementById(nodeId);
+        if (!groupEl) return;
+        
+        const groupWidth = groupEl.offsetWidth || 360;
+        const groupHeight = groupEl.offsetHeight || 200;
+        const groupX = parseFloat(groupEl.style.left) || 0;
+        const groupY = parseFloat(groupEl.style.top) || 0;
+        
+        // Posição do conector em coordenadas locais do grupo
+        const connectorLocalX = groupWidth / 2;
+        const connectorLocalY = groupHeight; // bottom edge
+        
+        // Calcular posição em coordenadas de tela
+        const screenX = (groupX + connectorLocalX) * zoomLevel + canvasOffset.x;
+        const screenY = (groupY + connectorLocalY) * zoomLevel + canvasOffset.y;
+        
+        connectionStart.x = screenX;
+        connectionStart.y = screenY;
     } else {
-        connectorLocalX = nodeWidth / 2;
-        connectorLocalY = 0; // top edge
+        // Formato antigo (nodes)
+        const nodeEl = document.getElementById(nodeId);
+        if (!nodeEl) return;
+        
+        const node = nodes.find(n => n.id === nodeId);
+        if (!node) return;
+        
+        const connectorEl = nodeEl.querySelector(`[data-connector="${connectorType}"]`);
+        if (!connectorEl) return;
+        
+        // Calcular posição baseada nas coordenadas do nó (lógicas)
+        const nodeWidth = nodeEl.offsetWidth || 200;
+        const nodeHeight = nodeEl.offsetHeight || 100;
+        
+        // Posição do conector em coordenadas locais do nó
+        let connectorLocalX, connectorLocalY;
+        if (connectorType === 'output') {
+            connectorLocalX = nodeWidth / 2;
+            connectorLocalY = nodeHeight; // bottom edge
+        } else {
+            connectorLocalX = nodeWidth / 2;
+            connectorLocalY = 0; // top edge
+        }
+        
+        // Calcular posição em coordenadas de tela (screen)
+        // screenX = (node.x + connectorLocalX) * zoom + pan.x
+        const screenX = (node.x + connectorLocalX) * zoomLevel + canvasOffset.x;
+        const screenY = (node.y + connectorLocalY) * zoomLevel + canvasOffset.y;
+        
+        // Converter para coordenadas do SVG (relativas ao connectionsLayer)
+        // O SVG está no mesmo viewport, então as coordenadas são diretas
+        connectionStart.x = screenX;
+        connectionStart.y = screenY;
     }
-    
-    // Calcular posição em coordenadas de tela (screen)
-    // screenX = (node.x + connectorLocalX) * zoom + pan.x
-    const screenX = (node.x + connectorLocalX) * zoomLevel + canvasOffset.x;
-    const screenY = (node.y + connectorLocalY) * zoomLevel + canvasOffset.y;
-    
-    // Converter para coordenadas do SVG (relativas ao connectionsLayer)
-    // O SVG está no mesmo viewport, então as coordenadas são diretas
-    connectionStart.x = screenX;
-    connectionStart.y = screenY;
     
     document.addEventListener('mousemove', drawConnection);
     document.addEventListener('mouseup', endConnection);
