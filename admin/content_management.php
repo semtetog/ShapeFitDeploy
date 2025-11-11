@@ -507,20 +507,43 @@ require_once __DIR__ . '/includes/header.php';
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0;
     min-width: 0;
+    min-height: 0;
 }
 
+/* Descrição com altura fixa para manter alinhamento */
 .content-description {
     font-size: 0.875rem;
     color: var(--text-secondary);
     line-height: 1.5;
-    margin: 0;
+    margin: 0 0 0.75rem 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    height: 2.625rem; /* Altura fixa: 2 linhas * 1.5 line-height * 0.875rem */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    flex-shrink: 0;
+}
+
+/* Spacer para empurrar autor/data para baixo */
+.content-body-spacer {
+    flex: 1;
+    min-height: 0;
+}
+
+/* Container para informações do autor e data - sempre na mesma posição */
+.content-meta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 0.75rem;
 }
 
 .content-info-item {
@@ -529,13 +552,17 @@ require_once __DIR__ . '/includes/header.php';
     gap: 0.5rem;
     font-size: 0.8125rem;
     color: var(--text-secondary);
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    height: 1.25rem;
+    flex-shrink: 0;
 }
 
 .content-info-item i {
     font-size: 0.75rem;
     color: var(--accent-orange);
     flex-shrink: 0;
+    width: 14px;
+    text-align: center;
 }
 
 .content-info-item span {
@@ -543,13 +570,22 @@ require_once __DIR__ . '/includes/header.php';
     text-overflow: ellipsis;
     white-space: nowrap;
     min-width: 0;
+    flex: 1;
+}
+
+/* Outras informações (categorias, target, status) - opcionais, acima do spacer */
+.content-extra-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    margin-bottom: 0.75rem;
 }
 
 /* Actions - igual group-card-actions */
 .content-card-actions {
     display: flex;
     gap: 0.5rem;
-    margin-top: auto;
     padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     align-items: center;
@@ -557,6 +593,8 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     box-sizing: border-box;
     min-width: 0;
+    flex-shrink: 0;
+    margin-top: auto;
 }
 
 .content-card-actions .btn-action {
@@ -1323,54 +1361,66 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div class="content-card-body">
-                        <?php if (!empty($content['description'])): ?>
-                            <p class="content-description"><?php echo htmlspecialchars($content['description']); ?></p>
+                        <!-- Descrição - altura fixa sempre -->
+                        <p class="content-description">
+                            <?php echo !empty($content['description']) ? htmlspecialchars($content['description']) : 'Sem descrição'; ?>
+                        </p>
+                        
+                        <!-- Informações extras (opcionais) - aparecem antes do spacer -->
+                        <?php if (!empty($content['categories']) || (isset($content['target_type']) && $content['target_type'] !== 'all') || isset($content['status'])): ?>
+                            <div class="content-extra-info">
+                                <?php if (!empty($content['categories'])): ?>
+                                    <div class="content-info-item">
+                                        <i class="fas fa-tag"></i>
+                                        <span><?php echo htmlspecialchars($content['categories']); ?></span>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <?php if (isset($content['target_type']) && $content['target_type'] !== 'all'): ?>
+                                    <div class="content-info-item">
+                                        <i class="fas fa-users"></i>
+                                        <span>
+                                            <?php
+                                            switch($content['target_type']) {
+                                                case 'user':
+                                                    echo 'Usuário específico';
+                                                    break;
+                                                case 'group':
+                                                    echo 'Grupo específico';
+                                                    break;
+                                                default:
+                                                    echo 'Todos os usuários';
+                                            }
+                                            ?>
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <?php if (isset($content['status'])): ?>
+                                    <div class="content-info-item">
+                                        <span class="status-badge <?php echo $content['status']; ?>">
+                                            <?php echo ucfirst($content['status']); ?>
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         <?php endif; ?>
                         
-                        <div class="content-info-item">
-                            <i class="fas fa-user"></i>
-                            <span><?php echo htmlspecialchars($content['author_name'] ?? 'Admin'); ?></span>
+                        <!-- Spacer para empurrar autor/data para baixo -->
+                        <div class="content-body-spacer"></div>
+                        
+                        <!-- Informações principais (autor e data) - sempre na mesma posição -->
+                        <div class="content-meta-info">
+                            <div class="content-info-item">
+                                <i class="fas fa-user"></i>
+                                <span><?php echo htmlspecialchars($content['author_name'] ?? 'Admin'); ?></span>
+                            </div>
+                            
+                            <div class="content-info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span><?php echo date('d/m/Y', strtotime($content['created_at'])); ?></span>
+                            </div>
                         </div>
-                        
-                        <div class="content-info-item">
-                            <i class="fas fa-calendar"></i>
-                            <span><?php echo date('d/m/Y', strtotime($content['created_at'])); ?></span>
-                        </div>
-                        
-                        <?php if (!empty($content['categories'])): ?>
-                            <div class="content-info-item">
-                                <i class="fas fa-tag"></i>
-                                <span><?php echo htmlspecialchars($content['categories']); ?></span>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if (isset($content['target_type']) && $content['target_type'] !== 'all'): ?>
-                            <div class="content-info-item">
-                                <i class="fas fa-users"></i>
-                                <span>
-                                    <?php
-                                    switch($content['target_type']) {
-                                        case 'user':
-                                            echo 'Usuário específico';
-                                            break;
-                                        case 'group':
-                                            echo 'Grupo específico';
-                                            break;
-                                        default:
-                                            echo 'Todos os usuários';
-                                    }
-                                    ?>
-                                </span>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if (isset($content['status'])): ?>
-                            <div class="content-info-item">
-                                <span class="status-badge <?php echo $content['status']; ?>">
-                                    <?php echo ucfirst($content['status']); ?>
-                                </span>
-                            </div>
-                        <?php endif; ?>
                     </div>
                     
                     <div class="content-card-actions" onclick="event.stopPropagation()">
