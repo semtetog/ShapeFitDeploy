@@ -154,10 +154,16 @@ require_once __DIR__ . '/includes/header.php';
     height: 100%;
     position: relative;
     cursor: grab;
+    transform-origin: top left;
+    transition: transform 0.1s ease-out;
 }
 
 .flow-canvas.dragging {
     cursor: grabbing;
+}
+
+.flow-canvas.panning {
+    cursor: grabbing !important;
 }
 
 .flow-node {
@@ -169,8 +175,9 @@ require_once __DIR__ . '/includes/header.php';
     border-radius: 12px;
     padding: 1rem;
     cursor: move;
-    transition: all 0.3s ease;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    user-select: none;
 }
 
 .flow-node:hover {
@@ -477,12 +484,15 @@ let nodes = [];
 let connections = [];
 let selectedNode = null;
 let isDragging = false;
+let isPanning = false;
 let dragOffset = { x: 0, y: 0 };
+let panStart = { x: 0, y: 0 };
 let canvasOffset = { x: 0, y: 0 };
 let isConnecting = false;
 let connectionStart = null;
 let zoomLevel = 1;
 let nodeIdCounter = 0;
+let currentDraggingNode = null;
 
 // Inicializar canvas
 const canvas = document.getElementById('flowCanvas');
@@ -594,15 +604,26 @@ function renderNode(node) {
     canvas.appendChild(nodeEl);
     
     // Event listeners
-    nodeEl.addEventListener('mousedown', (e) => startDragNode(e, node.id));
+    nodeEl.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.flow-node-connector')) return;
+        if (e.target.closest('.btn-node-action')) return;
+        e.stopPropagation();
+        startDragNode(e, node.id);
+    });
+    
     nodeEl.addEventListener('click', (e) => {
         if (e.target.closest('.btn-node-action')) return;
+        if (e.target.closest('.flow-node-connector')) return;
+        e.stopPropagation();
         selectNode(node.id);
     });
     
     const connectors = nodeEl.querySelectorAll('.flow-node-connector');
     connectors.forEach(connector => {
-        connector.addEventListener('mousedown', (e) => startConnection(e, node.id, connector.dataset.connector));
+        connector.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            startConnection(e, node.id, connector.dataset.connector);
+        });
     });
 }
 
@@ -637,42 +658,65 @@ function selectNode(nodeId) {
 
 function startDragNode(e, nodeId) {
     if (e.target.closest('.flow-node-connector')) return;
+    if (e.target.closest('.btn-node-action')) return;
     
     isDragging = true;
+    currentDraggingNode = nodeId;
+    selectedNode = nodeId;
+    selectNode(nodeId);
+    
     const nodeEl = document.getElementById(nodeId);
     const rect = nodeEl.getBoundingClientRect();
     const canvasRect = canvas.getBoundingClientRect();
     
-    dragOffset.x = e.clientX - rect.left - canvasRect.left;
-    dragOffset.y = e.clientY - rect.top - canvasRect.top;
+    // Calcular offset correto (posição do mouse relativa ao canto superior esquerdo do nó)
+    dragOffset.x = e.clientX - rect.left;
+    dragOffset.y = e.clientY - rect.top;
     
     canvas.classList.add('dragging');
+    nodeEl.style.zIndex = '1000';
     
     document.addEventListener('mousemove', dragNode);
     document.addEventListener('mouseup', stopDragNode);
     
     e.preventDefault();
+    e.stopPropagation();
 }
 
 function dragNode(e) {
-    if (!isDragging || !selectedNode) return;
+    if (!isDragging || !currentDraggingNode) return;
     
     const canvasRect = canvas.getBoundingClientRect();
-    const node = nodes.find(n => n.id === selectedNode);
+    const node = nodes.find(n => n.id === currentDraggingNode);
     if (!node) return;
     
-    node.x = e.clientX - canvasRect.left - dragOffset.x;
-    node.y = e.clientY - canvasRect.top - dragOffset.y;
+    // Calcular nova posição considerando o offset e o scroll do canvas
+    const newX = e.clientX - canvasRect.left - dragOffset.x + canvasOffset.x;
+    const newY = e.clientY - canvasRect.top - dragOffset.y + canvasOffset.y;
     
-    const nodeEl = document.getElementById(selectedNode);
-    nodeEl.style.left = node.x + 'px';
-    nodeEl.style.top = node.y + 'px';
+    // Limitar dentro dos bounds do canvas (opcional)
+    node.x = Math.max(0, newX);
+    node.y = Math.max(0, newY);
+    
+    const nodeEl = document.getElementById(currentDraggingNode);
+    if (nodeEl) {
+        nodeEl.style.left = node.x + 'px';
+        nodeEl.style.top = node.y + 'px';
+    }
     
     updateConnections();
 }
 
 function stopDragNode() {
+    if (currentDraggingNode) {
+        const nodeEl = document.getElementById(currentDraggingNode);
+        if (nodeEl) {
+            nodeEl.style.zIndex = '';
+        }
+    }
+    
     isDragging = false;
+    currentDraggingNode = null;
     canvas.classList.remove('dragging');
     document.removeEventListener('mousemove', dragNode);
     document.removeEventListener('mouseup', stopDragNode);
@@ -854,8 +898,11 @@ function resetZoom() {
 }
 
 function applyZoom() {
-    canvas.style.transform = `scale(${zoomLevel})`;
+    canvas.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
     canvas.style.transformOrigin = 'top left';
+    connectionsLayer.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
+    connectionsLayer.style.transformOrigin = 'top left';
+    updateConnections();
 }
 
 function saveFlow() {
