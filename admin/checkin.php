@@ -346,9 +346,10 @@ require_once __DIR__ . '/includes/header.php';
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(107, 114, 128, 0.3);
-    transition: 0.3s;
+    background-color: #EF4444; /* Vermelho quando desativado */
+    transition: all 0.3s ease;
     border-radius: 26px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .toggle-switch-slider:before {
@@ -359,16 +360,33 @@ require_once __DIR__ . '/includes/header.php';
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: 0.3s;
+    transition: all 0.3s ease;
     border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Quando está ativo (checked) - Verde */
 .toggle-switch-input:checked + .toggle-switch-slider {
-    background-color: #22C55E;
+    background-color: #22C55E; /* Verde quando ativado */
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
 }
 
 .toggle-switch-input:checked + .toggle-switch-slider:before {
     transform: translateX(24px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover effect */
+.toggle-switch:hover .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.toggle-switch-input:checked:hover + .toggle-switch-slider {
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+.toggle-switch-input:not(:checked):hover + .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(239, 68, 68, 0.3);
 }
 
 /* Checkin Grid - Estilo igual challenge_groups.php */
@@ -867,6 +885,21 @@ function filterByStatus(status) {
 function toggleCheckinStatus(checkinId, isActive) {
     const label = document.querySelector(`.checkin-status-label-${checkinId}`);
     
+    // Atualizar label IMEDIATAMENTE baseado no estado atual do checkbox
+    if (label) {
+        const newText = isActive ? 'Ativo' : 'Inativo';
+        const newColor = isActive ? '#22C55E' : '#EF4444';
+        const newWeight = isActive ? '700' : '600';
+        
+        // Atualizar diretamente
+        label.textContent = newText;
+        label.style.color = newColor;
+        label.style.fontWeight = newWeight;
+        
+        // Forçar reflow para garantir que a atualização seja visível
+        label.offsetHeight;
+    }
+    
     fetch('ajax_checkin.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -879,16 +912,15 @@ function toggleCheckinStatus(checkinId, isActive) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            if (label) {
-                if (isActive) {
-                    label.textContent = 'Ativo';
-                    label.style.color = '#22C55E';
-                    label.style.fontWeight = '700';
-                } else {
-                    label.textContent = 'Inativo';
-                    label.style.color = '#EF4444';
-                    label.style.fontWeight = '600';
-                }
+            // Atualizar estatísticas em tempo real usando os dados retornados
+            if (data.stats) {
+                const totalCard = document.querySelector('.stat-card:nth-child(1) .stat-number');
+                const activeCard = document.querySelector('.stat-card:nth-child(2) .stat-number');
+                const inactiveCard = document.querySelector('.stat-card:nth-child(3) .stat-number');
+                
+                if (totalCard) totalCard.textContent = data.stats.total || 0;
+                if (activeCard) activeCard.textContent = data.stats.active || 0;
+                if (inactiveCard) inactiveCard.textContent = data.stats.inactive || 0;
             }
         } else {
             alert('Erro ao atualizar status: ' + data.message);
@@ -896,6 +928,15 @@ function toggleCheckinStatus(checkinId, isActive) {
             const toggle = document.querySelector(`.checkin-status-toggle[data-checkin-id="${checkinId}"]`);
             if (toggle) {
                 toggle.checked = !isActive;
+            }
+            // Reverter label
+            if (label) {
+                const revertText = !isActive ? 'Ativo' : 'Inativo';
+                const revertColor = !isActive ? '#22C55E' : '#EF4444';
+                const revertWeight = !isActive ? '700' : '600';
+                label.textContent = revertText;
+                label.style.color = revertColor;
+                label.style.fontWeight = revertWeight;
             }
         }
     })
@@ -907,8 +948,18 @@ function toggleCheckinStatus(checkinId, isActive) {
         if (toggle) {
             toggle.checked = !isActive;
         }
+        // Reverter label
+        if (label) {
+            const revertText = !isActive ? 'Ativo' : 'Inativo';
+            const revertColor = !isActive ? '#22C55E' : '#EF4444';
+            const revertWeight = !isActive ? '700' : '600';
+            label.textContent = revertText;
+            label.style.color = revertColor;
+            label.style.fontWeight = revertWeight;
+        }
     });
 }
+
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

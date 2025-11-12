@@ -209,11 +209,18 @@ function getCheckinStats($admin_id) {
     $stats = [];
     
     // Total
-    $result = $conn->query("SELECT COUNT(*) as count FROM sf_checkin_configs WHERE admin_id = $admin_id");
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM sf_checkin_configs WHERE admin_id = ?");
+    $stmt->bind_param("i", $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $stats['total'] = $result->fetch_assoc()['count'];
+    $stmt->close();
     
     // Por status
-    $result = $conn->query("SELECT is_active, COUNT(*) as count FROM sf_checkin_configs WHERE admin_id = $admin_id GROUP BY is_active");
+    $stmt = $conn->prepare("SELECT is_active, COUNT(*) as count FROM sf_checkin_configs WHERE admin_id = ? GROUP BY is_active");
+    $stmt->bind_param("i", $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $stats['active'] = 0;
     $stats['inactive'] = 0;
     while ($row = $result->fetch_assoc()) {
@@ -223,6 +230,7 @@ function getCheckinStats($admin_id) {
             $stats['inactive'] = $row['count'];
         }
     }
+    $stmt->close();
     
     echo json_encode([
         'success' => true,
@@ -667,9 +675,37 @@ function updateStatus($data, $admin_id) {
     }
     $stmt->close();
     
+    // Buscar estatísticas atualizadas
+    $stats = [];
+    
+    // Total
+    $stmt_stats = $conn->prepare("SELECT COUNT(*) as count FROM sf_checkin_configs WHERE admin_id = ?");
+    $stmt_stats->bind_param("i", $admin_id);
+    $stmt_stats->execute();
+    $result = $stmt_stats->get_result();
+    $stats['total'] = $result->fetch_assoc()['count'];
+    $stmt_stats->close();
+    
+    // Por status
+    $stmt_stats = $conn->prepare("SELECT is_active, COUNT(*) as count FROM sf_checkin_configs WHERE admin_id = ? GROUP BY is_active");
+    $stmt_stats->bind_param("i", $admin_id);
+    $stmt_stats->execute();
+    $result = $stmt_stats->get_result();
+    $stats['active'] = 0;
+    $stats['inactive'] = 0;
+    while ($row = $result->fetch_assoc()) {
+        if ($row['is_active']) {
+            $stats['active'] = $row['count'];
+        } else {
+            $stats['inactive'] = $row['count'];
+        }
+    }
+    $stmt_stats->close();
+    
     echo json_encode([
         'success' => true,
-        'message' => 'Status atualizado com sucesso'
+        'message' => 'Status atualizado com sucesso',
+        'stats' => $stats
     ]);
 }
 ?>
