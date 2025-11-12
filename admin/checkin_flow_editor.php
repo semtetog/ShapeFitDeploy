@@ -189,6 +189,10 @@ require_once __DIR__ . '/includes/header.php';
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--glass-border);
+    max-width: 100%;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .editor-header h1 {
