@@ -107,7 +107,8 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    overflow-x: hidden;
+    overflow-x: visible;
+    overflow-y: visible;
     margin: 0;
     padding: 0;
     position: relative;
@@ -160,15 +161,18 @@ require_once __DIR__ . '/includes/header.php';
     /* O painel começa após o celular fixed
        margin-left = largura do celular + gap entre celular e painel */
     margin-left: calc(var(--mockup-width) + var(--gap-size));
-    /* width usa calc para garantir que não ultrapasse os limites
-       Considerando: largura total da viewport - sidebar - padding horizontal esquerdo - celular - gap - padding horizontal direito */
+    /* width se ajusta automaticamente ao espaço disponível
+       Não usa max-width para permitir que se reduza quando necessário
+       width = largura total da viewport - sidebar - padding esquerdo - celular - gap - padding direito */
     width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding-h));
-    max-width: 100%;
+    max-width: none;
     min-width: 600px;
     box-sizing: border-box;
-    overflow-x: hidden;
+    overflow-x: visible;
     overflow-y: visible;
     word-wrap: break-word;
+    /* Garantir que o painel nunca ultrapasse a borda direita */
+    position: relative;
 }
 
 /* Garantir que elementos internos não ultrapassem os limites */
@@ -631,9 +635,11 @@ textarea.form-control {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    overflow-x: hidden;
+    overflow-x: visible;
+    overflow-y: visible;
 }
 
 .form-row {
