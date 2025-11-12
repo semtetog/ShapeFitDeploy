@@ -14,9 +14,7 @@
 }
 
 /* ========================================
-   TEMA CLARO REMOVIDO - AGORA USANDO theme-light.css
-   Todo código do tema claro antigo foi removido.
-   O novo tema claro está em /assets/css/theme-light.css
+   TEMA CLARO REMOVIDO - SUPORTE APENAS AO TEMA ESCURO
    ======================================== */
 
 /* Antialiasing global para todos os textos */
@@ -374,45 +372,6 @@ html *, body *, .admin-wrapper *, .main-content *, .content-wrapper * {
 .admin-controls {
   display: flex;
   gap: 0.5rem;
-}
-
-.admin-theme-toggle {
-  flex: 1;
-  height: 36px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--accent-orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  font-size: 0.875rem;
-}
-
-.admin-theme-toggle:hover {
-  background: rgba(255, 102, 0, 0.1);
-  border-color: var(--accent-orange);
-}
-
-/* Quando está no tema escuro, mostra o sol (para ir pro claro) */
-.admin-theme-toggle .theme-icon-light {
-  display: block;
-}
-
-.admin-theme-toggle .theme-icon-dark {
-  display: none;
-}
-
-/* Quando está no tema claro, mostra a lua (para ir pro escuro) */
-[data-theme="light"] .admin-theme-toggle .theme-icon-light {
-  display: none;
-}
-
-[data-theme="light"] .admin-theme-toggle .theme-icon-dark {
-  display: block;
 }
 
 .admin-logout-btn {
