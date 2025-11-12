@@ -663,7 +663,7 @@ textarea.form-control {
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
     width: 100%;
-    max-width: 100%;
+        max-width: 100%;
     box-sizing: border-box;
 }
 
@@ -1211,17 +1211,17 @@ textarea.form-control {
                     <button onclick="saveAll()" class="btn btn-primary">
                         <i class="fas fa-save"></i> Salvar Tudo
                     </button>
-                </div>
+            </div>
             </div>
             
             <div class="config-form">
             <div class="form-row">
-                <div class="form-group">
+            <div class="form-group">
                     <label for="checkinName">Nome do Check-in <span class="required">*</span></label>
                     <input type="text" id="checkinName" value="<?php echo htmlspecialchars($checkin['name']); ?>" required>
-                </div>
+            </div>
                 
-                <div class="form-group">
+            <div class="form-group">
                     <label for="checkinDay">Dia da Semana <span class="required">*</span></label>
                     <div class="custom-select-wrapper">
                         <select id="checkinDay">
@@ -1234,8 +1234,8 @@ textarea.form-control {
                                 </option>
                             <?php endfor; ?>
                         </select>
-                    </div>
-                </div>
+            </div>
+            </div>
             </div>
             
             <div class="form-group">
@@ -1244,7 +1244,7 @@ textarea.form-control {
             </div>
             
             <!-- Preview Settings -->
-            <div class="form-group">
+                <div class="form-group">
                 <label>Configurações do Chat</label>
                 <div class="preview-settings">
                     <div class="preview-settings-grid">
@@ -1259,8 +1259,8 @@ textarea.form-control {
                                     <span>0ms</span>
                                     <span>2500ms</span>
                                     <span>5000ms</span>
-                                </div>
-                            </div>
+                    </div>
+                </div>
                             <small class="form-hint form-hint-aligned">Tempo de espera entre mensagens do bot</small>
                         </div>
                         <div class="preview-settings-divider"></div>
@@ -1297,7 +1297,7 @@ textarea.form-control {
                         <span class="toggle-switch-slider"></span>
                     </label>
                     <span class="toggle-switch-label" id="checkinActiveLabel" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
-                </div>
+            </div>
             </div>
             
             <!-- Distribuição -->
@@ -1306,10 +1306,10 @@ textarea.form-control {
                 <div class="distribution-tabs">
                     <div class="distribution-tab active" onclick="switchDistributionTab('groups', this)">
                         <i class="fas fa-users"></i> Grupos
-                    </div>
+            </div>
                     <div class="distribution-tab" onclick="switchDistributionTab('users', this)">
                         <i class="fas fa-user"></i> Usuários
-                    </div>
+            </div>
                 </div>
                 
                 <div id="groupsDistribution" class="distribution-content active">
@@ -1322,10 +1322,10 @@ textarea.form-control {
                                            class="distribution-group"
                                            <?php echo in_array($group['id'], $distribution['groups']) ? 'checked' : ''; ?>>
                                     <span><?php echo htmlspecialchars($group['name']); ?></span>
-                                </label>
-                            </div>
+                </label>
+            </div>
                         <?php endforeach; ?>
-                    </div>
+                </div>
                 </div>
                 
                 <div id="usersDistribution" class="distribution-content">
@@ -1339,11 +1339,11 @@ textarea.form-control {
                                            <?php echo in_array($user['id'], $distribution['users']) ? 'checked' : ''; ?>>
                                     <span><?php echo htmlspecialchars($user['name']); ?></span>
                                 </label>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
                 </div>
-            </div>
+                        <?php endforeach; ?>
+                </div>
+                </div>
+                </div>
         </div>
     </div>
 
@@ -1413,19 +1413,19 @@ textarea.form-control {
                     </div>
                     <div class="block-edit-form" id="editForm_<?php echo $block['id']; ?>">
                         <form onsubmit="saveBlock(event, <?php echo $block['id']; ?>)">
-                            <div class="form-group">
+            <div class="form-group">
                                 <label>Texto da Pergunta/Mensagem</label>
                                 <textarea name="question_text" class="form-control" required><?php echo htmlspecialchars($block['question_text']); ?></textarea>
-                            </div>
-                            <div class="form-group">
+            </div>
+                <div class="form-group">
                                 <label>Tipo</label>
                                 <div class="custom-select-wrapper">
                                     <select name="question_type" class="form-control" onchange="toggleOptionsEditor(this, <?php echo $block['id']; ?>)">
                                         <option value="text" <?php echo $block['question_type'] === 'text' ? 'selected' : ''; ?>>Mensagem de Texto</option>
                                         <option value="multiple_choice" <?php echo $block['question_type'] === 'multiple_choice' ? 'selected' : ''; ?>>Múltipla Escolha</option>
                                         <option value="scale" <?php echo $block['question_type'] === 'scale' ? 'selected' : ''; ?>>Escala (0-10)</option>
-                                    </select>
-                                </div>
+                    </select>
+                </div>
                             </div>
                             <div class="options-editor" id="optionsEditor_<?php echo $block['id']; ?>" style="display: <?php echo in_array($block['question_type'], ['multiple_choice', 'scale']) ? 'block' : 'none'; ?>;">
                                 <label>Opções</label>
@@ -1506,20 +1506,20 @@ function addBlock(type) {
                             <i class="fas ${typeIcons[type]}"></i>
                             ${typeNames[type]}
                         </span>
-                    </div>
+        </div>
                     <div class="block-actions">
                         <button onclick="deleteBlock('${blockId}')" title="Excluir" class="btn-danger">
                             <i class="fas fa-trash"></i>
                         </button>
-                    </div>
+        </div>
                 </div>
             <div class="block-content preview" style="display: none;"></div>
             <div class="block-edit-form" id="editForm_${blockId}">
                 <form onsubmit="saveNewBlock(event, '${blockId}', '${type}')">
-                    <div class="form-group">
+        <div class="form-group">
                         <label>Texto da Pergunta/Mensagem</label>
                         <textarea name="question_text" class="form-control" required placeholder="Digite o texto..."></textarea>
-                    </div>
+        </div>
                     <div class="form-group">
                         <label>Tipo</label>
                         <div class="custom-select-wrapper">
@@ -1527,7 +1527,7 @@ function addBlock(type) {
                                 <option value="text" ${type === 'text' ? 'selected' : ''}>Mensagem de Texto</option>
                                 <option value="multiple_choice" ${type === 'multiple_choice' ? 'selected' : ''}>Múltipla Escolha</option>
                                 <option value="scale" ${type === 'scale' ? 'selected' : ''}>Escala (0-10)</option>
-                            </select>
+                </select>
                         </div>
                     </div>
                     <div class="options-editor" id="optionsEditor_${blockId}" style="display: ${type !== 'text' ? 'block' : 'none'};">
@@ -1535,8 +1535,8 @@ function addBlock(type) {
                         <div id="optionsList_${blockId}"></div>
                         <button type="button" class="add-option-btn" onclick="addOption('${blockId}')">
                             <i class="fas fa-plus"></i> Adicionar Opção
-                        </button>
-                    </div>
+                </button>
+            </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Salvar</button>
                         <button type="button" class="btn btn-secondary" onclick="cancelNewBlock('${blockId}')">Cancelar</button>
@@ -1680,8 +1680,8 @@ function saveBlock(event, blockId) {
     }
     
     // Salvar no servidor
-    fetch('ajax_checkin.php', {
-        method: 'POST',
+        fetch('ajax_checkin.php', {
+            method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
             action: 'update_block',
@@ -1689,21 +1689,21 @@ function saveBlock(event, blockId) {
             question_text: questionText,
             question_type: questionType,
             options: JSON.stringify(options)
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
             updatePreview();
             location.reload();
-        } else {
-            alert('Erro ao salvar: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
+            } else {
+                alert('Erro ao salvar: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
         alert('Erro ao salvar bloco');
-    });
+        });
 }
 
 // Excluir bloco
@@ -2022,7 +2022,7 @@ document.addEventListener('DOMContentLoaded', function() {
             activeLabel.textContent = 'Ativo';
             activeLabel.style.color = '#22C55E';
             activeLabel.style.fontWeight = '700';
-        } else {
+    } else {
             activeLabel.textContent = 'Inativo';
             activeLabel.style.color = '#EF4444';
             activeLabel.style.fontWeight = '600';
@@ -2073,17 +2073,17 @@ function adjustLayoutForZoom() {
     
     // Aplicar ajustes baseado no zoom detectado
     if (zoomLevel === '100%') {
-        // Zoom 100%: aumentar o tamanho do celular proporcionalmente
-        mockupPanel.style.width = '480px'; // maior que o padrão (410px)
-        mockupPanel.style.maxWidth = '480px';
-        mockupPanel.style.height = 'calc(100vh - (var(--content-wrapper-padding-v) * 1.5))'; // um pouco mais alto
-        mockupPanel.style.maxHeight = '900px';
+        // Zoom 100%: celular um pouco menor para equilibrar com o menu
+        mockupPanel.style.width = '440px';
+        mockupPanel.style.maxWidth = '440px';
+        mockupPanel.style.height = 'calc(100vh - (var(--content-wrapper-padding-v) * 1.5))';
+        mockupPanel.style.maxHeight = '880px';
         mockupPanel.style.top = 'var(--content-wrapper-padding-v)';
         
-        // Recalcular a posição do painel da direita pra acompanhar
-        configPanel.style.marginLeft = 'calc(480px + var(--gap-size))';
+        // Recalcula automaticamente o painel da direita
+        configPanel.style.marginLeft = 'calc(440px + var(--gap-size))';
         configPanel.style.marginTop = 'var(--content-wrapper-padding-v)';
-        configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 480px - var(--gap-size) - var(--content-wrapper-padding-h))';
+        configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 440px - var(--gap-size) - var(--content-wrapper-padding-h))';
     } else if (zoomLevel === '125%') {
         // Zoom 125%: reduzir largura do celular e ajustar espaçamento
         mockupPanel.style.width = '350px';
@@ -2203,7 +2203,7 @@ function getDragAfterElement(container, y) {
         
         if (offset < 0 && offset > closest.offset) {
             return { offset: offset, element: child };
-        } else {
+} else {
             return closest;
         }
     }, { offset: Number.NEGATIVE_INFINITY }).element;
