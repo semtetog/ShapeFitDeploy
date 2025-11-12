@@ -1103,6 +1103,7 @@ textarea.form-control {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
+    margin-top: -0.5rem;
     gap: 1rem;
 }
 
@@ -1554,10 +1555,11 @@ function addBlock(type) {
                 <div class="block-header">
                     <div class="block-header-left">
                         <i class="fas fa-grip-vertical drag-handle"></i>
-                        <span class="block-type-badge">
+                        <span class="block-type-badge" data-type="${type}">
                             <i class="fas ${typeIcons[type]}"></i>
                             ${typeNames[type]}
                         </span>
+                        <span class="block-preview-text"></span>
         </div>
                     <div class="block-actions">
                         <button onclick="deleteBlock('${blockId}')" title="Excluir" class="btn-danger">
@@ -1746,8 +1748,21 @@ function saveBlock(event, blockId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-            updatePreview();
-            location.reload();
+                // Atualizar preview do texto ao lado da tag
+                const block = document.querySelector(`[data-block-id="${blockId}"]`);
+                if (block) {
+                    const previewText = block.querySelector('.block-preview-text');
+                    if (previewText) {
+                        previewText.textContent = questionText;
+                    }
+                    // Atualizar badge com o tipo correto
+                    const badge = block.querySelector('.block-type-badge');
+                    if (badge) {
+                        badge.setAttribute('data-type', questionType);
+                    }
+                }
+                updatePreview();
+                location.reload();
             } else {
                 alert('Erro ao salvar: ' + data.message);
             }
