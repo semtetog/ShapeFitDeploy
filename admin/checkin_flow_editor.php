@@ -99,22 +99,37 @@ require_once __DIR__ . '/includes/header.php';
 /* Container principal - duas colunas */
 .checkin-flow-editor {
     display: flex;
-    gap: var(--layout-gap);
+    gap: 0;
     padding: var(--layout-gap);
-    padding-left: calc(var(--mockup-width) + var(--layout-gap) * 2);
-    padding-right: calc(var(--layout-gap) * 2);
-    width: calc(100vw - var(--sidebar-width));
+    /* Calcular espaços laterais iguais: 
+       - Largura disponível: 100vw - sidebar
+       - Espaço restante após celular: 100vw - sidebar - celular
+       - Espaço por lado: (espaço restante) / 2
+       - Padding-left: sidebar + espaço esquerdo + celular
+       - Padding-right: espaço direito
+    */
+    --available-width: calc(100vw - var(--sidebar-width));
+    --remaining-space: calc(var(--available-width) - var(--mockup-width));
+    --side-spacing: calc(var(--remaining-space) / 2);
+    
+    padding-left: calc(var(--sidebar-width) + var(--side-spacing) + var(--mockup-width));
+    padding-right: var(--side-spacing);
+    width: var(--available-width);
     max-width: none;
     box-sizing: border-box;
     overflow-x: hidden;
 }
 
-/* PAINEL DO CELULAR (ESQUERDA - FIXO) */
+/* PAINEL DO CELULAR (CENTRO - FIXO COM ESPAÇOS IGUAIS) */
 .mobile-mockup-panel {
     position: fixed;
     top: 50%;
     transform: translateY(-50%);
-    left: calc(var(--sidebar-width) + var(--layout-gap));
+    /* Posição: sidebar + espaço esquerdo (igual ao espaço direito) */
+    --available-width: calc(100vw - var(--sidebar-width));
+    --remaining-space: calc(var(--available-width) - var(--mockup-width));
+    --side-spacing: calc(var(--remaining-space) / 2);
+    left: calc(var(--sidebar-width) + var(--side-spacing));
     
     width: var(--mockup-width);
     height: var(--mockup-height);
@@ -157,7 +172,11 @@ require_once __DIR__ . '/includes/header.php';
     flex-grow: 1;
     flex-basis: 0;
     width: auto;
-    max-width: calc(100vw - var(--sidebar-width) - var(--mockup-width) - (var(--layout-gap) * 2));
+    /* Usar o mesmo cálculo de espaço lateral */
+    --available-width: calc(100vw - var(--sidebar-width));
+    --remaining-space: calc(var(--available-width) - var(--mockup-width));
+    --side-spacing: calc(var(--remaining-space) / 2);
+    max-width: var(--side-spacing);
     min-width: 600px;
     box-sizing: border-box;
 }
