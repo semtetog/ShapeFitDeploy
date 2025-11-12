@@ -164,12 +164,12 @@ $checkin_data = [
         }
 
         .typing-dots span {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.5);
             display: inline-block;
-            animation: typing-bounce 1.4s infinite;
+            animation: typing-pulse 1.5s ease-in-out infinite;
         }
 
         .typing-dots span:nth-child(1) {
@@ -184,14 +184,14 @@ $checkin_data = [
             animation-delay: 0.4s;
         }
 
-        @keyframes typing-bounce {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.6;
+        @keyframes typing-pulse {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(0.9);
             }
-            30% {
-                transform: translateY(-10px);
+            50% {
                 opacity: 1;
+                transform: scale(1);
             }
         }
 
