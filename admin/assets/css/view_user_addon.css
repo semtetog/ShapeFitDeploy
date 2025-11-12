@@ -4993,3 +4993,296 @@ button.period-btn.active:hover {
 
 /* Espaçamento agora é controlado pelo gap: 24px no .diary-day-meals */
 
+/* ========================================
+   TEMA CLARO - CORREÇÕES COMPLETAS
+   ======================================== */
+
+[data-theme="light"] {
+  --text-primary: #1A202C;
+  --text-secondary: #4A5568;
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --bg-color: #F5F7FA;
+  --surface-color: #FFFFFF;
+  --border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* === HEADER DO USUÁRIO === */
+[data-theme="light"] .view-user-header {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .user-contact-details h2 {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .user-contact-details p {
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .initials-avatar.large {
+  color: #FFFFFF !important;
+  background: var(--accent-orange) !important;
+}
+
+/* === CARDS E CONTAINERS === */
+[data-theme="light"] .summary-card,
+[data-theme="light"] .nutrients-summary-card,
+[data-theme="light"] .hydration-summary-card,
+[data-theme="light"] .progress-summary-card,
+[data-theme="light"] .diary-summary-card,
+[data-theme="light"] .routine-summary-card,
+[data-theme="light"] .chart-container,
+[data-theme="light"] .hydration-container,
+[data-theme="light"] .nutrients-container,
+[data-theme="light"] .progress-chart-container,
+[data-theme="light"] .diary-history-container,
+[data-theme="light"] .routine-cards-grid,
+[data-theme="light"] .data-item,
+[data-theme="light"] .details-grid-3-cols > *,
+[data-theme="light"] .details-grid-1-col > * {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  color: #1A202C !important;
+}
+
+/* === TEXTOS === */
+[data-theme="light"] .summary-main,
+[data-theme="light"] .summary-info,
+[data-theme="light"] .summary-meta,
+[data-theme="light"] .summary-stats,
+[data-theme="light"] .data-item,
+[data-theme="light"] .data-item strong,
+[data-theme="light"] .stat-value,
+[data-theme="light"] .stat-label,
+[data-theme="light"] .summary-description,
+[data-theme="light"] .section-description,
+[data-theme="light"] .period-details,
+[data-theme="light"] .legend-text {
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .summary-info h3,
+[data-theme="light"] .stat-value,
+[data-theme="light"] .data-item strong {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .summary-meta strong {
+  color: #FF6B00 !important;
+}
+
+/* === TÍTULOS === */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: #1A202C !important;
+}
+
+/* === TABS === */
+[data-theme="light"] .tab-link {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .tab-link:hover {
+  background: rgba(255, 102, 0, 0.05) !important;
+  border-color: rgba(255, 102, 0, 0.2) !important;
+}
+
+[data-theme="light"] .tab-link.active {
+  background: rgba(255, 102, 0, 0.1) !important;
+  border-color: var(--accent-orange) !important;
+  color: #FF6B00 !important;
+}
+
+[data-theme="light"] .tab-link i {
+  color: #718096 !important;
+}
+
+[data-theme="light"] .tab-link.active i {
+  color: #FF6B00 !important;
+}
+
+/* === BOTÕES === */
+[data-theme="light"] .btn,
+[data-theme="light"] button:not(.admin-theme-toggle):not(.admin-logout-btn) {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .btn:hover,
+[data-theme="light"] button:hover {
+  background: rgba(255, 102, 0, 0.08) !important;
+  border-color: var(--accent-orange) !important;
+  color: #FF6B00 !important;
+}
+
+[data-theme="light"] .btn-primary {
+  background: var(--accent-orange) !important;
+  border-color: var(--accent-orange) !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background: #E55D00 !important;
+  border-color: #E55D00 !important;
+  color: #FFFFFF !important;
+}
+
+/* === INPUTS === */
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="email"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] input[type="search"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] input[type="tel"],
+[data-theme="light"] input[type="date"],
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #1A202C !important;
+}
+
+[data-theme="light"] input:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+  border-color: var(--accent-orange) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1) !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #A0AEC0 !important;
+}
+
+/* === TABELAS === */
+[data-theme="light"] table {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] thead {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] th {
+  color: #1A202C !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] td {
+  color: #4A5568 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] tbody tr:hover {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+/* === STATUS BADGES === */
+[data-theme="light"] .status-badge {
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .status-badge.excellent {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #15803D !important;
+  border-color: #22C55E !important;
+}
+
+[data-theme="light"] .status-badge.good {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #1E40AF !important;
+  border-color: #3B82F6 !important;
+}
+
+[data-theme="light"] .status-badge.fair {
+  background: rgba(251, 191, 36, 0.15) !important;
+  color: #B45309 !important;
+  border-color: #FBBF24 !important;
+}
+
+[data-theme="light"] .status-badge.poor {
+  background: rgba(249, 115, 22, 0.15) !important;
+  color: #C2410C !important;
+  border-color: #F97316 !important;
+}
+
+[data-theme="light"] .status-badge.critical {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #B91C1C !important;
+  border-color: #EF4444 !important;
+}
+
+/* === ÍCONES === */
+[data-theme="light"] .summary-icon,
+[data-theme="light"] .icon-sm,
+[data-theme="light"] i.fas,
+[data-theme="light"] i.far {
+  color: inherit !important;
+}
+
+[data-theme="light"] .summary-icon.orange,
+[data-theme="light"] .icon-sm.orange {
+  color: #FF6B00 !important;
+}
+
+/* === CONTORNOS === */
+[data-theme="light"] .summary-card,
+[data-theme="light"] .chart-container,
+[data-theme="light"] .data-item,
+[data-theme="light"] .nutrients-summary-card,
+[data-theme="light"] .hydration-summary-card,
+[data-theme="light"] .progress-summary-card,
+[data-theme="light"] .diary-summary-card,
+[data-theme="light"] .routine-summary-card,
+[data-theme="light"] .hydration-container,
+[data-theme="light"] .nutrients-container,
+[data-theme="light"] .progress-chart-container,
+[data-theme="light"] .diary-history-container,
+[data-theme="light"] .details-grid-3-cols > *,
+[data-theme="light"] .details-grid-1-col > * {
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* === SOMBRAS === */
+[data-theme="light"] .summary-card,
+[data-theme="light"] .chart-container,
+[data-theme="light"] .hydration-container,
+[data-theme="light"] .nutrients-container,
+[data-theme="light"] .progress-chart-container,
+[data-theme="light"] .diary-history-container,
+[data-theme="light"] .routine-cards-grid .routine-card-modern {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* === CORRIGIR CORES BRANCAS === */
+[data-theme="light"] .initials-avatar.large,
+[data-theme="light"] .initials-avatar {
+  color: #FFFFFF !important;
+  background: var(--accent-orange) !important;
+}
+
+[data-theme="light"] .stat-icon-container i {
+  color: #FFFFFF !important;
+}
+
+/* === GARANTIR QUE NÃO HÁ TEXTOS BRANCOS/CINZAS === */
+/* Removido regra genérica que causava problemas */
+
+[data-theme="light"] body,
+[data-theme="light"] .content-wrapper {
+  background: #F5F7FA !important;
+  color: #1A202C !important;
+}
+

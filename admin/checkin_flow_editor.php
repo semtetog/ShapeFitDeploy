@@ -1,5 +1,5 @@
 <?php
-// admin/checkin_flow_editor.php - Editor Visual de Fluxo de Check-in
+// admin/checkin_flow_editor.php - Editor Simples de Fluxo de Check-in
 
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/includes/auth_admin.php';
@@ -32,917 +32,264 @@ if (!$checkin) {
     exit;
 }
 
-// Buscar perguntas
-$questions_query = "SELECT * FROM sf_checkin_questions WHERE config_id = ? ORDER BY order_index ASC";
-$stmt_questions = $conn->prepare($questions_query);
-$stmt_questions->bind_param("i", $checkin_id);
-$stmt_questions->execute();
-$questions_result = $stmt_questions->get_result();
-$questions = [];
-while ($q = $questions_result->fetch_assoc()) {
-    $q['options'] = !empty($q['options']) ? json_decode($q['options'], true) : null;
-    $questions[] = $q;
+// Buscar blocos/perguntas existentes
+$blocks_query = "SELECT * FROM sf_checkin_questions WHERE config_id = ? ORDER BY order_index ASC";
+$stmt_blocks = $conn->prepare($blocks_query);
+$stmt_blocks->bind_param("i", $checkin_id);
+$stmt_blocks->execute();
+$blocks_result = $stmt_blocks->get_result();
+$blocks = [];
+while ($b = $blocks_result->fetch_assoc()) {
+    $b['options'] = !empty($b['options']) ? json_decode($b['options'], true) : null;
+    $blocks[] = $b;
 }
-$stmt_questions->close();
-
-// Buscar fluxo salvo (se existir) - formato Typebot
-$typebot_flow = null;
-if (!empty($checkin['flow_data'])) {
-    $typebot_flow = json_decode($checkin['flow_data'], true);
-}
-
-// Se não houver fluxo salvo, carregar do JSON do Typebot
-if (!$typebot_flow && file_exists(__DIR__ . '/../json.json')) {
-    $typebot_json_content = file_get_contents(__DIR__ . '/../json.json');
-    $typebot_data = json_decode($typebot_json_content, true);
-    if ($typebot_data && isset($typebot_data['result']['data']['json']['typebot'])) {
-        $typebot_flow = $typebot_data['result']['data']['json']['typebot'];
-    }
-}
-
-// Preparar JSON para JavaScript de forma segura
-$typebot_flow_json = 'null';
-if ($typebot_flow) {
-    $typebot_flow_json = json_encode($typebot_flow, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
-}
-$questions_json = json_encode($questions, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+$stmt_blocks->close();
 
 require_once __DIR__ . '/includes/header.php';
 ?>
 
 <style>
-.flow-editor-page {
-    padding: 1.5rem 2rem;
-    min-height: 100vh;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
+.checkin-flow-editor {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.flow-editor-header {
+.editor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
-    padding-bottom: 1rem;
+    padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--glass-border);
 }
 
-.flow-editor-header h2 {
+.editor-header h1 {
     margin: 0;
     font-size: 1.75rem;
     color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-.flow-editor-toolbar {
+.editor-header h1 i {
+    color: var(--accent-orange);
+}
+
+.header-actions {
     display: flex;
     gap: 1rem;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
 }
 
-.toolbar-section {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.toolbar-divider {
-    width: 1px;
-    height: 32px;
-    background: var(--glass-border);
-    margin: 0 0.5rem;
-}
-
-.btn-toolbar {
-    padding: 0.625rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
     border-radius: 8px;
-    color: var(--text-primary);
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    text-decoration: none;
 }
 
-.btn-toolbar:hover {
-    background: rgba(255, 107, 0, 0.1);
-    border-color: var(--accent-orange);
-    color: var(--accent-orange);
-}
-
-.btn-toolbar.primary {
+.btn-primary {
     background: var(--accent-orange);
-    border-color: var(--accent-orange);
     color: white;
 }
 
-.btn-toolbar.primary:hover {
+.btn-primary:hover {
     background: #e55a00;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
 }
 
-.flow-canvas-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: 
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 20px 20px;
-    background-color: rgba(20, 20, 20, 0.5);
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
 }
 
-.flow-canvas-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-color: #1a1a1a;
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-orange);
 }
 
-.flow-canvas-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-color: #1a1a1a;
-    overflow: hidden;
-    /* grid leve e infinito no fundo do wrapper */
-    background-image:
-        linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
-    background-size: 20px 20px;
-    background-position: 0 0; /* será atualizado via JS */
+.btn-danger {
+    background: #dc3545;
+    color: white;
 }
 
-/* Viewport único que recebe transform (zoom + pan) */
-.flow-viewport {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    transform-origin: top left;
-    cursor: grab;
+.btn-danger:hover {
+    background: #c82333;
 }
 
-.flow-viewport.panning {
-    cursor: grabbing !important;
+.blocks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-/* Canvas onde ficam os nodes */
-.flow-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    cursor: inherit;
-    background: none;
-}
-
-/* SVG onde ficam as linhas */
-.flow-connections-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-    overflow: visible;
-}
-
-.flow-canvas.dragging {
-    cursor: grabbing;
-}
-
-.flow-canvas.panning {
-    cursor: grabbing !important;
-}
-
-/* Grupo Typebot - Card branco grande */
-.typebot-group {
-    position: absolute;
-    min-width: 320px;
-    max-width: 400px;
-    width: auto;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+.block-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
     border-radius: 12px;
-    padding: 0;
-    cursor: move;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    user-select: none;
-    box-sizing: border-box;
-    flex-shrink: 0;
-    overflow: hidden;
-}
-
-.typebot-group:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.typebot-group.selected {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.typebot-group-header {
-    background: #f9fafb;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: #111827;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.typebot-group-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.typebot-group-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.typebot-group-content {
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-/* Bloco dentro do grupo */
-.typebot-block {
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
     position: relative;
-    width: 100%;
 }
 
-.typebot-block-content {
-    padding: 0.75rem;
-    background: #f9fafb;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    font-size: 0.875rem;
-    color: #374151;
-    line-height: 1.5;
+.block-item:hover {
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.typebot-block-content.text-bubble {
-    background: #f3f4f6;
-    border-left: 3px solid #9ca3af;
-    padding-left: 0.875rem;
+.block-item.editing {
+    border-color: var(--accent-orange);
+    background: rgba(255, 107, 0, 0.05);
 }
 
-.typebot-block-content.input-field {
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    padding: 0.625rem 0.75rem;
-    border-radius: 6px;
-    color: #6b7280;
-    font-style: italic;
-}
-
-.typebot-block-content.choice-input {
+.block-header {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.block-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--accent-orange);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.block-actions {
+    display: flex;
     gap: 0.5rem;
 }
 
-.typebot-choice-item {
-    padding: 0.5rem 0.75rem;
-    background: #ffffff;
-    border: 1px solid #d1d5db;
+.block-actions button {
+    padding: 0.5rem;
+    background: transparent;
+    border: 1px solid var(--glass-border);
     border-radius: 6px;
-    font-size: 0.875rem;
-    color: #374151;
-}
-
-/* Conectores do grupo (não dos blocos individuais) */
-.typebot-group-connector {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #3b82f6;
-    border: 3px solid #ffffff;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
-    z-index: 10;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.typebot-group-connector:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
-}
-
-.typebot-group-connector.input {
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.typebot-group-connector.output {
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.flow-node {
-    position: absolute;
-    min-width: 200px;
-    max-width: 300px;
-    width: auto;
-    background: rgba(255, 255, 255, 0.08);
-    border: 2px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 1rem;
-    cursor: move;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-    user-select: none;
-    box-sizing: border-box;
-    flex-shrink: 0;
-}
-
-.flow-node:hover {
+.block-actions button:hover {
     border-color: var(--accent-orange);
-    box-shadow: 0 6px 24px rgba(255, 107, 0, 0.3);
+    color: var(--accent-orange);
+    background: rgba(255, 107, 0, 0.1);
+}
+
+.block-content {
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.block-content.preview {
+    white-space: pre-wrap;
+}
+
+.block-options {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.block-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.option-item {
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.add-block-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px dashed var(--glass-border);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.add-block-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.add-block-btn {
+    padding: 0.875rem 1.5rem;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid var(--accent-orange);
+    border-radius: 8px;
+    color: var(--accent-orange);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.add-block-btn:hover {
+    background: var(--accent-orange);
+    color: white;
     transform: translateY(-2px);
 }
 
-.flow-node.selected {
-    border-color: var(--accent-orange);
-    box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.2);
+/* Formulário de edição */
+.block-edit-form {
+    display: none;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
 }
 
-.flow-node-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--glass-border);
+.block-item.editing .block-edit-form {
+    display: block;
 }
 
-.flow-node-type {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 700;
-    font-size: 0.875rem;
-    color: var(--accent-orange);
-    text-transform: uppercase;
-}
-
-.flow-node-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-node-action {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    font-size: 0.75rem;
-}
-
-.btn-node-action:hover {
-    background: rgba(255, 107, 0, 0.2);
-    color: var(--accent-orange);
-}
-
-.flow-node-content {
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    line-height: 1.5;
-    word-wrap: break-word;
-    min-width: 0;
-    flex-shrink: 0;
-    white-space: normal;
-    overflow-wrap: break-word;
-}
-
-.flow-node-connector {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--accent-orange);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    z-index: 10;
-}
-
-.flow-node-connector:hover {
-    transform: scale(1.3);
-    box-shadow: 0 0 8px rgba(255, 107, 0, 0.6);
-}
-
-.flow-node-connector.input {
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.flow-node-connector.output {
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.flow-connection {
-    position: absolute;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.flow-connection-line {
-    stroke: var(--accent-orange);
-    stroke-width: 3;
-    fill: none;
-    opacity: 0.8;
-    transition: stroke-width 0.2s ease, opacity 0.2s ease;
-}
-
-.flow-connection-line:hover {
-    stroke-width: 4;
-    opacity: 1;
-}
-
-.flow-connection-line.conditional {
-    stroke-dasharray: 8,4;
-    opacity: 0.6;
-}
-
-.flow-connection-line.connecting {
-    stroke-dasharray: 8,4;
-    opacity: 0.6;
-    animation: pulse-connection 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse-connection {
-    0%, 100% {
-        opacity: 0.6;
-    }
-    50% {
-        opacity: 0.9;
-    }
-}
-
-/* Layout principal - 3 colunas */
-.flow-editor-layout {
-    display: grid;
-    grid-template-columns: 280px 1fr 320px;
-    gap: 1rem;
-    height: calc(100vh - 200px);
-    min-height: 600px;
-}
-
-/* Sidebar esquerda - Biblioteca de blocos */
-.flow-blocks-sidebar {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 1rem;
-    overflow-y: auto;
-    height: 100%;
-}
-
-.flow-blocks-sidebar h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1rem;
-    color: var(--text-primary);
-    font-weight: 700;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--glass-border);
-}
-
-.blocks-category {
-    margin-bottom: 1.5rem;
-}
-
-.blocks-category-title {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-}
-
-/* Canvas central */
-.flow-canvas-wrapper {
-    position: relative;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    overflow: hidden;
-    height: 100%;
-}
-
-/* Sidebar direita - Propriedades */
-.flow-properties-sidebar {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 1rem;
-    overflow-y: auto;
-    height: 100%;
-}
-
-.flow-properties-sidebar h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1rem;
-    color: var(--text-primary);
-    font-weight: 700;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--glass-border);
-}
-
-.properties-empty {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-}
-
-.node-palette {
-    display: none; /* Substituído pela sidebar */
-}
-
-.node-palette h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1rem;
-    color: var(--text-primary);
-    font-weight: 700;
-}
-
-.palette-item {
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-    cursor: grab;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--text-primary);
-}
-
-.palette-item:hover {
-    background: rgba(255, 107, 0, 0.1);
-    border-color: var(--accent-orange);
-    transform: translateX(4px);
-}
-
-.palette-item:active {
-    cursor: grabbing;
-}
-
-.palette-item i {
-    color: var(--accent-orange);
-    width: 20px;
-    text-align: center;
-}
-
-.zoom-controls {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    z-index: 50;
-}
-
-.btn-zoom {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: rgba(20, 20, 20, 0.9);
-    border: 1px solid var(--glass-border);
-    color: var(--text-primary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.btn-zoom:hover {
-    background: rgba(255, 107, 0, 0.2);
-    border-color: var(--accent-orange);
-    color: var(--accent-orange);
-}
-</style>
-
-<div class="flow-editor-page">
-    <div class="flow-editor-header">
-        <div>
-            <h2><i class="fas fa-project-diagram"></i> Editor de Fluxo - <?php echo htmlspecialchars($checkin['name']); ?></h2>
-            <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">
-                Arraste blocos para criar o fluxo de conversa do check-in
-            </p>
-        </div>
-        <div style="display: flex; gap: 1rem; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span style="padding: 0.5rem 1rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: var(--accent-orange);">
-                    <?php 
-                    $status = $checkin['status'] ?? 'draft';
-                    echo $status === 'published' ? 'Publicado' : 'Rascunho'; 
-                    ?>
-                </span>
-            </div>
-            <button class="btn-toolbar" onclick="openPreview()" title="Preview do Chat">
-                <i class="fas fa-eye"></i> Preview
-            </button>
-            <button class="btn-toolbar" onclick="publishFlow()" title="Publicar Fluxo">
-                <i class="fas fa-rocket"></i> Publicar
-            </button>
-            <button class="btn-toolbar primary" onclick="saveFlow()">
-                <i class="fas fa-save"></i> Salvar
-            </button>
-            <button class="btn-toolbar" onclick="window.location.href='checkin.php'">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </button>
-        </div>
-    </div>
-
-    <div class="flow-editor-toolbar">
-        <div class="toolbar-section">
-            <button class="btn-toolbar" onclick="addNode('bot_message', null, null, {}, 'text')" title="Adicionar Mensagem de Texto">
-                <i class="fas fa-comment"></i> Texto
-            </button>
-            <button class="btn-toolbar" onclick="addNode('question', null, null, {}, 'text')" title="Adicionar Pergunta">
-                <i class="fas fa-question"></i> Pergunta
-            </button>
-        </div>
-        <div class="toolbar-divider"></div>
-        <div class="toolbar-section">
-            <button class="btn-toolbar" onclick="clearCanvas()" title="Limpar Canvas">
-                <i class="fas fa-trash"></i> Limpar
-            </button>
-            <button class="btn-toolbar" onclick="resetFlow()" title="Resetar para Padrão">
-                <i class="fas fa-redo"></i> Resetar
-            </button>
-        </div>
-        <div class="toolbar-divider"></div>
-        <div class="toolbar-section">
-            <button class="btn-toolbar" onclick="zoomIn()" title="Zoom In">
-                <i class="fas fa-search-plus"></i>
-            </button>
-            <button class="btn-toolbar" onclick="zoomOut()" title="Zoom Out">
-                <i class="fas fa-search-minus"></i>
-            </button>
-            <button class="btn-toolbar" onclick="resetZoom()" title="Resetar Zoom">
-                <i class="fas fa-expand-arrows-alt"></i>
-            </button>
-        </div>
-    </div>
-
-    <div class="flow-editor-layout">
-        <!-- Sidebar Esquerda - Biblioteca de Blocos -->
-        <div class="flow-blocks-sidebar">
-            <h3><i class="fas fa-cubes"></i> Blocos</h3>
-            
-            <div class="blocks-category">
-                <div class="blocks-category-title">Mensagens</div>
-                <div class="palette-item" draggable="true" data-type="bot_message" data-subtype="text">
-                    <i class="fas fa-comment"></i>
-                    <span>Mensagem do Bot</span>
-                </div>
-            </div>
-            
-            <div class="blocks-category">
-                <div class="blocks-category-title">Perguntas</div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="text">
-                    <i class="fas fa-keyboard"></i>
-                    <span>Texto</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="textarea">
-                    <i class="fas fa-align-left"></i>
-                    <span>Texto Longo</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="multiple_choice">
-                    <i class="fas fa-list"></i>
-                    <span>Múltipla Escolha</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="checkbox">
-                    <i class="fas fa-check-square"></i>
-                    <span>Checkbox</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="number">
-                    <i class="fas fa-hashtag"></i>
-                    <span>Número</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="email">
-                    <i class="fas fa-envelope"></i>
-                    <span>Email</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="phone">
-                    <i class="fas fa-phone"></i>
-                    <span>Telefone</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="date">
-                    <i class="fas fa-calendar"></i>
-                    <span>Data</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="time">
-                    <i class="fas fa-clock"></i>
-                    <span>Hora</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="rating">
-                    <i class="fas fa-star"></i>
-                    <span>Avaliação</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="slider">
-                    <i class="fas fa-sliders-h"></i>
-                    <span>Slider</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="yesno">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Sim/Não</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="question" data-subtype="chips">
-                    <i class="fas fa-tags"></i>
-                    <span>Chips</span>
-                </div>
-            </div>
-            
-            <div class="blocks-category">
-                <div class="blocks-category-title">Ações</div>
-                <div class="palette-item" draggable="true" data-type="action" data-subtype="end">
-                    <i class="fas fa-stop-circle"></i>
-                    <span>Finalizar</span>
-                </div>
-                <div class="palette-item" draggable="true" data-type="action" data-subtype="jump">
-                    <i class="fas fa-forward"></i>
-                    <span>Pular para</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Canvas Central -->
-        <div class="flow-canvas-wrapper">
-            <!-- Viewport único que recebe transform (zoom + pan) -->
-            <div id="viewport" class="flow-viewport">
-                <!-- Canvas onde ficam os nodes -->
-                <div id="flowCanvas" class="flow-canvas"></div>
-                <!-- SVG onde ficam as linhas de conexão -->
-                <svg id="connectionsLayer" class="flow-connections-layer">
-                    <!-- Conexões sem setinhas - linhas conectam diretamente nos cards -->
-                </svg>
-            </div>
-            <div class="zoom-controls">
-                <button class="btn-zoom" onclick="zoomIn()" title="Zoom In">
-                    <i class="fas fa-plus"></i>
-                </button>
-                <button class="btn-zoom" onclick="zoomOut()" title="Zoom Out">
-                    <i class="fas fa-minus"></i>
-                </button>
-                <button class="btn-zoom" onclick="resetZoom()" title="Resetar Zoom">
-                    <i class="fas fa-expand"></i>
-                </button>
-            </div>
-        </div>
-        
-        <!-- Sidebar Direita - Propriedades -->
-        <div class="flow-properties-sidebar">
-            <h3><i class="fas fa-cog"></i> Propriedades</h3>
-            <div id="propertiesContent" class="properties-empty">
-                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p>Selecione um bloco para editar suas propriedades</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Preview/Chat Simulado -->
-<div id="previewModal" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 500px; height: 90vh; max-height: 90vh;">
-        <div class="modal-header">
-            <h3><i class="fas fa-comments"></i> Preview - Chat Simulado</h3>
-            <button class="close" onclick="closePreview()" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">&times;</button>
-        </div>
-        <div class="modal-body" style="padding: 0; height: calc(100% - 60px); display: flex; flex-direction: column; overflow: hidden;">
-            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 1rem; background: #0b141a; -webkit-overflow-scrolling: touch;">
-                <!-- Mensagens do chat aparecerão aqui -->
-            </div>
-            <div id="chatInputContainer" style="padding: 1rem; background: #202c33; border-top: 1px solid var(--glass-border); flex-shrink: 0;">
-                <!-- Inputs dinâmicos aparecerão aqui -->
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-/* Estilos do modal de preview */
-#previewModal.active {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-}
-
-#previewModal .modal-content {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Estilos responsivos para mobile */
-@media (max-width: 768px) {
-    #previewModal .modal-content {
-        max-width: 100%;
-        height: 100vh;
-        max-height: 100vh;
-        border-radius: 0;
-    }
-    
-    .flow-editor-layout {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr auto;
-    }
-    
-    .flow-blocks-sidebar {
-        display: none;
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 280px;
-        height: 100vh;
-        z-index: 1000;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-    }
-    
-    .flow-blocks-sidebar.open {
-        display: block;
-        transform: translateX(0);
-    }
-    
-    .flow-properties-sidebar {
-        display: none;
-        position: fixed;
-        right: 0;
-        top: 0;
-        width: 320px;
-        height: 100vh;
-        z-index: 1000;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-    }
-    
-    .flow-properties-sidebar.open {
-        display: block;
-        transform: translateX(0);
-    }
-}
-
-/* Estilos para formulários */
 .form-group {
     margin-bottom: 1rem;
 }
 
 .form-group label {
     display: block;
+    margin-bottom: 0.5rem;
     color: var(--text-primary);
     font-weight: 600;
-    margin-bottom: 0.5rem;
     font-size: 0.875rem;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+.form-control {
     width: 100%;
     padding: 0.75rem;
     background: rgba(255, 255, 255, 0.05);
@@ -951,2494 +298,590 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--text-primary);
     font-size: 0.875rem;
     font-family: inherit;
-    box-sizing: border-box;
+    transition: all 0.3s ease;
 }
 
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
+.form-control:focus {
     outline: none;
     border-color: var(--accent-orange);
     background: rgba(255, 255, 255, 0.08);
 }
 
-.form-group small {
-    display: block;
-    margin-top: 0.25rem;
-    color: var(--text-secondary);
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.options-editor {
+    margin-top: 1rem;
+}
+
+.option-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+
+.option-input-group input {
+    flex: 1;
+}
+
+.option-input-group button {
+    padding: 0.5rem 1rem;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
     font-size: 0.75rem;
 }
 
-.form-group input[type="checkbox"] {
-    width: auto;
+.option-input-group button:hover {
+    background: #c82333;
+}
+
+.add-option-btn {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid var(--accent-orange);
+    border-radius: 6px;
+    color: var(--accent-orange);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.add-option-btn:hover {
+    background: var(--accent-orange);
+    color: white;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.drag-handle {
+    cursor: move;
+    color: var(--text-secondary);
     margin-right: 0.5rem;
+}
+
+.drag-handle:hover {
+    color: var(--accent-orange);
+}
+
+.block-item.dragging {
+    opacity: 0.5;
+}
+
+.block-item.drag-over {
+    border-top: 3px solid var(--accent-orange);
 }
 </style>
 
-<script>
-// Estado do editor
-let nodes = [];
-let connections = [];
-let selectedNode = null;
-let isDragging = false;
-let isPanning = false;
-let dragOffset = { x: 0, y: 0 };
-let panStart = { x: 0, y: 0 };
-let canvasOffset = { x: 0, y: 0 };
-let isConnecting = false;
-let connectionStart = null;
-let zoomLevel = 1;
-let nodeIdCounter = 0;
-let currentDraggingNode = null;
-let rafId = null;
-
-// Inicializar canvas - aguardar DOM
-let canvas, connectionsLayer, viewport, canvasWrapper;
-
-function initCanvas() {
-    canvas = document.getElementById('flowCanvas');
-    connectionsLayer = document.getElementById('connectionsLayer');
-    viewport = document.getElementById('viewport');
-    canvasWrapper = document.querySelector('.flow-canvas-wrapper');
-    
-    if (!canvas || !connectionsLayer || !viewport || !canvasWrapper) {
-        console.error('Elementos do canvas não encontrados!');
-        return false;
-    }
-    
-    // SVG ocupa toda a área visível do wrapper
-    const w = canvasWrapper.clientWidth;
-    const h = canvasWrapper.clientHeight;
-    connectionsLayer.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    connectionsLayer.style.width = '100%';
-    connectionsLayer.style.height = '100%';
-    
-    return true;
-}
-
-// Configurar eventos do canvas após inicialização
-function setupCanvasEvents() {
-    if (!viewport || !canvas) return;
-    
-    // Pan do viewport (arrastar o canvas inteiro quando clicar no fundo)
-    viewport.addEventListener('mousedown', (e) => {
-        // Se clicou em um nó, conector ou botão, não fazer pan
-        if (e.target.closest('.flow-node') || 
-            e.target.closest('.flow-node-connector') || 
-            e.target.closest('.btn-node-action') ||
-            e.target.closest('button')) {
-            return;
-        }
-        
-        // Se clicou diretamente no viewport/canvas (fundo vazio), fazer pan
-        if (e.target === viewport || e.target === canvas || e.target === connectionsLayer) {
-            // Se clicou em uma conexão (path), não fazer pan
-            if (e.target.tagName === 'path' && e.target.classList.contains('flow-connection-line')) {
-                return;
-            }
-            
-            isPanning = true;
-            panStart.x = e.clientX - canvasOffset.x;
-            panStart.y = e.clientY - canvasOffset.y;
-            viewport.style.cursor = 'grabbing';
-            viewport.classList.add('panning');
-            e.preventDefault();
-        }
-    });
-
-    // Mousemove no document para capturar mesmo quando sair do viewport
-    document.addEventListener('mousemove', (e) => {
-        if (isPanning) {
-            canvasOffset.x = e.clientX - panStart.x;
-            canvasOffset.y = e.clientY - panStart.y;
-            
-            // Aplicar transformação no viewport (único elemento que recebe transform)
-            applyViewportTransform();
-        }
-    });
-
-    // Mouseup no document para garantir que pare o pan mesmo se soltar fora do viewport
-    document.addEventListener('mouseup', () => {
-        if (isPanning) {
-            isPanning = false;
-            viewport.style.cursor = 'grab';
-            viewport.classList.remove('panning');
-        }
-    });
-
-    viewport.addEventListener('mouseleave', () => {
-        // Não parar o pan ao sair do viewport, apenas mudar cursor se não estiver panning
-        if (!isPanning) {
-            viewport.style.cursor = 'grab';
-        }
-    });
-    
-    // Mudar cursor quando entrar no viewport
-    viewport.addEventListener('mouseenter', () => {
-        if (!isPanning && !isDragging) {
-            viewport.style.cursor = 'grab';
-        }
-    });
-
-    // Prevenir menu de contexto no viewport (opcional - pode remover se quiser o menu)
-    viewport.addEventListener('contextmenu', (e) => {
-        // Permitir menu de contexto apenas se não estiver em um nó
-        if (!e.target.closest('.flow-node')) {
-            e.preventDefault();
-        }
-    });
-
-    // Atualizar cursor inicial
-    viewport.style.cursor = 'grab';
-    
-    // Drag & Drop no viewport
-    viewport.addEventListener('dragover', (e) => {
-        e.preventDefault();
-    });
-
-    viewport.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const nodeType = e.dataTransfer.getData('nodeType');
-        const nodeSubtype = e.dataTransfer.getData('nodeSubtype');
-        if (!nodeType) return;
-        
-        // Calcular posição lógica (sem zoom/pan) baseada no mouse
-        const viewportRect = viewport.getBoundingClientRect();
-        const mouseX = e.clientX - viewportRect.left;
-        const mouseY = e.clientY - viewportRect.top;
-        
-        // Converter para coordenadas lógicas (remover zoom e pan)
-        const logicalX = (mouseX - canvasOffset.x) / zoomLevel;
-        const logicalY = (mouseY - canvasOffset.y) / zoomLevel;
-        
-        addNode(nodeType, logicalX, logicalY, {}, nodeSubtype);
-    });
-    
-    // Zoom com scroll (Ctrl+scroll ou só scroll)
-    if (canvasWrapper) {
-        canvasWrapper.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const delta = Math.sign(e.deltaY);
-            const prev = zoomLevel;
-            zoomLevel = Math.min(2, Math.max(0.5, zoomLevel + (delta > 0 ? -0.1 : 0.1)));
-            
-            // zoom focal no mouse (ajusta pan para "ancorar" o ponto)
-            const rect = canvasWrapper.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
-            canvasOffset.x = mx - (mx - canvasOffset.x) * (zoomLevel / prev);
-            canvasOffset.y = my - (my - canvasOffset.y) * (zoomLevel / prev);
-            applyViewportTransform();
-        }, { passive: false });
-        
-        // Pan com botão do meio
-        canvasWrapper.addEventListener('mousedown', (e) => {
-            if (e.button !== 1) return;
-            isPanning = true;
-            panStart.x = e.clientX - canvasOffset.x;
-            panStart.y = e.clientY - canvasOffset.y;
-            viewport.classList.add('panning');
-            e.preventDefault();
-        });
-    }
-}
-
-// Aplicar transform no viewport (único elemento que recebe transform)
-function applyViewportTransform() {
-    if (!viewport) return;
-    
-    // Aplicar transform no viewport (zoom + pan)
-    viewport.style.transform = `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${zoomLevel})`;
-    
-    // Mover o grid do wrapper para parecer infinito
-    if (canvasWrapper) {
-        const gx = ((canvasOffset.x % 20) + 20) % 20;
-        const gy = ((canvasOffset.y % 20) + 20) % 20;
-        canvasWrapper.style.backgroundPosition = `${gx}px ${gy}px`;
-    }
-    
-    // Atualizar conexões usando requestAnimationFrame
-    updateConnections();
-}
-
-// Carregar fluxo existente ou criar padrão - formato Typebot
-function loadFlow() {
-    const typebotFlow = <?php echo $typebot_flow_json; ?>;
-    const questions = <?php echo $questions_json; ?>;
-    
-    if (typebotFlow && typebotFlow.groups && typebotFlow.groups.length > 0) {
-        // Carregar fluxo Typebot diretamente
-        window.typebotFlow = typebotFlow; // Armazenar globalmente
-        
-        // Renderizar grupos e blocos
-        typebotFlow.groups.forEach(group => {
-            renderTypebotGroup(group);
-        });
-        
-        // Renderizar conexões (edges)
-        if (typebotFlow.edges) {
-            window.typebotEdges = typebotFlow.edges;
-        }
-        
-        // Renderizar variáveis
-        if (typebotFlow.variables) {
-            window.typebotVariables = typebotFlow.variables;
-        }
-        
-        // Renderizar eventos (start)
-        if (typebotFlow.events) {
-            window.typebotEvents = typebotFlow.events;
-        }
-    } else {
-        // Criar fluxo padrão baseado nas perguntas (formato antigo para compatibilidade)
-        if (questions && questions.length > 0) {
-            let y = 100;
-            questions.forEach((q, index) => {
-                addNode('question', 200, y + (index * 150), {
-                    prompt: q.question_text,
-                    variable_name: `question_${q.id}`,
-                    question_type: q.question_type,
-                    options: q.options
-                }, q.question_type === 'multiple_choice' ? 'multiple_choice' : 'text');
-            });
-        } else {
-            // Fluxo padrão vazio
-            addNode('bot_message', 200, 100, { prompt: 'Bem-vindo ao check-in!' }, 'text');
-        }
-    }
-    
-    updateConnections();
-}
-
-// Renderizar grupo do Typebot - Card branco grande com título
-function renderTypebotGroup(group) {
-    const groupCoords = group.graphCoordinates || { x: 0, y: 0 };
-    const groupTitle = group.title || 'Grupo';
-    
-    // Criar container do grupo
-    const groupEl = document.createElement('div');
-    groupEl.className = 'typebot-group';
-    groupEl.id = `group_${group.id}`;
-    groupEl.style.left = (groupCoords.x || 0) + 'px';
-    groupEl.style.top = (groupCoords.y || 0) + 'px';
-    groupEl.dataset.groupId = group.id;
-    
-    // Calcular altura do grupo baseado nos blocos
-    const blocksCount = group.blocks ? group.blocks.length : 0;
-    const estimatedHeight = Math.max(200, blocksCount * 100 + 100); // Header + blocos + padding
-    
-    groupEl.style.width = '360px';
-    groupEl.style.minHeight = estimatedHeight + 'px';
-    
-    // Header do grupo
-    const headerEl = document.createElement('div');
-    headerEl.className = 'typebot-group-header';
-    headerEl.innerHTML = `
-        <div class="typebot-group-title">
-            <span>${groupTitle}</span>
-        </div>
-        <div class="typebot-group-actions">
-            <button class="btn-node-action" onclick="editTypebotGroup('${group.id}')" title="Editar">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-node-action" onclick="deleteTypebotGroup('${group.id}')" title="Excluir">
-                <i class="fas fa-trash"></i>
+<div class="checkin-flow-editor">
+    <div class="editor-header">
+        <h1>
+            <i class="fas fa-clipboard-check"></i>
+            Editor de Fluxo: <?php echo htmlspecialchars($checkin['name']); ?>
+        </h1>
+        <div class="header-actions">
+            <a href="checkin.php" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <button onclick="saveFlow()" class="btn btn-primary">
+                <i class="fas fa-save"></i> Salvar Fluxo
             </button>
         </div>
-    `;
-    
-    // Conteúdo do grupo (blocos)
-    const contentEl = document.createElement('div');
-    contentEl.className = 'typebot-group-content';
-    
-    // Renderizar cada bloco dentro do grupo
-    if (group.blocks && Array.isArray(group.blocks)) {
-        group.blocks.forEach((block, index) => {
-            const blockEl = renderTypebotBlockInGroup(block, group);
-            contentEl.appendChild(blockEl);
-        });
-    }
-    
-    // Montar estrutura
-    groupEl.appendChild(headerEl);
-    groupEl.appendChild(contentEl);
-    
-    // Conectores do grupo (não dos blocos individuais)
-    const inputConnector = document.createElement('div');
-    inputConnector.className = 'typebot-group-connector input';
-    inputConnector.dataset.connector = 'input';
-    inputConnector.dataset.group = group.id;
-    
-    const outputConnector = document.createElement('div');
-    outputConnector.className = 'typebot-group-connector output';
-    outputConnector.dataset.connector = 'output';
-    outputConnector.dataset.group = group.id;
-    
-    groupEl.appendChild(inputConnector);
-    groupEl.appendChild(outputConnector);
-    
-    if (canvas) {
-        canvas.appendChild(groupEl);
-    }
-    
-    // Event listeners para arrastar o grupo inteiro
-    headerEl.addEventListener('mousedown', (e) => {
-        if (e.target.closest('.btn-node-action')) return;
-        e.stopPropagation();
-        startDragTypebotGroup(e, group.id);
-    });
-    
-    groupEl.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-node-action')) return;
-        if (e.target.closest('.typebot-group-connector')) return;
-        e.stopPropagation();
-        selectTypebotGroup(group.id);
-    });
-    
-    const connectors = groupEl.querySelectorAll('.typebot-group-connector');
-    connectors.forEach(connector => {
-        connector.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
-            startConnection(e, `group_${group.id}`, connector.dataset.connector);
-        });
-    });
-    
-    // Armazenar referência
-    if (!window.typebotGroups) window.typebotGroups = {};
-    window.typebotGroups[group.id] = group;
-}
+    </div>
 
-// Renderizar bloco dentro do grupo (não como card separado)
-function renderTypebotBlockInGroup(block, group) {
-    const blockEl = document.createElement('div');
-    blockEl.className = 'typebot-block';
-    blockEl.id = block.id;
-    blockEl.dataset.blockId = block.id;
-    blockEl.dataset.groupId = group.id;
-    blockEl.dataset.blockType = block.type;
-    
-    const contentEl = document.createElement('div');
-    contentEl.className = 'typebot-block-content';
-    
-    // Extrair e renderizar conteúdo baseado no tipo
-    if (block.type === 'text') {
-        contentEl.classList.add('text-bubble');
-        if (block.content && block.content.richText) {
-            const text = extractTextFromRichText(block.content.richText);
-            // Destacar variáveis {{Nome}} em roxo
-            contentEl.innerHTML = text.replace(/\{\{(\w+)\}\}/g, '<span style="color: #9333ea; font-weight: 600;">{{$1}}</span>');
-        } else {
-            contentEl.textContent = block.content?.plainText || 'Mensagem de texto';
-        }
-    } else if (block.type === 'text input') {
-        contentEl.classList.add('input-field');
-        const placeholder = block.content?.options?.labels?.placeholder || 'Escreva sua resposta';
-        const variableName = block.content?.options?.variableId ? 
-            (window.typebotVariables?.find(v => v.id === block.content.options.variableId)?.name || '') : '';
-        contentEl.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-keyboard" style="color: #6b7280;"></i>
-                <span>${placeholder}</span>
+    <div class="blocks-container" id="blocksContainer">
+        <?php if (empty($blocks)): ?>
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>Nenhum bloco criado ainda. Adicione o primeiro bloco abaixo!</p>
             </div>
-            ${variableName ? `<div style="margin-top: 0.25rem; font-size: 0.75rem; color: #9333ea; font-weight: 600;">Definir ${variableName}</div>` : ''}
-        `;
-    } else if (block.type === 'choice input') {
-        contentEl.classList.add('choice-input');
-        if (block.content && block.content.richText) {
-            const questionText = extractTextFromRichText(block.content.richText);
-            contentEl.innerHTML = `<div style="margin-bottom: 0.5rem; color: #374151; font-weight: 500;">${questionText.replace(/\{\{(\w+)\}\}/g, '<span style="color: #9333ea; font-weight: 600;">{{$1}}</span>')}</div>`;
-        }
-        if (block.items && Array.isArray(block.items)) {
-            block.items.forEach(item => {
-                const itemEl = document.createElement('div');
-                itemEl.className = 'typebot-choice-item';
-                itemEl.textContent = item.content || '';
-                contentEl.appendChild(itemEl);
-            });
-        }
-    }
-    
-    blockEl.appendChild(contentEl);
-    
-    // Armazenar referência
-    if (!window.typebotBlocks) window.typebotBlocks = {};
-    window.typebotBlocks[block.id] = block;
-    
-    return blockEl;
-}
-
-// Selecionar grupo Typebot
-function selectTypebotGroup(groupId) {
-    document.querySelectorAll('.typebot-group').forEach(g => g.classList.remove('selected'));
-    const groupEl = document.getElementById(`group_${groupId}`);
-    if (groupEl) {
-        groupEl.classList.add('selected');
-        selectedNode = `group_${groupId}`;
-        renderTypebotGroupPropertiesPanel(groupId);
-    }
-}
-
-// Selecionar bloco Typebot
-function selectTypebotBlock(blockId) {
-    document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('selected'));
-    const blockEl = document.getElementById(blockId);
-    if (blockEl) {
-        blockEl.classList.add('selected');
-        selectedNode = blockId;
-        renderTypebotPropertiesPanel(blockId);
-    }
-}
-
-// Arrastar grupo Typebot
-function startDragTypebotGroup(e, groupId) {
-    const groupEl = document.getElementById(`group_${groupId}`);
-    if (!groupEl) return;
-    
-    isDragging = true;
-    currentDraggingNode = `group_${groupId}`;
-    
-    const rect = groupEl.getBoundingClientRect();
-    dragOffset.x = e.clientX - rect.left;
-    dragOffset.y = e.clientY - rect.top;
-    
-    groupEl.style.zIndex = '1000';
-    
-    document.addEventListener('mousemove', dragTypebotGroup);
-    document.addEventListener('mouseup', stopDragTypebotGroup);
-    
-    e.preventDefault();
-}
-
-function dragTypebotGroup(e) {
-    if (!isDragging || !currentDraggingNode || !currentDraggingNode.startsWith('group_')) return;
-    
-    const groupEl = document.getElementById(currentDraggingNode);
-    if (!groupEl) return;
-    
-    const canvasRect = canvas.getBoundingClientRect();
-    const newX = (e.clientX - canvasRect.left - dragOffset.x) / zoomLevel - canvasOffset.x / zoomLevel;
-    const newY = (e.clientY - canvasRect.top - dragOffset.y) / zoomLevel - canvasOffset.y / zoomLevel;
-    
-    groupEl.style.left = newX + 'px';
-    groupEl.style.top = newY + 'px';
-    
-    // Atualizar coordenadas no fluxo
-    const groupId = currentDraggingNode.replace('group_', '');
-    const group = window.typebotGroups && window.typebotGroups[groupId];
-    if (group && window.typebotFlow && window.typebotFlow.groups) {
-        const foundGroup = window.typebotFlow.groups.find(g => g.id === groupId);
-        if (foundGroup) {
-            if (!foundGroup.graphCoordinates) foundGroup.graphCoordinates = { x: 0, y: 0 };
-            foundGroup.graphCoordinates.x = newX;
-            foundGroup.graphCoordinates.y = newY;
-        }
-    }
-    
-    updateConnections();
-}
-
-function stopDragTypebotGroup() {
-    if (currentDraggingNode && currentDraggingNode.startsWith('group_')) {
-        const groupEl = document.getElementById(currentDraggingNode);
-        if (groupEl) {
-            groupEl.style.zIndex = '';
-        }
-    }
-    isDragging = false;
-    currentDraggingNode = null;
-    document.removeEventListener('mousemove', dragTypebotGroup);
-    document.removeEventListener('mouseup', stopDragTypebotGroup);
-}
-
-// Editar grupo Typebot
-function editTypebotGroup(groupId) {
-    selectTypebotGroup(groupId);
-}
-
-// Deletar grupo Typebot
-function deleteTypebotGroup(groupId) {
-    if (!confirm('Tem certeza que deseja excluir este grupo e todos os seus blocos?')) return;
-    
-    const groupEl = document.getElementById(`group_${groupId}`);
-    if (groupEl) {
-        groupEl.remove();
-    }
-    
-    // Remover do fluxo
-    if (window.typebotFlow && window.typebotFlow.groups) {
-        window.typebotFlow.groups = window.typebotFlow.groups.filter(g => g.id !== groupId);
-    }
-    
-    // Remover edges relacionados
-    if (window.typebotEdges) {
-        window.typebotEdges = window.typebotEdges.filter(edge => {
-            return edge.from?.groupId !== groupId && edge.to?.groupId !== groupId;
-        });
-    }
-    
-    updateConnections();
-}
-
-// Renderizar painel de propriedades do grupo
-function renderTypebotGroupPropertiesPanel(groupId) {
-    const group = window.typebotGroups && window.typebotGroups[groupId];
-    if (!group) {
-        document.getElementById('propertiesContent').innerHTML = `
-            <div class="properties-empty">
-                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p>Selecione um grupo para editar suas propriedades</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let propertiesHTML = `<h3>Propriedades do Grupo</h3>`;
-    propertiesHTML += `
-        <div class="form-group">
-            <label>Título do Grupo</label>
-            <input type="text" class="form-control" value="${group.title || ''}" 
-                   onchange="updateTypebotGroupTitle('${groupId}', this.value)">
-        </div>
-    `;
-    
-    propertiesHTML += `<div class="form-group"><label>Blocos no Grupo</label>`;
-    if (group.blocks && group.blocks.length > 0) {
-        group.blocks.forEach((block, index) => {
-            const blockType = block.type === 'text' ? 'Mensagem' : 
-                             block.type === 'text input' ? 'Input Texto' : 
-                             block.type === 'choice input' ? 'Múltipla Escolha' : block.type;
-            propertiesHTML += `
-                <div style="padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 0.5rem;">
-                    <strong>${index + 1}. ${blockType}</strong>
-                    <button class="btn-node-action" onclick="editTypebotBlock('${block.id}')" style="float: right;">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
-            `;
-        });
-    }
-    propertiesHTML += `</div>`;
-    
-    document.getElementById('propertiesContent').innerHTML = propertiesHTML;
-}
-
-function updateTypebotGroupTitle(groupId, newTitle) {
-    if (window.typebotFlow && window.typebotFlow.groups) {
-        const group = window.typebotFlow.groups.find(g => g.id === groupId);
-        if (group) {
-            group.title = newTitle;
-            // Atualizar visualmente
-            const groupEl = document.getElementById(`group_${groupId}`);
-            if (groupEl) {
-                const titleEl = groupEl.querySelector('.typebot-group-title span');
-                if (titleEl) titleEl.textContent = newTitle;
-            }
-        }
-    }
-}
-
-// Renderizar painel de propriedades do Typebot
-function renderTypebotPropertiesPanel(blockId) {
-    const block = window.typebotBlocks && window.typebotBlocks[blockId];
-    if (!block) {
-        document.getElementById('propertiesContent').innerHTML = `
-            <div class="properties-empty">
-                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p>Selecione um bloco para editar suas propriedades</p>
-            </div>
-        `;
-        return;
-    }
-    
-    // Renderizar propriedades baseado no tipo do bloco
-    let propertiesHTML = `<h3>Propriedades do Bloco</h3>`;
-    
-    // Propriedades comuns
-    if (block.content && block.content.richText) {
-        propertiesHTML += `
-            <div class="form-group">
-                <label>Texto</label>
-                <textarea id="blockText_${blockId}" class="form-control" rows="4">${extractTextFromRichText(block.content.richText)}</textarea>
-            </div>
-        `;
-    }
-    
-    // Para choice input, mostrar opções
-    if (block.type === 'choice input' && block.items) {
-        propertiesHTML += `<div class="form-group"><label>Opções</label>`;
-        block.items.forEach((item, index) => {
-            propertiesHTML += `
-                <input type="text" class="form-control" value="${item.content || ''}" 
-                       onchange="updateChoiceItem('${blockId}', ${index}, this.value)" 
-                       style="margin-bottom: 0.5rem;">
-            `;
-        });
-        propertiesHTML += `</div>`;
-    }
-    
-    // Para text input, mostrar placeholder
-    if (block.type === 'text input' && block.content && block.content.options) {
-        propertiesHTML += `
-            <div class="form-group">
-                <label>Placeholder</label>
-                <input type="text" class="form-control" value="${block.content.options.labels?.placeholder || ''}" 
-                       onchange="updateTextInputPlaceholder('${blockId}', this.value)">
-            </div>
-        `;
-    }
-    
-    document.getElementById('propertiesContent').innerHTML = propertiesHTML;
-}
-
-// Extrair texto de richText
-function extractTextFromRichText(richText) {
-    if (!Array.isArray(richText)) return '';
-    return richText.map(rt => {
-        if (rt.type === 'p' && rt.children) {
-            return rt.children.map(c => c.text || '').join('');
-        }
-        return '';
-    }).filter(t => t).join('\n');
-}
-
-// Editar bloco Typebot
-function editTypebotBlock(blockId) {
-    selectTypebotBlock(blockId);
-}
-
-// Deletar bloco Typebot
-function deleteTypebotBlock(blockId) {
-    if (!confirm('Tem certeza que deseja excluir este bloco?')) return;
-    
-    const blockEl = document.getElementById(blockId);
-    if (blockEl) {
-        blockEl.remove();
-    }
-    
-    // Remover do fluxo
-    if (window.typebotFlow && window.typebotFlow.groups) {
-        window.typebotFlow.groups.forEach(group => {
-            if (group.blocks) {
-                group.blocks = group.blocks.filter(b => b.id !== blockId);
-            }
-        });
-    }
-    
-    // Remover edges relacionados
-    if (window.typebotEdges) {
-        window.typebotEdges = window.typebotEdges.filter(edge => {
-            return edge.from?.blockId !== blockId && edge.to?.blockId !== blockId;
-        });
-    }
-    
-    updateConnections();
-}
-
-// Arrastar bloco Typebot
-function startDragTypebotBlock(e, blockId) {
-    const blockEl = document.getElementById(blockId);
-    if (!blockEl) return;
-    
-    isDragging = true;
-    currentDraggingNode = blockId;
-    
-    const rect = blockEl.getBoundingClientRect();
-    const canvasRect = canvas.getBoundingClientRect();
-    
-    dragOffset.x = e.clientX - rect.left;
-    dragOffset.y = e.clientY - rect.top;
-    
-    blockEl.style.zIndex = '1000';
-    
-    document.addEventListener('mousemove', dragTypebotBlock);
-    document.addEventListener('mouseup', stopDragTypebotBlock);
-    
-    e.preventDefault();
-}
-
-function dragTypebotBlock(e) {
-    if (!isDragging || !currentDraggingNode) return;
-    
-    const blockEl = document.getElementById(currentDraggingNode);
-    if (!blockEl) return;
-    
-    const canvasRect = canvas.getBoundingClientRect();
-    const newX = (e.clientX - canvasRect.left - dragOffset.x) / zoomLevel - canvasOffset.x / zoomLevel;
-    const newY = (e.clientY - canvasRect.top - dragOffset.y) / zoomLevel - canvasOffset.y / zoomLevel;
-    
-    blockEl.style.left = newX + 'px';
-    blockEl.style.top = newY + 'px';
-    
-    // Atualizar coordenadas no fluxo
-    const block = window.typebotBlocks && window.typebotBlocks[currentDraggingNode];
-    if (block && window.typebotFlow && window.typebotFlow.groups) {
-        window.typebotFlow.groups.forEach(group => {
-            if (group.blocks) {
-                const foundBlock = group.blocks.find(b => b.id === currentDraggingNode);
-                if (foundBlock) {
-                    if (!group.graphCoordinates) group.graphCoordinates = { x: 0, y: 0 };
-                    group.graphCoordinates.x = newX;
-                    group.graphCoordinates.y = newY;
-                }
-            }
-        });
-    }
-    
-    updateConnections();
-}
-
-function stopDragTypebotBlock() {
-    if (currentDraggingNode) {
-        const blockEl = document.getElementById(currentDraggingNode);
-        if (blockEl) {
-            blockEl.style.zIndex = '';
-        }
-    }
-    isDragging = false;
-    currentDraggingNode = null;
-    document.removeEventListener('mousemove', dragTypebotBlock);
-    document.removeEventListener('mouseup', stopDragTypebotBlock);
-}
-
-function addNode(type, x = null, y = null, data = {}, subtype = null) {
-    const nodeId = `node_${nodeIdCounter++}`;
-    
-    // Dados padrão baseado no tipo
-    const defaultData = {
-        bot_message: { prompt: 'Nova mensagem do bot', delay: 0, auto_continue: false },
-        question: { prompt: 'Nova pergunta', variable_name: '', required: true, placeholder: '' },
-        action: { action_type: 'end' }
-    };
-    
-    const node = {
-        id: nodeId,
-        type: type,
-        subtype: subtype || (type === 'question' ? 'text' : null),
-        x: x || Math.random() * 400 + 100,
-        y: y || Math.random() * 300 + 100,
-        data: { ...defaultData[type], ...data }
-    };
-    
-    nodes.push(node);
-    renderNode(node);
-    selectNode(nodeId);
-    return node;
-}
-
-function renderNode(node) {
-    const nodeEl = document.createElement('div');
-    nodeEl.className = 'flow-node';
-    nodeEl.id = node.id;
-    nodeEl.style.left = node.x + 'px';
-    nodeEl.style.top = node.y + 'px';
-    nodeEl.dataset.nodeId = node.id;
-    
-    const typeLabels = {
-        'bot_message': 'Mensagem',
-        'question': 'Pergunta',
-        'action': 'Ação'
-    };
-    
-    const typeIcons = {
-        'bot_message': 'fa-comment',
-        'question': 'fa-question-circle',
-        'action': 'fa-cog'
-    };
-    
-    const subtypeLabels = {
-        'text': 'Texto',
-        'textarea': 'Texto Longo',
-        'multiple_choice': 'Múltipla Escolha',
-        'checkbox': 'Checkbox',
-        'number': 'Número',
-        'email': 'Email',
-        'phone': 'Telefone',
-        'date': 'Data',
-        'time': 'Hora',
-        'rating': 'Avaliação',
-        'slider': 'Slider',
-        'yesno': 'Sim/Não',
-        'chips': 'Chips'
-    };
-    
-    let displayLabel = typeLabels[node.type] || node.type;
-    if (node.subtype && subtypeLabels[node.subtype]) {
-        displayLabel = `${displayLabel}: ${subtypeLabels[node.subtype]}`;
-    }
-    
-    nodeEl.innerHTML = `
-        <div class="flow-node-header">
-            <div class="flow-node-type">
-                <i class="fas ${typeIcons[node.type] || 'fa-cube'}"></i>
-                <span>${displayLabel}</span>
-            </div>
-            <div class="flow-node-actions">
-                <button class="btn-node-action" onclick="editNode('${node.id}')" title="Editar">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-node-action" onclick="deleteNode('${node.id}')" title="Excluir">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </div>
-        <div class="flow-node-content">
-            ${getNodeContent(node)}
-        </div>
-        <div class="flow-node-connector input" data-connector="input" data-node="${node.id}"></div>
-        <div class="flow-node-connector output" data-connector="output" data-node="${node.id}"></div>
-    `;
-    
-    if (canvas) {
-        canvas.appendChild(nodeEl);
-    }
-    
-    // Event listeners
-    nodeEl.addEventListener('mousedown', (e) => {
-        if (e.target.closest('.flow-node-connector')) return;
-        if (e.target.closest('.btn-node-action')) return;
-        e.stopPropagation();
-        startDragNode(e, node.id);
-    });
-    
-    nodeEl.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-node-action')) return;
-        if (e.target.closest('.flow-node-connector')) return;
-        e.stopPropagation();
-        selectNode(node.id);
-    });
-    
-    const connectors = nodeEl.querySelectorAll('.flow-node-connector');
-    connectors.forEach(connector => {
-        connector.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
-            startConnection(e, node.id, connector.dataset.connector);
-        });
-    });
-}
-
-function getNodeContent(node) {
-    switch(node.type) {
-        case 'bot_message':
-            return node.data.prompt || node.data.title || 'Nova mensagem do bot';
-        case 'question':
-            return node.data.prompt || `Nova pergunta (${node.subtype || 'text'})`;
-        case 'action':
-            if (node.data.action_type === 'end') {
-                return 'Finalizar check-in';
-            } else if (node.data.action_type === 'jump') {
-                return `Pular para: ${node.data.jump_to || '...'}`;
-            }
-            return 'Ação';
-        default:
-            return '';
-    }
-}
-
-function selectNode(nodeId) {
-    // Deselecionar todos
-    document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('selected'));
-    
-    // Selecionar novo
-    const nodeEl = document.getElementById(nodeId);
-    if (nodeEl) {
-        nodeEl.classList.add('selected');
-        selectedNode = nodeId;
-        renderPropertiesPanel(nodeId);
-    }
-}
-
-function renderPropertiesPanel(nodeId) {
-    // Se nodeId é null, mostrar estado vazio
-    if (!nodeId) {
-        document.getElementById('propertiesContent').innerHTML = `
-            <div class="properties-empty">
-                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p>Selecione um bloco para editar suas propriedades</p>
-            </div>
-        `;
-        return;
-    }
-    
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node) {
-        document.getElementById('propertiesContent').innerHTML = `
-            <div class="properties-empty">
-                <i class="fas fa-mouse-pointer" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p>Selecione um bloco para editar suas propriedades</p>
-            </div>
-        `;
-        return;
-    }
-    
-    const propsContent = document.getElementById('propertiesContent');
-    
-    if (node.type === 'bot_message') {
-        propsContent.innerHTML = `
-            <div class="form-group">
-                <label>Título (opcional)</label>
-                <input type="text" id="prop-title" value="${node.data.title || ''}" placeholder="Título da mensagem" onchange="updateNodeProperty('${nodeId}', 'title', this.value)">
-            </div>
-            <div class="form-group">
-                <label>Mensagem *</label>
-                <textarea id="prop-prompt" rows="4" placeholder="Digite a mensagem do bot... Use {{variavel}} para placeholders" onchange="updateNodeProperty('${nodeId}', 'prompt', this.value)">${node.data.prompt || ''}</textarea>
-                <small style="color: var(--text-secondary); font-size: 0.75rem;">Use {{nome_variavel}} para inserir valores de respostas anteriores</small>
-            </div>
-            <div class="form-group">
-                <label>Delay (ms)</label>
-                <input type="number" id="prop-delay" value="${node.data.delay || 0}" min="0" onchange="updateNodeProperty('${nodeId}', 'delay', parseInt(this.value))">
-            </div>
-            <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                    <input type="checkbox" id="prop-auto-continue" ${node.data.auto_continue ? 'checked' : ''} onchange="updateNodeProperty('${nodeId}', 'auto_continue', this.checked)">
-                    <span>Avançar automaticamente</span>
-                </label>
-            </div>
-        `;
-    } else if (node.type === 'question') {
-        const subtypes = {
-            'text': 'Texto',
-            'textarea': 'Texto Longo',
-            'multiple_choice': 'Múltipla Escolha',
-            'checkbox': 'Checkbox',
-            'number': 'Número',
-            'email': 'Email',
-            'phone': 'Telefone',
-            'date': 'Data',
-            'time': 'Hora',
-            'rating': 'Avaliação',
-            'slider': 'Slider',
-            'yesno': 'Sim/Não',
-            'chips': 'Chips'
-        };
-        
-        let optionsHTML = '';
-        if (['multiple_choice', 'checkbox', 'chips'].includes(node.subtype)) {
-            const options = node.data.options || [];
-            optionsHTML = `
-                <div class="form-group">
-                    <label>Opções</label>
-                    <div id="options-list">
-                        ${options.map((opt, idx) => `
-                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                <input type="text" value="${opt.label || ''}" placeholder="Label" onchange="updateOption('${nodeId}', ${idx}, 'label', this.value)" style="flex: 1;">
-                                <input type="text" value="${opt.value || ''}" placeholder="Value" onchange="updateOption('${nodeId}', ${idx}, 'value', this.value)" style="flex: 1;">
-                                <button onclick="removeOption('${nodeId}', ${idx})" style="padding: 0.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; color: #ef4444; cursor: pointer;">
-                                    <i class="fas fa-trash"></i>
+        <?php else: ?>
+            <?php foreach ($blocks as $index => $block): ?>
+                <div class="block-item" data-block-id="<?php echo $block['id']; ?>" data-order="<?php echo $block['order_index']; ?>">
+                    <div class="block-header">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fas fa-grip-vertical drag-handle"></i>
+                            <span class="block-type-badge">
+                                <?php
+                                $type_icons = [
+                                    'text' => 'fa-comment',
+                                    'multiple_choice' => 'fa-list',
+                                    'scale' => 'fa-sliders-h'
+                                ];
+                                $icon = $type_icons[$block['question_type']] ?? 'fa-question';
+                                ?>
+                                <i class="fas <?php echo $icon; ?>"></i>
+                                <?php echo ucfirst(str_replace('_', ' ', $block['question_type'])); ?>
+                            </span>
+                        </div>
+                        <div class="block-actions">
+                            <button onclick="editBlock(<?php echo $block['id']; ?>)" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteBlock(<?php echo $block['id']; ?>)" title="Excluir" class="btn-danger" style="background: #dc3545; color: white;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="block-content preview">
+                        <?php echo nl2br(htmlspecialchars($block['question_text'])); ?>
+                        <?php if ($block['question_type'] !== 'text' && !empty($block['options'])): ?>
+                            <div class="block-options">
+                                <div class="block-options-list">
+                                    <?php foreach ($block['options'] as $opt): ?>
+                                        <div class="option-item">• <?php echo htmlspecialchars($opt); ?></div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="block-edit-form" id="editForm_<?php echo $block['id']; ?>">
+                        <form onsubmit="saveBlock(event, <?php echo $block['id']; ?>)">
+                            <div class="form-group">
+                                <label>Texto da Pergunta/Mensagem</label>
+                                <textarea name="question_text" class="form-control" required><?php echo htmlspecialchars($block['question_text']); ?></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select name="question_type" class="form-control" onchange="toggleOptionsEditor(this, <?php echo $block['id']; ?>)">
+                                    <option value="text" <?php echo $block['question_type'] === 'text' ? 'selected' : ''; ?>>Mensagem de Texto</option>
+                                    <option value="multiple_choice" <?php echo $block['question_type'] === 'multiple_choice' ? 'selected' : ''; ?>>Múltipla Escolha</option>
+                                    <option value="scale" <?php echo $block['question_type'] === 'scale' ? 'selected' : ''; ?>>Escala (0-10)</option>
+                                </select>
+                            </div>
+                            <div class="options-editor" id="optionsEditor_<?php echo $block['id']; ?>" style="display: <?php echo in_array($block['question_type'], ['multiple_choice', 'scale']) ? 'block' : 'none'; ?>;">
+                                <label>Opções</label>
+                                <div id="optionsList_<?php echo $block['id']; ?>">
+                                    <?php if (!empty($block['options'])): ?>
+                                        <?php foreach ($block['options'] as $opt): ?>
+                                            <div class="option-input-group">
+                                                <input type="text" class="form-control" value="<?php echo htmlspecialchars($opt); ?>" placeholder="Texto da opção">
+                                                <button type="button" onclick="removeOption(this)">Remover</button>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
+                                <button type="button" class="add-option-btn" onclick="addOption(<?php echo $block['id']; ?>)">
+                                    <i class="fas fa-plus"></i> Adicionar Opção
                                 </button>
                             </div>
-                        `).join('')}
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Salvar</button>
+                                <button type="button" class="btn btn-secondary" onclick="cancelEdit(<?php echo $block['id']; ?>)">Cancelar</button>
+                            </div>
+                        </form>
                     </div>
-                    <button onclick="addOption('${nodeId}')" style="width: 100%; padding: 0.5rem; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.3); border-radius: 6px; color: var(--accent-orange); cursor: pointer; margin-top: 0.5rem;">
-                        <i class="fas fa-plus"></i> Adicionar Opção
-                    </button>
                 </div>
-            `;
-        }
-        
-        propsContent.innerHTML = `
-            <div class="form-group">
-                <label>Tipo de Pergunta</label>
-                <select id="prop-subtype" onchange="updateNodeProperty('${nodeId}', 'subtype', this.value)">
-                    ${Object.entries(subtypes).map(([val, label]) => `
-                        <option value="${val}" ${node.subtype === val ? 'selected' : ''}>${label}</option>
-                    `).join('')}
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Pergunta/Prompt *</label>
-                <textarea id="prop-prompt" rows="3" placeholder="Digite a pergunta... Use {{variavel}} para placeholders" onchange="updateNodeProperty('${nodeId}', 'prompt', this.value)">${node.data.prompt || ''}</textarea>
-                <small style="color: var(--text-secondary); font-size: 0.75rem;">Use {{nome_variavel}} para inserir valores de respostas anteriores</small>
-            </div>
-            <div class="form-group">
-                <label>Nome da Variável *</label>
-                <input type="text" id="prop-variable" value="${node.data.variable_name || ''}" placeholder="ex: nome_completo" pattern="[a-z0-9_]+" onchange="updateNodeProperty('${nodeId}', 'variable_name', this.value)">
-                <small style="color: var(--text-secondary); font-size: 0.75rem;">Apenas letras minúsculas, números e underscore</small>
-            </div>
-            <div class="form-group">
-                <label>Placeholder</label>
-                <input type="text" id="prop-placeholder" value="${node.data.placeholder || ''}" placeholder="Texto de ajuda..." onchange="updateNodeProperty('${nodeId}', 'placeholder', this.value)">
-            </div>
-            ${optionsHTML}
-            <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                    <input type="checkbox" id="prop-required" ${node.data.required !== false ? 'checked' : ''} onchange="updateNodeProperty('${nodeId}', 'required', this.checked)">
-                    <span>Obrigatório</span>
-                </label>
-            </div>
-            ${node.subtype === 'number' ? `
-                <div class="form-group">
-                    <label>Valor Mínimo</label>
-                    <input type="number" id="prop-min" value="${node.data.min || ''}" onchange="updateNodeProperty('${nodeId}', 'min', this.value ? parseFloat(this.value) : null)">
-                </div>
-                <div class="form-group">
-                    <label>Valor Máximo</label>
-                    <input type="number" id="prop-max" value="${node.data.max || ''}" onchange="updateNodeProperty('${nodeId}', 'max', this.value ? parseFloat(this.value) : null)">
-                </div>
-            ` : ''}
-            ${node.subtype === 'slider' ? `
-                <div class="form-group">
-                    <label>Valor Mínimo</label>
-                    <input type="number" id="prop-min" value="${node.data.min || 0}" onchange="updateNodeProperty('${nodeId}', 'min', parseFloat(this.value))">
-                </div>
-                <div class="form-group">
-                    <label>Valor Máximo</label>
-                    <input type="number" id="prop-max" value="${node.data.max || 100}" onchange="updateNodeProperty('${nodeId}', 'max', parseFloat(this.value))">
-                </div>
-                <div class="form-group">
-                    <label>Passo</label>
-                    <input type="number" id="prop-step" value="${node.data.step || 1}" min="0.1" step="0.1" onchange="updateNodeProperty('${nodeId}', 'step', parseFloat(this.value))">
-                </div>
-            ` : ''}
-            ${node.subtype === 'rating' ? `
-                <div class="form-group">
-                    <label>Máximo de Estrelas</label>
-                    <input type="number" id="prop-max" value="${node.data.max || 5}" min="1" max="10" onchange="updateNodeProperty('${nodeId}', 'max', parseInt(this.value))">
-                </div>
-            ` : ''}
-        `;
-    } else if (node.type === 'action') {
-        propsContent.innerHTML = `
-            <div class="form-group">
-                <label>Tipo de Ação</label>
-                <select id="prop-action-type" onchange="updateNodeProperty('${nodeId}', 'action_type', this.value)">
-                    <option value="end" ${node.data.action_type === 'end' ? 'selected' : ''}>Finalizar</option>
-                    <option value="jump" ${node.data.action_type === 'jump' ? 'selected' : ''}>Pular para Bloco</option>
-                </select>
-            </div>
-            ${node.data.action_type === 'jump' ? `
-                <div class="form-group">
-                    <label>Bloco de Destino</label>
-                    <select id="prop-jump-to" onchange="updateNodeProperty('${nodeId}', 'jump_to', this.value)">
-                        <option value="">Selecione...</option>
-                        ${nodes.filter(n => n.id !== nodeId).map(n => `
-                            <option value="${n.id}" ${node.data.jump_to === n.id ? 'selected' : ''}>${n.data.title || n.data.prompt || n.id}</option>
-                        `).join('')}
-                    </select>
-                </div>
-            ` : ''}
-        `;
-    }
-}
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
 
-function updateNodeProperty(nodeId, prop, value) {
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node) return;
-    
-    if (prop === 'subtype') {
-        node.subtype = value;
-        // Resetar opções se mudar de tipo
-        if (!['multiple_choice', 'checkbox', 'chips'].includes(value)) {
-            node.data.options = null;
-        }
-    } else {
-        node.data[prop] = value;
-    }
-    
-    // Atualizar visual do nó
-    const nodeEl = document.getElementById(nodeId);
-    if (nodeEl) {
-        const contentEl = nodeEl.querySelector('.flow-node-content');
-        if (contentEl) {
-            contentEl.textContent = getNodeContent(node);
-        }
-    }
-    
-    updateConnections();
-}
-
-function addOption(nodeId) {
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node) return;
-    
-    if (!node.data.options) node.data.options = [];
-    node.data.options.push({ label: '', value: '' });
-    renderPropertiesPanel(nodeId);
-}
-
-function updateOption(nodeId, index, prop, value) {
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node || !node.data.options) return;
-    
-    node.data.options[index][prop] = value;
-}
-
-function removeOption(nodeId, index) {
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node || !node.data.options) return;
-    
-    node.data.options.splice(index, 1);
-    renderPropertiesPanel(nodeId);
-}
-
-function startDragNode(e, nodeId) {
-    if (e.target.closest('.flow-node-connector')) return;
-    if (e.target.closest('.btn-node-action')) return;
-    if (!viewport || !canvas) return;
-    
-    // Prevenir pan quando arrastando node
-    isDragging = true;
-    currentDraggingNode = nodeId;
-    selectedNode = nodeId;
-    selectNode(nodeId);
-    
-    const nodeEl = document.getElementById(nodeId);
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node || !nodeEl) return;
-    
-    const viewportRect = viewport.getBoundingClientRect();
-    
-    // Calcular offset em coordenadas lógicas (sem zoom/pan)
-    const mouseX = e.clientX - viewportRect.left;
-    const mouseY = e.clientY - viewportRect.top;
-    
-    // Converter para coordenadas lógicas (remover zoom e pan)
-    const logicalX = (mouseX - canvasOffset.x) / zoomLevel;
-    const logicalY = (mouseY - canvasOffset.y) / zoomLevel;
-    
-    // Offset relativo à posição do nó (em coordenadas lógicas)
-    dragOffset.x = logicalX - node.x;
-    dragOffset.y = logicalY - node.y;
-    
-    viewport.classList.add('dragging');
-    nodeEl.style.zIndex = '1000';
-    
-    document.addEventListener('mousemove', dragNode);
-    document.addEventListener('mouseup', stopDragNode);
-    
-    e.preventDefault();
-    e.stopPropagation();
-}
-
-function dragNode(e) {
-    if (!isDragging || !currentDraggingNode || !viewport) return;
-    if (isPanning) return; // Não arrastar nó se estiver fazendo pan
-    
-    const node = nodes.find(n => n.id === currentDraggingNode);
-    if (!node) return;
-    
-    const viewportRect = viewport.getBoundingClientRect();
-    
-    // Calcular nova posição em coordenadas lógicas (sem zoom/pan)
-    const mouseX = e.clientX - viewportRect.left;
-    const mouseY = e.clientY - viewportRect.top;
-    
-    // Converter para coordenadas lógicas (remover zoom e pan)
-    const logicalX = (mouseX - canvasOffset.x) / zoomLevel;
-    const logicalY = (mouseY - canvasOffset.y) / zoomLevel;
-    
-    // Atualizar posição do nó (em coordenadas lógicas)
-    node.x = logicalX - dragOffset.x;
-    node.y = logicalY - dragOffset.y;
-    
-    // Permitir coordenadas negativas para canvas infinito
-    // (removido clamp: node.x = Math.max(0, node.x);)
-    
-    // Renderizar posição do nó (em pixels, sem zoom)
-    const nodeEl = document.getElementById(currentDraggingNode);
-    if (nodeEl) {
-        nodeEl.style.left = node.x + 'px';
-        nodeEl.style.top = node.y + 'px';
-    }
-    
-    // Atualizar conexões usando requestAnimationFrame
-    updateConnections();
-}
-
-function stopDragNode() {
-    if (currentDraggingNode) {
-        const nodeEl = document.getElementById(currentDraggingNode);
-        if (nodeEl) {
-            nodeEl.style.zIndex = '';
-        }
-    }
-    
-    // Garantir que as conexões sejam atualizadas ao final do drag
-    updateConnections();
-    
-    isDragging = false;
-    currentDraggingNode = null;
-    if (viewport) {
-        viewport.classList.remove('dragging');
-    }
-    document.removeEventListener('mousemove', dragNode);
-    document.removeEventListener('mouseup', stopDragNode);
-}
-
-function startConnection(e, nodeId, connectorType) {
-    // Só permitir conectar de output para input
-    if (connectorType !== 'output') {
-        return;
-    }
-    
-    if (!connectionsLayer || !viewport) {
-        console.error('connectionsLayer ou viewport não inicializado');
-        return;
-    }
-    
-    isConnecting = true;
-    connectionStart = { nodeId, connectorType };
-    
-    // Verificar se é grupo Typebot
-    if (nodeId.startsWith('group_')) {
-        const groupEl = document.getElementById(nodeId);
-        if (!groupEl) return;
-        
-        const groupWidth = groupEl.offsetWidth || 360;
-        const groupHeight = groupEl.offsetHeight || 200;
-        const groupX = parseFloat(groupEl.style.left) || 0;
-        const groupY = parseFloat(groupEl.style.top) || 0;
-        
-        // Posição do conector em coordenadas locais do grupo
-        const connectorLocalX = groupWidth / 2;
-        const connectorLocalY = groupHeight; // bottom edge
-        
-        // Calcular posição em coordenadas de tela
-        const screenX = (groupX + connectorLocalX) * zoomLevel + canvasOffset.x;
-        const screenY = (groupY + connectorLocalY) * zoomLevel + canvasOffset.y;
-        
-        connectionStart.x = screenX;
-        connectionStart.y = screenY;
-    } else {
-        // Formato antigo (nodes)
-        const nodeEl = document.getElementById(nodeId);
-        if (!nodeEl) return;
-        
-        const node = nodes.find(n => n.id === nodeId);
-        if (!node) return;
-        
-        const connectorEl = nodeEl.querySelector(`[data-connector="${connectorType}"]`);
-        if (!connectorEl) return;
-        
-        // Calcular posição baseada nas coordenadas do nó (lógicas)
-        const nodeWidth = nodeEl.offsetWidth || 200;
-        const nodeHeight = nodeEl.offsetHeight || 100;
-        
-        // Posição do conector em coordenadas locais do nó
-        let connectorLocalX, connectorLocalY;
-        if (connectorType === 'output') {
-            connectorLocalX = nodeWidth / 2;
-            connectorLocalY = nodeHeight; // bottom edge
-        } else {
-            connectorLocalX = nodeWidth / 2;
-            connectorLocalY = 0; // top edge
-        }
-        
-        // Calcular posição em coordenadas de tela (screen)
-        // screenX = (node.x + connectorLocalX) * zoom + pan.x
-        const screenX = (node.x + connectorLocalX) * zoomLevel + canvasOffset.x;
-        const screenY = (node.y + connectorLocalY) * zoomLevel + canvasOffset.y;
-        
-        // Converter para coordenadas do SVG (relativas ao connectionsLayer)
-        // O SVG está no mesmo viewport, então as coordenadas são diretas
-        connectionStart.x = screenX;
-        connectionStart.y = screenY;
-    }
-    
-    document.addEventListener('mousemove', drawConnection);
-    document.addEventListener('mouseup', endConnection);
-    
-    e.stopPropagation();
-    e.preventDefault();
-}
-
-function drawConnection(e) {
-    if (!isConnecting || !connectionStart || !connectionsLayer || !viewport) return;
-    
-    // Remover linha temporária anterior
-    const existing = connectionsLayer.querySelector('#temp-connection');
-    if (existing) existing.remove();
-    
-    // Calcular posição do mouse em coordenadas de tela (screen)
-    const viewportRect = viewport.getBoundingClientRect();
-    const screenX = e.clientX - viewportRect.left;
-    const screenY = e.clientY - viewportRect.top;
-    
-    // Criar linha temporária curva
-    const curveOffset = Math.abs(screenX - connectionStart.x) * 0.3;
-    const cp1x = connectionStart.x + curveOffset;
-    const cp1y = connectionStart.y;
-    const cp2x = screenX - curveOffset;
-    const cp2y = screenY;
-    
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('id', 'temp-connection');
-    const pathData = `M ${connectionStart.x} ${connectionStart.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${screenX} ${screenY}`;
-    path.setAttribute('d', pathData);
-    path.setAttribute('class', 'flow-connection-line connecting');
-    path.setAttribute('stroke', 'var(--accent-orange)');
-    path.setAttribute('stroke-width', '3');
-    path.setAttribute('stroke-dasharray', '8,4');
-    path.setAttribute('fill', 'none');
-    path.setAttribute('opacity', '0.6');
-    connectionsLayer.appendChild(path);
-}
-
-function endConnection(e) {
-    if (!isConnecting) return;
-    
-    // Remover linha temporária
-    if (connectionsLayer) {
-        const tempLine = connectionsLayer.querySelector('#temp-connection');
-        if (tempLine) tempLine.remove();
-    }
-    
-    // Verificar se é conector de grupo Typebot
-    const targetGroupConnector = e.target.closest('.typebot-group-connector');
-    if (targetGroupConnector && connectionStart) {
-        const targetGroupId = targetGroupConnector.dataset.group;
-        const targetConnector = targetGroupConnector.dataset.connector;
-        const startGroupId = connectionStart.nodeId.replace('group_', '');
-        
-        // Só conectar output -> input e não conectar consigo mesmo
-        if (connectionStart.connectorType === 'output' && 
-            targetConnector === 'input' && 
-            startGroupId !== targetGroupId) {
-            // Criar edge no formato Typebot
-            if (window.typebotEdges) {
-                const newEdge = {
-                    id: `edge_${Date.now()}`,
-                    from: { groupId: startGroupId },
-                    to: { groupId: targetGroupId }
-                };
-                window.typebotEdges.push(newEdge);
-                updateConnections();
-            }
-        }
-    } else {
-        // Formato antigo (nodes/connections)
-        const target = e.target.closest('.flow-node-connector');
-        if (target && connectionStart) {
-            const targetNodeId = target.dataset.node;
-            const targetConnector = target.dataset.connector;
-            
-            // Só conectar output -> input e não conectar consigo mesmo
-            if (connectionStart.connectorType === 'output' && 
-                targetConnector === 'input' && 
-                connectionStart.nodeId !== targetNodeId) {
-                addConnection(connectionStart.nodeId, targetNodeId);
-            }
-        }
-    }
-    
-    isConnecting = false;
-    connectionStart = null;
-    document.removeEventListener('mousemove', drawConnection);
-    document.removeEventListener('mouseup', endConnection);
-    
-    // Atualizar conexões após criar nova
-    updateConnections();
-}
-
-function addConnection(fromNodeId, toNodeId) {
-    // Verificar se já existe
-    if (connections.some(c => c.from === fromNodeId && c.to === toNodeId)) {
-        console.log('Conexão já existe');
-        return;
-    }
-    
-    // Verificar se os nós existem
-    if (!nodes.some(n => n.id === fromNodeId) || !nodes.some(n => n.id === toNodeId)) {
-        console.log('Nós não encontrados');
-        return;
-    }
-    
-    connections.push({ 
-        from: fromNodeId, 
-        to: toNodeId,
-        condition: null,
-        priority: connections.filter(c => c.from === fromNodeId).length
-    });
-    updateConnections();
-}
-
-function selectConnection(fromNodeId, toNodeId) {
-    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
-    if (conn) {
-        renderConnectionProperties(conn, fromNodeId, toNodeId);
-    }
-}
-
-function renderConnectionProperties(conn, fromNodeId, toNodeId) {
-    const fromNode = nodes.find(n => n.id === fromNodeId);
-    const toNode = nodes.find(n => n.id === toNodeId);
-    
-    if (!fromNode || !toNode) return;
-    
-    // Obter variáveis disponíveis
-    const variables = extractVariables();
-    
-    const propsContent = document.getElementById('propertiesContent');
-    propsContent.innerHTML = `
-        <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
-            <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 0.9rem;">Conexão</h4>
-            <p style="margin: 0; color: var(--text-secondary); font-size: 0.8rem;">
-                ${getNodeContent(fromNode)} → ${getNodeContent(toNode)}
-            </p>
+    <div class="add-block-section">
+        <h3 style="margin: 0 0 1rem 0; color: var(--text-primary);">Adicionar Novo Bloco</h3>
+        <div class="add-block-buttons">
+            <button class="add-block-btn" onclick="addBlock('text')">
+                <i class="fas fa-comment"></i> Mensagem de Texto
+            </button>
+            <button class="add-block-btn" onclick="addBlock('multiple_choice')">
+                <i class="fas fa-list"></i> Múltipla Escolha
+            </button>
+            <button class="add-block-btn" onclick="addBlock('scale')">
+                <i class="fas fa-sliders-h"></i> Escala (0-10)
+            </button>
         </div>
-        <div class="form-group">
-            <label>Prioridade</label>
-            <input type="number" id="conn-priority" value="${conn.priority || 0}" min="0" onchange="updateConnectionProperty('${fromNodeId}', '${toNodeId}', 'priority', parseInt(this.value))">
-            <small style="color: var(--text-secondary); font-size: 0.75rem;">Menor número = maior prioridade</small>
-        </div>
-        <div class="form-group">
-            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="checkbox" id="conn-has-condition" ${conn.condition ? 'checked' : ''} onchange="toggleConnectionCondition('${fromNodeId}', '${toNodeId}', this.checked)">
-                <span>Adicionar Condição</span>
-            </label>
-        </div>
-        ${conn.condition ? `
-            <div id="condition-editor" class="form-group">
-                <label>Condição</label>
-                <select id="conn-var" onchange="updateConditionVar('${fromNodeId}', '${toNodeId}')">
-                    <option value="">Selecione uma variável...</option>
-                    ${variables.map(v => `
-                        <option value="${v.name}" ${conn.condition?.var === v.name ? 'selected' : ''}>${v.name} (${v.type})</option>
-                    `).join('')}
-                </select>
-                <select id="conn-operator" style="margin-top: 0.5rem;" onchange="updateConditionOperator('${fromNodeId}', '${toNodeId}')">
-                    <option value="==" ${conn.condition?.op === '==' ? 'selected' : ''}>Igual a (==)</option>
-                    <option value="!=" ${conn.condition?.op === '!=' ? 'selected' : ''}>Diferente de (!=)</option>
-                    <option value=">" ${conn.condition?.op === '>' ? 'selected' : ''}>Maior que (>)</option>
-                    <option value=">=" ${conn.condition?.op === '>=' ? 'selected' : ''}>Maior ou igual (>=)</option>
-                    <option value="<" ${conn.condition?.op === '<' ? 'selected' : ''}>Menor que (<)</option>
-                    <option value="<=" ${conn.condition?.op === '<=' ? 'selected' : ''}>Menor ou igual (<=)</option>
-                    <option value="contains" ${conn.condition?.op === 'contains' ? 'selected' : ''}>Contém</option>
-                    <option value="startsWith" ${conn.condition?.op === 'startsWith' ? 'selected' : ''}>Começa com</option>
-                </select>
-                <input type="text" id="conn-value" value="${conn.condition?.value || ''}" placeholder="Valor de comparação" style="margin-top: 0.5rem;" onchange="updateConditionValue('${fromNodeId}', '${toNodeId}', this.value)">
-                <button onclick="removeConnectionCondition('${fromNodeId}', '${toNodeId}')" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; color: #ef4444; cursor: pointer;">
-                    <i class="fas fa-trash"></i> Remover Condição
-                </button>
-            </div>
-        ` : ''}
-    `;
-}
+    </div>
+</div>
 
-function toggleConnectionCondition(fromNodeId, toNodeId, enabled) {
-    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
-    if (!conn) return;
-    
-    if (enabled) {
-        conn.condition = { var: '', op: '==', value: '' };
-    } else {
-        conn.condition = null;
-    }
-    
-    renderConnectionProperties(conn, fromNodeId, toNodeId);
-}
+<script>
+const checkinId = <?php echo $checkin_id; ?>;
+let editingBlockId = null;
+let blockCounter = <?php echo count($blocks); ?>;
 
-function updateConnectionProperty(fromNodeId, toNodeId, prop, value) {
-    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
-    if (!conn) return;
-    
-    conn[prop] = value;
-    updateConnections();
-}
-
-function updateConditionVar(fromNodeId, toNodeId) {
-    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
-    if (!conn || !conn.condition) return;
-    
-    const select = document.getElementById('conn-var');
-    conn.condition.var = select.value;
-    updateConnections();
-}
-
-function updateConditionOperator(fromNodeId, toNodeId) {
-    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
-    if (!conn || !conn.condition) return;
-    
-    const select = document.getElementById('conn-operator');
-    conn.condition.op = select.value;
-    updateConnections();
-}
-
-function updateConditionValue(fromNodeId, toNodeId, value) {
-    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
-    if (!conn || !conn.condition) return;
-    
-    conn.condition.value = value;
-    updateConnections();
-}
-
-function removeConnectionCondition(fromNodeId, toNodeId) {
-    const conn = connections.find(c => c.from === fromNodeId && c.to === toNodeId);
-    if (!conn) return;
-    
-    conn.condition = null;
-    renderConnectionProperties(conn, fromNodeId, toNodeId);
-    updateConnections();
-}
-
-function updateConnections() {
-    if (!connectionsLayer || !viewport) return;
-    
-    // Cancelar requestAnimationFrame anterior se existir
-    if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-    }
-    
-    // Usar requestAnimationFrame para renderização suave
-    rafId = requestAnimationFrame(() => {
-        // Limpar TODAS as linhas existentes (incluindo temporárias, exceto a que está sendo desenhada)
-        const allLines = connectionsLayer.querySelectorAll('path:not(#temp-connection)');
-        allLines.forEach(el => el.remove());
-        
-        // Se estamos usando formato Typebot - conectar grupos entre si
-        if (window.typebotEdges && window.typebotEdges.length > 0) {
-            window.typebotEdges.forEach((edge) => {
-                let fromGroupId = null;
-                let toGroupId = null;
-                
-                // Encontrar groupId de origem
-                if (edge.from?.groupId) {
-                    fromGroupId = edge.from.groupId;
-                } else if (edge.from?.blockId) {
-                    // Se é um bloco específico, encontrar o grupo pai
-                    if (window.typebotFlow && window.typebotFlow.groups) {
-                        window.typebotFlow.groups.forEach(group => {
-                            if (group.blocks) {
-                                const foundBlock = group.blocks.find(b => b.id === edge.from.blockId);
-                                if (foundBlock) {
-                                    fromGroupId = group.id;
-                                }
-                            }
-                        });
-                    }
-                } else if (edge.from?.itemId) {
-                    // Conexão de um item de choice input - encontrar o grupo pai
-                    if (window.typebotFlow && window.typebotFlow.groups) {
-                        window.typebotFlow.groups.forEach(group => {
-                            if (group.blocks) {
-                                group.blocks.forEach(block => {
-                                    if (block.items) {
-                                        const item = block.items.find(i => i.id === edge.from.itemId);
-                                        if (item) {
-                                            fromGroupId = group.id;
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    }
-                }
-                
-                // Encontrar groupId de destino
-                if (edge.to?.groupId) {
-                    toGroupId = edge.to.groupId;
-                } else if (edge.to?.blockId) {
-                    // Se é um bloco específico, encontrar o grupo pai
-                    if (window.typebotFlow && window.typebotFlow.groups) {
-                        window.typebotFlow.groups.forEach(group => {
-                            if (group.blocks) {
-                                const foundBlock = group.blocks.find(b => b.id === edge.to.blockId);
-                                if (foundBlock) {
-                                    toGroupId = group.id;
-                                }
-                            }
-                        });
-                    }
-                }
-                
-                if (!fromGroupId || !toGroupId) return;
-                
-                const fromGroupEl = document.getElementById(`group_${fromGroupId}`);
-                const toGroupEl = document.getElementById(`group_${toGroupId}`);
-                
-                if (!fromGroupEl || !toGroupEl) return;
-                
-                const fromConnector = fromGroupEl.querySelector('.typebot-group-connector.output');
-                const toConnector = toGroupEl.querySelector('.typebot-group-connector.input');
-                
-                if (!fromConnector || !toConnector) return;
-                
-                // Obter coordenadas dos grupos
-                const fromX = parseFloat(fromGroupEl.style.left) || 0;
-                const fromY = parseFloat(fromGroupEl.style.top) || 0;
-                const toX = parseFloat(toGroupEl.style.left) || 0;
-                const toY = parseFloat(toGroupEl.style.top) || 0;
-                
-                const fromGroupWidth = fromGroupEl.offsetWidth || 360;
-                const toGroupWidth = toGroupEl.offsetWidth || 360;
-                const fromGroupHeight = fromGroupEl.offsetHeight || 200;
-                const toGroupHeight = toGroupEl.offsetHeight || 200;
-                
-                // Posições dos conectores (centro horizontal, topo/baixo vertical)
-                const fromConnectorLocalX = fromGroupWidth / 2;
-                const fromConnectorLocalY = fromGroupHeight; // bottom
-                const toConnectorLocalX = toGroupWidth / 2;
-                const toConnectorLocalY = 0; // top
-                
-                // Calcular posições em coordenadas de tela
-                const screenX1 = (fromX + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
-                const screenY1 = (fromY + fromConnectorLocalY) * zoomLevel + canvasOffset.y;
-                const screenX2 = (toX + toConnectorLocalX) * zoomLevel + canvasOffset.x;
-                const screenY2 = (toY + toConnectorLocalY) * zoomLevel + canvasOffset.y;
-                
-                const svgX1 = screenX1;
-                const svgY1 = screenY1;
-                const svgX2 = screenX2;
-                const svgY2 = screenY2;
-                
-                const lineId = `connection-group-${fromGroupId}-group-${toGroupId}`;
-                const existing = connectionsLayer.querySelector(`#${lineId}`);
-                if (existing) existing.remove();
-                
-                const curveOffset = Math.abs(svgX2 - svgX1) * 0.3;
-                const cp1x = svgX1 + curveOffset;
-                const cp1y = svgY1;
-                const cp2x = svgX2 - curveOffset;
-                const cp2y = svgY2;
-                
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute('id', lineId);
-                path.setAttribute('d', `M ${svgX1} ${svgY1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${svgX2} ${svgY2}`);
-                path.setAttribute('stroke', '#3b82f6');
-                path.setAttribute('stroke-width', '2');
-                path.setAttribute('fill', 'none');
-                path.setAttribute('pointer-events', 'stroke');
-                
-                connectionsLayer.appendChild(path);
-            });
-        } else {
-            // Formato antigo (nodes/connections) - manter compatibilidade
-            connections = connections.filter(conn => {
-                return nodes.some(n => n.id === conn.from) && nodes.some(n => n.id === conn.to);
-            });
-            
-            connections.forEach((conn) => {
-                const fromNode = nodes.find(n => n.id === conn.from);
-                const toNode = nodes.find(n => n.id === conn.to);
-                
-                if (!fromNode || !toNode) return;
-                
-                const fromEl = document.getElementById(conn.from);
-                const toEl = document.getElementById(conn.to);
-                
-                if (!fromEl || !toEl) return;
-                
-                const fromConnector = fromEl.querySelector('.flow-node-connector.output');
-                const toConnector = toEl.querySelector('.flow-node-connector.input');
-                
-                if (!fromConnector || !toConnector) return;
-                
-                const fromNodeWidth = fromEl.offsetWidth || 200;
-                const toNodeWidth = toEl.offsetWidth || 200;
-                const fromNodeHeight = fromEl.offsetHeight || 100;
-                const toNodeHeight = toEl.offsetHeight || 100;
-                
-                const fromConnectorLocalX = fromNodeWidth / 2;
-                const fromConnectorLocalY = fromNodeHeight;
-                const toConnectorLocalX = toNodeWidth / 2;
-                const toConnectorLocalY = 0;
-                
-                const screenX1 = (fromNode.x + fromConnectorLocalX) * zoomLevel + canvasOffset.x;
-                const screenY1 = (fromNode.y + fromConnectorLocalY) * zoomLevel + canvasOffset.y;
-                const screenX2 = (toNode.x + toConnectorLocalX) * zoomLevel + canvasOffset.x;
-                const screenY2 = (toNode.y + toConnectorLocalY) * zoomLevel + canvasOffset.y;
-                
-                const svgX1 = screenX1;
-                const svgY1 = screenY1;
-                const svgX2 = screenX2;
-                const svgY2 = screenY2;
-                
-                const lineId = `connection-${conn.from}-${conn.to}`;
-                const existing = connectionsLayer.querySelector(`#${lineId}`);
-                if (existing) existing.remove();
-                
-                const curveOffset = Math.abs(svgX2 - svgX1) * 0.3;
-                const cp1x = svgX1 + curveOffset;
-                const cp1y = svgY1;
-                const cp2x = svgX2 - curveOffset;
-                const cp2y = svgY2;
-                
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute('id', lineId);
-                const pathData = `M ${svgX1} ${svgY1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${svgX2} ${svgY2}`;
-                path.setAttribute('d', pathData);
-                
-                // Estilo baseado em condição
-                const hasCondition = conn.condition && conn.condition.var;
-                const lineClass = hasCondition ? 'flow-connection-line conditional' : 'flow-connection-line';
-                path.setAttribute('class', lineClass);
-                // Linha mais visível e sem setinha
-                path.setAttribute('stroke', 'var(--accent-orange)');
-                path.setAttribute('stroke-width', '3');
-                path.setAttribute('fill', 'none');
-                path.setAttribute('opacity', '0.8');
-                
-                // Sem setinha (removido marker-end)
-                
-                if (hasCondition) {
-                    path.setAttribute('stroke-dasharray', '8,4');
-                    path.setAttribute('opacity', '0.6');
-                }
-                
-                path.dataset.from = conn.from;
-                path.dataset.to = conn.to;
-                path.style.cursor = 'pointer';
-                path.style.pointerEvents = 'stroke';
-                
-                // Efeito hover
-                path.addEventListener('mouseenter', () => {
-                    path.setAttribute('stroke-width', '4');
-                    path.setAttribute('opacity', '1');
-                });
-                path.addEventListener('mouseleave', () => {
-                    path.setAttribute('stroke-width', hasCondition ? '3' : '3');
-                    path.setAttribute('opacity', hasCondition ? '0.6' : '0.8');
-                });
-                
-                path.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    // Mostrar menu de contexto
-                    const menu = document.createElement('div');
-                    menu.style.cssText = `
-                        position: fixed;
-                        top: ${e.clientY}px;
-                        left: ${e.clientX}px;
-                        background: rgba(20, 20, 20, 0.95);
-                        border: 1px solid var(--glass-border);
-                        border-radius: 8px;
-                        padding: 0.5rem;
-                        z-index: 10000;
-                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-                    `;
-                    menu.innerHTML = `
-                        <button onclick="selectConnection('${conn.from}', '${conn.to}'); this.parentElement.remove();" style="width: 100%; padding: 0.5rem; background: transparent; border: none; color: var(--text-primary); cursor: pointer; text-align: left; border-radius: 4px; margin-bottom: 0.25rem;">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <button onclick="if(confirm('Deseja remover esta conexão?')) { connections = connections.filter(c => !(c.from === '${conn.from}' && c.to === '${conn.to}')); updateConnections(); } this.parentElement.remove();" style="width: 100%; padding: 0.5rem; background: transparent; border: none; color: #ef4444; cursor: pointer; text-align: left; border-radius: 4px;">
-                            <i class="fas fa-trash"></i> Remover
-                        </button>
-                    `;
-                    document.body.appendChild(menu);
-                    
-                    // Remover menu ao clicar fora
-                    setTimeout(() => {
-                        const removeMenu = (e) => {
-                            if (!menu.contains(e.target)) {
-                                menu.remove();
-                                document.removeEventListener('click', removeMenu);
-                            }
-                        };
-                        setTimeout(() => document.addEventListener('click', removeMenu), 100);
-                    }, 100);
-                });
-                
-                connectionsLayer.appendChild(path);
-            });
-        }
-        
-        // Resetar rafId após renderização
-        rafId = null;
-    });
-}
-
-function deleteNode(nodeId) {
-    if (!confirm('Deseja excluir este bloco?')) return;
-    
-    // Remover conexões
-    connections = connections.filter(c => c.from !== nodeId && c.to !== nodeId);
-    
-    // Remover nó
-    nodes = nodes.filter(n => n.id !== nodeId);
-    const nodeEl = document.getElementById(nodeId);
-    if (nodeEl) nodeEl.remove();
-    
-    // Limpar painel de propriedades se era o selecionado
-    if (selectedNode === nodeId) {
-        selectedNode = null;
-        renderPropertiesPanel(null);
-    }
-    
-    updateConnections();
-}
-
-function editNode(nodeId) {
-    // Selecionar o nó (já abre o painel de propriedades)
-    selectNode(nodeId);
-}
-
-function clearCanvas() {
-    if (!confirm('Deseja limpar todo o canvas?')) return;
-    nodes = [];
-    connections = [];
-    canvas.innerHTML = '';
-    updateConnections();
-}
-
-function resetFlow() {
-    if (!confirm('Deseja resetar para o fluxo padrão?')) return;
-    clearCanvas();
-    loadFlow();
-}
-
-function zoomIn() {
-    zoomLevel = Math.min(zoomLevel + 0.1, 2);
-    applyZoom();
-}
-
-function zoomOut() {
-    zoomLevel = Math.max(zoomLevel - 0.1, 0.5);
-    applyZoom();
-}
-
-function resetZoom() {
-    zoomLevel = 1;
-    applyZoom();
-}
-
-function applyZoom() {
-    // Aplicar transform no viewport (único elemento que recebe transform)
-    applyViewportTransform();
-}
-
-function saveFlow() {
-    // Se estamos usando formato Typebot, salvar diretamente
-    if (window.typebotFlow) {
-        // Atualizar coordenadas dos grupos baseado nas posições dos blocos
-        if (window.typebotFlow.groups) {
-            window.typebotFlow.groups.forEach(group => {
-                if (group.blocks && group.blocks.length > 0) {
-                    const firstBlock = group.blocks[0];
-                    const firstBlockEl = document.getElementById(firstBlock.id);
-                    if (firstBlockEl) {
-                        const x = parseFloat(firstBlockEl.style.left) || 0;
-                        const y = parseFloat(firstBlockEl.style.top) || 0;
-                        if (!group.graphCoordinates) group.graphCoordinates = {};
-                        group.graphCoordinates.x = x;
-                        group.graphCoordinates.y = y;
-                    }
-                }
-            });
-        }
-        
-        const flowData = {
-            version: window.typebotFlow.version || "6",
-            groups: window.typebotFlow.groups || [],
-            edges: window.typebotEdges || [],
-            variables: window.typebotVariables || [],
-            events: window.typebotEvents || []
-        };
-        
-        fetch('ajax_checkin.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'save_flow',
-                checkin_id: <?php echo $checkin_id; ?>,
-                flow: flowData
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Fluxo salvo com sucesso!');
-            } else {
-                alert('Erro ao salvar: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao salvar fluxo');
-        });
-        return;
-    }
-    
-    // Formato antigo (compatibilidade)
-    if (!validateFlow()) {
-        return;
-    }
-    
-    const flowData = {
-        nodes: nodes,
-        connections: connections,
-        variables: extractVariables()
+// Adicionar novo bloco
+function addBlock(type) {
+    const blockId = 'new_' + Date.now();
+    const typeNames = {
+        'text': 'Mensagem de Texto',
+        'multiple_choice': 'Múltipla Escolha',
+        'scale': 'Escala (0-10)'
+    };
+    const typeIcons = {
+        'text': 'fa-comment',
+        'multiple_choice': 'fa-list',
+        'scale': 'fa-sliders-h'
     };
     
+    const blockHtml = `
+        <div class="block-item editing" data-block-id="${blockId}" data-order="${blockCounter++}">
+            <div class="block-header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-grip-vertical drag-handle"></i>
+                    <span class="block-type-badge">
+                        <i class="fas ${typeIcons[type]}"></i>
+                        ${typeNames[type]}
+                    </span>
+                </div>
+                <div class="block-actions">
+                    <button onclick="deleteBlock('${blockId}')" title="Excluir" class="btn-danger" style="background: #dc3545; color: white;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="block-content preview" style="display: none;"></div>
+            <div class="block-edit-form" id="editForm_${blockId}">
+                <form onsubmit="saveNewBlock(event, '${blockId}', '${type}')">
+                    <div class="form-group">
+                        <label>Texto da Pergunta/Mensagem</label>
+                        <textarea name="question_text" class="form-control" required placeholder="Digite o texto..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select name="question_type" class="form-control" onchange="toggleOptionsEditor(this, '${blockId}')">
+                            <option value="text" ${type === 'text' ? 'selected' : ''}>Mensagem de Texto</option>
+                            <option value="multiple_choice" ${type === 'multiple_choice' ? 'selected' : ''}>Múltipla Escolha</option>
+                            <option value="scale" ${type === 'scale' ? 'selected' : ''}>Escala (0-10)</option>
+                        </select>
+                    </div>
+                    <div class="options-editor" id="optionsEditor_${blockId}" style="display: ${type !== 'text' ? 'block' : 'none'};">
+                        <label>Opções</label>
+                        <div id="optionsList_${blockId}"></div>
+                        <button type="button" class="add-option-btn" onclick="addOption('${blockId}')">
+                            <i class="fas fa-plus"></i> Adicionar Opção
+                        </button>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelNewBlock('${blockId}')">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    const container = document.getElementById('blocksContainer');
+    if (container.querySelector('.empty-state')) {
+        container.innerHTML = '';
+    }
+    container.insertAdjacentHTML('beforeend', blockHtml);
+    
+    // Scroll para o novo bloco
+    const newBlock = container.querySelector(`[data-block-id="${blockId}"]`);
+    newBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Salvar novo bloco
+function saveNewBlock(event, blockId, defaultType) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const questionText = formData.get('question_text');
+    const questionType = formData.get('question_type') || defaultType;
+    
+    // Coletar opções
+    const options = [];
+    if (questionType !== 'text') {
+        const optionsList = document.getElementById(`optionsList_${blockId}`);
+        const optionInputs = optionsList.querySelectorAll('input');
+        optionInputs.forEach(input => {
+            const val = input.value.trim();
+            if (val) options.push(val);
+        });
+    }
+    
+    // Salvar no servidor
     fetch('ajax_checkin.php', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            action: 'save_flow',
-            checkin_id: <?php echo $checkin_id; ?>,
-            flow: flowData
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'save_block',
+            config_id: checkinId,
+            question_text: questionText,
+            question_type: questionType,
+            options: JSON.stringify(options),
+            order_index: document.querySelectorAll('.block-item').length
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Fluxo salvo com sucesso!');
+            location.reload();
         } else {
             alert('Erro ao salvar: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao salvar fluxo');
+        alert('Erro ao salvar bloco');
     });
 }
 
-function publishFlow() {
-    if (!validateFlow()) {
-        return;
+// Cancelar novo bloco
+function cancelNewBlock(blockId) {
+    const block = document.querySelector(`[data-block-id="${blockId}"]`);
+    if (block) {
+        block.remove();
     }
     
-    if (!confirm('Deseja publicar este fluxo? Isso criará uma versão imutável que será usada pelos usuários.')) {
-        return;
+    // Se não houver mais blocos, mostrar empty state
+    const container = document.getElementById('blocksContainer');
+    if (container.children.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>Nenhum bloco criado ainda. Adicione o primeiro bloco abaixo!</p>
+            </div>
+        `;
+    }
+}
+
+// Editar bloco existente
+function editBlock(blockId) {
+    // Fechar outros editores
+    document.querySelectorAll('.block-item.editing').forEach(item => {
+        if (item.dataset.blockId != blockId) {
+            item.classList.remove('editing');
+            const form = item.querySelector('.block-edit-form');
+            if (form) form.style.display = 'none';
+            const preview = item.querySelector('.block-content.preview');
+            if (preview) preview.style.display = 'block';
+        }
+    });
+    
+    const block = document.querySelector(`[data-block-id="${blockId}"]`);
+    if (block) {
+        block.classList.add('editing');
+        const form = block.querySelector('.block-edit-form');
+        const preview = block.querySelector('.block-content.preview');
+        if (form) form.style.display = 'block';
+        if (preview) preview.style.display = 'none';
+        editingBlockId = blockId;
+    }
+}
+
+// Cancelar edição
+function cancelEdit(blockId) {
+    const block = document.querySelector(`[data-block-id="${blockId}"]`);
+    if (block) {
+        block.classList.remove('editing');
+        const form = block.querySelector('.block-edit-form');
+        const preview = block.querySelector('.block-content.preview');
+        if (form) form.style.display = 'none';
+        if (preview) preview.style.display = 'block';
+        editingBlockId = null;
+    }
+}
+
+// Salvar bloco editado
+function saveBlock(event, blockId) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const questionText = formData.get('question_text');
+    const questionType = formData.get('question_type');
+    
+    // Coletar opções
+    const options = [];
+    if (questionType !== 'text') {
+        const optionsList = document.getElementById(`optionsList_${blockId}`);
+        const optionInputs = optionsList.querySelectorAll('input');
+        optionInputs.forEach(input => {
+            const val = input.value.trim();
+            if (val) options.push(val);
+        });
     }
     
-    const flowData = {
-        nodes: nodes,
-        connections: connections,
-        variables: extractVariables()
-    };
-    
+    // Salvar no servidor
     fetch('ajax_checkin.php', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            action: 'publish_flow',
-            checkin_id: <?php echo $checkin_id; ?>,
-            flow: flowData
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'update_block',
+            block_id: blockId,
+            question_text: questionText,
+            question_type: questionType,
+            options: JSON.stringify(options)
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Fluxo publicado com sucesso!');
             location.reload();
         } else {
-            alert('Erro ao publicar: ' + data.message);
+            alert('Erro ao salvar: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao publicar fluxo');
+        alert('Erro ao salvar bloco');
     });
 }
 
-function validateFlow() {
-    // Verificar se há pelo menos um nó
-    if (nodes.length === 0) {
-        alert('Adicione pelo menos um bloco ao fluxo');
-        return false;
-    }
-    
-    // Verificar se há variáveis duplicadas
-    const variables = extractVariables();
-    const varNames = variables.map(v => v.name);
-    const duplicates = varNames.filter((name, index) => varNames.indexOf(name) !== index);
-    if (duplicates.length > 0) {
-        alert(`Variáveis duplicadas encontradas: ${duplicates.join(', ')}`);
-        return false;
-    }
-    
-    // Verificar se todas as perguntas têm variável
-    const questionsWithoutVar = nodes.filter(n => 
-        n.type === 'question' && (!n.data.variable_name || n.data.variable_name.trim() === '')
-    );
-    if (questionsWithoutVar.length > 0) {
-        alert('Todas as perguntas devem ter um nome de variável definido');
-        return false;
-    }
-    
-    return true;
-}
-
-function extractVariables() {
-    const vars = [];
-    const seen = new Set();
-    
-    nodes.forEach(node => {
-        if (node.type === 'question' && node.data.variable_name) {
-            const varName = node.data.variable_name.trim();
-            if (varName && !seen.has(varName)) {
-                seen.add(varName);
-                vars.push({
-                    name: varName,
-                    type: getVariableType(node.subtype),
-                    required: node.data.required !== false
-                });
-            }
-        }
-    });
-    
-    return vars;
-}
-
-function getVariableType(subtype) {
-    const typeMap = {
-        'text': 'string',
-        'textarea': 'string',
-        'number': 'number',
-        'email': 'string',
-        'phone': 'string',
-        'date': 'date',
-        'time': 'time',
-        'rating': 'number',
-        'slider': 'number',
-        'yesno': 'boolean',
-        'multiple_choice': 'string',
-        'checkbox': 'json',
-        'chips': 'json'
-    };
-    return typeMap[subtype] || 'string';
-}
-
-function openPreview() {
-    // Verificar se há fluxo carregado (formato Typebot ou antigo)
-    const hasFlow = (window.typebotFlow && window.typebotFlow.groups && window.typebotFlow.groups.length > 0) || 
-                    (nodes && nodes.length > 0);
-    
-    if (!hasFlow) {
-        alert('Adicione blocos ao fluxo antes de visualizar');
+// Excluir bloco
+function deleteBlock(blockId) {
+    if (!confirm('Tem certeza que deseja excluir este bloco?')) {
         return;
     }
     
-    const modal = document.getElementById('previewModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        
-        // Iniciar simulação do chat
-        startChatSimulation();
-    }
-}
-
-function closePreview() {
-    const modal = document.getElementById('previewModal');
-    if (modal) {
-        modal.style.display = 'none';
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-    
-    // Limpar estado do chat
-    chatState = null;
-    const messagesDiv = document.getElementById('chatMessages');
-    const inputDiv = document.getElementById('chatInputContainer');
-    if (messagesDiv) messagesDiv.innerHTML = '';
-    if (inputDiv) inputDiv.innerHTML = '';
-}
-
-let chatState = null;
-
-function startChatSimulation() {
-    chatState = {
-        currentBlock: findStartBlock(),
-        answers: {},
-        history: []
-    };
-    
-    if (!chatState.currentBlock) {
-        // Se não há bloco inicial, usar o primeiro
-        chatState.currentBlock = nodes[0];
-    }
-    
-    renderNextBlock();
-}
-
-function findStartBlock() {
-    // Encontrar bloco sem conexões de entrada (start)
-    const blocksWithInputs = new Set();
-    connections.forEach(conn => {
-        blocksWithInputs.add(conn.to);
-    });
-    
-    return nodes.find(n => !blocksWithInputs.has(n.id)) || nodes[0];
-}
-
-function renderNextBlock() {
-    if (!chatState || !chatState.currentBlock) {
-        addChatMessage('Fluxo finalizado!', 'bot');
+    // Se for um bloco novo, apenas remover do DOM
+    if (blockId.toString().startsWith('new_')) {
+        cancelNewBlock(blockId);
         return;
     }
     
-    const block = chatState.currentBlock;
-    const messagesDiv = document.getElementById('chatMessages');
-    const inputDiv = document.getElementById('chatInputContainer');
-    
-    if (block.type === 'bot_message') {
-        // Processar placeholders na mensagem
-        const message = processPlaceholders(block.data.prompt || '...', chatState.answers);
-        addChatMessage(message, 'bot');
-        
-        // Aguardar delay e avançar
-        const delay = block.data.delay || (block.data.auto_continue ? 500 : 0);
-        if (delay > 0 || block.data.auto_continue) {
-            setTimeout(() => {
-                moveToNextBlock();
-            }, delay);
+    // Se for um bloco existente, deletar do servidor
+    fetch('ajax_checkin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'delete_block',
+            block_id: blockId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
         } else {
-            // Mostrar botão "Continuar"
-            const inputDiv = document.getElementById('chatInputContainer');
-            inputDiv.innerHTML = '';
-            const continueBtn = document.createElement('button');
-            continueBtn.textContent = 'Continuar';
-            continueBtn.style.cssText = `
-                width: 100%;
-                padding: 0.75rem;
-                background: var(--accent-orange);
-                border: none;
-                border-radius: 8px;
-                color: white;
-                cursor: pointer;
-                font-weight: 600;
-            `;
-            continueBtn.onclick = () => moveToNextBlock();
-            inputDiv.appendChild(continueBtn);
+            alert('Erro ao excluir: ' + data.message);
         }
-        
-    } else if (block.type === 'question') {
-        // Processar placeholders na pergunta
-        const question = processPlaceholders(block.data.prompt || '...', chatState.answers);
-        addChatMessage(question, 'bot');
-        renderQuestionInput(block);
-        
-    } else if (block.type === 'action') {
-        if (block.data.action_type === 'end') {
-            addChatMessage('Check-in finalizado! Obrigado pelas suas respostas.', 'bot');
-            return;
-        } else if (block.data.action_type === 'jump') {
-            const targetBlock = nodes.find(n => n.id === block.data.jump_to);
-            if (targetBlock) {
-                chatState.currentBlock = targetBlock;
-                renderNextBlock();
-            }
-        }
-    }
-}
-
-function addChatMessage(text, type) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message ${type}`;
-    messageDiv.style.cssText = `
-        margin-bottom: 1rem;
-        display: flex;
-        ${type === 'bot' ? 'justify-content: flex-start;' : 'justify-content: flex-end;'}
-        animation: fadeInUp 0.3s ease;
-    `;
-    
-    const bubble = document.createElement('div');
-    bubble.style.cssText = `
-        max-width: 70%;
-        padding: 0.75rem 1rem;
-        border-radius: ${type === 'bot' ? '0 12px 12px 12px' : '12px 0 12px 12px'};
-        background: ${type === 'bot' ? 'rgba(255, 255, 255, 0.1)' : 'var(--accent-orange)'};
-        color: ${type === 'bot' ? 'var(--text-primary)' : 'white'};
-        word-wrap: break-word;
-    `;
-    
-    // Processar placeholders
-    const processedText = processPlaceholders(text, chatState?.answers || {});
-    bubble.innerHTML = processedText.replace(/\n/g, '<br>');
-    
-    messageDiv.appendChild(bubble);
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-function processPlaceholders(text, answers) {
-    if (!text) return '';
-    
-    // Substituir {{variavel}} pelos valores
-    return text.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
-        const value = answers[varName];
-        if (value === undefined || value === null) {
-            return match; // Manter placeholder se não houver valor
-        }
-        return String(value);
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao excluir bloco');
     });
 }
 
-function renderQuestionInput(block) {
-    const inputDiv = document.getElementById('chatInputContainer');
-    inputDiv.innerHTML = '';
-    
-    if (block.subtype === 'multiple_choice' || block.subtype === 'chips') {
-        const options = block.data.options || [];
-        options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.textContent = opt.label || opt.value;
-            btn.style.cssText = `
-                width: 100%;
-                padding: 0.75rem;
-                margin-bottom: 0.5rem;
-                background: rgba(255, 107, 0, 0.1);
-                border: 1px solid rgba(255, 107, 0, 0.3);
-                border-radius: 8px;
-                color: var(--accent-orange);
-                cursor: pointer;
-                font-weight: 600;
-            `;
-            btn.onclick = () => submitAnswer(block, opt.value);
-            inputDiv.appendChild(btn);
-        });
-    } else if (block.subtype === 'yesno') {
-        ['Sim', 'Não'].forEach(val => {
-            const btn = document.createElement('button');
-            btn.textContent = val;
-            btn.style.cssText = `
-                flex: 1;
-                padding: 0.75rem;
-                margin: 0 0.25rem;
-                background: rgba(255, 107, 0, 0.1);
-                border: 1px solid rgba(255, 107, 0, 0.3);
-                border-radius: 8px;
-                color: var(--accent-orange);
-                cursor: pointer;
-                font-weight: 600;
-            `;
-            btn.onclick = () => submitAnswer(block, val === 'Sim' ? 'true' : 'false');
-            inputDiv.appendChild(btn);
-        });
-        inputDiv.style.display = 'flex';
+// Toggle editor de opções
+function toggleOptionsEditor(select, blockId) {
+    const optionsEditor = document.getElementById(`optionsEditor_${blockId}`);
+    if (select.value === 'text') {
+        optionsEditor.style.display = 'none';
     } else {
-        const input = document.createElement('input');
-        input.type = block.subtype === 'number' ? 'number' : 
-                    block.subtype === 'email' ? 'email' :
-                    block.subtype === 'date' ? 'date' :
-                    block.subtype === 'time' ? 'time' : 'text';
-        input.placeholder = block.data.placeholder || 'Digite sua resposta...';
-        input.style.cssText = `
-            width: 100%;
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 1rem;
-        `;
-        input.onkeypress = (e) => {
-            if (e.key === 'Enter') {
-                submitAnswer(block, input.value);
-            }
-        };
-        const sendBtn = document.createElement('button');
-        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
-        sendBtn.style.cssText = `
-            margin-top: 0.5rem;
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--accent-orange);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            font-weight: 600;
-        `;
-        sendBtn.onclick = () => submitAnswer(block, input.value);
-        inputDiv.appendChild(input);
-        inputDiv.appendChild(sendBtn);
+        optionsEditor.style.display = 'block';
     }
 }
 
-function submitAnswer(block, value) {
-    if (!value || (typeof value === 'string' && value.trim() === '')) {
-        if (block.data.required !== false) {
-            alert('Esta pergunta é obrigatória');
-            return;
-        }
-    }
-    
-    // Validar valor baseado no tipo
-    if (!validateAnswer(block, value)) {
-        return;
-    }
-    
-    // Normalizar valor
-    const normalizedValue = normalizeAnswer(block, value);
-    
-    // Salvar resposta
-    chatState.answers[block.data.variable_name] = normalizedValue;
-    
-    // Mostrar resposta do usuário
-    const displayValue = block.subtype === 'yesno' ? (value === 'true' ? 'Sim' : 'Não') : value;
-    addChatMessage(displayValue, 'user');
-    
-    // Limpar input
-    const inputDiv = document.getElementById('chatInputContainer');
-    inputDiv.innerHTML = '';
-    
-    // Mover para próximo bloco
-    setTimeout(() => moveToNextBlock(), 200);
+// Adicionar opção
+function addOption(blockId) {
+    const optionsList = document.getElementById(`optionsList_${blockId}`);
+    const optionHtml = `
+        <div class="option-input-group">
+            <input type="text" class="form-control" placeholder="Texto da opção">
+            <button type="button" onclick="removeOption(this)">Remover</button>
+        </div>
+    `;
+    optionsList.insertAdjacentHTML('beforeend', optionHtml);
 }
 
-function validateAnswer(block, value) {
-    if (block.subtype === 'number') {
-        const num = Number(value);
-        if (isNaN(num)) {
-            alert('Por favor, insira um número válido');
-            return false;
-        }
-        if (block.data.min !== undefined && num < block.data.min) {
-            alert(`O valor deve ser maior ou igual a ${block.data.min}`);
-            return false;
-        }
-        if (block.data.max !== undefined && num > block.data.max) {
-            alert(`O valor deve ser menor ou igual a ${block.data.max}`);
-            return false;
-        }
-    } else if (block.subtype === 'email') {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
-            alert('Por favor, insira um email válido');
-            return false;
-        }
-    } else if (block.subtype === 'multiple_choice' || block.subtype === 'chips') {
-        const options = block.data.options || [];
-        const validValues = options.map(opt => opt.value);
-        if (!validValues.includes(value)) {
-            alert('Por favor, selecione uma opção válida');
-            return false;
-        }
-    }
-    return true;
+// Remover opção
+function removeOption(button) {
+    button.closest('.option-input-group').remove();
 }
 
-function normalizeAnswer(block, value) {
-    if (block.subtype === 'number') {
-        return Number(value);
-    } else if (block.subtype === 'yesno') {
-        return value === 'true' || value === true || value === 'Sim';
-    } else if (block.subtype === 'checkbox') {
-        // Se já é array, retornar; senão, criar array
-        return Array.isArray(value) ? value : [value];
-    }
-    return String(value);
-}
-
-function moveToNextBlock() {
-    if (!chatState) return;
+// Salvar ordem dos blocos
+function saveFlow() {
+    const blocks = Array.from(document.querySelectorAll('.block-item'));
+    const order = blocks.map((block, index) => ({
+        id: block.dataset.blockId,
+        order: index
+    })).filter(item => !item.id.toString().startsWith('new_'));
     
-    const currentBlockId = chatState.currentBlock.id;
-    
-    // Encontrar próximo bloco baseado nas conexões
-    let nextConnections = connections.filter(c => c.from === currentBlockId);
-    
-    if (nextConnections.length === 0) {
-        // Fim do fluxo
-        addChatMessage('Fluxo finalizado! Obrigado pelas suas respostas.', 'bot');
-        return;
-    }
-    
-    // Ordenar por prioridade
-    nextConnections.sort((a, b) => (a.priority || 0) - (b.priority || 0));
-    
-    // Avaliar condições
-    let nextBlock = null;
-    for (const conn of nextConnections) {
-        if (conn.condition) {
-            // Avaliar condição
-            if (evaluateCondition(conn.condition, chatState.answers)) {
-                nextBlock = nodes.find(n => n.id === conn.to);
-                break;
-            }
+    fetch('ajax_checkin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'save_block_order',
+            config_id: checkinId,
+            order: JSON.stringify(order)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Ordem salva com sucesso!');
         } else {
-            // Conexão sem condição (fallback/default)
-            if (!nextBlock) {
-                nextBlock = nodes.find(n => n.id === conn.to);
-            }
+            alert('Erro ao salvar ordem: ' + data.message);
         }
-    }
-    
-    // Se nenhuma condição foi satisfeita, usar o fallback
-    if (!nextBlock && nextConnections.length > 0) {
-        nextBlock = nodes.find(n => n.id === nextConnections[0].to);
-    }
-    
-    if (nextBlock) {
-        chatState.currentBlock = nextBlock;
-        setTimeout(() => renderNextBlock(), 300);
-    } else {
-        addChatMessage('Fluxo finalizado! Obrigado pelas suas respostas.', 'bot');
-    }
-}
-
-function evaluateCondition(condition, answers) {
-    if (!condition || !condition.var) return true;
-    
-    const varValue = answers[condition.var];
-    const compareValue = condition.value;
-    
-    if (varValue === undefined || varValue === null) {
-        return false;
-    }
-    
-    switch (condition.op) {
-        case '==':
-            return String(varValue) === String(compareValue);
-        case '!=':
-            return String(varValue) !== String(compareValue);
-        case '>':
-            return Number(varValue) > Number(compareValue);
-        case '>=':
-            return Number(varValue) >= Number(compareValue);
-        case '<':
-            return Number(varValue) < Number(compareValue);
-        case '<=':
-            return Number(varValue) <= Number(compareValue);
-        case 'contains':
-            return String(varValue).toLowerCase().includes(String(compareValue).toLowerCase());
-        case 'startsWith':
-            return String(varValue).toLowerCase().startsWith(String(compareValue).toLowerCase());
-        default:
-            return true;
-    }
-}
-
-// Drag & Drop da paleta
-function setupPaletteDragDrop() {
-    document.querySelectorAll('.palette-item').forEach(item => {
-        item.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('nodeType', item.dataset.type);
-            e.dataTransfer.setData('nodeSubtype', item.dataset.subtype || '');
-        });
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao salvar ordem');
     });
 }
 
-// Inicializar tudo quando DOM estiver pronto
-document.addEventListener('DOMContentLoaded', () => {
-    if (initCanvas()) {
-        setupCanvasEvents();
-        setupPaletteDragDrop();
-        loadFlow();
-    } else {
-        console.error('Erro ao inicializar canvas');
-    }
+// Drag and drop simples
+let draggedElement = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('blocksContainer');
+    
+    container.addEventListener('mousedown', function(e) {
+        if (e.target.classList.contains('drag-handle') || e.target.closest('.drag-handle')) {
+            draggedElement = e.target.closest('.block-item');
+            if (draggedElement) {
+                draggedElement.classList.add('dragging');
+                e.preventDefault();
+            }
+        }
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+        if (draggedElement) {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(container, e.clientY);
+            if (afterElement == null) {
+                container.appendChild(draggedElement);
+            } else {
+                container.insertBefore(draggedElement, afterElement);
+            }
+        }
+    });
+    
+    document.addEventListener('mouseup', function() {
+        if (draggedElement) {
+            draggedElement.classList.remove('dragging');
+            draggedElement = null;
+            saveFlow();
+        }
+    });
 });
 
-// Fallback caso DOMContentLoaded já tenha disparado
-if (document.readyState === 'loading') {
-    // DOM ainda não carregou, aguardar
-} else {
-    // DOM já carregou
-    if (initCanvas()) {
-        setupCanvasEvents();
-        setupPaletteDragDrop();
-        loadFlow();
-    }
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.block-item:not(.dragging)')];
+    
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
-
-// Atualizar conexões quando o viewport é redimensionado
-window.addEventListener('resize', () => {
-    if (!canvasWrapper || !connectionsLayer) return;
-    const w = canvasWrapper.clientWidth;
-    const h = canvasWrapper.clientHeight;
-    connectionsLayer.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    updateConnections();
-});
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
-

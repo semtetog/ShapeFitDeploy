@@ -45,6 +45,18 @@ try {
         case 'publish_flow':
             publishFlow($data, $admin_id);
             break;
+        case 'save_block':
+            saveBlock($data, $admin_id);
+            break;
+        case 'update_block':
+            updateBlock($data, $admin_id);
+            break;
+        case 'delete_block':
+            deleteBlock($data, $admin_id);
+            break;
+        case 'save_block_order':
+            saveBlockOrder($data, $admin_id);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -445,6 +457,228 @@ function publishFlow($data, $admin_id) {
             'success' => false,
             'message' => 'Erro ao publicar fluxo: ' . $conn->error
         ]);
+    }
+}
+
+function saveBlock($data, $admin_id) {
+    global $conn;
+    
+    $config_id = (int)($data['config_id'] ?? 0);
+    $question_text = trim($data['question_text'] ?? '');
+    $question_type = $data['question_type'] ?? 'text';
+    $options_json = $data['options'] ?? '[]';
+    $order_index = (int)($data['order_index'] ?? 0);
+    
+    if ($config_id === 0) {
+        throw new Exception('ID do check-in inválido');
+    }
+    
+    if (empty($question_text)) {
+        throw new Exception('Texto da pergunta é obrigatório');
+    }
+    
+    // Verificar se o check-in pertence ao admin
+    $check_query = "SELECT id FROM sf_checkin_configs WHERE id = ? AND admin_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("ii", $config_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        throw new Exception('Check-in não encontrado ou sem permissão');
+    }
+    $stmt->close();
+    
+    // Validar tipo
+    if (!in_array($question_type, ['text', 'multiple_choice', 'scale'])) {
+        $question_type = 'text';
+    }
+    
+    // Processar opções
+    $options = null;
+    if ($question_type !== 'text') {
+        $options_array = json_decode($options_json, true);
+        if (is_array($options_array) && !empty($options_array)) {
+            $options = json_encode($options_array);
+        }
+    }
+    
+    // Inserir bloco
+    $stmt = $conn->prepare("INSERT INTO sf_checkin_questions (config_id, question_text, question_type, options, order_index, is_required, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, NOW(), NOW())");
+    $stmt->bind_param("isssi", $config_id, $question_text, $question_type, $options, $order_index);
+    
+    if ($stmt->execute()) {
+        $block_id = $conn->insert_id;
+        $stmt->close();
+        echo json_encode([
+            'success' => true,
+            'message' => 'Bloco criado com sucesso',
+            'block_id' => $block_id
+        ]);
+    } else {
+        $error = $stmt->error;
+        $stmt->close();
+        throw new Exception('Erro ao criar bloco: ' . $error);
+    }
+}
+
+function updateBlock($data, $admin_id) {
+    global $conn;
+    
+    $block_id = (int)($data['block_id'] ?? 0);
+    $question_text = trim($data['question_text'] ?? '');
+    $question_type = $data['question_type'] ?? 'text';
+    $options_json = $data['options'] ?? '[]';
+    
+    if ($block_id === 0) {
+        throw new Exception('ID do bloco inválido');
+    }
+    
+    if (empty($question_text)) {
+        throw new Exception('Texto da pergunta é obrigatório');
+    }
+    
+    // Verificar se o bloco pertence a um check-in do admin
+    $check_query = "SELECT cq.id FROM sf_checkin_questions cq 
+                    INNER JOIN sf_checkin_configs cc ON cq.config_id = cc.id 
+                    WHERE cq.id = ? AND cc.admin_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("ii", $block_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        throw new Exception('Bloco não encontrado ou sem permissão');
+    }
+    $stmt->close();
+    
+    // Validar tipo
+    if (!in_array($question_type, ['text', 'multiple_choice', 'scale'])) {
+        $question_type = 'text';
+    }
+    
+    // Processar opções
+    $options = null;
+    if ($question_type !== 'text') {
+        $options_array = json_decode($options_json, true);
+        if (is_array($options_array) && !empty($options_array)) {
+            $options = json_encode($options_array);
+        }
+    }
+    
+    // Atualizar bloco
+    $stmt = $conn->prepare("UPDATE sf_checkin_questions SET question_text = ?, question_type = ?, options = ?, updated_at = NOW() WHERE id = ?");
+    $stmt->bind_param("sssi", $question_text, $question_type, $options, $block_id);
+    
+    if ($stmt->execute()) {
+        $stmt->close();
+        echo json_encode([
+            'success' => true,
+            'message' => 'Bloco atualizado com sucesso'
+        ]);
+    } else {
+        $error = $stmt->error;
+        $stmt->close();
+        throw new Exception('Erro ao atualizar bloco: ' . $error);
+    }
+}
+
+function deleteBlock($data, $admin_id) {
+    global $conn;
+    
+    $block_id = (int)($data['block_id'] ?? 0);
+    
+    if ($block_id === 0) {
+        throw new Exception('ID do bloco inválido');
+    }
+    
+    // Verificar se o bloco pertence a um check-in do admin
+    $check_query = "SELECT cq.id FROM sf_checkin_questions cq 
+                    INNER JOIN sf_checkin_configs cc ON cq.config_id = cc.id 
+                    WHERE cq.id = ? AND cc.admin_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("ii", $block_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        throw new Exception('Bloco não encontrado ou sem permissão');
+    }
+    $stmt->close();
+    
+    // Deletar bloco
+    $stmt = $conn->prepare("DELETE FROM sf_checkin_questions WHERE id = ?");
+    $stmt->bind_param("i", $block_id);
+    
+    if ($stmt->execute()) {
+        $stmt->close();
+        echo json_encode([
+            'success' => true,
+            'message' => 'Bloco excluído com sucesso'
+        ]);
+    } else {
+        $error = $stmt->error;
+        $stmt->close();
+        throw new Exception('Erro ao excluir bloco: ' . $error);
+    }
+}
+
+function saveBlockOrder($data, $admin_id) {
+    global $conn;
+    
+    $config_id = (int)($data['config_id'] ?? 0);
+    $order_json = $data['order'] ?? '[]';
+    
+    if ($config_id === 0) {
+        throw new Exception('ID do check-in inválido');
+    }
+    
+    // Verificar se o check-in pertence ao admin
+    $check_query = "SELECT id FROM sf_checkin_configs WHERE id = ? AND admin_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("ii", $config_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        throw new Exception('Check-in não encontrado ou sem permissão');
+    }
+    $stmt->close();
+    
+    // Processar ordem
+    $order = json_decode($order_json, true);
+    if (!is_array($order)) {
+        throw new Exception('Ordem inválida');
+    }
+    
+    $conn->begin_transaction();
+    
+    try {
+        // Atualizar ordem de cada bloco
+        $stmt = $conn->prepare("UPDATE sf_checkin_questions SET order_index = ? WHERE id = ? AND config_id = ?");
+        foreach ($order as $item) {
+            $block_id = (int)($item['id'] ?? 0);
+            $order_index = (int)($item['order'] ?? 0);
+            
+            if ($block_id > 0) {
+                $stmt->bind_param("iii", $order_index, $block_id, $config_id);
+                $stmt->execute();
+            }
+        }
+        $stmt->close();
+        
+        $conn->commit();
+        echo json_encode([
+            'success' => true,
+            'message' => 'Ordem salva com sucesso'
+        ]);
+    } catch (Exception $e) {
+        $conn->rollback();
+        throw $e;
     }
 }
 

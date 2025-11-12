@@ -632,6 +632,268 @@
   color: #FF6B00 !important;
 }
 
+/* ========================================
+   CORREÇÕES ABRANGENTES PARA TEMA CLARO
+   ======================================== */
+
+/* === FORÇAR TODOS OS TEXTOS A SEREM ESCUROS === */
+/* Regras específicas abaixo para evitar problemas com regras genéricas */
+
+[data-theme="light"] .stat-card h3,
+[data-theme="light"] .stat-card .stat-value,
+[data-theme="light"] .stat-card .stat-label,
+[data-theme="light"] .section-title,
+[data-theme="light"] .chart-title,
+[data-theme="light"] .card-title,
+[data-theme="light"] .table-title,
+[data-theme="light"] .page-subtitle,
+[data-theme="light"] .user-card-name,
+[data-theme="light"] .user-card-email,
+[data-theme="light"] .user-card-date,
+[data-theme="light"] .pagination-info,
+[data-theme="light"] .pagination-link,
+[data-theme="light"] .form-label,
+[data-theme="light"] .chart-placeholder,
+[data-theme="light"] .chart-placeholder p,
+[data-theme="light"] .empty-state {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .pagination-info strong {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .pagination-link:hover {
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .pagination-link.active {
+  color: #FFFFFF !important;
+}
+
+[data-theme="light"] .users-table th,
+[data-theme="light"] .table th {
+  color: #1A202C !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .users-table td,
+[data-theme="light"] .table td {
+  color: #4A5568 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .users-table tr:hover,
+[data-theme="light"] .table tr:hover {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+/* === CORRIGIR TODOS OS CONTORNOS PARA PRETOS/ESCUROS === */
+[data-theme="light"] .stat-card,
+[data-theme="light"] .chart-card,
+[data-theme="light"] .dashboard-card,
+[data-theme="light"] .recent-section,
+[data-theme="light"] .data-table,
+[data-theme="light"] .user-cards-grid .user-card,
+[data-theme="light"] .search-form input,
+[data-theme="light"] .form-control,
+[data-theme="light"] .btn-secondary,
+[data-theme="light"] .btn-icon,
+[data-theme="light"] .pagination-link {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .btn-icon:hover {
+  border-color: rgba(255, 102, 0, 0.4) !important;
+}
+
+[data-theme="light"] .pagination-link:hover {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="light"] .pagination-link.active {
+  border-color: var(--accent-orange) !important;
+}
+
+/* === GARANTIR SOMBRAS CONSISTENTES EM TODOS OS CARDS === */
+[data-theme="light"] .stat-card,
+[data-theme="light"] .chart-card,
+[data-theme="light"] .dashboard-card,
+[data-theme="light"] .card,
+[data-theme="light"] .user-card,
+[data-theme="light"] .patient-card,
+[data-theme="light"] .recent-section,
+[data-theme="light"] .data-table,
+[data-theme="light"] .view-user-header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .stat-card:hover,
+[data-theme="light"] .chart-card:hover,
+[data-theme="light"] .dashboard-card:hover,
+[data-theme="light"] .card:hover,
+[data-theme="light"] .user-card:hover,
+[data-theme="light"] .patient-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* === CORRIGIR CORES DE BOTÕES === */
+[data-theme="light"] .btn-primary {
+  background: var(--accent-orange) !important;
+  border-color: var(--accent-orange) !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background: #E55D00 !important;
+  border-color: #E55D00 !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="light"] .btn-secondary {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .btn-icon {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] .btn-icon:hover {
+  background: rgba(255, 102, 0, 0.1) !important;
+  border-color: rgba(255, 102, 0, 0.3) !important;
+  color: #FF6B00 !important;
+}
+
+[data-theme="light"] .search-form button {
+  background: var(--accent-orange) !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="light"] .search-form button:hover {
+  background: #E55D00 !important;
+  color: #FFFFFF !important;
+}
+
+/* === CORRIGIR CORES DE INPUTS === */
+[data-theme="light"] .search-form input,
+[data-theme="light"] .form-control {
+  background: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .search-form input:focus,
+[data-theme="light"] .form-control:focus {
+  border-color: var(--accent-orange) !important;
+  background: #FFFFFF !important;
+  color: #1A202C !important;
+}
+
+[data-theme="light"] .search-form input::placeholder,
+[data-theme="light"] .form-control::placeholder {
+  color: #A0AEC0 !important;
+}
+
+/* === CORRIGIR CORES DE LINKS === */
+[data-theme="light"] a:not(.btn):not(.pagination-link):not(.tab-link) {
+  color: #4A5568 !important;
+}
+
+[data-theme="light"] a:not(.btn):not(.pagination-link):not(.tab-link):hover {
+  color: #FF6B00 !important;
+}
+
+/* === CORRIGIR CORES DE ÍCONES === */
+[data-theme="light"] .admin-theme-toggle,
+[data-theme="light"] .admin-logout-btn {
+  color: var(--accent-orange) !important;
+}
+
+[data-theme="light"] .admin-theme-toggle i,
+[data-theme="light"] .admin-logout-btn i {
+  color: var(--accent-orange) !important;
+}
+
+[data-theme="light"] .stat-icon-container i {
+  color: #FFFFFF !important;
+}
+
+[data-theme="light"] .chart-title i,
+[data-theme="light"] .section-title i {
+  color: var(--accent-orange) !important;
+}
+
+/* === CORRIGIR BACKGROUNDS === */
+[data-theme="light"] .stat-card,
+[data-theme="light"] .chart-card,
+[data-theme="light"] .dashboard-card,
+[data-theme="light"] .card,
+[data-theme="light"] .recent-section,
+[data-theme="light"] .data-table {
+  background: #FFFFFF !important;
+}
+
+[data-theme="light"] .stat-card:hover,
+[data-theme="light"] .chart-card:hover,
+[data-theme="light"] .dashboard-card:hover {
+  background: #FFFFFF !important;
+}
+
+[data-theme="light"] .section-header {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* === CORRIGIR CORES DE STATUS BADGES === */
+[data-theme="light"] .status-badge.active {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #15803D !important;
+  border-color: #22C55E !important;
+}
+
+/* === CORRIGIR CORES DE ALERTAS === */
+[data-theme="light"] .admin-alert.alert-info {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border-color: #3B82F6 !important;
+  color: #1E40AF !important;
+}
+
+[data-theme="light"] .admin-alert i {
+  color: inherit !important;
+}
+
+/* === CORRIGIR CORES DE PLACEHOLDER E EMPTY STATES === */
+[data-theme="light"] .chart-placeholder {
+  color: #718096 !important;
+}
+
+[data-theme="light"] .chart-placeholder i {
+  color: #FF6B00 !important;
+}
+
+[data-theme="light"] .empty-state {
+  color: #718096 !important;
+}
+
+/* === GARANTIR QUE TODOS OS ELEMENTOS TENHAM CONTORNO === */
+[data-theme="light"] .stat-card:not([style*="border"]),
+[data-theme="light"] .chart-card:not([style*="border"]),
+[data-theme="light"] .dashboard-card:not([style*="border"]),
+[data-theme="light"] .card:not([style*="border"]) {
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
 /* Antialiasing global para todos os textos */
 h1, h2, h3, h4, h5, h6, p, span, a, label, input, textarea, button {
   -webkit-font-smoothing: antialiased;
@@ -1010,20 +1272,22 @@ html *, body *, .admin-wrapper *, .main-content *, .content-wrapper * {
   border-color: var(--accent-orange);
 }
 
+/* Quando está no tema escuro, mostra o sol (para ir pro claro) */
 .admin-theme-toggle .theme-icon-light {
-  display: none;
+  display: block;
 }
 
 .admin-theme-toggle .theme-icon-dark {
-  display: block;
+  display: none;
 }
 
+/* Quando está no tema claro, mostra a lua (para ir pro escuro) */
 [data-theme="light"] .admin-theme-toggle .theme-icon-light {
-  display: block;
+  display: none;
 }
 
 [data-theme="light"] .admin-theme-toggle .theme-icon-dark {
-  display: none;
+  display: block;
 }
 
 .admin-logout-btn {
