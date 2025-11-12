@@ -1048,11 +1048,13 @@ textarea.form-control {
                             </div>
                             <div class="form-group">
                                 <label>Tipo</label>
-                                <select name="question_type" class="form-control" onchange="toggleOptionsEditor(this, <?php echo $block['id']; ?>)">
-                                    <option value="text" <?php echo $block['question_type'] === 'text' ? 'selected' : ''; ?>>Mensagem de Texto</option>
-                                    <option value="multiple_choice" <?php echo $block['question_type'] === 'multiple_choice' ? 'selected' : ''; ?>>Múltipla Escolha</option>
-                                    <option value="scale" <?php echo $block['question_type'] === 'scale' ? 'selected' : ''; ?>>Escala (0-10)</option>
-                                </select>
+                                <div class="custom-select-wrapper">
+                                    <select name="question_type" class="form-control" onchange="toggleOptionsEditor(this, <?php echo $block['id']; ?>)">
+                                        <option value="text" <?php echo $block['question_type'] === 'text' ? 'selected' : ''; ?>>Mensagem de Texto</option>
+                                        <option value="multiple_choice" <?php echo $block['question_type'] === 'multiple_choice' ? 'selected' : ''; ?>>Múltipla Escolha</option>
+                                        <option value="scale" <?php echo $block['question_type'] === 'scale' ? 'selected' : ''; ?>>Escala (0-10)</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="options-editor" id="optionsEditor_<?php echo $block['id']; ?>" style="display: <?php echo in_array($block['question_type'], ['multiple_choice', 'scale']) ? 'block' : 'none'; ?>;">
                                 <label>Opções</label>
