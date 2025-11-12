@@ -98,16 +98,20 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Container principal - duas colunas */
 .checkin-flow-editor {
-    display: flex;
-    gap: var(--layout-gap);
-    padding: var(--layout-gap);
-    /* Espaços mínimos fixos: sidebar + gap mínimo + celular + gap mínimo + painel */
-    padding-left: calc(var(--sidebar-width) + var(--layout-gap) + var(--mockup-width) + var(--layout-gap));
+    display: block;
+    padding-top: var(--layout-gap);
+    padding-bottom: var(--layout-gap);
     padding-right: var(--layout-gap);
+    /* Celular está fixed em: sidebar + gap
+       Celular termina em: sidebar + gap + mockup-width  
+       Painel deve começar logo após: sidebar + gap + mockup-width + gap
+       (mesmo gap que separa sidebar do celular) */
+    padding-left: calc(var(--sidebar-width) + var(--layout-gap) + var(--mockup-width) + var(--layout-gap));
     width: calc(100vw - var(--sidebar-width));
     max-width: none;
     box-sizing: border-box;
     overflow-x: hidden;
+    margin: 0;
 }
 
 /* PAINEL DO CELULAR (ESQUERDA - FIXO COM ESPAÇO MÍNIMO) */
@@ -115,7 +119,7 @@ require_once __DIR__ . '/includes/header.php';
     position: fixed;
     top: 50%;
     transform: translateY(-50%);
-    /* Posição: sidebar + gap mínimo (mesmo gap usado no container) */
+    /* Posição: sidebar + gap (mesma distância que teremos do celular ao painel) */
     left: calc(var(--sidebar-width) + var(--layout-gap));
     
     width: var(--mockup-width);
@@ -124,6 +128,8 @@ require_once __DIR__ . '/includes/header.php';
     max-width: 410px;
     max-height: 820px;
     z-index: 10;
+    /* Debug: garantir que não há margin */
+    margin: 0;
 }
 
 .mobile-mockup-wrapper {
@@ -156,11 +162,8 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    flex-grow: 1;
-    flex-basis: 0;
-    width: auto;
-    /* Ocupar o espaço restante após sidebar + gap + celular + gap */
-    max-width: calc(100vw - var(--sidebar-width) - var(--mockup-width) - (var(--layout-gap) * 3));
+    width: 100%;
+    max-width: 100%;
     min-width: 600px;
     box-sizing: border-box;
 }
