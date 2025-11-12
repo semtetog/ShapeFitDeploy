@@ -102,9 +102,10 @@ require_once __DIR__ . '/includes/header.php';
     padding: var(--layout-gap);
     /* O celular está fixed, então o conteúdo (painel) precisa começar após ele.
        Celular começa em: sidebar + gap
-       Celular termina em: sidebar + gap + mockup-width (limitado a 410px max)
-       Painel deve começar em: sidebar + gap + min(mockup-width, 410px) + gap */
-    padding-left: calc(var(--sidebar-width) + var(--layout-gap) + min(var(--mockup-width), 410px) + var(--layout-gap));
+       Celular tem max-width de 410px (mesmo que --mockup-width possa ser maior)
+       Celular termina em: sidebar + gap + 410px
+       Painel deve começar em: sidebar + gap + 410px + gap (mesmo gap entre sidebar e celular) */
+    padding-left: calc(var(--sidebar-width) + var(--layout-gap) + 410px + var(--layout-gap));
     width: calc(100vw - var(--sidebar-width));
     max-width: none;
     box-sizing: border-box;
