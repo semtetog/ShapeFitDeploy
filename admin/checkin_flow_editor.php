@@ -611,10 +611,13 @@ textarea.form-control {
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 2rem;
+    width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    overflow-x: hidden;
+    overflow-x: visible;
+    overflow-y: visible;
     word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .section-title {
