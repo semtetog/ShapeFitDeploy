@@ -872,6 +872,9 @@ textarea.form-control {
                     <button onclick="updatePreviewDelay()" class="btn btn-secondary" style="padding: 0.375rem 0.5rem; font-size: 0.75rem;">
                         <i class="fas fa-sync"></i> Atualizar
                     </button>
+                    <button onclick="restartPreview()" class="btn btn-secondary" style="padding: 0.375rem 0.5rem; font-size: 0.75rem;" title="Reiniciar Preview">
+                        <i class="fas fa-redo"></i>
+                    </button>
                 </div>
                 <a href="checkin.php" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Voltar
@@ -1146,11 +1149,13 @@ function addBlock(type) {
                     </div>
                     <div class="form-group">
                         <label>Tipo</label>
-                        <select name="question_type" class="form-control" onchange="toggleOptionsEditor(this, '${blockId}')">
-                            <option value="text" ${type === 'text' ? 'selected' : ''}>Mensagem de Texto</option>
-                            <option value="multiple_choice" ${type === 'multiple_choice' ? 'selected' : ''}>Múltipla Escolha</option>
-                            <option value="scale" ${type === 'scale' ? 'selected' : ''}>Escala (0-10)</option>
-                        </select>
+                        <div class="custom-select-wrapper">
+                            <select name="question_type" class="form-control" onchange="toggleOptionsEditor(this, '${blockId}')">
+                                <option value="text" ${type === 'text' ? 'selected' : ''}>Mensagem de Texto</option>
+                                <option value="multiple_choice" ${type === 'multiple_choice' ? 'selected' : ''}>Múltipla Escolha</option>
+                                <option value="scale" ${type === 'scale' ? 'selected' : ''}>Escala (0-10)</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="options-editor" id="optionsEditor_${blockId}" style="display: ${type !== 'text' ? 'block' : 'none'};">
                         <label>Opções</label>
