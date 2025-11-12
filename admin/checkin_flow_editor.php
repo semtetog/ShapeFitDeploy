@@ -139,12 +139,9 @@ require_once __DIR__ . '/includes/header.php';
     
     /* Reduzir gap entre celular e menu de configurações no zoom 125% - gap mínimo */
     .config-panel {
-        margin-left: calc(350px + 0.5rem);
-    }
-    
-    /* Ajustar width do menu para compensar o gap reduzido */
-    .config-panel {
-        max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 350px - 0.5rem - var(--content-wrapper-padding-h));
+        margin-left: calc(350px + 0.375rem);
+        /* Ajustar width do menu para compensar o gap reduzido */
+        max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 350px - 0.375rem - var(--content-wrapper-padding-h));
     }
 }
 
