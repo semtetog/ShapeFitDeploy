@@ -1172,6 +1172,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 <script>
 let selectedRecipe = null;
 let pendingItems = [];
+let userSelectedMealType = false;
 
 function selectRecipe(recipe) {
     console.log('🎯 SELECT RECIPE - INÍCIO');
@@ -1546,6 +1547,35 @@ function parseMacroValue(text) {
     return isNaN(value) ? 0 : value;
 }
 
+function getMealTypeSlugByTime(timeStr) {
+    if (!timeStr || typeof timeStr !== 'string') return null;
+    const [hoursStr] = timeStr.split(':');
+    const hours = parseInt(hoursStr, 10);
+    if (Number.isNaN(hours)) return null;
+
+    if (hours >= 5 && hours < 10) return 'breakfast';
+    if (hours >= 10 && hours < 12) return 'morning_snack';
+    if (hours >= 12 && hours < 15) return 'lunch';
+    if (hours >= 15 && hours < 18) return 'afternoon_snack';
+    if (hours >= 18 && hours < 21) return 'dinner';
+    return 'supper';
+}
+
+function autoSetMealType(force = false) {
+    if (!force && userSelectedMealType) return;
+    const mealTimeInput = document.getElementById('meal_time');
+    const mealTypeSelect = document.getElementById('meal-type');
+    if (!mealTimeInput || !mealTypeSelect) return;
+
+    const slug = getMealTypeSlugByTime(mealTimeInput.value);
+    if (!slug) return;
+
+    const optionExists = Array.from(mealTypeSelect.options).some(opt => opt.value === slug);
+    if (optionExists) {
+        mealTypeSelect.value = slug;
+    }
+}
+
 function formatNumber(value, decimals = 1) {
     const number = Number(value) || 0;
     return Number.isInteger(number) ? number.toString() : number.toFixed(decimals);
@@ -1902,6 +1932,25 @@ document.addEventListener('DOMContentLoaded', function() {
     if (saveAllBtn) {
         saveAllBtn.addEventListener('click', submitAllMeals);
     }
+
+    const mealTimeInput = document.getElementById('meal_time');
+    if (mealTimeInput) {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        mealTimeInput.value = `${hours}:${minutes}`;
+        mealTimeInput.addEventListener('change', () => autoSetMealType());
+        mealTimeInput.addEventListener('input', () => autoSetMealType());
+    }
+
+    const mealTypeSelect = document.getElementById('meal-type');
+    if (mealTypeSelect) {
+        mealTypeSelect.addEventListener('change', () => {
+            userSelectedMealType = true;
+        });
+    }
+
+    autoSetMealType(true);
 });
 </script>
 
