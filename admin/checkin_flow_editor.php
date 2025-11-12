@@ -2071,11 +2071,14 @@ function adjustLayoutForZoom() {
     
     // Aplicar ajustes baseado no zoom detectado
     if (zoomLevel === '100%') {
-        // Zoom 100%: descer o celular (adicionar margin-top)
+        // Zoom 100%: alinhar topo do menu e do celular
+        // Descer um pouco o mockup e também o painel de config
         mockupPanel.style.top = 'calc(var(--content-wrapper-padding-v) + 2rem)';
+        configPanel.style.marginTop = '2rem';
         
-        // Manter espaçamentos horizontais do zoom 110% (referência)
-        // Não precisa ajustar margin-left do config-panel
+        // Mantém espaçamento horizontal padrão (mesmo do 110%)
+        configPanel.style.marginLeft = 'calc(var(--mockup-width) + var(--gap-size))';
+        configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding-h))';
     } else if (zoomLevel === '125%') {
         // Zoom 125%: reduzir largura do celular e ajustar espaçamento
         mockupPanel.style.width = '350px';
