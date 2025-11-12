@@ -1530,7 +1530,6 @@ textarea.form-control {
 .add-block-button-container {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--glass-border);
     display: flex;
     justify-content: center;
 }
@@ -2957,8 +2956,26 @@ document.addEventListener('DOMContentLoaded', function() {
             // Encontrar posição de inserção
             const afterElement = getDragAfterElement(container, e.clientY);
             
-            if (afterElement == null) {
-                container.appendChild(placeholder);
+            // Obter o container do botão "Adicionar Bloco"
+            const addBlockButtonContainer = container.querySelector('.add-block-button-container');
+            
+            // Verificar se estamos tentando inserir depois do botão
+            let shouldInsertBeforeButton = false;
+            if (addBlockButtonContainer) {
+                const buttonRect = addBlockButtonContainer.getBoundingClientRect();
+                // Se a posição Y do mouse está abaixo do topo do botão, não permitir inserir depois
+                if (e.clientY > buttonRect.top) {
+                    shouldInsertBeforeButton = true;
+                }
+            }
+            
+            if (afterElement == null || shouldInsertBeforeButton) {
+                // Se não encontrou elemento ou está tentando inserir depois do botão, inserir antes do botão
+                if (addBlockButtonContainer) {
+                    container.insertBefore(placeholder, addBlockButtonContainer);
+                } else {
+                    container.appendChild(placeholder);
+                }
             } else {
                 container.insertBefore(placeholder, afterElement);
             }
