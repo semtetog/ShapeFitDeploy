@@ -2679,6 +2679,11 @@ function openCheckinModal() {
     document.body.style.overflow = 'hidden';
     currentQuestionIndex = 0;
     checkinResponses = {};
+    const textInput = document.getElementById('checkinTextInput');
+    const sendBtn = document.getElementById('checkinSendBtn');
+    textInput.disabled = true;
+    sendBtn.disabled = true;
+    textInput.value = '';
     renderNextQuestion();
 }
 
@@ -2774,8 +2779,12 @@ function selectOption(option) {
 
 function sendCheckinResponse() {
     const input = document.getElementById('checkinTextInput');
-    const response = input.value.trim();
+    const sendBtn = document.getElementById('checkinSendBtn');
     
+    // Verificar se está desabilitado
+    if (input.disabled) return;
+    
+    const response = input.value.trim();
     if (!response) return;
     
     const question = checkinData.questions[currentQuestionIndex];
@@ -2786,6 +2795,8 @@ function sendCheckinResponse() {
     
     addMessage(response, 'user');
     input.value = '';
+    input.disabled = true;
+    sendBtn.disabled = true;
     currentQuestionIndex++;
     
     setTimeout(() => renderNextQuestion(), 500);
