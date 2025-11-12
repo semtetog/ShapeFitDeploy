@@ -2077,13 +2077,13 @@ function adjustLayoutForZoom() {
         // Manter espaçamentos horizontais do zoom 110% (referência)
         // Não precisa ajustar margin-left do config-panel
     } else if (zoomLevel === '125%') {
-        // Zoom 125%: reduzir largura do celular e aproximar do menu
+        // Zoom 125%: reduzir largura do celular e ajustar espaçamento
         mockupPanel.style.width = '350px';
         mockupPanel.style.maxWidth = '350px';
         
-        // Reduzir gap entre celular e menu (aproximar)
-        configPanel.style.marginLeft = 'calc(350px + 0.75rem)';
-        configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 350px - 0.75rem - var(--content-wrapper-padding-h))';
+        // Zoom 125%: duplicar a distância entre o menu e o celular
+        configPanel.style.marginLeft = 'calc(350px + 1.5rem)';
+        configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 350px - 1.5rem - var(--content-wrapper-padding-h))';
     }
     // Zoom 110%: manter valores padrão (já definidos no CSS)
 }
