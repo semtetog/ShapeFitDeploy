@@ -89,48 +89,51 @@ require_once __DIR__ . '/includes/header.php';
     --glass-border: rgba(255, 255, 255, 0.1);
     
     --sidebar-width: 256px;
-    --layout-gap: 2rem;
+    --content-wrapper-padding: 2rem;
+    --gap-between-mockup-config: 1.5rem;
+    --mockup-max-width: 410px;
+    --mockup-max-height: 820px;
     
     /* Tamanho baseado na ALTURA da tela */
-    --mockup-height: calc(100vh - (var(--layout-gap) * 2));
+    --mockup-height: calc(100vh - (var(--content-wrapper-padding) * 2));
     --mockup-width: calc(var(--mockup-height) / 2);
 }
 
-/* Container principal - duas colunas */
+/* ========================================================================= */
+/* LAYOUT PRINCIPAL - REFATORADO */
+/* ========================================================================= */
+
+/* Container principal */
 .checkin-flow-editor {
-    display: block;
-    padding-top: var(--layout-gap);
-    padding-bottom: var(--layout-gap);
-    padding-right: var(--layout-gap);
-    /* IMPORTANTE: O container já começa após a sidebar (width: calc(100vw - var(--sidebar-width)))
-       Celular está fixed em: sidebar + gap (da borda esquerda da tela)
-       Celular termina em: sidebar + gap + 410px (da borda esquerda da tela)
-       Painel deve começar um pouco mais perto: gap + 410px + gap reduzido
-       Reduzindo um pouco o gap entre celular e painel para aproximar */
-    padding-left: calc(var(--layout-gap) + 410px + 1.25rem);
-    width: calc(100vw - var(--sidebar-width));
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "mockup config";
+    gap: var(--gap-between-mockup-config);
+    width: 100%;
     max-width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
     margin: 0;
+    padding: 0;
+    position: relative;
 }
 
-/* PAINEL DO CELULAR (ESQUERDA - FIXO COM ESPAÇO MÍNIMO) */
+/* PAINEL DO CELULAR (ESQUERDA - FIXO) */
 .mobile-mockup-panel {
+    grid-area: mockup;
     position: fixed;
     top: 50%;
     transform: translateY(-50%);
-    /* Posição: sidebar + gap (mesma distância que teremos do celular ao painel) */
-    left: calc(var(--sidebar-width) + var(--layout-gap));
+    /* Posição: sidebar + padding do content-wrapper + gap */
+    left: calc(var(--sidebar-width) + var(--content-wrapper-padding));
     
     width: var(--mockup-width);
     height: var(--mockup-height);
-    
-    max-width: 410px;
-    max-height: 820px;
+    max-width: var(--mockup-max-width);
+    max-height: var(--mockup-max-height);
     z-index: 10;
-    /* Debug: garantir que não há margin */
     margin: 0;
+    flex-shrink: 0;
 }
 
 .mobile-mockup-wrapper {
@@ -160,13 +163,15 @@ require_once __DIR__ . '/includes/header.php';
 
 /* PAINEL DE CONFIGURAÇÕES (DIREITA) */
 .config-panel {
+    grid-area: config;
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    width: 100%;
-    /* Limitar largura máxima para não ultrapassar a borda direita da tela
-       Calculando: largura da tela - sidebar - gap - celular - gap reduzido - padding-right */
-    max-width: calc(100vw - var(--sidebar-width) - var(--layout-gap) - 410px - 1.25rem - var(--layout-gap));
+    /* O painel começa após o espaço do mockup (que está fixed) */
+    /* Calculando: sidebar + content-wrapper-padding + mockup-width + gap */
+    margin-left: calc(var(--mockup-max-width) + var(--gap-between-mockup-config));
+    width: calc(100% - var(--mockup-max-width) - var(--gap-between-mockup-config));
+    max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding) - var(--mockup-max-width) - var(--gap-between-mockup-config) - var(--content-wrapper-padding));
     min-width: 600px;
     box-sizing: border-box;
     overflow-x: hidden;
