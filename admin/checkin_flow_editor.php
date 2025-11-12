@@ -2073,16 +2073,18 @@ function adjustLayoutForZoom() {
     
     // Aplicar ajustes baseado no zoom detectado
     if (zoomLevel === '100%') {
-        // Zoom 100%: celular um pouco menor para equilibrar com o menu
+        // Zoom 100%: manter o tamanho, mas descer levemente o celular e o menu
         mockupPanel.style.width = '440px';
         mockupPanel.style.maxWidth = '440px';
         mockupPanel.style.height = 'calc(100vh - (var(--content-wrapper-padding-v) * 1.5))';
         mockupPanel.style.maxHeight = '880px';
-        mockupPanel.style.top = 'var(--content-wrapper-padding-v)';
+        
+        // ↓ Descer o mockup e o painel para alinhar melhor visualmente
+        mockupPanel.style.top = 'calc(var(--content-wrapper-padding-v) + 1.5rem)';
+        configPanel.style.marginTop = '1.5rem';
         
         // Recalcula automaticamente o painel da direita
         configPanel.style.marginLeft = 'calc(440px + var(--gap-size))';
-        configPanel.style.marginTop = 'var(--content-wrapper-padding-v)';
         configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 440px - var(--gap-size) - var(--content-wrapper-padding-h))';
     } else if (zoomLevel === '125%') {
         // Zoom 125%: reduzir largura do celular e ajustar espaçamento
