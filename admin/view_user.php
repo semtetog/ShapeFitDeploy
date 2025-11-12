@@ -1312,16 +1312,6 @@ if (typeof window.userId === 'undefined') {
             <span>Rotina</span>
         </div>
     </div>
-    <div class="tabs-row">
-        <div class="tab-link" data-tab="feedback_analysis">
-            <i class="fas fa-comments"></i>
-            <span>Feedback</span>
-        </div>
-        <div class="tab-link" data-tab="personalized_goals">
-            <i class="fas fa-bullseye"></i>
-            <span>Metas</span>
-        </div>
-    </div>
 </div>
 
 <!-- CONTEÚDO DAS ABAS - SERÁ PREENCHIDO VIA INCLUDES -->
@@ -1335,28 +1325,6 @@ if (typeof window.userId === 'undefined') {
 
 <div id="tab-routine" class="tab-content">
     <?php include __DIR__ . '/view_user_routine.php'; ?>
-</div>
-
-<div id="tab-feedback_analysis" class="tab-content">
-    <!-- Placeholder para aba de Feedback - será implementada posteriormente -->
-    <div class="placeholder-content">
-        <div class="placeholder-icon">
-            <i class="fas fa-comments"></i>
-        </div>
-        <h3>Análise de Feedback</h3>
-        <p>Esta funcionalidade será implementada em breve.</p>
-    </div>
-</div>
-
-<div id="tab-personalized_goals" class="tab-content">
-    <!-- Placeholder para aba de Metas - será implementada posteriormente -->
-    <div class="placeholder-content">
-        <div class="placeholder-icon">
-            <i class="fas fa-bullseye"></i>
-        </div>
-        <h3>Metas Personalizadas</h3>
-        <p>Esta funcionalidade será implementada em breve.</p>
-    </div>
 </div>
 
 <style>
