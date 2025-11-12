@@ -214,6 +214,8 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    flex-wrap: wrap;
+    max-width: 100%;
 }
 
 /* Botões no estilo das outras páginas */
@@ -632,6 +634,9 @@ textarea.form-control {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .form-row {
