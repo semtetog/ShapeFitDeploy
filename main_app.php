@@ -2844,9 +2844,30 @@ function restoreChatFromProgress() {
     for (let i = 0; i < checkinData.questions.length; i++) {
         const question = checkinData.questions[i];
         if (answeredQuestionIds.includes(question.id)) {
-            // Renderizar pergunta e resposta
+            // Renderizar pergunta
             addMessage(question.question_text, 'bot');
             
+            // Se for múltipla escolha ou escala, renderizar as opções (desabilitadas)
+            if ((question.question_type === 'scale' || question.question_type === 'multiple_choice') && question.options) {
+                const options = Array.isArray(question.options) ? question.options : JSON.parse(question.options);
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'checkin-options';
+                
+                options.forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.className = 'checkin-option-btn';
+                    btn.type = 'button';
+                    btn.textContent = option;
+                    btn.disabled = true;
+                    btn.style.opacity = '0.4';
+                    btn.style.cursor = 'not-allowed';
+                    optionsDiv.appendChild(btn);
+                });
+                
+                messagesDiv.appendChild(optionsDiv);
+            }
+            
+            // Renderizar resposta do usuário
             const savedResponse = savedResponses[question.id];
             if (savedResponse) {
                 if (savedResponse.response_text) {
