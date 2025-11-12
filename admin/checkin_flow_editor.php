@@ -1435,7 +1435,7 @@ textarea.form-control {
                                 $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
                                 for ($i = 0; $i < 7; $i++): 
                                 ?>
-                                    <div class="custom-select-option" data-value="<?php echo $i; ?>" <?php echo $checkin['day_of_week'] == $i ? 'class="custom-select-option selected"' : ''; ?>>
+                                    <div class="custom-select-option<?php echo $checkin['day_of_week'] == $i ? ' selected' : ''; ?>" data-value="<?php echo $i; ?>">
                                         <?php echo $days[$i]; ?>
                                     </div>
                                 <?php endfor; ?>
