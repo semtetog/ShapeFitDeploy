@@ -101,7 +101,7 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     gap: var(--layout-gap);
     padding: var(--layout-gap);
-    padding-left: calc(var(--mockup-width) + var(--layout-gap));
+    padding-left: calc(var(--mockup-width) + var(--layout-gap) * 2);
     padding-right: calc(var(--layout-gap) * 2);
     width: calc(100vw - var(--sidebar-width));
     max-width: none;
@@ -804,15 +804,17 @@ textarea.form-control {
 /* Preview Settings Styling */
 .preview-settings-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr auto 1fr;
     gap: 1.5rem;
-    align-items: start;
+    align-items: stretch;
 }
 
 .preview-setting-item {
     display: flex;
     flex-direction: column;
     gap: 0.875rem;
+    justify-content: space-between;
+    min-height: 140px;
 }
 
 .preview-setting-header {
@@ -822,6 +824,39 @@ textarea.form-control {
     gap: 0.5rem;
     min-height: 28px;
     margin-bottom: 0.75rem;
+}
+
+/* Linha Divisória Vertical */
+.preview-settings-divider {
+    width: 1px;
+    background: linear-gradient(180deg, 
+        rgba(255, 107, 0, 0) 0%, 
+        rgba(255, 107, 0, 0.6) 20%, 
+        rgba(255, 107, 0, 0.8) 50%, 
+        rgba(255, 107, 0, 0.6) 80%, 
+        rgba(255, 107, 0, 0) 100%);
+    position: relative;
+    margin: 0.5rem 0;
+    align-self: stretch;
+    min-height: 100px;
+}
+
+.preview-settings-divider::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -1px;
+    right: -1px;
+    bottom: -2px;
+    background: linear-gradient(180deg, 
+        rgba(255, 107, 0, 0) 0%, 
+        rgba(255, 107, 0, 0.4) 20%, 
+        rgba(255, 107, 0, 0.6) 50%, 
+        rgba(255, 107, 0, 0.4) 80%, 
+        rgba(255, 107, 0, 0) 100%);
+    opacity: 0.5;
+    filter: blur(2px);
+    z-index: -1;
 }
 
 .preview-setting-header label {
@@ -951,6 +986,12 @@ textarea.form-control {
     font-size: 0.75rem;
     color: var(--text-secondary);
     font-style: italic;
+}
+
+.form-hint-aligned {
+    margin-top: auto;
+    padding-top: 0.5rem;
+    line-height: 1.4;
 }
 
 .preview-settings {
@@ -1164,7 +1205,7 @@ textarea.form-control {
             
             <!-- Preview Settings -->
             <div class="form-group">
-                <label>Configurações do Preview</label>
+                <label>Configurações do Chat</label>
                 <div class="preview-settings">
                     <div class="preview-settings-grid">
                         <div class="preview-setting-item">
@@ -1180,8 +1221,9 @@ textarea.form-control {
                                     <span>5000ms</span>
                                 </div>
                             </div>
-                            <small class="form-hint">Tempo de espera entre mensagens do bot</small>
+                            <small class="form-hint form-hint-aligned">Tempo de espera entre mensagens do bot</small>
                         </div>
+                        <div class="preview-settings-divider"></div>
                         <div class="preview-setting-item">
                             <div class="preview-setting-header">
                                 <label>Efeito de Digitação</label>
@@ -1194,7 +1236,7 @@ textarea.form-control {
                                 </label>
                                 <span class="toggle-switch-label" id="typingEffectLabel" style="color: #22C55E; font-weight: 700;">Ativado</span>
                             </div>
-                            <small class="form-hint">Simula digitação nas mensagens do bot</small>
+                            <small class="form-hint form-hint-aligned">Simula digitação nas mensagens do bot</small>
                         </div>
                     </div>
                     <div class="form-group" style="margin-top: 1rem;">
