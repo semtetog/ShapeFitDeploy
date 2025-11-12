@@ -2096,14 +2096,6 @@ function adjustLayoutForZoom() {
         configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 350px - 1.5rem - var(--content-wrapper-padding-h))';
     }
     // Zoom 110%: manter valores padrão (já definidos no CSS)
-    
-    // Ajustar também o menu lateral (sidebar)
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar && zoomLevel === '100%') {
-        sidebar.style.marginTop = '1.5rem';
-    } else if (sidebar) {
-        sidebar.style.marginTop = '0';
-    }
 }
 
 // Ajustar layout quando a página carregar
