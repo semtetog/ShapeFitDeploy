@@ -158,11 +158,10 @@ require_once __DIR__ . '/includes/header.php';
     /* O painel começa após o celular fixed
        margin-left = largura do celular + gap entre celular e painel */
     margin-left: calc(var(--mockup-width) + var(--gap-size));
-    /* width = largura total disponível - espaço do celular - gap */
-    width: calc(100% - var(--mockup-width) - var(--gap-size));
-    /* max-width garante que não ultrapasse a borda direita da tela
-       Considerando: sidebar + padding-left + celular + gap + padding-right */
-    max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding));
+    /* width usa calc para garantir que não ultrapasse os limites
+       Considerando: largura total da viewport - sidebar - padding esquerdo - celular - gap - padding direito */
+    width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding));
+    max-width: 100%;
     min-width: 600px;
     box-sizing: border-box;
     overflow-x: hidden;
