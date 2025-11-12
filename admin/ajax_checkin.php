@@ -57,6 +57,12 @@ try {
         case 'save_block_order':
             saveBlockOrder($data, $admin_id);
             break;
+        case 'update_checkin_config':
+            updateCheckinConfig($data, $admin_id);
+            break;
+        case 'create_checkin':
+            createCheckin($data, $admin_id);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -675,6 +681,138 @@ function saveBlockOrder($data, $admin_id) {
         echo json_encode([
             'success' => true,
             'message' => 'Ordem salva com sucesso'
+        ]);
+    } catch (Exception $e) {
+        $conn->rollback();
+        throw $e;
+    }
+}
+
+function createCheckin($data, $admin_id) {
+    global $conn;
+    
+    $name = trim($data['name'] ?? 'Novo Check-in');
+    $description = trim($data['description'] ?? '');
+    $day_of_week = (int)($data['day_of_week'] ?? 0);
+    $is_active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+    
+    if (empty($name)) {
+        throw new Exception('Nome do check-in é obrigatório');
+    }
+    
+    if ($day_of_week < 0 || $day_of_week > 6) {
+        throw new Exception('Dia da semana inválido');
+    }
+    
+    // Criar check-in
+    $insert_query = "INSERT INTO sf_checkin_configs (admin_id, name, description, day_of_week, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+    $stmt = $conn->prepare($insert_query);
+    $stmt->bind_param("issii", $admin_id, $name, $description, $day_of_week, $is_active);
+    
+    if ($stmt->execute()) {
+        $checkin_id = $conn->insert_id;
+        $stmt->close();
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Check-in criado com sucesso',
+            'checkin_id' => $checkin_id
+        ]);
+    } else {
+        $error = $stmt->error;
+        $stmt->close();
+        throw new Exception('Erro ao criar check-in: ' . $error);
+    }
+}
+
+function updateCheckinConfig($data, $admin_id) {
+    global $conn;
+    
+    $checkin_id = (int)($data['checkin_id'] ?? 0);
+    $name = trim($data['name'] ?? '');
+    $description = trim($data['description'] ?? '');
+    $day_of_week = (int)($data['day_of_week'] ?? 0);
+    $is_active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+    $distribution = $data['distribution'] ?? ['groups' => [], 'users' => []];
+    
+    if ($checkin_id === 0) {
+        throw new Exception('ID do check-in inválido');
+    }
+    
+    if (empty($name)) {
+        throw new Exception('Nome do check-in é obrigatório');
+    }
+    
+    if ($day_of_week < 0 || $day_of_week > 6) {
+        throw new Exception('Dia da semana inválido');
+    }
+    
+    // Verificar se o check-in pertence ao admin
+    $check_query = "SELECT id FROM sf_checkin_configs WHERE id = ? AND admin_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("ii", $checkin_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        throw new Exception('Check-in não encontrado ou sem permissão');
+    }
+    $stmt->close();
+    
+    $conn->begin_transaction();
+    
+    try {
+        // Atualizar configuração
+        $update_query = "UPDATE sf_checkin_configs SET name = ?, description = ?, day_of_week = ?, is_active = ?, updated_at = NOW() WHERE id = ?";
+        $stmt = $conn->prepare($update_query);
+        $stmt->bind_param("ssiii", $name, $description, $day_of_week, $is_active, $checkin_id);
+        
+        if (!$stmt->execute()) {
+            throw new Exception('Erro ao atualizar configuração: ' . $stmt->error);
+        }
+        $stmt->close();
+        
+        // Remover distribuições existentes
+        $delete_dist = "DELETE FROM sf_checkin_distribution WHERE config_id = ?";
+        $stmt = $conn->prepare($delete_dist);
+        $stmt->bind_param("i", $checkin_id);
+        $stmt->execute();
+        $stmt->close();
+        
+        // Inserir novas distribuições
+        if (!empty($distribution['groups']) || !empty($distribution['users'])) {
+            $insert_dist = "INSERT INTO sf_checkin_distribution (config_id, target_type, target_id, created_at) VALUES (?, ?, ?, NOW())";
+            $stmt = $conn->prepare($insert_dist);
+            
+            // Grupos
+            foreach ($distribution['groups'] as $group_id) {
+                $target_type = 'group';
+                $group_id = (int)$group_id;
+                if ($group_id > 0) {
+                    $stmt->bind_param("isi", $checkin_id, $target_type, $group_id);
+                    $stmt->execute();
+                }
+            }
+            
+            // Usuários
+            foreach ($distribution['users'] as $user_id) {
+                $target_type = 'user';
+                $user_id = (int)$user_id;
+                if ($user_id > 0) {
+                    $stmt->bind_param("isi", $checkin_id, $target_type, $user_id);
+                    $stmt->execute();
+                }
+            }
+            
+            $stmt->close();
+        }
+        
+        $conn->commit();
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Configuração atualizada com sucesso'
         ]);
     } catch (Exception $e) {
         $conn->rollback();

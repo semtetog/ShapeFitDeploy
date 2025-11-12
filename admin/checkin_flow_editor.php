@@ -45,14 +45,121 @@ while ($b = $blocks_result->fetch_assoc()) {
 }
 $stmt_blocks->close();
 
+// Buscar distribuições existentes
+$distribution_query = "SELECT target_type, target_id FROM sf_checkin_distribution WHERE config_id = ?";
+$stmt_dist = $conn->prepare($distribution_query);
+$stmt_dist->bind_param("i", $checkin_id);
+$stmt_dist->execute();
+$dist_result = $stmt_dist->get_result();
+$distribution = ['groups' => [], 'users' => []];
+while ($d = $dist_result->fetch_assoc()) {
+    if ($d['target_type'] === 'group') {
+        $distribution['groups'][] = (int)$d['target_id'];
+    } else {
+        $distribution['users'][] = (int)$d['target_id'];
+    }
+}
+$stmt_dist->close();
+
+// Buscar grupos e usuários para distribuição
+$groups_query = "SELECT id, group_name as name FROM sf_user_groups WHERE admin_id = ? AND is_active = 1 ORDER BY group_name";
+$stmt_groups = $conn->prepare($groups_query);
+$stmt_groups->bind_param("i", $admin_id);
+$stmt_groups->execute();
+$groups_result = $stmt_groups->get_result();
+$groups = $groups_result->fetch_all(MYSQLI_ASSOC);
+$stmt_groups->close();
+
+$users_query = "SELECT u.id, u.name, u.email, up.profile_image_filename 
+                FROM sf_users u 
+                LEFT JOIN sf_user_profiles up ON u.id = up.user_id 
+                WHERE u.onboarding_complete = 1
+                ORDER BY u.name";
+$users_result = $conn->query($users_query);
+$users = $users_result->fetch_all(MYSQLI_ASSOC);
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
 <style>
+:root {
+    --accent-orange: #FF6B00;
+    --text-primary: #F5F5F5;
+    --text-secondary: #A3A3A3;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    
+    --sidebar-width: 256px;
+    --layout-gap: 2rem;
+    
+    /* Tamanho baseado na ALTURA da tela */
+    --mockup-height: calc(100vh - (var(--layout-gap) * 2));
+    --mockup-width: calc(var(--mockup-height) / 2);
+}
+
+/* Container principal - duas colunas */
 .checkin-flow-editor {
-    padding: 1.5rem 2rem;
-    max-width: 1000px;
-    margin: 0 auto;
+    display: flex;
+    gap: var(--layout-gap);
+    padding: var(--layout-gap);
+    padding-left: calc(var(--mockup-width) + var(--layout-gap));
+    padding-right: calc(var(--layout-gap) * 2);
+    width: calc(100vw - var(--sidebar-width));
+    max-width: none;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* PAINEL DO CELULAR (ESQUERDA - FIXO) */
+.mobile-mockup-panel {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    left: calc(var(--sidebar-width) + var(--layout-gap));
+    
+    width: var(--mockup-width);
+    height: var(--mockup-height);
+    
+    max-width: 410px;
+    max-height: 820px;
+    z-index: 10;
+}
+
+.mobile-mockup-wrapper {
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+    background: #1a1a1a;
+    border-radius: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--glass-border);
+}
+
+.mobile-screen {
+    width: 100%;
+    height: 100%;
+    background: #121212;
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+}
+
+#checkin-preview-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* PAINEL DE CONFIGURAÇÕES (DIREITA) */
+.config-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    flex-grow: 1;
+    flex-basis: 0;
+    width: auto;
+    max-width: calc(100vw - var(--sidebar-width) - var(--mockup-width) - (var(--layout-gap) * 2));
+    min-width: 600px;
+    box-sizing: border-box;
 }
 
 .editor-header {
@@ -207,9 +314,8 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--accent-orange);
     border-radius: 6px;
     font-size: 0.6875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
 }
 
 .block-type-badge i {
@@ -469,25 +575,416 @@ textarea.form-control {
 .block-item.drag-over {
     border-top: 2px solid var(--accent-orange);
 }
+
+/* Seção de Configuração */
+.checkin-config-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-title i {
+    color: var(--accent-orange);
+    font-size: 1rem;
+}
+
+.config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group .required {
+    color: var(--accent-orange);
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s ease;
+}
+
+/* Custom Select (estilo das outras páginas) */
+.custom-select-wrapper {
+    position: relative;
+}
+
+.custom-select-wrapper::after {
+    content: '\f078';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.custom-select-wrapper select {
+    width: 100%;
+    padding: 0.75rem;
+    padding-right: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+.custom-select-wrapper select:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+
+.blocks-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+/* Distribuição */
+.distribution-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.distribution-tab {
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.distribution-tab:hover {
+    color: var(--text-primary);
+}
+
+.distribution-tab.active {
+    color: var(--accent-orange);
+    border-bottom-color: var(--accent-orange);
+}
+
+.distribution-content {
+    display: none;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.distribution-content.active {
+    display: block;
+}
+
+.distribution-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.distribution-item {
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.distribution-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.distribution-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.distribution-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .blocks-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Seção de adicionar bloco */
+.add-block-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.add-block-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1rem 0;
+}
+
+.add-block-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.add-block-btn {
+    flex: 1;
+    min-width: 150px;
+    padding: 1rem;
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 8px;
+    color: var(--accent-orange);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.add-block-btn:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+    transform: translateY(-2px);
+}
 </style>
 
 <div class="checkin-flow-editor">
-    <div class="editor-header">
-        <h1>
-            <i class="fas fa-clipboard-check"></i>
-            Editor de Fluxo: <?php echo htmlspecialchars($checkin['name']); ?>
-        </h1>
-        <div class="header-actions">
-            <a href="checkin.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
-            <button onclick="saveFlow()" class="btn btn-primary">
-                <i class="fas fa-save"></i> Salvar
-            </button>
+    <!-- PAINEL DO CELULAR (ESQUERDA - FIXO) -->
+    <div class="mobile-mockup-panel">
+        <div class="mobile-mockup-wrapper">
+            <div class="mobile-screen">
+                <iframe id="checkin-preview-frame" src="_admin_checkin_preview.php?id=<?php echo htmlspecialchars($checkin_id); ?>"></iframe>
+            </div>
         </div>
     </div>
 
-    <div class="blocks-container" id="blocksContainer">
+    <!-- PAINEL DE CONFIGURAÇÕES (DIREITA) -->
+    <div class="config-panel">
+        <div class="editor-header">
+            <h1>
+                <i class="fas fa-clipboard-check"></i>
+                Editor de Check-in
+            </h1>
+            <div class="header-actions">
+                <div class="delay-control" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <label for="messageDelay" style="font-size: 0.8125rem; color: var(--text-secondary);">Delay (ms):</label>
+                    <input type="number" id="messageDelay" value="500" min="0" max="5000" step="100" 
+                           style="width: 80px; padding: 0.375rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-size: 0.8125rem;">
+                    <button onclick="updatePreviewDelay()" class="btn btn-secondary" style="padding: 0.375rem 0.5rem; font-size: 0.75rem;">
+                        <i class="fas fa-sync"></i> Atualizar
+                    </button>
+                </div>
+                <a href="checkin.php" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+                <button onclick="saveAll()" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Salvar Tudo
+                </button>
+            </div>
+        </div>
+
+    <!-- Seção de Configuração do Check-in -->
+    <div class="checkin-config-section">
+        <h2 class="section-title">
+            <i class="fas fa-cog"></i> Configurações
+        </h2>
+        
+        <div class="config-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="checkinName">Nome do Check-in <span class="required">*</span></label>
+                    <input type="text" id="checkinName" value="<?php echo htmlspecialchars($checkin['name']); ?>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="checkinDay">Dia da Semana <span class="required">*</span></label>
+                    <div class="custom-select-wrapper">
+                        <select id="checkinDay">
+                            <?php 
+                            $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                            for ($i = 0; $i < 7; $i++): 
+                            ?>
+                                <option value="<?php echo $i; ?>" <?php echo $checkin['day_of_week'] == $i ? 'selected' : ''; ?>>
+                                    <?php echo $days[$i]; ?>
+                                </option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="checkinDescription">Descrição</label>
+                <textarea id="checkinDescription" rows="2"><?php echo htmlspecialchars($checkin['description'] ?? ''); ?></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="checkinActive" <?php echo $checkin['is_active'] ? 'checked' : ''; ?>>
+                        <span>Check-in ativo</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Distribuição -->
+            <div class="form-group">
+                <label>Distribuição</label>
+                <div class="distribution-tabs">
+                    <div class="distribution-tab active" onclick="switchDistributionTab('groups', this)">
+                        <i class="fas fa-users"></i> Grupos
+                    </div>
+                    <div class="distribution-tab" onclick="switchDistributionTab('users', this)">
+                        <i class="fas fa-user"></i> Usuários
+                    </div>
+                </div>
+                
+                <div id="groupsDistribution" class="distribution-content active">
+                    <div class="distribution-list">
+                        <?php foreach ($groups as $group): ?>
+                            <div class="distribution-item">
+                                <label class="distribution-checkbox">
+                                    <input type="checkbox" 
+                                           value="<?php echo $group['id']; ?>" 
+                                           class="distribution-group"
+                                           <?php echo in_array($group['id'], $distribution['groups']) ? 'checked' : ''; ?>>
+                                    <span><?php echo htmlspecialchars($group['name']); ?></span>
+                                </label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                
+                <div id="usersDistribution" class="distribution-content">
+                    <div class="distribution-list">
+                        <?php foreach ($users as $user): ?>
+                            <div class="distribution-item">
+                                <label class="distribution-checkbox">
+                                    <input type="checkbox" 
+                                           value="<?php echo $user['id']; ?>" 
+                                           class="distribution-user"
+                                           <?php echo in_array($user['id'], $distribution['users']) ? 'checked' : ''; ?>>
+                                    <span><?php echo htmlspecialchars($user['name']); ?></span>
+                                </label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Blocos do Fluxo -->
+    <div class="blocks-section">
+        <div class="blocks-header">
+            <h2 class="section-title">
+                <i class="fas fa-stream"></i> Fluxo de Perguntas
+            </h2>
+            <button onclick="showAddBlockSection()" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Adicionar Bloco
+            </button>
+        </div>
+        
+        <div class="blocks-container" id="blocksContainer">
         <?php if (empty($blocks)): ?>
             <div class="empty-state">
                 <i class="fas fa-inbox"></i>
@@ -509,7 +1006,14 @@ textarea.form-control {
                                 $icon = $type_icons[$block['question_type']] ?? 'fa-question';
                                 ?>
                                 <i class="fas <?php echo $icon; ?>"></i>
-                                <?php echo ucfirst(str_replace('_', ' ', $block['question_type'])); ?>
+                                <?php 
+                                $type_names = [
+                                    'text' => 'Mensagem',
+                                    'multiple_choice' => 'Múltipla Escolha',
+                                    'scale' => 'Escala'
+                                ];
+                                echo $type_names[$block['question_type']] ?? ucfirst(str_replace('_', ' ', $block['question_type'])); 
+                                ?>
                             </span>
                         </div>
                         <div class="block-actions">
@@ -574,7 +1078,7 @@ textarea.form-control {
         <?php endif; ?>
     </div>
 
-            <div class="add-block-section">
+    <div class="add-block-section" id="addBlockSection" style="display: none;">
         <h3>Adicionar Novo Bloco</h3>
         <div class="add-block-buttons">
             <button class="add-block-btn" onclick="addBlock('text')">
@@ -588,6 +1092,7 @@ textarea.form-control {
             </button>
         </div>
     </div>
+    </div>
 </div>
 
 <script>
@@ -595,9 +1100,16 @@ const checkinId = <?php echo $checkin_id; ?>;
 let editingBlockId = null;
 let blockCounter = <?php echo count($blocks); ?>;
 
+// Mostrar seção de adicionar bloco
+function showAddBlockSection() {
+    const section = document.getElementById('addBlockSection');
+    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+}
+
 // Adicionar novo bloco
 function addBlock(type) {
     const blockId = 'new_' + Date.now();
+    document.getElementById('addBlockSection').style.display = 'none';
     const typeNames = {
         'text': 'Mensagem de Texto',
         'multiple_choice': 'Múltipla Escolha',
@@ -876,13 +1388,87 @@ function removeOption(button) {
     button.closest('.option-input-group').remove();
 }
 
+// Alternar entre tabs de distribuição
+function switchDistributionTab(tab, element) {
+    document.querySelectorAll('.distribution-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.distribution-content').forEach(c => c.classList.remove('active'));
+    
+    if (element) {
+        element.classList.add('active');
+    } else {
+        // Fallback: encontrar pela tab
+        const tabs = document.querySelectorAll('.distribution-tab');
+        if (tab === 'groups') {
+            tabs[0]?.classList.add('active');
+        } else {
+            tabs[1]?.classList.add('active');
+        }
+    }
+    
+    document.getElementById(tab === 'groups' ? 'groupsDistribution' : 'usersDistribution').classList.add('active');
+}
+
+// Salvar tudo (configuração + distribuição + ordem dos blocos)
+function saveAll() {
+    // Validar campos obrigatórios
+    const name = document.getElementById('checkinName').value.trim();
+    if (!name) {
+        alert('Nome do check-in é obrigatório!');
+        return;
+    }
+    
+    // Coletar dados da configuração
+    const configData = {
+        action: 'update_checkin_config',
+        checkin_id: checkinId,
+        name: name,
+        description: document.getElementById('checkinDescription').value.trim(),
+        day_of_week: parseInt(document.getElementById('checkinDay').value),
+        is_active: document.getElementById('checkinActive').checked ? 1 : 0
+    };
+    
+    // Coletar distribuição
+    const groups = Array.from(document.querySelectorAll('.distribution-group:checked')).map(cb => parseInt(cb.value));
+    const users = Array.from(document.querySelectorAll('.distribution-user:checked')).map(cb => parseInt(cb.value));
+    const distribution = { groups, users };
+    
+    // Salvar configuração e distribuição
+    fetch('ajax_checkin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            ...configData,
+            distribution: distribution
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Salvar ordem dos blocos
+            saveBlockOrder();
+        } else {
+            alert('Erro ao salvar configuração: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao salvar configuração');
+    });
+}
+
 // Salvar ordem dos blocos
-function saveFlow() {
+function saveBlockOrder() {
     const blocks = Array.from(document.querySelectorAll('.block-item'));
     const order = blocks.map((block, index) => ({
         id: block.dataset.blockId,
         order: index
     })).filter(item => !item.id.toString().startsWith('new_'));
+    
+    if (order.length === 0) {
+        alert('Configuração salva com sucesso!');
+        updatePreview();
+        return;
+    }
     
     fetch('ajax_checkin.php', {
         method: 'POST',
@@ -896,16 +1482,134 @@ function saveFlow() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Ordem salva com sucesso!');
+            alert('Tudo salvo com sucesso!');
+            updatePreview();
+            location.reload();
         } else {
-            alert('Erro ao salvar ordem: ' + data.message);
+            alert('Erro ao salvar ordem dos blocos: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao salvar ordem');
+        alert('Erro ao salvar ordem dos blocos');
     });
 }
+
+// Atualizar preview
+function updatePreview() {
+    const iframe = document.getElementById('checkin-preview-frame');
+    if (!iframe || !iframe.contentWindow) return;
+    
+    // Coletar dados do check-in
+    const name = document.getElementById('checkinName').value.trim();
+    
+    // Coletar blocos
+    const blocks = Array.from(document.querySelectorAll('.block-item'));
+    const questions = blocks.map(block => {
+        const blockId = block.dataset.blockId;
+        const questionText = block.querySelector('textarea[name="question_text"]')?.value || 
+                            block.querySelector('.block-content.preview')?.textContent.trim() || '';
+        const questionType = block.querySelector('select[name="question_type"]')?.value || 
+                            block.querySelector('.block-type-badge')?.textContent.trim() || 'text';
+        
+        // Coletar opções
+        let options = [];
+        if (questionType !== 'text') {
+            const optionsList = block.querySelector(`#optionsList_${blockId}`);
+            if (optionsList) {
+                const optionInputs = optionsList.querySelectorAll('input');
+                optionInputs.forEach(input => {
+                    const val = input.value.trim();
+                    if (val) options.push(val);
+                });
+            } else {
+                // Tentar pegar do preview
+                const optionItems = block.querySelectorAll('.option-item');
+                optionItems.forEach(item => {
+                    const val = item.textContent.replace('•', '').trim();
+                    if (val) options.push(val);
+                });
+            }
+        }
+        
+        // Mapear tipo
+        let type = 'text';
+        if (typeof questionType === 'string') {
+            if (questionType.includes('Múltipla') || questionType === 'multiple_choice') type = 'multiple_choice';
+            else if (questionType.includes('Escala') || questionType === 'scale') type = 'scale';
+        } else if (questionType === 'multiple_choice') type = 'multiple_choice';
+        else if (questionType === 'scale') type = 'scale';
+        
+        return {
+            id: blockId,
+            question_text: questionText,
+            question_type: type,
+            options: options
+        };
+    }).filter(q => q.question_text);
+    
+    // Enviar para o preview
+    iframe.contentWindow.postMessage({
+        type: 'updateCheckin',
+        checkinName: name,
+        questions: questions
+    }, '*');
+}
+
+// Atualizar delay do preview
+function updatePreviewDelay() {
+    const iframe = document.getElementById('checkin-preview-frame');
+    if (!iframe || !iframe.contentWindow) return;
+    
+    const delay = parseInt(document.getElementById('messageDelay').value) || 500;
+    iframe.contentWindow.postMessage({
+        type: 'updateDelay',
+        delay: delay
+    }, '*');
+}
+
+// Reiniciar preview
+function restartPreview() {
+    const iframe = document.getElementById('checkin-preview-frame');
+    if (!iframe || !iframe.contentWindow) return;
+    
+    iframe.contentWindow.postMessage({
+        type: 'restartPreview'
+    }, '*');
+}
+
+// Atualizar preview quando o iframe carregar
+window.addEventListener('load', function() {
+    const iframe = document.getElementById('checkin-preview-frame');
+    if (iframe) {
+        iframe.addEventListener('load', function() {
+            setTimeout(() => updatePreview(), 1000);
+        });
+    }
+});
+
+// Atualizar preview quando campos mudarem
+document.addEventListener('DOMContentLoaded', function() {
+    // Atualizar nome
+    const nameInput = document.getElementById('checkinName');
+    if (nameInput) {
+        nameInput.addEventListener('input', updatePreview);
+    }
+    
+    // Atualizar quando blocos mudarem (usando MutationObserver)
+    const blocksContainer = document.getElementById('blocksContainer');
+    if (blocksContainer) {
+        const observer = new MutationObserver(function(mutations) {
+            updatePreview();
+        });
+        observer.observe(blocksContainer, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['data-block-id', 'data-order']
+        });
+    }
+});
 
 // Drag and drop simples
 let draggedElement = null;
