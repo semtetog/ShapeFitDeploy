@@ -400,7 +400,6 @@ require_once __DIR__ . '/includes/header.php';
     gap: 0.375rem;
     flex-shrink: 0;
     align-items: center;
-    height: 100%;
 }
 
 .block-actions button {
@@ -459,7 +458,6 @@ require_once __DIR__ . '/includes/header.php';
     margin-left: 0.5rem;
     display: flex;
     align-items: center;
-    height: 100%;
 }
 
 .block-options {
