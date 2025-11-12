@@ -87,11 +87,13 @@ $checkin_data = [
         .checkin-messages {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 16px;
             background: #0b141a;
+            min-height: 0;
         }
 
         .checkin-message {
@@ -133,6 +135,7 @@ $checkin_data = [
             gap: 8px;
             margin-top: 8px;
             max-width: 75%;
+            align-self: flex-start;
         }
 
         .checkin-option-btn {
@@ -147,9 +150,14 @@ $checkin_data = [
             font-size: 0.95rem;
         }
 
-        .checkin-option-btn:hover {
+        .checkin-option-btn:hover:not(:disabled) {
             background: rgba(255, 107, 0, 0.2);
             border-color: #FF6B00;
+        }
+
+        .checkin-option-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .checkin-input-container {
@@ -159,6 +167,7 @@ $checkin_data = [
             display: flex;
             gap: 12px;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .checkin-text-input {
@@ -171,6 +180,13 @@ $checkin_data = [
             font-size: 0.95rem;
             outline: none;
             font-family: inherit;
+        }
+
+        .checkin-text-input:disabled {
+            background: #1e2730;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .checkin-text-input::placeholder {
@@ -209,9 +225,9 @@ $checkin_data = [
         <h3 id="checkinName"><?php echo htmlspecialchars($checkin['name']); ?></h3>
     </div>
     <div class="checkin-messages" id="checkinMessages"></div>
-    <div class="checkin-input-container" id="checkinInputContainer" style="display: none;">
-        <input type="text" class="checkin-text-input" id="checkinTextInput" placeholder="Digite sua resposta..." onkeypress="if(event.key === 'Enter') sendCheckinResponse()">
-        <button class="checkin-send-btn" onclick="sendCheckinResponse()" id="checkinSendBtn">
+    <div class="checkin-input-container" id="checkinInputContainer">
+        <input type="text" class="checkin-text-input" id="checkinTextInput" placeholder="Digite sua resposta..." onkeypress="if(event.key === 'Enter') sendCheckinResponse()" disabled>
+        <button class="checkin-send-btn" onclick="sendCheckinResponse()" id="checkinSendBtn" disabled>
             <i class="fas fa-paper-plane"></i>
         </button>
     </div>
@@ -233,7 +249,12 @@ $checkin_data = [
                 // Reiniciar preview
                 currentQuestionIndex = 0;
                 document.getElementById('checkinMessages').innerHTML = '';
-                document.getElementById('checkinInputContainer').style.display = 'none';
+                const inputContainer = document.getElementById('checkinInputContainer');
+                const textInput = document.getElementById('checkinTextInput');
+                const sendBtn = document.getElementById('checkinSendBtn');
+                textInput.disabled = true;
+                sendBtn.disabled = true;
+                textInput.value = '';
                 
                 // Atualizar questões
                 if (event.data.questions) {
@@ -247,7 +268,12 @@ $checkin_data = [
             } else if (event.data.type === 'restartPreview') {
                 currentQuestionIndex = 0;
                 document.getElementById('checkinMessages').innerHTML = '';
-                document.getElementById('checkinInputContainer').style.display = 'none';
+                const inputContainer = document.getElementById('checkinInputContainer');
+                const textInput = document.getElementById('checkinTextInput');
+                const sendBtn = document.getElementById('checkinSendBtn');
+                textInput.disabled = true;
+                sendBtn.disabled = true;
+                textInput.value = '';
                 setTimeout(() => renderNextQuestion(), 500);
             }
         });
@@ -260,11 +286,16 @@ $checkin_data = [
         function renderNextQuestion() {
             const messagesDiv = document.getElementById('checkinMessages');
             const inputContainer = document.getElementById('checkinInputContainer');
+            const textInput = document.getElementById('checkinTextInput');
+            const sendBtn = document.getElementById('checkinSendBtn');
             
             if (currentQuestionIndex >= checkinData.questions.length) {
                 // Todas as perguntas foram respondidas
                 addMessage('Obrigado pelo seu feedback! Seu check-in foi salvo com sucesso.', 'bot');
-                inputContainer.style.display = 'none';
+                textInput.disabled = true;
+                sendBtn.disabled = true;
+                textInput.value = '';
+                textInput.placeholder = 'Check-in finalizado';
                 return;
             }
             
@@ -274,13 +305,19 @@ $checkin_data = [
             setTimeout(() => {
                 addMessage(question.question_text, 'bot');
                 
-                // Mostrar opções ou input baseado no tipo
+                // Habilitar ou desabilitar input baseado no tipo
                 if (question.question_type === 'text') {
-                    inputContainer.style.display = 'flex';
-                    document.getElementById('checkinTextInput').value = '';
-                    document.getElementById('checkinTextInput').focus();
+                    textInput.disabled = false;
+                    sendBtn.disabled = false;
+                    textInput.value = '';
+                    textInput.placeholder = 'Digite sua resposta...';
+                    textInput.focus();
                 } else {
-                    inputContainer.style.display = 'none';
+                    // Múltipla escolha ou escala - desabilitar input
+                    textInput.disabled = true;
+                    sendBtn.disabled = true;
+                    textInput.value = '';
+                    textInput.placeholder = 'Selecione uma opção acima...';
                     setTimeout(() => showQuestionOptions(question), messageDelay);
                 }
             }, messageDelay);
