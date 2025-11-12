@@ -3,6 +3,7 @@ define('IS_AJAX_REQUEST', true);
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/includes/auth_admin.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 requireAdminLogin();
 header('Content-Type: application/json');
@@ -270,7 +271,20 @@ function saveChallenge($data) {
     $end_date = $data['end_date'] ?? '';
     $status = $data['status'] ?? 'scheduled';
     $goals = $data['goals'] ?? [];
-    $participants = $data['participants'] ?? [];
+    $participants_input = $data['participants'] ?? [];
+    
+    if (!is_array($participants_input)) {
+        $participants_input = [];
+    }
+    
+    // Normalizar e remover duplicados
+    $participants = [];
+    foreach ($participants_input as $participant_id) {
+        $participant_id = (int)$participant_id;
+        if ($participant_id > 0 && !in_array($participant_id, $participants, true)) {
+            $participants[] = $participant_id;
+        }
+    }
     
     // Validações
     if (empty($name)) {
@@ -311,6 +325,9 @@ function saveChallenge($data) {
         throw new Exception('Formato de data inválido. Use dd/mm/aaaa ou YYYY-mm-dd');
     }
     
+    // Determinar status adequado com base nas datas (respeitando inativo)
+    $status = calculateChallengeStatusForDates($status, $start_date_obj, $end_date_obj);
+    
     // Converter para formato Y-m-d para armazenar no banco
     $start_date = $start_date_obj->format('Y-m-d');
     $end_date = $end_date_obj->format('Y-m-d');
@@ -331,7 +348,7 @@ function saveChallenge($data) {
     }
     
     // Validar participantes
-    if (empty($participants) || !is_array($participants)) {
+    if (empty($participants)) {
         throw new Exception('Pelo menos um participante deve ser selecionado');
     }
     
@@ -388,6 +405,13 @@ function saveChallenge($data) {
         // Confirmar transação
         $conn->commit();
         
+        // Sincronizar progresso retroativo (não bloqueia resposta se falhar)
+        try {
+            backfillChallengeProgress($conn, $challenge_id, $participants, $start_date, $end_date, $status);
+        } catch (Exception $syncException) {
+            error_log("Erro ao sincronizar progresso retroativo do desafio {$challenge_id}: " . $syncException->getMessage());
+        }
+        
         echo json_encode([
             'success' => true,
             'message' => $was_edit ? 'Desafio atualizado com sucesso!' : 'Desafio criado com sucesso!',
@@ -397,6 +421,85 @@ function saveChallenge($data) {
     } catch (Exception $e) {
         $conn->rollback();
         throw $e;
+    }
+}
+
+function calculateChallengeStatusForDates($statusInput, DateTime $startDateObj, DateTime $endDateObj) {
+    $status = is_string($statusInput) ? strtolower(trim($statusInput)) : 'scheduled';
+    if ($status === '') {
+        $status = 'scheduled';
+    }
+    
+    if ($status === 'inactive') {
+        return 'inactive';
+    }
+    
+    $start = clone $startDateObj;
+    $start->setTime(0, 0, 0);
+    
+    $end = clone $endDateObj;
+    $end->setTime(0, 0, 0);
+    
+    $today = new DateTime('today');
+    
+    if ($end < $today) {
+        return 'completed';
+    }
+    
+    if ($start > $today) {
+        return 'scheduled';
+    }
+    
+    return 'active';
+}
+
+function backfillChallengeProgress($conn, $challenge_id, array $participants, $start_date, $end_date, $status = null) {
+    if (!$challenge_id || empty($participants)) {
+        return;
+    }
+    
+    if (is_string($status) && strtolower($status) === 'inactive') {
+        // Não sincronizar desafios inativos
+        return;
+    }
+    
+    $start = DateTime::createFromFormat('Y-m-d', $start_date);
+    $end = DateTime::createFromFormat('Y-m-d', $end_date);
+    
+    if (!$start || !$end) {
+        return;
+    }
+    
+    $start->setTime(0, 0, 0);
+    $end->setTime(0, 0, 0);
+    
+    $today = new DateTime('today');
+    $today->setTime(0, 0, 0);
+    
+    if ($end > $today) {
+        $end = clone $today;
+    }
+    
+    if ($start > $end) {
+        return;
+    }
+    
+    foreach ($participants as $user_id) {
+        $user_id = (int)$user_id;
+        if ($user_id <= 0) {
+            continue;
+        }
+        
+        $current = clone $start;
+        while ($current <= $end) {
+            $dateStr = $current->format('Y-m-d');
+            try {
+                syncChallengeGroupProgress($conn, $user_id, $dateStr);
+            } catch (Exception $e) {
+                error_log("Erro ao sincronizar progresso para o desafio {$challenge_id}, usuário {$user_id}, data {$dateStr}: " . $e->getMessage());
+            }
+            $current->modify('+1 day');
+        }
     }
 }
 

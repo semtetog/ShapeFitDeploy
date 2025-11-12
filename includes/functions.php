@@ -404,11 +404,11 @@ function syncChallengeGroupProgress($conn, $user_id, $date = null) {
     
     // Buscar desafios ativos do usuário
     $stmt = $conn->prepare("
-        SELECT cg.id, cg.goals, cg.start_date, cg.end_date
+        SELECT cg.id, cg.goals, cg.start_date, cg.end_date, cg.status
         FROM sf_challenge_groups cg
         INNER JOIN sf_challenge_group_members cgm ON cg.id = cgm.group_id
         WHERE cgm.user_id = ? 
-          AND cg.status = 'active'
+          AND cg.status IN ('active', 'completed')
           AND cg.start_date <= ?
           AND cg.end_date >= ?
     ");
