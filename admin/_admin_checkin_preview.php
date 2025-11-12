@@ -60,8 +60,8 @@ $checkin_data = [
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0b141a;
-            color: #e9edef;
+            background: #000000;
+            color: #F5F5F5;
             height: 100vh;
             overflow: hidden;
             display: flex;
@@ -71,17 +71,17 @@ $checkin_data = [
         }
 
         .checkin-chat-header {
-            background: #202c33;
+            background: #000000;
             padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid #FF6B00;
         }
 
         .checkin-chat-header h3 {
             margin: 0;
-            color: white;
+            color: #FF6B00;
             font-size: 1.1rem;
             font-weight: 600;
         }
@@ -94,8 +94,14 @@ $checkin_data = [
             display: flex;
             flex-direction: column;
             gap: 16px;
-            background: #0b141a;
+            background: #000000;
             min-height: 0;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .checkin-messages::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
 
         .checkin-message {
@@ -119,15 +125,17 @@ $checkin_data = [
 
         .checkin-message.bot {
             align-self: flex-start;
-            background: #202c33;
-            color: #e9edef;
+            background: #1a1a1a;
+            color: #F5F5F5;
+            border: 1px solid rgba(255, 107, 0, 0.2);
             border-bottom-left-radius: 4px;
         }
 
         .checkin-message.user {
             align-self: flex-end;
-            background: #005c4b;
-            color: white;
+            background: #FF6B00;
+            color: #000000;
+            font-weight: 500;
             border-bottom-right-radius: 4px;
         }
 
@@ -142,30 +150,33 @@ $checkin_data = [
 
         .checkin-option-btn {
             padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #1a1a1a;
+            border: 1px solid #FF6B00;
             border-radius: 8px;
-            color: white;
+            color: #FF6B00;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
             font-size: 0.95rem;
+            font-weight: 500;
         }
 
         .checkin-option-btn:hover:not(:disabled) {
-            background: rgba(255, 107, 0, 0.2);
+            background: #FF6B00;
             border-color: #FF6B00;
+            color: #000000;
         }
 
         .checkin-option-btn:disabled {
-            opacity: 0.6;
+            opacity: 0.4;
             cursor: not-allowed;
+            border-color: rgba(255, 107, 0, 0.3);
         }
 
         .checkin-input-container {
             padding: 16px;
-            background: #202c33;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: #000000;
+            border-top: 2px solid #FF6B00;
             display: flex;
             gap: 12px;
             align-items: center;
@@ -175,24 +186,30 @@ $checkin_data = [
         .checkin-text-input {
             flex: 1;
             padding: 12px 16px;
-            background: #2a3942;
-            border: none;
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 107, 0, 0.3);
             border-radius: 24px;
-            color: white;
+            color: #F5F5F5;
             font-size: 0.95rem;
             outline: none;
             font-family: inherit;
         }
 
+        .checkin-text-input:focus {
+            border-color: #FF6B00;
+            background: #0a0a0a;
+        }
+
         .checkin-text-input:disabled {
-            background: #1e2730;
-            color: rgba(255, 255, 255, 0.4);
+            background: #0a0a0a;
+            color: rgba(255, 107, 0, 0.4);
             cursor: not-allowed;
             opacity: 0.6;
+            border-color: rgba(255, 107, 0, 0.2);
         }
 
         .checkin-text-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 107, 0, 0.5);
         }
 
         .checkin-send-btn {

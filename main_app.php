@@ -2454,26 +2454,27 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     max-width: 500px;
     height: 90vh;
     max-height: 800px;
-    background: #0b141a;
+    background: #000000;
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 20px 60px rgba(255, 107, 0, 0.3);
+    border: 2px solid #FF6B00;
 }
 
 .checkin-chat-header {
-    background: #202c33;
+    background: #000000;
     padding: 16px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid #FF6B00;
 }
 
 .checkin-chat-header h3 {
     margin: 0;
-    color: white;
+    color: #FF6B00;
     font-size: 1.1rem;
     font-weight: 600;
 }
@@ -2481,7 +2482,7 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 .checkin-close-btn {
     background: none;
     border: none;
-    color: white;
+    color: #FF6B00;
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0;
@@ -2491,21 +2492,29 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .checkin-close-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 107, 0, 0.2);
+    color: #FFFFFF;
 }
 
 .checkin-messages {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    background: #0b141a;
+    background: #000000;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.checkin-messages::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .checkin-message {
@@ -2529,15 +2538,17 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 
 .checkin-message.bot {
     align-self: flex-start;
-    background: #202c33;
-    color: #e9edef;
+    background: #1a1a1a;
+    color: #F5F5F5;
+    border: 1px solid rgba(255, 107, 0, 0.2);
     border-bottom-left-radius: 4px;
 }
 
 .checkin-message.user {
     align-self: flex-end;
-    background: #005c4b;
-    color: white;
+    background: #FF6B00;
+    color: #000000;
+    font-weight: 500;
     border-bottom-right-radius: 4px;
 }
 
@@ -2550,25 +2561,33 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 
 .checkin-option-btn {
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #1a1a1a;
+    border: 1px solid #FF6B00;
     border-radius: 8px;
-    color: white;
+    color: #FF6B00;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: left;
     font-size: 0.95rem;
+    font-weight: 500;
 }
 
 .checkin-option-btn:hover {
-    background: rgba(255, 107, 0, 0.2);
-    border-color: var(--accent-orange);
+    background: #FF6B00;
+    border-color: #FF6B00;
+    color: #000000;
+}
+
+.checkin-option-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: rgba(255, 107, 0, 0.3);
 }
 
 .checkin-input-container {
     padding: 16px;
-    background: #202c33;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: #000000;
+    border-top: 2px solid #FF6B00;
     display: flex;
     gap: 12px;
     align-items: center;
@@ -2577,17 +2596,30 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 .checkin-text-input {
     flex: 1;
     padding: 12px 16px;
-    background: #2a3942;
-    border: none;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 107, 0, 0.3);
     border-radius: 24px;
-    color: white;
+    color: #F5F5F5;
     font-size: 0.95rem;
     outline: none;
     font-family: inherit;
 }
 
+.checkin-text-input:focus {
+    border-color: #FF6B00;
+    background: #0a0a0a;
+}
+
+.checkin-text-input:disabled {
+    background: #0a0a0a;
+    color: rgba(255, 107, 0, 0.4);
+    cursor: not-allowed;
+    opacity: 0.6;
+    border-color: rgba(255, 107, 0, 0.2);
+}
+
 .checkin-text-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 107, 0, 0.5);
 }
 
 .checkin-send-btn {
@@ -2626,9 +2658,9 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
             <button class="checkin-close-btn" onclick="closeCheckinModal()">&times;</button>
         </div>
         <div class="checkin-messages" id="checkinMessages"></div>
-        <div class="checkin-input-container" id="checkinInputContainer" style="display: none;">
-            <input type="text" class="checkin-text-input" id="checkinTextInput" placeholder="Digite sua resposta..." onkeypress="if(event.key === 'Enter') sendCheckinResponse()">
-            <button class="checkin-send-btn" onclick="sendCheckinResponse()" id="checkinSendBtn">
+        <div class="checkin-input-container" id="checkinInputContainer">
+            <input type="text" class="checkin-text-input" id="checkinTextInput" placeholder="Digite sua resposta..." onkeypress="if(event.key === 'Enter') sendCheckinResponse()" disabled>
+            <button class="checkin-send-btn" onclick="sendCheckinResponse()" id="checkinSendBtn" disabled>
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
@@ -2656,11 +2688,16 @@ function closeCheckinModal() {
 function renderNextQuestion() {
     const messagesDiv = document.getElementById('checkinMessages');
     const inputContainer = document.getElementById('checkinInputContainer');
+    const textInput = document.getElementById('checkinTextInput');
+    const sendBtn = document.getElementById('checkinSendBtn');
     
     if (currentQuestionIndex >= checkinData.questions.length) {
         // Todas as perguntas foram respondidas
         addMessage('Obrigado pelo seu feedback! Seu check-in foi salvo com sucesso.', 'bot');
-        inputContainer.style.display = 'none';
+        textInput.disabled = true;
+        sendBtn.disabled = true;
+        textInput.value = '';
+        textInput.placeholder = 'Check-in finalizado';
         
         // Salvar todas as respostas
         saveCheckinResponses();
@@ -2672,13 +2709,19 @@ function renderNextQuestion() {
     // Adicionar mensagem da pergunta
     addMessage(question.question_text, 'bot');
     
-    // Mostrar opções ou input baseado no tipo
+    // Habilitar ou desabilitar input baseado no tipo
     if (question.question_type === 'text') {
-        inputContainer.style.display = 'flex';
-        document.getElementById('checkinTextInput').value = '';
-        document.getElementById('checkinTextInput').focus();
+        textInput.disabled = false;
+        sendBtn.disabled = false;
+        textInput.value = '';
+        textInput.placeholder = 'Digite sua resposta...';
+        textInput.focus();
     } else {
-        inputContainer.style.display = 'none';
+        // Múltipla escolha ou escala - desabilitar input
+        textInput.disabled = true;
+        sendBtn.disabled = true;
+        textInput.value = '';
+        textInput.placeholder = 'Selecione uma opção acima...';
         showQuestionOptions(question);
     }
 }
@@ -2688,31 +2731,34 @@ function showQuestionOptions(question) {
     const optionsDiv = document.createElement('div');
     optionsDiv.className = 'checkin-options';
     
-    if (question.question_type === 'scale' && question.options) {
+    if ((question.question_type === 'scale' || question.question_type === 'multiple_choice') && question.options) {
         const options = Array.isArray(question.options) ? question.options : JSON.parse(question.options);
         options.forEach(option => {
             const btn = document.createElement('button');
             btn.className = 'checkin-option-btn';
+            btn.type = 'button';
             btn.textContent = option;
             btn.onclick = () => selectOption(option);
             optionsDiv.appendChild(btn);
         });
-    } else if (question.question_type === 'multiple_choice' && question.options) {
-        const options = Array.isArray(question.options) ? question.options : JSON.parse(question.options);
-        options.forEach(option => {
-            const btn = document.createElement('button');
-            btn.className = 'checkin-option-btn';
-            btn.textContent = option;
-            btn.onclick = () => selectOption(option);
-            optionsDiv.appendChild(btn);
-        });
+        
+        messagesDiv.appendChild(optionsDiv);
+        // Scroll suave para o final
+        setTimeout(() => {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 100);
     }
-    
-    messagesDiv.appendChild(optionsDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 function selectOption(option) {
+    // Desabilitar todos os botões de opção para evitar múltiplos cliques
+    const optionButtons = document.querySelectorAll('.checkin-option-btn');
+    optionButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.4';
+        btn.style.cursor = 'not-allowed';
+    });
+    
     const question = checkinData.questions[currentQuestionIndex];
     checkinResponses[question.id] = {
         response_value: option,
