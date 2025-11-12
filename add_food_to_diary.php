@@ -262,7 +262,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 .pending-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 12px;
 }
 
@@ -386,6 +386,18 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 
 .pending-feedback.error {
     color: #f87171;
+}
+
+.pending-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.pending-actions .btn-save-all {
+    width: 100%;
+    justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -986,16 +998,18 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     <div class="pending-section">
         <div class="pending-header">
             <h2 class="section-title">Itens selecionados</h2>
-            <button id="save-all-btn" class="btn-save-all" disabled>
-                <i class="fas fa-save"></i>
-                Salvar no Diário
-            </button>
         </div>
         <div id="pending-feedback" class="pending-feedback"></div>
         <div id="pending-list" class="pending-empty">
             Nenhum item selecionado. Busque um alimento ou receita para começar.
         </div>
         <div id="pending-totals" class="pending-totals" style="display:none;"></div>
+        <div class="pending-actions">
+            <button id="save-all-btn" class="btn-save-all" disabled>
+                <i class="fas fa-save"></i>
+                Salvar no Diário
+            </button>
+        </div>
     </div>
 
     <!-- Busca de receitas e alimentos -->
@@ -1495,6 +1509,7 @@ function confirmMeal() {
     const pendingItem = {
         id: Date.now() + Math.random(),
         display_name: customMealName,
+        custom_meal_name: customMealName,
         is_food: selectedRecipe.is_food ? 1 : 0,
         food_name: selectedRecipe.is_food ? selectedRecipe.name : '',
         recipe_id: selectedRecipe.is_food ? '' : selectedRecipe.id,
