@@ -210,7 +210,7 @@ $checkin_data = [
             flex-shrink: 0;
         }
 
-        .checkin-send-btn:hover {
+        .checkin-send-btn:hover:not(:disabled) {
             background: #e55a00;
             transform: scale(1.1);
         }
