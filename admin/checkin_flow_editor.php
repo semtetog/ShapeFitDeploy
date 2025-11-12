@@ -1816,6 +1816,28 @@ function toggleOptionsEditor(select, blockId) {
     } else {
         optionsEditor.style.display = 'block';
     }
+    
+    // Atualizar badge com o tipo correto
+    const block = select.closest('.block-item');
+    if (block) {
+        const badge = block.querySelector('.block-type-badge');
+        if (badge) {
+            badge.setAttribute('data-type', select.value);
+            
+            // Atualizar texto do badge
+            const typeNames = {
+                'text': 'Mensagem',
+                'multiple_choice': 'Múltipla Escolha',
+                'scale': 'Escala'
+            };
+            const typeIcons = {
+                'text': 'fa-comment',
+                'multiple_choice': 'fa-list',
+                'scale': 'fa-sliders-h'
+            };
+            badge.innerHTML = `<i class="fas ${typeIcons[select.value]}"></i> ${typeNames[select.value] || select.value}`;
+        }
+    }
 }
 
 // Adicionar opção
