@@ -469,6 +469,32 @@ $checkin_data = [
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }, 50);
         }
+        
+        function typeMessage(text, type, callback) {
+            const messagesDiv = document.getElementById('checkinMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `checkin-message ${type}`;
+            messagesDiv.appendChild(messageDiv);
+            
+            let index = 0;
+            const typingSpeed = 30; // ms por caractere
+            
+            function typeChar() {
+                if (index < text.length) {
+                    messageDiv.textContent = text.substring(0, index + 1);
+                    index++;
+                    setTimeout(typeChar, typingSpeed);
+                } else {
+                    // Scroll suave para o final
+                    setTimeout(() => {
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }, 100);
+                    if (callback) callback();
+                }
+            }
+            
+            typeChar();
+        }
     </script>
 </body>
 </html>
