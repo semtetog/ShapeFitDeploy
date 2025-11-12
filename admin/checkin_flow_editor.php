@@ -1418,18 +1418,30 @@ textarea.form-control {
                 
             <div class="form-group">
                     <label for="checkinDay">Dia da Semana <span class="required">*</span></label>
+                    <input type="hidden" id="checkinDay" name="day_of_week" value="<?php echo $checkin['day_of_week']; ?>">
                     <div class="custom-select-wrapper">
-                        <select id="checkinDay">
-                            <?php 
-                            $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-                            for ($i = 0; $i < 7; $i++): 
-                            ?>
-                                <option value="<?php echo $i; ?>" <?php echo $checkin['day_of_week'] == $i ? 'selected' : ''; ?>>
-                                    <?php echo $days[$i]; ?>
-                                </option>
-                            <?php endfor; ?>
-                        </select>
-            </div>
+                        <div class="custom-select" id="checkinDaySelect">
+                            <div class="custom-select-trigger">
+                                <span class="custom-select-value">
+                                    <?php 
+                                    $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                                    echo $days[$checkin['day_of_week']] ?? 'Selecione...';
+                                    ?>
+                                </span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="custom-select-options">
+                                <?php 
+                                $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                                for ($i = 0; $i < 7; $i++): 
+                                ?>
+                                    <div class="custom-select-option" data-value="<?php echo $i; ?>" <?php echo $checkin['day_of_week'] == $i ? 'class="custom-select-option selected"' : ''; ?>>
+                                        <?php echo $days[$i]; ?>
+                                    </div>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+                    </div>
             </div>
             </div>
             
@@ -2355,7 +2367,117 @@ window.addEventListener('resize', function() {
 });
 
 // Atualizar preview quando campos mudarem
+// Armazenar handlers para poder removê-los depois
+const customSelectHandlers = new Map();
+
+// Inicializar custom selects
+function initCustomSelect(selectId, hiddenInputId, onChangeCallback) {
+    const customSelect = document.getElementById(selectId);
+    if (!customSelect) return;
+    
+    // Remover handlers anteriores se existirem
+    if (customSelectHandlers.has(selectId)) {
+        const handlers = customSelectHandlers.get(selectId);
+        if (handlers.triggerHandler) {
+            handlers.trigger.removeEventListener('click', handlers.triggerHandler);
+        }
+        handlers.optionHandlers.forEach(({ option, handler }) => {
+            option.removeEventListener('click', handler);
+        });
+    }
+    
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const trigger = customSelect.querySelector('.custom-select-trigger');
+    const options = customSelect.querySelectorAll('.custom-select-option');
+    const valueDisplay = customSelect.querySelector('.custom-select-value');
+    
+    // Handler para o trigger
+    const triggerHandler = function(e) {
+        e.stopPropagation();
+        
+        const wrapper = customSelect.closest('.custom-select-wrapper');
+        
+        // Fechar outros selects
+        document.querySelectorAll('.custom-select').forEach(s => {
+            if (s.id !== selectId) {
+                s.classList.remove('active');
+            }
+        });
+        document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+            if (w !== wrapper) {
+                w.classList.remove('active');
+            }
+        });
+        
+        customSelect.classList.toggle('active');
+        if (wrapper) {
+            wrapper.classList.toggle('active');
+        }
+    };
+    
+    trigger.addEventListener('click', triggerHandler);
+    
+    // Handlers para as opções
+    const optionHandlers = [];
+    options.forEach(option => {
+        const optionHandler = function(e) {
+            e.stopPropagation();
+            
+            const value = this.getAttribute('data-value');
+            const text = this.textContent;
+            
+            // Atualiza o valor do input escondido
+            if (hiddenInput) {
+                hiddenInput.value = value;
+            }
+            // Atualiza o texto visível
+            valueDisplay.textContent = text;
+            
+            // Remove a classe 'selected' de todos e adiciona na clicada
+            options.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Fecha o dropdown
+            customSelect.classList.remove('active');
+            const wrapper = customSelect.closest('.custom-select-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('active');
+            }
+            
+            // Chama callback se fornecido
+            if (onChangeCallback) {
+                onChangeCallback(value);
+            }
+        };
+        
+        option.addEventListener('click', optionHandler);
+        optionHandlers.push({ option, handler: optionHandler });
+    });
+    
+    // Armazenar handlers para possível remoção
+    customSelectHandlers.set(selectId, {
+        trigger,
+        triggerHandler,
+        optionHandlers
+    });
+}
+
+// Close select when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.custom-select-wrapper')) {
+        document.querySelectorAll('.custom-select').forEach(select => {
+            select.classList.remove('active');
+        });
+        document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => {
+            wrapper.classList.remove('active');
+        });
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar custom select de Dia da Semana
+    initCustomSelect('checkinDaySelect', 'checkinDay', null);
+    
     // Atualizar nome
     // Atualizar nome do check-in com debounce (sem reiniciar preview)
     const nameInput = document.getElementById('checkinName');
