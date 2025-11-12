@@ -2350,6 +2350,7 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 }
 
 .checkin-floating-btn:hover {
+    animation: none;
     transform: translateY(-5px) scale(1.1);
     box-shadow: 0 6px 20px rgba(255, 107, 0, 0.6),
                 0 0 0 6px rgba(255, 107, 0, 0.15);
