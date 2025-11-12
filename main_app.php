@@ -2298,6 +2298,13 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 ?>
 
+<!-- Botão Flutuante de Check-in -->
+<?php if ($available_checkin): ?>
+<button class="checkin-floating-btn" onclick="openCheckinModal()" aria-label="Abrir Check-in">
+    <i class="fas fa-comments"></i>
+</button>
+<?php endif; ?>
+
 <style>
 /* Check-in Floating Button */
 .checkin-floating-btn {
@@ -2372,11 +2379,17 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 
 @media (max-width: 768px) {
     .checkin-floating-btn {
-        bottom: 90px;
+        bottom: calc(80px + env(safe-area-inset-bottom));
         right: 16px;
         width: 56px;
         height: 56px;
         font-size: 22px;
+    }
+}
+
+@media (min-width: 769px) {
+    .checkin-floating-btn {
+        bottom: 100px;
     }
 }
 
@@ -2888,9 +2901,8 @@ function saveCheckinResponses() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Ocultar card após 2 segundos
+            // Fechar modal após 2 segundos
             setTimeout(() => {
-                document.getElementById('checkinCard').style.display = 'none';
                 closeCheckinModal();
             }, 2000);
         } else {
@@ -2903,15 +2915,6 @@ function saveCheckinResponses() {
     });
 }
 
-// Auto-abrir modal se disponível
-window.addEventListener('load', function() {
-    <?php if ($available_checkin): ?>
-    // Auto-abrir após 1 segundo
-    setTimeout(() => {
-        openCheckinModal();
-    }, 1000);
-    <?php endif; ?>
-});
 </script>
 <?php endif; ?>
 
