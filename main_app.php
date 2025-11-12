@@ -2310,47 +2310,73 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     position: fixed;
     bottom: 90px;
     right: 20px;
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    background: rgba(255, 107, 0, 0.15);
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.2);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 107, 0, 0.3);
+    border: 1px solid rgba(255, 107, 0, 0.4);
     color: #FF6B00;
-    font-size: 22px;
+    font-size: 24px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
-                0 2px 4px rgba(255, 107, 0, 0.1);
-    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.25),
+                0 2px 8px rgba(0, 0, 0, 0.2),
+                0 0 0 0 rgba(255, 107, 0, 0.4);
+    transition: all 0.3s ease;
     z-index: 999;
     display: flex;
     align-items: center;
     justify-content: center;
+    animation: float-gentle 3s ease-in-out infinite;
+}
+
+@keyframes float-gentle {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes glow-pulse {
+    0%, 100% {
+        box-shadow: 0 4px 20px rgba(255, 107, 0, 0.25),
+                    0 2px 8px rgba(0, 0, 0, 0.2),
+                    0 0 0 0 rgba(255, 107, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 24px rgba(255, 107, 0, 0.35),
+                    0 2px 10px rgba(0, 0, 0, 0.25),
+                    0 0 0 4px rgba(255, 107, 0, 0.15);
+    }
 }
 
 .checkin-floating-btn:hover {
-    background: rgba(255, 107, 0, 0.25);
-    border-color: rgba(255, 107, 0, 0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3),
-                0 2px 6px rgba(255, 107, 0, 0.2);
+    background: rgba(255, 107, 0, 0.3);
+    border-color: rgba(255, 107, 0, 0.6);
+    animation: none;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 24px rgba(255, 107, 0, 0.35),
+                0 4px 12px rgba(0, 0, 0, 0.25),
+                0 0 0 2px rgba(255, 107, 0, 0.2);
 }
 
 .checkin-floating-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
-                0 1px 2px rgba(255, 107, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3),
+                0 2px 8px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 107, 0, 0.15);
 }
 
 @media (max-width: 768px) {
     .checkin-floating-btn {
         bottom: calc(80px + env(safe-area-inset-bottom));
         right: 16px;
-        width: 52px;
-        height: 52px;
-        font-size: 20px;
-        border-radius: 14px;
+        width: 60px;
+        height: 60px;
+        font-size: 22px;
     }
 }
 
