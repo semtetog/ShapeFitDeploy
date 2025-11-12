@@ -248,6 +248,146 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     line-height: 1.3;
 }
 
+.pending-section {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pending-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.btn-save-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent-orange);
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-save-all[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-save-all:not([disabled]):hover {
+    background: #ff7a1a;
+    transform: translateY(-1px);
+}
+
+.pending-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pending-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pending-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pending-item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pending-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.pending-item-macros {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.pending-remove-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pending-remove-btn:hover {
+    border-color: rgba(255, 107, 0, 0.6);
+    color: #fff;
+}
+
+.pending-empty {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.pending-totals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 10px;
+    margin-top: 4px;
+}
+
+.pending-feedback {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.pending-feedback.success {
+    color: #4ade80;
+}
+
+.pending-feedback.error {
+    color: #f87171;
+}
+
 @media (max-width: 768px) {
     .custom-food-actions {
         grid-template-columns: 1fr;
@@ -842,6 +982,22 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                         </div>
                     </div>
 
+    <!-- Itens pendentes para salvar -->
+    <div class="pending-section">
+        <div class="pending-header">
+            <h2 class="section-title">Itens selecionados</h2>
+            <button id="save-all-btn" class="btn-save-all" disabled>
+                <i class="fas fa-save"></i>
+                Salvar no Diário
+            </button>
+        </div>
+        <div id="pending-feedback" class="pending-feedback"></div>
+        <div id="pending-list" class="pending-empty">
+            Nenhum item selecionado. Busque um alimento ou receita para começar.
+        </div>
+        <div id="pending-totals" class="pending-totals" style="display:none;"></div>
+    </div>
+
     <!-- Busca de receitas e alimentos -->
     <div class="search-section">
         <div class="search-tabs">
@@ -875,7 +1031,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
             <h2 class="section-title">Favoritas</h2>
             <div class="recipes-grid" id="favorite-recipes">
                 <?php foreach ($favorite_recipes as $recipe): ?>
-                    <div class="recipe-card" onclick="selectRecipe(<?php echo htmlspecialchars(json_encode($recipe)); ?>)">
+                    <?php $recipe_payload = htmlspecialchars(json_encode(array_merge($recipe, ['is_food' => false])), ENT_QUOTES, 'UTF-8'); ?>
+                    <div class="recipe-card" onclick="selectRecipe(<?php echo $recipe_payload; ?>)">
                         <?php if (!empty($recipe['image_filename'])): ?>
                             <img src="<?php echo BASE_ASSET_URL . '/assets/images/recipes/' . htmlspecialchars($recipe['image_filename']); ?>" 
                                  alt="<?php echo htmlspecialchars($recipe['name']); ?>" class="recipe-image">
@@ -902,7 +1059,8 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
             <h2 class="section-title">Recentes</h2>
             <div class="recipes-grid" id="recent-recipes">
                 <?php foreach ($recent_recipes as $recipe): ?>
-                    <div class="recipe-card" onclick="selectRecipe(<?php echo htmlspecialchars(json_encode($recipe)); ?>)">
+                    <?php $recipe_payload = htmlspecialchars(json_encode(array_merge($recipe, ['is_food' => false])), ENT_QUOTES, 'UTF-8'); ?>
+                    <div class="recipe-card" onclick="selectRecipe(<?php echo $recipe_payload; ?>)">
                         <?php if (!empty($recipe['image_filename'])): ?>
                             <img src="<?php echo BASE_ASSET_URL . '/assets/images/recipes/' . htmlspecialchars($recipe['image_filename']); ?>" 
                                  alt="<?php echo htmlspecialchars($recipe['name']); ?>" class="recipe-image">
@@ -991,7 +1149,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         <div class="modal-footer">
             <button class="btn-add-meal" onclick="confirmMeal()">
                 <i class="fas fa-plus"></i>
-                Adicionar ao Diário
+                Adicionar à lista
             </button>
             </div>
         </div>
@@ -999,18 +1157,22 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 
 <script>
 let selectedRecipe = null;
+let pendingItems = [];
 
 function selectRecipe(recipe) {
     console.log('🎯 SELECT RECIPE - INÍCIO');
     console.log('Recipe recebido:', recipe);
     console.log('É alimento?', recipe.is_food);
     
-    selectedRecipe = recipe;
-    document.getElementById('modal-recipe-name').textContent = recipe.name;
-    document.getElementById('selected-recipe-id').value = recipe.id;
+    selectedRecipe = {
+        ...recipe,
+        is_food: recipe.is_food === true
+    };
+    document.getElementById('modal-recipe-name').textContent = selectedRecipe.name;
+    document.getElementById('selected-recipe-id').value = selectedRecipe.id;
     
     // Preencher nome da refeição automaticamente
-    document.getElementById('custom_meal_name').value = recipe.name;
+    document.getElementById('custom_meal_name').value = selectedRecipe.name;
     
     // RESETAR ESTADO ANTERIOR - CORRIGIR BUG DA COR VERMELHA E LEGENDA
     const quantityLabel = document.getElementById('quantity-label');
@@ -1024,13 +1186,13 @@ function selectRecipe(recipe) {
     // Mostrar/ocultar seletor de unidade baseado no tipo
     const unitSelect = document.getElementById('unit-select');
     
-    if (recipe.is_food) {
+    if (selectedRecipe.is_food) {
         console.log('🍎 É ALIMENTO - Carregando unidades específicas');
         // Para alimentos, mostrar seletor de unidade
         unitSelect.style.display = 'block';
         quantityLabel.textContent = 'Quantidade';
         document.getElementById('quantity').classList.remove('quantity-input-full-width');
-        loadUnitsForFood(recipe.id, '0');
+        loadUnitsForFood(selectedRecipe.id, '0');
     } else {
         console.log('📝 É RECEITA - Ocultando seletor de unidades');
         // Para receitas, ocultar seletor de unidade e usar "porções"
@@ -1138,6 +1300,7 @@ function closeModal() {
     // Adicione esta linha para resetar a posição do modal
     modalContent.style.transform = ''; 
 
+    resetModalState();
     selectedRecipe = null;
 }
 
@@ -1293,78 +1456,245 @@ function loadDefaultUnits() {
 
 function confirmMeal() {
     if (!selectedRecipe) return;
-    
-    // Validar campos obrigatórios
+
     const customMealName = document.getElementById('custom_meal_name').value.trim();
-    const quantity = document.getElementById('quantity').value;
+    const quantityField = document.getElementById('quantity');
+    const quantity = parseFloat(quantityField.value);
     const unitSelect = document.getElementById('unit-select');
     const unitId = unitSelect.value;
-    
+    const mealTypeSelect = document.getElementById('meal-type');
+    const mealTime = document.getElementById('meal_time').value;
+    const mealType = mealTypeSelect.value;
+    const mealTypeLabel = mealTypeSelect.options[mealTypeSelect.selectedIndex]?.textContent || mealType;
+    const dateConsumed = document.getElementById('meal-date').value;
+
     if (!customMealName) {
-        alert('Por favor, insira o nome da refeição.');
+        showPendingFeedback('Por favor, insira o nome da refeição.', false);
         return;
     }
-    
-    if (!quantity || parseFloat(quantity) <= 0) {
-        alert('Por favor, insira uma quantidade válida.');
+
+    if (!quantity || quantity <= 0) {
+        showPendingFeedback('Por favor, informe uma quantidade válida.', false);
         return;
     }
-    
-    // Só exigir unidade quando for alimento E o seletor estiver visível, e nenhuma unidade selecionada
+
     if (selectedRecipe.is_food && unitSelect.style.display === 'block' && (!unitId || unitId === '')) {
-        alert('Por favor, selecione uma unidade de medida.');
+        showPendingFeedback('Selecione uma unidade de medida para o alimento.', false);
         return;
     }
-    
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '<?php echo BASE_APP_URL; ?>/process_log_meal.php';
-    
-    const fields = {
-        'csrf_token': '<?php echo $_SESSION['csrf_token']; ?>',
-        'custom_meal_name': customMealName,
-        'meal_time': document.getElementById('meal_time').value,
-        'meal_type': document.getElementById('meal-type').value,
-        'date_consumed': document.getElementById('meal-date').value,
+
+    const totalKcal = parseMacroValue(document.getElementById('total-kcal').textContent);
+    const totalProtein = parseMacroValue(document.getElementById('total-protein').textContent);
+    const totalCarbs = parseMacroValue(document.getElementById('total-carbs').textContent);
+    const totalFat = parseMacroValue(document.getElementById('total-fat').textContent);
+
+    const unitLabel = selectedRecipe.is_food
+        ? (unitSelect.options[unitSelect.selectedIndex]?.textContent || '')
+        : 'Porção';
+
+    const pendingItem = {
+        id: Date.now() + Math.random(),
+        display_name: customMealName,
+        is_food: selectedRecipe.is_food ? 1 : 0,
+        food_name: selectedRecipe.is_food ? selectedRecipe.name : '',
+        recipe_id: selectedRecipe.is_food ? '' : selectedRecipe.id,
+        meal_type: mealType,
+        meal_type_label: mealTypeLabel,
+        meal_time: mealTime,
+        meal_time_label: mealTime || 'Sem horário',
+        date_consumed: dateConsumed,
+        servings_consumed: selectedRecipe.is_food ? 1 : quantity,
+        quantity: quantity,
+        unit_id: selectedRecipe.is_food ? unitId : '',
+        unit_name: unitLabel,
+        kcal_per_serving: selectedRecipe.is_food ? totalKcal : selectedRecipe.kcal_per_serving,
+        protein_per_serving: selectedRecipe.is_food ? totalProtein : selectedRecipe.protein_g_per_serving,
+        carbs_per_serving: selectedRecipe.is_food ? totalCarbs : selectedRecipe.carbs_g_per_serving,
+        fat_per_serving: selectedRecipe.is_food ? totalFat : selectedRecipe.fat_g_per_serving,
+        total_kcal: totalKcal,
+        total_protein: totalProtein,
+        total_carbs: totalCarbs,
+        total_fat: totalFat
     };
-    
-    // Adicionar ID correto baseado no tipo
-    if (selectedRecipe.is_food) {
-        fields['food_name'] = selectedRecipe.name;
-        fields['is_food'] = '1';
-        // Para alimentos, usamos os totais calculados e salvamos como 1 porção
-        const kcalTxt = document.getElementById('total-kcal').textContent || '0';
-        const proteinTxt = document.getElementById('total-protein').textContent || '0';
-        const carbsTxt = document.getElementById('total-carbs').textContent || '0';
-        const fatTxt = document.getElementById('total-fat').textContent || '0';
-        const totalKcal = parseFloat(kcalTxt);
-        const totalProtein = parseFloat(proteinTxt);
-        const totalCarbs = parseFloat(carbsTxt);
-        const totalFat = parseFloat(fatTxt);
-        fields['servings_consumed'] = '1';
-        fields['kcal_per_serving'] = isNaN(totalKcal) ? 0 : totalKcal;
-        fields['protein_per_serving'] = isNaN(totalProtein) ? 0 : totalProtein;
-        fields['carbs_per_serving'] = isNaN(totalCarbs) ? 0 : totalCarbs;
-        fields['fat_per_serving'] = isNaN(totalFat) ? 0 : totalFat;
-    } else {
-        fields['recipe_id'] = selectedRecipe.id;
-        fields['servings_consumed'] = quantity;
-        fields['kcal_per_serving'] = selectedRecipe.kcal_per_serving;
-        fields['protein_per_serving'] = selectedRecipe.protein_g_per_serving;
-        fields['carbs_per_serving'] = selectedRecipe.carbs_g_per_serving;
-        fields['fat_per_serving'] = selectedRecipe.fat_g_per_serving;
+
+    pendingItems.push(pendingItem);
+    renderPendingItems();
+    showPendingFeedback('Refeição adicionada à lista. Clique em "Salvar no Diário" para registrar tudo de uma vez.', true);
+
+    closeModal();
+}
+
+function parseMacroValue(text) {
+    if (!text) return 0;
+    const normalized = text.toString().replace(',', '.').replace(/[^0-9.\-]/g, '');
+    const value = parseFloat(normalized);
+    return isNaN(value) ? 0 : value;
+}
+
+function formatNumber(value, decimals = 1) {
+    const number = Number(value) || 0;
+    return Number.isInteger(number) ? number.toString() : number.toFixed(decimals);
+}
+
+function escapeHtml(str) {
+    if (str == null) return '';
+    return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function formatDateLabel(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
-    
-    for (const [name, value] of Object.entries(fields)) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
+    return dateStr;
+}
+
+function renderPendingItems() {
+    const listEl = document.getElementById('pending-list');
+    const totalsEl = document.getElementById('pending-totals');
+    const saveBtn = document.getElementById('save-all-btn');
+
+    if (!listEl || !totalsEl || !saveBtn) return;
+
+    if (!pendingItems.length) {
+        listEl.className = 'pending-empty';
+        listEl.innerHTML = 'Nenhum item selecionado. Busque um alimento ou receita para começar.';
+        totalsEl.style.display = 'none';
+        totalsEl.innerHTML = '';
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar no Diário';
+        return;
     }
-    
-    document.body.appendChild(form);
-    form.submit();
+
+    const itemsHtml = pendingItems.map((item, index) => {
+        const quantityInfo = item.is_food
+            ? `${escapeHtml(item.unit_name || 'Unidade')} • ${formatNumber(item.quantity, 2)}`
+            : `${formatNumber(item.servings_consumed, 2)} porção(ões)`;
+
+        return `
+            <div class="pending-item">
+                <div class="pending-item-info">
+                    <div class="pending-item-title">${escapeHtml(item.display_name)}</div>
+                    <div class="pending-item-meta">
+                        <span>${escapeHtml(item.meal_type_label)}</span>
+                        <span>${escapeHtml(item.meal_time || 'Sem horário')}</span>
+                        <span>${formatDateLabel(item.date_consumed)}</span>
+                        <span>${quantityInfo}</span>
+                    </div>
+                    <div class="pending-item-macros">
+                        <span>${formatNumber(item.total_kcal, 0)} kcal</span>
+                        <span>P: ${formatNumber(item.total_protein)}g</span>
+                        <span>C: ${formatNumber(item.total_carbs)}g</span>
+                        <span>G: ${formatNumber(item.total_fat)}g</span>
+                    </div>
+                </div>
+                <button class="pending-remove-btn" onclick="removePendingItem(${index})" title="Remover item">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    }).join('');
+
+    listEl.className = 'pending-list';
+    listEl.innerHTML = itemsHtml;
+
+    const totals = pendingItems.reduce((acc, item) => {
+        acc.kcal += item.total_kcal || 0;
+        acc.protein += item.total_protein || 0;
+        acc.carbs += item.total_carbs || 0;
+        acc.fat += item.total_fat || 0;
+        return acc;
+    }, { kcal: 0, protein: 0, carbs: 0, fat: 0 });
+
+    totalsEl.style.display = 'flex';
+    totalsEl.innerHTML = `
+        <span><strong>Total:</strong> ${formatNumber(totals.kcal, 0)} kcal</span>
+        <span>P: ${formatNumber(totals.protein)}g</span>
+        <span>C: ${formatNumber(totals.carbs)}g</span>
+        <span>G: ${formatNumber(totals.fat)}g</span>
+    `;
+
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = `<i class="fas fa-save"></i> Salvar no Diário (${pendingItems.length})`;
+}
+
+function removePendingItem(index) {
+    pendingItems.splice(index, 1);
+    renderPendingItems();
+    showPendingFeedback('Item removido da lista.', true);
+}
+
+function showPendingFeedback(message, isSuccess = true) {
+    const feedbackEl = document.getElementById('pending-feedback');
+    if (!feedbackEl) return;
+    feedbackEl.textContent = message;
+    feedbackEl.classList.remove('success', 'error');
+    feedbackEl.classList.add(isSuccess ? 'success' : 'error');
+}
+
+async function submitAllMeals() {
+    if (!pendingItems.length) return;
+
+    const saveBtn = document.getElementById('save-all-btn');
+    const originalText = saveBtn.innerHTML;
+
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+    const formData = new FormData();
+    formData.append('csrf_token', '<?php echo $_SESSION['csrf_token']; ?>');
+    formData.append('batch', '1');
+    formData.append('items', JSON.stringify(pendingItems));
+
+    try {
+        const response = await fetch('<?php echo BASE_APP_URL; ?>/process_log_meal.php', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            showPendingFeedback('Refeições registradas com sucesso! Redirecionando...', true);
+            const redirectUrl = data.redirect || (`<?php echo BASE_APP_URL; ?>/diary.php?date=${encodeURIComponent(pendingItems[0].date_consumed)}`);
+            setTimeout(() => window.location.href = redirectUrl, 500);
+            return;
+        }
+
+        throw new Error(data.message || 'Não foi possível salvar as refeições.');
+    } catch (error) {
+        console.error('Erro ao salvar refeições em lote:', error);
+        showPendingFeedback(error.message || 'Erro ao salvar refeições. Tente novamente.', false);
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+    }
+}
+
+function resetModalState() {
+    document.getElementById('custom_meal_name').value = '';
+    document.getElementById('quantity').value = '1';
+    document.getElementById('total-kcal').innerHTML = '0 <span class="nutrition-item-unit">kcal</span>';
+    document.getElementById('total-protein').innerHTML = '0 <span class="nutrition-item-unit">g</span>';
+    document.getElementById('total-carbs').innerHTML = '0 <span class="nutrition-item-unit">g</span>';
+    document.getElementById('total-fat').innerHTML = '0 <span class="nutrition-item-unit">g</span>';
+
+    const unitSelect = document.getElementById('unit-select');
+    unitSelect.innerHTML = '';
+    unitSelect.style.display = 'none';
+    document.getElementById('quantity').classList.add('quantity-input-full-width');
+
+    const quantityLabel = document.getElementById('quantity-label');
+    quantityLabel.style.color = '';
+    quantityLabel.textContent = 'Quantidade';
+
+    const quantityInfo = document.getElementById('quantity-info');
+    quantityInfo.innerHTML = '<small class="text-muted"><span id="conversion-info"></span></small>';
+    quantityInfo.style.display = 'none';
 }
 
 let currentTab = 'recipes';
@@ -1496,7 +1826,8 @@ function selectSearchResult(item, type) {
             kcal_per_serving: item.kcal_per_serving || 0,
             protein_g_per_serving: item.protein_g_per_serving || 0,
             carbs_g_per_serving: item.carbs_g_per_serving || 0,
-            fat_g_per_serving: item.fat_g_per_serving || 0
+            fat_g_per_serving: item.fat_g_per_serving || 0,
+            is_food: false
         };
         console.log('📝 Receita formatada:', recipe);
         selectRecipe(recipe);
@@ -1549,6 +1880,14 @@ document.getElementById('recipe-modal').addEventListener('click', function(e) {
 });
 
 // Modal centralizado - sem funcionalidade de arrastar
+
+document.addEventListener('DOMContentLoaded', function() {
+    renderPendingItems();
+    const saveAllBtn = document.getElementById('save-all-btn');
+    if (saveAllBtn) {
+        saveAllBtn.addEventListener('click', submitAllMeals);
+    }
+});
 </script>
 
 <style>
