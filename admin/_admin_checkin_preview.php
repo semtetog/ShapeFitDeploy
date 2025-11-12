@@ -363,8 +363,12 @@ $checkin_data = [
             // Adicionar mensagem da pergunta com delay
             setTimeout(() => {
                 if (typingEffect) {
-                    typeMessage(question.question_text, 'bot', () => {
-                        // Após terminar de digitar, habilitar input ou mostrar opções
+                    // Mostrar indicador de digitação
+                    showTypingIndicator(() => {
+                        // Após mostrar indicador, mostrar mensagem
+                        addMessage(question.question_text, 'bot');
+                        
+                        // Habilitar input ou mostrar opções
                         if (question.question_type === 'text') {
                             textInput.disabled = false;
                             sendBtn.disabled = false;
@@ -381,6 +385,7 @@ $checkin_data = [
                         }
                     });
                 } else {
+                    // Sem efeito de digitação - mostrar mensagem direto
                     addMessage(question.question_text, 'bot');
                     
                     // Habilitar ou desabilitar input baseado no tipo
@@ -470,30 +475,29 @@ $checkin_data = [
             }, 50);
         }
         
-        function typeMessage(text, type, callback) {
+        function showTypingIndicator(callback) {
             const messagesDiv = document.getElementById('checkinMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `checkin-message ${type}`;
-            messagesDiv.appendChild(messageDiv);
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'checkin-message bot checkin-typing';
+            typingDiv.id = 'typing-indicator';
             
-            let index = 0;
-            const typingSpeed = 30; // ms por caractere
+            const dots = document.createElement('span');
+            dots.className = 'typing-dots';
+            dots.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+            typingDiv.appendChild(dots);
             
-            function typeChar() {
-                if (index < text.length) {
-                    messageDiv.textContent = text.substring(0, index + 1);
-                    index++;
-                    setTimeout(typeChar, typingSpeed);
-                } else {
-                    // Scroll suave para o final
-                    setTimeout(() => {
-                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                    }, 100);
-                    if (callback) callback();
-                }
-            }
+            messagesDiv.appendChild(typingDiv);
             
-            typeChar();
+            // Scroll para o final
+            setTimeout(() => {
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 50);
+            
+            // Remover indicador após delay e executar callback
+            setTimeout(() => {
+                typingDiv.remove();
+                if (callback) callback();
+            }, 1000); // Mostra indicador por 1 segundo
         }
     </script>
 </body>
