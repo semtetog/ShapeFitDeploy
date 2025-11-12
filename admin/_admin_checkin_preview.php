@@ -60,7 +60,9 @@ $checkin_data = [
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f0f0f;
+            background: rgba(15, 15, 15, 0.8);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             color: #FFFFFF;
             height: 100vh;
             overflow: hidden;
@@ -96,7 +98,7 @@ $checkin_data = [
             display: flex;
             flex-direction: column;
             gap: 12px;
-            background: #0f0f0f;
+            background: transparent;
             min-height: 0;
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE and Edge */
@@ -138,7 +140,7 @@ $checkin_data = [
         .checkin-message.user {
             align-self: flex-end;
             background: #FF6B00;
-            color: #000000;
+            color: #FFFFFF;
             font-weight: 500;
             border-radius: 18px;
             border-bottom-right-radius: 4px;
@@ -227,27 +229,34 @@ $checkin_data = [
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: #FF6B00;
-            border: none;
-            color: #000000;
+            background: rgba(255, 107, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            color: #FF6B00;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
             flex-shrink: 0;
-            font-weight: 500;
+            font-size: 1.1rem;
         }
 
         .checkin-send-btn:hover:not(:disabled) {
-            background: #e55a00;
+            background: rgba(255, 107, 0, 0.3);
+            border-color: rgba(255, 107, 0, 0.5);
+            color: #FF8533;
             transform: scale(1.05);
         }
 
         .checkin-send-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.3;
             cursor: not-allowed;
             transform: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>

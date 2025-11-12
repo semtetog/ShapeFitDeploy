@@ -2433,14 +2433,14 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     max-width: 500px;
     height: 90vh;
     max-height: 800px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(15, 15, 15, 0.8);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -2491,7 +2491,7 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: #0f0f0f;
+    background: transparent;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
 }
@@ -2532,7 +2532,7 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 .checkin-message.user {
     align-self: flex-end;
     background: #FF6B00;
-    color: #000000;
+    color: #FFFFFF;
     font-weight: 500;
     border-radius: 18px;
     border-bottom-right-radius: 4px;
@@ -2618,27 +2618,34 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: #FF6B00;
-    border: none;
-    color: #000000;
+    background: rgba(255, 107, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    color: #FF6B00;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
     flex-shrink: 0;
-    font-weight: 500;
+    font-size: 1.1rem;
 }
 
 .checkin-send-btn:hover:not(:disabled) {
-    background: #e55a00;
+    background: rgba(255, 107, 0, 0.3);
+    border-color: rgba(255, 107, 0, 0.5);
+    color: #FF8533;
     transform: scale(1.05);
 }
 
 .checkin-send-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
     transform: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
 }
 </style>
 
