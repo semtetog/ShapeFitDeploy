@@ -161,11 +161,10 @@ require_once __DIR__ . '/includes/header.php';
     /* O painel começa após o celular fixed
        margin-left = largura do celular + gap entre celular e painel */
     margin-left: calc(var(--mockup-width) + var(--gap-size));
-    /* width se ajusta automaticamente ao espaço disponível
-       Não usa max-width para permitir que se reduza quando necessário
-       width = largura total da viewport - sidebar - padding esquerdo - celular - gap - padding direito */
-    width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding-h));
-    max-width: none;
+    /* width se ajusta automaticamente, usando max-width para limitar
+       Permite que o painel se reduza quando necessário, mas nunca ultrapasse a borda direita */
+    width: 100%;
+    max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding-h));
     min-width: 600px;
     box-sizing: border-box;
     overflow-x: visible;
