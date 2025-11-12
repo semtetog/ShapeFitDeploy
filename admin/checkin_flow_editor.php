@@ -2227,6 +2227,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Atualizar texto ao lado da tag quando digitar no textarea
+    document.querySelectorAll('textarea[name="question_text"]').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            const block = this.closest('.block-item');
+            if (block) {
+                const previewText = block.querySelector('.block-preview-text');
+                if (previewText) {
+                    previewText.textContent = this.value;
+                }
+            }
+        });
+    });
+    
     // Atualizar quando blocos mudarem (usando MutationObserver com debounce)
     const blocksContainer = document.getElementById('blocksContainer');
     if (blocksContainer) {
@@ -2253,6 +2266,33 @@ document.addEventListener('DOMContentLoaded', function() {
             attributes: true,
             attributeFilter: ['data-block-id', 'data-order']
         });
+        
+        // Adicionar listeners para novos blocos adicionados dinamicamente
+        const addListenersToNewBlocks = function() {
+            blocksContainer.querySelectorAll('textarea[name="question_text"]').forEach(textarea => {
+                if (!textarea.hasAttribute('data-listener-added')) {
+                    textarea.setAttribute('data-listener-added', 'true');
+                    textarea.addEventListener('input', function() {
+                        const block = this.closest('.block-item');
+                        if (block) {
+                            const previewText = block.querySelector('.block-preview-text');
+                            if (previewText) {
+                                previewText.textContent = this.value;
+                            }
+                        }
+                    });
+                }
+            });
+        };
+        
+        // Adicionar listeners quando novos blocos forem adicionados
+        observer.observe(blocksContainer, {
+            childList: true,
+            subtree: true
+        });
+        
+        // Adicionar listeners iniciais
+        addListenersToNewBlocks();
     }
 });
 
