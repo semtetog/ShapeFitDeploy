@@ -1,0 +1,480 @@
+/* ========================================================================= */
+/*                    TEMA CLARO - IMPLEMENTAÇÃO PROFISSIONAL                */
+/* ========================================================================= */
+/* 
+ * Este arquivo implementa o tema claro usando tokens de design.
+ * NÃO altere cores diretamente - use os tokens definidos em tokens.css
+ */
+
+/* ========== BASE ========== */
+html[data-theme="light"] body,
+html[data-theme="light"] .admin-wrapper {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+html[data-theme="light"] .main-content {
+  background-color: var(--bg);
+}
+
+/* ========== SIDEBAR ========== */
+html[data-theme="light"] .sidebar {
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="light"] .sidebar-header {
+  border-bottom: 1px solid var(--border);
+}
+
+html[data-theme="light"] .sidebar-header .logo,
+html[data-theme="light"] .sidebar-header .logo span {
+  color: var(--text);
+}
+
+html[data-theme="light"] .sidebar-header .logo span {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html[data-theme="light"] .sidebar-nav a {
+  color: var(--text-muted);
+  transition: all var(--transition-base);
+}
+
+html[data-theme="light"] .sidebar-nav a:hover {
+  background: rgba(var(--shadow-color), 0.04);
+  color: var(--text);
+}
+
+html[data-theme="light"] .sidebar-nav li.active a {
+  background: rgba(255, 107, 0, 0.08);
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+
+html[data-theme="light"] .sidebar-admin-profile {
+  border-top: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+
+html[data-theme="light"] .admin-name {
+  color: var(--text);
+}
+
+html[data-theme="light"] .admin-role {
+  color: var(--text-muted);
+}
+
+html[data-theme="light"] .admin-theme-toggle,
+html[data-theme="light"] .admin-logout-btn {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  transition: all var(--transition-base);
+}
+
+html[data-theme="light"] .admin-theme-toggle:hover,
+html[data-theme="light"] .admin-logout-btn:hover {
+  background: rgba(255, 107, 0, 0.08);
+  border-color: var(--accent);
+}
+
+html[data-theme="light"] .admin-logout-btn span {
+  color: var(--text);
+}
+
+/* ========== CARDS ========== */
+html[data-theme="light"] .dashboard-card,
+html[data-theme="light"] .chart-card,
+html[data-theme="light"] .stats-card,
+html[data-theme="light"] .card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+html[data-theme="light"] .dashboard-card:hover,
+html[data-theme="light"] .chart-card:hover,
+html[data-theme="light"] .stats-card:hover,
+html[data-theme="light"] .card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+html[data-theme="light"] .card-header,
+html[data-theme="light"] .section-header {
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ========== TIPOGRAFIA ========== */
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3,
+html[data-theme="light"] h4,
+html[data-theme="light"] h5,
+html[data-theme="light"] h6 {
+  color: var(--text);
+  font-weight: var(--font-weight-bold);
+}
+
+html[data-theme="light"] p,
+html[data-theme="light"] span:not(.status-badge):not(.badge):not(.meta-value) {
+  color: var(--text-muted);
+}
+
+html[data-theme="light"] .text-secondary,
+html[data-theme="light"] .label {
+  color: var(--text-muted);
+}
+
+/* ========== BOTÕES ========== */
+html[data-theme="light"] .btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-5);
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="light"] .btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+html[data-theme="light"] .btn-primary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+html[data-theme="light"] .btn-secondary {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-5);
+  transition: all var(--transition-base);
+}
+
+html[data-theme="light"] .btn-secondary:hover {
+  background: var(--gray-100);
+  border-color: var(--gray-300);
+}
+
+html[data-theme="light"] .btn-secondary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+html[data-theme="light"] .btn-icon {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+html[data-theme="light"] .btn-icon:hover {
+  background: rgba(255, 107, 0, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ========== INPUTS ========== */
+html[data-theme="light"] input[type="text"],
+html[data-theme="light"] input[type="email"],
+html[data-theme="light"] input[type="password"],
+html[data-theme="light"] input[type="search"],
+html[data-theme="light"] input[type="number"],
+html[data-theme="light"] input[type="tel"],
+html[data-theme="light"] input[type="date"],
+html[data-theme="light"] select,
+html[data-theme="light"] textarea {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  padding: var(--space-3) var(--space-4);
+  transition: all var(--transition-base);
+}
+
+html[data-theme="light"] input:focus,
+html[data-theme="light"] select:focus,
+html[data-theme="light"] textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {
+  color: var(--gray-400);
+}
+
+html[data-theme="light"] label {
+  color: var(--text);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-2);
+}
+
+/* ========== TABELAS ========== */
+html[data-theme="light"] table {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+html[data-theme="light"] thead {
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+}
+
+html[data-theme="light"] th {
+  color: var(--text);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-4);
+}
+
+html[data-theme="light"] td {
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-4);
+}
+
+html[data-theme="light"] tbody tr:hover {
+  background: var(--bg-elev);
+}
+
+html[data-theme="light"] tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ========== TABS ========== */
+html[data-theme="light"] .tab-link {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+html[data-theme="light"] .tab-link:hover {
+  background: var(--bg-elev);
+  color: var(--text);
+}
+
+html[data-theme="light"] .tab-link.active {
+  background: rgba(255, 107, 0, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+html[data-theme="light"] .tab-link.active i {
+  color: var(--accent);
+}
+
+/* ========== STATUS BADGES ========== */
+html[data-theme="light"] .status-badge {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+html[data-theme="light"] .status-badge.excellent {
+  background: var(--success-bg);
+  color: #15803D;
+  border-color: var(--success);
+}
+
+html[data-theme="light"] .status-badge.good {
+  background: var(--info-bg);
+  color: #1E40AF;
+  border-color: var(--info);
+}
+
+html[data-theme="light"] .status-badge.fair {
+  background: var(--warning-bg);
+  color: #B45309;
+  border-color: var(--warning);
+}
+
+html[data-theme="light"] .status-badge.poor {
+  background: rgba(249, 115, 22, 0.1);
+  color: #C2410C;
+  border-color: #F97316;
+}
+
+html[data-theme="light"] .status-badge.critical {
+  background: var(--danger-bg);
+  color: #B91C1C;
+  border-color: var(--danger);
+}
+
+/* ========== ALERTAS ========== */
+html[data-theme="light"] .admin-alert {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  padding: var(--space-4);
+}
+
+html[data-theme="light"] .admin-alert.alert-success {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: #15803D;
+}
+
+html[data-theme="light"] .admin-alert.alert-danger {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: #B91C1C;
+}
+
+html[data-theme="light"] .admin-alert.alert-info {
+  background: var(--info-bg);
+  border-color: var(--info);
+  color: #1E40AF;
+}
+
+html[data-theme="light"] .admin-alert.alert-warning {
+  background: var(--warning-bg);
+  border-color: var(--warning);
+  color: #B45309;
+}
+
+/* ========== SCROLLBAR ========== */
+html[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--bg-elev);
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: var(--radius-full);
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+/* ========== LINKS ========== */
+html[data-theme="light"] a:not(.btn):not(.pagination-link):not(.tab-link) {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+html[data-theme="light"] a:not(.btn):not(.pagination-link):not(.tab-link):hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* ========== PAGINAÇÃO ========== */
+html[data-theme="light"] .pagination-link {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+html[data-theme="light"] .pagination-link:hover {
+  background: var(--bg-elev);
+  border-color: var(--gray-300);
+  color: var(--text);
+}
+
+html[data-theme="light"] .pagination-link.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+/* ========== ELEMENTOS ESPECÍFICOS QUE DEVEM SER LARANJAS ========== */
+html[data-theme="light"] .user-contact-details h2,
+html[data-theme="light"] .meta-value,
+html[data-theme="light"] .meta-card-macros span,
+html[data-theme="light"] .icon-sm,
+html[data-theme="light"] .data-item .icon,
+html[data-theme="light"] .data-title .icon,
+html[data-theme="light"] .stat-icon,
+html[data-theme="light"] .summary-icon {
+  color: var(--accent);
+}
+
+/* ========== CARDS DE USUÁRIO ========== */
+html[data-theme="light"] .user-card,
+html[data-theme="light"] .patient-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+html[data-theme="light"] .user-card:hover,
+html[data-theme="light"] .patient-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+html[data-theme="light"] .user-name,
+html[data-theme="light"] .patient-name {
+  color: var(--text);
+}
+
+html[data-theme="light"] .user-email,
+html[data-theme="light"] .patient-email {
+  color: var(--text-muted);
+}
+
+/* ========== VIEW USER ========== */
+html[data-theme="light"] .view-user-header {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+}
+
+/* ========== SEARCH BAR ========== */
+html[data-theme="light"] .search-bar,
+html[data-theme="light"] .search-form input {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+}
+
+html[data-theme="light"] .search-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+/* ========== TRANSITION SUAVE DE TEMA ========== */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-theme="light"] *,
+  html[data-theme="light"] *::before,
+  html[data-theme="light"] *::after {
+    transition: background-color var(--transition-base),
+                color var(--transition-base),
+                border-color var(--transition-base),
+                box-shadow var(--transition-base);
+  }
+}
+
