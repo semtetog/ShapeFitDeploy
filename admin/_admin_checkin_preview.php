@@ -528,7 +528,7 @@ $checkin_data = [
             
             const dots = document.createElement('span');
             dots.className = 'typing-dots';
-            dots.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+            dots.innerHTML = '<span></span><span></span><span></span>';
             typingDiv.appendChild(dots);
             
             messagesDiv.appendChild(typingDiv);
@@ -539,10 +539,14 @@ $checkin_data = [
             }, 50);
             
             // Remover indicador após delay e executar callback
+            // Duração baseada no comprimento da mensagem (mínimo 1s, máximo 2.5s)
+            const typingDuration = Math.min(Math.max(1000, checkinData.questions[currentQuestionIndex].question_text.length * 20), 2500);
             setTimeout(() => {
-                typingDiv.remove();
+                if (typingDiv.parentNode) {
+                    typingDiv.remove();
+                }
                 if (callback) callback();
-            }, 1000); // Mostra indicador por 1 segundo
+            }, typingDuration);
         }
     </script>
 </body>
