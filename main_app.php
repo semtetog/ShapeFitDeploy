@@ -2438,11 +2438,13 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.95);
     z-index: 10000;
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .checkin-modal.active {
