@@ -99,14 +99,12 @@ require_once __DIR__ . '/includes/header.php';
 /* Container principal - duas colunas */
 .checkin-flow-editor {
     display: block;
-    padding-top: var(--layout-gap);
-    padding-bottom: var(--layout-gap);
-    padding-right: var(--layout-gap);
-    /* Celular está fixed em: sidebar + gap
-       Celular termina em: sidebar + gap + mockup-width  
-       Painel deve começar logo após: sidebar + gap + mockup-width + gap
-       (mesmo gap que separa sidebar do celular) */
-    padding-left: calc(var(--sidebar-width) + var(--layout-gap) + var(--mockup-width) + var(--layout-gap));
+    padding: var(--layout-gap);
+    /* O celular está fixed, então o conteúdo (painel) precisa começar após ele.
+       Celular começa em: sidebar + gap
+       Celular termina em: sidebar + gap + mockup-width (limitado a 410px max)
+       Painel deve começar em: sidebar + gap + min(mockup-width, 410px) + gap */
+    padding-left: calc(var(--sidebar-width) + var(--layout-gap) + min(var(--mockup-width), 410px) + var(--layout-gap));
     width: calc(100vw - var(--sidebar-width));
     max-width: none;
     box-sizing: border-box;
