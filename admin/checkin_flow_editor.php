@@ -128,8 +128,9 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0;
 }
 
-/* Reduzir largura do celular no zoom 125% (aproximadamente viewport entre 1400px e 1600px) */
-@media screen and (min-width: 1400px) and (max-width: 1600px) {
+/* Reduzir largura do celular no zoom 125% 
+   Zoom 125% reduz a viewport efetiva, então detectamos faixas que correspondem a essa situação */
+@media screen and (min-width: 1280px) and (max-width: 1680px) {
     .mobile-mockup-panel {
         width: calc(var(--mockup-width) * 0.85);
         max-width: 350px;
