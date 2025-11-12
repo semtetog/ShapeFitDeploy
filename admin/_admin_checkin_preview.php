@@ -60,9 +60,9 @@ $checkin_data = [
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
+            background: rgba(30, 30, 30, 0.4);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
             color: #FFFFFF;
             height: 100vh;
             overflow: hidden;
@@ -73,9 +73,9 @@ $checkin_data = [
         }
 
         .checkin-chat-header {
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
+            background: rgba(30, 30, 30, 0.4);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
             padding: 16px 20px;
             display: flex;
             align-items: center;
@@ -98,9 +98,9 @@ $checkin_data = [
             display: flex;
             flex-direction: column;
             gap: 12px;
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
+            background: rgba(30, 30, 30, 0.4);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
             min-height: 0;
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE and Edge */
@@ -187,9 +187,9 @@ $checkin_data = [
 
         .checkin-input-container {
             padding: 16px;
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
+            background: rgba(30, 30, 30, 0.4);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             gap: 12px;
