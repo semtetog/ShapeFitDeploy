@@ -349,6 +349,14 @@ $checkin_data = [
         }
 
         function selectOption(option) {
+            // Desabilitar todos os botões de opção para evitar múltiplos cliques
+            const optionButtons = document.querySelectorAll('.checkin-option-btn');
+            optionButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+            });
+            
             addMessage(option, 'user');
             currentQuestionIndex++;
             setTimeout(() => renderNextQuestion(), messageDelay);
@@ -356,12 +364,18 @@ $checkin_data = [
 
         function sendCheckinResponse() {
             const input = document.getElementById('checkinTextInput');
-            const response = input.value.trim();
+            const sendBtn = document.getElementById('checkinSendBtn');
             
+            // Verificar se está desabilitado
+            if (input.disabled) return;
+            
+            const response = input.value.trim();
             if (!response) return;
             
             addMessage(response, 'user');
             input.value = '';
+            input.disabled = true;
+            sendBtn.disabled = true;
             currentQuestionIndex++;
             
             setTimeout(() => renderNextQuestion(), messageDelay);
@@ -373,7 +387,10 @@ $checkin_data = [
             messageDiv.className = `checkin-message ${type}`;
             messageDiv.textContent = text;
             messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            // Scroll suave para o final
+            setTimeout(() => {
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 50);
         }
     </script>
 </body>
