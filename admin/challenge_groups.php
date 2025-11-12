@@ -2829,7 +2829,7 @@ function initFlatpickr() {
     const flatpickrOptions = {
         locale: 'pt',
         dateFormat: 'd/m/Y', // Formato brasileiro: 10/11/2025
-        minDate: 'today',
+        minDate: '2020-01-01',
         allowInput: true, // Permitir digitação manual
         clickOpens: true,
         animate: true,
@@ -2934,26 +2934,6 @@ function initFlatpickr() {
         }
     }
     
-    // Função para desativar seta do mês anterior quando estiver no mês atual
-    function disablePastMonth(instance) {
-        const prevBtn = instance.calendarContainer.querySelector(".flatpickr-prev-month");
-        
-        if (!prevBtn) return;
-        
-        const today = new Date();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
-        
-        const selectedMonth = instance.currentMonth;
-        const selectedYear = instance.currentYear;
-        
-        if (selectedYear === currentYear && selectedMonth === currentMonth) {
-            prevBtn.classList.add("flatpickr-disabled");
-        } else {
-            prevBtn.classList.remove("flatpickr-disabled");
-        }
-    }
-    
     // Inicializar para data de início
     if (startDateInput) {
         // Limpar valor se estiver parcial ou inválido antes de inicializar
@@ -3001,18 +2981,15 @@ function initFlatpickr() {
             },
             onReady: function(_, __, instance) {
                 fixHeader(instance);
-                disablePastMonth(instance);
             },
             onOpen: function(_, __, instance) {
                 setTimeout(() => {
                     fixHeader(instance);
-                    disablePastMonth(instance);
                 }, 50);
             },
             onMonthChange: function(_, __, instance) {
                 setTimeout(() => {
                     fixHeader(instance);
-                    disablePastMonth(instance);
                 }, 10);
             }
         });
@@ -3073,18 +3050,15 @@ function initFlatpickr() {
             },
             onReady: function(_, __, instance) {
                 fixHeader(instance);
-                disablePastMonth(instance);
             },
             onOpen: function(_, __, instance) {
                 setTimeout(() => {
                     fixHeader(instance);
-                    disablePastMonth(instance);
                 }, 50);
             },
             onMonthChange: function(_, __, instance) {
                 setTimeout(() => {
                     fixHeader(instance);
-                    disablePastMonth(instance);
                 }, 10);
             }
         });
