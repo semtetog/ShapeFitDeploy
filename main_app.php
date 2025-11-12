@@ -2381,24 +2381,13 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     z-index: 10000;
     align-items: center;
     justify-content: center;
     padding: 1rem;
-}
-
-.checkin-modal::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: transparent;
-    z-index: -1;
 }
 
 .checkin-modal.active {
@@ -2410,23 +2399,23 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     max-width: 500px;
     height: 90vh;
     max-height: 800px;
-    background: rgba(30, 30, 30, 0.7);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.15);
     position: relative;
     z-index: 1;
 }
 
 .checkin-chat-header {
-    background: rgba(30, 30, 30, 0.7);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
     padding: 16px 20px;
     display: flex;
     align-items: center;
@@ -2472,9 +2461,9 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: rgba(30, 30, 30, 0.7);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
@@ -2558,9 +2547,9 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 
 .checkin-input-container {
     padding: 16px;
-    background: rgba(30, 30, 30, 0.7);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     gap: 12px;
