@@ -2407,7 +2407,7 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     }
 }
 
-/* Check-in Modal (WhatsApp Style) */
+/* Check-in Modal (Clean Glassmorphism Style) */
 .checkin-modal {
     display: none;
     position: fixed;
@@ -2415,9 +2415,9 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     z-index: 10000;
     align-items: center;
     justify-content: center;
@@ -2434,30 +2434,14 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     height: 90vh;
     max-height: 800px;
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
-                0 0 0 2px rgba(255, 107, 0, 0.5),
-                inset 0 0 40px rgba(255, 107, 0, 0.1);
-    border: 2px solid transparent;
-    position: relative;
-}
-
-.checkin-chat-container::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
-    z-index: -1;
-    opacity: 0.6;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .checkin-chat-header {
@@ -2468,36 +2452,20 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 2px solid transparent;
-    position: relative;
-}
-
-.checkin-chat-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .checkin-chat-header h3 {
     margin: 0;
-    background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #FFFFFF;
     font-size: 1.1rem;
     font-weight: 600;
 }
 
 .checkin-close-btn {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    color: #FF6B00;
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0;
@@ -2511,10 +2479,8 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 }
 
 .checkin-close-btn:hover {
-    background: linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 133, 51, 0.2) 100%);
-    border-color: #FF6B00;
+    background: rgba(255, 255, 255, 0.1);
     color: #FFFFFF;
-    transform: scale(1.1);
 }
 
 .checkin-messages {
@@ -2524,8 +2490,8 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+    gap: 12px;
+    background: #0f0f0f;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
 }
@@ -2555,39 +2521,21 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 
 .checkin-message.bot {
     align-self: flex-start;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    color: #F5F5F5;
-    border: 1px solid transparent;
+    color: #FFFFFF;
+    border-radius: 18px;
     border-bottom-left-radius: 4px;
-    position: relative;
-    overflow: hidden;
-}
-
-.checkin-message.bot::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    border-bottom-left-radius: 4px;
-    background: linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 133, 51, 0.1) 100%) padding-box,
-                linear-gradient(135deg, rgba(255, 107, 0, 0.3) 0%, rgba(255, 133, 51, 0.2) 100%) border-box;
-    pointer-events: none;
-    z-index: -1;
 }
 
 .checkin-message.user {
     align-self: flex-end;
-    background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+    background: #FF6B00;
     color: #000000;
-    font-weight: 600;
+    font-weight: 500;
+    border-radius: 18px;
     border-bottom-right-radius: 4px;
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
 }
 
 .checkin-options {
@@ -2599,57 +2547,28 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 
 .checkin-option-btn {
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid transparent;
-    border-radius: 8px;
-    color: #FF6B00;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #FFFFFF;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-align: left;
     font-size: 0.95rem;
-    font-weight: 500;
-    position: relative;
-    overflow: hidden;
-}
-
-.checkin-option-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.03) 100%) padding-box,
-                linear-gradient(135deg, #FF6B00 0%, #FF8533 100%) border-box;
-    pointer-events: none;
-    z-index: -1;
+    font-weight: 400;
 }
 
 .checkin-option-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
-    border-color: transparent;
-    color: #000000;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-1px);
-}
-
-.checkin-option-btn:hover:not(:disabled)::before {
-    display: none;
 }
 
 .checkin-option-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    border-color: rgba(255, 107, 0, 0.2);
-}
-
-.checkin-option-btn:disabled::before {
-    opacity: 0.5;
 }
 
 .checkin-input-container {
@@ -2657,85 +2576,69 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 2px solid transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     gap: 12px;
     align-items: center;
-    position: relative;
-}
-
-.checkin-input-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
 }
 
 .checkin-text-input {
     flex: 1;
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 107, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 24px;
-    color: #F5F5F5;
+    color: #FFFFFF;
     font-size: 0.95rem;
     outline: none;
     font-family: inherit;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .checkin-text-input:focus {
-    border-color: #FF6B00;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .checkin-text-input:disabled {
-    background: rgba(255, 255, 255, 0.02);
-    color: rgba(255, 107, 0, 0.4);
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.4);
     cursor: not-allowed;
     opacity: 0.6;
-    border-color: rgba(255, 107, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.05);
 }
 
 .checkin-text-input::placeholder {
-    color: rgba(255, 107, 0, 0.5);
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .checkin-send-btn {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+    background: #FF6B00;
     border: none;
     color: #000000;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     flex-shrink: 0;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+    font-weight: 500;
 }
 
 .checkin-send-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #e55a00 0%, #FF6B00 100%);
-    color: #FFFFFF;
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(255, 107, 0, 0.5);
+    background: #e55a00;
+    transform: scale(1.05);
 }
 
 .checkin-send-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.2);
 }
 </style>
 
