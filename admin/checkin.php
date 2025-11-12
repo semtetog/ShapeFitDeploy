@@ -369,7 +369,6 @@ require_once __DIR__ . '/includes/header.php';
     border-radius: 12px !important;
     padding: 1rem !important;
     transition: all 0.3s ease !important;
-    cursor: pointer !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 0.75rem !important;
@@ -381,7 +380,6 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box !important;
     overflow: hidden !important;
     min-width: 0 !important;
-    min-height: 320px;
 }
 
 .checkin-card:hover {
@@ -391,7 +389,7 @@ require_once __DIR__ . '/includes/header.php';
     box-shadow: none !important;
 }
 
-/* Header do card - igual group-card-header */
+/* Header do card - igual challenge_groups.php */
 .checkin-card-header {
     display: flex;
     justify-content: space-between;
@@ -401,27 +399,6 @@ require_once __DIR__ . '/includes/header.php';
     width: 100%;
     box-sizing: border-box;
     min-width: 0;
-}
-
-.checkin-header-with-icon {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    flex: 1;
-    min-width: 0;
-}
-
-.checkin-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: rgba(255, 107, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent-orange);
-    font-size: 1.25rem;
-    flex-shrink: 0;
 }
 
 .checkin-name {
@@ -434,12 +411,6 @@ require_once __DIR__ . '/includes/header.php';
     word-wrap: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .checkin-status {
@@ -453,124 +424,153 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .checkin-status.active {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+    border: 1px solid #10B981;
 }
 
 .checkin-status.inactive {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background: rgba(107, 114, 128, 0.2);
+    color: #6B7280;
+    border: 1px solid #6B7280;
 }
 
-/* Body do card */
-.checkin-card-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    min-width: 0;
-    min-height: 0;
-}
-
-.checkin-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
+.checkin-description {
     color: var(--text-secondary);
-    flex-shrink: 0;
-}
-
-.checkin-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: nowrap;
-    height: 1.25rem;
-    flex-shrink: 0;
-}
-
-.checkin-meta-item i {
-    font-size: 0.75rem;
-    color: var(--accent-orange);
-    flex-shrink: 0;
-    width: 14px;
-    text-align: center;
-}
-
-.checkin-meta-item span {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-    flex: 1;
-}
-
-/* Spacer para empurrar actions para baixo */
-.checkin-body-spacer {
-    flex: 1;
-    min-height: 0;
-}
-
-/* Actions - igual group-card-actions */
-.checkin-actions {
-    display: flex;
-    gap: 0.75rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    flex-wrap: wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     width: 100%;
     box-sizing: border-box;
     flex-shrink: 0;
 }
 
-.btn-action {
-    flex: 1 1 calc(50% - 0.375rem);
-    min-width: 0;
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
-    border: 1px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.checkin-info {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    margin-bottom: 0;
+}
+
+.checkin-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
     font-size: 0.875rem;
+    flex-shrink: 0;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+.checkin-info-item i {
+    color: var(--accent-orange);
+    font-size: 0.875rem;
+}
+
+/* Actions - igual challenge_groups.php */
+.checkin-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    flex-shrink: 0;
+}
+
+.btn-action {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.625rem 0.75rem;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    text-align: center;
+    font-size: 0.8125rem;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.btn-action:hover {
-    background: var(--accent-orange);
-    border-color: var(--accent-orange);
-    color: white;
-    transform: translateY(-2px);
+    overflow: visible;
+    text-overflow: clip;
+    box-sizing: border-box;
+    border: 1px solid;
+    background: transparent;
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    position: relative;
+    line-height: 1.2;
 }
 
 .btn-action i {
     flex-shrink: 0;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
+}
+
+/* Garantir que o texto dos botões não seja cortado */
+.btn-action {
+    text-align: center;
+}
+
+.btn-action:hover {
+    background: rgba(255, 107, 0, 0.1);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+.btn-action.btn-view {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #3B82F6;
+}
+
+.btn-action.btn-view:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3B82F6;
+    color: #3B82F6;
+}
+
+.btn-action.btn-edit {
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--accent-orange);
+    border-color: rgba(255, 107, 0, 0.2);
+}
+
+.btn-action.btn-edit:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
 }
 
 .btn-action.btn-danger {
     background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #ef4444;
+    color: #EF4444;
+    border-color: rgba(239, 68, 68, 0.2);
 }
 
 .btn-action.btn-danger:hover {
-    background: #ef4444;
-    border-color: #ef4444;
-    color: white;
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #EF4444;
 }
 
-/* Responsividade dos Cards de Check-in */
+/* Responsividade dos Cards de Check-in - igual challenge_groups.php */
 @media (max-width: 1024px) {
     .checkin-grid {
         grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
@@ -1036,56 +1036,46 @@ require_once __DIR__ . '/includes/header.php';
             <?php foreach ($checkins as $checkin): ?>
                 <div class="checkin-card">
                     <div class="checkin-card-header">
-                        <div class="checkin-header-with-icon">
-                            <div class="checkin-icon">
-                                <i class="fas fa-clipboard-check"></i>
-                            </div>
-                            <div style="flex: 1; min-width: 0;">
-                                <h3 class="checkin-name"><?php echo htmlspecialchars($checkin['name']); ?></h3>
-                            </div>
-                        </div>
+                        <h3 class="checkin-name"><?php echo htmlspecialchars($checkin['name']); ?></h3>
                         <span class="checkin-status <?php echo $checkin['is_active'] ? 'active' : 'inactive'; ?>">
                             <?php echo $checkin['is_active'] ? 'Ativo' : 'Inativo'; ?>
                         </span>
                     </div>
-                    <div class="checkin-card-body">
-                        <div class="checkin-meta">
-                            <div class="checkin-meta-item">
-                                <i class="fas fa-calendar"></i>
-                                <span>
-                                    <?php 
-                                    $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-                                    echo $days[$checkin['day_of_week']] ?? 'Não definido';
-                                    ?>
-                                </span>
-                            </div>
-                            <div class="checkin-meta-item">
-                                <i class="fas fa-question-circle"></i>
-                                <span><?php echo $checkin['questions_count']; ?> perguntas</span>
-                            </div>
-                            <div class="checkin-meta-item">
-                                <i class="fas fa-users"></i>
-                                <span><?php echo $checkin['distribution_count']; ?> distribuições</span>
-                            </div>
+                    <?php if (!empty($checkin['description'])): ?>
+                        <p class="checkin-description"><?php echo htmlspecialchars($checkin['description']); ?></p>
+                    <?php endif; ?>
+                    
+                    <div class="checkin-info">
+                        <div class="checkin-info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>
+                                <?php 
+                                $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                                echo $days[$checkin['day_of_week']] ?? 'Não definido';
+                                ?>
+                            </span>
                         </div>
-                        <?php if (!empty($checkin['description'])): ?>
-                            <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin-top: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
-                                <?php echo htmlspecialchars($checkin['description']); ?>
-                            </div>
-                        <?php endif; ?>
-                        <div class="checkin-body-spacer"></div>
+                        <div class="checkin-info-item">
+                            <i class="fas fa-question-circle"></i>
+                            <span><?php echo $checkin['questions_count']; ?> perguntas</span>
+                        </div>
+                        <div class="checkin-info-item">
+                            <i class="fas fa-users"></i>
+                            <span><?php echo $checkin['distribution_count']; ?> distribuições</span>
+                        </div>
                     </div>
-                    <div class="checkin-actions">
-                        <button class="btn-action" onclick="viewResponses(<?php echo $checkin['id']; ?>)">
-                            <i class="fas fa-eye"></i> Ver Respostas
+                    
+                    <div class="checkin-actions" onclick="event.stopPropagation()">
+                        <button class="btn-action btn-view" onclick="viewResponses(<?php echo $checkin['id']; ?>)" title="Ver Respostas">
+                            <i class="fas fa-eye"></i> Respostas
                         </button>
-                        <button class="btn-action" onclick="editCheckinFlow(<?php echo $checkin['id']; ?>)">
+                        <button class="btn-action btn-edit" onclick="editCheckinFlow(<?php echo $checkin['id']; ?>)" title="Editor de Fluxo">
                             <i class="fas fa-project-diagram"></i> Editor
                         </button>
-                        <button class="btn-action" onclick="editCheckin(<?php echo $checkin['id']; ?>)">
+                        <button class="btn-action btn-edit" onclick="editCheckin(<?php echo $checkin['id']; ?>)" title="Editar">
                             <i class="fas fa-edit"></i> Editar
                         </button>
-                        <button class="btn-action btn-danger" onclick="deleteCheckin(<?php echo $checkin['id']; ?>)">
+                        <button class="btn-action btn-danger" onclick="deleteCheckin(<?php echo $checkin['id']; ?>)" title="Excluir">
                             <i class="fas fa-trash"></i> Excluir
                         </button>
                     </div>
@@ -1399,6 +1389,11 @@ function deleteCheckin(id) {
             alert('Erro: ' + data.message);
         }
     });
+}
+
+function viewCheckin(id) {
+    // Função para quando clicar no card (pode abrir modal ou página de detalhes)
+    viewResponses(id);
 }
 
 function viewResponses(id) {
