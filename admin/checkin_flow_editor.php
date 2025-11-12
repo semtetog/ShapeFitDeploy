@@ -128,6 +128,14 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0;
 }
 
+/* Reduzir largura do celular no zoom 125% (aproximadamente viewport entre 1400px e 1600px) */
+@media screen and (min-width: 1400px) and (max-width: 1600px) {
+    .mobile-mockup-panel {
+        width: calc(var(--mockup-width) * 0.85);
+        max-width: 350px;
+    }
+}
+
 .mobile-mockup-wrapper {
     width: 100%;
     height: 100%;
@@ -184,7 +192,8 @@ require_once __DIR__ . '/includes/header.php';
     overflow-x: visible;
 }
 
-.editor-header {
+/* Header dentro do card de configurações */
+.checkin-config-section .editor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -197,7 +206,12 @@ require_once __DIR__ . '/includes/header.php';
     gap: 1rem;
 }
 
-.editor-header h1 {
+.checkin-config-section .editor-header:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.checkin-config-section .editor-header h1 {
     margin: 0;
     font-size: 1.5rem;
     color: var(--text-primary);
@@ -207,7 +221,7 @@ require_once __DIR__ . '/includes/header.php';
     font-weight: 700;
 }
 
-.editor-header h1 i {
+.checkin-config-section .editor-header h1 i {
     color: var(--accent-orange);
     font-size: 1.25rem;
 }
