@@ -98,7 +98,9 @@ $checkin_data = [
             display: flex;
             flex-direction: column;
             gap: 12px;
-            background: transparent;
+            background: rgba(15, 15, 15, 0.5);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             min-height: 0;
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE and Edge */
@@ -240,7 +242,18 @@ $checkin_data = [
             justify-content: center;
             transition: all 0.2s ease;
             flex-shrink: 0;
-            font-size: 1.1rem;
+            padding: 0;
+            margin: 0;
+        }
+
+        .checkin-send-btn i {
+            font-size: 1rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
         }
 
         .checkin-send-btn:hover:not(:disabled) {

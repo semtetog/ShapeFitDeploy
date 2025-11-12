@@ -2465,22 +2465,24 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 .checkin-close-btn {
     background: transparent;
     border: none;
-    color: #FFFFFF;
-    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.3rem;
     cursor: pointer;
     padding: 0;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    line-height: 1;
+    font-weight: 300;
 }
 
 .checkin-close-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .checkin-messages {
@@ -2491,7 +2493,9 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: transparent;
+    background: rgba(15, 15, 15, 0.5);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
 }
@@ -2629,7 +2633,18 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     justify-content: center;
     transition: all 0.2s ease;
     flex-shrink: 0;
-    font-size: 1.1rem;
+    padding: 0;
+    margin: 0;
+}
+
+.checkin-send-btn i {
+    font-size: 1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .checkin-send-btn:hover:not(:disabled) {
