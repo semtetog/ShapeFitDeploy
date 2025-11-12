@@ -368,9 +368,6 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 .card-suggestions,
 .card-challenges,
 .card-action-item,
-.card-checkin {
-    grid-column: 1 / -1;
-}
 
 /* ======================================= */
 /* --- CSS DOS NOVOS CARDS DE AÇÃO --- */
