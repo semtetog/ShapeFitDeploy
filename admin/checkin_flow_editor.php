@@ -2096,6 +2096,14 @@ function adjustLayoutForZoom() {
         configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 350px - 1.5rem - var(--content-wrapper-padding-h))';
     }
     // Zoom 110%: manter valores padrão (já definidos no CSS)
+    
+    // Ajustar o header do painel direito no zoom 100%
+    const editorHeader = document.querySelector('.config-panel .editor-header');
+    if (editorHeader && zoomLevel === '100%') {
+        editorHeader.style.marginTop = '1.5rem';
+    } else if (editorHeader) {
+        editorHeader.style.marginTop = '0';
+    }
 }
 
 // Ajustar layout quando a página carregar
