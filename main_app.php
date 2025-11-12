@@ -1503,24 +1503,6 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
             </div>
         <?php endif; ?>
         
-        <!-- Card de Check-in -->
-        <?php if ($available_checkin): ?>
-            <div class="glass-card card-checkin" id="checkinCard" style="background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 107, 0, 0.05) 100%); border: 2px solid var(--accent-orange);">
-                <div class="checkin-card-content">
-                    <div class="checkin-icon">
-                        <i class="fas fa-clipboard-check"></i>
-                    </div>
-                    <div class="checkin-info">
-                        <h3><?php echo htmlspecialchars($available_checkin['name']); ?></h3>
-                        <p>Hora do seu feedback semanal!</p>
-                    </div>
-                    <button class="checkin-btn" onclick="openCheckinModal()">
-                        Responder
-                    </button>
-                </div>
-            </div>
-        <?php endif; ?>
-        
         <div class="glass-card card-challenges">
             <div class="card-header">
                 <h3><i class="fas fa-trophy"></i> Grupos de Desafio</h3>
@@ -2317,116 +2299,84 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 ?>
 
 <style>
-/* Check-in Card Styles */
-.card-checkin {
-    margin-bottom: 20px;
-    padding: 24px;
-    animation: pulse 2s infinite;
-    position: relative;
-    overflow: hidden;
-}
-
-.card-checkin::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--accent-orange), #ff8533);
-    opacity: 0.8;
-}
-
-@keyframes pulse {
-    0%, 100% { 
-        transform: scale(1);
-        box-shadow: 0 8px 32px rgba(255, 107, 0, 0.1);
-    }
-    50% { 
-        transform: scale(1.01);
-        box-shadow: 0 8px 32px rgba(255, 107, 0, 0.2);
-    }
-}
-
-.checkin-card-content {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    max-width: 100%;
-}
-
-.checkin-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, var(--accent-orange), #ff8533);
+/* Check-in Floating Button */
+.checkin-floating-btn {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+    border: none;
+    color: #000000;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.4),
+                0 0 0 4px rgba(255, 107, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 999;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 1.75rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3);
+    animation: float 3s ease-in-out infinite;
 }
 
-.checkin-info {
-    flex: 1;
-    min-width: 0;
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
-.checkin-info h3 {
-    margin: 0 0 8px 0;
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.3;
+.checkin-floating-btn:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.6),
+                0 0 0 6px rgba(255, 107, 0, 0.15);
 }
 
-.checkin-info p {
-    margin: 0;
-    font-size: 1rem;
-    color: var(--text-secondary);
-    line-height: 1.4;
+.checkin-floating-btn:active {
+    transform: translateY(-2px) scale(1.05);
 }
 
-.checkin-btn {
-    padding: 14px 28px;
-    background: linear-gradient(135deg, var(--accent-orange), #ff8533);
-    color: white;
-    border: none;
-    border-radius: 14px;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3);
-    flex-shrink: 0;
-    white-space: nowrap;
+.checkin-floating-btn i {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-.checkin-btn:hover {
-    background: linear-gradient(135deg, #e55a00, #ff6600);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+/* Badge de notificação no botão */
+.checkin-floating-btn::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 2px solid #FF6B00;
+    animation: pulse-dot 2s ease-in-out infinite;
 }
 
-.checkin-btn:active {
-    transform: translateY(0);
+@keyframes pulse-dot {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
 }
 
 @media (max-width: 768px) {
-    .checkin-card-content {
-        flex-direction: column;
-        text-align: center;
-        gap: 16px;
-    }
-    
-    .checkin-info {
-        text-align: center;
-    }
-    
-    .checkin-btn {
-        width: 100%;
+    .checkin-floating-btn {
+        bottom: 90px;
+        right: 16px;
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
     }
 }
 
