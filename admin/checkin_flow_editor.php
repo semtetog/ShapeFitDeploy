@@ -99,37 +99,24 @@ require_once __DIR__ . '/includes/header.php';
 /* Container principal - duas colunas */
 .checkin-flow-editor {
     display: flex;
-    gap: 0;
+    gap: var(--layout-gap);
     padding: var(--layout-gap);
-    /* Calcular espaços laterais iguais: 
-       - Largura disponível: 100vw - sidebar
-       - Espaço restante após celular: 100vw - sidebar - celular
-       - Espaço por lado: (espaço restante) / 2
-       - Padding-left: sidebar + espaço esquerdo + celular
-       - Padding-right: espaço direito
-    */
-    --available-width: calc(100vw - var(--sidebar-width));
-    --remaining-space: calc(var(--available-width) - var(--mockup-width));
-    --side-spacing: calc(var(--remaining-space) / 2);
-    
-    padding-left: calc(var(--sidebar-width) + var(--side-spacing) + var(--mockup-width));
-    padding-right: var(--side-spacing);
-    width: var(--available-width);
+    /* Espaços mínimos fixos: sidebar + gap mínimo + celular + gap mínimo + painel */
+    padding-left: calc(var(--sidebar-width) + var(--layout-gap) + var(--mockup-width) + var(--layout-gap));
+    padding-right: var(--layout-gap);
+    width: calc(100vw - var(--sidebar-width));
     max-width: none;
     box-sizing: border-box;
     overflow-x: hidden;
 }
 
-/* PAINEL DO CELULAR (CENTRO - FIXO COM ESPAÇOS IGUAIS) */
+/* PAINEL DO CELULAR (ESQUERDA - FIXO COM ESPAÇO MÍNIMO) */
 .mobile-mockup-panel {
     position: fixed;
     top: 50%;
     transform: translateY(-50%);
-    /* Posição: sidebar + espaço esquerdo (igual ao espaço direito) */
-    --available-width: calc(100vw - var(--sidebar-width));
-    --remaining-space: calc(var(--available-width) - var(--mockup-width));
-    --side-spacing: calc(var(--remaining-space) / 2);
-    left: calc(var(--sidebar-width) + var(--side-spacing));
+    /* Posição: sidebar + gap mínimo (mesmo gap usado no container) */
+    left: calc(var(--sidebar-width) + var(--layout-gap));
     
     width: var(--mockup-width);
     height: var(--mockup-height);
@@ -172,11 +159,8 @@ require_once __DIR__ . '/includes/header.php';
     flex-grow: 1;
     flex-basis: 0;
     width: auto;
-    /* Usar o mesmo cálculo de espaço lateral */
-    --available-width: calc(100vw - var(--sidebar-width));
-    --remaining-space: calc(var(--available-width) - var(--mockup-width));
-    --side-spacing: calc(var(--remaining-space) / 2);
-    max-width: var(--side-spacing);
+    /* Ocupar o espaço restante após sidebar + gap + celular + gap */
+    max-width: calc(100vw - var(--sidebar-width) - var(--mockup-width) - (var(--layout-gap) * 3));
     min-width: 600px;
     box-sizing: border-box;
 }
