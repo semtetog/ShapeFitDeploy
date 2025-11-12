@@ -135,6 +135,11 @@ require_once __DIR__ . '/includes/header.php';
         width: calc(var(--mockup-width) * 0.85);
         max-width: 350px;
     }
+    
+    /* Reduzir gap entre celular e menu de configurações no zoom 125% */
+    .config-panel {
+        margin-left: calc(350px + 1rem);
+    }
 }
 
 .mobile-mockup-wrapper {
