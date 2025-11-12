@@ -129,21 +129,8 @@ require_once __DIR__ . '/includes/header.php';
     transform: none;
 }
 
-/* Reduzir largura do celular no zoom 125% 
-   Zoom 125% reduz a viewport efetiva, então detectamos faixas que correspondem a essa situação */
-@media screen and (min-width: 1280px) and (max-width: 1680px) {
-    .mobile-mockup-panel {
-        width: calc(var(--mockup-width) * 0.85);
-        max-width: 350px;
-    }
-    
-    /* Reduzir gap entre celular e menu de configurações no zoom 125% - gap mínimo possível (quase colado) */
-    .config-panel {
-        margin-left: 352px;
-        /* Ajustar width do menu para compensar o gap reduzido */
-        max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 352px - var(--content-wrapper-padding-h));
-    }
-}
+/* Estilos base - zoom 110% (referência perfeita) */
+/* Os ajustes para 100% e 125% serão feitos via JavaScript */
 
 .mobile-mockup-wrapper {
     width: 100%;
@@ -2043,14 +2030,79 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Atualizar preview quando o iframe carregar
+// Ajustar layout baseado no zoom do navegador para manter visual do zoom 110%
+function adjustLayoutForZoom() {
+    const mockupPanel = document.querySelector('.mobile-mockup-panel');
+    const configPanel = document.querySelector('.config-panel');
+    
+    if (!mockupPanel || !configPanel) return;
+    
+    // Detectar zoom através do devicePixelRatio ou cálculo de viewport
+    // devicePixelRatio: 1.0 = 100%, 1.1 = 110%, 1.25 = 125%
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    
+    // Calcular zoom aproximado baseado na largura da viewport
+    // Para monitor 27" Full HD (1920px): 100% = 1920px, 110% = ~1745px, 125% = ~1536px
+    const viewportWidth = window.innerWidth;
+    let zoomLevel = '110%'; // padrão (referência)
+    
+    // Detectar zoom baseado em devicePixelRatio (mais confiável)
+    if (devicePixelRatio >= 1.2) {
+        zoomLevel = '125%';
+    } else if (devicePixelRatio <= 0.95) {
+        zoomLevel = '100%';
+    } else {
+        // Fallback: usar largura da viewport para detectar zoom
+        // Monitor 27" Full HD como referência
+        if (viewportWidth > 1800) {
+            zoomLevel = '100%';
+        } else if (viewportWidth < 1500) {
+            zoomLevel = '125%';
+        }
+    }
+    
+    // Resetar estilos inline para aplicar novos valores
+    mockupPanel.style.top = '';
+    mockupPanel.style.width = '';
+    mockupPanel.style.maxWidth = '';
+    configPanel.style.marginLeft = '';
+    configPanel.style.marginTop = '';
+    configPanel.style.maxWidth = '';
+    
+    // Aplicar ajustes baseado no zoom detectado
+    if (zoomLevel === '100%') {
+        // Zoom 100%: descer o celular (adicionar margin-top)
+        mockupPanel.style.top = 'calc(var(--content-wrapper-padding-v) + 2rem)';
+        
+        // Manter espaçamentos horizontais do zoom 110% (referência)
+        // Não precisa ajustar margin-left do config-panel
+    } else if (zoomLevel === '125%') {
+        // Zoom 125%: reduzir largura do celular e aproximar do menu
+        mockupPanel.style.width = '350px';
+        mockupPanel.style.maxWidth = '350px';
+        
+        // Reduzir gap entre celular e menu (aproximar)
+        configPanel.style.marginLeft = 'calc(350px + 0.75rem)';
+        configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 350px - 0.75rem - var(--content-wrapper-padding-h))';
+    }
+    // Zoom 110%: manter valores padrão (já definidos no CSS)
+}
+
+// Ajustar layout quando a página carregar
 window.addEventListener('load', function() {
+    adjustLayoutForZoom();
+    
     const iframe = document.getElementById('checkin-preview-frame');
     if (iframe) {
         iframe.addEventListener('load', function() {
             setTimeout(() => updatePreview(), 1000);
         });
     }
+});
+
+// Ajustar layout quando a janela for redimensionada (zoom pode mudar)
+window.addEventListener('resize', function() {
+    adjustLayoutForZoom();
 });
 
 // Atualizar preview quando campos mudarem
