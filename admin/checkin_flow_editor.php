@@ -105,12 +105,11 @@ require_once __DIR__ . '/includes/header.php';
     /* IMPORTANTE: O container já começa após a sidebar (width: calc(100vw - var(--sidebar-width)))
        Celular está fixed em: sidebar + gap (da borda esquerda da tela)
        Celular termina em: sidebar + gap + 410px (da borda esquerda da tela)
-       Painel deve começar em: sidebar + gap + 410px + gap (da borda esquerda da tela)
-       Como o container começa após a sidebar, o padding-left do container deve ser:
-       padding-left = gap + 410px + gap (relativo ao início do container, não da tela) */
-    padding-left: calc(var(--layout-gap) + 410px + var(--layout-gap));
+       Painel deve começar um pouco mais perto: gap + 410px + gap reduzido
+       Reduzindo um pouco o gap entre celular e painel para aproximar */
+    padding-left: calc(var(--layout-gap) + 410px + 1.25rem);
     width: calc(100vw - var(--sidebar-width));
-    max-width: none;
+    max-width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
     margin: 0;
@@ -165,9 +164,22 @@ require_once __DIR__ . '/includes/header.php';
     flex-direction: column;
     gap: 2rem;
     width: 100%;
-    max-width: 100%;
+    /* Limitar largura máxima para não ultrapassar a borda direita da tela
+       Calculando: largura da tela - sidebar - gap - celular - gap reduzido - padding-right */
+    max-width: calc(100vw - var(--sidebar-width) - var(--layout-gap) - 410px - 1.25rem - var(--layout-gap));
     min-width: 600px;
     box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: visible;
+    word-wrap: break-word;
+}
+
+/* Garantir que elementos internos não ultrapassem os limites */
+.config-panel > * {
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .editor-header {
@@ -591,6 +603,10 @@ textarea.form-control {
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 2rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    word-wrap: break-word;
 }
 
 .section-title {
@@ -2083,3 +2099,4 @@ function getDragAfterElement(container, y) {
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+
