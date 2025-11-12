@@ -2326,6 +2326,20 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     animation: float 3s ease-in-out infinite;
 }
 
+.checkin-floating-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.checkin-floating-btn:hover::before {
+    opacity: 1;
+}
+
 @keyframes float {
     0%, 100% {
         transform: translateY(0px);
