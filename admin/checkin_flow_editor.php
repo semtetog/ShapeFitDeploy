@@ -1956,26 +1956,20 @@ textarea.form-control {
             <?php endforeach; ?>
         <?php endif; ?>
         
-        <!-- Botão de adicionar bloco sempre no final -->
-        <div class="add-block-button-container">
-            <button onclick="showAddBlockSection()" class="btn btn-primary btn-add-block">
-                <i class="fas fa-plus"></i> Adicionar Bloco
-            </button>
-        </div>
-    </div>
-
-    <div class="add-block-section" id="addBlockSection" style="display: none;">
-        <h3>Adicionar Novo Bloco</h3>
-        <div class="add-block-buttons">
-            <button class="add-block-btn" onclick="addBlock('text')">
-                <i class="fas fa-comment"></i> Mensagem
-            </button>
-            <button class="add-block-btn" onclick="addBlock('multiple_choice')">
-                <i class="fas fa-list"></i> Múltipla Escolha
-            </button>
-            <button class="add-block-btn" onclick="addBlock('scale')">
-                <i class="fas fa-sliders-h"></i> Escala
-            </button>
+        <!-- Seção de adicionar bloco sempre visível -->
+        <div class="add-block-section" id="addBlockSection">
+            <h3>Adicionar Novo Bloco</h3>
+            <div class="add-block-buttons">
+                <button class="add-block-btn" onclick="addBlock('text')">
+                    <i class="fas fa-comment"></i> Mensagem
+                </button>
+                <button class="add-block-btn" onclick="addBlock('multiple_choice')">
+                    <i class="fas fa-list"></i> Múltipla Escolha
+                </button>
+                <button class="add-block-btn" onclick="addBlock('scale')">
+                    <i class="fas fa-sliders-h"></i> Escala
+                </button>
+            </div>
         </div>
     </div>
     </div>
@@ -1986,16 +1980,9 @@ const checkinId = <?php echo $checkin_id; ?>;
 let editingBlockId = null;
 let blockCounter = <?php echo count($blocks); ?>;
 
-// Mostrar seção de adicionar bloco
-function showAddBlockSection() {
-    const section = document.getElementById('addBlockSection');
-    section.style.display = section.style.display === 'none' ? 'block' : 'none';
-}
-
 // Adicionar novo bloco
 function addBlock(type) {
     const blockId = 'new_' + Date.now();
-    document.getElementById('addBlockSection').style.display = 'none';
     const typeNames = {
         'text': 'Mensagem de Texto',
         'multiple_choice': 'Múltipla Escolha',
@@ -2956,23 +2943,23 @@ document.addEventListener('DOMContentLoaded', function() {
             // Encontrar posição de inserção
             const afterElement = getDragAfterElement(container, e.clientY);
             
-            // Obter o container do botão "Adicionar Bloco"
-            const addBlockButtonContainer = container.querySelector('.add-block-button-container');
+            // Obter a seção "Adicionar Novo Bloco"
+            const addBlockSection = container.querySelector('#addBlockSection');
             
-            // Verificar se estamos tentando inserir depois do botão
-            let shouldInsertBeforeButton = false;
-            if (addBlockButtonContainer) {
-                const buttonRect = addBlockButtonContainer.getBoundingClientRect();
-                // Se a posição Y do mouse está abaixo do topo do botão, não permitir inserir depois
-                if (e.clientY > buttonRect.top) {
-                    shouldInsertBeforeButton = true;
+            // Verificar se estamos tentando inserir depois da seção
+            let shouldInsertBeforeSection = false;
+            if (addBlockSection) {
+                const sectionRect = addBlockSection.getBoundingClientRect();
+                // Se a posição Y do mouse está abaixo do topo da seção, não permitir inserir depois
+                if (e.clientY > sectionRect.top) {
+                    shouldInsertBeforeSection = true;
                 }
             }
             
-            if (afterElement == null || shouldInsertBeforeButton) {
-                // Se não encontrou elemento ou está tentando inserir depois do botão, inserir antes do botão
-                if (addBlockButtonContainer) {
-                    container.insertBefore(placeholder, addBlockButtonContainer);
+            if (afterElement == null || shouldInsertBeforeSection) {
+                // Se não encontrou elemento ou está tentando inserir depois da seção, inserir antes da seção
+                if (addBlockSection) {
+                    container.insertBefore(placeholder, addBlockSection);
                 } else {
                     container.appendChild(placeholder);
                 }
