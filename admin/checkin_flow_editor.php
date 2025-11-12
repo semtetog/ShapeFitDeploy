@@ -68,7 +68,23 @@ while ($d = $dist_result->fetch_assoc()) {
 $stmt_dist->close();
 
 // Buscar grupos e usuários para distribuição
-$user_groups_query = "SELECT id, group_name as name FROM sf_user_groups WHERE admin_id = ? AND is_active = 1 ORDER BY group_name";
+// Verificar estrutura da tabela sf_user_groups
+$test_query = "SHOW COLUMNS FROM sf_user_groups LIKE 'name'";
+$test_result = $conn->query($test_query);
+$has_name_column = $test_result->num_rows > 0;
+$test_result->free();
+
+$test_query2 = "SHOW COLUMNS FROM sf_user_groups LIKE 'status'";
+$test_result2 = $conn->query($test_query2);
+$has_status_column = $test_result2->num_rows > 0;
+$test_result2->free();
+
+// Usar nome correto da coluna
+$name_column = $has_name_column ? 'name' : 'group_name';
+$status_condition = $has_status_column ? "status = 'active'" : "is_active = 1";
+
+// Buscar grupos de usuário
+$user_groups_query = "SELECT id, $name_column as name FROM sf_user_groups WHERE admin_id = ? AND $status_condition ORDER BY $name_column";
 $stmt_user_groups = $conn->prepare($user_groups_query);
 $stmt_user_groups->bind_param("i", $admin_id);
 $stmt_user_groups->execute();
@@ -76,6 +92,7 @@ $user_groups_result = $stmt_user_groups->get_result();
 $user_groups = $user_groups_result->fetch_all(MYSQLI_ASSOC);
 $stmt_user_groups->close();
 
+// Buscar grupos de desafio
 $challenge_groups_query = "SELECT id, name FROM sf_challenge_groups WHERE created_by = ? AND status IN ('active', 'scheduled') ORDER BY name";
 $stmt_challenge_groups = $conn->prepare($challenge_groups_query);
 $stmt_challenge_groups->bind_param("i", $admin_id);
@@ -101,6 +118,8 @@ require_once __DIR__ . '/includes/header.php';
     --text-primary: #F5F5F5;
     --text-secondary: #A3A3A3;
     --glass-border: rgba(255, 255, 255, 0.1);
+    --success-green: #22C55E;
+    --danger-red: #EF4444;
     
     --sidebar-width: 256px;
     /* O content-wrapper tem padding: 1rem 2rem (vertical horizontal) */
@@ -1308,8 +1327,6 @@ textarea.form-control {
 
 .distribution-content {
     display: none;
-    max-height: 300px;
-    overflow-y: auto;
 }
 
 .distribution-content.active {
@@ -1320,31 +1337,182 @@ textarea.form-control {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-}
-
-.distribution-item {
+    max-height: 300px;
+    overflow-y: auto;
     padding: 0.5rem;
-    border-radius: 6px;
-    transition: background 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
 }
 
-.distribution-item:hover {
+.distribution-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.distribution-list::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
 }
 
-.distribution-checkbox {
+.distribution-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 0, 0.3);
+    border-radius: 3px;
+}
+
+.distribution-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 0, 0.5);
+}
+
+/* Grupos de Usuário e Grupos de Desafio */
+.distribution-groups-list {
+    gap: 0.5rem;
+}
+
+.distribution-group-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
     cursor: pointer;
-    font-size: 0.875rem;
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
 }
 
-.distribution-checkbox input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+.distribution-group-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.distribution-group-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
     cursor: pointer;
+}
+
+.distribution-group-item input[type="checkbox"]:checked + .distribution-group-content {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: rgba(255, 107, 0, 0.4);
+    color: var(--accent-orange);
+}
+
+.distribution-group-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.distribution-group-content i {
+    font-size: 1rem;
+    color: var(--accent-orange);
+    flex-shrink: 0;
+}
+
+.distribution-group-content span {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.distribution-group-item input[type="checkbox"]:checked + .distribution-group-content i {
+    color: var(--accent-orange);
+}
+
+/* Usuários - estilo igual ao challenge_groups.php */
+.distribution-users-list {
+    gap: 0.5rem;
+}
+
+.distribution-user-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+}
+
+.distribution-user-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.distribution-user-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.distribution-user-item input[type="checkbox"]:checked + .distribution-user-content {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: rgba(255, 107, 0, 0.4);
+}
+
+.distribution-user-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.distribution-user-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.distribution-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.distribution-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.distribution-user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.distribution-user-email {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 @media (max-width: 768px) {
@@ -1547,66 +1715,121 @@ textarea.form-control {
                 </div>
                 
                 <div id="user_groupsDistribution" class="distribution-content active">
-                    <div class="distribution-list">
+                    <div class="distribution-list distribution-groups-list">
                         <?php if (empty($user_groups)): ?>
                             <div class="empty-state">
                                 <p>Nenhum grupo de usuário encontrado</p>
                             </div>
                         <?php else: ?>
                             <?php foreach ($user_groups as $group): ?>
-                                <div class="distribution-item">
-                                    <label class="distribution-checkbox">
-                                        <input type="checkbox" 
-                                               value="<?php echo $group['id']; ?>" 
-                                               class="distribution-user-group"
-                                               <?php echo in_array($group['id'], $distribution['user_groups']) ? 'checked' : ''; ?>>
+                                <label class="distribution-group-item">
+                                    <input type="checkbox" 
+                                           value="<?php echo $group['id']; ?>" 
+                                           class="distribution-user-group"
+                                           <?php echo in_array($group['id'], $distribution['user_groups']) ? 'checked' : ''; ?>>
+                                    <div class="distribution-group-content">
+                                        <i class="fas fa-users"></i>
                                         <span><?php echo htmlspecialchars($group['name']); ?></span>
-                                    </label>
-                                </div>
+                                    </div>
+                                </label>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
                 </div>
                 
                 <div id="challenge_groupsDistribution" class="distribution-content">
-                    <div class="distribution-list">
+                    <div class="distribution-list distribution-groups-list">
                         <?php if (empty($challenge_groups)): ?>
                             <div class="empty-state">
                                 <p>Nenhum grupo de desafio encontrado</p>
                             </div>
                         <?php else: ?>
                             <?php foreach ($challenge_groups as $group): ?>
-                                <div class="distribution-item">
-                                    <label class="distribution-checkbox">
-                                        <input type="checkbox" 
-                                               value="<?php echo $group['id']; ?>" 
-                                               class="distribution-challenge-group"
-                                               <?php echo in_array($group['id'], $distribution['challenge_groups']) ? 'checked' : ''; ?>>
+                                <label class="distribution-group-item">
+                                    <input type="checkbox" 
+                                           value="<?php echo $group['id']; ?>" 
+                                           class="distribution-challenge-group"
+                                           <?php echo in_array($group['id'], $distribution['challenge_groups']) ? 'checked' : ''; ?>>
+                                    <div class="distribution-group-content">
+                                        <i class="fas fa-trophy"></i>
                                         <span><?php echo htmlspecialchars($group['name']); ?></span>
-                                    </label>
-                                </div>
+                                    </div>
+                                </label>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
                 </div>
                 
                 <div id="usersDistribution" class="distribution-content">
-                    <div class="distribution-list">
+                    <div class="distribution-list distribution-users-list">
                         <?php if (empty($users)): ?>
                             <div class="empty-state">
                                 <p>Nenhum usuário encontrado</p>
                             </div>
                         <?php else: ?>
                             <?php foreach ($users as $user): ?>
-                                <div class="distribution-item">
-                                    <label class="distribution-checkbox">
-                                        <input type="checkbox" 
-                                               value="<?php echo $user['id']; ?>" 
-                                               class="distribution-user"
-                                               <?php echo in_array($user['id'], $distribution['users']) ? 'checked' : ''; ?>>
-                                        <span><?php echo htmlspecialchars($user['name']); ?></span>
-                                    </label>
-                                </div>
+                                <label class="distribution-user-item">
+                                    <input type="checkbox" 
+                                           value="<?php echo $user['id']; ?>" 
+                                           class="distribution-user"
+                                           <?php echo in_array($user['id'], $distribution['users']) ? 'checked' : ''; ?>>
+                                    <div class="distribution-user-content">
+                                        <?php
+                                        $has_photo = false;
+                                        $avatar_url = '';
+                                        $bgColor = 'rgba(255, 107, 0, 0.1)';
+                                        
+                                        if (!empty($user['profile_image_filename'])) {
+                                            $original_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'];
+                                            if (file_exists($original_path_on_server)) {
+                                                $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']);
+                                                $has_photo = true;
+                                            } else {
+                                                $thumb_filename = 'thumb_' . $user['profile_image_filename'];
+                                                $thumb_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+                                                if (file_exists($thumb_path_on_server)) {
+                                                    $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                                                    $has_photo = true;
+                                                }
+                                            }
+                                        }
+                                        
+                                        if (!$has_photo) {
+                                            $name_parts = explode(' ', trim($user['name']));
+                                            $initials = '';
+                                            if (count($name_parts) > 1) {
+                                                $initials = strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1));
+                                            } elseif (!empty($name_parts[0])) {
+                                                $initials = strtoupper(substr($name_parts[0], 0, 2));
+                                            } else {
+                                                $initials = '??';
+                                            }
+                                            $hash = md5($user['name']);
+                                            $r = hexdec(substr($hash, 0, 2)) % 156 + 50;
+                                            $g = hexdec(substr($hash, 2, 2)) % 156 + 50;
+                                            $b = hexdec(substr($hash, 4, 2)) % 156 + 50;
+                                            $max = max($r, $g, $b);
+                                            if ($max > 180) {
+                                                $r = (int)($r * 0.7);
+                                                $g = (int)($g * 0.7);
+                                                $b = (int)($b * 0.7);
+                                            }
+                                            $bgColor = sprintf('#%02x%02x%02x', $r, $g, $b);
+                                        }
+                                        ?>
+                                        <div class="distribution-user-avatar" style="background-color: <?php echo $has_photo ? 'transparent' : $bgColor; ?>; color: <?php echo $has_photo ? 'var(--accent-orange)' : 'white'; ?>;">
+                                            <?php if ($has_photo): ?>
+                                                <img src="<?php echo $avatar_url; ?>" alt="Foto de <?php echo htmlspecialchars($user['name']); ?>">
+                                            <?php else: ?>
+                                                <?php echo $initials; ?>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="distribution-user-info">
+                                            <div class="distribution-user-name"><?php echo htmlspecialchars($user['name']); ?></div>
+                                            <div class="distribution-user-email"><?php echo htmlspecialchars($user['email']); ?></div>
+                                        </div>
+                                    </div>
+                                </label>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
@@ -1902,12 +2125,12 @@ function saveNewBlock(event, blockId, defaultType) {
             updatePreview();
             location.reload();
         } else {
-            alert('Erro ao salvar: ' + data.message);
+            showAlertModal('Erro', 'Erro ao salvar: ' + data.message, false);
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao salvar bloco');
+        showAlertModal('Erro', 'Erro ao salvar bloco', false);
     });
 }
 
@@ -2017,17 +2240,18 @@ function saveBlock(event, blockId) {
                 updatePreview();
                 location.reload();
             } else {
-                alert('Erro ao salvar: ' + data.message);
+                showAlertModal('Erro', 'Erro ao salvar: ' + data.message, false);
             }
         })
         .catch(error => {
             console.error('Erro:', error);
-        alert('Erro ao salvar bloco');
+            showAlertModal('Erro', 'Erro ao salvar bloco', false);
         });
 }
 
 // Excluir bloco
 function deleteBlock(blockId) {
+    // Mostrar modal de confirmação
     if (!confirm('Tem certeza que deseja excluir este bloco?')) {
         return;
     }
@@ -2052,12 +2276,12 @@ function deleteBlock(blockId) {
         if (data.success) {
             location.reload();
         } else {
-            alert('Erro ao excluir: ' + data.message);
+            showAlertModal('Erro', 'Erro ao excluir: ' + data.message, false);
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao excluir bloco');
+        showAlertModal('Erro', 'Erro ao excluir bloco', false);
     });
 }
 
@@ -2142,7 +2366,7 @@ function saveAll() {
     // Validar campos obrigatórios
     const name = document.getElementById('checkinName').value.trim();
     if (!name) {
-        alert('Nome do check-in é obrigatório!');
+        showAlertModal('Atenção', 'Nome do check-in é obrigatório!', false);
         return;
     }
     
@@ -2175,19 +2399,25 @@ function saveAll() {
     .then(data => {
         if (data.success) {
             // Salvar ordem dos blocos
-            saveBlockOrder();
+            saveBlockOrder(function() {
+                // Callback quando tudo for salvo
+                showAlertModal('Sucesso', 'Tudo salvo com sucesso!', true);
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            });
         } else {
-            alert('Erro ao salvar configuração: ' + data.message);
+            showAlertModal('Erro', 'Erro ao salvar configuração: ' + data.message, false);
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao salvar configuração');
+        showAlertModal('Erro', 'Erro ao salvar configuração', false);
     });
 }
 
 // Salvar ordem dos blocos
-function saveBlockOrder() {
+function saveBlockOrder(callback) {
     const blocks = Array.from(document.querySelectorAll('.block-item'));
     const order = blocks.map((block, index) => ({
         id: block.dataset.blockId,
@@ -2195,8 +2425,8 @@ function saveBlockOrder() {
     })).filter(item => !item.id.toString().startsWith('new_'));
     
     if (order.length === 0) {
-        alert('Configuração salva com sucesso!');
         updatePreview();
+        if (callback) callback();
         return;
     }
     
@@ -2212,16 +2442,23 @@ function saveBlockOrder() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Tudo salvo com sucesso!');
             updatePreview();
-            location.reload();
+            if (callback) callback();
         } else {
-            alert('Erro ao salvar ordem dos blocos: ' + data.message);
+            if (callback) {
+                showAlertModal('Erro', 'Erro ao salvar ordem dos blocos: ' + data.message, false);
+            } else {
+                showAlertModal('Erro', 'Erro ao salvar ordem dos blocos: ' + data.message, false);
+            }
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao salvar ordem dos blocos');
+        if (callback) {
+            showAlertModal('Erro', 'Erro ao salvar ordem dos blocos', false);
+        } else {
+            showAlertModal('Erro', 'Erro ao salvar ordem dos blocos', false);
+        }
     });
 }
 
@@ -2749,8 +2986,8 @@ document.addEventListener('DOMContentLoaded', function() {
             draggedElement = null;
             placeholder = null;
             
-            // Salvar ordem
-            saveBlockOrder();
+            // Apenas atualizar preview em tempo real, não salvar
+            updatePreview();
         }
     });
 });
@@ -2769,7 +3006,62 @@ function getDragAfterElement(container, y) {
         }
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
+
+// Modal de alerta
+function showAlertModal(title, message, isSuccess = true) {
+    const modal = document.getElementById('alertModal');
+    if (!modal) {
+        console.error('Modal de alerta não encontrado');
+        alert(message);
+        return;
+    }
+    const header = document.getElementById('alertModalHeader');
+    const icon = document.getElementById('alertModalIcon');
+    const titleEl = document.getElementById('alertModalTitle');
+    const messageEl = document.getElementById('alertModalMessage');
+    if (isSuccess) {
+        header.style.color = '#22C55E';
+        icon.className = 'fas fa-check-circle';
+    } else {
+        header.style.color = '#EF4444';
+        icon.className = 'fas fa-times-circle';
+    }
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAlertModal() {
+    const modal = document.getElementById('alertModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        if (modal.dataset.reloadOnClose === 'true') {
+            location.reload();
+        }
+    }
+}
 </script>
+
+<!-- Modal de Alerta/Sucesso -->
+<div id="alertModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeAlertModal()"></div>
+    <div class="custom-modal-content custom-modal-small">
+        <div class="custom-modal-header" id="alertModalHeader">
+            <i id="alertModalIcon"></i>
+            <h3 id="alertModalTitle"></h3>
+        </div>
+        <div class="custom-modal-body">
+            <p id="alertModalMessage"></p>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-primary" onclick="closeAlertModal()">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
