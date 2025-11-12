@@ -89,10 +89,12 @@ require_once __DIR__ . '/includes/header.php';
     --glass-border: rgba(255, 255, 255, 0.1);
     
     --sidebar-width: 256px;
-    --content-wrapper-padding: 2rem;
+    /* O content-wrapper tem padding: 1rem 2rem (vertical horizontal) */
+    --content-wrapper-padding-h: 2rem;
+    --content-wrapper-padding-v: 1rem;
     --gap-size: 1.5rem;
     --mockup-width: 410px;
-    --mockup-height: calc(100vh - (var(--content-wrapper-padding) * 2));
+    --mockup-height: calc(100vh - (var(--content-wrapper-padding-v) * 2));
 }
 
 /* ========================================================================= */
@@ -116,8 +118,8 @@ require_once __DIR__ . '/includes/header.php';
     position: fixed;
     top: 50%;
     transform: translateY(-50%);
-    /* Celular posicionado após sidebar + padding do content-wrapper */
-    left: calc(var(--sidebar-width) + var(--content-wrapper-padding));
+    /* Celular posicionado após sidebar + padding horizontal do content-wrapper */
+    left: calc(var(--sidebar-width) + var(--content-wrapper-padding-h));
     width: var(--mockup-width);
     height: var(--mockup-height);
     max-height: 820px;
@@ -159,8 +161,8 @@ require_once __DIR__ . '/includes/header.php';
        margin-left = largura do celular + gap entre celular e painel */
     margin-left: calc(var(--mockup-width) + var(--gap-size));
     /* width usa calc para garantir que não ultrapasse os limites
-       Considerando: largura total da viewport - sidebar - padding esquerdo - celular - gap - padding direito */
-    width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding));
+       Considerando: largura total da viewport - sidebar - padding horizontal esquerdo - celular - gap - padding horizontal direito */
+    width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding-h));
     max-width: 100%;
     min-width: 600px;
     box-sizing: border-box;
