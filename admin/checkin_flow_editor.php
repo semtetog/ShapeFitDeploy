@@ -328,7 +328,7 @@ require_once __DIR__ . '/includes/header.php';
 .block-header-left {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     flex: 1;
     min-width: 0;
 }
@@ -348,18 +348,41 @@ require_once __DIR__ . '/includes/header.php';
 .block-type-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.5rem;
-    background: rgba(255, 107, 0, 0.1);
-    color: var(--accent-orange);
-    border-radius: 6px;
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.3px;
+    gap: 0.25rem;
+    padding: 0.1875rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Cores diferentes para cada tipo de bloco */
+.block-type-badge[data-type="text"],
+.block-type-badge.text {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3B82F6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.block-type-badge[data-type="multiple_choice"],
+.block-type-badge.multiple_choice {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22C55E;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.block-type-badge[data-type="scale"],
+.block-type-badge.scale {
+    background: rgba(168, 85, 247, 0.15);
+    color: #A855F7;
+    border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
 .block-type-badge i {
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
 }
 
 .block-actions {
@@ -409,6 +432,19 @@ require_once __DIR__ . '/includes/header.php';
 .block-content.preview {
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* Texto ao lado da tag no header */
+.block-preview-text {
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 0.5rem;
 }
 
 .block-options {
@@ -701,9 +737,10 @@ textarea.form-control {
     box-sizing: border-box;
 }
 
-/* Custom Select (estilo das outras páginas) */
+/* Custom Select (estilo igual ao recipes) */
 .custom-select-wrapper {
     position: relative;
+    width: 100%;
 }
 
 .custom-select-wrapper::after {
@@ -712,27 +749,42 @@ textarea.form-control {
     font-weight: 900;
     position: absolute;
     top: 50%;
-    right: 15px;
+    right: 1rem;
     transform: translateY(-50%);
     color: var(--text-secondary);
     pointer-events: none;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.custom-select-wrapper:focus-within::after {
+    color: var(--accent-orange);
+    transform: translateY(-50%) rotate(180deg);
 }
 
 .custom-select-wrapper select {
     width: 100%;
-    padding: 0.75rem;
-    padding-right: 40px;
+    padding: 0.875rem 1.25rem;
+    padding-right: 2.75rem;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     color: var(--text-primary);
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
     transition: all 0.3s ease;
     -webkit-appearance: none;
     appearance: none;
     cursor: pointer;
+    box-sizing: border-box;
+}
+
+.custom-select-wrapper select:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .custom-select-wrapper select:focus {
@@ -1370,7 +1422,7 @@ textarea.form-control {
                     <div class="block-header">
                         <div class="block-header-left">
                             <i class="fas fa-grip-vertical drag-handle"></i>
-                            <span class="block-type-badge">
+                            <span class="block-type-badge" data-type="<?php echo htmlspecialchars($block['question_type']); ?>">
                                 <?php
                                 $type_icons = [
                                     'text' => 'fa-comment',
@@ -1389,6 +1441,7 @@ textarea.form-control {
                                 echo $type_names[$block['question_type']] ?? ucfirst(str_replace('_', ' ', $block['question_type'])); 
                                 ?>
                             </span>
+                            <span class="block-preview-text"><?php echo htmlspecialchars($block['question_text']); ?></span>
                         </div>
                         <div class="block-actions">
                             <button onclick="editBlock(<?php echo $block['id']; ?>)" title="Editar">
@@ -1399,8 +1452,7 @@ textarea.form-control {
                             </button>
                         </div>
                     </div>
-                    <div class="block-content preview">
-                        <?php echo nl2br(htmlspecialchars($block['question_text'])); ?>
+                    <div class="block-content preview" style="display: none;">
                         <?php if ($block['question_type'] !== 'text' && !empty($block['options'])): ?>
                             <div class="block-options">
                                 <div class="block-options-list">
