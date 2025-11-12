@@ -801,50 +801,148 @@ textarea.form-control {
     color: #EF4444;
 }
 
-/* Delay Input Styling */
-.delay-input-wrapper {
-    position: relative;
+/* Preview Settings Styling */
+.preview-settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.preview-setting-item {
     display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+}
+
+.preview-setting-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
+    min-height: 28px;
+    margin-bottom: 0.75rem;
 }
 
-.delay-input {
-    width: 100px;
-    padding: 0.625rem 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    color: var(--text-primary);
+.preview-setting-header label {
     font-size: 0.875rem;
-    font-family: inherit;
-    transition: all 0.3s ease;
-    -moz-appearance: textfield;
-}
-
-.delay-input::-webkit-outer-spin-button,
-.delay-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
+    font-weight: 600;
+    color: var(--text-primary);
     margin: 0;
 }
 
-.delay-input:focus {
-    outline: none;
-    border-color: var(--accent-orange);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.delay-label {
-    color: var(--text-secondary);
+.delay-value-display {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
     font-size: 0.875rem;
     font-weight: 600;
-    min-width: 30px;
+    color: var(--accent-orange);
 }
 
 .delay-hint {
     color: var(--text-secondary);
     font-size: 0.75rem;
+    font-weight: 400;
     font-style: italic;
+}
+
+/* Professional Slider Styling */
+.slider-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+.delay-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: linear-gradient(to right, 
+        rgba(255, 107, 0, 0.3) 0%, 
+        rgba(255, 107, 0, 0.3) var(--slider-progress, 10%), 
+        rgba(255, 255, 255, 0.1) var(--slider-progress, 10%), 
+        rgba(255, 255, 255, 0.1) 100%);
+}
+
+.delay-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.delay-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.5);
+}
+
+.delay-slider::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+    box-shadow: 0 2px 6px rgba(255, 107, 0, 0.4);
+}
+
+.delay-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.delay-slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.5);
+}
+
+.delay-slider::-moz-range-thumb:active {
+    transform: scale(1.15);
+    box-shadow: 0 2px 6px rgba(255, 107, 0, 0.4);
+}
+
+.delay-slider::-moz-range-track {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, 
+        rgba(255, 107, 0, 0.3) 0%, 
+        rgba(255, 107, 0, 0.3) var(--slider-progress, 10%), 
+        rgba(255, 255, 255, 0.1) var(--slider-progress, 10%), 
+        rgba(255, 255, 255, 0.1) 100%);
+}
+
+.delay-slider:focus {
+    outline: none;
+}
+
+.delay-slider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.2);
+}
+
+.delay-slider:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.2);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
 }
 
 .form-hint {
@@ -1068,19 +1166,28 @@ textarea.form-control {
             <div class="form-group">
                 <label>Configurações do Preview</label>
                 <div class="preview-settings">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="messageDelay">Delay entre Mensagens</label>
-                            <div class="delay-input-wrapper">
-                                <input type="number" id="messageDelay" value="500" min="0" max="5000" step="100" class="delay-input">
-                                <span class="delay-label">ms</span>
-                                <span class="delay-hint" id="delayHint">(0.5s)</span>
+                    <div class="preview-settings-grid">
+                        <div class="preview-setting-item">
+                            <div class="preview-setting-header">
+                                <label for="messageDelay">Delay entre Mensagens</label>
+                                <span class="delay-value-display" id="delayValueDisplay">500ms <span class="delay-hint">(0.5s)</span></span>
+                            </div>
+                            <div class="slider-wrapper">
+                                <input type="range" id="messageDelay" value="500" min="0" max="5000" step="50" class="delay-slider">
+                                <div class="slider-labels">
+                                    <span>0ms</span>
+                                    <span>2500ms</span>
+                                    <span>5000ms</span>
+                                </div>
                             </div>
                             <small class="form-hint">Tempo de espera entre mensagens do bot</small>
                         </div>
-                        <div class="form-group">
-                            <label>Efeito de Digitação</label>
-                            <div class="toggle-switch-wrapper" onclick="event.stopPropagation()">
+                        <div class="preview-setting-item">
+                            <div class="preview-setting-header">
+                                <label>Efeito de Digitação</label>
+                                <span class="delay-value-display" style="opacity: 0; pointer-events: none; visibility: hidden;">500ms</span>
+                            </div>
+                            <div class="toggle-switch-wrapper" onclick="event.stopPropagation()" style="margin-bottom: 0.125rem;">
                                 <label class="toggle-switch">
                                     <input type="checkbox" class="toggle-switch-input" id="typingEffect" checked>
                                     <span class="toggle-switch-slider"></span>
@@ -1090,7 +1197,7 @@ textarea.form-control {
                             <small class="form-hint">Simula digitação nas mensagens do bot</small>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="margin-top: 1rem;">
                         <button onclick="updatePreviewSettings()" class="btn btn-secondary" style="width: 100%;">
                             <i class="fas fa-sync"></i> Atualizar Preview
                         </button>
@@ -1774,19 +1881,28 @@ function updatePreviewSettings() {
     }, 100);
 }
 
-// Atualizar hint do delay
+// Atualizar display do delay
 document.addEventListener('DOMContentLoaded', function() {
-    const delayInput = document.getElementById('messageDelay');
-    const delayHint = document.getElementById('delayHint');
+    const delaySlider = document.getElementById('messageDelay');
+    const delayValueDisplay = document.getElementById('delayValueDisplay');
     
-    function updateDelayHint() {
-        const ms = parseInt(delayInput.value) || 0;
+    function updateDelayDisplay() {
+        const ms = parseInt(delaySlider.value) || 0;
         const seconds = (ms / 1000).toFixed(1);
-        delayHint.textContent = `(${seconds}s)`;
+        const progress = (ms / 5000) * 100;
+        
+        // Atualizar display
+        delayValueDisplay.innerHTML = `${ms}ms <span class="delay-hint">(${seconds}s)</span>`;
+        
+        // Atualizar progresso visual do slider
+        delaySlider.style.setProperty('--slider-progress', `${progress}%`);
     }
     
-    delayInput.addEventListener('input', updateDelayHint);
-    updateDelayHint();
+    delaySlider.addEventListener('input', updateDelayDisplay);
+    delaySlider.addEventListener('change', function() {
+        updatePreviewSettings();
+    });
+    updateDelayDisplay();
     
     // Atualizar label do toggle de digitação
     const typingToggle = document.getElementById('typingEffect');
