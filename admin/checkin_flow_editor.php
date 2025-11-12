@@ -174,12 +174,14 @@ require_once __DIR__ . '/includes/header.php';
     position: relative;
 }
 
-/* Garantir que elementos internos não ultrapassem os limites */
+/* Garantir que elementos internos se ajustem ao tamanho do painel */
 .config-panel > * {
+    width: 100%;
     max-width: 100%;
     box-sizing: border-box;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    overflow-x: visible;
 }
 
 .editor-header {
@@ -645,6 +647,9 @@ textarea.form-control {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .form-group {
@@ -665,6 +670,8 @@ textarea.form-control {
 
 .form-group input[type="text"],
 .form-group textarea {
+    width: 100%;
+    max-width: 100%;
     padding: 0.75rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
@@ -673,6 +680,7 @@ textarea.form-control {
     font-size: 0.875rem;
     font-family: 'Montserrat', sans-serif;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 /* Custom Select (estilo das outras páginas) */
@@ -842,6 +850,9 @@ textarea.form-control {
     grid-template-columns: 1fr auto 1fr;
     gap: 1.5rem;
     align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .preview-setting-item {
@@ -1011,6 +1022,9 @@ textarea.form-control {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 
