@@ -328,26 +328,22 @@ $checkin_data = [
             const optionsDiv = document.createElement('div');
             optionsDiv.className = 'checkin-options';
             
-            if (question.question_type === 'scale' && question.options && question.options.length > 0) {
+            if ((question.question_type === 'scale' || question.question_type === 'multiple_choice') && question.options && question.options.length > 0) {
                 question.options.forEach(option => {
                     const btn = document.createElement('button');
                     btn.className = 'checkin-option-btn';
+                    btn.type = 'button';
                     btn.textContent = option;
                     btn.onclick = () => selectOption(option);
                     optionsDiv.appendChild(btn);
                 });
-            } else if (question.question_type === 'multiple_choice' && question.options && question.options.length > 0) {
-                question.options.forEach(option => {
-                    const btn = document.createElement('button');
-                    btn.className = 'checkin-option-btn';
-                    btn.textContent = option;
-                    btn.onclick = () => selectOption(option);
-                    optionsDiv.appendChild(btn);
-                });
+                
+                messagesDiv.appendChild(optionsDiv);
+                // Scroll suave para o final
+                setTimeout(() => {
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }, 100);
             }
-            
-            messagesDiv.appendChild(optionsDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
         function selectOption(option) {
