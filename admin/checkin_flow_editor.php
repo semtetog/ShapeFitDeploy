@@ -2065,20 +2065,25 @@ function adjustLayoutForZoom() {
     mockupPanel.style.top = '';
     mockupPanel.style.width = '';
     mockupPanel.style.maxWidth = '';
+    mockupPanel.style.height = '';
+    mockupPanel.style.maxHeight = '';
     configPanel.style.marginLeft = '';
     configPanel.style.marginTop = '';
     configPanel.style.maxWidth = '';
     
     // Aplicar ajustes baseado no zoom detectado
     if (zoomLevel === '100%') {
-        // Zoom 100%: alinhar topo do menu e do celular
-        // Descer um pouco o mockup e também o painel de config
-        mockupPanel.style.top = 'calc(var(--content-wrapper-padding-v) + 2rem)';
-        configPanel.style.marginTop = '2rem';
+        // Zoom 100%: aumentar o tamanho do celular proporcionalmente
+        mockupPanel.style.width = '480px'; // maior que o padrão (410px)
+        mockupPanel.style.maxWidth = '480px';
+        mockupPanel.style.height = 'calc(100vh - (var(--content-wrapper-padding-v) * 1.5))'; // um pouco mais alto
+        mockupPanel.style.maxHeight = '900px';
+        mockupPanel.style.top = 'var(--content-wrapper-padding-v)';
         
-        // Mantém espaçamento horizontal padrão (mesmo do 110%)
-        configPanel.style.marginLeft = 'calc(var(--mockup-width) + var(--gap-size))';
-        configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding-h))';
+        // Recalcular a posição do painel da direita pra acompanhar
+        configPanel.style.marginLeft = 'calc(480px + var(--gap-size))';
+        configPanel.style.marginTop = 'var(--content-wrapper-padding-v)';
+        configPanel.style.maxWidth = 'calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 480px - var(--gap-size) - var(--content-wrapper-padding-h))';
     } else if (zoomLevel === '125%') {
         // Zoom 125%: reduzir largura do celular e ajustar espaçamento
         mockupPanel.style.width = '350px';
