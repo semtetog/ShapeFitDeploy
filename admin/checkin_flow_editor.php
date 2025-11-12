@@ -117,8 +117,8 @@ require_once __DIR__ . '/includes/header.php';
 /* PAINEL DO CELULAR (FIXO À ESQUERDA) */
 .mobile-mockup-panel {
     position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
+    /* Alinhar topo com o padding do content-wrapper */
+    top: var(--content-wrapper-padding-v);
     /* Celular posicionado após sidebar + padding horizontal do content-wrapper */
     left: calc(var(--sidebar-width) + var(--content-wrapper-padding-h));
     width: var(--mockup-width);
@@ -126,6 +126,7 @@ require_once __DIR__ . '/includes/header.php';
     max-height: 820px;
     z-index: 10;
     margin: 0;
+    transform: none;
 }
 
 /* Reduzir largura do celular no zoom 125% 
@@ -175,6 +176,8 @@ require_once __DIR__ . '/includes/header.php';
     /* O painel começa após o celular fixed
        margin-left = largura do celular + gap entre celular e painel */
     margin-left: calc(var(--mockup-width) + var(--gap-size));
+    /* Alinhar topo com o celular (mesmo padding do content-wrapper) */
+    margin-top: var(--content-wrapper-padding-v);
     /* width se ajusta automaticamente, usando max-width para limitar
        Permite que o painel se reduza quando necessário, mas nunca ultrapasse a borda direita */
     width: 100%;
