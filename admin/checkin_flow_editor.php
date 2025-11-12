@@ -1323,6 +1323,7 @@ function saveBlock(event, blockId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            updatePreview();
             location.reload();
         } else {
             alert('Erro ao salvar: ' + data.message);
