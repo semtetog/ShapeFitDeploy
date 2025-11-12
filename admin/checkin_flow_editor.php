@@ -51,24 +51,38 @@ $stmt_dist = $conn->prepare($distribution_query);
 $stmt_dist->bind_param("i", $checkin_id);
 $stmt_dist->execute();
 $dist_result = $stmt_dist->get_result();
-$distribution = ['groups' => [], 'users' => []];
+$distribution = ['user_groups' => [], 'challenge_groups' => [], 'users' => []];
 while ($d = $dist_result->fetch_assoc()) {
     if ($d['target_type'] === 'group') {
-        $distribution['groups'][] = (int)$d['target_id'];
-    } else {
+        $target_id = (int)$d['target_id'];
+        // IDs negativos são challenge groups, IDs positivos são user groups
+        if ($target_id < 0) {
+            $distribution['challenge_groups'][] = abs($target_id);
+        } else {
+            $distribution['user_groups'][] = $target_id;
+        }
+    } elseif ($d['target_type'] === 'user') {
         $distribution['users'][] = (int)$d['target_id'];
     }
 }
 $stmt_dist->close();
 
 // Buscar grupos e usuários para distribuição
-$groups_query = "SELECT id, group_name as name FROM sf_user_groups WHERE admin_id = ? AND is_active = 1 ORDER BY group_name";
-$stmt_groups = $conn->prepare($groups_query);
-$stmt_groups->bind_param("i", $admin_id);
-$stmt_groups->execute();
-$groups_result = $stmt_groups->get_result();
-$groups = $groups_result->fetch_all(MYSQLI_ASSOC);
-$stmt_groups->close();
+$user_groups_query = "SELECT id, group_name as name FROM sf_user_groups WHERE admin_id = ? AND is_active = 1 ORDER BY group_name";
+$stmt_user_groups = $conn->prepare($user_groups_query);
+$stmt_user_groups->bind_param("i", $admin_id);
+$stmt_user_groups->execute();
+$user_groups_result = $stmt_user_groups->get_result();
+$user_groups = $user_groups_result->fetch_all(MYSQLI_ASSOC);
+$stmt_user_groups->close();
+
+$challenge_groups_query = "SELECT id, name FROM sf_challenge_groups WHERE created_by = ? AND status IN ('active', 'scheduled') ORDER BY name";
+$stmt_challenge_groups = $conn->prepare($challenge_groups_query);
+$stmt_challenge_groups->bind_param("i", $admin_id);
+$stmt_challenge_groups->execute();
+$challenge_groups_result = $stmt_challenge_groups->get_result();
+$challenge_groups = $challenge_groups_result->fetch_all(MYSQLI_ASSOC);
+$stmt_challenge_groups->close();
 
 $users_query = "SELECT u.id, u.name, u.email, up.profile_image_filename 
                 FROM sf_users u 
@@ -657,6 +671,17 @@ textarea.form-control {
 
 .block-item.dragging {
     opacity: 0.5;
+    transform: scale(0.95);
+    transition: none;
+    cursor: grabbing !important;
+}
+
+.block-item.drag-placeholder {
+    border: 2px dashed var(--accent-orange);
+    background: rgba(255, 107, 0, 0.1);
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
 }
 
 .block-item.drag-over {
@@ -1333,13 +1358,30 @@ textarea.form-control {
     }
 }
 
+/* Botão de adicionar bloco sempre no final */
+.add-block-button-container {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: center;
+}
+
+.btn-add-block {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
 /* Seção de adicionar bloco */
 .add-block-section {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 1.5rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 
 .add-block-section h3 {
@@ -1424,7 +1466,7 @@ textarea.form-control {
                             <div class="custom-select-trigger">
                                 <span class="custom-select-value">
                                     <?php 
-                                    $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                                    $days = ['Todo domingo', 'Toda segunda', 'Toda terça', 'Toda quarta', 'Toda quinta', 'Toda sexta', 'Todo sábado'];
                                     echo $days[$checkin['day_of_week']] ?? 'Selecione...';
                                     ?>
                                 </span>
@@ -1432,7 +1474,7 @@ textarea.form-control {
                             </div>
                             <div class="custom-select-options">
                                 <?php 
-                                $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                                $days = ['Todo domingo', 'Toda segunda', 'Toda terça', 'Toda quarta', 'Toda quinta', 'Toda sexta', 'Todo sábado'];
                                 for ($i = 0; $i < 7; $i++): 
                                 ?>
                                     <div class="custom-select-option<?php echo $checkin['day_of_week'] == $i ? ' selected' : ''; ?>" data-value="<?php echo $i; ?>">
@@ -1489,68 +1531,87 @@ textarea.form-control {
                 </div>
             </div>
             
-            <!-- Status do Check-in -->
-            <div class="form-group">
-                <label>Status do Check-in</label>
-                <div class="toggle-switch-wrapper" onclick="event.stopPropagation()">
-                    <?php
-                    $is_active = $checkin['is_active'] == 1;
-                    ?>
-                    <label class="toggle-switch">
-                        <input type="checkbox" 
-                               class="toggle-switch-input" 
-                               id="checkinActive"
-                               <?php echo $is_active ? 'checked' : ''; ?>>
-                        <span class="toggle-switch-slider"></span>
-                    </label>
-                    <span class="toggle-switch-label" id="checkinActiveLabel" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
-            </div>
-            </div>
-            
             <!-- Distribuição -->
             <div class="form-group">
                 <label>Distribuição</label>
                 <div class="distribution-tabs">
-                    <div class="distribution-tab active" onclick="switchDistributionTab('groups', this)">
-                        <i class="fas fa-users"></i> Grupos
-            </div>
+                    <div class="distribution-tab active" onclick="switchDistributionTab('user_groups', this)">
+                        <i class="fas fa-users"></i> Grupos de Usuário
+                    </div>
+                    <div class="distribution-tab" onclick="switchDistributionTab('challenge_groups', this)">
+                        <i class="fas fa-trophy"></i> Grupos de Desafio
+                    </div>
                     <div class="distribution-tab" onclick="switchDistributionTab('users', this)">
                         <i class="fas fa-user"></i> Usuários
-            </div>
+                    </div>
                 </div>
                 
-                <div id="groupsDistribution" class="distribution-content active">
+                <div id="user_groupsDistribution" class="distribution-content active">
                     <div class="distribution-list">
-                        <?php foreach ($groups as $group): ?>
-                            <div class="distribution-item">
-                                <label class="distribution-checkbox">
-                                    <input type="checkbox" 
-                                           value="<?php echo $group['id']; ?>" 
-                                           class="distribution-group"
-                                           <?php echo in_array($group['id'], $distribution['groups']) ? 'checked' : ''; ?>>
-                                    <span><?php echo htmlspecialchars($group['name']); ?></span>
-                </label>
-            </div>
-                        <?php endforeach; ?>
+                        <?php if (empty($user_groups)): ?>
+                            <div class="empty-state">
+                                <p>Nenhum grupo de usuário encontrado</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($user_groups as $group): ?>
+                                <div class="distribution-item">
+                                    <label class="distribution-checkbox">
+                                        <input type="checkbox" 
+                                               value="<?php echo $group['id']; ?>" 
+                                               class="distribution-user-group"
+                                               <?php echo in_array($group['id'], $distribution['user_groups']) ? 'checked' : ''; ?>>
+                                        <span><?php echo htmlspecialchars($group['name']); ?></span>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
+                
+                <div id="challenge_groupsDistribution" class="distribution-content">
+                    <div class="distribution-list">
+                        <?php if (empty($challenge_groups)): ?>
+                            <div class="empty-state">
+                                <p>Nenhum grupo de desafio encontrado</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($challenge_groups as $group): ?>
+                                <div class="distribution-item">
+                                    <label class="distribution-checkbox">
+                                        <input type="checkbox" 
+                                               value="<?php echo $group['id']; ?>" 
+                                               class="distribution-challenge-group"
+                                               <?php echo in_array($group['id'], $distribution['challenge_groups']) ? 'checked' : ''; ?>>
+                                        <span><?php echo htmlspecialchars($group['name']); ?></span>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 
                 <div id="usersDistribution" class="distribution-content">
                     <div class="distribution-list">
-                        <?php foreach ($users as $user): ?>
-                            <div class="distribution-item">
-                                <label class="distribution-checkbox">
-                                    <input type="checkbox" 
-                                           value="<?php echo $user['id']; ?>" 
-                                           class="distribution-user"
-                                           <?php echo in_array($user['id'], $distribution['users']) ? 'checked' : ''; ?>>
-                                    <span><?php echo htmlspecialchars($user['name']); ?></span>
-                                </label>
+                        <?php if (empty($users)): ?>
+                            <div class="empty-state">
+                                <p>Nenhum usuário encontrado</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($users as $user): ?>
+                                <div class="distribution-item">
+                                    <label class="distribution-checkbox">
+                                        <input type="checkbox" 
+                                               value="<?php echo $user['id']; ?>" 
+                                               class="distribution-user"
+                                               <?php echo in_array($user['id'], $distribution['users']) ? 'checked' : ''; ?>>
+                                        <span><?php echo htmlspecialchars($user['name']); ?></span>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                        <?php endforeach; ?>
-                </div>
-                </div>
-                </div>
+            </div>
         </div>
     </div>
 
@@ -1560,9 +1621,6 @@ textarea.form-control {
             <h2 class="section-title">
                 <i class="fas fa-stream"></i> Fluxo de Perguntas
             </h2>
-            <button onclick="showAddBlockSection()" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Adicionar Bloco
-            </button>
         </div>
         
         <div class="blocks-container" id="blocksContainer">
@@ -1626,13 +1684,29 @@ textarea.form-control {
             </div>
                 <div class="form-group">
                                 <label>Tipo</label>
+                                <input type="hidden" id="questionType_<?php echo $block['id']; ?>" name="question_type" value="<?php echo htmlspecialchars($block['question_type']); ?>">
                                 <div class="custom-select-wrapper">
-                                    <select name="question_type" class="form-control" onchange="toggleOptionsEditor(this, <?php echo $block['id']; ?>)">
-                                        <option value="text" <?php echo $block['question_type'] === 'text' ? 'selected' : ''; ?>>Mensagem de Texto</option>
-                                        <option value="multiple_choice" <?php echo $block['question_type'] === 'multiple_choice' ? 'selected' : ''; ?>>Múltipla Escolha</option>
-                                        <option value="scale" <?php echo $block['question_type'] === 'scale' ? 'selected' : ''; ?>>Escala (0-10)</option>
-                    </select>
-                </div>
+                                    <div class="custom-select" id="questionTypeSelect_<?php echo $block['id']; ?>">
+                                        <div class="custom-select-trigger">
+                                            <span class="custom-select-value">
+                                                <?php
+                                                $type_names = [
+                                                    'text' => 'Mensagem de Texto',
+                                                    'multiple_choice' => 'Múltipla Escolha',
+                                                    'scale' => 'Escala (0-10)'
+                                                ];
+                                                echo $type_names[$block['question_type']] ?? 'Mensagem de Texto';
+                                                ?>
+                                            </span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="custom-select-options">
+                                            <div class="custom-select-option<?php echo $block['question_type'] === 'text' ? ' selected' : ''; ?>" data-value="text">Mensagem de Texto</div>
+                                            <div class="custom-select-option<?php echo $block['question_type'] === 'multiple_choice' ? ' selected' : ''; ?>" data-value="multiple_choice">Múltipla Escolha</div>
+                                            <div class="custom-select-option<?php echo $block['question_type'] === 'scale' ? ' selected' : ''; ?>" data-value="scale">Escala (0-10)</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="options-editor" id="optionsEditor_<?php echo $block['id']; ?>" style="display: <?php echo in_array($block['question_type'], ['multiple_choice', 'scale']) ? 'block' : 'none'; ?>;">
                                 <label>Opções</label>
@@ -1659,6 +1733,13 @@ textarea.form-control {
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
+        
+        <!-- Botão de adicionar bloco sempre no final -->
+        <div class="add-block-button-container">
+            <button onclick="showAddBlockSection()" class="btn btn-primary btn-add-block">
+                <i class="fas fa-plus"></i> Adicionar Bloco
+            </button>
+        </div>
     </div>
 
     <div class="add-block-section" id="addBlockSection" style="display: none;">
@@ -1730,12 +1811,21 @@ function addBlock(type) {
         </div>
                     <div class="form-group">
                         <label>Tipo</label>
+                        <input type="hidden" id="questionType_${blockId}" name="question_type" value="${type}">
                         <div class="custom-select-wrapper">
-                            <select name="question_type" class="form-control" onchange="toggleOptionsEditor(this, '${blockId}')">
-                                <option value="text" ${type === 'text' ? 'selected' : ''}>Mensagem de Texto</option>
-                                <option value="multiple_choice" ${type === 'multiple_choice' ? 'selected' : ''}>Múltipla Escolha</option>
-                                <option value="scale" ${type === 'scale' ? 'selected' : ''}>Escala (0-10)</option>
-                </select>
+                            <div class="custom-select" id="questionTypeSelect_${blockId}">
+                                <div class="custom-select-trigger">
+                                    <span class="custom-select-value">
+                                        ${type === 'text' ? 'Mensagem de Texto' : type === 'multiple_choice' ? 'Múltipla Escolha' : 'Escala (0-10)'}
+                                    </span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="custom-select-options">
+                                    <div class="custom-select-option${type === 'text' ? ' selected' : ''}" data-value="text">Mensagem de Texto</div>
+                                    <div class="custom-select-option${type === 'multiple_choice' ? ' selected' : ''}" data-value="multiple_choice">Múltipla Escolha</div>
+                                    <div class="custom-select-option${type === 'scale' ? ' selected' : ''}" data-value="scale">Escala (0-10)</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="options-editor" id="optionsEditor_${blockId}" style="display: ${type !== 'text' ? 'block' : 'none'};">
@@ -1763,6 +1853,15 @@ function addBlock(type) {
     // Scroll para o novo bloco
     const newBlock = container.querySelector(`[data-block-id="${blockId}"]`);
     newBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // Inicializar custom select para o novo bloco
+    const hiddenInput = document.getElementById('questionType_' + blockId);
+    const selectElement = document.getElementById('questionTypeSelect_' + blockId);
+    if (hiddenInput && selectElement) {
+        initCustomSelect(selectElement.id, hiddenInput.id, function(value) {
+            toggleOptionsEditor(value, blockId);
+        });
+    }
 }
 
 // Salvar novo bloco
@@ -1964,19 +2063,21 @@ function deleteBlock(blockId) {
 
 // Toggle editor de opções
 function toggleOptionsEditor(select, blockId) {
+    const questionType = typeof select === 'string' ? select : (select.value || select);
     const optionsEditor = document.getElementById(`optionsEditor_${blockId}`);
-    if (select.value === 'text') {
-        optionsEditor.style.display = 'none';
+    
+    if (questionType === 'text') {
+        if (optionsEditor) optionsEditor.style.display = 'none';
     } else {
-        optionsEditor.style.display = 'block';
+        if (optionsEditor) optionsEditor.style.display = 'block';
     }
     
     // Atualizar badge com o tipo correto
-    const block = select.closest('.block-item');
+    const block = document.querySelector(`[data-block-id="${blockId}"]`);
     if (block) {
         const badge = block.querySelector('.block-type-badge');
         if (badge) {
-            badge.setAttribute('data-type', select.value);
+            badge.setAttribute('data-type', questionType);
             
             // Atualizar texto do badge
             const typeNames = {
@@ -1989,7 +2090,7 @@ function toggleOptionsEditor(select, blockId) {
                 'multiple_choice': 'fa-list',
                 'scale': 'fa-sliders-h'
             };
-            badge.innerHTML = `<i class="fas ${typeIcons[select.value]}"></i> ${typeNames[select.value] || select.value}`;
+            badge.innerHTML = `<i class="fas ${typeIcons[questionType]}"></i> ${typeNames[questionType] || questionType}`;
         }
     }
 }
@@ -2021,14 +2122,19 @@ function switchDistributionTab(tab, element) {
     } else {
         // Fallback: encontrar pela tab
         const tabs = document.querySelectorAll('.distribution-tab');
-        if (tab === 'groups') {
+        if (tab === 'user_groups') {
             tabs[0]?.classList.add('active');
-        } else {
+        } else if (tab === 'challenge_groups') {
             tabs[1]?.classList.add('active');
+        } else {
+            tabs[2]?.classList.add('active');
         }
     }
     
-    document.getElementById(tab === 'groups' ? 'groupsDistribution' : 'usersDistribution').classList.add('active');
+    const contentId = tab === 'user_groups' ? 'user_groupsDistribution' : 
+                      tab === 'challenge_groups' ? 'challenge_groupsDistribution' : 
+                      'usersDistribution';
+    document.getElementById(contentId).classList.add('active');
 }
 
 // Salvar tudo (configuração + distribuição + ordem dos blocos)
@@ -2047,13 +2153,14 @@ function saveAll() {
         name: name,
         description: document.getElementById('checkinDescription').value.trim(),
         day_of_week: parseInt(document.getElementById('checkinDay').value),
-        is_active: document.getElementById('checkinActive').checked ? 1 : 0
+        is_active: <?php echo $checkin['is_active']; ?>
     };
     
     // Coletar distribuição
-    const groups = Array.from(document.querySelectorAll('.distribution-group:checked')).map(cb => parseInt(cb.value));
+    const user_groups = Array.from(document.querySelectorAll('.distribution-user-group:checked')).map(cb => parseInt(cb.value));
+    const challenge_groups = Array.from(document.querySelectorAll('.distribution-challenge-group:checked')).map(cb => parseInt(cb.value));
     const users = Array.from(document.querySelectorAll('.distribution-user:checked')).map(cb => parseInt(cb.value));
-    const distribution = { groups, users };
+    const distribution = { user_groups, challenge_groups, users };
     
     // Salvar configuração e distribuição
     fetch('ajax_checkin.php', {
@@ -2256,21 +2363,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePreviewSettings();
     });
     
-    // Atualizar label do toggle de check-in ativo
-    const activeToggle = document.getElementById('checkinActive');
-    const activeLabel = document.getElementById('checkinActiveLabel');
-    
-    activeToggle.addEventListener('change', function() {
-        if (this.checked) {
-            activeLabel.textContent = 'Ativo';
-            activeLabel.style.color = '#22C55E';
-            activeLabel.style.fontWeight = '700';
-    } else {
-            activeLabel.textContent = 'Inativo';
-            activeLabel.style.color = '#EF4444';
-            activeLabel.style.fontWeight = '600';
-        }
-    });
 });
 
 // Ajustar layout baseado no zoom do navegador para manter visual do zoom 110%
@@ -2478,6 +2570,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar custom select de Dia da Semana
     initCustomSelect('checkinDaySelect', 'checkinDay', null);
     
+    // Inicializar custom selects para "Tipo" em todos os blocos existentes
+    document.querySelectorAll('[id^="questionTypeSelect_"]').forEach(select => {
+        const blockId = select.id.replace('questionTypeSelect_', '');
+        const hiddenInput = document.getElementById('questionType_' + blockId);
+        if (hiddenInput) {
+            initCustomSelect(select.id, hiddenInput.id, function(value) {
+                toggleOptionsEditor({ value: value }, blockId);
+            });
+        }
+    });
+    
     // Atualizar nome
     // Atualizar nome do check-in com debounce (sem reiniciar preview)
     const nameInput = document.getElementById('checkinName');
@@ -2564,8 +2667,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Drag and drop simples
+// Drag and drop melhorado com animação fluida
 let draggedElement = null;
+let dragOffset = { x: 0, y: 0 };
+let placeholder = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('blocksContainer');
@@ -2574,35 +2679,84 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.classList.contains('drag-handle') || e.target.closest('.drag-handle')) {
             draggedElement = e.target.closest('.block-item');
             if (draggedElement) {
+                const rect = draggedElement.getBoundingClientRect();
+                dragOffset.x = e.clientX - rect.left;
+                dragOffset.y = e.clientY - rect.top;
+                
                 draggedElement.classList.add('dragging');
+                draggedElement.style.opacity = '0.5';
+                draggedElement.style.transform = 'scale(0.95)';
+                draggedElement.style.transition = 'none';
+                draggedElement.style.zIndex = '1000';
+                draggedElement.style.cursor = 'grabbing';
+                
+                // Criar placeholder
+                placeholder = document.createElement('div');
+                placeholder.className = 'block-item drag-placeholder';
+                placeholder.style.height = rect.height + 'px';
+                placeholder.style.marginBottom = '0.75rem';
+                placeholder.style.border = '2px dashed var(--accent-orange)';
+                placeholder.style.borderRadius = '12px';
+                placeholder.style.background = 'rgba(255, 107, 0, 0.1)';
+                placeholder.style.transition = 'all 0.2s ease';
+                
+                draggedElement.parentNode.insertBefore(placeholder, draggedElement);
+                
                 e.preventDefault();
             }
         }
     });
     
     document.addEventListener('mousemove', function(e) {
-        if (draggedElement) {
+        if (draggedElement && placeholder) {
             e.preventDefault();
+            
+            // Atualizar posição do elemento arrastado
+            draggedElement.style.position = 'fixed';
+            draggedElement.style.left = (e.clientX - dragOffset.x) + 'px';
+            draggedElement.style.top = (e.clientY - dragOffset.y) + 'px';
+            draggedElement.style.width = placeholder.offsetWidth + 'px';
+            
+            // Encontrar posição de inserção
             const afterElement = getDragAfterElement(container, e.clientY);
+            
             if (afterElement == null) {
-                container.appendChild(draggedElement);
+                container.appendChild(placeholder);
             } else {
-                container.insertBefore(draggedElement, afterElement);
+                container.insertBefore(placeholder, afterElement);
             }
         }
     });
     
     document.addEventListener('mouseup', function() {
-        if (draggedElement) {
+        if (draggedElement && placeholder) {
+            // Restaurar estilos
+            draggedElement.style.position = '';
+            draggedElement.style.left = '';
+            draggedElement.style.top = '';
+            draggedElement.style.width = '';
+            draggedElement.style.opacity = '';
+            draggedElement.style.transform = '';
+            draggedElement.style.transition = '';
+            draggedElement.style.zIndex = '';
+            draggedElement.style.cursor = '';
             draggedElement.classList.remove('dragging');
+            
+            // Mover elemento para a posição do placeholder
+            placeholder.parentNode.insertBefore(draggedElement, placeholder);
+            placeholder.remove();
+            
             draggedElement = null;
-            saveFlow();
+            placeholder = null;
+            
+            // Salvar ordem
+            saveBlockOrder();
         }
     });
 });
 
 function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.block-item:not(.dragging)')];
+    const draggableElements = [...container.querySelectorAll('.block-item:not(.dragging):not(.drag-placeholder)')];
     
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
@@ -2610,7 +2764,7 @@ function getDragAfterElement(container, y) {
         
         if (offset < 0 && offset > closest.offset) {
             return { offset: offset, element: child };
-} else {
+        } else {
             return closest;
         }
     }, { offset: Number.NEGATIVE_INFINITY }).element;

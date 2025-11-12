@@ -307,38 +307,68 @@ require_once __DIR__ . '/includes/header.php';
     letter-spacing: 0.5px;
 }
 
-.filter-card {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 20px !important;
-    padding: 1.25rem !important;
-    margin-bottom: 2rem !important;
-}
-
-.filter-row {
+/* Toggle Switch - igual challenge_groups.php */
+.toggle-switch-wrapper {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
-.search-input {
-    flex: 1;
-    min-width: 250px;
-    padding: 0.875rem 1.25rem;
-    font-size: 0.95rem;
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    outline: none;
-    transition: all 0.3s ease;
-    font-family: 'Montserrat', sans-serif;
+.toggle-switch-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 50px;
+    text-align: left;
+    transition: color 0.3s ease;
 }
 
-.search-input:focus {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--accent-orange);
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(107, 114, 128, 0.3);
+    transition: 0.3s;
+    border-radius: 26px;
+}
+
+.toggle-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background-color: #22C55E;
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider:before {
+    transform: translateX(24px);
 }
 
 /* Checkin Grid - Estilo igual challenge_groups.php */
@@ -685,19 +715,6 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <div class="filter-card">
-        <div class="filter-row">
-            <input type="text" 
-                   class="search-input" 
-                   placeholder="Buscar check-ins..." 
-                   value="<?php echo htmlspecialchars($search_term); ?>"
-                   onkeyup="if(event.key === 'Enter') searchCheckins(this.value)">
-            <button class="btn-primary" onclick="searchCheckins(document.querySelector('.search-input').value)">
-                <i class="fas fa-search"></i> Buscar
-            </button>
-        </div>
-    </div>
-
     <div class="checkin-grid">
         <?php if (empty($checkins)): ?>
             <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-secondary);">
@@ -709,9 +726,17 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="checkin-card">
                     <div class="checkin-card-header">
                         <h3 class="checkin-name"><?php echo htmlspecialchars($checkin['name']); ?></h3>
-                        <span class="checkin-status <?php echo $checkin['is_active'] ? 'active' : 'inactive'; ?>">
-                            <?php echo $checkin['is_active'] ? 'Ativo' : 'Inativo'; ?>
-                        </span>
+                        <div class="toggle-switch-wrapper" onclick="event.stopPropagation()">
+                            <label class="toggle-switch">
+                                <input type="checkbox" 
+                                       class="toggle-switch-input checkin-status-toggle" 
+                                       data-checkin-id="<?php echo $checkin['id']; ?>"
+                                       <?php echo $checkin['is_active'] ? 'checked' : ''; ?>
+                                       onchange="toggleCheckinStatus(<?php echo $checkin['id']; ?>, this.checked)">
+                                <span class="toggle-switch-slider"></span>
+                            </label>
+                            <span class="toggle-switch-label checkin-status-label-<?php echo $checkin['id']; ?>" style="color: <?php echo $checkin['is_active'] ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $checkin['is_active'] ? '700' : '600'; ?>;"><?php echo $checkin['is_active'] ? 'Ativo' : 'Inativo'; ?></span>
+                        </div>
                     </div>
                     <?php if (!empty($checkin['description'])): ?>
                         <p class="checkin-description"><?php echo htmlspecialchars($checkin['description']); ?></p>
@@ -836,6 +861,53 @@ function filterByStatus(status) {
         url.searchParams.delete('status');
     }
     window.location.href = url.toString();
+}
+
+// Toggle status do check-in em tempo real
+function toggleCheckinStatus(checkinId, isActive) {
+    const label = document.querySelector(`.checkin-status-label-${checkinId}`);
+    
+    fetch('ajax_checkin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: 'update_status',
+            checkin_id: checkinId,
+            is_active: isActive ? 1 : 0
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (label) {
+                if (isActive) {
+                    label.textContent = 'Ativo';
+                    label.style.color = '#22C55E';
+                    label.style.fontWeight = '700';
+                } else {
+                    label.textContent = 'Inativo';
+                    label.style.color = '#EF4444';
+                    label.style.fontWeight = '600';
+                }
+            }
+        } else {
+            alert('Erro ao atualizar status: ' + data.message);
+            // Reverter toggle
+            const toggle = document.querySelector(`.checkin-status-toggle[data-checkin-id="${checkinId}"]`);
+            if (toggle) {
+                toggle.checked = !isActive;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar status');
+        // Reverter toggle
+        const toggle = document.querySelector(`.checkin-status-toggle[data-checkin-id="${checkinId}"]`);
+        if (toggle) {
+            toggle.checked = !isActive;
+        }
+    });
 }
 </script>
 
