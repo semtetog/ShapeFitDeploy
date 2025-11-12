@@ -2626,19 +2626,21 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: var(--accent-orange);
+    background: #FF6B00;
     border: none;
-    color: white;
+    color: #000000;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
     flex-shrink: 0;
+    font-weight: 600;
 }
 
-.checkin-send-btn:hover {
+.checkin-send-btn:hover:not(:disabled) {
     background: #e55a00;
+    color: #FFFFFF;
     transform: scale(1.1);
 }
 
@@ -2795,7 +2797,10 @@ function addMessage(text, type) {
     messageDiv.className = `checkin-message ${type}`;
     messageDiv.textContent = text;
     messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    // Scroll suave para o final
+    setTimeout(() => {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }, 50);
 }
 
 function saveCheckinResponses() {

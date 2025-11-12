@@ -218,17 +218,19 @@ $checkin_data = [
             border-radius: 50%;
             background: #FF6B00;
             border: none;
-            color: white;
+            color: #000000;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
             flex-shrink: 0;
+            font-weight: 600;
         }
 
         .checkin-send-btn:hover:not(:disabled) {
             background: #e55a00;
+            color: #FFFFFF;
             transform: scale(1.1);
         }
 
