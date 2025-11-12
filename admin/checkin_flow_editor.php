@@ -647,7 +647,7 @@ textarea.form-control {
 
 .custom-select-wrapper::after {
     content: '\f078';
-    font-family: 'Font Awesome 5 Free';
+    font-family: 'Font Awesome 6 Free';
     font-weight: 900;
     position: absolute;
     top: 50%;
@@ -655,6 +655,7 @@ textarea.form-control {
     transform: translateY(-50%);
     color: var(--text-secondary);
     pointer-events: none;
+    font-size: 0.75rem;
 }
 
 .custom-select-wrapper select {
@@ -865,17 +866,6 @@ textarea.form-control {
                 Editor de Check-in
             </h1>
             <div class="header-actions">
-                <div class="delay-control" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <label for="messageDelay" style="font-size: 0.8125rem; color: var(--text-secondary);">Delay (ms):</label>
-                    <input type="number" id="messageDelay" value="500" min="0" max="5000" step="100" 
-                           style="width: 80px; padding: 0.375rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-size: 0.8125rem;">
-                    <button onclick="updatePreviewDelay()" class="btn btn-secondary" style="padding: 0.375rem 0.5rem; font-size: 0.75rem;">
-                        <i class="fas fa-sync"></i> Atualizar
-                    </button>
-                    <button onclick="restartPreview()" class="btn btn-secondary" style="padding: 0.375rem 0.5rem; font-size: 0.75rem;" title="Reiniciar Preview">
-                        <i class="fas fa-redo"></i>
-                    </button>
-                </div>
                 <a href="checkin.php" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Voltar
                 </a>
@@ -920,12 +910,55 @@ textarea.form-control {
                 <textarea id="checkinDescription" rows="2"><?php echo htmlspecialchars($checkin['description'] ?? ''); ?></textarea>
             </div>
             
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="checkinActive" <?php echo $checkin['is_active'] ? 'checked' : ''; ?>>
-                        <span>Check-in ativo</span>
+            <!-- Preview Settings -->
+            <div class="form-group">
+                <label>Configurações do Preview</label>
+                <div class="preview-settings">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="messageDelay">Delay entre Mensagens</label>
+                            <div class="delay-input-wrapper">
+                                <input type="number" id="messageDelay" value="500" min="0" max="5000" step="100" class="delay-input">
+                                <span class="delay-label">ms</span>
+                                <span class="delay-hint" id="delayHint">(0.5s)</span>
+                            </div>
+                            <small class="form-hint">Tempo de espera entre mensagens do bot</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Efeito de Digitação</label>
+                            <div class="toggle-switch-wrapper" onclick="event.stopPropagation()">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-switch-input" id="typingEffect" checked>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                                <span class="toggle-switch-label" id="typingEffectLabel" style="color: #22C55E; font-weight: 700;">Ativado</span>
+                            </div>
+                            <small class="form-hint">Simula digitação nas mensagens do bot</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button onclick="updatePreviewSettings()" class="btn btn-secondary" style="width: 100%;">
+                            <i class="fas fa-sync"></i> Atualizar Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status do Check-in -->
+            <div class="form-group">
+                <label>Status do Check-in</label>
+                <div class="toggle-switch-wrapper" onclick="event.stopPropagation()">
+                    <?php
+                    $is_active = $checkin['is_active'] == 1;
+                    ?>
+                    <label class="toggle-switch">
+                        <input type="checkbox" 
+                               class="toggle-switch-input" 
+                               id="checkinActive"
+                               <?php echo $is_active ? 'checked' : ''; ?>>
+                        <span class="toggle-switch-slider"></span>
                     </label>
+                    <span class="toggle-switch-label" id="checkinActiveLabel" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
                 </div>
             </div>
             
@@ -1565,27 +1598,74 @@ function updatePreview() {
     }, '*');
 }
 
-// Atualizar delay do preview
-function updatePreviewDelay() {
+// Atualizar configurações do preview
+function updatePreviewSettings() {
     const iframe = document.getElementById('checkin-preview-frame');
     if (!iframe || !iframe.contentWindow) return;
     
     const delay = parseInt(document.getElementById('messageDelay').value) || 500;
-    iframe.contentWindow.postMessage({
-        type: 'updateDelay',
-        delay: delay
-    }, '*');
-}
-
-// Reiniciar preview
-function restartPreview() {
-    const iframe = document.getElementById('checkin-preview-frame');
-    if (!iframe || !iframe.contentWindow) return;
+    const typingEffect = document.getElementById('typingEffect').checked;
     
     iframe.contentWindow.postMessage({
-        type: 'restartPreview'
+        type: 'updateSettings',
+        delay: delay,
+        typingEffect: typingEffect
     }, '*');
+    
+    // Reiniciar preview para aplicar as mudanças
+    setTimeout(() => {
+        iframe.contentWindow.postMessage({
+            type: 'restartPreview'
+        }, '*');
+    }, 100);
 }
+
+// Atualizar hint do delay
+document.addEventListener('DOMContentLoaded', function() {
+    const delayInput = document.getElementById('messageDelay');
+    const delayHint = document.getElementById('delayHint');
+    
+    function updateDelayHint() {
+        const ms = parseInt(delayInput.value) || 0;
+        const seconds = (ms / 1000).toFixed(1);
+        delayHint.textContent = `(${seconds}s)`;
+    }
+    
+    delayInput.addEventListener('input', updateDelayHint);
+    updateDelayHint();
+    
+    // Atualizar label do toggle de digitação
+    const typingToggle = document.getElementById('typingEffect');
+    const typingLabel = document.getElementById('typingEffectLabel');
+    
+    typingToggle.addEventListener('change', function() {
+        if (this.checked) {
+            typingLabel.textContent = 'Ativado';
+            typingLabel.style.color = '#22C55E';
+            typingLabel.style.fontWeight = '700';
+        } else {
+            typingLabel.textContent = 'Desativado';
+            typingLabel.style.color = '#EF4444';
+            typingLabel.style.fontWeight = '600';
+        }
+    });
+    
+    // Atualizar label do toggle de check-in ativo
+    const activeToggle = document.getElementById('checkinActive');
+    const activeLabel = document.getElementById('checkinActiveLabel');
+    
+    activeToggle.addEventListener('change', function() {
+        if (this.checked) {
+            activeLabel.textContent = 'Ativo';
+            activeLabel.style.color = '#22C55E';
+            activeLabel.style.fontWeight = '700';
+        } else {
+            activeLabel.textContent = 'Inativo';
+            activeLabel.style.color = '#EF4444';
+            activeLabel.style.fontWeight = '600';
+        }
+    });
+});
 
 // Atualizar preview quando o iframe carregar
 window.addEventListener('load', function() {

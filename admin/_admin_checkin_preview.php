@@ -291,6 +291,7 @@ $checkin_data = [
         const checkinData = <?php echo json_encode($checkin_data); ?>;
         let currentQuestionIndex = 0;
         let messageDelay = 500; // Delay padrão em ms
+        let typingEffect = true; // Efeito de digitação ativado por padrão
         let previewMode = true; // Modo preview (não salva respostas)
 
         // Escutar mensagens do iframe pai para atualizar preview
@@ -318,6 +319,9 @@ $checkin_data = [
                 
                 // Iniciar preview
                 setTimeout(() => renderNextQuestion(), 500);
+            } else if (event.data.type === 'updateSettings') {
+                messageDelay = event.data.delay || 500;
+                typingEffect = event.data.typingEffect !== false;
             } else if (event.data.type === 'updateDelay') {
                 messageDelay = event.data.delay || 500;
             } else if (event.data.type === 'restartPreview') {
@@ -358,22 +362,42 @@ $checkin_data = [
             
             // Adicionar mensagem da pergunta com delay
             setTimeout(() => {
-                addMessage(question.question_text, 'bot');
-                
-                // Habilitar ou desabilitar input baseado no tipo
-                if (question.question_type === 'text') {
-                    textInput.disabled = false;
-                    sendBtn.disabled = false;
-                    textInput.value = '';
-                    textInput.placeholder = 'Digite sua resposta...';
-                    textInput.focus();
+                if (typingEffect) {
+                    typeMessage(question.question_text, 'bot', () => {
+                        // Após terminar de digitar, habilitar input ou mostrar opções
+                        if (question.question_type === 'text') {
+                            textInput.disabled = false;
+                            sendBtn.disabled = false;
+                            textInput.value = '';
+                            textInput.placeholder = 'Digite sua resposta...';
+                            textInput.focus();
+                        } else {
+                            // Múltipla escolha ou escala - desabilitar input
+                            textInput.disabled = true;
+                            sendBtn.disabled = true;
+                            textInput.value = '';
+                            textInput.placeholder = 'Selecione uma opção acima...';
+                            setTimeout(() => showQuestionOptions(question), 300);
+                        }
+                    });
                 } else {
-                    // Múltipla escolha ou escala - desabilitar input
-                    textInput.disabled = true;
-                    sendBtn.disabled = true;
-                    textInput.value = '';
-                    textInput.placeholder = 'Selecione uma opção acima...';
-                    setTimeout(() => showQuestionOptions(question), messageDelay);
+                    addMessage(question.question_text, 'bot');
+                    
+                    // Habilitar ou desabilitar input baseado no tipo
+                    if (question.question_type === 'text') {
+                        textInput.disabled = false;
+                        sendBtn.disabled = false;
+                        textInput.value = '';
+                        textInput.placeholder = 'Digite sua resposta...';
+                        textInput.focus();
+                    } else {
+                        // Múltipla escolha ou escala - desabilitar input
+                        textInput.disabled = true;
+                        sendBtn.disabled = true;
+                        textInput.value = '';
+                        textInput.placeholder = 'Selecione uma opção acima...';
+                        setTimeout(() => showQuestionOptions(question), 300);
+                    }
                 }
             }, messageDelay);
         }
