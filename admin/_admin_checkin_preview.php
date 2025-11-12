@@ -60,7 +60,7 @@ $checkin_data = [
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #000000;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
             color: #F5F5F5;
             height: 100vh;
             overflow: hidden;
@@ -71,17 +71,35 @@ $checkin_data = [
         }
 
         .checkin-chat-header {
-            background: #000000;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 2px solid #FF6B00;
+            border-bottom: 2px solid transparent;
+            border-image: linear-gradient(135deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
+            border-image-slice: 1;
+            position: relative;
+        }
+
+        .checkin-chat-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
         }
 
         .checkin-chat-header h3 {
             margin: 0;
-            color: #FF6B00;
+            background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 1.1rem;
             font-weight: 600;
         }
@@ -94,7 +112,7 @@ $checkin_data = [
             display: flex;
             flex-direction: column;
             gap: 16px;
-            background: #000000;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
             min-height: 0;
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE and Edge */
@@ -125,18 +143,39 @@ $checkin_data = [
 
         .checkin-message.bot {
             align-self: flex-start;
-            background: #1a1a1a;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             color: #F5F5F5;
-            border: 1px solid rgba(255, 107, 0, 0.2);
+            border: 1px solid transparent;
             border-bottom-left-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkin-message.bot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            border-bottom-left-radius: 4px;
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 133, 51, 0.1) 100%) padding-box,
+                        linear-gradient(135deg, rgba(255, 107, 0, 0.3) 0%, rgba(255, 133, 51, 0.2) 100%) border-box;
+            pointer-events: none;
+            z-index: -1;
         }
 
         .checkin-message.user {
             align-self: flex-end;
-            background: #FF6B00;
+            background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
             color: #000000;
-            font-weight: 500;
+            font-weight: 600;
             border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
         }
 
         .checkin-options {
@@ -150,8 +189,10 @@ $checkin_data = [
 
         .checkin-option-btn {
             padding: 12px 16px;
-            background: #1a1a1a;
-            border: 1px solid #FF6B00;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid transparent;
             border-radius: 8px;
             color: #FF6B00;
             cursor: pointer;
@@ -159,53 +200,100 @@ $checkin_data = [
             text-align: left;
             font-size: 0.95rem;
             font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkin-option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.03) 100%) padding-box,
+                        linear-gradient(135deg, #FF6B00 0%, #FF8533 100%) border-box;
+            pointer-events: none;
+            z-index: -1;
         }
 
         .checkin-option-btn:hover:not(:disabled) {
-            background: #FF6B00;
-            border-color: #FF6B00;
+            background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
+            border-color: transparent;
             color: #000000;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .checkin-option-btn:hover:not(:disabled)::before {
+            display: none;
         }
 
         .checkin-option-btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
-            border-color: rgba(255, 107, 0, 0.3);
+            border-color: rgba(255, 107, 0, 0.2);
+        }
+
+        .checkin-option-btn:disabled::before {
+            opacity: 0.5;
         }
 
         .checkin-input-container {
             padding: 16px;
-            background: #000000;
-            border-top: 2px solid #FF6B00;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 2px solid transparent;
+            border-image: linear-gradient(90deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
+            border-image-slice: 1;
             display: flex;
             gap: 12px;
             align-items: center;
             flex-shrink: 0;
+            position: relative;
+        }
+
+        .checkin-input-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
         }
 
         .checkin-text-input {
             flex: 1;
             padding: 12px 16px;
-            background: #1a1a1a;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 107, 0, 0.3);
             border-radius: 24px;
             color: #F5F5F5;
             font-size: 0.95rem;
             outline: none;
             font-family: inherit;
+            transition: all 0.3s ease;
         }
 
         .checkin-text-input:focus {
             border-color: #FF6B00;
-            background: #0a0a0a;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
         }
 
         .checkin-text-input:disabled {
-            background: #0a0a0a;
+            background: rgba(255, 255, 255, 0.02);
             color: rgba(255, 107, 0, 0.4);
             cursor: not-allowed;
             opacity: 0.6;
-            border-color: rgba(255, 107, 0, 0.2);
+            border-color: rgba(255, 107, 0, 0.15);
         }
 
         .checkin-text-input::placeholder {
@@ -216,7 +304,7 @@ $checkin_data = [
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: #FF6B00;
+            background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
             border: none;
             color: #000000;
             cursor: pointer;
@@ -226,18 +314,21 @@ $checkin_data = [
             transition: all 0.3s ease;
             flex-shrink: 0;
             font-weight: 600;
+            box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
         }
 
         .checkin-send-btn:hover:not(:disabled) {
-            background: #e55a00;
+            background: linear-gradient(135deg, #e55a00 0%, #FF6B00 100%);
             color: #FFFFFF;
             transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(255, 107, 0, 0.5);
         }
 
         .checkin-send-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+            box-shadow: 0 2px 8px rgba(255, 107, 0, 0.2);
         }
     </style>
 </head>
