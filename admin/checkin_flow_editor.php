@@ -137,11 +137,11 @@ require_once __DIR__ . '/includes/header.php';
         max-width: 350px;
     }
     
-    /* Reduzir gap entre celular e menu de configurações no zoom 125% - gap mínimo */
+    /* Reduzir gap entre celular e menu de configurações no zoom 125% - gap mínimo possível */
     .config-panel {
-        margin-left: calc(350px + 0.25rem);
+        margin-left: calc(350px + 0.125rem);
         /* Ajustar width do menu para compensar o gap reduzido */
-        max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 350px - 0.25rem - var(--content-wrapper-padding-h));
+        max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding-h) - 350px - 0.125rem - var(--content-wrapper-padding-h));
     }
 }
 
