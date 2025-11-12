@@ -71,40 +71,49 @@ function submitCheckin($data, $user_id) {
     }
     $stmt_check->close();
     
-    $conn->begin_transaction();
+    // Verificar se já existem respostas salvas (já foram salvas individualmente)
+    $stmt_check = $conn->prepare("SELECT COUNT(*) as count FROM sf_checkin_responses WHERE config_id = ? AND user_id = ?");
+    $stmt_check->bind_param("ii", $config_id, $user_id);
+    $stmt_check->execute();
+    $result = $stmt_check->get_result();
+    $count = $result->fetch_assoc()['count'];
+    $stmt_check->close();
     
-    try {
-        // Salvar cada resposta
-        $stmt = $conn->prepare("INSERT INTO sf_checkin_responses (config_id, user_id, question_id, response_text, response_value, submitted_at) VALUES (?, ?, ?, ?, ?, NOW())");
+    // Se não há respostas salvas, salvar agora (fallback)
+    if ($count == 0) {
+        $conn->begin_transaction();
         
-        foreach ($responses as $question_id => $response) {
-            $question_id = (int)$question_id;
-            $response_text = !empty($response['response_text']) ? $response['response_text'] : null;
-            $response_value = !empty($response['response_value']) ? $response['response_value'] : null;
+        try {
+            $stmt = $conn->prepare("INSERT INTO sf_checkin_responses (config_id, user_id, question_id, response_text, response_value, submitted_at) VALUES (?, ?, ?, ?, ?, NOW())");
             
-            $stmt->bind_param("iiiss", $config_id, $user_id, $question_id, $response_text, $response_value);
-            $stmt->execute();
+            foreach ($responses as $question_id => $response) {
+                $question_id = (int)$question_id;
+                $response_text = !empty($response['response_text']) ? $response['response_text'] : null;
+                $response_value = !empty($response['response_value']) ? $response['response_value'] : null;
+                
+                $stmt->bind_param("iiiss", $config_id, $user_id, $question_id, $response_text, $response_value);
+                $stmt->execute();
+            }
+            
+            $stmt->close();
+            $conn->commit();
+        } catch (Exception $e) {
+            $conn->rollback();
+            throw $e;
         }
-        
-        $stmt->close();
-        
-        // Marcar check-in como completo (domingo da semana)
-        $week_start = date('Y-m-d', strtotime('sunday this week'));
-        $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
-        $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
-        $stmt_update->execute();
-        $stmt_update->close();
-        
-        $conn->commit();
-        
-        echo json_encode([
-            'success' => true,
-            'message' => 'Check-in salvo com sucesso!'
-        ]);
-    } catch (Exception $e) {
-        $conn->rollback();
-        throw $e;
     }
+    
+    // Marcar check-in como completo (domingo da semana)
+    $week_start = date('Y-m-d', strtotime('sunday this week'));
+    $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
+    $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
+    $stmt_update->execute();
+    $stmt_update->close();
+    
+    echo json_encode([
+        'success' => true,
+        'message' => 'Check-in salvo com sucesso!'
+    ]);
 }
 
 function saveProgress($data, $user_id) {
