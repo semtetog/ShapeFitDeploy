@@ -2463,26 +2463,24 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 2px transparent;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
+                0 0 0 2px rgba(255, 107, 0, 0.5),
+                inset 0 0 40px rgba(255, 107, 0, 0.1);
     border: 2px solid transparent;
     position: relative;
 }
 
-.checkin-chat-container::before {
+.checkin-chat-container::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
     border-radius: 20px;
-    padding: 2px;
     background: linear-gradient(135deg, #FF6B00 0%, #FF8533 50%, #FF6B00 100%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
     z-index: -1;
+    opacity: 0.6;
 }
 
 .checkin-chat-header {
