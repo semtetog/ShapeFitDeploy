@@ -2322,14 +2322,13 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     cursor: pointer;
     box-shadow: 0 4px 20px rgba(255, 107, 0, 0.25),
                 0 2px 8px rgba(0, 0, 0, 0.2),
-                0 0 0 0 rgba(255, 107, 0, 0.3);
+                0 0 0 0 rgba(255, 107, 0, 0.4);
     transition: all 0.3s ease;
     z-index: 999;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: float-gentle 3s ease-in-out infinite, subtle-pulse 2.5s ease-in-out infinite;
-    position: relative;
+    animation: float-gentle 3s ease-in-out infinite;
 }
 
 @keyframes float-gentle {
@@ -2337,48 +2336,7 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
         transform: translateY(0px);
     }
     50% {
-        transform: translateY(-10px);
-    }
-}
-
-@keyframes subtle-pulse {
-    0%, 100% {
-        box-shadow: 0 4px 20px rgba(255, 107, 0, 0.25),
-                    0 2px 8px rgba(0, 0, 0, 0.2),
-                    0 0 0 0 rgba(255, 107, 0, 0.3);
-    }
-    50% {
-        box-shadow: 0 4px 24px rgba(255, 107, 0, 0.35),
-                    0 2px 10px rgba(0, 0, 0, 0.25),
-                    0 0 0 3px rgba(255, 107, 0, 0.2);
-    }
-}
-
-/* Badge de notificação */
-.checkin-floating-btn::after {
-    content: '';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #FF6B00;
-    border: 2px solid rgba(30, 30, 30, 0.9);
-    animation: badge-pulse 2s ease-in-out infinite;
-    z-index: 1;
-}
-
-@keyframes badge-pulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-        box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7);
-    }
-    50% {
-        transform: scale(1.1);
-        opacity: 0.9;
-        box-shadow: 0 0 0 4px rgba(255, 107, 0, 0);
+        transform: translateY(-8px);
     }
 }
 
@@ -2387,15 +2345,9 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     border-color: rgba(255, 107, 0, 0.6);
     animation: none;
     transform: translateY(-4px);
-    box-shadow: 0 6px 24px rgba(255, 107, 0, 0.4),
-                0 4px 12px rgba(0, 0, 0, 0.3),
-                0 0 0 2px rgba(255, 107, 0, 0.25);
-}
-
-.checkin-floating-btn:hover::after {
-    animation: none;
-    transform: scale(1.15);
-    box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.3);
+    box-shadow: 0 6px 24px rgba(255, 107, 0, 0.35),
+                0 4px 12px rgba(0, 0, 0, 0.25),
+                0 0 0 2px rgba(255, 107, 0, 0.2);
 }
 
 .checkin-floating-btn:active {
