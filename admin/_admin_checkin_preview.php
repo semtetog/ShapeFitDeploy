@@ -66,6 +66,8 @@ $checkin_data = [
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            margin: 0;
+            padding: 0;
         }
 
         .checkin-chat-header {
