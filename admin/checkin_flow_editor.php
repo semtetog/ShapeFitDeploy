@@ -305,6 +305,8 @@ require_once __DIR__ . '/includes/header.php';
     padding: 1rem;
     transition: all 0.3s ease;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .block-item:hover {
@@ -321,8 +323,9 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0;
     gap: 0.75rem;
+    min-height: 40px;
 }
 
 .block-header-left {
@@ -331,6 +334,7 @@ require_once __DIR__ . '/includes/header.php';
     gap: 0.5rem;
     flex: 1;
     min-width: 0;
+    height: 100%;
 }
 
 .drag-handle {
@@ -339,6 +343,10 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.875rem;
     transition: color 0.2s ease;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 
 .drag-handle:hover {
@@ -357,6 +365,8 @@ require_once __DIR__ . '/includes/header.php';
     text-transform: uppercase;
     flex-shrink: 0;
     white-space: nowrap;
+    height: fit-content;
+    align-self: center;
 }
 
 /* Cores diferentes para cada tipo de bloco */
@@ -389,6 +399,8 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     gap: 0.375rem;
     flex-shrink: 0;
+    align-items: center;
+    height: 100%;
 }
 
 .block-actions button {
@@ -445,6 +457,9 @@ require_once __DIR__ . '/includes/header.php';
     text-overflow: ellipsis;
     white-space: nowrap;
     margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
+    height: 100%;
 }
 
 .block-options {
@@ -737,10 +752,160 @@ textarea.form-control {
     box-sizing: border-box;
 }
 
-/* Custom Select (estilo igual ao recipes) */
+/* Custom Select (estilo igual ao content_management.php challenge-form-row) */
 .custom-select-wrapper {
     position: relative;
     width: 100%;
+}
+
+.custom-select {
+    position: relative;
+}
+
+.custom-select-trigger {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
+}
+
+.custom-select-trigger:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.custom-select.active .custom-select-trigger {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.custom-select-trigger i {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+    margin-left: 0.75rem;
+}
+
+.custom-select.active .custom-select-trigger i {
+    transform: rotate(180deg);
+    color: var(--accent-orange);
+}
+
+.custom-select-value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-select-options {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 10001;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.custom-select.active .custom-select-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.custom-select-option {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-select-option:first-child {
+    border-radius: 12px 12px 0 0;
+}
+
+.custom-select-option:last-child {
+    border-bottom: none;
+    border-radius: 0 0 12px 12px;
+}
+
+.custom-select-option:hover {
+    background: rgba(255, 107, 0, 0.15);
+    color: var(--accent-orange);
+}
+
+.custom-select-option.selected {
+    background: rgba(255, 107, 0, 0.2);
+    color: var(--accent-orange);
+    font-weight: 600;
+}
+
+.custom-select-options::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-select-options::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 0, 0.3);
+    border-radius: 4px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 0, 0.5);
+}
+
+/* Fallback para selects nativos (mantém compatibilidade) */
+.custom-select-wrapper select {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    padding-right: 2.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    box-sizing: border-box;
 }
 
 .custom-select-wrapper::after {
@@ -749,7 +914,7 @@ textarea.form-control {
     font-weight: 900;
     position: absolute;
     top: 50%;
-    right: 1rem;
+    right: 0.875rem;
     transform: translateY(-50%);
     color: var(--text-secondary);
     pointer-events: none;
@@ -761,25 +926,6 @@ textarea.form-control {
 .custom-select-wrapper:focus-within::after {
     color: var(--accent-orange);
     transform: translateY(-50%) rotate(180deg);
-}
-
-.custom-select-wrapper select {
-    width: 100%;
-    padding: 0.875rem 1.25rem;
-    padding-right: 2.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-    box-sizing: border-box;
 }
 
 .custom-select-wrapper select:hover {
