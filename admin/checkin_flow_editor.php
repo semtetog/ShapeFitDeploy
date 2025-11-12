@@ -226,7 +226,7 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 1.25rem;
 }
 
-.header-actions {
+.checkin-config-section .header-actions {
     display: flex;
     gap: 0.5rem;
     align-items: center;
@@ -1199,28 +1199,24 @@ textarea.form-control {
 
     <!-- PAINEL DE CONFIGURAÇÕES (DIREITA) -->
     <div class="config-panel">
-        <div class="editor-header">
-            <h1>
-                <i class="fas fa-clipboard-check"></i>
-                Editor de Check-in
-            </h1>
-            <div class="header-actions">
-                <a href="checkin.php" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Voltar
-                </a>
-                <button onclick="saveAll()" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Salvar Tudo
-                </button>
+        <!-- Seção de Configuração do Check-in -->
+        <div class="checkin-config-section">
+            <div class="editor-header">
+                <h1>
+                    <i class="fas fa-clipboard-check"></i>
+                    Editor de Check-in
+                </h1>
+                <div class="header-actions">
+                    <a href="checkin.php" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                    <button onclick="saveAll()" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Tudo
+                    </button>
+                </div>
             </div>
-        </div>
-
-    <!-- Seção de Configuração do Check-in -->
-    <div class="checkin-config-section">
-        <h2 class="section-title">
-            <i class="fas fa-cog"></i> Configurações
-        </h2>
-        
-        <div class="config-form">
+            
+            <div class="config-form">
             <div class="form-row">
                 <div class="form-group">
                     <label for="checkinName">Nome do Check-in <span class="required">*</span></label>
