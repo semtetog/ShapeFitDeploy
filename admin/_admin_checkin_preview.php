@@ -60,7 +60,7 @@ $checkin_data = [
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: rgba(15, 15, 15, 0.8);
+            background: rgba(15, 15, 15, 0.5);
             backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
             color: #FFFFFF;
@@ -73,9 +73,9 @@ $checkin_data = [
         }
 
         .checkin-chat-header {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(15, 15, 15, 0.5);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             padding: 16px 20px;
             display: flex;
             align-items: center;
@@ -183,9 +183,9 @@ $checkin_data = [
 
         .checkin-input-container {
             padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(15, 15, 15, 0.5);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             gap: 12px;

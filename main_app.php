@@ -2433,21 +2433,21 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     max-width: 500px;
     height: 90vh;
     max-height: 800px;
-    background: rgba(15, 15, 15, 0.8);
+    background: rgba(15, 15, 15, 0.5);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .checkin-chat-header {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(15, 15, 15, 0.5);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     padding: 16px 20px;
     display: flex;
     align-items: center;
@@ -2573,9 +2573,9 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 
 .checkin-input-container {
     padding: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(15, 15, 15, 0.5);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     gap: 12px;
