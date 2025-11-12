@@ -367,7 +367,9 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 .card-meal-cta,
 .card-suggestions,
 .card-challenges,
-.card-action-item,
+.card-action-item {
+    grid-column: 1 / -1;
+}
 
 /* ======================================= */
 /* --- CSS DOS NOVOS CARDS DE AÇÃO --- */
@@ -2759,23 +2761,125 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 const checkinData = <?php echo json_encode($available_checkin); ?>;
 let currentQuestionIndex = 0;
 let checkinResponses = {};
+let savedResponses = {};
+let answeredQuestionIds = [];
 
 function openCheckinModal() {
     document.getElementById('checkinModal').classList.add('active');
     document.body.style.overflow = 'hidden';
-    currentQuestionIndex = 0;
-    checkinResponses = {};
-    const textInput = document.getElementById('checkinTextInput');
-    const sendBtn = document.getElementById('checkinSendBtn');
-    textInput.disabled = true;
-    sendBtn.disabled = true;
-    textInput.value = '';
-    renderNextQuestion();
+    
+    // Limpar mensagens anteriores
+    document.getElementById('checkinMessages').innerHTML = '';
+    
+    // Carregar progresso salvo
+    loadCheckinProgress();
 }
 
 function closeCheckinModal() {
     document.getElementById('checkinModal').classList.remove('active');
     document.body.style.overflow = '';
+    // Não resetar o progresso - manter para continuar depois
+}
+
+function loadCheckinProgress() {
+    const formData = new FormData();
+    formData.append('action', 'load_progress');
+    formData.append('config_id', checkinData.id);
+    
+    fetch('<?php echo BASE_APP_URL; ?>/api/checkin.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            savedResponses = data.responses || {};
+            answeredQuestionIds = data.answered_questions || [];
+            
+            // Se já temos respostas salvas, restaurar o chat
+            if (answeredQuestionIds.length > 0) {
+                restoreChatFromProgress();
+            } else {
+                // Começar do início
+                currentQuestionIndex = 0;
+                checkinResponses = {};
+                const textInput = document.getElementById('checkinTextInput');
+                const sendBtn = document.getElementById('checkinSendBtn');
+                textInput.disabled = true;
+                sendBtn.disabled = true;
+                textInput.value = '';
+                renderNextQuestion();
+            }
+        } else {
+            // Se erro, começar do início
+            currentQuestionIndex = 0;
+            checkinResponses = {};
+            const textInput = document.getElementById('checkinTextInput');
+            const sendBtn = document.getElementById('checkinSendBtn');
+            textInput.disabled = true;
+            sendBtn.disabled = true;
+            textInput.value = '';
+            renderNextQuestion();
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao carregar progresso:', error);
+        // Em caso de erro, começar do início
+        currentQuestionIndex = 0;
+        checkinResponses = {};
+        const textInput = document.getElementById('checkinTextInput');
+        const sendBtn = document.getElementById('checkinSendBtn');
+        textInput.disabled = true;
+        sendBtn.disabled = true;
+        textInput.value = '';
+        renderNextQuestion();
+    });
+}
+
+function restoreChatFromProgress() {
+    const messagesDiv = document.getElementById('checkinMessages');
+    
+    // Encontrar a última pergunta respondida
+    let lastAnsweredIndex = -1;
+    for (let i = 0; i < checkinData.questions.length; i++) {
+        const question = checkinData.questions[i];
+        if (answeredQuestionIds.includes(question.id)) {
+            // Renderizar pergunta e resposta
+            addMessage(question.question_text, 'bot');
+            
+            const savedResponse = savedResponses[question.id];
+            if (savedResponse) {
+                if (savedResponse.response_text) {
+                    addMessage(savedResponse.response_text, 'user');
+                } else if (savedResponse.response_value) {
+                    addMessage(savedResponse.response_value, 'user');
+                }
+            }
+            
+            lastAnsweredIndex = i;
+            checkinResponses[question.id] = savedResponse;
+        }
+    }
+    
+    // Continuar da próxima pergunta
+    currentQuestionIndex = lastAnsweredIndex + 1;
+    
+    if (currentQuestionIndex >= checkinData.questions.length) {
+        // Todas as perguntas foram respondidas
+        addMessage('Obrigado pelo seu feedback! Seu check-in foi salvo com sucesso.', 'bot');
+        const textInput = document.getElementById('checkinTextInput');
+        const sendBtn = document.getElementById('checkinSendBtn');
+        textInput.disabled = true;
+        sendBtn.disabled = true;
+        textInput.value = '';
+        textInput.placeholder = 'Check-in finalizado';
+        
+        // Marcar como completo
+        markCheckinComplete();
+    } else {
+        // Renderizar próxima pergunta
+        renderNextQuestion();
+    }
 }
 
 function renderNextQuestion() {
@@ -2792,8 +2896,8 @@ function renderNextQuestion() {
         textInput.value = '';
         textInput.placeholder = 'Check-in finalizado';
         
-        // Salvar todas as respostas
-        saveCheckinResponses();
+        // Marcar como completo (todas as respostas já foram salvas individualmente)
+        markCheckinComplete();
         return;
     }
     
@@ -2853,12 +2957,17 @@ function selectOption(option) {
     });
     
     const question = checkinData.questions[currentQuestionIndex];
-    checkinResponses[question.id] = {
+    const response = {
         response_value: option,
         response_text: null
     };
+    checkinResponses[question.id] = response;
     
     addMessage(option, 'user');
+    
+    // Salvar progresso imediatamente
+    saveSingleResponse(question.id, response);
+    
     currentQuestionIndex++;
     setTimeout(() => renderNextQuestion(), 500);
 }
@@ -2874,18 +2983,45 @@ function sendCheckinResponse() {
     if (!response) return;
     
     const question = checkinData.questions[currentQuestionIndex];
-    checkinResponses[question.id] = {
+    const responseData = {
         response_text: response,
         response_value: null
     };
+    checkinResponses[question.id] = responseData;
     
     addMessage(response, 'user');
     input.value = '';
     input.disabled = true;
     sendBtn.disabled = true;
-    currentQuestionIndex++;
     
+    // Salvar progresso imediatamente
+    saveSingleResponse(question.id, responseData);
+    
+    currentQuestionIndex++;
     setTimeout(() => renderNextQuestion(), 500);
+}
+
+function saveSingleResponse(questionId, response) {
+    const formData = new FormData();
+    formData.append('action', 'save_progress');
+    formData.append('config_id', checkinData.id);
+    formData.append('question_id', questionId);
+    formData.append('response_text', response.response_text || '');
+    formData.append('response_value', response.response_value || '');
+    
+    fetch('<?php echo BASE_APP_URL; ?>/api/checkin.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            console.error('Erro ao salvar progresso:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao salvar progresso:', error);
+    });
 }
 
 function addMessage(text, type) {
@@ -2900,7 +3036,7 @@ function addMessage(text, type) {
     }, 50);
 }
 
-function saveCheckinResponses() {
+function markCheckinComplete() {
     const formData = new FormData();
     formData.append('action', 'submit_checkin');
     formData.append('config_id', checkinData.id);
@@ -2913,17 +3049,20 @@ function saveCheckinResponses() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Fechar modal após 2 segundos
+            // Marcar como completo
+            console.log('Check-in completo!');
+            // Fechar modal após 3 segundos
             setTimeout(() => {
                 closeCheckinModal();
-            }, 2000);
+                // Recarregar a página para atualizar o estado
+                window.location.reload();
+            }, 3000);
         } else {
-            alert('Erro ao salvar check-in: ' + data.message);
+            console.error('Erro ao marcar check-in como completo:', data.message);
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao salvar check-in');
     });
 }
 

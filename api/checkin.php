@@ -29,6 +29,12 @@ try {
         case 'submit_checkin':
             submitCheckin($data, $user_id);
             break;
+        case 'save_progress':
+            saveProgress($data, $user_id);
+            break;
+        case 'load_progress':
+            loadProgress($data, $user_id);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -99,5 +105,76 @@ function submitCheckin($data, $user_id) {
         $conn->rollback();
         throw $e;
     }
+}
+
+function saveProgress($data, $user_id) {
+    global $conn;
+    
+    $config_id = (int)($data['config_id'] ?? 0);
+    $question_id = (int)($data['question_id'] ?? 0);
+    $response_text = $data['response_text'] ?? null;
+    $response_value = $data['response_value'] ?? null;
+    
+    if ($config_id <= 0 || $question_id <= 0) {
+        throw new Exception('IDs inválidos');
+    }
+    
+    // Verificar se já existe resposta para esta pergunta
+    $stmt_check = $conn->prepare("SELECT id FROM sf_checkin_responses WHERE config_id = ? AND user_id = ? AND question_id = ?");
+    $stmt_check->bind_param("iii", $config_id, $user_id, $question_id);
+    $stmt_check->execute();
+    $existing = $stmt_check->get_result()->fetch_assoc();
+    $stmt_check->close();
+    
+    if ($existing) {
+        // Atualizar resposta existente
+        $stmt = $conn->prepare("UPDATE sf_checkin_responses SET response_text = ?, response_value = ?, submitted_at = NOW() WHERE id = ?");
+        $stmt->bind_param("ssi", $response_text, $response_value, $existing['id']);
+    } else {
+        // Criar nova resposta
+        $stmt = $conn->prepare("INSERT INTO sf_checkin_responses (config_id, user_id, question_id, response_text, response_value, submitted_at) VALUES (?, ?, ?, ?, ?, NOW())");
+        $stmt->bind_param("iiiss", $config_id, $user_id, $question_id, $response_text, $response_value);
+    }
+    
+    $stmt->execute();
+    $stmt->close();
+    
+    echo json_encode([
+        'success' => true,
+        'message' => 'Progresso salvo'
+    ]);
+}
+
+function loadProgress($data, $user_id) {
+    global $conn;
+    
+    $config_id = (int)($data['config_id'] ?? 0);
+    
+    if ($config_id <= 0) {
+        throw new Exception('ID do check-in inválido');
+    }
+    
+    // Buscar todas as respostas salvas para este check-in
+    $stmt = $conn->prepare("SELECT question_id, response_text, response_value FROM sf_checkin_responses WHERE config_id = ? AND user_id = ? ORDER BY question_id ASC");
+    $stmt->bind_param("ii", $config_id, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $responses = [];
+    $answered_questions = [];
+    while ($row = $result->fetch_assoc()) {
+        $responses[$row['question_id']] = [
+            'response_text' => $row['response_text'],
+            'response_value' => $row['response_value']
+        ];
+        $answered_questions[] = (int)$row['question_id'];
+    }
+    $stmt->close();
+    
+    echo json_encode([
+        'success' => true,
+        'responses' => $responses,
+        'answered_questions' => $answered_questions
+    ]);
 }
 
