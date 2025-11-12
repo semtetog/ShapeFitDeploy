@@ -2260,13 +2260,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }, 1000);
         });
-        observer.observe(blocksContainer, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['data-block-id', 'data-order']
-        });
-        
         // Adicionar listeners para novos blocos adicionados dinamicamente
         const addListenersToNewBlocks = function() {
             blocksContainer.querySelectorAll('textarea[name="question_text"]').forEach(textarea => {
@@ -2285,8 +2278,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         };
         
-        // Adicionar listeners quando novos blocos forem adicionados
+        // Observer para atualizar preview e adicionar listeners
         observer.observe(blocksContainer, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['data-block-id', 'data-order']
+        });
+        
+        // Adicionar listeners quando novos blocos forem adicionados
+        const blocksObserver = new MutationObserver(function() {
+            addListenersToNewBlocks();
+        });
+        blocksObserver.observe(blocksContainer, {
             childList: true,
             subtree: true
         });
