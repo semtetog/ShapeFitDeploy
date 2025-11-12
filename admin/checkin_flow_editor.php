@@ -50,8 +50,8 @@ require_once __DIR__ . '/includes/header.php';
 
 <style>
 .checkin-flow-editor {
-    padding: 2rem;
-    max-width: 1200px;
+    padding: 1.5rem 2rem;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
@@ -59,93 +59,110 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
     border-bottom: 1px solid var(--glass-border);
 }
 
 .editor-header h1 {
     margin: 0;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    font-weight: 700;
 }
 
 .editor-header h1 i {
     color: var(--accent-orange);
+    font-size: 1.25rem;
 }
 
 .header-actions {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     align-items: center;
 }
 
+/* Botões no estilo das outras páginas */
 .btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
+    padding: 0.625rem 0.75rem;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     text-decoration: none;
+    border: 1px solid;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.2;
 }
 
 .btn-primary {
-    background: var(--accent-orange);
-    color: white;
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--accent-orange);
+    border-color: rgba(255, 107, 0, 0.3);
 }
 
 .btn-primary:hover {
-    background: #e55a00;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
-    border: 1px solid var(--glass-border);
+    border-color: var(--glass-border);
 }
 
 .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: var(--accent-orange);
+    color: var(--accent-orange);
 }
 
 .btn-danger {
-    background: #dc3545;
-    color: white;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
 }
 
 .btn-danger:hover {
-    background: #c82333;
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+}
+
+.btn i {
+    font-size: 0.8125rem;
+    flex-shrink: 0;
 }
 
 .blocks-container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .block-item {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1rem;
     transition: all 0.3s ease;
     position: relative;
 }
 
 .block-item:hover {
     border-color: var(--accent-orange);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .block-item.editing {
@@ -157,40 +174,68 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
+    gap: 0.75rem;
+}
+
+.block-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.drag-handle {
+    cursor: move;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.drag-handle:hover {
+    color: var(--accent-orange);
 }
 
 .block-type-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.375rem 0.75rem;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem;
     background: rgba(255, 107, 0, 0.1);
     color: var(--accent-orange);
     border-radius: 6px;
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.block-type-badge i {
+    font-size: 0.6875rem;
 }
 
 .block-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.375rem;
+    flex-shrink: 0;
 }
 
 .block-actions button {
-    padding: 0.5rem;
+    padding: 0.375rem 0.5rem;
     background: transparent;
     border: 1px solid var(--glass-border);
     border-radius: 6px;
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
-    width: 32px;
-    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.75rem;
+    min-width: 28px;
+    height: 28px;
 }
 
 .block-actions button:hover {
@@ -199,77 +244,102 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(255, 107, 0, 0.1);
 }
 
+.block-actions button.btn-danger {
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.block-actions button.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+}
+
 .block-content {
     color: var(--text-primary);
-    line-height: 1.6;
+    line-height: 1.5;
+    font-size: 0.875rem;
 }
 
 .block-content.preview {
     white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .block-options {
-    margin-top: 1rem;
-    padding-top: 1rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
     border-top: 1px solid var(--glass-border);
 }
 
 .block-options-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.375rem;
 }
 
 .option-item {
-    padding: 0.5rem;
+    padding: 0.375rem 0.5rem;
     background: rgba(255, 255, 255, 0.02);
     border-radius: 6px;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
 }
 
 .add-block-section {
-    margin-top: 2rem;
-    padding: 1.5rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
     background: rgba(255, 255, 255, 0.02);
-    border: 2px dashed var(--glass-border);
+    border: 1px dashed var(--glass-border);
     border-radius: 12px;
     text-align: center;
 }
 
+.add-block-section h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .add-block-buttons {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     justify-content: center;
-    margin-top: 1rem;
     flex-wrap: wrap;
 }
 
 .add-block-btn {
-    padding: 0.875rem 1.5rem;
+    padding: 0.5rem 0.75rem;
     background: rgba(255, 107, 0, 0.1);
-    border: 1px solid var(--accent-orange);
+    border: 1px solid rgba(255, 107, 0, 0.3);
     border-radius: 8px;
     color: var(--accent-orange);
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 600;
+    font-size: 0.8125rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
 }
 
 .add-block-btn:hover {
-    background: var(--accent-orange);
-    color: white;
-    transform: translateY(-2px);
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+    transform: translateY(-1px);
+}
+
+.add-block-btn i {
+    font-size: 0.75rem;
 }
 
 /* Formulário de edição */
 .block-edit-form {
     display: none;
-    margin-top: 1rem;
-    padding-top: 1rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
     border-top: 1px solid var(--glass-border);
 }
 
@@ -278,20 +348,20 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
     color: var(--text-primary);
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
 }
 
 .form-control {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.625rem 0.75rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
@@ -308,12 +378,16 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 textarea.form-control {
-    min-height: 100px;
+    min-height: 80px;
     resize: vertical;
 }
 
 .options-editor {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
+}
+
+.options-editor label {
+    margin-bottom: 0.5rem;
 }
 
 .option-input-group {
@@ -325,65 +399,67 @@ textarea.form-control {
 
 .option-input-group input {
     flex: 1;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.8125rem;
 }
 
 .option-input-group button {
-    padding: 0.5rem 1rem;
-    background: #dc3545;
-    color: white;
-    border: none;
+    padding: 0.375rem 0.625rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
 
 .option-input-group button:hover {
-    background: #c82333;
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
 }
 
 .add-option-btn {
     margin-top: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.75rem;
     background: rgba(255, 107, 0, 0.1);
-    border: 1px solid var(--accent-orange);
+    border: 1px solid rgba(255, 107, 0, 0.3);
     border-radius: 6px;
     color: var(--accent-orange);
     cursor: pointer;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
+    transition: all 0.2s ease;
 }
 
 .add-option-btn:hover {
-    background: var(--accent-orange);
-    color: white;
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
 }
 
 .form-actions {
     display: flex;
-    gap: 0.75rem;
-    margin-top: 1rem;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
 }
 
 .empty-state {
     text-align: center;
-    padding: 3rem 2rem;
+    padding: 2rem 1rem;
     color: var(--text-secondary);
 }
 
 .empty-state i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
     opacity: 0.5;
-}
-
-.drag-handle {
-    cursor: move;
     color: var(--text-secondary);
-    margin-right: 0.5rem;
 }
 
-.drag-handle:hover {
-    color: var(--accent-orange);
+.empty-state p {
+    font-size: 0.875rem;
+    margin: 0;
 }
 
 .block-item.dragging {
@@ -391,7 +467,7 @@ textarea.form-control {
 }
 
 .block-item.drag-over {
-    border-top: 3px solid var(--accent-orange);
+    border-top: 2px solid var(--accent-orange);
 }
 </style>
 
@@ -406,7 +482,7 @@ textarea.form-control {
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
             <button onclick="saveFlow()" class="btn btn-primary">
-                <i class="fas fa-save"></i> Salvar Fluxo
+                <i class="fas fa-save"></i> Salvar
             </button>
         </div>
     </div>
@@ -421,7 +497,7 @@ textarea.form-control {
             <?php foreach ($blocks as $index => $block): ?>
                 <div class="block-item" data-block-id="<?php echo $block['id']; ?>" data-order="<?php echo $block['order_index']; ?>">
                     <div class="block-header">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div class="block-header-left">
                             <i class="fas fa-grip-vertical drag-handle"></i>
                             <span class="block-type-badge">
                                 <?php
@@ -440,7 +516,7 @@ textarea.form-control {
                             <button onclick="editBlock(<?php echo $block['id']; ?>)" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="deleteBlock(<?php echo $block['id']; ?>)" title="Excluir" class="btn-danger" style="background: #dc3545; color: white;">
+                            <button onclick="deleteBlock(<?php echo $block['id']; ?>)" title="Excluir" class="btn-danger">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -498,17 +574,17 @@ textarea.form-control {
         <?php endif; ?>
     </div>
 
-    <div class="add-block-section">
-        <h3 style="margin: 0 0 1rem 0; color: var(--text-primary);">Adicionar Novo Bloco</h3>
+            <div class="add-block-section">
+        <h3>Adicionar Novo Bloco</h3>
         <div class="add-block-buttons">
             <button class="add-block-btn" onclick="addBlock('text')">
-                <i class="fas fa-comment"></i> Mensagem de Texto
+                <i class="fas fa-comment"></i> Mensagem
             </button>
             <button class="add-block-btn" onclick="addBlock('multiple_choice')">
                 <i class="fas fa-list"></i> Múltipla Escolha
             </button>
             <button class="add-block-btn" onclick="addBlock('scale')">
-                <i class="fas fa-sliders-h"></i> Escala (0-10)
+                <i class="fas fa-sliders-h"></i> Escala
             </button>
         </div>
     </div>
@@ -535,20 +611,20 @@ function addBlock(type) {
     
     const blockHtml = `
         <div class="block-item editing" data-block-id="${blockId}" data-order="${blockCounter++}">
-            <div class="block-header">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <i class="fas fa-grip-vertical drag-handle"></i>
-                    <span class="block-type-badge">
-                        <i class="fas ${typeIcons[type]}"></i>
-                        ${typeNames[type]}
-                    </span>
+                <div class="block-header">
+                    <div class="block-header-left">
+                        <i class="fas fa-grip-vertical drag-handle"></i>
+                        <span class="block-type-badge">
+                            <i class="fas ${typeIcons[type]}"></i>
+                            ${typeNames[type]}
+                        </span>
+                    </div>
+                    <div class="block-actions">
+                        <button onclick="deleteBlock('${blockId}')" title="Excluir" class="btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="block-actions">
-                    <button onclick="deleteBlock('${blockId}')" title="Excluir" class="btn-danger" style="background: #dc3545; color: white;">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
             <div class="block-content preview" style="display: none;"></div>
             <div class="block-edit-form" id="editForm_${blockId}">
                 <form onsubmit="saveNewBlock(event, '${blockId}', '${type}')">
