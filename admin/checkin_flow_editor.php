@@ -829,34 +829,11 @@ textarea.form-control {
 /* Linha Divisória Vertical */
 .preview-settings-divider {
     width: 1px;
-    background: linear-gradient(180deg, 
-        rgba(255, 107, 0, 0) 0%, 
-        rgba(255, 107, 0, 0.6) 20%, 
-        rgba(255, 107, 0, 0.8) 50%, 
-        rgba(255, 107, 0, 0.6) 80%, 
-        rgba(255, 107, 0, 0) 100%);
+    background: var(--glass-border);
     position: relative;
     margin: 0.5rem 0;
     align-self: stretch;
     min-height: 100px;
-}
-
-.preview-settings-divider::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -1px;
-    right: -1px;
-    bottom: -2px;
-    background: linear-gradient(180deg, 
-        rgba(255, 107, 0, 0) 0%, 
-        rgba(255, 107, 0, 0.4) 20%, 
-        rgba(255, 107, 0, 0.6) 50%, 
-        rgba(255, 107, 0, 0.4) 80%, 
-        rgba(255, 107, 0, 0) 100%);
-    opacity: 0.5;
-    filter: blur(2px);
-    z-index: -1;
 }
 
 .preview-setting-header label {
@@ -1238,11 +1215,6 @@ textarea.form-control {
                             </div>
                             <small class="form-hint form-hint-aligned">Simula digitação nas mensagens do bot</small>
                         </div>
-                    </div>
-                    <div class="form-group" style="margin-top: 1rem;">
-                        <button onclick="updatePreviewSettings()" class="btn btn-secondary" style="width: 100%;">
-                            <i class="fas fa-sync"></i> Atualizar Preview
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1901,7 +1873,7 @@ function updatePreview() {
     }, '*');
 }
 
-// Atualizar configurações do preview
+// Atualizar configurações do preview (sem reiniciar)
 function updatePreviewSettings() {
     const iframe = document.getElementById('checkin-preview-frame');
     if (!iframe || !iframe.contentWindow) return;
@@ -1909,41 +1881,55 @@ function updatePreviewSettings() {
     const delay = parseInt(document.getElementById('messageDelay').value) || 500;
     const typingEffect = document.getElementById('typingEffect').checked;
     
+    // Apenas atualizar as configurações, sem reiniciar o preview
     iframe.contentWindow.postMessage({
         type: 'updateSettings',
         delay: delay,
         typingEffect: typingEffect
     }, '*');
-    
-    // Reiniciar preview para aplicar as mudanças
-    setTimeout(() => {
-        iframe.contentWindow.postMessage({
-            type: 'restartPreview'
-        }, '*');
-    }, 100);
 }
 
-// Atualizar display do delay
+// Atualizar apenas o nome do check-in (sem reiniciar)
+function updateCheckinName() {
+    const iframe = document.getElementById('checkin-preview-frame');
+    if (!iframe || !iframe.contentWindow) return;
+    
+    const name = document.getElementById('checkinName').value.trim();
+    
+    // Apenas atualizar o nome, sem reiniciar o preview
+    iframe.contentWindow.postMessage({
+        type: 'updateName',
+        checkinName: name
+    }, '*');
+}
+
+// Atualizar display do delay com debounce
 document.addEventListener('DOMContentLoaded', function() {
     const delaySlider = document.getElementById('messageDelay');
     const delayValueDisplay = document.getElementById('delayValueDisplay');
+    
+    let delayUpdateTimeout;
+    let delayDisplayTimeout;
     
     function updateDelayDisplay() {
         const ms = parseInt(delaySlider.value) || 0;
         const seconds = (ms / 1000).toFixed(1);
         const progress = (ms / 5000) * 100;
         
-        // Atualizar display
+        // Atualizar display imediatamente
         delayValueDisplay.innerHTML = `${ms}ms <span class="delay-hint">(${seconds}s)</span>`;
         
         // Atualizar progresso visual do slider
         delaySlider.style.setProperty('--slider-progress', `${progress}%`);
+        
+        // Atualizar configurações do preview com debounce
+        clearTimeout(delayUpdateTimeout);
+        delayUpdateTimeout = setTimeout(() => {
+            updatePreviewSettings();
+        }, 300);
     }
     
     delaySlider.addEventListener('input', updateDelayDisplay);
-    delaySlider.addEventListener('change', function() {
-        updatePreviewSettings();
-    });
     updateDelayDisplay();
     
     // Atualizar label do toggle de digitação
@@ -1960,6 +1946,8 @@ document.addEventListener('DOMContentLoaded', function() {
             typingLabel.style.color = '#EF4444';
             typingLabel.style.fontWeight = '600';
         }
+        // Atualizar configurações em tempo real
+        updatePreviewSettings();
     });
     
     // Atualizar label do toggle de check-in ativo
@@ -1992,16 +1980,37 @@ window.addEventListener('load', function() {
 // Atualizar preview quando campos mudarem
 document.addEventListener('DOMContentLoaded', function() {
     // Atualizar nome
+    // Atualizar nome do check-in com debounce (sem reiniciar preview)
     const nameInput = document.getElementById('checkinName');
     if (nameInput) {
-        nameInput.addEventListener('input', updatePreview);
+        let nameUpdateTimeout;
+        nameInput.addEventListener('input', function() {
+            clearTimeout(nameUpdateTimeout);
+            nameUpdateTimeout = setTimeout(() => {
+                updateCheckinName();
+            }, 500);
+        });
     }
     
-    // Atualizar quando blocos mudarem (usando MutationObserver)
+    // Atualizar quando blocos mudarem (usando MutationObserver com debounce)
     const blocksContainer = document.getElementById('blocksContainer');
     if (blocksContainer) {
+        let blocksUpdateTimeout;
         const observer = new MutationObserver(function(mutations) {
-            updatePreview();
+            // Debounce para evitar muitas atualizações
+            clearTimeout(blocksUpdateTimeout);
+            blocksUpdateTimeout = setTimeout(() => {
+                // Apenas atualizar se realmente houver mudanças significativas
+                // (não apenas mudanças de posição visual)
+                const hasRealChanges = mutations.some(mutation => {
+                    return mutation.type === 'childList' || 
+                           (mutation.type === 'attributes' && 
+                            mutation.attributeName === 'data-block-id');
+                });
+                if (hasRealChanges) {
+                    updatePreview();
+                }
+            }, 1000);
         });
         observer.observe(blocksContainer, {
             childList: true,

@@ -367,6 +367,11 @@ $checkin_data = [
             } else if (event.data.type === 'updateSettings') {
                 messageDelay = event.data.delay || 500;
                 typingEffect = event.data.typingEffect !== false;
+            } else if (event.data.type === 'updateName') {
+                // Apenas atualizar o nome, sem reiniciar o preview
+                if (event.data.checkinName) {
+                    document.getElementById('checkinName').textContent = event.data.checkinName;
+                }
             } else if (event.data.type === 'updateDelay') {
                 messageDelay = event.data.delay || 500;
             } else if (event.data.type === 'restartPreview') {
