@@ -2310,94 +2310,47 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     position: fixed;
     bottom: 90px;
     right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%);
-    border: none;
-    color: #000000;
-    font-size: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(255, 107, 0, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    color: #FF6B00;
+    font-size: 22px;
     cursor: pointer;
-    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.4),
-                0 0 0 4px rgba(255, 107, 0, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+                0 2px 4px rgba(255, 107, 0, 0.1);
+    transition: all 0.2s ease;
     z-index: 999;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: float 3s ease-in-out infinite;
-}
-
-.checkin-floating-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.checkin-floating-btn:hover::before {
-    opacity: 1;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
 }
 
 .checkin-floating-btn:hover {
-    animation: none;
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.6),
-                0 0 0 6px rgba(255, 107, 0, 0.15);
+    background: rgba(255, 107, 0, 0.25);
+    border-color: rgba(255, 107, 0, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3),
+                0 2px 6px rgba(255, 107, 0, 0.2);
 }
 
 .checkin-floating-btn:active {
-    transform: translateY(-2px) scale(1.05);
-}
-
-.checkin-floating-btn i {
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-/* Badge de notificação no botão */
-.checkin-floating-btn::after {
-    content: '';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #FFFFFF;
-    border: 2px solid #FF6B00;
-    animation: pulse-dot 2s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 0.8;
-    }
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
+                0 1px 2px rgba(255, 107, 0, 0.1);
 }
 
 @media (max-width: 768px) {
     .checkin-floating-btn {
         bottom: calc(80px + env(safe-area-inset-bottom));
         right: 16px;
-        width: 56px;
-        height: 56px;
-        font-size: 22px;
+        width: 52px;
+        height: 52px;
+        font-size: 20px;
+        border-radius: 14px;
     }
 }
 
@@ -2415,13 +2368,24 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     z-index: 10000;
     align-items: center;
     justify-content: center;
     padding: 1rem;
+}
+
+.checkin-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: -1;
 }
 
 .checkin-modal.active {
@@ -2433,19 +2397,21 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     max-width: 500px;
     height: 90vh;
     max-height: 800px;
-    background: rgba(15, 15, 15, 0.5);
+    background: rgba(30, 30, 30, 0.7);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    position: relative;
+    z-index: 1;
 }
 
 .checkin-chat-header {
-    background: rgba(15, 15, 15, 0.5);
+    background: rgba(30, 30, 30, 0.7);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     padding: 16px 20px;
@@ -2493,11 +2459,13 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: rgba(15, 15, 15, 0.5);
+    background: rgba(30, 30, 30, 0.7);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    touch-action: pan-y; /* Enable vertical touch scrolling */
 }
 
 .checkin-messages::-webkit-scrollbar {
@@ -2577,7 +2545,7 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
 
 .checkin-input-container {
     padding: 16px;
-    background: rgba(15, 15, 15, 0.5);
+    background: rgba(30, 30, 30, 0.7);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -2705,6 +2673,19 @@ function closeCheckinModal() {
     document.body.style.overflow = '';
     // Não resetar o progresso - manter para continuar depois
 }
+
+// Fechar modal ao clicar fora
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('checkinModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            // Se clicou diretamente no modal (background), fechar
+            if (e.target === modal) {
+                closeCheckinModal();
+            }
+        });
+    }
+});
 
 function loadCheckinProgress() {
     const formData = new FormData();
