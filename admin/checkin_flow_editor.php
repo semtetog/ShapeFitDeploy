@@ -90,25 +90,18 @@ require_once __DIR__ . '/includes/header.php';
     
     --sidebar-width: 256px;
     --content-wrapper-padding: 2rem;
-    --gap-between-mockup-config: 1.5rem;
-    --mockup-max-width: 410px;
-    --mockup-max-height: 820px;
-    
-    /* Tamanho baseado na ALTURA da tela */
+    --gap-size: 1.5rem;
+    --mockup-width: 410px;
     --mockup-height: calc(100vh - (var(--content-wrapper-padding) * 2));
-    --mockup-width: calc(var(--mockup-height) / 2);
 }
 
 /* ========================================================================= */
-/* LAYOUT PRINCIPAL - REFATORADO */
+/* LAYOUT PRINCIPAL - REFATORADO COMPLETAMENTE */
 /* ========================================================================= */
 
-/* Container principal */
+/* Container principal - layout simples e direto */
 .checkin-flow-editor {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-areas: "mockup config";
-    gap: var(--gap-between-mockup-config);
+    display: block;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -118,22 +111,18 @@ require_once __DIR__ . '/includes/header.php';
     position: relative;
 }
 
-/* PAINEL DO CELULAR (ESQUERDA - FIXO) */
+/* PAINEL DO CELULAR (FIXO À ESQUERDA) */
 .mobile-mockup-panel {
-    grid-area: mockup;
     position: fixed;
     top: 50%;
     transform: translateY(-50%);
-    /* Posição: sidebar + padding do content-wrapper + gap */
+    /* Celular posicionado após sidebar + padding do content-wrapper */
     left: calc(var(--sidebar-width) + var(--content-wrapper-padding));
-    
     width: var(--mockup-width);
     height: var(--mockup-height);
-    max-width: var(--mockup-max-width);
-    max-height: var(--mockup-max-height);
+    max-height: 820px;
     z-index: 10;
     margin: 0;
-    flex-shrink: 0;
 }
 
 .mobile-mockup-wrapper {
@@ -163,15 +152,17 @@ require_once __DIR__ . '/includes/header.php';
 
 /* PAINEL DE CONFIGURAÇÕES (DIREITA) */
 .config-panel {
-    grid-area: config;
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    /* O painel começa após o espaço do mockup (que está fixed) */
-    /* Calculando: sidebar + content-wrapper-padding + mockup-width + gap */
-    margin-left: calc(var(--mockup-max-width) + var(--gap-between-mockup-config));
-    width: calc(100% - var(--mockup-max-width) - var(--gap-between-mockup-config));
-    max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding) - var(--mockup-max-width) - var(--gap-between-mockup-config) - var(--content-wrapper-padding));
+    /* O painel começa após o celular fixed
+       margin-left = largura do celular + gap entre celular e painel */
+    margin-left: calc(var(--mockup-width) + var(--gap-size));
+    /* width = largura total disponível - espaço do celular - gap */
+    width: calc(100% - var(--mockup-width) - var(--gap-size));
+    /* max-width garante que não ultrapasse a borda direita da tela
+       Considerando: sidebar + padding-left + celular + gap + padding-right */
+    max-width: calc(100vw - var(--sidebar-width) - var(--content-wrapper-padding) - var(--mockup-width) - var(--gap-size) - var(--content-wrapper-padding));
     min-width: 600px;
     box-sizing: border-box;
     overflow-x: hidden;
