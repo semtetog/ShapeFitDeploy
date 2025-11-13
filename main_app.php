@@ -2504,11 +2504,6 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     border: 1px solid rgba(255, 255, 255, 0.15);
     position: relative;
     z-index: 1;
-    touch-action: none; /* Prevent default touch actions on container */
-}
-
-.checkin-chat-container * {
-    touch-action: pan-y; /* Allow vertical scrolling on child elements */
 }
 
 .checkin-chat-header {
