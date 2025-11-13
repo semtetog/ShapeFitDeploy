@@ -3714,7 +3714,9 @@ function displayChallengeProgress(data) {
             // Avatar
             let avatarHtml = '';
             if (participant.profile_image) {
-                avatarHtml = `<img src="${baseAssetUrl}/assets/images/users/${participant.profile_image}" alt="${participant.name}">`;
+                // Nota: Verificação de arquivo no servidor deve ser feita no PHP
+                // Aqui apenas exibimos, mas o PHP já deve ter verificado
+                avatarHtml = `<img src="${baseAssetUrl}/assets/images/users/${participant.profile_image}" alt="${participant.name}" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"><div style="display:none; width: 100%; height: 100%; border-radius: 50%; background-color: var(--accent-orange); display: flex; align-items: center; justify-content: center; color: white;"><i class="fas fa-user"></i></div>`;
             } else {
                 const nameParts = participant.name.split(' ');
                 const initials = nameParts.length > 1 

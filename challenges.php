@@ -892,8 +892,23 @@ body {
                             $rank = $index + 1;
                             $has_photo = !empty($participant['profile_image_filename']);
                             $avatar_url = $has_photo 
-                                ? BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($participant['profile_image_filename'])
                                 : '';
+                            
+                            // Verificar se arquivo existe antes de usar
+                            $avatar_url = '';
+                            if (!empty($participant['profile_image_filename'])) {
+                                $image_path = APP_ROOT_PATH . '/assets/images/users/' . $participant['profile_image_filename'];
+                                if (file_exists($image_path)) {
+                                    $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($participant['profile_image_filename']);
+                                } else {
+                                    // Tentar thumbnail
+                                    $thumb_filename = 'thumb_' . $participant['profile_image_filename'];
+                                    $thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+                                    if (file_exists($thumb_path)) {
+                                        $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                                    }
+                                }
+                            }
                             
                             // Gerar iniciais
                             $initials = '';
