@@ -608,6 +608,14 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.875rem;
     font-weight: 700;
     flex-shrink: 0;
+    overflow: hidden;
+}
+
+.chat-message.bot .message-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .chat-message.bot .message-content {
