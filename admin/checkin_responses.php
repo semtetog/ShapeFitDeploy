@@ -1937,36 +1937,6 @@ require_once __DIR__ . '/includes/header.php';
 const usersData = <?php echo json_encode($users); ?>;
 const questionsData = <?php echo json_encode($questions); ?>;
 
-// Custom Select
-document.addEventListener('DOMContentLoaded', function() {
-    const trigger = document.getElementById('dateFilterTrigger');
-    const options = document.getElementById('dateFilterOptions');
-    const optionItems = options.querySelectorAll('.custom-select-option');
-    
-    trigger.addEventListener('click', function(e) {
-        e.stopPropagation();
-        options.classList.toggle('active');
-        trigger.classList.toggle('active');
-    });
-    
-    optionItems.forEach(option => {
-        option.addEventListener('click', function() {
-            const value = this.getAttribute('data-value');
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('date_filter', value);
-            window.location.href = currentUrl.toString();
-        });
-    });
-    
-    document.addEventListener('click', function(e) {
-        if (!trigger.contains(e.target) && !options.contains(e.target)) {
-            options.classList.remove('active');
-            trigger.classList.remove('active');
-        }
-    });
-    
-    // Checkboxes removidos conforme solicitado
-});
 
 let currentUserKey = null;
 
