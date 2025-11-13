@@ -107,8 +107,18 @@ function submitCheckin($data, $user_id) {
     // Marcar check-in como completo (domingo da semana)
     $week_start = date('Y-m-d', strtotime('sunday this week'));
     
+    // Garantir que o registro de disponibilidade existe (criar se não existir)
+    $stmt_ensure_avail = $conn->prepare("
+        INSERT INTO sf_checkin_availability (config_id, user_id, week_date, is_available, available_at) 
+        VALUES (?, ?, ?, 1, NOW())
+        ON DUPLICATE KEY UPDATE is_available = 1
+    ");
+    $stmt_ensure_avail->bind_param("iis", $config_id, $user_id, $week_start);
+    $stmt_ensure_avail->execute();
+    $stmt_ensure_avail->close();
+    
     // Verificar se o popup de congratulação já foi mostrado
-    $stmt_check_congrats = $conn->prepare("SELECT congrats_shown FROM sf_checkin_availability WHERE config_id = ? AND user_id = ? AND week_date = ?");
+    $stmt_check_congrats = $conn->prepare("SELECT congrats_shown, is_completed FROM sf_checkin_availability WHERE config_id = ? AND user_id = ? AND week_date = ?");
     $stmt_check_congrats->bind_param("iis", $config_id, $user_id, $week_start);
     $stmt_check_congrats->execute();
     $result_congrats = $stmt_check_congrats->get_result();
@@ -117,9 +127,10 @@ function submitCheckin($data, $user_id) {
     
     $points_awarded = 0;
     $congrats_shown = $availability_data['congrats_shown'] ?? 0;
+    $is_already_completed = $availability_data['is_completed'] ?? 0;
     
-    // Se o popup ainda não foi mostrado, adicionar pontos e marcar como mostrado
-    if ($congrats_shown == 0) {
+    // Se o check-in ainda não foi completado E o popup ainda não foi mostrado, adicionar pontos
+    if ($is_already_completed == 0 && $congrats_shown == 0) {
         $points_to_add = 10.0;
         $success = addPointsToUser($conn, $user_id, $points_to_add, "Check-in semanal completado - Config ID: {$config_id}");
         
@@ -129,16 +140,21 @@ function submitCheckin($data, $user_id) {
             $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW(), congrats_shown = 1 WHERE config_id = ? AND user_id = ? AND week_date = ?");
         } else {
             // Se falhar ao adicionar pontos, ainda marcar como completo, mas sem mostrar popup
+            error_log("Erro ao adicionar pontos no check-in para user {$user_id}, config {$config_id}");
             $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
         }
     } else {
-        // Popup já foi mostrado, apenas marcar como completo
+        // Já foi completado ou popup já foi mostrado, apenas garantir que está marcado como completo
         $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
     }
     
     $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
     $stmt_update->execute();
+    $affected_rows = $stmt_update->affected_rows;
     $stmt_update->close();
+    
+    // Log para debug
+    error_log("Check-in completado: user_id={$user_id}, config_id={$config_id}, week_start={$week_start}, points_awarded={$points_awarded}, affected_rows={$affected_rows}");
     
     // Buscar pontos atualizados do usuário
     $stmt_points = $conn->prepare("SELECT points FROM sf_users WHERE id = ?");
