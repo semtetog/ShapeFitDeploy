@@ -51,19 +51,19 @@ $date_condition = "";
 
 switch ($date_filter) {
     case 'last_7_days':
-        $date_condition = "AND DATE(ca.completed_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+        $date_condition = "AND DATE(cr.submitted_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
         break;
     case 'this_week':
-        $date_condition = "AND YEARWEEK(ca.completed_at, 1) = YEARWEEK(CURDATE(), 1)";
+        $date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(CURDATE(), 1)";
         break;
     case 'last_week':
-        $date_condition = "AND YEARWEEK(ca.completed_at, 1) = YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 7 DAY), 1)";
+        $date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 7 DAY), 1)";
         break;
     case 'this_month':
-        $date_condition = "AND YEAR(ca.completed_at) = YEAR(CURDATE()) AND MONTH(ca.completed_at) = MONTH(CURDATE())";
+        $date_condition = "AND YEAR(cr.submitted_at) = YEAR(CURDATE()) AND MONTH(cr.submitted_at) = MONTH(CURDATE())";
         break;
     case 'last_month':
-        $date_condition = "AND YEAR(ca.completed_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(ca.completed_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
+        $date_condition = "AND YEAR(cr.submitted_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(cr.submitted_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
         break;
     default:
         $date_condition = "";
