@@ -229,6 +229,10 @@ require_once __DIR__ . '/includes/header.php';
     gap: 0.75rem;
 }
 
+.filters-section .right-side {
+    padding-right: 0.5rem;
+}
+
 .filter-group {
     display: flex;
     align-items: center;
