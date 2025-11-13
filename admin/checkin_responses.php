@@ -366,8 +366,27 @@ require_once __DIR__ . '/includes/header.php';
     min-width: 0;
 }
 
-.responses-table th:nth-child(3) {
-    width: 80px;
+/* FIX — Diminuir espaçamento entre as colunas */
+.responses-table {
+    min-width: 0 !important;
+}
+
+.responses-table th:nth-child(3),
+.responses-table td:nth-child(3) {
+    width: 60px !important;
+    min-width: 60px !important;
+    text-align: center !important;
+}
+
+/* Coluna da data e nome mais próximas */
+.responses-table th:first-child,
+.responses-table td:first-child {
+    min-width: 120px !important;
+}
+
+.responses-table th:nth-child(2),
+.responses-table td:nth-child(2) {
+    min-width: 160px !important;
 }
 
 .responses-table thead {
