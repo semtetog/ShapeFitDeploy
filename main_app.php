@@ -1194,71 +1194,82 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: linear-gradient(135deg, rgba(255, 152, 0, 0.95) 0%, rgba(255, 193, 7, 0.95) 100%);
-    color: white;
-    padding: 32px 40px;
-    border-radius: 24px;
-    font-size: 1.1rem;
+    background: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    color: var(--text-primary);
+    padding: 2rem 2.5rem;
+    border-radius: 20px;
+    font-size: 1rem;
     font-weight: 600;
-    z-index: 10000;
+    z-index: 10001;
     opacity: 0;
-    animation: congratsPopupAnimation 4s ease-in-out forwards;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    animation: congratsPopupAnimation 3.5s ease-in-out forwards;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 107, 0, 0.1);
     text-align: center;
-    min-width: 320px;
+    min-width: 300px;
     max-width: 90%;
 }
 
 .checkin-congrats-popup .congrats-icon {
-    font-size: 3rem;
-    margin-bottom: 16px;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent-orange);
     animation: congratsIconPulse 1.5s ease-in-out infinite;
     display: block;
 }
 
 .checkin-congrats-popup .congrats-message {
-    font-size: 1.3rem;
-    margin-bottom: 12px;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
     font-weight: 700;
+    color: var(--text-primary);
+}
+
+.checkin-congrats-popup .congrats-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.25rem;
+    font-weight: 400;
 }
 
 .checkin-congrats-popup .congrats-points {
-    font-size: 1.8rem;
-    margin-top: 8px;
+    font-size: 1.5rem;
+    margin-top: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 0.5rem;
+    color: var(--accent-orange);
+    font-weight: 700;
 }
 
 .checkin-congrats-popup .congrats-points .star-icon {
-    font-size: 1.5rem;
-    color: white;
+    font-size: 1.25rem;
+    color: var(--accent-orange);
     animation: starPulse 1s ease-in-out infinite;
 }
 
 @keyframes congratsPopupAnimation {
     0% { 
         opacity: 0; 
-        transform: translate(-50%, -50%) scale(0.8); 
+        transform: translate(-50%, -50%) scale(0.85); 
     } 
-    15% { 
+    10% { 
         opacity: 1; 
-        transform: translate(-50%, -50%) scale(1.05); 
+        transform: translate(-50%, -50%) scale(1.02); 
     }
-    25% { 
+    20% { 
         transform: translate(-50%, -50%) scale(1); 
     }
-    75% { 
+    80% { 
         opacity: 1; 
         transform: translate(-50%, -50%) scale(1); 
     } 
     100% { 
         opacity: 0; 
-        transform: translate(-50%, -50%) scale(0.9); 
+        transform: translate(-50%, -50%) scale(0.95); 
     }
 }
 
@@ -1267,7 +1278,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         transform: scale(1); 
     } 
     50% { 
-        transform: scale(1.1); 
+        transform: scale(1.15); 
     }
 }
 
@@ -2493,6 +2504,11 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     border: 1px solid rgba(255, 255, 255, 0.15);
     position: relative;
     z-index: 1;
+    touch-action: none; /* Prevent default touch actions on container */
+}
+
+.checkin-chat-container * {
+    touch-action: pan-y; /* Allow vertical scrolling on child elements */
 }
 
 .checkin-chat-header {
@@ -2550,7 +2566,9 @@ require_once APP_ROOT_PATH . '/includes/layout_bottom_nav.php';
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    touch-action: pan-y; /* Enable vertical touch scrolling */
+    touch-action: pan-y pinch-zoom; /* Enable vertical touch scrolling and pinch zoom */
+    overscroll-behavior: contain; /* Prevent scroll chaining */
+    will-change: scroll-position; /* Optimize scrolling performance */
 }
 
 .checkin-messages::-webkit-scrollbar {
@@ -3079,9 +3097,10 @@ function markCheckinComplete() {
             }
             
             // Recarregar a página após o popup desaparecer para atualizar o estado
+            // Isso garante que o check-in não apareça mais até a próxima semana
             setTimeout(() => {
                 window.location.reload();
-            }, 4000);
+            }, 3500);
         } else {
             console.error('Erro ao marcar check-in como completo:', data.message);
         }
@@ -3096,8 +3115,8 @@ function showCheckinCongratsPopup(points) {
     popup.className = 'checkin-congrats-popup';
     popup.innerHTML = `
         <i class="fas fa-trophy congrats-icon"></i>
-        <div class="congrats-message">Parabéns! 🎉</div>
-        <div>Você completou seu check-in semanal!</div>
+        <div class="congrats-message">Parabéns!</div>
+        <div class="congrats-subtitle">Você completou seu check-in semanal</div>
         <div class="congrats-points">
             <i class="fas fa-star star-icon"></i>
             <span>+${points} Pontos</span>
@@ -3105,12 +3124,12 @@ function showCheckinCongratsPopup(points) {
     `;
     document.body.appendChild(popup);
     
-    // Remover após a animação (4 segundos)
+    // Remover após a animação (3.5 segundos)
     setTimeout(() => {
         if (popup.parentNode) {
             popup.parentNode.removeChild(popup);
         }
-    }, 4000);
+    }, 3500);
 }
 
 </script>
