@@ -862,19 +862,22 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .btn-select-mode:hover {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: rgba(59, 130, 246, 0.4);
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
 }
 
 .btn-select-mode.active {
     background: #3B82F6;
     color: white;
     border-color: #3B82F6;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .btn-select-mode.active:hover {
-    background: #2563EB;
-    border-color: #2563EB;
+    transform: scale(1.08);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.5), 0 6px 16px rgba(59, 130, 246, 0.3);
 }
 
 /* Linha selecionada */
@@ -1155,7 +1158,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="header-card">
         <div class="header-title">
             <div>
-                <h2><?php echo htmlspecialchars($checkin['name']); ?></h2>
+        <h2><?php echo htmlspecialchars($checkin['name']); ?></h2>
                 <p><?php echo htmlspecialchars($checkin['description'] ?? ''); ?></p>
             </div>
         </div>
@@ -1196,7 +1199,7 @@ require_once __DIR__ . '/includes/header.php';
             <span class="badge"><?php echo $total_count; ?></span>
         </div>
         <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
-            <i class="fas fa-check-square"></i>
+            <i class="fas fa-mouse-pointer"></i>
             <span>Selecionar</span>
         </button>
     </div>
@@ -1250,10 +1253,10 @@ require_once __DIR__ . '/includes/header.php';
                                                 <img src="<?php echo BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']); ?>" alt="<?php echo htmlspecialchars($user['user_name']); ?>">
                                             <?php else: ?>
                                                 <?php echo $initials; ?>
-                                            <?php endif; ?>
-                                        </div>
+                        <?php endif; ?>
+                    </div>
                                         <span class="table-user-name"><?php echo htmlspecialchars($user['user_name']); ?></span>
-                                    </div>
+                    </div>
                                 </td>
                                 <td onclick="event.stopPropagation();" style="text-align: center;">
                                     <button class="btn-delete-response" onclick="showDeleteResponseModal('<?php echo htmlspecialchars($key); ?>', '<?php echo htmlspecialchars($user['user_name']); ?>', '<?php echo $formatted_date; ?>')" title="Excluir resposta">
@@ -1267,7 +1270,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
     <?php endif; ?>
-</div>
+                </div>
 
 <!-- Modal de Chat -->
 <div class="chat-modal" id="chatModal">
@@ -1277,7 +1280,7 @@ require_once __DIR__ . '/includes/header.php';
             <button class="chat-modal-close" onclick="closeChatModal()" type="button">
                 <i class="fas fa-times"></i>
             </button>
-        </div>
+                                </div>
         <div class="chat-modal-body" id="chatModalBody">
             <!-- Conteúdo do chat será inserido aqui via JavaScript -->
         </div>
@@ -1404,7 +1407,7 @@ function openChatModal(userKey) {
         botMessage.className = 'chat-message bot';
         
         // Avatar do admin (bot)
-        <?php
+                                    <?php 
         $admin_avatar_html = '';
         if ($admin_data) {
             $admin_name = $admin_data['full_name'] ?? '';
@@ -1417,7 +1420,7 @@ function openChatModal(userKey) {
                 if (file_exists($admin_photo_path)) {
                     $admin_photo_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_data['profile_image_filename']);
                     $has_admin_photo = true;
-                } else {
+                                    } else {
                     // Tentar thumbnail
                     $admin_thumb_filename = 'thumb_' . $admin_data['profile_image_filename'];
                     $admin_thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $admin_thumb_filename;
@@ -1448,7 +1451,7 @@ function openChatModal(userKey) {
             <div class="message-avatar">${adminAvatar}</div>
             <div class="message-content">
                 <div class="message-bubble">${escapeHtml(question.question_text)}</div>
-            </div>
+                                </div>
         `;
         modalBody.appendChild(botMessage);
         
@@ -1476,10 +1479,10 @@ function openChatModal(userKey) {
             <div class="message-content">
                 <div class="message-bubble">${escapeHtml(responseText)}</div>
                 ${response ? `<div class="chat-message-time">${formatDateTime(response.submitted_at)}</div>` : ''}
-            </div>
+                            </div>
             <div class="message-avatar">
                 ${userAvatar ? `<img src="${userAvatar}" alt="${escapeHtml(user.user_name)}">` : initials}
-            </div>
+                </div>
         `;
         modalBody.appendChild(userMessage);
     });
