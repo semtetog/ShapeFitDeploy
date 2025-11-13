@@ -354,6 +354,20 @@ require_once __DIR__ . '/includes/header.php';
     border-collapse: collapse;
     border-spacing: 0;
     min-width: 800px;
+    table-layout: fixed;
+}
+
+.responses-table th:first-child {
+    width: 180px;
+}
+
+.responses-table th:nth-child(2) {
+    width: auto;
+    min-width: 0;
+}
+
+.responses-table th:nth-child(3) {
+    width: 80px;
 }
 
 .responses-table thead {
@@ -403,45 +417,43 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:first-child {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    padding-left: 1rem;
-    padding-right: 0.1rem;
+    padding: 1rem 0.5rem 1rem 1rem;
     position: relative;
 }
 
 .responses-table td:first-child::after {
     content: '';
     position: absolute;
-    right: 0.05rem;
-    top: 10%;
-    bottom: 10%;
+    right: 0;
+    top: 15%;
+    bottom: 15%;
     width: 1px;
     background: linear-gradient(to bottom, 
         transparent 0%, 
-        rgba(255, 255, 255, 0.12) 20%, 
-        rgba(255, 255, 255, 0.25) 50%, 
-        rgba(255, 255, 255, 0.12) 80%, 
+        rgba(255, 255, 255, 0.15) 20%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        rgba(255, 255, 255, 0.15) 80%, 
         transparent 100%);
 }
 
 .responses-table td:nth-child(2) {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    padding-left: 0.1rem;
-    padding-right: 0.5rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
 }
 
 .responses-table td:first-child .table-date {
     margin: 0;
     padding: 0;
     gap: 0.5rem;
+    width: 100%;
+    justify-content: flex-start;
 }
 
 .responses-table td:nth-child(2) .table-user {
     margin: 0;
     padding: 0;
     gap: 0.75rem;
+    width: 100%;
+    justify-content: flex-start;
 }
 
 .table-checkbox {
