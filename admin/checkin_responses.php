@@ -321,9 +321,7 @@ require_once __DIR__ . '/includes/header.php';
 .submissions-count .badge {
     background: var(--accent-orange);
     color: white;
-    min-width: 24px;
-    min-height: 24px;
-    padding: 0;
+    padding: 4px 8px;
     border-radius: 50%;
     font-size: 0.75rem;
     font-weight: 700;
@@ -334,8 +332,8 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
     flex-shrink: 0;
     aspect-ratio: 1;
-    width: auto;
-    height: auto;
+    min-width: 24px;
+    min-height: 24px;
 }
 
 /* Tabela com scroll horizontal */
