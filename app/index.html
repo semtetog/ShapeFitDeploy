@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ShapeFit</title>
+    
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/assets/css/app.css">
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW registered:', reg))
+                    .catch(err => console.log('SW registration failed:', err));
+            });
+        }
+    </script>
+</head>
+<body>
+    <!-- Banner Offline -->
+    <div id="offline-banner" style="display: none; background: #ff6600; color: white; padding: 10px; text-align: center;">
+        Você está offline. Algumas funcionalidades podem estar limitadas.
+    </div>
+
+    <!-- App Container -->
+    <div id="app">
+        <div id="loading-screen">
+            <div class="spinner"></div>
+            <p>Carregando...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import offlineDB from '/assets/js/db.js';
+        import syncManager from '/assets/js/sync.js';
+        import offlineManager from '/assets/js/offline.js';
+        
+        // Inicializar app
+        async function initApp() {
+            try {
+                // Inicializar IndexedDB
+                await offlineDB.init();
+                console.log('IndexedDB inicializado');
+                
+                // Verificar autenticação
+                const token = localStorage.getItem('auth_token');
+                if (!token) {
+                    window.location.href = '/pages/login.html';
+                    return;
+                }
+                
+                // Carregar dados do usuário
+                const user = await offlineDB.getUser();
+                if (!user) {
+                    // Tentar buscar do servidor
+                    const response = await fetch('/api/user/profile', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const userData = await response.json();
+                        await offlineDB.saveUser(userData);
+                        renderApp(userData);
+                    } else {
+                        window.location.href = '/pages/login.html';
+                    }
+                } else {
+                    renderApp(user);
+                }
+                
+                // Esconder loading
+                document.getElementById('loading-screen').style.display = 'none';
+            } catch (error) {
+                console.error('Erro ao inicializar app:', error);
+                document.getElementById('loading-screen').innerHTML = 
+                    '<p>Erro ao carregar aplicativo. Tente novamente.</p>';
+            }
+        }
+        
+        function renderApp(user) {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <header>
+                    <h1>ShapeFit</h1>
+                    <div class="user-info">
+                        <span>Olá, ${user.name || 'Usuário'}</span>
+                    </div>
+                </header>
+                <main>
+                    <nav>
+                        <a href="/pages/dashboard.html">Dashboard</a>
+                        <a href="/pages/diary.html">Diário</a>
+                        <a href="/pages/recipes.html">Receitas</a>
+                        <a href="/pages/progress.html">Progresso</a>
+                    </nav>
+                </main>
+            `;
+        }
+        
+        // Inicializar quando DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+        
+        // Listener para eventos de sincronização
+        window.addEventListener('sync-complete', () => {
+            console.log('Sincronização concluída');
+            // Atualizar UI se necessário
+        });
+        
+        window.addEventListener('connection-restored', () => {
+            console.log('Conexão restaurada');
+            // Notificar usuário
+            const banner = document.getElementById('offline-banner');
+            if (banner) {
+                banner.textContent = 'Conexão restaurada! Sincronizando dados...';
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
+
