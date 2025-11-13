@@ -1,0 +1,11 @@
+<?php
+// Arquivo de exemplo para configuração local
+// Copie este arquivo para config.local.php e configure suas chaves
+// O arquivo config.local.php NÃO vai para o Git (está no .gitignore)
+
+// Configuração da Groq API
+// Descomente e configure sua API key:
+// define('GROQ_API_KEY', 'sua-chave-aqui');
+
+?>
+
