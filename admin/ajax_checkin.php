@@ -27,6 +27,9 @@ if (!$admin_id) {
 
 try {
     switch ($action) {
+        case 'delete_response':
+            deleteResponse($data, $admin_id);
+            break;
         case 'save':
             saveCheckin($data, $admin_id);
             break;

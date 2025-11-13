@@ -464,6 +464,33 @@ require_once __DIR__ . '/includes/header.php';
     text-overflow: clip;
 }
 
+.btn-delete-response {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    width: 36px;
+    height: 36px;
+}
+
+.btn-delete-response:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #EF4444;
+    color: #EF4444;
+    transform: translateY(-1px);
+}
+
+.btn-delete-response:active {
+    transform: translateY(0);
+}
+
 .table-preview {
     color: var(--text-secondary);
     font-size: 0.875rem;
@@ -734,7 +761,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
         <div class="submissions-count">
-            <span>Submissões</span>
+            <span>Respostas</span>
             <span class="badge"><?php echo $total_count; ?></span>
         </div>
     </div>
@@ -757,8 +784,8 @@ require_once __DIR__ . '/includes/header.php';
                             <th>
                                 <i class="fas fa-user"></i> Nome
                             </th>
-                            <th>
-                                <i class="fas fa-comment"></i> Ações
+                            <th style="width: 80px; text-align: center;">
+                                <i class="fas fa-cog"></i>
                             </th>
                         </tr>
                     </thead>
@@ -774,14 +801,14 @@ require_once __DIR__ . '/includes/header.php';
                                 ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) 
                                 : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : 'U');
                             ?>
-                            <tr data-user-key="<?php echo htmlspecialchars($key); ?>" onclick="openChatModal('<?php echo htmlspecialchars($key); ?>')">
-                                <td>
+                            <tr data-user-key="<?php echo htmlspecialchars($key); ?>" data-user-id="<?php echo $user['user_id']; ?>" data-response-date="<?php echo $response_date; ?>">
+                                <td onclick="openChatModal('<?php echo htmlspecialchars($key); ?>')" style="cursor: pointer;">
                                     <div class="table-date">
                                         <i class="fas fa-calendar"></i>
                                         <span><?php echo $formatted_date; ?>, <?php echo $formatted_time; ?></span>
                                     </div>
                                 </td>
-                                <td>
+                                <td onclick="openChatModal('<?php echo htmlspecialchars($key); ?>')" style="cursor: pointer;">
                                     <div class="table-user">
                                         <div class="table-user-avatar">
                                             <?php if (!empty($user['profile_image_filename']) && file_exists(APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'])): ?>
@@ -793,8 +820,10 @@ require_once __DIR__ . '/includes/header.php';
                                         <span class="table-user-name"><?php echo htmlspecialchars($user['user_name']); ?></span>
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="table-preview">Ver chat</div>
+                                <td onclick="event.stopPropagation();" style="text-align: center;">
+                                    <button class="btn-delete-response" onclick="showDeleteResponseModal('<?php echo htmlspecialchars($key); ?>', '<?php echo htmlspecialchars($user['user_name']); ?>', '<?php echo $formatted_date; ?>')" title="Excluir resposta">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -816,6 +845,49 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="chat-modal-body" id="chatModalBody">
             <!-- Conteúdo do chat será inserido aqui via JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div id="deleteResponseModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeDeleteResponseModal()"></div>
+    <div class="custom-modal-content">
+        <div class="custom-modal-header" style="color: var(--danger-red);">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Excluir Resposta</h3>
+        </div>
+        <div class="custom-modal-body">
+            <p><strong>ATENÇÃO: Esta ação não pode ser desfeita!</strong></p>
+            <p>Tem certeza que deseja excluir permanentemente a resposta de <strong id="delete-response-user-name"></strong> do dia <strong id="delete-response-date"></strong>?</p>
+            <p style="color: var(--danger-red); font-weight: 600;">Esta ação é IRREVERSÍVEL!</p>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-cancel" onclick="closeDeleteResponseModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="btn-modal-danger" onclick="confirmDeleteResponse()">
+                <i class="fas fa-trash-alt"></i> Excluir Permanentemente
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Alerta (Sucesso/Erro) -->
+<div id="alertModal" class="custom-modal">
+    <div class="custom-modal-overlay" onclick="closeAlertModal()"></div>
+    <div class="custom-modal-content custom-modal-small">
+        <div class="custom-modal-header" id="alertModalHeader">
+            <i id="alertModalIcon"></i>
+            <h3 id="alertModalTitle"></h3>
+        </div>
+        <div class="custom-modal-body">
+            <p id="alertModalMessage"></p>
+        </div>
+        <div class="custom-modal-footer">
+            <button class="btn-modal-primary" onclick="closeAlertModal()">
+                OK
+            </button>
         </div>
     </div>
 </div>
@@ -977,6 +1049,137 @@ function closeChatModal() {
     const modal = document.getElementById('chatModal');
     modal.classList.remove('active');
     document.body.style.overflow = '';
+}
+
+// Variáveis globais para exclusão
+let currentResponseToDelete = null;
+
+function showDeleteResponseModal(userKey, userName, responseDate) {
+    currentResponseToDelete = userKey;
+    
+    document.getElementById('delete-response-user-name').textContent = userName;
+    document.getElementById('delete-response-date').textContent = responseDate;
+    
+    const modal = document.getElementById('deleteResponseModal');
+    if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeDeleteResponseModal() {
+    const modal = document.getElementById('deleteResponseModal');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+    }
+    document.body.style.overflow = '';
+    currentResponseToDelete = null;
+}
+
+async function confirmDeleteResponse() {
+    if (!currentResponseToDelete) {
+        showAlertModal('Erro', 'Erro: Dados da resposta não encontrados. Recarregue a página e tente novamente.', false);
+        return;
+    }
+    
+    const userKey = currentResponseToDelete;
+    const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
+    
+    if (!row) {
+        showAlertModal('Erro', 'Erro: Linha não encontrada. Recarregue a página e tente novamente.', false);
+        closeDeleteResponseModal();
+        return;
+    }
+    
+    const userId = row.getAttribute('data-user-id');
+    const responseDate = row.getAttribute('data-response-date');
+    const checkinId = <?php echo $checkin_id; ?>;
+    
+    closeDeleteResponseModal();
+    
+    try {
+        const formData = new FormData();
+        formData.append('action', 'delete_response');
+        formData.append('user_id', userId);
+        formData.append('config_id', checkinId);
+        formData.append('response_date', responseDate);
+        
+        const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        });
+        
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('Erro ao fazer parse do JSON:', e, text);
+            showAlertModal('Erro', 'Resposta inválida do servidor: ' + text.substring(0, 100), false);
+            return;
+        }
+        
+        if (data.success) {
+            showAlertModal('Sucesso', data.message || 'Resposta excluída com sucesso!', true);
+            // Remover a linha da tabela
+            if (row && row.parentNode) {
+                row.parentNode.removeChild(row);
+            }
+            // Atualizar contador
+            const badge = document.querySelector('.submissions-count .badge');
+            if (badge) {
+                const currentCount = parseInt(badge.textContent) || 0;
+                badge.textContent = Math.max(0, currentCount - 1);
+            }
+        } else {
+            showAlertModal('Erro', data.message || 'Erro ao excluir resposta.', false);
+        }
+    } catch (error) {
+        console.error('Erro ao excluir resposta:', error);
+        showAlertModal('Erro', 'Erro ao comunicar com o servidor. Tente novamente.', false);
+    }
+}
+
+function showAlertModal(title, message, isSuccess) {
+    const modal = document.getElementById('alertModal');
+    const header = document.getElementById('alertModalHeader');
+    const icon = document.getElementById('alertModalIcon');
+    const titleEl = document.getElementById('alertModalTitle');
+    const messageEl = document.getElementById('alertModalMessage');
+    
+    if (isSuccess) {
+        header.style.color = '#22C55E';
+        icon.className = 'fas fa-check-circle';
+    } else {
+        header.style.color = 'var(--danger-red)';
+        icon.className = 'fas fa-exclamation-circle';
+    }
+    
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    
+    if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeAlertModal() {
+    const modal = document.getElementById('alertModal');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+    }
+    document.body.style.overflow = '';
+    
+    // Se houver redirect configurado
+    if (modal && modal.dataset.redirectOnClose === 'true') {
+        window.location.href = modal.dataset.redirectUrl || window.location.href;
+    }
 }
 
 // Fechar modal ao clicar fora
