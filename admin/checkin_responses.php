@@ -214,6 +214,7 @@ require_once __DIR__ . '/includes/header.php';
     border: 1px solid var(--glass-border) !important;
     border-radius: 16px !important;
     padding: 1.25rem !important;
+    padding-right: 2rem !important;
     margin-bottom: 1.5rem !important;
     display: flex;
     justify-content: space-between;
@@ -1318,11 +1319,11 @@ require_once __DIR__ . '/includes/header.php';
 /* Botão de calendário - idêntico ao view_user_diary */
 .diary-calendar-icon-btn {
     position: relative;
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
-    max-height: 40px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    max-height: 36px;
     border-radius: 50%;
     background: rgba(255, 107, 0, 0.08);
     border: 1px solid rgba(255, 107, 0, 0.2);
@@ -1343,7 +1344,7 @@ require_once __DIR__ . '/includes/header.php';
 .diary-calendar-icon-btn:hover {
     background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
-    transform: scale(1.05);
+    transform: translateY(-2px);
 }
 
 .diary-calendar-icon-btn i {
