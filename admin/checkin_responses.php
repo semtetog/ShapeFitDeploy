@@ -229,9 +229,8 @@ require_once __DIR__ . '/includes/header.php';
     gap: 0.75rem;
 }
 
-.filters-section .right-side {
+.filters-section .calendar-filters-wrapper {
     flex-wrap: nowrap !important;
-    justify-content: flex-end;
     flex-shrink: 0 !important;
 }
 
@@ -1283,16 +1282,23 @@ require_once __DIR__ . '/includes/header.php';
     padding-right: 0.5rem;
     padding-left: 0;
 }
-/* Botões de filtro rápido do calendário */
-.calendar-filters-group {
+/* Botões de filtro do calendário - refatorado completamente */
+.calendar-filters-wrapper {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     align-items: center;
-    flex-wrap: nowrap !important;
+    flex-wrap: nowrap;
 }
 
-.calendar-quick-filter-btn {
-    padding: 0.45rem 0.85rem !important;
+.calendar-filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.3);
     border-radius: 8px;
@@ -1302,61 +1308,46 @@ require_once __DIR__ . '/includes/header.php';
     font-family: 'Montserrat', sans-serif;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     white-space: nowrap;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
     box-sizing: border-box;
     line-height: 1.5;
-    max-width: fit-content;
+    flex-shrink: 0;
+    margin: 0;
 }
 
-.calendar-quick-filter-btn:hover {
+.calendar-filter-btn:hover {
     background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
     transform: translateY(-2px);
 }
 
-.calendar-quick-filter-btn i {
+.calendar-filter-btn i {
     font-size: 0.875rem;
+    line-height: 1;
 }
 
-/* Botão de calendário - idêntico ao view_user_diary */
-.diary-calendar-icon-btn {
-    position: relative;
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    max-height: 36px;
+/* Botão do calendário (ícone redondo) */
+.calendar-filter-btn.calendar-icon {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    padding: 0;
     border-radius: 50%;
     background: rgba(255, 107, 0, 0.08);
     border: 1px solid rgba(255, 107, 0, 0.2);
-    color: var(--accent-orange);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    line-height: 1;
-    vertical-align: middle;
 }
 
-.diary-calendar-icon-btn:hover {
+.calendar-filter-btn.calendar-icon i {
+    font-size: 1rem;
+}
+
+.calendar-filter-btn.calendar-icon:hover {
     background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
-    transform: translateY(-2px);
 }
 
-.diary-calendar-icon-btn i {
-    font-size: 1rem;
+.calendar-filter-btn.calendar-icon span {
+    display: none;
 }
 
 /* Estilos do calendário (replicados do view_user_addon.css) */
@@ -1721,16 +1712,16 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Selecionar</span>
             </button>
         </div>
-        <div class="right-side calendar-filters-group">
-            <button class="calendar-quick-filter-btn" onclick="applyQuickFilter('last7')" title="Últimos 7 dias">
+        <div class="calendar-filters-wrapper">
+            <button class="calendar-filter-btn" onclick="applyQuickFilter('last7')" title="Últimos 7 dias">
                 <i class="fas fa-clock"></i>
                 <span>Últimos 7 dias</span>
             </button>
-            <button class="calendar-quick-filter-btn" onclick="applyQuickFilter('last30')" title="Últimos 30 dias">
+            <button class="calendar-filter-btn" onclick="applyQuickFilter('last30')" title="Últimos 30 dias">
                 <i class="fas fa-clock"></i>
                 <span>Últimos 30 dias</span>
             </button>
-            <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
+            <button class="calendar-filter-btn calendar-icon" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
                 <i class="fas fa-calendar-alt"></i>
             </button>
         </div>
@@ -1907,17 +1898,6 @@ require_once __DIR__ . '/includes/header.php';
             <div class="calendar-year" id="checkinCalendarYear"></div>
         </div>
         
-        <!-- Botões de filtro rápido -->
-        <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
-            <button class="calendar-quick-btn" onclick="selectCheckinPeriod('last7')" style="flex: 1;">
-                <i class="fas fa-clock"></i>
-                <span>Últimos 7 dias</span>
-            </button>
-            <button class="calendar-quick-btn" onclick="selectCheckinPeriod('last30')" style="flex: 1;">
-                <i class="fas fa-clock"></i>
-                <span>Últimos 30 dias</span>
-            </button>
-        </div>
         
         <div class="calendar-nav-buttons">
             <button class="calendar-btn-nav" onclick="changeCheckinCalendarMonth(-1)" type="button">
