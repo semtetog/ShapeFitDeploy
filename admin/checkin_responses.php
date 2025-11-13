@@ -868,16 +868,18 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .btn-select-mode.active {
-    background: #3B82F6;
-    color: white;
-    border-color: #3B82F6;
+    background: rgba(59, 130, 246, 0.15);
+    color: #3B82F6;
+    border-color: rgba(59, 130, 246, 0.4);
     transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 4px 12px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
 .btn-select-mode.active:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
     transform: scale(1.08);
-    box-shadow: 0 0 25px rgba(59, 130, 246, 0.5), 0 6px 16px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.4), 0 6px 16px rgba(59, 130, 246, 0.2);
 }
 
 /* Linha selecionada */
