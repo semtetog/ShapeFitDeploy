@@ -354,11 +354,11 @@ require_once __DIR__ . '/includes/header.php';
     border-collapse: collapse;
     border-spacing: 0;
     min-width: 800px;
-    table-layout: fixed;
 }
 
 .responses-table th:first-child {
-    width: 180px;
+    width: auto;
+    min-width: 180px;
 }
 
 .responses-table th:nth-child(2) {
@@ -390,12 +390,11 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table th:first-child {
-    padding-right: 0.25rem;
+    padding: 1rem 0.5rem 1rem 1rem;
 }
 
 .responses-table th:nth-child(2) {
-    padding-left: 0.25rem;
-    padding-right: 0.5rem;
+    padding: 1rem 0.5rem;
 }
 
 
@@ -426,14 +425,14 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:first-child {
-    padding: 1rem 0.25rem 1rem 1rem;
+    padding: 1rem 0.5rem 1rem 1rem;
     position: relative;
 }
 
 .responses-table td:first-child::after {
     content: '';
     position: absolute;
-    right: -0.5px;
+    right: 0;
     top: 15%;
     bottom: 15%;
     width: 1px;
@@ -446,7 +445,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:nth-child(2) {
-    padding: 1rem 0.5rem 1rem 0.25rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
 }
 
 .responses-table td:first-child .table-date {
