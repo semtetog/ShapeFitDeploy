@@ -401,7 +401,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:first-child {
-    padding: 1rem 0.5rem 1rem 1rem;
+    padding: 1rem 0.25rem 1rem 1rem;
     position: relative;
 }
 
@@ -409,19 +409,19 @@ require_once __DIR__ . '/includes/header.php';
     content: '';
     position: absolute;
     right: 0;
-    top: 20%;
-    bottom: 20%;
+    top: 15%;
+    bottom: 15%;
     width: 1px;
     background: linear-gradient(to bottom, 
         transparent 0%, 
         rgba(255, 255, 255, 0.1) 20%, 
-        rgba(255, 255, 255, 0.15) 50%, 
+        rgba(255, 255, 255, 0.2) 50%, 
         rgba(255, 255, 255, 0.1) 80%, 
         transparent 100%);
 }
 
 .responses-table td:nth-child(2) {
-    padding: 1rem 0.5rem 1rem 0.5rem;
+    padding: 1rem 0.5rem 1rem 0.25rem;
 }
 
 .table-checkbox {
