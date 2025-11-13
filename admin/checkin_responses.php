@@ -1022,6 +1022,89 @@ require_once __DIR__ . '/includes/header.php';
     position: relative;
 }
 
+.chat-modal-tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 0 1.5rem;
+    flex-shrink: 0;
+}
+
+.chat-modal-tab {
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chat-modal-tab:hover {
+    color: var(--text-primary);
+}
+
+.chat-modal-tab.active {
+    color: var(--accent-orange);
+    border-bottom-color: var(--accent-orange);
+}
+
+.chat-modal-tab-content {
+    display: none;
+}
+
+.chat-modal-tab-content.active {
+    display: block;
+}
+
+.chat-summary-content {
+    padding: 1.5rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+}
+
+.chat-summary-content.loading {
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.chat-summary-content.loading i {
+    font-size: 2rem;
+    color: var(--accent-orange);
+    animation: spin 1s linear infinite;
+}
+
+.chat-summary-content h4 {
+    color: var(--accent-orange);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.chat-summary-content h4:first-child {
+    margin-top: 0;
+}
+
+.chat-summary-content p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.chat-summary-content ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.chat-summary-content li {
+    margin-bottom: 0.5rem;
+}
+
 .chat-modal-header h3 {
     font-size: 1.25rem;
     font-weight: 700;
@@ -1303,9 +1386,29 @@ require_once __DIR__ . '/includes/header.php';
             <button class="chat-modal-close" onclick="closeChatModal()" type="button">
                 <i class="fas fa-times"></i>
             </button>
-                                </div>
-        <div class="chat-modal-body" id="chatModalBody">
-            <!-- Conteúdo do chat será inserido aqui via JavaScript -->
+        </div>
+        <div class="chat-modal-tabs">
+            <button class="chat-modal-tab active" data-tab="chat" onclick="switchTab('chat')">
+                <i class="fas fa-comments"></i>
+                Chat
+            </button>
+            <button class="chat-modal-tab" data-tab="summary" onclick="switchTab('summary')">
+                <i class="fas fa-file-alt"></i>
+                Resumo
+            </button>
+        </div>
+        <div class="chat-modal-body">
+            <div class="chat-modal-tab-content active" id="chatTabContent">
+                <div id="chatModalBody">
+                    <!-- Conteúdo do chat será inserido aqui via JavaScript -->
+                </div>
+            </div>
+            <div class="chat-modal-tab-content" id="summaryTabContent">
+                <div class="chat-summary-content loading" id="summaryContent">
+                    <i class="fas fa-spinner"></i>
+                    <p style="margin-top: 1rem;">Gerando resumo...</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1402,9 +1505,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Checkboxes removidos conforme solicitado
 });
 
+let currentUserKey = null;
+
+function switchTab(tabName) {
+    // Atualizar abas
+    document.querySelectorAll('.chat-modal-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`.chat-modal-tab[data-tab="${tabName}"]`).classList.add('active');
+    
+    // Atualizar conteúdo
+    document.querySelectorAll('.chat-modal-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tabName}TabContent`).classList.add('active');
+    
+    // Se for a aba de resumo e ainda não foi carregado, carregar
+    if (tabName === 'summary' && currentUserKey) {
+        loadSummary(currentUserKey);
+    }
+}
+
 function openChatModal(userKey) {
     const user = usersData[userKey];
     if (!user) return;
+    
+    currentUserKey = userKey;
     
     const modal = document.getElementById('chatModal');
     const modalBody = document.getElementById('chatModalBody');
@@ -1415,6 +1541,14 @@ function openChatModal(userKey) {
     
     // Limpar conteúdo anterior
     modalBody.innerHTML = '';
+    
+    // Resetar para aba de chat
+    switchTab('chat');
+    
+    // Limpar resumo anterior
+    const summaryContent = document.getElementById('summaryContent');
+    summaryContent.className = 'chat-summary-content loading';
+    summaryContent.innerHTML = '<i class="fas fa-spinner"></i><p style="margin-top: 1rem;">Gerando resumo...</p>';
     
     // Criar mensagens do chat
     const questionIds = Object.keys(questionsData).sort((a, b) => {
@@ -1523,6 +1657,60 @@ function closeChatModal() {
     const modal = document.getElementById('chatModal');
     modal.classList.remove('active');
     document.body.style.overflow = '';
+    currentUserKey = null;
+}
+
+async function loadSummary(userKey) {
+    const user = usersData[userKey];
+    if (!user) return;
+    
+    const summaryContent = document.getElementById('summaryContent');
+    summaryContent.className = 'chat-summary-content loading';
+    summaryContent.innerHTML = '<i class="fas fa-spinner"></i><p style="margin-top: 1rem;">Gerando resumo...</p>';
+    
+    try {
+        // Construir texto da conversa
+        const questionIds = Object.keys(questionsData).sort((a, b) => {
+            return (questionsData[a].order_index || 0) - (questionsData[b].order_index || 0);
+        });
+        
+        let conversationText = '';
+        questionIds.forEach(questionId => {
+            const question = questionsData[questionId];
+            const response = user.responses[questionId];
+            if (response && response.response_text) {
+                conversationText += `Pergunta: ${question.question_text}\n`;
+                conversationText += `Resposta: ${response.response_text}\n\n`;
+            }
+        });
+        
+        // Fazer requisição para gerar resumo
+        const formData = new FormData();
+        formData.append('action', 'generate_summary');
+        formData.append('conversation', conversationText);
+        formData.append('user_name', user.user_name);
+        
+        const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        });
+        
+        const text = await response.text();
+        const data = JSON.parse(text);
+        
+        if (data.success && data.summary) {
+            summaryContent.className = 'chat-summary-content';
+            summaryContent.innerHTML = data.summary;
+        } else {
+            summaryContent.className = 'chat-summary-content';
+            summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo. Tente novamente.</p>';
+        }
+    } catch (error) {
+        console.error('Erro ao carregar resumo:', error);
+        summaryContent.className = 'chat-summary-content';
+        summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo. Tente novamente.</p>';
+    }
 }
 
 // Modo de Seleção

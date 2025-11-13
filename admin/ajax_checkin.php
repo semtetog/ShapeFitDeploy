@@ -69,6 +69,9 @@ try {
         case 'update_status':
             updateStatus($data, $admin_id);
             break;
+        case 'generate_summary':
+            generateSummary($data, $admin_id);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Ação inválida']);
             exit;
@@ -823,5 +826,117 @@ function deleteResponse($data, $admin_id) {
         'success' => true,
         'message' => "Resposta excluída com sucesso! ($deleted_count registro(s) removido(s))"
     ]);
+}
+
+function generateSummary($data, $admin_id) {
+    $conversation = trim($data['conversation'] ?? '');
+    $user_name = trim($data['user_name'] ?? 'Usuário');
+    
+    if (empty($conversation)) {
+        echo json_encode(['success' => false, 'message' => 'Conversa vazia']);
+        exit;
+    }
+    
+    // Usar Hugging Face Inference API (gratuita)
+    // Modelo: facebook/bart-large-cnn para sumarização
+    $api_url = 'https://api-inference.huggingface.co/models/facebook/bart-large-cnn';
+    
+    // Preparar texto para sumarização (limitar a 1024 tokens)
+    $text = $conversation;
+    if (strlen($text) > 2000) {
+        $text = substr($text, 0, 2000) . '...';
+    }
+    
+    // Fazer requisição para a API
+    $ch = curl_init($api_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+        'inputs' => $text,
+        'parameters' => [
+            'max_length' => 200,
+            'min_length' => 50,
+            'do_sample' => false
+        ]
+    ]));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($http_code === 200 || $http_code === 503) {
+        // 503 pode significar que o modelo está carregando, mas ainda retorna resultado
+        $result = json_decode($response, true);
+        
+        if (isset($result[0]['summary_text'])) {
+            $summary_text = $result[0]['summary_text'];
+            
+            // Formatar o resumo em HTML
+            $formatted_summary = formatSummaryHTML($summary_text, $user_name);
+            
+            echo json_encode([
+                'success' => true,
+                'summary' => $formatted_summary
+            ]);
+        } else {
+            // Fallback: criar resumo simples baseado nas respostas
+            $formatted_summary = createSimpleSummary($conversation, $user_name);
+            echo json_encode([
+                'success' => true,
+                'summary' => $formatted_summary
+            ]);
+        }
+    } else {
+        // Fallback: criar resumo simples
+        $formatted_summary = createSimpleSummary($conversation, $user_name);
+        echo json_encode([
+            'success' => true,
+            'summary' => $formatted_summary
+        ]);
+    }
+}
+
+function formatSummaryHTML($summary_text, $user_name) {
+    $html = '<h4>Resumo do Check-in</h4>';
+    $html .= '<p><strong>Paciente:</strong> ' . htmlspecialchars($user_name) . '</p>';
+    $html .= '<p>' . nl2br(htmlspecialchars($summary_text)) . '</p>';
+    return $html;
+}
+
+function createSimpleSummary($conversation, $user_name) {
+    // Extrair informações básicas da conversa
+    $lines = explode("\n", $conversation);
+    $responses = [];
+    
+    foreach ($lines as $line) {
+        if (strpos($line, 'Resposta:') !== false) {
+            $response = trim(str_replace('Resposta:', '', $line));
+            if (!empty($response)) {
+                $responses[] = $response;
+            }
+        }
+    }
+    
+    $html = '<h4>Resumo do Check-in</h4>';
+    $html .= '<p><strong>Paciente:</strong> ' . htmlspecialchars($user_name) . '</p>';
+    $html .= '<p><strong>Total de respostas:</strong> ' . count($responses) . '</p>';
+    
+    if (count($responses) > 0) {
+        $html .= '<h4>Principais Pontos:</h4>';
+        $html .= '<ul>';
+        foreach (array_slice($responses, 0, 5) as $response) {
+            if (strlen($response) > 100) {
+                $response = substr($response, 0, 100) . '...';
+            }
+            $html .= '<li>' . htmlspecialchars($response) . '</li>';
+        }
+        $html .= '</ul>';
+    }
+    
+    return $html;
 }
 ?>
