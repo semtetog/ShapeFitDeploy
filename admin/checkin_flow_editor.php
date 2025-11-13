@@ -1806,6 +1806,10 @@ textarea.form-control {
                                 <p>Nenhum grupo de usuário encontrado</p>
                             </div>
                         <?php else: ?>
+                            <div class="empty-state distribution-no-results" id="userGroupsNoResults" style="display: none;">
+                                <i class="fas fa-search"></i>
+                                <p>Nenhum grupo encontrado com esse nome</p>
+                            </div>
                             <?php foreach ($user_groups as $group): ?>
                                 <label class="distribution-group-item" data-name="<?php echo htmlspecialchars(strtolower($group['name'])); ?>">
                                     <input type="checkbox" 
@@ -1841,6 +1845,10 @@ textarea.form-control {
                                 <p>Nenhum grupo de desafio encontrado</p>
                             </div>
                         <?php else: ?>
+                            <div class="empty-state distribution-no-results" id="challengeGroupsNoResults" style="display: none;">
+                                <i class="fas fa-search"></i>
+                                <p>Nenhum grupo encontrado com esse nome</p>
+                            </div>
                             <?php foreach ($challenge_groups as $group): ?>
                                 <label class="distribution-group-item" data-name="<?php echo htmlspecialchars(strtolower($group['name'])); ?>">
                                     <input type="checkbox" 
@@ -1876,6 +1884,10 @@ textarea.form-control {
                                 <p>Nenhum usuário encontrado</p>
                             </div>
                         <?php else: ?>
+                            <div class="empty-state distribution-no-results" id="usersNoResults" style="display: none;">
+                                <i class="fas fa-search"></i>
+                                <p>Nenhum usuário encontrado com esse nome ou email</p>
+                            </div>
                             <?php foreach ($users as $user): ?>
                                 <label class="distribution-user-item" 
                                        data-name="<?php echo htmlspecialchars(strtolower($user['name'])); ?>"
@@ -3084,15 +3096,30 @@ function filterDistributionItems(listId, searchTerm, dataAttribute) {
     
     const items = list.querySelectorAll('.distribution-group-item');
     const term = searchTerm.toLowerCase().trim();
+    let visibleCount = 0;
     
     items.forEach(item => {
         const name = item.getAttribute(dataAttribute) || '';
         if (term === '' || name.includes(term)) {
             item.classList.remove('distribution-item-hidden');
+            visibleCount++;
         } else {
             item.classList.add('distribution-item-hidden');
         }
     });
+    
+    // Mostrar/esconder mensagem de "Nenhum resultado encontrado"
+    const noResultsMsg = listId === 'userGroupsList' 
+        ? document.getElementById('userGroupsNoResults')
+        : document.getElementById('challengeGroupsNoResults');
+    
+    if (noResultsMsg) {
+        if (term !== '' && visibleCount === 0) {
+            noResultsMsg.style.display = 'block';
+        } else {
+            noResultsMsg.style.display = 'none';
+        }
+    }
 }
 
 function filterDistributionUsers(listId, searchTerm) {
@@ -3101,16 +3128,28 @@ function filterDistributionUsers(listId, searchTerm) {
     
     const items = list.querySelectorAll('.distribution-user-item');
     const term = searchTerm.toLowerCase().trim();
+    let visibleCount = 0;
     
     items.forEach(item => {
         const name = item.getAttribute('data-name') || '';
         const email = item.getAttribute('data-email') || '';
         if (term === '' || name.includes(term) || email.includes(term)) {
             item.classList.remove('distribution-item-hidden');
+            visibleCount++;
         } else {
             item.classList.add('distribution-item-hidden');
         }
     });
+    
+    // Mostrar/esconder mensagem de "Nenhum resultado encontrado"
+    const noResultsMsg = document.getElementById('usersNoResults');
+    if (noResultsMsg) {
+        if (term !== '' && visibleCount === 0) {
+            noResultsMsg.style.display = 'block';
+        } else {
+            noResultsMsg.style.display = 'none';
+        }
+    }
 }
 
 function selectAllUserGroups() {
