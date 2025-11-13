@@ -522,6 +522,152 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0 0 0.5rem 0;
 }
 
+/* Modais Customizados (estilo admin) */
+.custom-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 999999;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal.active {
+    display: flex !important;
+}
+
+.custom-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.custom-modal-content {
+    position: relative;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    z-index: 2;
+}
+
+.custom-modal.active .custom-modal-content {
+    transform: scale(1);
+}
+
+.custom-modal-content.custom-modal-small {
+    max-width: 400px;
+}
+
+.custom-modal-header {
+    padding: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--accent-orange);
+}
+
+.custom-modal-header i {
+    font-size: 1.75rem;
+}
+
+.custom-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.custom-modal-body {
+    padding: 2rem;
+}
+
+.custom-modal-body p {
+    margin: 0 0 1rem 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.custom-modal-body p:last-child {
+    margin-bottom: 0;
+}
+
+.custom-modal-body p strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.custom-modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-modal-cancel,
+.btn-modal-primary,
+.btn-modal-danger {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+}
+
+.btn-modal-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-modal-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-modal-primary {
+    background: var(--accent-orange);
+    color: white;
+}
+
+.btn-modal-primary:hover {
+    background: var(--accent-orange-hover);
+    transform: translateY(-1px);
+}
+
+.btn-modal-danger {
+    background: rgba(244, 67, 54, 0.15);
+    color: var(--danger-red);
+    border: 1px solid rgba(244, 67, 54, 0.4);
+}
+
+.btn-modal-danger:hover {
+    background: rgba(244, 67, 54, 0.25);
+    border-color: var(--danger-red);
+    color: var(--danger-red);
+    transform: translateY(-1px);
+}
+
 /* Modal de Chat */
 .chat-modal {
     display: none;
