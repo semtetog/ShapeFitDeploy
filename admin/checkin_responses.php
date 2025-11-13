@@ -835,6 +835,113 @@ require_once __DIR__ . '/includes/header.php';
     overflow-x: hidden !important;
 }
 
+/* Modo de Seleção */
+.btn-select-mode {
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--accent-orange);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 8px;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-select-mode:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: var(--accent-orange);
+}
+
+.btn-select-mode.active {
+    background: var(--accent-orange);
+    color: white;
+    border-color: var(--accent-orange);
+}
+
+.btn-select-mode.active:hover {
+    background: var(--accent-orange-hover);
+}
+
+/* Linha selecionada */
+.response-row.selected {
+    background: rgba(255, 107, 0, 0.1) !important;
+    border-left: 3px solid var(--accent-orange);
+}
+
+.response-row.select-mode {
+    cursor: pointer;
+}
+
+.response-row.select-mode:hover {
+    background: rgba(255, 107, 0, 0.05);
+}
+
+/* Barra de ações flutuante */
+.selection-actions-bar {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    display: none;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.selection-actions-bar.active {
+    display: flex;
+}
+
+.selection-actions-bar .selected-count {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-right: 0.5rem;
+}
+
+.selection-actions-bar .btn-action {
+    padding: 0.625rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.selection-actions-bar .btn-delete-selected {
+    background: rgba(239, 68, 68, 0.15);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.selection-actions-bar .btn-delete-selected:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: #EF4444;
+}
+
+.selection-actions-bar .btn-cancel-selection {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.selection-actions-bar .btn-cancel-selection:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 /* Modal de Chat */
 .chat-modal {
     display: none;
