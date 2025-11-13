@@ -1190,6 +1190,19 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- Barra de Ações de Seleção -->
+<div id="selectionActionsBar" class="selection-actions-bar">
+    <span class="selected-count" id="selectedCount">0 selecionadas</span>
+    <button class="btn-action btn-delete-selected" onclick="deleteSelectedResponses()">
+        <i class="fas fa-trash-alt"></i>
+        Excluir Selecionadas
+    </button>
+    <button class="btn-action btn-cancel-selection" onclick="toggleSelectMode()">
+        <i class="fas fa-times"></i>
+        Cancelar
+    </button>
+</div>
+
 <!-- Modal de Alerta (Sucesso/Erro) -->
 <div id="alertModal" class="custom-modal">
     <div class="custom-modal-overlay" onclick="closeAlertModal()"></div>
