@@ -761,11 +761,6 @@ require_once __DIR__ . '/includes/header.php';
                             $initials = count($name_parts) > 1 
                                 ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) 
                                 : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : 'U');
-                            
-                            $preview = $user['first_response'] ?? '';
-                            if (mb_strlen($preview) > 100) {
-                                $preview = mb_substr($preview, 0, 100) . '...';
-                            }
                             ?>
                             <tr data-user-key="<?php echo htmlspecialchars($key); ?>" onclick="openChatModal('<?php echo htmlspecialchars($key); ?>')">
                                 <td>
