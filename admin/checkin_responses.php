@@ -1299,9 +1299,7 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Botão de calendário - idêntico ao view_user_diary */
 .diary-calendar-icon-btn {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
+    position: relative;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1313,6 +1311,7 @@ require_once __DIR__ . '/includes/header.php';
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .diary-calendar-icon-btn:hover {
@@ -1676,8 +1675,18 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <div class="filters-section" style="position: relative;">
-        <div class="filter-group" style="display: flex; gap: 0.5rem; align-items: center;">
+    <div class="filters-section" style="position: relative; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
+                <i class="fas fa-mouse-pointer"></i>
+                <span>Selecionar</span>
+            </button>
+            <div class="submissions-count">
+                <span>Respostas</span>
+                <span class="badge"><?php echo $total_count; ?></span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
             <button class="calendar-quick-filter-btn" onclick="applyQuickFilter('last7')" title="Últimos 7 dias">
                 <i class="fas fa-clock"></i>
                 <span>Últimos 7 dias</span>
@@ -1686,18 +1695,10 @@ require_once __DIR__ . '/includes/header.php';
                 <i class="fas fa-clock"></i>
                 <span>Últimos 30 dias</span>
             </button>
+            <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
+                <i class="fas fa-calendar-alt"></i>
+            </button>
         </div>
-        <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
-            <i class="fas fa-calendar-alt"></i>
-        </button>
-        <div class="submissions-count">
-            <span>Respostas</span>
-            <span class="badge"><?php echo $total_count; ?></span>
-        </div>
-        <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
-            <i class="fas fa-mouse-pointer"></i>
-            <span>Selecionar</span>
-        </button>
     </div>
 
     <?php if (empty($users)): ?>
