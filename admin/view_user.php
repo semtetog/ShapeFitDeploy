@@ -2211,6 +2211,32 @@ window.closeHelpModal = closeHelpModal;
         font-size: 0.9rem;
     }
 }
+
+/* Botão X do calendário - idêntico ao sleep-modal-close */
+.calendar-btn-close {
+    position: absolute !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    background: none !important;
+    border: none !important;
+    color: var(--text-secondary) !important;
+    font-size: 1.2rem !important;
+    cursor: pointer !important;
+    padding: 0.5rem !important;
+    border-radius: 50% !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    z-index: 10 !important;
+}
+
+.calendar-btn-close:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--accent-orange) !important;
+}
 </style>
 
 <script>
