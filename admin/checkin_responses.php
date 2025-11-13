@@ -37,14 +37,12 @@ $stmt->close();
 $admin_creator_id = (int)($checkin['admin_id'] ?? 0);
 $admin_data = null;
 if ($admin_creator_id > 0) {
-    $stmt_admin = $conn->prepare("SELECT id, name, email FROM sf_admins WHERE id = ?");
+    $stmt_admin = $conn->prepare("SELECT id, full_name, profile_image_filename FROM sf_admins WHERE id = ?");
     $stmt_admin->bind_param("i", $admin_creator_id);
     $stmt_admin->execute();
     $admin_result = $stmt_admin->get_result();
     if ($admin_result->num_rows > 0) {
         $admin_data = $admin_result->fetch_assoc();
-        // Buscar foto do admin (se houver tabela de perfis de admin)
-        // Por enquanto, vamos usar apenas o nome para gerar iniciais
     }
     $stmt_admin->close();
 }
@@ -877,12 +875,37 @@ function openChatModal(userKey) {
         <?php
         $admin_avatar_html = '';
         if ($admin_data) {
-            $admin_name_parts = explode(' ', trim($admin_data['name']));
-            $admin_initials = count($admin_name_parts) > 1 
-                ? strtoupper(substr($admin_name_parts[0], 0, 1) . substr(end($admin_name_parts), 0, 1)) 
-                : (!empty($admin_name_parts[0]) ? strtoupper(substr($admin_name_parts[0], 0, 2)) : 'A');
-            // Por enquanto, usar apenas iniciais (se houver foto de admin no futuro, adicionar aqui)
-            $admin_avatar_html = $admin_initials;
+            $admin_name = $admin_data['full_name'] ?? '';
+            
+            // Verificar se tem foto do admin
+            $has_admin_photo = false;
+            $admin_photo_url = '';
+            if (!empty($admin_data['profile_image_filename'])) {
+                $admin_photo_path = APP_ROOT_PATH . '/assets/images/users/' . $admin_data['profile_image_filename'];
+                if (file_exists($admin_photo_path)) {
+                    $admin_photo_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_data['profile_image_filename']);
+                    $has_admin_photo = true;
+                } else {
+                    // Tentar thumbnail
+                    $admin_thumb_filename = 'thumb_' . $admin_data['profile_image_filename'];
+                    $admin_thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $admin_thumb_filename;
+                    if (file_exists($admin_thumb_path)) {
+                        $admin_photo_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_thumb_filename);
+                        $has_admin_photo = true;
+                    }
+                }
+            }
+            
+            if ($has_admin_photo) {
+                $admin_avatar_html = '<img src="' . $admin_photo_url . '" alt="Admin" onerror="this.onerror=null; this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">';
+            } else {
+                // Gerar iniciais
+                $admin_name_parts = explode(' ', trim($admin_name));
+                $admin_initials = count($admin_name_parts) > 1 
+                    ? strtoupper(substr($admin_name_parts[0], 0, 1) . substr(end($admin_name_parts), 0, 1)) 
+                    : (!empty($admin_name_parts[0]) ? strtoupper(substr($admin_name_parts[0], 0, 2)) : 'A');
+                $admin_avatar_html = $admin_initials;
+            }
         } else {
             $admin_avatar_html = 'A';
         }
