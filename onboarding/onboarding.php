@@ -602,6 +602,20 @@ $is_redoing_onboarding = isset($_SESSION['onboarding_complete']) && $_SESSION['o
             });
             hiddenInput.value = customActivities.join(',');
             otherActivityBtn.classList.toggle('active', customActivities.length > 0);
+            
+            // Se tem atividades customizadas e não tem frequência, marcar mínima
+            if (customActivities.length > 0 && frequencyWrapper && !noneCheckbox.checked) {
+                const freqRadios = frequencyWrapper.querySelectorAll('input[type="radio"]');
+                const hasFrequencySelected = Array.from(freqRadios).some(radio => radio.checked);
+                
+                if (!hasFrequencySelected) {
+                    const minFreqRadio = document.getElementById('freq1');
+                    if (minFreqRadio) {
+                        minFreqRadio.checked = true;
+                    }
+                }
+            }
+            
             updateExerciseDurationFields();
             updateButtonState();
         }
@@ -628,16 +642,74 @@ $is_redoing_onboarding = isset($_SESSION['onboarding_complete']) && $_SESSION['o
         
         noneCheckbox.addEventListener('change', function() {
             const isDisabled = this.checked;
-            exerciseOptionsWrapper.classList.toggle('disabled', isDisabled);
-            frequencyWrapper.classList.toggle('disabled', isDisabled);
-            exerciseDurationWrapper.style.display = isDisabled ? 'none' : 'block';
+            
             if (isDisabled) {
-                allExerciseCheckboxes.forEach(cb => cb.checked = false);
+                // Desmarcar todos os exercícios
+                allExerciseCheckboxes.forEach(cb => {
+                    if (cb.id !== 'ex-none') {
+                        cb.checked = false;
+                        cb.disabled = true;
+                    }
+                });
+                
+                // Limpar atividades customizadas
                 customActivities = [];
                 renderTags();
-                const freqRadios = frequencyWrapper.querySelectorAll('input[type="radio"]');
-                freqRadios.forEach(radio => radio.checked = false);
+                
+                // Desmarcar todas as frequências
+                if (frequencyWrapper) {
+                    const freqRadios = frequencyWrapper.querySelectorAll('input[type="radio"]');
+                    freqRadios.forEach(radio => {
+                        radio.checked = false;
+                        radio.disabled = true;
+                    });
+                }
+                
+                // Desabilitar botão de outras atividades
+                if (otherActivityBtn) {
+                    otherActivityBtn.disabled = true;
+                    otherActivityBtn.style.opacity = '0.5';
+                    otherActivityBtn.style.pointerEvents = 'none';
+                }
+                
+                // Desabilitar visualmente os wrappers
+                if (exerciseOptionsWrapper) {
+                    exerciseOptionsWrapper.classList.add('disabled');
+                }
+                if (frequencyWrapper) {
+                    frequencyWrapper.classList.add('disabled');
+                }
+                if (exerciseDurationWrapper && exerciseDurationWrapper.style) {
+                    exerciseDurationWrapper.style.display = 'none';
+                }
+            } else {
+                // Reabilitar tudo quando desmarcar "não pratico"
+                allExerciseCheckboxes.forEach(cb => {
+                    cb.disabled = false;
+                });
+                
+                if (frequencyWrapper) {
+                    const freqRadios = frequencyWrapper.querySelectorAll('input[type="radio"]');
+                    freqRadios.forEach(radio => radio.disabled = false);
+                }
+                
+                if (otherActivityBtn) {
+                    otherActivityBtn.disabled = false;
+                    otherActivityBtn.style.opacity = '1';
+                    otherActivityBtn.style.pointerEvents = 'auto';
+                }
+                
+                if (exerciseOptionsWrapper) {
+                    exerciseOptionsWrapper.classList.remove('disabled');
+                }
+                if (frequencyWrapper) {
+                    frequencyWrapper.classList.remove('disabled');
+                }
+                if (exerciseDurationWrapper && exerciseDurationWrapper.style) {
+                    exerciseDurationWrapper.style.display = 'block';
+                }
             }
+            
             updateButtonState();
         });
         
@@ -645,25 +717,78 @@ $is_redoing_onboarding = isset($_SESSION['onboarding_complete']) && $_SESSION['o
         allExerciseCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 if (this.id !== 'ex-none') {
+                    // Se marcou um exercício e não tem frequência selecionada, marcar a mínima automaticamente
+                    if (this.checked && frequencyWrapper) {
+                        const freqRadios = frequencyWrapper.querySelectorAll('input[type="radio"]');
+                        const hasFrequencySelected = Array.from(freqRadios).some(radio => radio.checked);
+                        
+                        if (!hasFrequencySelected) {
+                            // Marcar a frequência mínima (1_2x_week)
+                            const minFreqRadio = document.getElementById('freq1');
+                            if (minFreqRadio) {
+                                minFreqRadio.checked = true;
+                            }
+                        }
+                    }
+                    
+                    // Se desmarcou todos os exercícios, desmarcar frequência também
+                    if (!this.checked && frequencyWrapper) {
+                        const anyExerciseSelected = Array.from(allExerciseCheckboxes).some(cb => cb.checked && cb.id !== 'ex-none') || customActivities.length > 0;
+                        if (!anyExerciseSelected) {
+                            const freqRadios = frequencyWrapper.querySelectorAll('input[type="radio"]');
+                            freqRadios.forEach(radio => radio.checked = false);
+                        }
+                    }
+                    
+                    // Desmarcar "não pratico" se marcou algum exercício
+                    if (this.checked && noneCheckbox) {
+                        noneCheckbox.checked = false;
+                        // Reabilitar tudo
+                        allExerciseCheckboxes.forEach(cb => cb.disabled = false);
+                        if (frequencyWrapper) {
+                            const freqRadios = frequencyWrapper.querySelectorAll('input[type="radio"]');
+                            freqRadios.forEach(radio => radio.disabled = false);
+                        }
+                        if (otherActivityBtn) {
+                            otherActivityBtn.disabled = false;
+                            otherActivityBtn.style.opacity = '1';
+                            otherActivityBtn.style.pointerEvents = 'auto';
+                        }
+                        if (exerciseOptionsWrapper) {
+                            exerciseOptionsWrapper.classList.remove('disabled');
+                        }
+                        if (frequencyWrapper) {
+                            frequencyWrapper.classList.remove('disabled');
+                        }
+                        if (exerciseDurationWrapper) {
+                            exerciseDurationWrapper.style.display = 'block';
+                        }
+                    }
+                    
                     updateExerciseDurationFields();
                     updateButtonState();
                 }
             });
         });
         
+        
         const updateButtonState = () => {
             const currentStepDiv = steps[stepHistory[stepHistory.length - 1]];
             if (!currentStepDiv) return;
             let isStepValid = false;
             if (currentStepDiv.dataset.step === '3') {
-                if (noneCheckbox.checked) { isStepValid = true; } 
-                else {
+                if (noneCheckbox.checked) { 
+                    isStepValid = true; 
+                } else {
                     const anyExerciseSelected = currentStepDiv.querySelector('input[name="exercise_types[]"]:checked') || customActivities.length > 0;
                     const frequencySelected = currentStepDiv.querySelector('input[name="exercise_frequency"]:checked');
                     
-                    // Verificar se todos os campos de duração estão preenchidos
-                    const durationInputs = exerciseDurationFields.querySelectorAll('input[type="number"]');
-                    const allDurationsFilled = durationInputs.length === 0 || Array.from(durationInputs).every(input => input.value && parseInt(input.value) >= 15);
+                    // Verificar se todos os campos de duração estão preenchidos (se o elemento existir)
+                    let allDurationsFilled = true;
+                    if (exerciseDurationFields) {
+                        const durationInputs = exerciseDurationFields.querySelectorAll('input[type="number"]');
+                        allDurationsFilled = durationInputs.length === 0 || Array.from(durationInputs).every(input => input.value && parseInt(input.value) >= 15);
+                    }
                     
                     isStepValid = !!(anyExerciseSelected && frequencySelected && allDurationsFilled);
                 }
