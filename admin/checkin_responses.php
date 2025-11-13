@@ -208,44 +208,53 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0.5rem 0 0 0;
 }
 
-/* Filtros */
+/* Filtros - Refatoração completa do zero */
 .filters-section {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 16px !important;
     padding: 1.25rem !important;
-    padding-right: 1.25rem !important;
     margin-bottom: 1.5rem !important;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    position: relative !important;
 }
 
-.filters-section .left-side,
+.filters-section .left-side {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.75rem !important;
+    height: 40px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+}
+
 .filters-section .right-side {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.75rem;
-    height: 40px; /* Altura fixa para alinhamento perfeito */
-    box-sizing: border-box;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.75rem !important;
+    height: 40px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
 }
 
-.filters-section .right-side {
-    justify-content: flex-end; /* Alinha o botão de calendário à direita */
-}
-
-/* Garantir alinhamento vertical perfeito de todos os elementos */
+/* Elementos internos - altura e alinhamento fixos */
 .filters-section .submissions-count {
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
     height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
     box-sizing: border-box !important;
-    vertical-align: middle !important;
     margin: 0 !important;
+    padding: 0.5rem 1rem !important;
     flex-shrink: 0 !important;
+    vertical-align: middle !important;
 }
 
 .filters-section .btn-select-mode {
@@ -253,26 +262,48 @@ require_once __DIR__ . '/includes/header.php';
     align-items: center !important;
     justify-content: center !important;
     height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
     box-sizing: border-box !important;
-    vertical-align: middle !important;
     margin: 0 !important;
+    padding: 0.5rem 1rem !important;
     flex-shrink: 0 !important;
+    vertical-align: middle !important;
 }
 
 .filters-section .diary-calendar-icon-btn {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
     height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
     box-sizing: border-box !important;
-    vertical-align: middle !important;
     margin: 0 !important;
+    padding: 0 !important;
     flex-shrink: 0 !important;
+    vertical-align: middle !important;
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+    float: none !important;
 }
 
 /* FIX: Evitar que o ícone de ajuda do calendário suba para o header */
-.calendar-wrapper {
+.filters-section .calendar-wrapper {
     position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    height: 40px !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .filter-group {
