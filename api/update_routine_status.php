@@ -75,13 +75,16 @@ try {
     $stmt_total = $conn->prepare("SELECT points FROM sf_users WHERE id = ?");
     $stmt_total->bind_param("i", $user_id);
     $stmt_total->execute();
-    $total_points = $stmt_total->get_result()->fetch_assoc()['points'];
+    $user_data = $stmt_total->get_result()->fetch_assoc();
     $stmt_total->close();
+    
+    // Garantir que os pontos sejam retornados como número inteiro
+    $total_points = isset($user_data['points']) ? (int)round((float)$user_data['points']) : 0;
 
     echo json_encode([
         'status' => 'success',
         'message' => 'Rotina atualizada.',
-        'points_awarded' => $points_awarded, // Envia para o JS mostrar o popup
+        'points_awarded' => (int)$points_awarded, // Garantir inteiro
         'new_total_points' => $total_points
     ]);
 
