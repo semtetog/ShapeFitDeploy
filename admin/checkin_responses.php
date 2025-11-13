@@ -405,14 +405,14 @@ require_once __DIR__ . '/includes/header.php';
     padding-top: 1rem;
     padding-bottom: 1rem;
     padding-left: 1rem;
-    padding-right: 0.5rem;
+    padding-right: 0.1rem;
     position: relative;
 }
 
 .responses-table td:first-child::after {
     content: '';
     position: absolute;
-    right: 0.25rem;
+    right: 0.05rem;
     top: 10%;
     bottom: 10%;
     width: 1px;
@@ -427,7 +427,7 @@ require_once __DIR__ . '/includes/header.php';
 .responses-table td:nth-child(2) {
     padding-top: 1rem;
     padding-bottom: 1rem;
-    padding-left: 0.5rem;
+    padding-left: 0.1rem;
     padding-right: 0.5rem;
 }
 
