@@ -756,15 +756,15 @@ require_once __DIR__ . '/includes/header.php';
     table-layout: auto !important;
 }
 
-/* COLUNA DATA - LARGURA MINIMA REAL */
+/* COLUNA DATA - AJUSTE PERFEITO */
 .responses-table th:first-child,
 .responses-table td:first-child {
-    width: 160px !important;
-    min-width: 160px !important;
-    max-width: 160px !important;
+    width: 180px !important;
+    min-width: 180px !important;
+    max-width: 180px !important;
+    white-space: nowrap !important;
     padding-right: 0.75rem !important;
     position: relative;
-    white-space: nowrap !important;
 }
 
 /* IMPEDIR QUE O FLEX APERTE A DATA - PACOTE GARANTIDO */
