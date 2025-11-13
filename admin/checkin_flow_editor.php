@@ -1391,7 +1391,6 @@ textarea.form-control {
     cursor: pointer;
 }
 
-.distribution-group-item input[type="checkbox"]:checked ~ .distribution-group-content,
 .distribution-group-item:has(input[type="checkbox"]:checked),
 .distribution-group-item.selected {
     background: rgba(255, 107, 0, 0.15);
@@ -1462,7 +1461,6 @@ textarea.form-control {
     cursor: pointer;
 }
 
-.distribution-user-item input[type="checkbox"]:checked ~ .distribution-user-content,
 .distribution-user-item:has(input[type="checkbox"]:checked),
 .distribution-user-item.selected {
     background: rgba(255, 107, 0, 0.15);
