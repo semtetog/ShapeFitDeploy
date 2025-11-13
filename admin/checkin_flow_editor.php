@@ -1391,10 +1391,17 @@ textarea.form-control {
     cursor: pointer;
 }
 
-.distribution-group-item input[type="checkbox"]:checked + .distribution-group-content {
+.distribution-group-item input[type="checkbox"]:checked ~ .distribution-group-content,
+.distribution-group-item:has(input[type="checkbox"]:checked),
+.distribution-group-item.selected {
     background: rgba(255, 107, 0, 0.15);
     border-color: rgba(255, 107, 0, 0.4);
-    color: var(--accent-orange);
+}
+
+.distribution-group-item:has(input[type="checkbox"]:checked):hover,
+.distribution-group-item.selected:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: rgba(255, 107, 0, 0.5);
 }
 
 .distribution-group-content {
@@ -1402,10 +1409,7 @@ textarea.form-control {
     align-items: center;
     gap: 0.75rem;
     width: 100%;
-    padding: 0.5rem;
-    border-radius: 8px;
     transition: all 0.3s ease;
-    border: 1px solid transparent;
 }
 
 .distribution-group-content i {
@@ -1421,7 +1425,12 @@ textarea.form-control {
     flex: 1;
 }
 
-.distribution-group-item input[type="checkbox"]:checked + .distribution-group-content i {
+.distribution-group-item input[type="checkbox"]:checked ~ .distribution-group-content span,
+.distribution-group-item.selected .distribution-group-content span {
+    color: var(--accent-orange);
+}
+
+.distribution-user-item.selected .distribution-user-name {
     color: var(--accent-orange);
 }
 
@@ -1453,9 +1462,17 @@ textarea.form-control {
     cursor: pointer;
 }
 
-.distribution-user-item input[type="checkbox"]:checked + .distribution-user-content {
+.distribution-user-item input[type="checkbox"]:checked ~ .distribution-user-content,
+.distribution-user-item:has(input[type="checkbox"]:checked),
+.distribution-user-item.selected {
     background: rgba(255, 107, 0, 0.15);
     border-color: rgba(255, 107, 0, 0.4);
+}
+
+.distribution-user-item:has(input[type="checkbox"]:checked):hover,
+.distribution-user-item.selected:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: rgba(255, 107, 0, 0.5);
 }
 
 .distribution-user-content {
@@ -1463,10 +1480,7 @@ textarea.form-control {
     align-items: center;
     gap: 0.75rem;
     width: 100%;
-    padding: 0.5rem;
-    border-radius: 8px;
     transition: all 0.3s ease;
-    border: 1px solid transparent;
 }
 
 .distribution-user-avatar {
@@ -2888,6 +2902,52 @@ document.addEventListener('DOMContentLoaded', function() {
         // Adicionar listeners iniciais
         addListenersToNewBlocks();
     }
+    
+    // Gerenciar classe 'selected' nos cards de distribuição quando checkbox é marcado/desmarcado
+    function initDistributionCheckboxes() {
+        // Grupos de usuário e grupos de desafio
+        document.querySelectorAll('.distribution-group-item input[type="checkbox"]').forEach(checkbox => {
+            const label = checkbox.closest('.distribution-group-item');
+            if (label) {
+                // Aplicar classe inicial se já estiver marcado
+                if (checkbox.checked) {
+                    label.classList.add('selected');
+                }
+                
+                // Adicionar listener para mudanças
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                });
+            }
+        });
+        
+        // Usuários
+        document.querySelectorAll('.distribution-user-item input[type="checkbox"]').forEach(checkbox => {
+            const label = checkbox.closest('.distribution-user-item');
+            if (label) {
+                // Aplicar classe inicial se já estiver marcado
+                if (checkbox.checked) {
+                    label.classList.add('selected');
+                }
+                
+                // Adicionar listener para mudanças
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                });
+            }
+        });
+    }
+    
+    // Inicializar checkboxes de distribuição
+    initDistributionCheckboxes();
 });
 
 // Drag and drop melhorado com animação fluida
