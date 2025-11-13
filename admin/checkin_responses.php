@@ -665,6 +665,12 @@ require_once __DIR__ . '/includes/header.php';
     z-index: 1;
 }
 
+/* Garantir que o calendário fique acima do overlay */
+#checkinCalendarModal .diary-calendar-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
 .custom-modal-content {
     position: relative;
     background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
@@ -1291,26 +1297,32 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.875rem;
 }
 
-.calendar-icon-btn {
+/* Botão de calendário - idêntico ao view_user_diary */
+.diary-calendar-icon-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
     width: 40px;
     height: 40px;
-    padding: 0;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 8px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
     color: var(--accent-orange);
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.calendar-icon-btn:hover {
+.diary-calendar-icon-btn:hover {
     background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
-    transform: translateY(-2px);
+    transform: scale(1.05);
+}
+
+.diary-calendar-icon-btn i {
+    font-size: 1rem;
 }
 
 /* Estilos do calendário (replicados do view_user_addon.css) */
@@ -1323,6 +1335,7 @@ require_once __DIR__ . '/includes/header.php';
     max-width: 480px;
     width: 90%;
     box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8);
+    z-index: 1000000;
 }
 
 .calendar-btn-close {
@@ -1663,43 +1676,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <div class="filters-section">
-        <div class="filter-group">
-            <label for="dateFilter">Filtrar por:</label>
-            <div class="custom-select-wrapper">
-                <div class="custom-select">
-                    <div class="custom-select-trigger" id="dateFilterTrigger">
-                        <?php
-                        $filter_labels = [
-                            'all' => 'Todas as datas',
-                            'last_7_days' => 'Últimos 7 dias',
-                            'this_week' => 'Esta semana',
-                            'last_week' => 'Semana passada',
-                            'this_month' => 'Este mês',
-                            'last_month' => 'Mês passado',
-                            'custom' => 'Período personalizado'
-                        ];
-                        if ($date_filter === 'custom' && !empty($_GET['date_start']) && !empty($_GET['date_end'])) {
-                            $start = date('d/m/Y', strtotime($_GET['date_start']));
-                            $end = date('d/m/Y', strtotime($_GET['date_end']));
-                            echo htmlspecialchars("$start - $end");
-                        } else {
-                            echo htmlspecialchars($filter_labels[$date_filter] ?? 'Todas as datas');
-                        }
-                        ?>
-                        <i class="fas fa-chevron-down" style="font-size: 0.75rem; margin-left: 0.5rem;"></i>
-                    </div>
-                    <div class="custom-select-options" id="dateFilterOptions">
-                        <div class="custom-select-option <?php echo $date_filter === 'all' ? 'selected' : ''; ?>" data-value="all">Todas as datas</div>
-                        <div class="custom-select-option <?php echo $date_filter === 'last_7_days' ? 'selected' : ''; ?>" data-value="last_7_days">Últimos 7 dias</div>
-                        <div class="custom-select-option <?php echo $date_filter === 'this_week' ? 'selected' : ''; ?>" data-value="this_week">Esta semana</div>
-                        <div class="custom-select-option <?php echo $date_filter === 'last_week' ? 'selected' : ''; ?>" data-value="last_week">Semana passada</div>
-                        <div class="custom-select-option <?php echo $date_filter === 'this_month' ? 'selected' : ''; ?>" data-value="this_month">Este mês</div>
-                        <div class="custom-select-option <?php echo $date_filter === 'last_month' ? 'selected' : ''; ?>" data-value="last_month">Mês passado</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="filters-section" style="position: relative;">
         <div class="filter-group" style="display: flex; gap: 0.5rem; align-items: center;">
             <button class="calendar-quick-filter-btn" onclick="applyQuickFilter('last7')" title="Últimos 7 dias">
                 <i class="fas fa-clock"></i>
@@ -1709,10 +1686,10 @@ require_once __DIR__ . '/includes/header.php';
                 <i class="fas fa-clock"></i>
                 <span>Últimos 30 dias</span>
             </button>
-            <button class="calendar-icon-btn" onclick="openCheckinCalendar()" title="Selecionar período no calendário">
-                <i class="fas fa-calendar"></i>
-            </button>
         </div>
+        <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
+            <i class="fas fa-calendar-alt"></i>
+        </button>
         <div class="submissions-count">
             <span>Respostas</span>
             <span class="badge"><?php echo $total_count; ?></span>
