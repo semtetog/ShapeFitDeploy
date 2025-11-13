@@ -866,16 +866,15 @@ function generateSummary($data, $admin_id) {
 }
 
 function tryOllamaLocal($conversation, $user_name, $model = null) {
-    // Configuração do Ollama local
-    // Por padrão, Ollama roda em http://localhost:11434
-    $ollama_url = 'http://localhost:11434/api/chat';
+    // Configuração do Ollama (pode ser local ou remoto)
+    // URL configurada em includes/config.php (OLLAMA_URL)
+    $ollama_base_url = defined('OLLAMA_URL') ? OLLAMA_URL : 'http://localhost:11434';
+    $ollama_url = rtrim($ollama_base_url, '/') . '/api/chat';
     
     // Modelo a usar (pode ser: llama3.1:8b, llama3.1, mistral, qwen2.5, phi3)
-    // O usuário deve ter baixado o modelo com: ollama pull llama3.1:8b
-    // Versão 8B é mais inteligente e completa, mas requer mais memória
-    // Se tiver pouca RAM, use: llama3.1 (sem :8b)
+    // Configurado em includes/config.php (OLLAMA_MODEL)
     if ($model === null) {
-        $model = 'llama3.1:8b'; // Versão mais inteligente - mude para 'llama3.1' se tiver pouca RAM
+        $model = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'llama3.1:8b';
     }
     
     // Criar prompt ULTRA inteligente que funciona com QUALQUER tipo de check-in

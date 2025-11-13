@@ -128,5 +128,27 @@ if (!defined('ASSET_VERSION')) define('ASSET_VERSION', '1.0.5'); // Incremente p
 // Define o fuso horário padrão
 date_default_timezone_set('America/Sao_Paulo');
 
+// --- Configuração do Ollama ---
+// URL do servidor Ollama (pode ser localhost ou servidor remoto)
+// Na Hostinger, se o Ollama estiver em outro servidor, configure aqui
+// Exemplo: 'http://seu-servidor-ollama.com:11434'
+// Ou deixe vazio/null para desabilitar Ollama
+if (!defined('OLLAMA_URL')) {
+    // Tenta pegar de variável de ambiente primeiro
+    $ollama_url = getenv('OLLAMA_URL');
+    if (empty($ollama_url)) {
+        // Padrão: localhost (funciona localmente)
+        // Na Hostinger, configure via variável de ambiente ou altere aqui
+        define('OLLAMA_URL', 'http://localhost:11434');
+    } else {
+        define('OLLAMA_URL', $ollama_url);
+    }
+}
+
+// Modelo padrão do Ollama
+if (!defined('OLLAMA_MODEL')) {
+    define('OLLAMA_MODEL', 'llama3.1:8b'); // Pode ser alterado para 'llama3.1' se tiver pouca RAM
+}
+
 // --- FIM DAS CONFIGURAÇÕES ---
 ?>
