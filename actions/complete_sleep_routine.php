@@ -130,8 +130,10 @@ try {
     $stmt_get_points->bind_param("i", $user_id);
     $stmt_get_points->execute();
     $result_points = $stmt_get_points->get_result()->fetch_assoc();
-    $new_total_points = $result_points['points'];
     $stmt_get_points->close();
+    
+    // Garantir que os pontos sejam retornados como número inteiro
+    $new_total_points = isset($result_points['points']) ? (int)round((float)$result_points['points']) : 0;
     
     echo json_encode([
         'success' => true, 
@@ -139,7 +141,7 @@ try {
         'sleep_hours' => round($sleep_hours, 2),
         'sleep_time' => $sleep_time,
         'wake_time' => $wake_time,
-        'points_awarded' => $points_awarded,
+        'points_awarded' => (int)$points_awarded, // Garantir inteiro
         'new_total_points' => $new_total_points
     ]);
     
