@@ -1072,114 +1072,148 @@ function createIntelligentSummary($conversation, $user_name) {
     foreach ($qa_pairs as $qa) {
         $q_lower = strtolower($qa['question']);
         $response = trim($qa['response']);
+        $response_lower = strtolower($response);
         
         // Mudança na rotina
         if (stripos($q_lower, 'mudança') !== false && stripos($q_lower, 'rotina') !== false) {
-            $data['mudanca_rotina'] = stripos(strtolower($response), 'não') !== false ? 'Não' : 'Sim';
+            $data['mudanca_rotina'] = stripos($response_lower, 'não') !== false ? 'Não' : 'Sim';
         }
-        // Faltou treino
-        elseif (stripos($q_lower, 'faltou') !== false || stripos($q_lower, 'falta') !== false) {
-            if (stripos($q_lower, 'treino') !== false || stripos($q_lower, 'aeróbico') !== false) {
-                $data['falta_treino'] = stripos(strtolower($response), 'não') !== false ? 'Não' : 'Sim';
-            }
+        
+        // Faltou treino (verificar primeiro antes de "quantos treinos")
+        if ((stripos($q_lower, 'faltou') !== false || stripos($q_lower, 'falta') !== false) && 
+            (stripos($q_lower, 'treino') !== false || stripos($q_lower, 'aeróbico') !== false)) {
+            $data['falta_treino'] = stripos($response_lower, 'não') !== false ? 'Não' : 'Sim';
         }
+        
         // Treinos realizados
-        elseif (stripos($q_lower, 'quantos treinos') !== false || stripos($q_lower, 'treinos') !== false) {
-            if (stripos(strtolower($response), 'não faltei') !== false || stripos(strtolower($response), 'não faltou') !== false) {
+        if (stripos($q_lower, 'quantos treinos') !== false || 
+            (stripos($q_lower, 'treinos') !== false && stripos($q_lower, 'quantos') === false && stripos($q_lower, 'faltou') === false && stripos($q_lower, 'falta') === false)) {
+            if (stripos($response_lower, 'não faltei') !== false || stripos($response_lower, 'não faltou') !== false) {
                 $data['treinos_realizados'] = 'Cumpriu 100% dos treinos planejados';
-            } else {
+            } elseif (!empty($response)) {
                 $data['treinos_realizados'] = $response;
             }
         }
-        // Refeições sociais
-        elseif (stripos($q_lower, 'refeições sociais') !== false || stripos($q_lower, 'refeição fora') !== false) {
-            if (stripos($q_lower, 'tiveram') !== false || stripos($q_lower, 'houve') !== false) {
-                $data['refeicoes_sociais'] = stripos(strtolower($response), 'sim') !== false ? 'Sim' : 'Não';
-            } else {
+        
+        // Refeições sociais (pergunta se teve)
+        if ((stripos($q_lower, 'refeições sociais') !== false || stripos($q_lower, 'refeição fora') !== false) &&
+            (stripos($q_lower, 'tiveram') !== false || stripos($q_lower, 'houve') !== false || stripos($q_lower, 'teve') !== false)) {
+            $data['refeicoes_sociais'] = stripos($response_lower, 'sim') !== false ? 'Sim' : 'Não';
+        }
+        
+        // Refeição fora do plano (detalhes)
+        if (stripos($q_lower, 'refeição') !== false && 
+            (stripos($q_lower, 'fora') !== false || stripos($q_lower, 'planejado') !== false) &&
+            stripos($q_lower, 'tiveram') === false && stripos($q_lower, 'houve') === false) {
+            if (!empty($response)) {
                 $data['refeicao_fora_plano'] = $response;
             }
         }
+        
         // Apetite
-        elseif (stripos($q_lower, 'apetite') !== false || stripos($q_lower, 'vontade de comer') !== false) {
+        if ((stripos($q_lower, 'apetite') !== false || stripos($q_lower, 'vontade de comer') !== false) && 
+            stripos($q_lower, 'furar') === false) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['apetite'] = floatval($matches[1]);
-            } elseif (stripos(strtolower($response), 'muita vontade') !== false) {
+            } elseif (stripos($response_lower, 'muita vontade') !== false || stripos($response_lower, '10') !== false) {
                 $data['apetite'] = 10;
             }
         }
+        
         // Fome
-        elseif (stripos($q_lower, 'fome') !== false && stripos($q_lower, 'barriga') !== false) {
+        if (stripos($q_lower, 'fome') !== false && 
+            (stripos($q_lower, 'barriga') !== false || stripos($q_lower, 'vazia') !== false || stripos($q_lower, 'suficiente') !== false)) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['fome'] = floatval($matches[1]);
             }
         }
+        
         // Motivação
-        elseif (stripos($q_lower, 'motivação') !== false || stripos($q_lower, 'gás') !== false) {
+        if (stripos($q_lower, 'motivação') !== false || 
+            (stripos($q_lower, 'gás') !== false && stripos($q_lower, 'acordando') !== false)) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['motivacao'] = floatval($matches[1]);
             }
         }
+        
         // Desejo de furar
-        elseif (stripos($q_lower, 'furar') !== false || stripos($q_lower, 'gostosuras') !== false) {
+        if (stripos($q_lower, 'furar') !== false || 
+            (stripos($q_lower, 'desejo') !== false && stripos($q_lower, 'cardápio') !== false) ||
+            stripos($q_lower, 'gostosuras') !== false) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['desejo_furar'] = floatval($matches[1]);
-            } elseif (stripos(strtolower($response), 'muita vontade') !== false) {
+            } elseif (stripos($response_lower, 'muita vontade') !== false || stripos($response_lower, '10') !== false) {
                 $data['desejo_furar'] = 10;
             }
         }
+        
         // Humor
-        elseif (stripos($q_lower, 'humor') !== false) {
+        if (stripos($q_lower, 'humor') !== false) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['humor'] = floatval($matches[1]);
-            } elseif (stripos(strtolower($response), 'péssimo') !== false) {
+            } elseif (stripos($response_lower, 'péssimo') !== false || stripos($response_lower, '0') !== false) {
                 $data['humor'] = 0;
             }
         }
+        
         // Sono
-        elseif (stripos($q_lower, 'sono') !== false) {
+        if (stripos($q_lower, 'sono') !== false) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['sono'] = floatval($matches[1]);
             }
         }
+        
         // Recuperação
-        elseif (stripos($q_lower, 'recuperação') !== false || stripos($q_lower, 'recuperando') !== false) {
+        if (stripos($q_lower, 'recuperação') !== false || stripos($q_lower, 'recuperando') !== false) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['recuperacao'] = floatval($matches[1]);
             }
         }
+        
         // Intestino
-        elseif (stripos($q_lower, 'intestino') !== false || stripos($q_lower, 'banheiro') !== false) {
+        if (stripos($q_lower, 'intestino') !== false || 
+            (stripos($q_lower, 'banheiro') !== false && stripos($q_lower, 'todos os dias') !== false)) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['intestino'] = floatval($matches[1]);
             }
         }
+        
         // Performance
-        elseif (stripos($q_lower, 'performance') !== false) {
+        if (stripos($q_lower, 'performance') !== false || 
+            (stripos($q_lower, 'vai bem') !== false && stripos($q_lower, 'exercícios') !== false)) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['performance'] = floatval($matches[1]);
             }
         }
+        
         // Estresse
-        elseif (stripos($q_lower, 'estresse') !== false) {
+        if (stripos($q_lower, 'estresse') !== false) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['estresse'] = floatval($matches[1]);
             }
         }
+        
         // Peso
-        elseif (stripos($q_lower, 'peso') !== false && stripos($q_lower, 'atual') !== false) {
+        if (stripos($q_lower, 'peso') !== false && stripos($q_lower, 'atual') !== false) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['peso'] = floatval($matches[1]);
             }
         }
+        
         // Nota da semana
-        elseif (stripos($q_lower, 'nota') !== false && stripos($q_lower, 'semana') !== false) {
+        if (stripos($q_lower, 'nota') !== false && stripos($q_lower, 'semana') !== false) {
             if (preg_match('/(\d+\.?\d*)/', $response, $matches)) {
                 $data['nota_semana'] = floatval($matches[1]);
             }
         }
+        
         // Comentário final
-        elseif (stripos($q_lower, 'comentário') !== false || stripos($q_lower, 'problema específico') !== false) {
-            $data['comentario_final'] = $response;
+        if (stripos($q_lower, 'comentário') !== false || 
+            stripos($q_lower, 'problema específico') !== false ||
+            (stripos($q_lower, 'comentar') !== false && stripos($q_lower, 'sobre') !== false)) {
+            if (!empty($response)) {
+                $data['comentario_final'] = $response;
+            }
         }
     }
     
@@ -1235,14 +1269,18 @@ function createIntelligentSummary($conversation, $user_name) {
     
     // 2. Alimentação
     $html .= '<h4 style="color: var(--accent-orange); margin-top: 1.5rem; margin-bottom: 0.75rem;">🍽️ 2. Alimentação</h4>';
+    
+    $has_alimentacao_data = false;
     $html .= '<ul style="list-style: none; padding-left: 0;">';
     
     if ($data['refeicoes_sociais'] !== null) {
         $html .= '<li><strong>Refeições sociais:</strong> ' . $data['refeicoes_sociais'] . '.</li>';
+        $has_alimentacao_data = true;
     }
     
     if ($data['refeicao_fora_plano'] !== null) {
         $html .= '<li><strong>Refeição fora do plano:</strong> ' . htmlspecialchars($data['refeicao_fora_plano']) . '.</li>';
+        $has_alimentacao_data = true;
     }
     
     if ($data['apetite'] !== null) {
@@ -1257,6 +1295,7 @@ function createIntelligentSummary($conversation, $user_name) {
             $html .= '(reduzido)';
         }
         $html .= '</li>';
+        $has_alimentacao_data = true;
     }
     
     if ($data['fome'] !== null) {
@@ -1269,24 +1308,32 @@ function createIntelligentSummary($conversation, $user_name) {
             $html .= '(controlada)';
         }
         $html .= '</li>';
+        $has_alimentacao_data = true;
     }
     
     $html .= '</ul>';
-    $html .= '<p><strong>💬 Interpretação:</strong><br>';
-    if ($data['apetite'] !== null && $data['apetite'] >= 9) {
-        $html .= 'Apetite muito alto pode indicar:<br>';
-        $html .= '• déficit calórico agressivo<br>';
-        $html .= '• sono prejudicado<br>';
-        $html .= '• estresse fisiológico<br>';
-        $html .= '• alta palatabilidade em eventos sociais<br><br>';
+    
+    if ($has_alimentacao_data) {
+        $html .= '<p><strong>💬 Interpretação:</strong><br>';
+        if ($data['apetite'] !== null && $data['apetite'] >= 9) {
+            $html .= 'Apetite muito alto pode indicar:<br>';
+            $html .= '• déficit calórico agressivo<br>';
+            $html .= '• sono prejudicado<br>';
+            $html .= '• estresse fisiológico<br>';
+            $html .= '• alta palatabilidade em eventos sociais<br><br>';
+        }
+        if ($data['refeicao_fora_plano'] !== null && stripos(strtolower($data['refeicao_fora_plano']), 'ok') !== false) {
+            $html .= 'Mesmo tendo saído do plano, paciente relata que "tudo ok", indicando boa relação com o processo.';
+        } elseif ($data['refeicoes_sociais'] === 'Sim' && $data['refeicao_fora_plano'] === null) {
+            $html .= 'Paciente teve refeições sociais durante a semana.';
+        }
+        $html .= '</p>';
     }
-    if ($data['refeicao_fora_plano'] !== null && stripos(strtolower($data['refeicao_fora_plano']), 'ok') !== false) {
-        $html .= 'Mesmo tendo saído do plano, paciente relata que "tudo ok", indicando boa relação com o processo.';
-    }
-    $html .= '</p>';
     
     // 3. Motivação, Humor & Desejos
     $html .= '<h4 style="color: var(--accent-orange); margin-top: 1.5rem; margin-bottom: 0.75rem;">😊 3. Motivação, Humor & Desejos</h4>';
+    
+    $has_motivacao_data = false;
     $html .= '<ul style="list-style: none; padding-left: 0;">';
     
     if ($data['motivacao'] !== null) {
@@ -1299,6 +1346,7 @@ function createIntelligentSummary($conversation, $user_name) {
             $html .= '(pode melhorar)';
         }
         $html .= '</li>';
+        $has_motivacao_data = true;
     }
     
     if ($data['desejo_furar'] !== null) {
@@ -1311,6 +1359,7 @@ function createIntelligentSummary($conversation, $user_name) {
             $html .= '(controlado)';
         }
         $html .= '</li>';
+        $has_motivacao_data = true;
     }
     
     if ($data['humor'] !== null) {
@@ -1325,22 +1374,32 @@ function createIntelligentSummary($conversation, $user_name) {
             $html .= '(bom)';
         }
         $html .= '</li>';
+        $has_motivacao_data = true;
     }
     
     $html .= '</ul>';
-    $html .= '<p><strong>💬 Interpretação:</strong><br>';
-    if ($data['humor'] !== null && $data['humor'] <= 2 && $data['apetite'] !== null && $data['apetite'] >= 9 && $data['desejo_furar'] !== null && $data['desejo_furar'] >= 9) {
-        $html .= 'O humor extremamente baixo junto com apetite alto e grande vontade de furar o plano pode indicar:<br>';
-        $html .= '• fadiga mental<br>';
-        $html .= '• déficit energético acumulado<br>';
-        $html .= '• sono ruim<br>';
-        $html .= '• desgaste emocional<br><br>';
-        $html .= '<strong style="color: var(--danger-red);">É o ponto mais crítico do check-in.</strong>';
+    
+    if ($has_motivacao_data) {
+        $html .= '<p><strong>💬 Interpretação:</strong><br>';
+        if ($data['humor'] !== null && $data['humor'] <= 2 && $data['apetite'] !== null && $data['apetite'] >= 9 && $data['desejo_furar'] !== null && $data['desejo_furar'] >= 9) {
+            $html .= 'O humor extremamente baixo junto com apetite alto e grande vontade de furar o plano pode indicar:<br>';
+            $html .= '• fadiga mental<br>';
+            $html .= '• déficit energético acumulado<br>';
+            $html .= '• sono ruim<br>';
+            $html .= '• desgaste emocional<br><br>';
+            $html .= '<strong style="color: var(--danger-red);">É o ponto mais crítico do check-in.</strong>';
+        } elseif ($data['humor'] !== null && $data['humor'] <= 2) {
+            $html .= '<strong style="color: var(--danger-red);">Humor extremamente baixo (' . $data['humor'] . '/10) — ponto crítico que requer atenção imediata.</strong> Pode estar relacionado a múltiplos fatores como sono, estresse, recuperação ou aspectos nutricionais.';
+        } elseif ($data['motivacao'] !== null && $data['motivacao'] >= 7) {
+            $html .= 'Motivação mantida (' . $data['motivacao'] . '/10), indicando bom engajamento com o processo.';
+        }
+        $html .= '</p>';
     }
-    $html .= '</p>';
     
     // 4. Sono, Recuperação & Estresse
     $html .= '<h4 style="color: var(--accent-orange); margin-top: 1.5rem; margin-bottom: 0.75rem;">😴 4. Sono, Recuperação & Estresse</h4>';
+    
+    $has_sono_data = false;
     $html .= '<ul style="list-style: none; padding-left: 0;">';
     
     if ($data['sono'] !== null) {
@@ -1353,6 +1412,7 @@ function createIntelligentSummary($conversation, $user_name) {
             $html .= '(bom)';
         }
         $html .= '</li>';
+        $has_sono_data = true;
     }
     
     if ($data['recuperacao'] !== null) {
@@ -1365,6 +1425,7 @@ function createIntelligentSummary($conversation, $user_name) {
             $html .= '(comprometida)';
         }
         $html .= '</li>';
+        $has_sono_data = true;
     }
     
     if ($data['estresse'] !== null) {
@@ -1377,21 +1438,27 @@ function createIntelligentSummary($conversation, $user_name) {
             $html .= '(elevado)';
         }
         $html .= '</li>';
+        $has_sono_data = true;
     }
     
     $html .= '</ul>';
-    $html .= '<p><strong>💬 Interpretação:</strong><br>';
-    if ($data['estresse'] !== null && $data['estresse'] <= 3) {
-        $html .= 'Estresse baixo é um ponto positivo.<br>';
+    
+    if ($has_sono_data) {
+        $html .= '<p><strong>💬 Interpretação:</strong><br>';
+        if ($data['estresse'] !== null && $data['estresse'] <= 3) {
+            $html .= 'Estresse baixo é um ponto positivo.<br>';
+        }
+        if ($data['sono'] !== null && $data['sono'] <= 6) {
+            $html .= 'Sono moderado pode estar contribuindo diretamente para:<br>';
+            $html .= '• mais fome<br>';
+            $html .= '• pior humor<br>';
+            $html .= '• pior controle de apetite<br>';
+            $html .= '• maior desejo de furar';
+        } elseif ($data['recuperacao'] !== null && $data['recuperacao'] >= 7) {
+            $html .= 'Boa recuperação (' . $data['recuperacao'] . '/10), indicando adequação do volume de treino e nutrição.';
+        }
+        $html .= '</p>';
     }
-    if ($data['sono'] !== null && $data['sono'] <= 6) {
-        $html .= 'Sono moderado pode estar contribuindo diretamente para:<br>';
-        $html .= '• mais fome<br>';
-        $html .= '• pior humor<br>';
-        $html .= '• pior controle de apetite<br>';
-        $html .= '• maior desejo de furar';
-    }
-    $html .= '</p>';
     
     // 5. Intestino
     if ($data['intestino'] !== null) {
