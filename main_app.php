@@ -1293,7 +1293,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     50% { transform: scale(1.1); }
 }
 
-/* Animação da estrela voando para o badge */
+/* Animação da estrela voando para o badge - Estilo Videogame */
 .flying-star {
     position: fixed;
     z-index: 999998 !important;
@@ -1302,29 +1302,13 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     color: var(--accent-orange);
     opacity: 1;
     transition: none;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 0 8px rgba(255, 107, 0, 0.8));
 }
 
 .flying-star.animate {
-    animation: starFly 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-@keyframes starFly {
-    0% {
-        opacity: 1;
-        transform: scale(1) translate(0, 0);
-    }
-    30% {
-        opacity: 1;
-        transform: scale(1.3) translate(calc(var(--fly-x) * 0.3), calc(var(--fly-y) * 0.3));
-    }
-    70% {
-        opacity: 1;
-        transform: scale(1.1) translate(calc(var(--fly-x) * 0.9), calc(var(--fly-y) * 0.9));
-    }
-    100% {
-        opacity: 0;
-        transform: scale(0.4) translate(var(--fly-x), var(--fly-y));
-    }
+    /* A animação será controlada via JavaScript com requestAnimationFrame */
+    /* CSS apenas para estilo base */
 }
 
 /* Animação de pulso no badge quando recebe pontos */
@@ -1966,6 +1950,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     }
     
     // Função genérica para animar estrela voando de qualquer elemento para o badge
+    // Animação tipo videogame com trajetória perfeita usando requestAnimationFrame
     function animateStarToBadgeFromElement(sourceElement, points, newTotalPoints) {
         const pointsBadge = document.querySelector('.points-counter-badge');
         const pointsDisplay = document.getElementById('user-points-display');
@@ -1978,18 +1963,38 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
             return;
         }
         
-        // Obter posições
+        // Obter posições EXATAS
         const sourceRect = sourceElement.getBoundingClientRect();
         const badgeRect = pointsBadge.getBoundingClientRect();
         
-        // Calcular distância
+        // Encontrar o ícone da estrela DENTRO do badge (não apenas o centro)
+        const starIcon = pointsBadge.querySelector('i.fa-star');
+        let endX, endY;
+        
+        if (starIcon) {
+            // Se encontrou o ícone, usar sua posição exata
+            const starRect = starIcon.getBoundingClientRect();
+            endX = starRect.left + starRect.width / 2;
+            endY = starRect.top + starRect.height / 2;
+        } else {
+            // Fallback: centro do badge
+            endX = badgeRect.left + badgeRect.width / 2;
+            endY = badgeRect.top + badgeRect.height / 2;
+        }
+        
+        // Posição inicial (centro do elemento fonte)
         const startX = sourceRect.left + sourceRect.width / 2;
         const startY = sourceRect.top + sourceRect.height / 2;
-        const endX = badgeRect.left + badgeRect.width / 2;
-        const endY = badgeRect.top + badgeRect.height / 2;
         
+        // Calcular distância total
         const deltaX = endX - startX;
         const deltaY = endY - startY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        // Duração baseada na distância (mais rápido para distâncias curtas, mais lento para longas)
+        // Mínimo 1.2s, máximo 2.5s
+        const baseDuration = 1800; // 1.8 segundos base
+        const duration = Math.min(Math.max(baseDuration, distance * 0.8), 2500);
         
         // Obter valor atual dos pontos
         const currentPointsText = pointsDisplay.textContent.replace(/\./g, '').replace(/,/g, '');
@@ -2001,43 +2006,108 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         flyingStar.innerHTML = '<i class="fas fa-star"></i>';
         flyingStar.style.left = startX + 'px';
         flyingStar.style.top = startY + 'px';
-        flyingStar.style.setProperty('--fly-x', deltaX + 'px');
-        flyingStar.style.setProperty('--fly-y', deltaY + 'px');
+        flyingStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(0deg)';
         
         document.body.appendChild(flyingStar);
         
         // Forçar reflow
         flyingStar.offsetHeight;
         
-        // Iniciar animação
-        flyingStar.classList.add('animate');
+        // Função de easing tipo videogame (ease-out com bounce sutil no final)
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
         
-        // Atualizar pontos no badge quando estrela chegar (70% da animação, quando está quase chegando)
-        setTimeout(() => {
-            const finalPoints = newTotalPoints !== undefined ? newTotalPoints : (currentPoints + points);
-            
-            // Adicionar classe de animação no badge
-            pointsBadge.classList.add('points-updated');
-            
-            // Animar contagem dos pontos
-            pointsDisplay.classList.add('points-counting');
-            
-            // Atualizar valor com animação de contagem mais lenta
-            animatePointsCount(pointsDisplay, currentPoints, finalPoints, 1500);
-            
-            // Remover classes de animação após animação
-            setTimeout(() => {
-                pointsBadge.classList.remove('points-updated');
-                pointsDisplay.classList.remove('points-counting');
-            }, 2000);
-        }, 1750); // 70% de 2.5s = ~1.75s
+        // Função de easing com ligeiro "bounce" no final (tipo videogame)
+        function easeOutBack(t) {
+            const c1 = 1.70158;
+            const c3 = c1 + 1;
+            return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+        }
         
-        // Remover estrela voadora após animação completa
-        setTimeout(() => {
-            if (flyingStar.parentNode) {
-                flyingStar.parentNode.removeChild(flyingStar);
+        // Animação com requestAnimationFrame para controle preciso
+        const startTime = performance.now();
+        let animationFrameId;
+        
+        function animate(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Usar easing suave (ease-out cubic) para movimento natural
+            const easedProgress = easeOutCubic(progress);
+            
+            // Calcular posição atual
+            const currentX = startX + (deltaX * easedProgress);
+            const currentY = startY + (deltaY * easedProgress);
+            
+            // Adicionar curva suave (parábola leve) para trajetória mais natural
+            const curveHeight = Math.min(distance * 0.15, 100); // Altura da curva baseada na distância
+            const curveProgress = Math.sin(progress * Math.PI); // Curva em formato de onda
+            const curveOffset = -curveHeight * curveProgress; // Offset vertical para curva
+            
+            // Calcular escala (começa grande, diminui no meio, aumenta ligeiramente no final)
+            let scale;
+            if (progress < 0.3) {
+                // Início: escala aumenta
+                scale = 1 + (0.4 * (progress / 0.3));
+            } else if (progress < 0.7) {
+                // Meio: escala diminui
+                scale = 1.4 - (0.6 * ((progress - 0.3) / 0.4));
+            } else {
+                // Final: escala aumenta ligeiramente antes de desaparecer
+                const finalProgress = (progress - 0.7) / 0.3;
+                scale = 0.8 + (0.3 * finalProgress);
             }
-        }, 2500);
+            
+            // Rotação dinâmica (gira durante o voo)
+            const rotation = progress * 360 * 2; // 2 rotações completas
+            
+            // Opacidade (fade out no final)
+            let opacity = 1;
+            if (progress > 0.85) {
+                opacity = 1 - ((progress - 0.85) / 0.15);
+            }
+            
+            // Aplicar transformações
+            flyingStar.style.left = currentX + 'px';
+            flyingStar.style.top = (currentY + curveOffset) + 'px';
+            flyingStar.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg)`;
+            flyingStar.style.opacity = opacity;
+            
+            // Continuar animação ou finalizar
+            if (progress < 1) {
+                animationFrameId = requestAnimationFrame(animate);
+            } else {
+                // Animação completa
+                if (flyingStar.parentNode) {
+                    flyingStar.parentNode.removeChild(flyingStar);
+                }
+                
+                // Atualizar pontos quando estrela chega
+                const finalPoints = newTotalPoints !== undefined ? newTotalPoints : (currentPoints + points);
+                
+                // Adicionar classe de animação no badge
+                pointsBadge.classList.add('points-updated');
+                
+                // Animar contagem dos pontos
+                pointsDisplay.classList.add('points-counting');
+                
+                // Atualizar valor com animação de contagem
+                animatePointsCount(pointsDisplay, currentPoints, finalPoints, 1500);
+                
+                // Remover classes de animação após animação
+                setTimeout(() => {
+                    pointsBadge.classList.remove('points-updated');
+                    pointsDisplay.classList.remove('points-counting');
+                }, 2000);
+            }
+        }
+        
+        // Iniciar animação
+        animationFrameId = requestAnimationFrame(animate);
+        
+        // Limpar animação se elemento for removido
+        flyingStar._animationId = animationFrameId;
     }
     
     // Função para mostrar popup de pontos e animar estrela voando
