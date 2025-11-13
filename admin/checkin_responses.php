@@ -891,6 +891,9 @@ require_once __DIR__ . '/includes/header.php';
     background: rgba(255, 107, 0, 0.1) !important;
     border-left: 3px solid var(--accent-orange);
     margin-left: 0;
+}
+
+.responses-table tbody tr.response-row.selected td:first-child {
     padding-left: calc(1rem - 3px) !important;
 }
 
