@@ -163,8 +163,9 @@ if (!defined('GROQ_API_KEY')) {
     $groq_key = getenv('GROQ_API_KEY');
     if (empty($groq_key)) {
         // Configure sua API key aqui ou via variável de ambiente
-        // IMPORTANTE: NÃO commite a API key! Use variável de ambiente ou config.local.php
-        define('GROQ_API_KEY', ''); // Configure via variável de ambiente GROQ_API_KEY ou config.local.php
+        // IMPORTANTE: Para produção, use variável de ambiente ou config.local.php
+        // NA HOSTINGER: Edite este arquivo diretamente e coloque sua chave aqui
+        define('GROQ_API_KEY', ''); // Cole sua API key da Groq aqui
     } else {
         define('GROQ_API_KEY', $groq_key);
     }
