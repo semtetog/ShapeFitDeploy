@@ -199,6 +199,8 @@ if ($stmt_checkin) {
         $available_checkin['questions'] = [];
         while ($q = $questions_result->fetch_assoc()) {
             $q['options'] = !empty($q['options']) ? json_decode($q['options'], true) : null;
+            // Decodificar lógica condicional se existir
+            $q['conditional_logic'] = !empty($q['conditional_logic']) ? json_decode($q['conditional_logic'], true) : null;
             $available_checkin['questions'][] = $q;
         }
         $stmt_questions->close();
@@ -2908,14 +2910,76 @@ function restoreChatFromProgress() {
     }
 }
 
+// Função para verificar se uma pergunta deve ser mostrada baseada em condições
+function shouldShowQuestion(question) {
+    // Se não tem lógica condicional, sempre mostrar
+    if (!question.conditional_logic) {
+        return true;
+    }
+    
+    try {
+        const condition = typeof question.conditional_logic === 'string' 
+            ? JSON.parse(question.conditional_logic) 
+            : question.conditional_logic;
+        
+        // Verificar se depende de uma pergunta anterior
+        if (condition.depends_on_question_id) {
+            const dependsOnId = condition.depends_on_question_id;
+            const previousResponse = checkinResponses[dependsOnId];
+            
+            if (!previousResponse) {
+                // Se não há resposta para a pergunta dependente, não mostrar
+                return false;
+            }
+            
+            // Verificar o valor da resposta
+            const responseValue = previousResponse.response_value || previousResponse.response_text || '';
+            
+            // Se show_if_value é um array, verificar se a resposta está no array
+            if (Array.isArray(condition.show_if_value)) {
+                return condition.show_if_value.includes(responseValue);
+            }
+            // Se é um valor único, verificar se corresponde
+            else if (condition.show_if_value) {
+                return responseValue === condition.show_if_value;
+            }
+            // Se não especifica valor, mostrar se houver resposta
+            else {
+                return true;
+            }
+        }
+        
+        // Se não tem dependência definida, mostrar
+        return true;
+    } catch (e) {
+        console.error('Erro ao processar lógica condicional:', e);
+        // Em caso de erro, mostrar a pergunta por segurança
+        return true;
+    }
+}
+
 function renderNextQuestion() {
     const messagesDiv = document.getElementById('checkinMessages');
     const inputContainer = document.getElementById('checkinInputContainer');
     const textInput = document.getElementById('checkinTextInput');
     const sendBtn = document.getElementById('checkinSendBtn');
     
+    // Pular perguntas que não devem ser mostradas
+    while (currentQuestionIndex < checkinData.questions.length) {
+        const question = checkinData.questions[currentQuestionIndex];
+        
+        if (shouldShowQuestion(question)) {
+            // Esta pergunta deve ser mostrada
+            break;
+        } else {
+            // Pular esta pergunta
+            console.log('Pulando pergunta', question.id, 'devido a condição não atendida');
+            currentQuestionIndex++;
+        }
+    }
+    
     if (currentQuestionIndex >= checkinData.questions.length) {
-        // Todas as perguntas foram respondidas
+        // Todas as perguntas foram respondidas ou puladas
         addMessage('Obrigado pelo seu feedback! Seu check-in foi salvo com sucesso.', 'bot');
         textInput.disabled = true;
         sendBtn.disabled = true;
