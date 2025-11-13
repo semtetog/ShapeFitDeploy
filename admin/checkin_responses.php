@@ -316,6 +316,9 @@ require_once __DIR__ . '/includes/header.php';
     color: var(--accent-orange);
     line-height: 1.5;
     box-sizing: border-box;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
 }
 
 .submissions-count .badge {
@@ -853,8 +856,9 @@ require_once __DIR__ . '/includes/header.php';
     transition: all 0.3s ease;
     line-height: 1.5;
     box-sizing: border-box;
-    height: 100%;
+    height: 40px;
     min-height: 40px;
+    max-height: 40px;
 }
 
 .btn-select-mode:hover {
