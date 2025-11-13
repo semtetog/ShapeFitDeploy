@@ -2004,9 +2004,9 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         const flyingStar = document.createElement('div');
         flyingStar.className = 'flying-star';
         flyingStar.innerHTML = '<i class="fas fa-star"></i>';
-        flyingStar.style.left = startX + 'px';
-        flyingStar.style.top = startY + 'px';
-        flyingStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(0deg)';
+        // Usar translate3d desde o início para aceleração GPU
+        flyingStar.style.transform = `translate3d(${startX}px, ${startY}px, 0) translate(-50%, -50%) scale(1) rotate(0deg)`;
+        flyingStar.style.willChange = 'transform, opacity';
         
         document.body.appendChild(flyingStar);
         
