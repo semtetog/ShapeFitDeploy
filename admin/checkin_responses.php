@@ -401,7 +401,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:first-child {
-    padding-right: 0.25rem;
+    padding: 1rem 0.5rem 1rem 1rem;
     position: relative;
 }
 
@@ -421,8 +421,7 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:nth-child(2) {
-    padding-left: 0.25rem;
-    padding-right: 0.5rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
 }
 
 .table-checkbox {
