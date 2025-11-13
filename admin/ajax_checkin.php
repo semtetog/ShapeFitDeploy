@@ -134,6 +134,36 @@ function saveCheckin($data, $admin_id) {
     if ($day_changed && $checkin_id > 0) {
         $current_week_start = date('Y-m-d', strtotime('sunday this week'));
         
+        // IMPORTANTE: Deletar respostas da semana atual para forçar novo check-in
+        // Buscar todos os usuários que têm disponibilidade para esta semana
+        $stmt_get_users = $conn->prepare("SELECT DISTINCT user_id FROM sf_checkin_availability WHERE config_id = ? AND week_date = ?");
+        $stmt_get_users->bind_param("is", $checkin_id, $current_week_start);
+        $stmt_get_users->execute();
+        $users_result = $stmt_get_users->get_result();
+        $user_ids = [];
+        while ($row = $users_result->fetch_assoc()) {
+            $user_ids[] = (int)$row['user_id'];
+        }
+        $stmt_get_users->close();
+        
+        // Deletar respostas da semana atual para esses usuários
+        if (!empty($user_ids)) {
+            $placeholders = str_repeat('?,', count($user_ids) - 1) . '?';
+            // Deletar respostas que foram submetidas na semana atual
+            $stmt_delete_responses = $conn->prepare("
+                DELETE FROM sf_checkin_responses 
+                WHERE config_id = ? 
+                AND user_id IN ($placeholders)
+                AND DATE(submitted_at) >= ?
+            ");
+            $params = array_merge([$checkin_id], $user_ids, [$current_week_start]);
+            $types = str_repeat('i', count($user_ids) + 1) . 's';
+            $stmt_delete_responses->bind_param($types, ...$params);
+            $stmt_delete_responses->execute();
+            $stmt_delete_responses->close();
+        }
+        
+        // Resetar is_completed e congrats_shown para a semana atual
         $stmt_reset = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 0, congrats_shown = 0 WHERE config_id = ? AND week_date = ?");
         $stmt_reset->bind_param("is", $checkin_id, $current_week_start);
         $stmt_reset->execute();
@@ -639,6 +669,36 @@ function updateCheckinConfig($data, $admin_id) {
         if ($day_changed) {
             // Calcular o domingo da semana atual (mesma lógica usada no sistema)
             $current_week_start = date('Y-m-d', strtotime('sunday this week'));
+            
+            // IMPORTANTE: Deletar respostas da semana atual para forçar novo check-in
+            // Buscar todos os usuários que têm disponibilidade para esta semana
+            $stmt_get_users = $conn->prepare("SELECT DISTINCT user_id FROM sf_checkin_availability WHERE config_id = ? AND week_date = ?");
+            $stmt_get_users->bind_param("is", $checkin_id, $current_week_start);
+            $stmt_get_users->execute();
+            $users_result = $stmt_get_users->get_result();
+            $user_ids = [];
+            while ($row = $users_result->fetch_assoc()) {
+                $user_ids[] = (int)$row['user_id'];
+            }
+            $stmt_get_users->close();
+            
+            // Deletar respostas da semana atual para esses usuários
+            if (!empty($user_ids)) {
+                $placeholders = str_repeat('?,', count($user_ids) - 1) . '?';
+                // Deletar respostas que foram submetidas na semana atual
+                // Usar DATE() para comparar apenas a data, ignorando hora
+                $stmt_delete_responses = $conn->prepare("
+                    DELETE FROM sf_checkin_responses 
+                    WHERE config_id = ? 
+                    AND user_id IN ($placeholders)
+                    AND DATE(submitted_at) >= ?
+                ");
+                $params = array_merge([$checkin_id], $user_ids, [$current_week_start]);
+                $types = str_repeat('i', count($user_ids) + 1) . 's';
+                $stmt_delete_responses->bind_param($types, ...$params);
+                $stmt_delete_responses->execute();
+                $stmt_delete_responses->close();
+            }
             
             // Resetar is_completed e congrats_shown para a semana atual
             $stmt_reset = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 0, congrats_shown = 0 WHERE config_id = ? AND week_date = ?");
