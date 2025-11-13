@@ -377,7 +377,8 @@ require_once __DIR__ . '/includes/header.php';
 
 
 .responses-table th:nth-child(2) {
-    width: 200px;
+    width: auto;
+    min-width: 0;
 }
 
 .responses-table th:nth-child(3) {
