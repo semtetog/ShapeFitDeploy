@@ -1303,7 +1303,6 @@ require_once __DIR__ . '/includes/header.php';
     cursor: pointer;
     transition: all 0.3s ease;
     flex-shrink: 0;
-    margin-left: auto;
 }
 
 .diary-calendar-icon-btn:hover {
@@ -1333,7 +1332,7 @@ require_once __DIR__ . '/includes/header.php';
     position: fixed;
     top: 15%;
     right: calc(50% - 240px - 300px);
-    z-index: 10002;
+    z-index: 10003; /* Acima da overlay (z-index: 1) e do calendário (z-index: 2) */
     pointer-events: all;
     width: 280px;
     max-width: calc(100vw - 2rem);
@@ -1791,9 +1790,11 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Selecionar</span>
             </button>
         </div>
-        <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
-            <i class="fas fa-calendar-alt"></i>
-        </button>
+        <div class="right-side">
+            <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
+                <i class="fas fa-calendar-alt"></i>
+            </button>
+        </div>
     </div>
 
     <?php if (empty($users)): ?>
