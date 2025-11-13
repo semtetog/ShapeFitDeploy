@@ -389,6 +389,15 @@ require_once __DIR__ . '/includes/header.php';
     white-space: nowrap;
 }
 
+.responses-table th:first-child {
+    padding-right: 0.5rem;
+}
+
+.responses-table th:nth-child(2) {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
 
 .responses-table th:nth-child(2) {
     width: auto;
