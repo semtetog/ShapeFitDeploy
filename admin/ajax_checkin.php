@@ -848,78 +848,128 @@ function generateSummary($data, $admin_id) {
     }
 
     // Fallback: Usar Hugging Face Chat API com modelo de chat para análise mais inteligente
-    // Modelo: meta-llama/Llama-3.2-3B-Instruct ou microsoft/Phi-3-mini-4k-instruct
-    // Vou usar o modelo de chat que permite prompts mais complexos
-    $api_url = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
+    // Tentar múltiplos modelos gratuitos em ordem de preferência
+    $models = [
+        'microsoft/Phi-3-mini-4k-instruct',
+        'meta-llama/Llama-3.2-3B-Instruct',
+        'mistralai/Mistral-7B-Instruct-v0.2'
+    ];
     
-    // Criar prompt detalhado para análise
-    $prompt = "Você é um nutricionista experiente analisando um check-in semanal detalhado de um paciente. Analise TODA a conversa abaixo e crie um resumo PROFISSIONAL, DETALHADO e ANALÍTICO com:\n\n";
-    $prompt .= "1. ANÁLISE GERAL: Avalie o estado geral do paciente, incluindo todos os aspectos mencionados (alimentação, exercícios, sono, humor, motivação, etc). Seja específico e mencione valores/notas quando relevante.\n\n";
-    $prompt .= "2. PONTOS POSITIVOS: Identifique e detalhe todos os aspectos positivos mencionados pelo paciente. Seja específico sobre o que está funcionando bem.\n\n";
-    $prompt .= "3. PONTOS DE ATENÇÃO: Identifique e detalhe todos os aspectos que requerem atenção, preocupação ou suporte. Inclua notas baixas, dificuldades mencionadas, e qualquer sinal de alerta. Seja específico sobre os valores/notas preocupantes.\n\n";
-    $prompt .= "4. ANÁLISE DETALHADA POR CATEGORIA: Analise cada categoria mencionada (apetite, fome, motivação, humor, sono, recuperação, intestino, performance, estresse) com comentários específicos sobre os valores fornecidos.\n\n";
-    $prompt .= "5. OBSERVAÇÕES E RECOMENDAÇÕES: Forneça observações profissionais e recomendações específicas baseadas na análise completa.\n\n";
-    $prompt .= "IMPORTANTE: Leia TODA a conversa, incluindo todas as perguntas e respostas. Mencione valores específicos (notas, números) quando relevante. Seja detalhado e profissional.\n\n";
+    // Criar prompt ULTRA detalhado e adaptável
+    $prompt = "Você é um nutricionista experiente analisando um check-in semanal de um paciente. REGRA FUNDAMENTAL: Cada check-in pode ter perguntas DIFERENTES. Adapte-se ao fluxo real da conversa.\n\n";
+    $prompt .= "METODOLOGIA:\n";
+    $prompt .= "1. Leia TODA a conversa linha por linha\n";
+    $prompt .= "2. Extraia TODOS os dados: valores numéricos, notas, sentimentos, eventos\n";
+    $prompt .= "3. Identifique padrões e correlações\n";
+    $prompt .= "4. Destaque pontos críticos (valores muito baixos/altos)\n";
+    $prompt .= "5. Seja ESPECÍFICO: mencione valores exatos\n\n";
+    $prompt .= "ESTRUTURA DO RESUMO (adaptável ao conteúdo real):\n\n";
+    $prompt .= "✅ Resumo Completo do Check-in Semanal\n";
+    $prompt .= "📅 Período analisado: Últimos 7 dias\n";
+    $prompt .= "👤 Paciente: " . htmlspecialchars($user_name) . "\n";
+    $prompt .= "📊 Nota geral da semana: [extrair se mencionada]\n\n";
+    $prompt .= "Organize em seções baseadas no que REALMENTE foi perguntado:\n";
+    $prompt .= "- 🔥 Rotina & Treinos (se existir)\n";
+    $prompt .= "- 🍽️ Alimentação (se existir)\n";
+    $prompt .= "- 😊 Motivação, Humor & Desejos (se existir)\n";
+    $prompt .= "- 😴 Sono, Recuperação & Estresse (se existir)\n";
+    $prompt .= "- 🧻 Intestino (se existir)\n";
+    $prompt .= "- 🧠 Performance (se existir)\n";
+    $prompt .= "- ⚖️ Peso (se mencionado)\n";
+    $prompt .= "- 🗣️ Comentário do paciente (se houver)\n\n";
+    $prompt .= "Para cada seção: liste dados extraídos + 💬 Interpretação profissional\n\n";
+    $prompt .= "Ao final: 🎯 Conclusão Geral + 🔧 Ajustes prioritários\n\n";
+    $prompt .= "IMPORTANTE: NÃO invente dados. ADAPTE a estrutura ao conteúdo real. Formate em HTML com <h4>, <p>, <ul>, <li>, <strong>.\n\n";
     $prompt .= "Conversa completa:\n" . $conversation . "\n\n";
-    $prompt .= "Agora crie um resumo profissional, detalhado e analítico em português brasileiro:";
+    $prompt .= "Agora crie um resumo profissional, detalhado e analítico em português brasileiro, formatado em HTML:";
     
     // Limitar tamanho do prompt mas manter estrutura
     if (strlen($prompt) > 3500) {
         $conversation_short = substr($conversation, 0, 2500) . '...';
-        $prompt = "Você é um nutricionista experiente analisando um check-in semanal detalhado de um paciente. Analise TODA a conversa abaixo e crie um resumo PROFISSIONAL, DETALHADO e ANALÍTICO com:\n\n";
-        $prompt .= "1. ANÁLISE GERAL: Avalie o estado geral do paciente, incluindo todos os aspectos mencionados. Seja específico e mencione valores/notas quando relevante.\n\n";
-        $prompt .= "2. PONTOS POSITIVOS: Identifique e detalhe todos os aspectos positivos mencionados pelo paciente.\n\n";
-        $prompt .= "3. PONTOS DE ATENÇÃO: Identifique todos os aspectos que requerem atenção, incluindo notas baixas e dificuldades.\n\n";
-        $prompt .= "4. ANÁLISE DETALHADA: Analise cada categoria mencionada com comentários específicos sobre os valores fornecidos.\n\n";
-        $prompt .= "5. OBSERVAÇÕES E RECOMENDAÇÕES: Forneça observações profissionais e recomendações específicas.\n\n";
-        $prompt .= "Conversa completa:\n" . $conversation_short . "\n\n";
-        $prompt .= "Agora crie um resumo profissional, detalhado e analítico em português brasileiro:";
+        $prompt = "Você é um nutricionista experiente. Analise o check-in e crie resumo profissional adaptável ao conteúdo real.\n\n";
+        $prompt .= "Estrutura: ✅ Resumo → Seções baseadas nas perguntas reais → 💬 Interpretação → 🎯 Conclusão → 🔧 Ajustes\n\n";
+        $prompt .= "Conversa:\n" . $conversation_short . "\n\n";
+        $prompt .= "Resumo em HTML, português brasileiro:";
     }
     
-    // Fazer requisição para a API
-    $ch = curl_init($api_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-        'inputs' => $prompt,
-        'parameters' => [
-            'max_new_tokens' => 500,
-            'temperature' => 0.7,
-            'return_full_text' => false
-        ]
-    ]));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 45);
-    
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    
-    if ($http_code === 200 || $http_code === 503) {
-        $result = json_decode($response, true);
+    // Tentar cada modelo em sequência até um funcionar
+    foreach ($models as $model) {
+        $api_url = 'https://api-inference.huggingface.co/models/' . $model;
         
-        // Extrair texto gerado
-        $generated_text = '';
-        if (isset($result[0]['generated_text'])) {
-            $generated_text = $result[0]['generated_text'];
-        } elseif (isset($result['generated_text'])) {
-            $generated_text = $result['generated_text'];
-        } elseif (is_string($result)) {
-            $generated_text = $result;
-        }
+        // Fazer requisição para a API
+        $ch = curl_init($api_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            'inputs' => $prompt,
+            'parameters' => [
+                'max_new_tokens' => 1000,
+                'temperature' => 0.7,
+                'return_full_text' => false,
+                'top_p' => 0.9
+            ]
+        ]));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         
-        if (!empty($generated_text)) {
-            // Formatar o resumo em HTML
-            $formatted_summary = formatSummaryHTML($generated_text, $user_name);
-            
-            echo json_encode([
-                'success' => true,
-                'summary' => $formatted_summary
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+        
+        // Se o modelo está carregando (503), esperar um pouco e tentar novamente
+        if ($http_code === 503) {
+            sleep(2); // Esperar 2 segundos
+            $ch = curl_init($api_url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json'
             ]);
-            return;
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                'inputs' => $prompt,
+                'parameters' => [
+                    'max_new_tokens' => 1000,
+                    'temperature' => 0.7,
+                    'return_full_text' => false
+                ]
+            ]));
+            curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+            $response = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
         }
+        
+        if (($http_code === 200 || $http_code === 503) && !empty($response)) {
+            $result = json_decode($response, true);
+            
+            // Extrair texto gerado
+            $generated_text = '';
+            if (isset($result[0]['generated_text'])) {
+                $generated_text = $result[0]['generated_text'];
+            } elseif (isset($result['generated_text'])) {
+                $generated_text = $result['generated_text'];
+            } elseif (is_string($result)) {
+                $generated_text = $result;
+            } elseif (isset($result[0]) && is_array($result[0]) && isset($result[0]['summary_text'])) {
+                $generated_text = $result[0]['summary_text'];
+            }
+            
+            if (!empty($generated_text) && strlen(trim($generated_text)) > 50) {
+                // Formatar o resumo em HTML
+                $formatted_summary = formatSummaryHTML($generated_text, $user_name);
+                
+                echo json_encode([
+                    'success' => true,
+                    'summary' => $formatted_summary
+                ]);
+                return;
+            }
+        }
+        
+        // Se chegou aqui, este modelo não funcionou, tentar próximo
     }
     
     // Fallback: tentar com modelo de sumarização tradicional mas com melhor prompt
@@ -986,37 +1036,61 @@ function tryOllamaLocal($conversation, $user_name) {
     // O usuário deve ter baixado o modelo com: ollama pull llama3.1
     $model = 'llama3.1'; // Pode mudar para 'mistral' ou outro modelo instalado
     
-    // Criar prompt inteligente que funciona com QUALQUER tipo de check-in
-    $system_prompt = "Você é um nutricionista experiente que analisa check-ins semanais de pacientes. Sua função é ler a conversa completa entre o profissional e o paciente e criar um resumo profissional, detalhado e analítico em português brasileiro.\n\n";
-    $system_prompt .= "IMPORTANTE:\n";
-    $system_prompt .= "- Cada check-in pode ter perguntas diferentes (cada admin cria seu próprio fluxo)\n";
-    $system_prompt .= "- Leia TODA a conversa como um chat completo\n";
-    $system_prompt .= "- Extraia TODOS os dados mencionados (valores numéricos, respostas, sentimentos)\n";
-    $system_prompt .= "- Identifique padrões, correlações e pontos críticos\n";
-    $system_prompt .= "- Seja específico e mencione valores exatos quando disponíveis\n";
-    $system_prompt .= "- Crie seções relevantes baseadas no conteúdo real da conversa\n\n";
-    $system_prompt .= "Estrutura sugerida (adaptável ao conteúdo):\n";
+    // Criar prompt ULTRA inteligente que funciona com QUALQUER tipo de check-in
+    $system_prompt = "Você é um nutricionista experiente e analista de dados de saúde. Sua função é analisar conversas completas de check-in semanal e criar resumos profissionais, detalhados e analíticos em português brasileiro.\n\n";
+    $system_prompt .= "REGRA FUNDAMENTAL: Cada check-in pode ter perguntas COMPLETAMENTE DIFERENTES. Você DEVE adaptar-se ao fluxo real da conversa, não assumir perguntas específicas.\n\n";
+    $system_prompt .= "METODOLOGIA DE ANÁLISE:\n";
+    $system_prompt .= "1. Leia TODA a conversa linha por linha, identificando cada pergunta e resposta\n";
+    $system_prompt .= "2. Extraia TODOS os dados mencionados: valores numéricos, notas, sentimentos, eventos, dificuldades\n";
+    $system_prompt .= "3. Identifique padrões e correlações entre diferentes aspectos (ex: sono ruim + humor baixo + apetite alto)\n";
+    $system_prompt .= "4. Destaque pontos críticos (valores muito baixos/altos, problemas mencionados)\n";
+    $system_prompt .= "5. Seja ESPECÍFICO: mencione valores exatos, citações diretas quando relevante\n\n";
+    $system_prompt .= "ESTRUTURA DO RESUMO (adaptável ao conteúdo real):\n\n";
     $system_prompt .= "✅ Resumo Completo do Check-in Semanal\n";
-    $system_prompt .= "📅 Período: Últimos 7 dias\n";
+    $system_prompt .= "📅 Período analisado: Últimos 7 dias\n";
     $system_prompt .= "👤 Paciente: [NOME]\n";
-    $system_prompt .= "📊 Nota geral (se mencionada): [NOTA]/10\n\n";
-    $system_prompt .= "Organize o resumo em seções lógicas baseadas nas perguntas e respostas:\n";
-    $system_prompt .= "- Rotina & Treinos (se mencionado)\n";
-    $system_prompt .= "- Alimentação (se mencionado)\n";
-    $system_prompt .= "- Aspectos Emocionais/Motivação (se mencionado)\n";
-    $system_prompt .= "- Sono & Recuperação (se mencionado)\n";
-    $system_prompt .= "- Saúde & Performance (se mencionado)\n";
-    $system_prompt .= "- Outros aspectos relevantes\n\n";
-    $system_prompt .= "Para cada seção:\n";
-    $system_prompt .= "- Liste os dados extraídos\n";
-    $system_prompt .= "- Forneça interpretação profissional\n";
-    $system_prompt .= "- Identifique pontos positivos e de atenção\n\n";
-    $system_prompt .= "Ao final:\n";
+    $system_prompt .= "📊 Nota geral da semana: [NOTA]/10 (se mencionada)\n";
+    $system_prompt .= "[Comentário sobre a nota, se houver]\n\n";
+    $system_prompt .= "ORGANIZE EM SEÇÕES LÓGICAS baseadas no que REALMENTE foi perguntado:\n\n";
+    $system_prompt .= "🔥 1. Rotina & Treinos (se perguntas sobre rotina/treinos existirem)\n";
+    $system_prompt .= "- Liste TODOS os dados extraídos desta categoria\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional dos dados\n\n";
+    $system_prompt .= "🍽️ 2. Alimentação (se perguntas sobre alimentação existirem)\n";
+    $system_prompt .= "- Liste TODOS os dados (apetite, fome, refeições, etc.)\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional\n\n";
+    $system_prompt .= "😊 3. Motivação, Humor & Desejos (se perguntas sobre aspectos emocionais existirem)\n";
+    $system_prompt .= "- Liste TODOS os dados (motivação, humor, desejo de furar, etc.)\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional, destaque pontos críticos\n\n";
+    $system_prompt .= "😴 4. Sono, Recuperação & Estresse (se perguntas sobre sono/recuperação existirem)\n";
+    $system_prompt .= "- Liste TODOS os dados\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional\n\n";
+    $system_prompt .= "🧻 5. Intestino (se perguntas sobre intestino existirem)\n";
+    $system_prompt .= "- Dados extraídos\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional\n\n";
+    $system_prompt .= "🧠 6. Performance (se perguntas sobre performance existirem)\n";
+    $system_prompt .= "- Dados extraídos\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional\n\n";
+    $system_prompt .= "⚖️ 7. Peso (se peso foi mencionado)\n";
+    $system_prompt .= "- Peso atual informado\n\n";
+    $system_prompt .= "🗣️ 8. Comentário do paciente (se houver comentário final)\n";
+    $system_prompt .= "- Citação do comentário\n";
+    $system_prompt .= "- Análise do engajamento\n\n";
     $system_prompt .= "🎯 Conclusão Geral\n";
-    $system_prompt .= "🔧 Ajustes prioritários (baseados nos dados reais)\n\n";
-    $system_prompt .= "Use emojis apropriados e formatação HTML quando relevante. Seja profissional, detalhado e específico.";
+    $system_prompt .= "- Síntese do estado geral do paciente\n";
+    $system_prompt .= "- Lista de pontos críticos identificados\n\n";
+    $system_prompt .= "🔧 Ajustes prioritários\n";
+    $system_prompt .= "- Recomendações específicas baseadas nos dados reais\n\n";
+    $system_prompt .= "IMPORTANTE:\n";
+    $system_prompt .= "- Se uma categoria não foi perguntada, NÃO crie a seção\n";
+    $system_prompt .= "- Seja ESPECÍFICO: mencione valores exatos (ex: 'Humor: 0/10 (péssimo)')\n";
+    $system_prompt .= "- Destaque pontos críticos com formatação apropriada\n";
+    $system_prompt .= "- Use emojis apenas nos títulos das seções\n";
+    $system_prompt .= "- Formate em HTML com tags <h4>, <p>, <ul>, <li>, <strong>\n";
+    $system_prompt .= "- Seja PROFISSIONAL mas ACESSÍVEL\n";
+    $system_prompt .= "- NÃO invente dados que não estão na conversa\n";
+    $system_prompt .= "- ADAPTE a estrutura ao conteúdo real, não force categorias inexistentes";
     
-    $user_message = "Analise a seguinte conversa completa de check-in e crie o resumo profissional:\n\n" . $conversation;
+    $user_message = "Analise a seguinte conversa completa de check-in e crie um resumo profissional, detalhado e analítico. Leia TODA a conversa e extraia TODOS os dados mencionados:\n\n" . $conversation;
     
     // Preparar requisição para Ollama usando API de chat (mais adequada)
     $ch = curl_init($ollama_url);
@@ -1040,12 +1114,12 @@ function tryOllamaLocal($conversation, $user_name) {
         'stream' => false,
         'options' => [
             'temperature' => 0.7,
-            'num_predict' => 3000, // Mais tokens para resumos completos
+            'num_predict' => 4000, // Mais tokens para resumos completos e detalhados
             'top_p' => 0.9,
             'top_k' => 40
         ]
     ]));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 90); // 90 segundos de timeout
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120); // 120 segundos de timeout para modelos maiores
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); // 5 segundos para conectar
     
     $response = curl_exec($ch);
@@ -1080,10 +1154,14 @@ function formatSummaryHTML($summary_text, $user_name) {
     $text = trim($summary_text);
     
     // Se o texto já contém HTML ou estrutura bem formatada da IA, usar diretamente
-    if (stripos($text, '<h4') !== false || stripos($text, '<h3') !== false || stripos($text, '<p') !== false) {
+    if (stripos($text, '<h4') !== false || stripos($text, '<h3') !== false || stripos($text, '<p') !== false || stripos($text, '<ul') !== false) {
         // A IA já formatou em HTML, apenas garantir que o nome do paciente está correto
         $text = str_ireplace('[NOME]', htmlspecialchars($user_name), $text);
+        $text = str_ireplace('[NOME DO PACIENTE]', htmlspecialchars($user_name), $text);
         $text = str_ireplace('Paciente:', 'Paciente: ' . htmlspecialchars($user_name), $text);
+        // Garantir que o nome está no lugar certo
+        $text = preg_replace('/👤\s*Paciente:\s*\[NOME\]/i', '👤 Paciente: ' . htmlspecialchars($user_name), $text);
+        $text = preg_replace('/👤\s*Paciente:\s*([^<]+)/i', '👤 Paciente: ' . htmlspecialchars($user_name), $text, 1);
         return $text;
     }
     
