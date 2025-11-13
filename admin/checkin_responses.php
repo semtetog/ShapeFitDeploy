@@ -400,6 +400,14 @@ require_once __DIR__ . '/includes/header.php';
     vertical-align: middle;
 }
 
+.responses-table td:first-child {
+    padding-right: 0.5rem;
+}
+
+.responses-table td:nth-child(2) {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
 
 .table-checkbox {
     width: 18px;
