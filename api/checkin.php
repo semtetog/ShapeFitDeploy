@@ -136,9 +136,9 @@ function submitCheckin($data, $user_id) {
     if ($is_already_completed == 0) {
         // Verificar se já foi dado pontos antes (congrats_shown = 1 mas is_completed = 0 é um estado inválido, mas vamos verificar)
         if ($congrats_shown == 0) {
-            $points_to_add = 10.0;
+            $points_to_add = 10; // Usar inteiro em vez de float
             error_log("Tentando adicionar {$points_to_add} pontos para user {$user_id}");
-            $success = addPointsToUser($conn, $user_id, $points_to_add, "Check-in semanal completado - Config ID: {$config_id}");
+            $success = addPointsToUser($conn, $user_id, (float)$points_to_add, "Check-in semanal completado - Config ID: {$config_id}");
             
             if ($success) {
                 $points_awarded = $points_to_add;

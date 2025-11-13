@@ -239,6 +239,8 @@ function create_thumbnail($source_path, $destination_path, $thumb_size = 200) {
 
 function addPointsToUser(mysqli $conn, int $user_id, float $points_to_add, string $reason): bool {
     if ($points_to_add == 0) { return true; }
+    // Garantir que os pontos sejam sempre inteiros (arredondar)
+    $points_to_add = round($points_to_add);
     $stmt = $conn->prepare("UPDATE sf_users SET points = points + ? WHERE id = ?");
     if (!$stmt) { error_log("Erro ao preparar addPointsToUser: " . $conn->error); return false; }
     $stmt->bind_param("di", $points_to_add, $user_id);
