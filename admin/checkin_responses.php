@@ -70,23 +70,23 @@ switch ($date_filter) {
 }
 
 // Buscar usuários que responderam
+// IMPORTANTE: Buscar respostas diretamente da tabela sf_checkin_responses
+// sem depender de is_completed, para manter histórico completo mesmo após reset
 $responses_query = "
     SELECT DISTINCT 
         u.id as user_id,
         u.name as user_name,
         u.email,
         up.profile_image_filename,
-        ca.completed_at,
-        DATE(ca.completed_at) as response_date
+        DATE(cr.submitted_at) as response_date,
+        MAX(cr.submitted_at) as completed_at
     FROM sf_checkin_responses cr
     INNER JOIN sf_users u ON cr.user_id = u.id
     LEFT JOIN sf_user_profiles up ON u.id = up.user_id
-    INNER JOIN sf_checkin_availability ca ON ca.config_id = cr.config_id AND ca.user_id = cr.user_id
     WHERE cr.config_id = ?
-    AND ca.is_completed = 1
     $date_condition
-    GROUP BY u.id, DATE(ca.completed_at)
-    ORDER BY ca.completed_at DESC
+    GROUP BY u.id, DATE(cr.submitted_at)
+    ORDER BY completed_at DESC
 ";
 
 $stmt = $conn->prepare($responses_query);
