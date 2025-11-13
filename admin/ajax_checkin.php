@@ -603,6 +603,13 @@ function updateCheckinConfig($data, $admin_id) {
         
         $stmt->close();
         
+        // Resetar flag de congratulação para todos os usuários deste check-in
+        // Isso garante que o popup apareça novamente quando a distribuição for alterada
+        $stmt_reset = $conn->prepare("UPDATE sf_checkin_availability SET congrats_shown = 0 WHERE config_id = ?");
+        $stmt_reset->bind_param("i", $checkin_id);
+        $stmt_reset->execute();
+        $stmt_reset->close();
+        
         $conn->commit();
         
         echo json_encode([

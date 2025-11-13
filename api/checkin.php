@@ -4,6 +4,7 @@
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 requireLogin();
 
@@ -105,14 +106,44 @@ function submitCheckin($data, $user_id) {
     
     // Marcar check-in como completo (domingo da semana)
     $week_start = date('Y-m-d', strtotime('sunday this week'));
-    $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
+    
+    // Verificar se o popup de congratulação já foi mostrado
+    $stmt_check_congrats = $conn->prepare("SELECT congrats_shown FROM sf_checkin_availability WHERE config_id = ? AND user_id = ? AND week_date = ?");
+    $stmt_check_congrats->bind_param("iis", $config_id, $user_id, $week_start);
+    $stmt_check_congrats->execute();
+    $result_congrats = $stmt_check_congrats->get_result();
+    $availability_data = $result_congrats->fetch_assoc();
+    $stmt_check_congrats->close();
+    
+    $points_awarded = 0;
+    $congrats_shown = $availability_data['congrats_shown'] ?? 0;
+    
+    // Se o popup ainda não foi mostrado, adicionar pontos e marcar como mostrado
+    if ($congrats_shown == 0) {
+        $points_to_add = 10.0;
+        $success = addPointsToUser($conn, $user_id, $points_to_add, "Check-in semanal completado - Config ID: {$config_id}");
+        
+        if ($success) {
+            $points_awarded = $points_to_add;
+            // Marcar check-in como completo e popup como mostrado
+            $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW(), congrats_shown = 1 WHERE config_id = ? AND user_id = ? AND week_date = ?");
+        } else {
+            // Se falhar ao adicionar pontos, ainda marcar como completo, mas sem mostrar popup
+            $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
+        }
+    } else {
+        // Popup já foi mostrado, apenas marcar como completo
+        $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
+    }
+    
     $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
     $stmt_update->execute();
     $stmt_update->close();
     
     echo json_encode([
         'success' => true,
-        'message' => 'Check-in salvo com sucesso!'
+        'message' => 'Check-in salvo com sucesso!',
+        'points_awarded' => $points_awarded
     ]);
 }
 

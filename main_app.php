@@ -1188,6 +1188,89 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     }
 }
 
+/* Popup de Congratulação do Check-in */
+.checkin-congrats-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.95) 0%, rgba(255, 193, 7, 0.95) 100%);
+    color: white;
+    padding: 32px 40px;
+    border-radius: 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    z-index: 10000;
+    opacity: 0;
+    animation: congratsPopupAnimation 4s ease-in-out forwards;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    text-align: center;
+    min-width: 320px;
+    max-width: 90%;
+}
+
+.checkin-congrats-popup .congrats-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    animation: congratsIconPulse 1.5s ease-in-out infinite;
+    display: block;
+}
+
+.checkin-congrats-popup .congrats-message {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.checkin-congrats-popup .congrats-points {
+    font-size: 1.8rem;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.checkin-congrats-popup .congrats-points .star-icon {
+    font-size: 1.5rem;
+    color: white;
+    animation: starPulse 1s ease-in-out infinite;
+}
+
+@keyframes congratsPopupAnimation {
+    0% { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.8); 
+    } 
+    15% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1.05); 
+    }
+    25% { 
+        transform: translate(-50%, -50%) scale(1); 
+    }
+    75% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1); 
+    } 
+    100% { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.9); 
+    }
+}
+
+@keyframes congratsIconPulse {
+    0%, 100% { 
+        transform: scale(1); 
+    } 
+    50% { 
+        transform: scale(1.1); 
+    }
+}
+
 @keyframes starPulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
@@ -2980,12 +3063,18 @@ function markCheckinComplete() {
         if (data.success) {
             // Marcar como completo
             console.log('Check-in completo!');
-            // Fechar modal após 3 segundos
+            
+            // Se ganhou pontos, mostrar popup de congratulação
+            if (data.points_awarded && data.points_awarded > 0) {
+                showCheckinCongratsPopup(data.points_awarded);
+            }
+            
+            // Fechar modal após 4 segundos (tempo do popup)
             setTimeout(() => {
                 closeCheckinModal();
                 // Recarregar a página para atualizar o estado
                 window.location.reload();
-            }, 3000);
+            }, 4000);
         } else {
             console.error('Erro ao marcar check-in como completo:', data.message);
         }
@@ -2993,6 +3082,28 @@ function markCheckinComplete() {
     .catch(error => {
         console.error('Erro:', error);
     });
+}
+
+function showCheckinCongratsPopup(points) {
+    const popup = document.createElement('div');
+    popup.className = 'checkin-congrats-popup';
+    popup.innerHTML = `
+        <i class="fas fa-trophy congrats-icon"></i>
+        <div class="congrats-message">Parabéns! 🎉</div>
+        <div>Você completou seu check-in semanal!</div>
+        <div class="congrats-points">
+            <i class="fas fa-star star-icon"></i>
+            <span>+${points} Pontos</span>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    // Remover após a animação (4 segundos)
+    setTimeout(() => {
+        if (popup.parentNode) {
+            popup.parentNode.removeChild(popup);
+        }
+    }, 4000);
 }
 
 </script>
