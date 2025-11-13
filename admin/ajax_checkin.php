@@ -93,7 +93,22 @@ function saveCheckin($data, $admin_id) {
         throw new Exception('Nome do check-in é obrigatório');
     }
     
+    $day_changed = false;
+    
     if ($checkin_id > 0) {
+        // Verificar se o dia da semana mudou
+        $stmt_check = $conn->prepare("SELECT day_of_week FROM sf_checkin_configs WHERE id = ? AND admin_id = ?");
+        $stmt_check->bind_param("ii", $checkin_id, $admin_id);
+        $stmt_check->execute();
+        $result = $stmt_check->get_result();
+        
+        if ($result->num_rows > 0) {
+            $old_config = $result->fetch_assoc();
+            $old_day_of_week = (int)($old_config['day_of_week'] ?? 0);
+            $day_changed = ($old_day_of_week != $day_of_week);
+        }
+        $stmt_check->close();
+        
         // Atualizar existente
         $stmt = $conn->prepare("UPDATE sf_checkin_configs SET name = ?, description = ?, day_of_week = ?, is_active = ?, updated_at = NOW() WHERE id = ? AND admin_id = ?");
         $stmt->bind_param("ssiiii", $name, $description, $day_of_week, $is_active, $checkin_id, $admin_id);
@@ -114,6 +129,16 @@ function saveCheckin($data, $admin_id) {
     }
     
     $stmt->close();
+    
+    // Se o dia da semana mudou, resetar disponibilidade para a semana atual
+    if ($day_changed && $checkin_id > 0) {
+        $current_week_start = date('Y-m-d', strtotime('sunday this week'));
+        
+        $stmt_reset = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 0, congrats_shown = 0 WHERE config_id = ? AND week_date = ?");
+        $stmt_reset->bind_param("is", $checkin_id, $current_week_start);
+        $stmt_reset->execute();
+        $stmt_reset->close();
+    }
     
     echo json_encode([
         'success' => true,
@@ -540,8 +565,8 @@ function updateCheckinConfig($data, $admin_id) {
         throw new Exception('Nome do check-in é obrigatório');
     }
     
-    // Verificar se pertence ao admin
-    $stmt_check = $conn->prepare("SELECT id FROM sf_checkin_configs WHERE id = ? AND admin_id = ?");
+    // Verificar se pertence ao admin e pegar o day_of_week atual
+    $stmt_check = $conn->prepare("SELECT id, day_of_week FROM sf_checkin_configs WHERE id = ? AND admin_id = ?");
     $stmt_check->bind_param("ii", $checkin_id, $admin_id);
     $stmt_check->execute();
     $result = $stmt_check->get_result();
@@ -550,7 +575,12 @@ function updateCheckinConfig($data, $admin_id) {
         $stmt_check->close();
         throw new Exception('Check-in não encontrado ou sem permissão');
     }
+    
+    $current_config = $result->fetch_assoc();
+    $old_day_of_week = (int)($current_config['day_of_week'] ?? 0);
     $stmt_check->close();
+    
+    $day_changed = ($old_day_of_week != $day_of_week);
     
     $conn->begin_transaction();
     try {
@@ -603,12 +633,26 @@ function updateCheckinConfig($data, $admin_id) {
         
         $stmt->close();
         
-        // Resetar flag de congratulação para todos os usuários deste check-in
-        // Isso garante que o popup apareça novamente quando a distribuição for alterada
-        $stmt_reset = $conn->prepare("UPDATE sf_checkin_availability SET congrats_shown = 0 WHERE config_id = ?");
-        $stmt_reset->bind_param("i", $checkin_id);
-        $stmt_reset->execute();
-        $stmt_reset->close();
+        // Se o dia da semana mudou OU a distribuição foi alterada, resetar disponibilidade
+        // Resetar is_completed e congrats_shown para a semana atual de todos os usuários
+        // Isso permite que façam o check-in novamente no novo dia
+        if ($day_changed) {
+            // Calcular o domingo da semana atual (mesma lógica usada no sistema)
+            $current_week_start = date('Y-m-d', strtotime('sunday this week'));
+            
+            // Resetar is_completed e congrats_shown para a semana atual
+            $stmt_reset = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 0, congrats_shown = 0 WHERE config_id = ? AND week_date = ?");
+            $stmt_reset->bind_param("is", $checkin_id, $current_week_start);
+            $stmt_reset->execute();
+            $stmt_reset->close();
+        } else {
+            // Se apenas a distribuição mudou (sem mudar o dia), resetar apenas congrats_shown
+            // Isso garante que o popup apareça novamente quando a distribuição for alterada
+            $stmt_reset = $conn->prepare("UPDATE sf_checkin_availability SET congrats_shown = 0 WHERE config_id = ?");
+            $stmt_reset->bind_param("i", $checkin_id);
+            $stmt_reset->execute();
+            $stmt_reset->close();
+        }
         
         $conn->commit();
         
