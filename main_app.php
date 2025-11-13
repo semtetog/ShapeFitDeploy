@@ -3074,50 +3074,72 @@ function markCheckinComplete() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Marcar como completo
-            console.log('Check-in completo!');
+            console.log('Check-in completo!', data);
             
             // Fechar o modal imediatamente
             closeCheckinModal();
             
-            // Esconder o botão flutuante imediatamente
+            // Remover o botão flutuante permanentemente (não apenas esconder)
             const floatingBtn = document.querySelector('.checkin-floating-btn');
             if (floatingBtn) {
-                floatingBtn.style.display = 'none';
+                floatingBtn.remove(); // Remove do DOM completamente
             }
             
-            // Se ganhou pontos, mostrar popup de congratulação
-            if (data.points_awarded && data.points_awarded > 0) {
-                showCheckinCongratsPopup(data.points_awarded);
+            // Remover o modal também do DOM
+            const modal = document.getElementById('checkinModal');
+            if (modal) {
+                modal.remove();
             }
             
-            // Recarregar a página após o popup desaparecer para atualizar o estado
-            // Isso garante que o check-in não apareça mais até a próxima semana
+            // Sempre mostrar popup de congratulação (com ou sem pontos)
+            // Pequeno delay para garantir que o modal fechou antes do popup aparecer
             setTimeout(() => {
-                window.location.reload();
-            }, 3500);
+                const points = data.points_awarded || 0;
+                showCheckinCongratsPopup(points);
+            }, 300);
         } else {
             console.error('Erro ao marcar check-in como completo:', data.message);
+            alert('Erro ao completar check-in: ' + (data.message || 'Erro desconhecido'));
         }
     })
     .catch(error => {
         console.error('Erro:', error);
+        alert('Erro ao completar check-in. Tente novamente.');
     });
 }
 
 function showCheckinCongratsPopup(points) {
+    // Remover qualquer popup anterior se existir
+    const existingPopup = document.querySelector('.checkin-congrats-popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+    
     const popup = document.createElement('div');
     popup.className = 'checkin-congrats-popup';
-    popup.innerHTML = `
-        <i class="fas fa-trophy congrats-icon"></i>
-        <div class="congrats-message">Parabéns!</div>
-        <div class="congrats-subtitle">Você completou seu check-in semanal</div>
-        <div class="congrats-points">
-            <i class="fas fa-star star-icon"></i>
-            <span>+${points} Pontos</span>
-        </div>
-    `;
+    
+    if (points > 0) {
+        popup.innerHTML = `
+            <i class="fas fa-trophy congrats-icon"></i>
+            <div class="congrats-message">Parabéns!</div>
+            <div class="congrats-subtitle">Você completou seu check-in semanal</div>
+            <div class="congrats-points">
+                <i class="fas fa-star star-icon"></i>
+                <span>+${points} Pontos</span>
+            </div>
+        `;
+    } else {
+        popup.innerHTML = `
+            <i class="fas fa-check-circle congrats-icon"></i>
+            <div class="congrats-message">Check-in Completo!</div>
+            <div class="congrats-subtitle">Seu check-in foi salvo com sucesso</div>
+        `;
+    }
+    
     document.body.appendChild(popup);
+    
+    // Forçar reflow para garantir que a animação funcione
+    popup.offsetHeight;
     
     // Remover após a animação (3.5 segundos)
     setTimeout(() => {
