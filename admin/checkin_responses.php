@@ -214,7 +214,7 @@ require_once __DIR__ . '/includes/header.php';
     border: 1px solid var(--glass-border) !important;
     border-radius: 16px !important;
     padding: 1.25rem !important;
-    padding-right: 2rem !important;
+    padding-right: 3rem !important;
     margin-bottom: 1.5rem !important;
     display: flex;
     justify-content: space-between;
@@ -230,7 +230,9 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .filters-section .right-side {
-    padding-right: 0.5rem;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end;
+    flex-shrink: 0 !important;
 }
 
 .filter-group {
@@ -1286,10 +1288,11 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     gap: 0.75rem;
     align-items: center;
+    flex-wrap: nowrap !important;
 }
 
 .calendar-quick-filter-btn {
-    padding: 0.5rem 1rem;
+    padding: 0.45rem 0.85rem !important;
     background: rgba(255, 107, 0, 0.1);
     border: 1px solid rgba(255, 107, 0, 0.3);
     border-radius: 8px;
@@ -1308,6 +1311,7 @@ require_once __DIR__ . '/includes/header.php';
     max-height: 40px;
     box-sizing: border-box;
     line-height: 1.5;
+    max-width: fit-content;
 }
 
 .calendar-quick-filter-btn:hover {
