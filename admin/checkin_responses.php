@@ -229,6 +229,10 @@ require_once __DIR__ . '/includes/header.php';
     gap: 0.75rem;
 }
 
+/* FIX: Evitar que o ícone de ajuda do calendário suba para o header */
+.calendar-wrapper {
+    position: relative !important;
+}
 
 .filter-group {
     display: flex;
@@ -1308,14 +1312,14 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Ícone de ajuda do calendário - estilo igual ao sleep-details-icon */
 .chart-calendar-help-icon {
-    position: absolute;
-    top: 1.5rem;
-    right: 4.5rem;
+    position: absolute !important;
+    top: 0.5rem !important;
+    right: 0.5rem !important;
     color: var(--accent-orange);
     font-size: 0.8rem;
     cursor: pointer;
     transition: opacity 0.3s ease;
-    z-index: 10;
+    z-index: 2 !important; /* antes era 10 - estourava tudo */
 }
 
 .chart-calendar-help-icon:hover {
@@ -1775,7 +1779,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="filters-section">
-        <div class="left-side">
+        <div class="left-side calendar-wrapper">
             <div class="submissions-count">
                 <span>Respostas</span>
                 <span class="badge"><?php echo $total_count; ?></span>
