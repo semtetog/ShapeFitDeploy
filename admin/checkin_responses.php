@@ -529,12 +529,11 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .chat-modal-header {
-    padding: 1.5rem;
-    padding-top: 3.5rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--glass-border);
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     flex-shrink: 0;
     position: relative;
 }
@@ -550,9 +549,6 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .chat-modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
     background: none;
     border: none;
     color: var(--text-secondary);
@@ -561,7 +557,11 @@ require_once __DIR__ . '/includes/header.php';
     padding: 0.5rem;
     border-radius: 50%;
     transition: all 0.2s ease;
-    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
 }
 
 .chat-modal-close:hover {
@@ -750,7 +750,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <i class="fas fa-user"></i> Nome
                             </th>
                             <th>
-                                <i class="fas fa-comment"></i> Respostas
+                                <i class="fas fa-comment"></i> Ações
                             </th>
                         </tr>
                     </thead>
@@ -786,7 +786,7 @@ require_once __DIR__ . '/includes/header.php';
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="table-preview">Clique para ver respostas</div>
+                                    <div class="table-preview">Ver chat</div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -800,11 +800,11 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Modal de Chat -->
 <div class="chat-modal" id="chatModal">
     <div class="chat-modal-content">
-        <button class="chat-modal-close" onclick="closeChatModal()" type="button">
-            <i class="fas fa-times"></i>
-        </button>
         <div class="chat-modal-header">
             <h3 id="chatModalUserName"></h3>
+            <button class="chat-modal-close" onclick="closeChatModal()" type="button">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         <div class="chat-modal-body" id="chatModalBody">
             <!-- Conteúdo do chat será inserido aqui via JavaScript -->
