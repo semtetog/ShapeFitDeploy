@@ -843,24 +843,27 @@ function generateSummary($data, $admin_id) {
     $api_url = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
     
     // Criar prompt detalhado para análise
-    $prompt = "Você é um assistente de saúde que analisa check-ins semanais de pacientes. Analise a seguinte conversa e crie um resumo detalhado com:\n\n";
-    $prompt .= "1. Análise geral do estado do paciente\n";
-    $prompt .= "2. Pontos positivos identificados\n";
-    $prompt .= "3. Pontos de atenção ou preocupação\n";
-    $prompt .= "4. Recomendações ou observações importantes\n\n";
-    $prompt .= "Conversa:\n" . $conversation . "\n\n";
-    $prompt .= "Crie um resumo profissional e detalhado em português brasileiro:";
+    $prompt = "Você é um nutricionista experiente analisando um check-in semanal detalhado de um paciente. Analise TODA a conversa abaixo e crie um resumo PROFISSIONAL, DETALHADO e ANALÍTICO com:\n\n";
+    $prompt .= "1. ANÁLISE GERAL: Avalie o estado geral do paciente, incluindo todos os aspectos mencionados (alimentação, exercícios, sono, humor, motivação, etc). Seja específico e mencione valores/notas quando relevante.\n\n";
+    $prompt .= "2. PONTOS POSITIVOS: Identifique e detalhe todos os aspectos positivos mencionados pelo paciente. Seja específico sobre o que está funcionando bem.\n\n";
+    $prompt .= "3. PONTOS DE ATENÇÃO: Identifique e detalhe todos os aspectos que requerem atenção, preocupação ou suporte. Inclua notas baixas, dificuldades mencionadas, e qualquer sinal de alerta. Seja específico sobre os valores/notas preocupantes.\n\n";
+    $prompt .= "4. ANÁLISE DETALHADA POR CATEGORIA: Analise cada categoria mencionada (apetite, fome, motivação, humor, sono, recuperação, intestino, performance, estresse) com comentários específicos sobre os valores fornecidos.\n\n";
+    $prompt .= "5. OBSERVAÇÕES E RECOMENDAÇÕES: Forneça observações profissionais e recomendações específicas baseadas na análise completa.\n\n";
+    $prompt .= "IMPORTANTE: Leia TODA a conversa, incluindo todas as perguntas e respostas. Mencione valores específicos (notas, números) quando relevante. Seja detalhado e profissional.\n\n";
+    $prompt .= "Conversa completa:\n" . $conversation . "\n\n";
+    $prompt .= "Agora crie um resumo profissional, detalhado e analítico em português brasileiro:";
     
-    // Limitar tamanho do prompt
-    if (strlen($prompt) > 3000) {
-        $conversation_short = substr($conversation, 0, 2000) . '...';
-        $prompt = "Você é um assistente de saúde que analisa check-ins semanais de pacientes. Analise a seguinte conversa e crie um resumo detalhado com:\n\n";
-        $prompt .= "1. Análise geral do estado do paciente\n";
-        $prompt .= "2. Pontos positivos identificados\n";
-        $prompt .= "3. Pontos de atenção ou preocupação\n";
-        $prompt .= "4. Recomendações ou observações importantes\n\n";
-        $prompt .= "Conversa:\n" . $conversation_short . "\n\n";
-        $prompt .= "Crie um resumo profissional e detalhado em português brasileiro:";
+    // Limitar tamanho do prompt mas manter estrutura
+    if (strlen($prompt) > 3500) {
+        $conversation_short = substr($conversation, 0, 2500) . '...';
+        $prompt = "Você é um nutricionista experiente analisando um check-in semanal detalhado de um paciente. Analise TODA a conversa abaixo e crie um resumo PROFISSIONAL, DETALHADO e ANALÍTICO com:\n\n";
+        $prompt .= "1. ANÁLISE GERAL: Avalie o estado geral do paciente, incluindo todos os aspectos mencionados. Seja específico e mencione valores/notas quando relevante.\n\n";
+        $prompt .= "2. PONTOS POSITIVOS: Identifique e detalhe todos os aspectos positivos mencionados pelo paciente.\n\n";
+        $prompt .= "3. PONTOS DE ATENÇÃO: Identifique todos os aspectos que requerem atenção, incluindo notas baixas e dificuldades.\n\n";
+        $prompt .= "4. ANÁLISE DETALHADA: Analise cada categoria mencionada com comentários específicos sobre os valores fornecidos.\n\n";
+        $prompt .= "5. OBSERVAÇÕES E RECOMENDAÇÕES: Forneça observações profissionais e recomendações específicas.\n\n";
+        $prompt .= "Conversa completa:\n" . $conversation_short . "\n\n";
+        $prompt .= "Agora crie um resumo profissional, detalhado e analítico em português brasileiro:";
     }
     
     // Fazer requisição para a API
@@ -1022,20 +1025,24 @@ function enhanceSummaryWithAnalysis($summary_text, $conversation, $user_name) {
 }
 
 function createIntelligentSummary($conversation, $user_name) {
-    // Extrair informações da conversa
+    // Extrair informações da conversa de forma mais completa
     $lines = explode("\n", $conversation);
-    $questions = [];
-    $responses = [];
+    $qa_pairs = [];
     
     $current_question = '';
     foreach ($lines as $line) {
-        if (strpos($line, 'Pergunta:') !== false) {
-            $current_question = trim(str_replace('Pergunta:', '', $line));
-        } elseif (strpos($line, 'Resposta:') !== false) {
-            $response = trim(str_replace('Resposta:', '', $line));
+        $line = trim($line);
+        if (empty($line)) continue;
+        
+        if (stripos($line, 'Pergunta:') !== false) {
+            $current_question = trim(str_replace(['Pergunta:', 'pergunta:'], '', $line));
+        } elseif (stripos($line, 'Resposta:') !== false) {
+            $response = trim(str_replace(['Resposta:', 'resposta:'], '', $line));
             if (!empty($response) && !empty($current_question)) {
-                $questions[] = $current_question;
-                $responses[] = $response;
+                $qa_pairs[] = [
+                    'question' => $current_question,
+                    'response' => $response
+                ];
             }
         }
     }
@@ -1043,78 +1050,377 @@ function createIntelligentSummary($conversation, $user_name) {
     $html = '<h4>Resumo do Check-in</h4>';
     $html .= '<p><strong>Paciente:</strong> ' . htmlspecialchars($user_name) . '</p>';
     
-    // Análise geral
+    // Análise geral detalhada
     $html .= '<h4>Análise Geral</h4>';
-    $total_responses = count($responses);
-    $html .= '<p>O paciente respondeu a ' . $total_responses . ' perguntas do check-in semanal. ';
+    $total_responses = count($qa_pairs);
+    $html .= '<p>O paciente completou o check-in semanal respondendo a <strong>' . $total_responses . ' perguntas</strong>. ';
     
-    // Analisar conteúdo das respostas
-    $all_text = strtolower(implode(' ', $responses));
-    $positive_indicators = ['bom', 'bem', 'ótimo', 'gostando', 'ajudando', 'focando', 'melhorando', 'ok', 'tudo certo'];
-    $challenge_indicators = ['dificil', 'difícil', 'problema', 'preocupado', 'falta', 'não consegui', 'complicado'];
+    // Extrair todas as notas numéricas e valores
+    $all_responses_text = strtolower(implode(' ', array_column($qa_pairs, 'response')));
+    $numeric_values = [];
+    $scores = [];
+    
+    // Procurar por padrões numéricos (notas de 0 a 10, valores, etc)
+    foreach ($qa_pairs as $qa) {
+        $response_lower = strtolower($qa['response']);
+        $question_lower = strtolower($qa['question']);
+        
+        // Extrair números da resposta
+        if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+            $numeric_value = floatval($matches[1]);
+            if ($numeric_value >= 0 && $numeric_value <= 10) {
+                $scores[] = [
+                    'question' => $qa['question'],
+                    'value' => $numeric_value
+                ];
+            }
+        }
+        
+        // Detectar respostas específicas importantes
+        if (stripos($question_lower, 'humor') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['humor'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'apetite') !== false || stripos($question_lower, 'vontade de comer') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['apetite'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'fome') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['fome'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'motivação') !== false || stripos($question_lower, 'gás') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['motivacao'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'sono') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['sono'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'recuperação') !== false || stripos($question_lower, 'recuperando') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['recuperacao'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'intestino') !== false || stripos($question_lower, 'banheiro') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['intestino'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'performance') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['performance'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'estresse') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['estresse'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'peso') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['peso'] = floatval($matches[1]);
+            }
+        }
+        if (stripos($question_lower, 'nota') !== false && stripos($question_lower, 'semana') !== false) {
+            if (preg_match('/(\d+\.?\d*)/', $qa['response'], $matches)) {
+                $numeric_values['nota_semana'] = floatval($matches[1]);
+            }
+        }
+    }
+    
+    // Análise de sentimentos
+    $positive_indicators = ['bom', 'bem', 'ótimo', 'gostando', 'ajudando', 'focando', 'melhorando', 'ok', 'tudo certo', 'boa'];
+    $challenge_indicators = ['dificil', 'difícil', 'problema', 'preocupado', 'falta', 'não consegui', 'complicado', 'péssimo'];
     
     $positive_score = 0;
     $challenge_score = 0;
     
     foreach ($positive_indicators as $indicator) {
-        $positive_score += substr_count($all_text, $indicator);
+        $positive_score += substr_count($all_responses_text, $indicator);
     }
     
     foreach ($challenge_indicators as $indicator) {
-        $challenge_score += substr_count($all_text, $indicator);
+        $challenge_score += substr_count($all_responses_text, $indicator);
     }
     
-    if ($positive_score > $challenge_score * 2) {
-        $html .= 'O paciente demonstra engajamento positivo e progresso consistente no acompanhamento. ';
+    // Análise geral baseada em todos os dados
+    $html .= 'Analisando todas as respostas e avaliações numéricas, ';
+    
+    $critical_issues = [];
+    $positive_aspects = [];
+    
+    // Analisar cada métrica
+    if (isset($numeric_values['humor']) && $numeric_values['humor'] <= 2) {
+        $critical_issues[] = 'Humor extremamente baixo (' . $numeric_values['humor'] . '/10) - requer atenção imediata';
+    }
+    if (isset($numeric_values['intestino']) && $numeric_values['intestino'] <= 3) {
+        $critical_issues[] = 'Função intestinal comprometida (' . $numeric_values['intestino'] . '/10)';
+    }
+    if (isset($numeric_values['apetite']) && $numeric_values['apetite'] >= 9) {
+        $critical_issues[] = 'Apetite muito elevado (' . $numeric_values['apetite'] . '/10) - pode indicar necessidade de ajuste nutricional';
+    }
+    
+    if (isset($numeric_values['motivacao']) && $numeric_values['motivacao'] >= 7) {
+        $positive_aspects[] = 'Motivação mantida (' . $numeric_values['motivacao'] . '/10)';
+    }
+    if (isset($numeric_values['recuperacao']) && $numeric_values['recuperacao'] >= 7) {
+        $positive_aspects[] = 'Boa recuperação (' . $numeric_values['recuperacao'] . '/10)';
+    }
+    if (isset($numeric_values['performance']) && $numeric_values['performance'] >= 7) {
+        $positive_aspects[] = 'Performance adequada (' . $numeric_values['performance'] . '/10)';
+    }
+    
+    if (count($critical_issues) > 0) {
+        $html .= 'identificamos <strong>pontos críticos que requerem atenção imediata</strong>. ';
+    } elseif ($positive_score > $challenge_score * 2) {
+        $html .= 'o paciente demonstra <strong>engajamento positivo e progresso consistente</strong>. ';
     } elseif ($challenge_score > 0) {
-        $html .= 'Identificados alguns desafios que requerem atenção e suporte adicional. ';
+        $html .= 'identificamos <strong>alguns desafios que requerem atenção e suporte adicional</strong>. ';
     } else {
-        $html .= 'O paciente está mantendo o acompanhamento regular. ';
+        $html .= 'o paciente está <strong>mantendo o acompanhamento regular</strong>. ';
     }
     $html .= '</p>';
     
-    // Pontos positivos
-    if ($positive_score > 0) {
-        $html .= '<h4>Pontos Positivos</h4>';
-        $html .= '<ul>';
-        if (stripos($all_text, 'gostando') !== false || stripos($all_text, 'ajudando') !== false) {
-            $html .= '<li>Demonstra satisfação com o processo e reconhece o valor do acompanhamento</li>';
+    // Análise Detalhada por Categoria
+    $html .= '<h4>Análise Detalhada por Categoria</h4>';
+    $html .= '<ul>';
+    
+    if (isset($numeric_values['humor'])) {
+        $humor = $numeric_values['humor'];
+        $html .= '<li><strong>Humor:</strong> ' . $humor . '/10 - ';
+        if ($humor <= 2) {
+            $html .= '<span style="color: var(--danger-red);">CRÍTICO: Humor extremamente baixo, requer atenção profissional imediata.</span>';
+        } elseif ($humor <= 4) {
+            $html .= 'Humor baixo, pode estar relacionado a outros fatores como sono ou estresse.';
+        } elseif ($humor <= 6) {
+            $html .= 'Humor moderado, dentro do esperado considerando os desafios da rotina.';
+        } else {
+            $html .= 'Humor positivo, indicando bem-estar emocional adequado.';
         }
-        if (stripos($all_text, 'focando') !== false || stripos($all_text, 'forçando') !== false) {
-            $html .= '<li>Mostra determinação e esforço para manter o foco nos objetivos</li>';
-        }
-        if (stripos($all_text, 'bom') !== false || stripos($all_text, 'bem') !== false) {
-            $html .= '<li>Relata estado geral positivo durante a semana</li>';
-        }
-        $html .= '</ul>';
+        $html .= '</li>';
     }
     
-    // Pontos de atenção
-    if ($challenge_score > 0) {
-        $html .= '<h4>Pontos de Atenção</h4>';
-        $html .= '<ul>';
-        if (stripos($all_text, 'dificil') !== false || stripos($all_text, 'difícil') !== false) {
-            $html .= '<li>Menciona dificuldades em manter a rotina, pode precisar de suporte adicional</li>';
+    if (isset($numeric_values['apetite'])) {
+        $apetite = $numeric_values['apetite'];
+        $html .= '<li><strong>Apetite (Vontade de Comer):</strong> ' . $apetite . '/10 - ';
+        if ($apetite >= 9) {
+            $html .= 'Apetite muito elevado, pode indicar necessidade de ajuste na distribuição de macronutrientes ou horários das refeições.';
+        } elseif ($apetite >= 7) {
+            $html .= 'Apetite elevado, dentro do normal para fase de adaptação.';
+        } elseif ($apetite >= 4) {
+            $html .= 'Apetite moderado, adequado ao plano nutricional.';
+        } else {
+            $html .= 'Apetite reduzido, pode indicar necessidade de revisão do plano.';
         }
-        if (stripos($all_text, 'falta') !== false || stripos($all_text, 'não consegui') !== false) {
-            $html .= '<li>Algumas atividades ou compromissos não foram cumpridos conforme planejado</li>';
-        }
-        $html .= '</ul>';
+        $html .= '</li>';
     }
     
-    // Observações importantes
-    $html .= '<h4>Observações Importantes</h4>';
+    if (isset($numeric_values['fome'])) {
+        $fome = $numeric_values['fome'];
+        $html .= '<li><strong>Níveis de Fome:</strong> ' . $fome . '/10 - ';
+        if ($fome >= 7) {
+            $html .= 'Fome elevada durante o dia, pode ser necessário ajustar volume ou distribuição das refeições.';
+        } elseif ($fome >= 4) {
+            $html .= 'Fome moderada, adequada ao plano nutricional.';
+        } else {
+            $html .= 'Fome controlada, indicando boa adesão ao plano.';
+        }
+        $html .= '</li>';
+    }
+    
+    if (isset($numeric_values['motivacao'])) {
+        $motivacao = $numeric_values['motivacao'];
+        $html .= '<li><strong>Motivação:</strong> ' . $motivacao . '/10 - ';
+        if ($motivacao >= 8) {
+            $html .= 'Alta motivação, excelente engajamento com o processo.';
+        } elseif ($motivacao >= 6) {
+            $html .= 'Motivação adequada, mantendo foco nos objetivos.';
+        } else {
+            $html .= 'Motivação pode estar sendo desafiada, pode precisar de suporte adicional.';
+        }
+        $html .= '</li>';
+    }
+    
+    if (isset($numeric_values['sono'])) {
+        $sono = $numeric_values['sono'];
+        $html .= '<li><strong>Sono (Quantidade e Qualidade):</strong> ' . $sono . '/10 - ';
+        if ($sono <= 4) {
+            $html .= 'Sono comprometido, pode impactar recuperação, humor e performance. Recomenda-se atenção.';
+        } elseif ($sono <= 6) {
+            $html .= 'Sono moderado, pode ser melhorado para otimizar resultados.';
+        } else {
+            $html .= 'Sono adequado, contribuindo positivamente para a recuperação.';
+        }
+        $html .= '</li>';
+    }
+    
+    if (isset($numeric_values['recuperacao'])) {
+        $recuperacao = $numeric_values['recuperacao'];
+        $html .= '<li><strong>Recuperação:</strong> ' . $recuperacao . '/10 - ';
+        if ($recuperacao >= 7) {
+            $html .= 'Boa recuperação, indicando adequação do volume de treino e nutrição.';
+        } elseif ($recuperacao >= 5) {
+            $html .= 'Recuperação moderada, pode ser otimizada.';
+        } else {
+            $html .= 'Recuperação comprometida, pode ser necessário ajustar volume de treino ou nutrição.';
+        }
+        $html .= '</li>';
+    }
+    
+    if (isset($numeric_values['intestino'])) {
+        $intestino = $numeric_values['intestino'];
+        $html .= '<li><strong>Função Intestinal:</strong> ' . $intestino . '/10 - ';
+        if ($intestino <= 3) {
+            $html .= '<span style="color: var(--danger-red);">ATENÇÃO: Função intestinal comprometida, pode indicar necessidade de ajuste na ingestão de fibras, hidratação ou distribuição de macronutrientes.</span>';
+        } elseif ($intestino <= 5) {
+            $html .= 'Função intestinal pode ser melhorada com ajustes nutricionais.';
+        } else {
+            $html .= 'Função intestinal adequada.';
+        }
+        $html .= '</li>';
+    }
+    
+    if (isset($numeric_values['performance'])) {
+        $performance = $numeric_values['performance'];
+        $html .= '<li><strong>Performance:</strong> ' . $performance . '/10 - ';
+        if ($performance >= 7) {
+            $html .= 'Performance adequada, indicando boa adaptação ao plano.';
+        } elseif ($performance >= 5) {
+            $html .= 'Performance moderada, pode ser otimizada.';
+        } else {
+            $html .= 'Performance comprometida, pode estar relacionada a recuperação, sono ou nutrição.';
+        }
+        $html .= '</li>';
+    }
+    
+    if (isset($numeric_values['estresse'])) {
+        $estresse = $numeric_values['estresse'];
+        $html .= '<li><strong>Níveis de Estresse:</strong> ' . $estresse . '/10 - ';
+        if ($estresse <= 3) {
+            $html .= 'Estresse controlado, ambiente favorável para progresso.';
+        } elseif ($estresse <= 6) {
+            $html .= 'Estresse moderado, dentro do esperado.';
+        } else {
+            $html .= 'Estresse elevado, pode impactar recuperação e adesão ao plano.';
+        }
+        $html .= '</li>';
+    }
+    
+    if (isset($numeric_values['peso'])) {
+        $peso = $numeric_values['peso'];
+        $html .= '<li><strong>Peso Atual:</strong> ' . $peso . ' kg</li>';
+    }
+    
+    if (isset($numeric_values['nota_semana'])) {
+        $nota = $numeric_values['nota_semana'];
+        $html .= '<li><strong>Avaliação da Semana:</strong> ' . $nota . '/10 - ';
+        if ($nota >= 8) {
+            $html .= 'Semana excelente segundo o próprio paciente.';
+        } elseif ($nota >= 6) {
+            $html .= 'Semana boa, com espaço para melhorias conforme relatado pelo paciente.';
+        } else {
+            $html .= 'Semana desafiadora, pode precisar de suporte adicional.';
+        }
+        $html .= '</li>';
+    }
+    
+    $html .= '</ul>';
+    
+    // Pontos Positivos Detalhados
+    $html .= '<h4>Pontos Positivos</h4>';
+    $html .= '<ul>';
+    
+    if (stripos($all_responses_text, 'gostando') !== false || stripos($all_responses_text, 'ajudando') !== false) {
+        $html .= '<li><strong>Satisfação com o processo:</strong> O paciente demonstra satisfação com o aplicativo e reconhece o valor do acompanhamento para manter o foco.</li>';
+    }
+    if (stripos($all_responses_text, 'focando') !== false || stripos($all_responses_text, 'forçando') !== false) {
+        $html .= '<li><strong>Determinação:</strong> Mostra determinação e esforço ativo para manter o foco nos objetivos, mesmo diante de dificuldades.</li>';
+    }
+    if (stripos($all_responses_text, 'não faltei') !== false || stripos($all_responses_text, 'não faltou') !== false) {
+        $html .= '<li><strong>Consistência nos treinos:</strong> Manteve a consistência nos treinos durante a semana, sem faltas.</li>';
+    }
+    if (isset($numeric_values['motivacao']) && $numeric_values['motivacao'] >= 7) {
+        $html .= '<li><strong>Motivação mantida:</strong> Mantém boa motivação (' . $numeric_values['motivacao'] . '/10) para cuidar da saúde.</li>';
+    }
+    if (isset($numeric_values['recuperacao']) && $numeric_values['recuperacao'] >= 7) {
+        $html .= '<li><strong>Boa recuperação:</strong> Apresenta boa recuperação (' . $numeric_values['recuperacao'] . '/10) tanto dos exercícios quanto das atividades do dia-a-dia.</li>';
+    }
+    if (isset($numeric_values['performance']) && $numeric_values['performance'] >= 7) {
+        $html .= '<li><strong>Performance adequada:</strong> Mantém boa performance (' . $numeric_values['performance'] . '/10) tanto nos exercícios quanto nas atividades mentais.</li>';
+    }
+    if (isset($numeric_values['estresse']) && $numeric_values['estresse'] <= 3) {
+        $html .= '<li><strong>Estresse controlado:</strong> Níveis de estresse baixos (' . $numeric_values['estresse'] . '/10), ambiente favorável para progresso.</li>';
+    }
+    
+    $html .= '</ul>';
+    
+    // Pontos de Atenção Detalhados
+    $html .= '<h4>Pontos de Atenção</h4>';
+    $html .= '<ul>';
+    
+    if (isset($numeric_values['humor']) && $numeric_values['humor'] <= 2) {
+        $html .= '<li><strong style="color: var(--danger-red);">HUMOR CRÍTICO:</strong> Humor extremamente baixo (' . $numeric_values['humor'] . '/10). Este é um ponto crítico que requer atenção imediata e pode estar relacionado a múltiplos fatores (sono, estresse, recuperação, aspectos nutricionais). Recomenda-se investigação mais profunda e possível suporte profissional.</li>';
+    }
+    
+    if (isset($numeric_values['intestino']) && $numeric_values['intestino'] <= 3) {
+        $html .= '<li><strong style="color: var(--danger-red);">FUNÇÃO INTESTINAL COMPROMETIDA:</strong> Nota muito baixa (' . $numeric_values['intestino'] . '/10) para função intestinal. Pode indicar necessidade de ajuste na ingestão de fibras, hidratação adequada, ou distribuição de macronutrientes. Pode também estar relacionado ao estresse ou outros fatores.</li>';
+    }
+    
+    if (isset($numeric_values['apetite']) && $numeric_values['apetite'] >= 9) {
+        $html .= '<li><strong>Apetite muito elevado:</strong> Apetite de ' . $numeric_values['apetite'] . '/10 pode indicar necessidade de ajuste na distribuição de macronutrientes, horários das refeições, ou volume alimentar. Pode estar relacionado ao humor baixo ou outros fatores.</li>';
+    }
+    
+    if (stripos($all_responses_text, 'dificil') !== false || stripos($all_responses_text, 'difícil') !== false) {
+        $html .= '<li><strong>Dificuldades na dieta:</strong> O paciente menciona que é difícil manter a dieta, mas está se esforçando e focando. Pode precisar de estratégias adicionais ou ajustes no plano para facilitar a adesão.</li>';
+    }
+    
+    if (isset($numeric_values['sono']) && $numeric_values['sono'] <= 5) {
+        $html .= '<li><strong>Sono comprometido:</strong> Sono com nota ' . $numeric_values['sono'] . '/10 pode estar impactando negativamente o humor, recuperação e performance. Recomenda-se atenção para melhorar qualidade e quantidade de sono.</li>';
+    }
+    
+    if (isset($numeric_values['fome']) && $numeric_values['fome'] >= 7) {
+        $html .= '<li><strong>Fome elevada:</strong> Níveis de fome de ' . $numeric_values['fome'] . '/10 durante o dia podem indicar necessidade de ajuste no volume ou distribuição das refeições.</li>';
+    }
+    
+    $html .= '</ul>';
+    
+    // Observações e Recomendações
+    $html .= '<h4>Observações e Recomendações</h4>';
     $html .= '<ul>';
     
     // Detectar temas específicos
-    if (stripos($all_text, 'dieta') !== false || stripos($all_text, 'comida') !== false || stripos($all_text, 'comi') !== false) {
-        $html .= '<li>Menciona questões relacionadas à alimentação e dieta</li>';
+    if (stripos($all_responses_text, 'dieta') !== false || stripos($all_responses_text, 'comida') !== false || stripos($all_responses_text, 'comi') !== false) {
+        $html .= '<li><strong>Alimentação:</strong> O paciente menciona questões relacionadas à alimentação. ';
+        if (stripos($all_responses_text, 'jantar') !== false || stripos($all_responses_text, 'aniversário') !== false || stripos($all_responses_text, 'festa') !== false) {
+            $html .= 'Houve eventos sociais (jantar de aniversário) com consumo de alimentos fora do plano, mas o paciente relatou que "tudo ok", indicando boa gestão da situação.';
+        }
+        $html .= '</li>';
     }
-    if (stripos($all_text, 'exercicio') !== false || stripos($all_text, 'exercício') !== false || stripos($all_text, 'treino') !== false) {
-        $html .= '<li>Relata atividades físicas e exercícios realizados</li>';
+    
+    if (stripos($all_responses_text, 'exercicio') !== false || stripos($all_responses_text, 'exercício') !== false || stripos($all_responses_text, 'treino') !== false) {
+        $html .= '<li><strong>Exercícios:</strong> O paciente manteve consistência nos treinos, sem faltas durante a semana. ';
+        if (stripos($all_responses_text, 'forçando') !== false) {
+            $html .= 'Está se esforçando ativamente para manter a rotina de exercícios, demonstrando comprometimento.';
+        }
+        $html .= '</li>';
     }
-    if (stripos($all_text, 'aniversário') !== false || stripos($all_text, 'festa') !== false || stripos($all_text, 'evento') !== false) {
-        $html .= '<li>Menciona eventos sociais que podem ter impactado a rotina</li>';
+    
+    if (isset($numeric_values['humor']) && $numeric_values['humor'] <= 2) {
+        $html .= '<li><strong style="color: var(--danger-red);">PRIORIDADE:</strong> O humor extremamente baixo (' . $numeric_values['humor'] . '/10) é o ponto mais crítico identificado. Recomenda-se investigar causas (sono, estresse, aspectos nutricionais, fatores externos) e considerar suporte profissional adicional se necessário.</li>';
+    }
+    
+    if (isset($numeric_values['intestino']) && $numeric_values['intestino'] <= 3) {
+        $html .= '<li><strong>Ajuste Nutricional:</strong> A função intestinal comprometida (' . $numeric_values['intestino'] . '/10) pode ser melhorada com aumento de fibras, hidratação adequada, e possível ajuste na distribuição de macronutrientes. Pode também estar relacionado ao humor baixo ou estresse.</li>';
+    }
+    
+    if (isset($numeric_values['apetite']) && $numeric_values['apetite'] >= 9 && isset($numeric_values['humor']) && $numeric_values['humor'] <= 2) {
+        $html .= '<li><strong>Correlação Apetite-Humor:</strong> O apetite muito elevado (' . $numeric_values['apetite'] . '/10) pode estar relacionado ao humor extremamente baixo (' . $numeric_values['humor'] . '/10), indicando possível alimentação emocional. Recomenda-se abordagem integrada.</li>';
     }
     
     $html .= '</ul>';
