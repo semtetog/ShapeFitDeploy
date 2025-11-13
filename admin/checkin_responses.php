@@ -376,14 +376,10 @@ require_once __DIR__ . '/includes/header.php';
 
 
 .responses-table th:nth-child(2) {
-    width: 180px;
+    width: 200px;
 }
 
 .responses-table th:nth-child(3) {
-    width: 250px;
-}
-
-.responses-table th:nth-child(4) {
     min-width: 300px;
 }
 
@@ -455,6 +451,9 @@ require_once __DIR__ . '/includes/header.php';
 .table-user-name {
     font-weight: 600;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 .table-preview {
@@ -743,10 +742,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <i class="fas fa-user"></i> Nome
                             </th>
                             <th>
-                                <i class="fas fa-comment"></i> <?php 
-                                $first_question = !empty($questions) ? reset($questions) : null;
-                                echo htmlspecialchars($first_question['question_text'] ?? 'Resposta'); 
-                                ?>
+                                <i class="fas fa-comment"></i> Respostas
                             </th>
                         </tr>
                     </thead>
