@@ -62,52 +62,25 @@ $stmt->close();
 // Processar filtro de datas
 $date_filter = $_GET['date_filter'] ?? 'all';
 $date_condition = "";
-$period_label = "Todos os períodos"; // Label padrão
 
 switch ($date_filter) {
     case 'last_7_days':
         $date_condition = "AND DATE(cr.submitted_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
-        $period_label = "Últimos 7 dias";
         break;
     case 'this_week':
         $date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(CURDATE(), 1)";
-        $period_label = "Esta semana";
         break;
     case 'last_week':
         $date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 7 DAY), 1)";
-        $period_label = "Semana passada";
         break;
     case 'this_month':
         $date_condition = "AND YEAR(cr.submitted_at) = YEAR(CURDATE()) AND MONTH(cr.submitted_at) = MONTH(CURDATE())";
-        $period_label = "Este mês";
         break;
     case 'last_month':
         $date_condition = "AND YEAR(cr.submitted_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(cr.submitted_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
-        $period_label = "Mês passado";
-        break;
-    case 'custom':
-        $date_start = $_GET['date_start'] ?? '';
-        $date_end = $_GET['date_end'] ?? '';
-        if (!empty($date_start) && !empty($date_end)) {
-            $date_start = $conn->real_escape_string($date_start);
-            $date_end = $conn->real_escape_string($date_end);
-            $date_condition = "AND DATE(cr.submitted_at) >= '$date_start' AND DATE(cr.submitted_at) <= '$date_end'";
-            
-            // Formatar datas para exibição
-            $start_date_obj = DateTime::createFromFormat('Y-m-d', $date_start);
-            $end_date_obj = DateTime::createFromFormat('Y-m-d', $date_end);
-            if ($start_date_obj && $end_date_obj) {
-                if ($date_start === $date_end) {
-                    $period_label = $start_date_obj->format('d/m/Y');
-                } else {
-                    $period_label = $start_date_obj->format('d/m') . ' - ' . $end_date_obj->format('d/m/Y');
-                }
-            }
-        }
         break;
     default:
         $date_condition = "";
-        $period_label = "Todos os períodos";
 }
 
 // Buscar usuários que responderam
@@ -226,135 +199,17 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0.5rem 0 0 0;
 }
 
-/* Filtros - Refatoração completa do zero */
+/* Filtros */
 .filters-section {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 16px !important;
     padding: 1.25rem !important;
     margin-bottom: 1.5rem !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    gap: 1rem !important;
-    position: relative !important;
-}
-
-.filters-section .left-side {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 0.75rem !important;
-    height: 40px !important;
-    box-sizing: border-box !important;
-    flex-shrink: 0 !important;
-}
-
-.filters-section .right-side {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 0.75rem !important;
-    height: 40px !important;
-    box-sizing: border-box !important;
-    flex-shrink: 0 !important;
-}
-
-/* Elementos internos - altura e alinhamento fixos */
-.filters-section .submissions-count {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 0.5rem 1rem !important;
-    flex-shrink: 0 !important;
-    vertical-align: middle !important;
-}
-
-.filters-section .btn-select-mode {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 0.5rem 1rem !important;
-    flex-shrink: 0 !important;
-    vertical-align: middle !important;
-}
-
-/* Botão de período (estilo igual ao view_user_hydration) */
-.filters-section .period-btn {
-    padding: 10px 20px !important;
-    border: 1px solid rgba(255, 107, 0, 0.2) !important;
-    background: rgba(255, 107, 0, 0.08) !important;
-    color: var(--accent-orange) !important;
-    border-radius: 20px !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    font-family: 'Montserrat', sans-serif !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    position: relative !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    white-space: nowrap !important;
-    width: auto !important;
-    min-width: auto !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-    line-height: 1 !important;
-    justify-content: flex-start !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-    vertical-align: middle !important;
-}
-
-.filters-section .period-btn i {
-    font-size: 1rem !important;
-    flex-shrink: 0 !important;
-    color: var(--accent-orange) !important;
-}
-
-.filters-section .period-btn:hover {
-    background: rgba(255, 107, 0, 0.15) !important;
-    border-color: var(--accent-orange) !important;
-    transform: scale(1.05) !important;
-    color: var(--accent-orange) !important;
-}
-
-.filters-section .period-btn.active {
-    background: rgba(255, 107, 0, 0.08) !important;
-    color: var(--accent-orange) !important;
-    border-color: rgba(255, 107, 0, 0.2) !important;
-    box-shadow: none !important;
-}
-
-.filters-section .period-btn.active:hover {
-    background: rgba(255, 107, 0, 0.15) !important;
-    border-color: var(--accent-orange) !important;
-    color: var(--accent-orange) !important;
-}
-
-/* FIX: Evitar que o ícone de ajuda do calendário suba para o header */
-.filters-section .calendar-wrapper {
-    position: relative !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    height: 40px !important;
-    width: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .filter-group {
@@ -773,7 +628,7 @@ require_once __DIR__ . '/includes/header.php';
     margin: 0 0 0.5rem 0;
 }
 
-/* Modais Customizados (estilo admin) */
+/* Modais Customizados (estilo admin) - igual ao view_user_hydration */
 .custom-modal {
     display: none;
     position: fixed;
@@ -781,15 +636,18 @@ require_once __DIR__ . '/includes/header.php';
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
     z-index: 999999;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
 }
 
 .custom-modal.active {
     display: flex !important;
+    opacity: 1;
+    pointer-events: all;
 }
 
 .custom-modal-overlay {
@@ -798,13 +656,11 @@ require_once __DIR__ . '/includes/header.php';
     left: 0;
     width: 100%;
     height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: none !important;
     z-index: 1;
-}
-
-/* Garantir que o calendário fique acima do overlay */
-#checkinCalendarModal .diary-calendar-wrapper {
-    position: relative;
-    z-index: 2;
 }
 
 .custom-modal-content {
@@ -1405,486 +1261,6 @@ require_once __DIR__ . '/includes/header.php';
     padding-right: 0.5rem;
     padding-left: 0;
 }
-/* Botão do calendário (ícone redondo) - igual ao view_user_diary */
-.diary-calendar-icon-btn {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
-    padding: 0;
-    border-radius: 50%;
-    background: rgba(255, 107, 0, 0.08);
-    border: 1px solid rgba(255, 107, 0, 0.2);
-    color: var(--accent-orange);
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-}
-
-.diary-calendar-icon-btn:hover {
-    background: rgba(255, 107, 0, 0.15);
-    border-color: var(--accent-orange);
-    transform: translateY(-2px);
-}
-
-/* Ícone de ajuda do calendário - estilo igual ao sleep-details-icon */
-.chart-calendar-help-icon {
-    position: absolute;
-    top: 1.5rem;
-    right: 4.5rem;
-    color: var(--accent-orange);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
-    z-index: 10;
-}
-
-.chart-calendar-help-icon:hover {
-    opacity: 0.7;
-}
-
-/* Popup de ajuda do calendário - lateral direita (fora do modal) */
-.chart-calendar-help-popup {
-    position: fixed;
-    top: 15%;
-    right: calc(50% - 240px - 300px);
-    z-index: 1000000; /* Acima do modal (z-index: 999999) e na mesma camada visual do calendário */
-    pointer-events: all;
-    width: 280px;
-    max-width: calc(100vw - 2rem);
-}
-
-.chart-calendar-help-popup-content {
-    background: var(--card-bg);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 12px;
-    padding: 1.25rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    position: relative;
-}
-
-.chart-calendar-help-popup-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 50%;
-    width: 1.75rem;
-    height: 1.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.chart-calendar-help-popup-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--accent-orange);
-}
-
-.chart-calendar-help-popup-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--accent-orange);
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.chart-calendar-help-popup-header i {
-    font-size: 1rem;
-}
-
-.chart-calendar-help-popup-body {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    line-height: 1.6;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.chart-calendar-help-popup-body p {
-    margin: 0 0 0.5rem 0;
-}
-
-.chart-calendar-help-popup-tip {
-    margin-top: 0.75rem !important;
-    padding-top: 0.75rem !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-    font-weight: 500 !important;
-    color: var(--text-primary) !important;
-}
-
-.chart-calendar-help-popup-tip strong {
-    color: var(--accent-orange);
-}
-
-/* Responsivo */
-@media (max-width: 768px) {
-    .chart-calendar-help-popup {
-        position: fixed !important;
-        top: 2rem !important;
-        right: 1rem !important;
-        left: auto !important;
-        transform: none !important;
-        max-width: calc(100vw - 2rem);
-        width: calc(100vw - 2rem) !important;
-    }
-    
-    .chart-calendar-help-icon {
-        top: 1rem;
-        right: 4rem;
-        font-size: 0.9rem;
-    }
-}
-
-/* Estilos do calendário (replicados do view_user_addon.css) */
-.diary-calendar-wrapper {
-    position: relative;
-    background: linear-gradient(145deg, rgba(30, 30, 30, 0.98), rgba(20, 20, 20, 0.98));
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 2.5rem;
-    max-width: 480px;
-    width: 90%;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8);
-    z-index: 1000000;
-}
-
-.calendar-btn-close {
-    position: absolute !important;
-    top: 1rem !important;
-    right: 1rem !important;
-    background: none !important;
-    border: none !important;
-    color: var(--text-secondary) !important;
-    font-size: 1.2rem !important;
-    cursor: pointer !important;
-    padding: 0.5rem !important;
-    border-radius: 50% !important;
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.3s ease !important;
-    z-index: 10 !important;
-}
-
-.calendar-btn-close:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: var(--accent-orange) !important;
-}
-
-.calendar-header-title {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-}
-
-.calendar-year {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    font-weight: 400;
-    margin-bottom: 0.25rem;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.calendar-nav-buttons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-
-.calendar-month {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--accent-orange);
-    letter-spacing: 1px;
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-    min-width: 80px;
-    text-align: center;
-}
-
-.calendar-btn-nav {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.calendar-btn-nav:hover {
-    background: rgba(255, 107, 0, 0.1);
-    border-color: rgba(255, 107, 0, 0.3);
-    color: var(--accent-orange);
-}
-
-.calendar-btn-nav.disabled {
-    background: rgba(255, 255, 255, 0.02);
-    border-color: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-.calendar-weekdays-row {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.calendar-weekdays-row span {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--accent-orange);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.calendar-days-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-}
-
-.calendar-day {
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.calendar-day.empty {
-    background: transparent;
-    border: none;
-    cursor: default;
-}
-
-.calendar-day.current-month {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
-.calendar-day.other-month {
-    background: rgba(255, 255, 255, 0.01);
-    color: var(--text-secondary);
-    opacity: 0.2;
-    cursor: default;
-    border-color: rgba(255, 255, 255, 0.03);
-}
-
-.calendar-day.future-day {
-    background: rgba(255, 255, 255, 0.01);
-    color: var(--text-secondary);
-    opacity: 0.2;
-    cursor: default;
-    border-color: rgba(255, 255, 255, 0.03);
-}
-
-.calendar-day:not(.empty):not(.other-month):not(.future-day):hover {
-    transform: scale(1.05);
-}
-
-.calendar-day.has-data {
-    background: rgba(255, 107, 0, 0.1);
-    border-color: rgba(255, 107, 0, 0.3);
-    color: var(--accent-orange);
-    font-weight: 600;
-}
-
-.calendar-day.today {
-    background: var(--accent-orange);
-    color: white;
-    border-color: var(--accent-orange);
-    font-weight: 700;
-}
-
-.calendar-day.has-data.today {
-    background: var(--accent-orange);
-    color: white;
-    border-color: var(--accent-orange);
-    font-weight: 700;
-}
-
-.calendar-day.selected-start {
-    background: rgba(255, 107, 0, 0.3) !important;
-    color: var(--accent-orange) !important;
-    border-color: var(--accent-orange) !important;
-    border-width: 2px !important;
-    font-weight: 700 !important;
-    box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2) !important;
-}
-
-.calendar-day.selected-start.today {
-    background: var(--accent-orange) !important;
-    color: white !important;
-    border-color: var(--accent-orange) !important;
-    border-width: 2px !important;
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.4) !important;
-}
-
-.calendar-day.selected-range {
-    background: rgba(255, 107, 0, 0.2) !important;
-    border-color: rgba(255, 107, 0, 0.5) !important;
-    color: var(--accent-orange) !important;
-    font-weight: 600 !important;
-}
-
-.calendar-separator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 1.5rem 0;
-    gap: 1rem;
-}
-
-.separator-line {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent-orange), transparent);
-    flex: 1;
-    position: relative;
-}
-
-.separator-dots {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.dot {
-    width: 4px;
-    height: 4px;
-    background: var(--accent-orange);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent-orange);
-    animation: pulse 2s infinite;
-}
-
-.dot:nth-child(2) {
-    animation-delay: 0.3s;
-}
-
-.dot:nth-child(3) {
-    animation-delay: 0.6s;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 0.4;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.2);
-    }
-}
-
-.calendar-footer-legend {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.875rem;
-    padding-top: 0;
-}
-
-.legend-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.legend-marker {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-    flex-shrink: 0;
-}
-
-.legend-marker.today-marker {
-    background: var(--accent-orange);
-}
-
-.legend-marker.has-data-marker {
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-}
-
-.legend-marker.no-data-marker {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.legend-text {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-family: 'Montserrat', sans-serif;
-}
-
-.calendar-quick-btn {
-    width: 100%;
-    padding: 1rem 1.5rem;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 12px;
-    color: var(--accent-orange);
-    font-size: 0.95rem;
-    font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-}
-
-.calendar-quick-btn:hover {
-    background: rgba(255, 107, 0, 0.15);
-    border-color: var(--accent-orange);
-    transform: translateY(-2px);
-}
-
-.calendar-quick-btn i {
-    font-size: 1.1rem;
-}
-
 </style>
 
 <div class="checkin-responses-page">
@@ -1902,21 +1278,43 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="filters-section">
-        <div class="left-side">
-            <div class="submissions-count">
-                <span>Respostas</span>
-                <span class="badge"><?php echo $total_count; ?></span>
+        <div class="filter-group">
+            <label for="dateFilter">Filtrar por:</label>
+            <div class="custom-select-wrapper">
+                <div class="custom-select">
+                    <div class="custom-select-trigger" id="dateFilterTrigger">
+                        <?php
+                        $filter_labels = [
+                            'all' => 'Todas as datas',
+                            'last_7_days' => 'Últimos 7 dias',
+                            'this_week' => 'Esta semana',
+                            'last_week' => 'Semana passada',
+                            'this_month' => 'Este mês',
+                            'last_month' => 'Mês passado'
+                        ];
+                        echo htmlspecialchars($filter_labels[$date_filter] ?? 'Todas as datas');
+                        ?>
+                        <i class="fas fa-chevron-down" style="font-size: 0.75rem; margin-left: 0.5rem;"></i>
+                    </div>
+                    <div class="custom-select-options" id="dateFilterOptions">
+                        <div class="custom-select-option <?php echo $date_filter === 'all' ? 'selected' : ''; ?>" data-value="all">Todas as datas</div>
+                        <div class="custom-select-option <?php echo $date_filter === 'last_7_days' ? 'selected' : ''; ?>" data-value="last_7_days">Últimos 7 dias</div>
+                        <div class="custom-select-option <?php echo $date_filter === 'this_week' ? 'selected' : ''; ?>" data-value="this_week">Esta semana</div>
+                        <div class="custom-select-option <?php echo $date_filter === 'last_week' ? 'selected' : ''; ?>" data-value="last_week">Semana passada</div>
+                        <div class="custom-select-option <?php echo $date_filter === 'this_month' ? 'selected' : ''; ?>" data-value="this_month">Este mês</div>
+                        <div class="custom-select-option <?php echo $date_filter === 'last_month' ? 'selected' : ''; ?>" data-value="last_month">Mês passado</div>
+                    </div>
+                </div>
             </div>
-            <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
-                <i class="fas fa-mouse-pointer"></i>
-                <span>Selecionar</span>
-            </button>
         </div>
-        <div class="right-side calendar-wrapper">
-            <button class="period-btn active" onclick="openCheckinCalendar()" type="button" id="checkin-period-btn" title="Selecionar período">
-                <i class="fas fa-calendar-alt"></i> <span id="checkin-period-text"><?php echo htmlspecialchars($period_label); ?></span>
-            </button>
+        <div class="submissions-count">
+            <span>Respostas</span>
+            <span class="badge"><?php echo $total_count; ?></span>
         </div>
+        <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
+            <i class="fas fa-mouse-pointer"></i>
+            <span>Selecionar</span>
+        </button>
     </div>
 
     <?php if (empty($users)): ?>
@@ -2078,102 +1476,41 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- Modal de Calendário para Check-in -->
-<div id="checkinCalendarModal" class="custom-modal">
-    <div class="custom-modal-overlay" onclick="closeCheckinCalendar()"></div>
-    <div class="diary-calendar-wrapper">
-        <button class="calendar-btn-close" onclick="closeCheckinCalendar()" type="button">
-            <i class="fas fa-times"></i>
-        </button>
-        
-        <div class="calendar-header-title">
-            <div class="calendar-year" id="checkinCalendarYear"></div>
-        </div>
-        
-        <!-- Botão de Últimos 7 dias -->
-        <div style="margin-bottom: 1.5rem;">
-            <button class="calendar-quick-btn" onclick="selectCheckinPeriod('last7')">
-                <i class="fas fa-clock"></i>
-                <span>Últimos 7 dias</span>
-            </button>
-        </div>
-        
-        <div class="calendar-nav-buttons">
-            <button class="calendar-btn-nav" onclick="changeCheckinCalendarMonth(-1)" type="button">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="calendar-month" id="checkinCalendarMonth"></div>
-            <button class="calendar-btn-nav" id="checkinNextMonthBtn" onclick="changeCheckinCalendarMonth(1)" type="button">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-        
-        <div class="calendar-weekdays-row">
-            <span>DOM</span>
-            <span>SEG</span>
-            <span>TER</span>
-            <span>QUA</span>
-            <span>QUI</span>
-            <span>SEX</span>
-            <span>SÁB</span>
-        </div>
-        
-        <div class="calendar-days-grid" id="checkinCalendarDaysGrid"></div>
-        
-        <div class="calendar-separator">
-            <div class="separator-line"></div>
-            <div class="separator-dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-            <div class="separator-line"></div>
-        </div>
-        
-        <!-- Ícone de ajuda para abrir popup de instruções -->
-        <i class="fas fa-question-circle chart-calendar-help-icon" onclick="toggleCheckinCalendarHelp()" title="Ajuda - Como usar o calendário"></i>
-        
-        <div class="calendar-footer-legend">
-            <div class="legend-row">
-                <span class="legend-marker today-marker"></span>
-                <span class="legend-text">Hoje</span>
-            </div>
-            <div class="legend-row">
-                <span class="legend-marker has-data-marker"></span>
-                <span class="legend-text">Com check-in</span>
-            </div>
-            <div class="legend-row">
-                <span class="legend-marker no-data-marker"></span>
-                <span class="legend-text">Sem check-in</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Popup de ajuda do calendário - lateral direita (fora do modal) -->
-<div id="checkinCalendarHelpPopup" class="chart-calendar-help-popup" style="display: none;">
-    <div class="chart-calendar-help-popup-content">
-        <button class="chart-calendar-help-popup-close" onclick="toggleCheckinCalendarHelp()">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="chart-calendar-help-popup-header">
-            <i class="fas fa-info-circle"></i>
-            <span>Selecione um período</span>
-        </div>
-        <div class="chart-calendar-help-popup-body">
-            <p>Clique em uma data para início, depois em outra para fim</p>
-            <p class="chart-calendar-help-popup-tip">
-                <strong>Dica:</strong> Dê duplo clique em um dia para ver apenas esse dia específico
-            </p>
-        </div>
-    </div>
-</div>
-
 <script>
 // Dados dos usuários para o JavaScript
 const usersData = <?php echo json_encode($users); ?>;
 const questionsData = <?php echo json_encode($questions); ?>;
 
+// Custom Select
+document.addEventListener('DOMContentLoaded', function() {
+    const trigger = document.getElementById('dateFilterTrigger');
+    const options = document.getElementById('dateFilterOptions');
+    const optionItems = options.querySelectorAll('.custom-select-option');
+    
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        options.classList.toggle('active');
+        trigger.classList.toggle('active');
+    });
+    
+    optionItems.forEach(option => {
+        option.addEventListener('click', function() {
+            const value = this.getAttribute('data-value');
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('date_filter', value);
+            window.location.href = currentUrl.toString();
+        });
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!trigger.contains(e.target) && !options.contains(e.target)) {
+            options.classList.remove('active');
+            trigger.classList.remove('active');
+        }
+    });
+    
+    // Checkboxes removidos conforme solicitado
+});
 
 let currentUserKey = null;
 
@@ -2345,22 +1682,12 @@ async function loadSummary(userKey) {
         });
         
         let conversationText = '';
-        let flowInfo = [];
-        
         questionIds.forEach(questionId => {
             const question = questionsData[questionId];
             const response = user.responses[questionId];
             if (response && response.response_text) {
                 conversationText += `Pergunta: ${question.question_text}\n`;
                 conversationText += `Resposta: ${response.response_text}\n\n`;
-                
-                // Adicionar informações do fluxo
-                flowInfo.push({
-                    question_text: question.question_text,
-                    question_type: question.question_type,
-                    options: question.options ? JSON.parse(question.options) : null,
-                    response_text: response.response_text
-                });
             }
         });
         
@@ -2369,8 +1696,6 @@ async function loadSummary(userKey) {
         formData.append('action', 'generate_summary');
         formData.append('conversation', conversationText);
         formData.append('user_name', user.user_name);
-        formData.append('user_id', user.user_id);
-        formData.append('flow_info', JSON.stringify(flowInfo));
         
         const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
             method: 'POST',
@@ -2378,38 +1703,20 @@ async function loadSummary(userKey) {
             body: formData
         });
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const text = await response.text();
-        
-        // Verificar se a resposta está vazia ou não é JSON válido
-        if (!text || text.trim() === '') {
-            throw new Error('Resposta vazia do servidor');
-        }
-        
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (parseError) {
-            console.error('Erro ao fazer parse do JSON:', parseError);
-            console.error('Resposta recebida:', text.substring(0, 500));
-            throw new Error('Resposta inválida do servidor: ' + parseError.message);
-        }
+        const data = JSON.parse(text);
         
         if (data.success && data.summary) {
             summaryContent.className = 'chat-summary-content';
             summaryContent.innerHTML = data.summary;
         } else {
             summaryContent.className = 'chat-summary-content';
-            const errorMsg = data.message || 'Erro ao gerar resumo. Tente novamente.';
-            summaryContent.innerHTML = '<p style="color: var(--danger-red);">' + errorMsg + '</p>';
+            summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo. Tente novamente.</p>';
         }
     } catch (error) {
         console.error('Erro ao carregar resumo:', error);
         summaryContent.className = 'chat-summary-content';
-        summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo: ' + error.message + '</p>';
+        summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo. Tente novamente.</p>';
     }
 }
 
@@ -2750,362 +2057,6 @@ function formatDateTime(dateString) {
         minute: '2-digit'
     });
 }
-
-// ========== CALENDÁRIO DE CHECK-IN ==========
-// Nomes dos meses
-const monthNamesShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-// Variáveis do calendário
-let currentCheckinCalendarDate = new Date();
-let checkinDateStart = null;
-let checkinDateEnd = null;
-let daysWithCheckinData = new Set();
-const checkinId = <?php echo $checkin_id; ?>;
-
-// Abrir modal de calendário
-async function openCheckinCalendar() {
-    currentCheckinCalendarDate = new Date();
-    checkinDateStart = null;
-    checkinDateEnd = null;
-    
-    // Buscar dias com check-ins
-    await loadCheckinCalendarData();
-    
-    // Renderizar calendário
-    renderCheckinCalendar();
-    
-    const modal = document.getElementById('checkinCalendarModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        
-        // Mostrar popup de ajuda (apenas na primeira vez)
-        const helpPopup = document.getElementById('checkinCalendarHelpPopup');
-        if (helpPopup) {
-            const hasSeenHelp = localStorage.getItem('checkinCalendarHelpSeen');
-            if (!hasSeenHelp) {
-                helpPopup.style.display = 'block';
-            } else {
-                // Se já viu, não mostrar automaticamente
-                helpPopup.style.display = 'none';
-            }
-        }
-    }
-}
-
-// Carregar datas com check-ins
-async function loadCheckinCalendarData() {
-    daysWithCheckinData.clear();
-    
-    try {
-        const response = await fetch(`ajax_checkin.php?action=get_checkin_dates&checkin_id=${checkinId}`);
-        const result = await response.json();
-        
-        if (result.success && result.dates) {
-            result.dates.forEach(date => daysWithCheckinData.add(date));
-        }
-    } catch (error) {
-        console.error('Erro ao carregar datas do calendário:', error);
-    }
-}
-
-// Mudar mês do calendário
-function changeCheckinCalendarMonth(direction) {
-    const newDate = new Date(currentCheckinCalendarDate);
-    newDate.setMonth(newDate.getMonth() + direction);
-    
-    const now = new Date();
-    if (newDate.getFullYear() > now.getFullYear() || 
-        (newDate.getFullYear() === now.getFullYear() && newDate.getMonth() > now.getMonth())) {
-        return;
-    }
-    
-    currentCheckinCalendarDate = newDate;
-    renderCheckinCalendar();
-}
-
-// Renderizar calendário
-function renderCheckinCalendar() {
-    const year = currentCheckinCalendarDate.getFullYear();
-    const month = currentCheckinCalendarDate.getMonth();
-    
-    document.getElementById('checkinCalendarYear').textContent = year;
-    document.getElementById('checkinCalendarMonth').textContent = monthNamesShort[month];
-    
-    const nextBtn = document.getElementById('checkinNextMonthBtn');
-    const now = new Date();
-    if (year === now.getFullYear() && month === now.getMonth()) {
-        nextBtn.classList.add('disabled');
-    } else {
-        nextBtn.classList.remove('disabled');
-    }
-    
-    const grid = document.getElementById('checkinCalendarDaysGrid');
-    grid.innerHTML = '';
-    
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const prevMonth = new Date(year, month, 0);
-    const daysInPrevMonth = prevMonth.getDate();
-    const startDay = firstDay.getDay();
-    
-    // Dias do mês anterior
-    for (let i = startDay - 1; i >= 0; i--) {
-        const dayEl = document.createElement('div');
-        dayEl.className = 'calendar-day other-month';
-        dayEl.textContent = daysInPrevMonth - i;
-        grid.appendChild(dayEl);
-    }
-    
-    // Dias do mês atual
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-        const dayEl = document.createElement('div');
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        dayEl.className = 'calendar-day';
-        dayEl.textContent = day;
-        dayEl.setAttribute('data-date', dateStr);
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const targetDate = new Date(dateStr + 'T00:00:00');
-        
-        // Bloquear dias futuros
-        if (targetDate > today) {
-            dayEl.classList.add('future-day');
-        } else {
-            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
-                dayEl.classList.add('today');
-            }
-            
-            if (daysWithCheckinData.has(dateStr)) {
-                dayEl.classList.add('has-data');
-            }
-            
-            // Marcar se está no período selecionado
-            if (checkinDateStart && checkinDateEnd) {
-                const selStart = new Date(checkinDateStart + 'T00:00:00');
-                const selEnd = new Date(checkinDateEnd + 'T00:00:00');
-                if (targetDate >= selStart && targetDate <= selEnd) {
-                    dayEl.classList.add('selected-range');
-                }
-            } else if (checkinDateStart && dateStr === checkinDateStart) {
-                dayEl.classList.add('selected-start');
-            }
-            
-            dayEl.addEventListener('click', () => selectCheckinDate(dateStr));
-            dayEl.addEventListener('dblclick', () => selectSingleCheckinDay(dateStr));
-        }
-        
-        grid.appendChild(dayEl);
-    }
-    
-    // Dias do próximo mês
-    const totalCells = grid.children.length;
-    const remainingCells = 42 - totalCells;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (remainingCells > 0) {
-        for (let day = 1; day <= remainingCells; day++) {
-            const dayEl = document.createElement('div');
-            dayEl.className = 'calendar-day other-month';
-            dayEl.textContent = day;
-            
-            if (year === today.getFullYear() && month === today.getMonth()) {
-                dayEl.style.opacity = '0.3';
-                dayEl.style.pointerEvents = 'none';
-                dayEl.style.cursor = 'not-allowed';
-            }
-            
-            grid.appendChild(dayEl);
-        }
-    }
-}
-
-// Selecionar data no calendário (clique simples - seleção de período)
-function selectCheckinDate(dateStr) {
-    const targetDate = new Date(dateStr + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (targetDate > today) return;
-    
-    if (!checkinDateStart || (checkinDateStart && checkinDateEnd)) {
-        // Nova seleção - definir início
-        checkinDateStart = dateStr;
-        checkinDateEnd = null;
-    } else {
-        // Selecionar fim
-        const startDate = new Date(checkinDateStart + 'T00:00:00');
-        const endDate = new Date(dateStr + 'T00:00:00');
-        
-        if (endDate < startDate) {
-            // Se a data final for menor que a inicial, inverter
-            checkinDateEnd = checkinDateStart;
-            checkinDateStart = dateStr;
-        } else {
-            checkinDateEnd = dateStr;
-        }
-        
-        // Aplicar seleção
-        applyCheckinPeriodSelection();
-    }
-    
-    renderCheckinCalendar();
-}
-
-// Selecionar um único dia (duplo clique)
-function selectSingleCheckinDay(dateStr) {
-    const targetDate = new Date(dateStr + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (targetDate > today) return;
-    
-    // Selecionar o mesmo dia para início e fim
-    checkinDateStart = dateStr;
-    checkinDateEnd = dateStr;
-    
-    // Aplicar seleção imediatamente
-    applyCheckinPeriodSelection();
-    
-    renderCheckinCalendar();
-}
-
-// Selecionar período rápido (últimos 7 ou 30 dias)
-function selectCheckinPeriod(period) {
-    const endDate = new Date();
-    const startDate = new Date();
-    let periodLabel = '';
-    
-    if (period === 'last7') {
-        startDate.setDate(startDate.getDate() - 6);
-        periodLabel = 'Últimos 7 dias';
-    } else if (period === 'last30') {
-        startDate.setDate(startDate.getDate() - 29);
-        periodLabel = 'Últimos 30 dias';
-    }
-    
-    const startStr = startDate.toISOString().split('T')[0];
-    const endStr = endDate.toISOString().split('T')[0];
-    
-    checkinDateStart = startStr;
-    checkinDateEnd = endStr;
-    
-    // Atualizar texto do botão antes de redirecionar
-    updateCheckinPeriodButton(periodLabel);
-    
-    applyCheckinPeriodSelection();
-}
-
-// Atualizar texto do botão de período
-function updateCheckinPeriodButton(label) {
-    const btn = document.getElementById('checkin-period-btn');
-    const textSpan = document.getElementById('checkin-period-text');
-    if (btn && textSpan) {
-        textSpan.textContent = label;
-    }
-}
-
-// Aplicar seleção de período
-function applyCheckinPeriodSelection() {
-    if (!checkinDateStart || !checkinDateEnd) return;
-    
-    // Garantir que não ultrapasse hoje
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const endDate = new Date(checkinDateEnd + 'T00:00:00');
-    if (endDate > today) {
-        checkinDateEnd = today.toISOString().split('T')[0];
-    }
-    
-    // Formatar label para exibição
-    const startDateObj = new Date(checkinDateStart + 'T00:00:00');
-    const endDateObj = new Date(checkinDateEnd + 'T00:00:00');
-    let periodLabel = '';
-    
-    if (checkinDateStart === checkinDateEnd) {
-        // Um único dia
-        periodLabel = startDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    } else {
-        // Período
-        periodLabel = startDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' - ' + 
-                     endDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    }
-    
-    // Atualizar texto do botão antes de redirecionar
-    updateCheckinPeriodButton(periodLabel);
-    
-    // Redirecionar com filtro de data customizado
-    const url = new URL(window.location.href);
-    url.searchParams.set('date_filter', 'custom');
-    url.searchParams.set('date_start', checkinDateStart);
-    url.searchParams.set('date_end', checkinDateEnd);
-    window.location.href = url.toString();
-}
-
-// Fechar modal de calendário
-function closeCheckinCalendar() {
-    const modal = document.getElementById('checkinCalendarModal');
-    const popup = document.getElementById('checkinCalendarHelpPopup');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        checkinDateStart = null;
-        checkinDateEnd = null;
-    }
-    if (popup) {
-        popup.style.display = 'none';
-    }
-}
-
-// Função para abrir/fechar popup de ajuda do calendário
-function toggleCheckinCalendarHelp() {
-    const popup = document.getElementById('checkinCalendarHelpPopup');
-    if (popup) {
-        if (popup.style.display === 'none' || popup.style.display === '') {
-            popup.style.display = 'block';
-        } else {
-            popup.style.display = 'none';
-            localStorage.setItem('checkinCalendarHelpSeen', 'true');
-        }
-    }
-}
-
-// Aplicar filtro rápido (sem abrir calendário)
-function applyQuickFilter(period) {
-    const endDate = new Date();
-    const startDate = new Date();
-    
-    if (period === 'last7') {
-        startDate.setDate(startDate.getDate() - 6);
-    } else if (period === 'last30') {
-        startDate.setDate(startDate.getDate() - 29);
-    }
-    
-    const startStr = startDate.toISOString().split('T')[0];
-    const endStr = endDate.toISOString().split('T')[0];
-    
-    // Redirecionar com filtro de data customizado
-    const url = new URL(window.location.href);
-    url.searchParams.set('date_filter', 'custom');
-    url.searchParams.set('date_start', startStr);
-    url.searchParams.set('date_end', endStr);
-    window.location.href = url.toString();
-}
-
-// Fechar modal ao clicar fora
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('checkinCalendarModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this || e.target.classList.contains('custom-modal-overlay')) {
-                closeCheckinCalendar();
-            }
-        });
-    }
-});
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
