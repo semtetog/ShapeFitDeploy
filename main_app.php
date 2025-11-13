@@ -3324,6 +3324,10 @@ function animateStarToBadge(points) {
     const deltaX = endX - startX;
     const deltaY = endY - startY;
     
+    // Obter valor atual dos pontos antes de criar a estrela
+    const currentPointsText = pointsDisplay.textContent.replace(/\./g, '').replace(/,/g, '');
+    const currentPoints = parseInt(currentPointsText) || 0;
+    
     // Criar estrela voadora
     const flyingStar = document.createElement('div');
     flyingStar.className = 'flying-star';
@@ -3343,10 +3347,10 @@ function animateStarToBadge(points) {
     
     // Atualizar pontos no badge quando estrela chegar (meio da animação)
     setTimeout(() => {
-        // Obter valor atual dos pontos
-        const currentPointsText = pointsDisplay.textContent.replace(/\./g, '').replace(/,/g, '');
-        const currentPoints = parseInt(currentPointsText) || 0;
-        const newPoints = currentPoints + points;
+        // Usar o valor retornado pela API se disponível, senão calcular
+        const checkinData = window.lastCheckinResponse || {};
+        const newTotalPoints = checkinData.new_total_points;
+        const newPoints = newTotalPoints !== undefined ? newTotalPoints : (currentPoints + points);
         
         // Adicionar classe de animação no badge
         pointsBadge.classList.add('points-updated');
