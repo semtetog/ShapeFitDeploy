@@ -1435,14 +1435,14 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Ícone de ajuda do calendário - estilo igual ao sleep-details-icon */
 .chart-calendar-help-icon {
-    position: absolute !important;
-    top: 0.5rem !important;
-    right: 0.5rem !important;
+    position: absolute;
+    top: 1.5rem;
+    right: 4.5rem;
     color: var(--accent-orange);
     font-size: 0.8rem;
     cursor: pointer;
     transition: opacity 0.3s ease;
-    z-index: 2 !important; /* antes era 10 - estourava tudo */
+    z-index: 10;
 }
 
 .chart-calendar-help-icon:hover {
