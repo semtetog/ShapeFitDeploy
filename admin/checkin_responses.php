@@ -229,11 +229,6 @@ require_once __DIR__ . '/includes/header.php';
     gap: 0.75rem;
 }
 
-.filters-section .calendar-filters-wrapper {
-    flex-wrap: nowrap !important;
-    flex-shrink: 0 !important;
-    margin-left: auto;
-}
 
 .filter-group {
     display: flex;
@@ -1790,7 +1785,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Selecionar</span>
             </button>
         </div>
-        <div class="calendar-filters-wrapper">
+        <div class="right-side">
             <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
                 <i class="fas fa-calendar-alt"></i>
             </button>
