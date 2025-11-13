@@ -1832,6 +1832,29 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         document.body.appendChild(popup);
         setTimeout(() => { popup.remove(); }, 2500);
     }
+    
+    // Função para mostrar popup de pontos e animar estrela voando
+    function showPointsWithStarAnimation(message, sourceElement, points, newTotalPoints) {
+        // Mostrar popup temporário
+        const popup = document.createElement('div');
+        popup.className = 'points-popup';
+        popup.innerHTML = `<i class="fas fa-star star-icon" id="points-popup-star"></i>${message}`;
+        document.body.appendChild(popup);
+        
+        // Após um pequeno delay, fazer estrela voar
+        setTimeout(() => {
+            const starIcon = document.getElementById('points-popup-star');
+            if (starIcon) {
+                animateStarToBadgeFromElement(starIcon, points, newTotalPoints);
+            }
+            // Remover popup após um tempo
+            setTimeout(() => {
+                if (popup.parentNode) {
+                    popup.parentNode.removeChild(popup);
+                }
+            }, 1000);
+        }, 500);
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         // --- LÓGICA DO CARROSSEL DE MISSÕES ---
@@ -2029,12 +2052,21 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                         updateMissionsProgress();
                         pendingSlides.shift();
                         
-                        const pointsDisplay = document.getElementById('user-points-display');
-                        if (pointsDisplay && data.new_total_points) {
-                            pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
-                        }
+                        // Animar estrela voando se ganhou pontos
                         if (data.points_awarded > 0) {
-                            showPointsPopup(`+${data.points_awarded} Pontos`);
+                            const completeButton = currentSlide.querySelector('.complete-btn');
+                            showPointsWithStarAnimation(
+                                `+${data.points_awarded} Pontos`,
+                                completeButton || currentSlide,
+                                data.points_awarded,
+                                data.new_total_points
+                            );
+                        } else if (data.new_total_points !== undefined) {
+                            // Se não ganhou pontos mas tem novo total, atualizar normalmente
+                            const pointsDisplay = document.getElementById('user-points-display');
+                            if (pointsDisplay) {
+                                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                            }
                         }
                         setTimeout(showCurrentMission, 300);
                     } else {
@@ -2091,14 +2123,21 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                             setTimeout(showCurrentMission, 300);
                         }
                         
-                        // Atualizar pontos na interface
-                        const pointsDisplay = document.getElementById('user-points-display');
-                        if (pointsDisplay && data.new_total_points) {
-                            pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
-                        }
-                        
+                        // Animar estrela voando se ganhou pontos
                         if (data.points_awarded > 0) {
-                            showPointsPopup(`+${data.points_awarded} Pontos`);
+                            const completeButton = currentSlide.querySelector('.complete-btn');
+                            showPointsWithStarAnimation(
+                                `+${data.points_awarded} Pontos`,
+                                completeButton || currentSlide,
+                                data.points_awarded,
+                                data.new_total_points
+                            );
+                        } else if (data.new_total_points !== undefined) {
+                            // Se não ganhou pontos mas tem novo total, atualizar normalmente
+                            const pointsDisplay = document.getElementById('user-points-display');
+                            if (pointsDisplay) {
+                                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                            }
                         }
                     } else {
                         alert('Erro: ' + (data.message || 'Falha ao registrar sono'));
@@ -2144,12 +2183,21 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                             updateMissionsProgress();
                             pendingSlides.shift();
                             
-                            const pointsDisplay = document.getElementById('user-points-display');
-                            if (pointsDisplay && data.new_total_points) {
-                                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
-                            }
+                            // Animar estrela voando se ganhou pontos
                             if (data.points_awarded > 0) {
-                                showPointsPopup(`+${data.points_awarded} Pontos`);
+                                const completeButton = currentSlide.querySelector('.complete-btn');
+                                showPointsWithStarAnimation(
+                                    `+${data.points_awarded} Pontos`,
+                                    completeButton || currentSlide,
+                                    data.points_awarded,
+                                    data.new_total_points
+                                );
+                            } else if (data.new_total_points !== undefined) {
+                                // Se não ganhou pontos mas tem novo total, atualizar normalmente
+                                const pointsDisplay = document.getElementById('user-points-display');
+                                if (pointsDisplay) {
+                                    pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                                }
                             }
                             setTimeout(showCurrentMission, 300);
                         }
@@ -2277,15 +2325,24 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
             })
             .then(data => {
                 if (data.success) {
-                    if (data.new_total_points !== undefined) {
+                    // Animar estrela voando se ganhou pontos
+                    if (data.points_awarded != 0 && data.points_awarded > 0) {
+                        // Encontrar o elemento de água para usar como origem da estrela
+                        const waterContainer = document.querySelector('.water-tracker-container') || 
+                                              document.querySelector('.water-section') ||
+                                              document.querySelector('.water-counter');
+                        showPointsWithStarAnimation(
+                            `+${data.points_awarded} Pontos`,
+                            waterContainer || document.body,
+                            data.points_awarded,
+                            data.new_total_points
+                        );
+                    } else if (data.new_total_points !== undefined) {
+                        // Se não ganhou pontos mas tem novo total, atualizar normalmente
                         const pointsDisplay = document.getElementById('user-points-display');
                         if (pointsDisplay) {
                             pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
                         }
-                    }
-                    if (data.points_awarded != 0) {
-                        const sign = data.points_awarded > 0 ? '+' : '';
-                        showPointsPopup(`${sign}${data.points_awarded} Pontos`);
                     }
                 } else {
                     console.error('Falha ao atualizar a água no servidor:', data.message);
@@ -3391,14 +3448,21 @@ function animatePointsCount(element, startValue, endValue, duration) {
     const startTime = performance.now();
     const formatNumber = (num) => new Intl.NumberFormat('pt-BR').format(num);
     
+    // Usar easing mais suave (ease-in-out cubic)
+    function easeInOutCubic(t) {
+        return t < 0.5 
+            ? 4 * t * t * t 
+            : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+    
     function update(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Easing function (ease-out)
-        const easeOut = 1 - Math.pow(1 - progress, 3);
+        // Easing mais fluido
+        const easedProgress = easeInOutCubic(progress);
         
-        const currentValue = Math.floor(startValue + (endValue - startValue) * easeOut);
+        const currentValue = Math.floor(startValue + (endValue - startValue) * easedProgress);
         element.textContent = formatNumber(currentValue);
         
         if (progress < 1) {
@@ -3410,6 +3474,81 @@ function animatePointsCount(element, startValue, endValue, duration) {
     }
     
     requestAnimationFrame(update);
+}
+
+// Função genérica para animar estrela voando de qualquer elemento para o badge
+function animateStarToBadgeFromElement(sourceElement, points, newTotalPoints) {
+    const pointsBadge = document.querySelector('.points-counter-badge');
+    const pointsDisplay = document.getElementById('user-points-display');
+    
+    if (!sourceElement || !pointsBadge || !pointsDisplay || points <= 0) {
+        // Se não tem pontos ou elementos não existem, apenas atualizar normalmente
+        if (newTotalPoints !== undefined && pointsDisplay) {
+            pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(newTotalPoints);
+        }
+        return;
+    }
+    
+    // Obter posições
+    const sourceRect = sourceElement.getBoundingClientRect();
+    const badgeRect = pointsBadge.getBoundingClientRect();
+    
+    // Calcular distância
+    const startX = sourceRect.left + sourceRect.width / 2;
+    const startY = sourceRect.top + sourceRect.height / 2;
+    const endX = badgeRect.left + badgeRect.width / 2;
+    const endY = badgeRect.top + badgeRect.height / 2;
+    
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    
+    // Obter valor atual dos pontos
+    const currentPointsText = pointsDisplay.textContent.replace(/\./g, '').replace(/,/g, '');
+    const currentPoints = parseInt(currentPointsText) || 0;
+    
+    // Criar estrela voadora
+    const flyingStar = document.createElement('div');
+    flyingStar.className = 'flying-star';
+    flyingStar.innerHTML = '<i class="fas fa-star"></i>';
+    flyingStar.style.left = startX + 'px';
+    flyingStar.style.top = startY + 'px';
+    flyingStar.style.setProperty('--fly-x', deltaX + 'px');
+    flyingStar.style.setProperty('--fly-y', deltaY + 'px');
+    
+    document.body.appendChild(flyingStar);
+    
+    // Forçar reflow
+    flyingStar.offsetHeight;
+    
+    // Iniciar animação
+    flyingStar.classList.add('animate');
+    
+    // Atualizar pontos no badge quando estrela chegar (meio da animação)
+    setTimeout(() => {
+        const finalPoints = newTotalPoints !== undefined ? newTotalPoints : (currentPoints + points);
+        
+        // Adicionar classe de animação no badge
+        pointsBadge.classList.add('points-updated');
+        
+        // Animar contagem dos pontos
+        pointsDisplay.classList.add('points-counting');
+        
+        // Atualizar valor com animação de contagem
+        animatePointsCount(pointsDisplay, currentPoints, finalPoints, 600);
+        
+        // Remover classes de animação após animação
+        setTimeout(() => {
+            pointsBadge.classList.remove('points-updated');
+            pointsDisplay.classList.remove('points-counting');
+        }, 800);
+    }, 600);
+    
+    // Remover estrela voadora após animação
+    setTimeout(() => {
+        if (flyingStar.parentNode) {
+            flyingStar.parentNode.removeChild(flyingStar);
+        }
+    }, 1200);
 }
 
 </script>
