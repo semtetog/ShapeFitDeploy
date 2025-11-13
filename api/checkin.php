@@ -205,8 +205,11 @@ function submitCheckin($data, $user_id) {
     $stmt_points->execute();
     $result_points = $stmt_points->get_result();
     $user_data = $result_points->fetch_assoc();
-    $new_total_points = $user_data['points'] ?? 0;
     $stmt_points->close();
+    
+    // Garantir que os pontos sejam retornados como número inteiro
+    // A coluna points é decimal(10,2), então precisa converter para inteiro
+    $new_total_points = isset($user_data['points']) ? (int)round((float)$user_data['points']) : 0;
     
     echo json_encode([
         'success' => true,
