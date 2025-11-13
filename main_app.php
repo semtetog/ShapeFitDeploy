@@ -152,6 +152,9 @@ $unread_notifications_count = count($challenge_notifications);
 $available_checkin = null;
 $today_day_of_week = (int)date('w'); // 0=Domingo, 6=Sábado
 
+// Calcular o domingo da semana atual (mesma lógica usada na API)
+$week_start = date('Y-m-d', strtotime('sunday this week'));
+
 // Buscar check-ins ativos para hoje
 // Se o check-in não tem distribuições, fica disponível para todos
 $checkin_query = "
@@ -175,7 +178,7 @@ $checkin_query = "
         SELECT 1 FROM sf_checkin_availability ca
         WHERE ca.config_id = cc.id 
         AND ca.user_id = ?
-        AND ca.week_date = DATE(DATE_SUB(CURDATE(), INTERVAL (WEEKDAY(CURDATE()) + 1) % 7 DAY))
+        AND ca.week_date = ?
         AND ca.is_completed = 1
     )
     LIMIT 1
@@ -183,8 +186,8 @@ $checkin_query = "
 
 $stmt_checkin = $conn->prepare($checkin_query);
 if ($stmt_checkin) {
-    // Bind: day_of_week, user_id (para distribuições), user_id (para grupos), user_id (para availability)
-    $stmt_checkin->bind_param("iiii", $today_day_of_week, $user_id, $user_id, $user_id);
+    // Bind: day_of_week, user_id (para distribuições), user_id (para grupos), user_id (para availability), week_start
+    $stmt_checkin->bind_param("iiiis", $today_day_of_week, $user_id, $user_id, $user_id, $week_start);
     $stmt_checkin->execute();
     $checkin_result = $stmt_checkin->get_result();
     if ($checkin_result->num_rows > 0) {
