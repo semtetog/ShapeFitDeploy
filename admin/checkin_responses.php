@@ -837,9 +837,9 @@ require_once __DIR__ . '/includes/header.php';
 
 /* Modo de Seleção */
 .btn-select-mode {
-    background: rgba(255, 107, 0, 0.1);
-    color: var(--accent-orange);
-    border: 1px solid rgba(255, 107, 0, 0.3);
+    background: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
     border-radius: 8px;
     padding: 0.625rem 1rem;
     font-size: 0.875rem;
@@ -849,21 +849,23 @@ require_once __DIR__ . '/includes/header.php';
     align-items: center;
     gap: 0.5rem;
     transition: all 0.3s ease;
+    height: 100%;
 }
 
 .btn-select-mode:hover {
-    background: rgba(255, 107, 0, 0.2);
-    border-color: var(--accent-orange);
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3B82F6;
 }
 
 .btn-select-mode.active {
-    background: var(--accent-orange);
+    background: #3B82F6;
     color: white;
-    border-color: var(--accent-orange);
+    border-color: #3B82F6;
 }
 
 .btn-select-mode.active:hover {
-    background: var(--accent-orange-hover);
+    background: #2563EB;
+    border-color: #2563EB;
 }
 
 /* Linha selecionada */
