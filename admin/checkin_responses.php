@@ -216,9 +216,16 @@ require_once __DIR__ . '/includes/header.php';
     padding: 1.25rem !important;
     margin-bottom: 1.5rem !important;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    flex-wrap: wrap;
+}
+
+.filters-section .left-side,
+.filters-section .right-side {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .filter-group {
@@ -1272,7 +1279,7 @@ require_once __DIR__ . '/includes/header.php';
 /* Botões de filtro rápido do calendário */
 .calendar-filters-group {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
     align-items: center;
 }
 
@@ -1694,8 +1701,8 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <div class="filters-section" style="position: relative; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; gap: 1rem; align-items: center;">
+    <div class="filters-section">
+        <div class="left-side">
             <div class="submissions-count">
                 <span>Respostas</span>
                 <span class="badge"><?php echo $total_count; ?></span>
@@ -1705,7 +1712,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Selecionar</span>
             </button>
         </div>
-        <div class="calendar-filters-group">
+        <div class="right-side calendar-filters-group">
             <button class="calendar-quick-filter-btn" onclick="applyQuickFilter('last7')" title="Últimos 7 dias">
                 <i class="fas fa-clock"></i>
                 <span>Últimos 7 dias</span>
