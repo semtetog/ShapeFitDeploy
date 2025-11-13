@@ -1363,6 +1363,68 @@ textarea.form-control {
     background: rgba(255, 107, 0, 0.5);
 }
 
+/* Barra de busca e selecionar todos */
+.distribution-search-container {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.distribution-search-input {
+    flex: 1;
+    min-width: 250px;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.distribution-search-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-orange);
+}
+
+.distribution-search-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.btn-select-all {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent-orange);
+    background: rgba(255, 107, 0, 0.1);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-select-all:hover {
+    background: rgba(255, 107, 0, 0.15);
+    border-color: rgba(255, 107, 0, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-select-all i {
+    font-size: 0.875rem;
+}
+
+.distribution-item-hidden {
+    display: none !important;
+}
+
 /* Grupos de Usuário e Grupos de Desafio */
 .distribution-groups-list {
     gap: 0.5rem;
@@ -1726,14 +1788,26 @@ textarea.form-control {
                 </div>
                 
                 <div id="user_groupsDistribution" class="distribution-content active">
-                    <div class="distribution-list distribution-groups-list">
+                    <div class="distribution-search-container">
+                        <input type="text" 
+                               id="userGroupsSearch" 
+                               class="distribution-search-input" 
+                               placeholder="Buscar grupos de usuário...">
+                        <button type="button" 
+                                class="btn-select-all" 
+                                onclick="selectAllUserGroups()">
+                            <i class="fas fa-check-double"></i>
+                            Selecionar Todos
+                        </button>
+                    </div>
+                    <div class="distribution-list distribution-groups-list" id="userGroupsList">
                         <?php if (empty($user_groups)): ?>
                             <div class="empty-state">
                                 <p>Nenhum grupo de usuário encontrado</p>
                             </div>
                         <?php else: ?>
                             <?php foreach ($user_groups as $group): ?>
-                                <label class="distribution-group-item">
+                                <label class="distribution-group-item" data-name="<?php echo htmlspecialchars(strtolower($group['name'])); ?>">
                                     <input type="checkbox" 
                                            value="<?php echo $group['id']; ?>" 
                                            class="distribution-user-group"
@@ -1749,14 +1823,26 @@ textarea.form-control {
                 </div>
                 
                 <div id="challenge_groupsDistribution" class="distribution-content">
-                    <div class="distribution-list distribution-groups-list">
+                    <div class="distribution-search-container">
+                        <input type="text" 
+                               id="challengeGroupsSearch" 
+                               class="distribution-search-input" 
+                               placeholder="Buscar grupos de desafio...">
+                        <button type="button" 
+                                class="btn-select-all" 
+                                onclick="selectAllChallengeGroups()">
+                            <i class="fas fa-check-double"></i>
+                            Selecionar Todos
+                        </button>
+                    </div>
+                    <div class="distribution-list distribution-groups-list" id="challengeGroupsList">
                         <?php if (empty($challenge_groups)): ?>
                             <div class="empty-state">
                                 <p>Nenhum grupo de desafio encontrado</p>
                             </div>
                         <?php else: ?>
                             <?php foreach ($challenge_groups as $group): ?>
-                                <label class="distribution-group-item">
+                                <label class="distribution-group-item" data-name="<?php echo htmlspecialchars(strtolower($group['name'])); ?>">
                                     <input type="checkbox" 
                                            value="<?php echo $group['id']; ?>" 
                                            class="distribution-challenge-group"
@@ -1772,14 +1858,28 @@ textarea.form-control {
                 </div>
                 
                 <div id="usersDistribution" class="distribution-content">
-                    <div class="distribution-list distribution-users-list">
+                    <div class="distribution-search-container">
+                        <input type="text" 
+                               id="usersSearch" 
+                               class="distribution-search-input" 
+                               placeholder="Buscar usuários...">
+                        <button type="button" 
+                                class="btn-select-all" 
+                                onclick="selectAllUsers()">
+                            <i class="fas fa-check-double"></i>
+                            Selecionar Todos
+                        </button>
+                    </div>
+                    <div class="distribution-list distribution-users-list" id="usersList">
                         <?php if (empty($users)): ?>
                             <div class="empty-state">
                                 <p>Nenhum usuário encontrado</p>
                             </div>
                         <?php else: ?>
                             <?php foreach ($users as $user): ?>
-                                <label class="distribution-user-item">
+                                <label class="distribution-user-item" 
+                                       data-name="<?php echo htmlspecialchars(strtolower($user['name'])); ?>"
+                                       data-email="<?php echo htmlspecialchars(strtolower($user['email'] ?? '')); ?>">
                                     <input type="checkbox" 
                                            value="<?php echo $user['id']; ?>" 
                                            class="distribution-user"
@@ -2946,7 +3046,150 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar checkboxes de distribuição
     initDistributionCheckboxes();
+    
+    // Inicializar busca e selecionar todos
+    initDistributionSearch();
 });
+
+// Funções de busca e selecionar todos
+function initDistributionSearch() {
+    // Busca para Grupos de Usuário
+    const userGroupsSearch = document.getElementById('userGroupsSearch');
+    if (userGroupsSearch) {
+        userGroupsSearch.addEventListener('input', function() {
+            filterDistributionItems('userGroupsList', this.value, 'data-name');
+        });
+    }
+    
+    // Busca para Grupos de Desafio
+    const challengeGroupsSearch = document.getElementById('challengeGroupsSearch');
+    if (challengeGroupsSearch) {
+        challengeGroupsSearch.addEventListener('input', function() {
+            filterDistributionItems('challengeGroupsList', this.value, 'data-name');
+        });
+    }
+    
+    // Busca para Usuários
+    const usersSearch = document.getElementById('usersSearch');
+    if (usersSearch) {
+        usersSearch.addEventListener('input', function() {
+            filterDistributionUsers('usersList', this.value);
+        });
+    }
+}
+
+function filterDistributionItems(listId, searchTerm, dataAttribute) {
+    const list = document.getElementById(listId);
+    if (!list) return;
+    
+    const items = list.querySelectorAll('.distribution-group-item');
+    const term = searchTerm.toLowerCase().trim();
+    
+    items.forEach(item => {
+        const name = item.getAttribute(dataAttribute) || '';
+        if (term === '' || name.includes(term)) {
+            item.classList.remove('distribution-item-hidden');
+        } else {
+            item.classList.add('distribution-item-hidden');
+        }
+    });
+}
+
+function filterDistributionUsers(listId, searchTerm) {
+    const list = document.getElementById(listId);
+    if (!list) return;
+    
+    const items = list.querySelectorAll('.distribution-user-item');
+    const term = searchTerm.toLowerCase().trim();
+    
+    items.forEach(item => {
+        const name = item.getAttribute('data-name') || '';
+        const email = item.getAttribute('data-email') || '';
+        if (term === '' || name.includes(term) || email.includes(term)) {
+            item.classList.remove('distribution-item-hidden');
+        } else {
+            item.classList.add('distribution-item-hidden');
+        }
+    });
+}
+
+function selectAllUserGroups() {
+    const list = document.getElementById('userGroupsList');
+    if (!list) return;
+    
+    const visibleItems = list.querySelectorAll('.distribution-group-item:not(.distribution-item-hidden)');
+    const allChecked = Array.from(visibleItems).every(item => {
+        const checkbox = item.querySelector('.distribution-user-group');
+        return checkbox && checkbox.checked;
+    });
+    
+    visibleItems.forEach(item => {
+        const checkbox = item.querySelector('.distribution-user-group');
+        if (checkbox) {
+            checkbox.checked = !allChecked;
+            const label = checkbox.closest('.distribution-group-item');
+            if (label) {
+                if (checkbox.checked) {
+                    label.classList.add('selected');
+                } else {
+                    label.classList.remove('selected');
+                }
+            }
+        }
+    });
+}
+
+function selectAllChallengeGroups() {
+    const list = document.getElementById('challengeGroupsList');
+    if (!list) return;
+    
+    const visibleItems = list.querySelectorAll('.distribution-group-item:not(.distribution-item-hidden)');
+    const allChecked = Array.from(visibleItems).every(item => {
+        const checkbox = item.querySelector('.distribution-challenge-group');
+        return checkbox && checkbox.checked;
+    });
+    
+    visibleItems.forEach(item => {
+        const checkbox = item.querySelector('.distribution-challenge-group');
+        if (checkbox) {
+            checkbox.checked = !allChecked;
+            const label = checkbox.closest('.distribution-group-item');
+            if (label) {
+                if (checkbox.checked) {
+                    label.classList.add('selected');
+                } else {
+                    label.classList.remove('selected');
+                }
+            }
+        }
+    });
+}
+
+function selectAllUsers() {
+    const list = document.getElementById('usersList');
+    if (!list) return;
+    
+    const visibleItems = list.querySelectorAll('.distribution-user-item:not(.distribution-item-hidden)');
+    const allChecked = Array.from(visibleItems).every(item => {
+        const checkbox = item.querySelector('.distribution-user');
+        return checkbox && checkbox.checked;
+    });
+    
+    visibleItems.forEach(item => {
+        const checkbox = item.querySelector('.distribution-user');
+        if (checkbox) {
+            checkbox.checked = !allChecked;
+            const label = checkbox.closest('.distribution-user-item');
+            if (label) {
+                if (checkbox.checked) {
+                    label.classList.add('selected');
+                } else {
+                    label.classList.remove('selected');
+                }
+            }
+        }
+    });
+}
 
 // Drag and drop melhorado com animação fluida
 let draggedElement = null;
