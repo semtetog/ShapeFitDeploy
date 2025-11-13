@@ -1520,7 +1520,7 @@ function toggleSelectMode() {
         });
     } else {
         btn.classList.remove('active');
-        btn.innerHTML = '<i class="fas fa-check-square"></i><span>Selecionar</span>';
+        btn.innerHTML = '<i class="fas fa-mouse-pointer"></i><span>Selecionar</span>';
         rows.forEach(row => {
             row.classList.remove('select-mode', 'selected');
         });
