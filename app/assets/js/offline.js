@@ -1,6 +1,6 @@
 // Gerenciador Offline - Intercepta requisições e gerencia estado offline
-import offlineDB from './db.js';
-import syncManager from './sync.js';
+import offlineDB from '/assets/js/db.js';
+import syncManager from '/assets/js/sync.js';
 
 class OfflineManager {
   constructor() {

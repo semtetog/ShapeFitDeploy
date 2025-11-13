@@ -1,0 +1,134 @@
+/* assets/css/components/_modals.css */
+
+/* --- Overlay do Modal (fundo escurecido) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- Conteúdo do Modal (a "janela") --- */
+.modal-content {
+    /* Herda o estilo do .glass-card */
+    width: 90%;
+    max-width: 380px;
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.visible .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.modal-content h2 {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+    line-height: 1.6;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+/* --- Pop-up de Pontos --- */
+.points-popup {
+    position: fixed;
+    bottom: 90px; /* Ajustado para ficar acima da nav-bar */
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-primary);
+    padding: 12px 22px;
+    border-radius: 50px;
+    z-index: 2100;
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+    font-weight: 600;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    animation: floatUpAndFade 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    pointer-events: none;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    background-color: rgba(30, 30, 30, 0.8);
+}
+
+.points-popup img {
+    width: 24px;
+    height: auto;
+    object-fit: contain;
+    margin-right: 12px;
+}
+
+.points-popup.loss img {
+    filter: grayscale(1);
+    opacity: 0.6;
+}
+
+.points-popup.bonus {
+    border: 2px solid var(--success-color);
+    animation: floatUpAndPulse 3.5s ease-out forwards;
+    padding: 14px 24px;
+    color: var(--success-color);
+}
+
+.points-popup.bonus img {
+    filter: grayscale(1) sepia(1) hue-rotate(50deg) saturate(5) brightness(0.9);
+}
+
+@keyframes floatUpAndFade {
+    0%   { opacity: 0; transform: translate(-50%, 20px); }
+    15%  { opacity: 1; transform: translate(-50%, 0); }
+    85%  { opacity: 1; transform: translate(-50%, -5px); }
+    100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+
+@keyframes floatUpAndPulse {
+    0%   { opacity: 0; transform: translate(-50%, 20px) scale(0.95); }
+    20%  { opacity: 1; transform: translate(-50%, 0) scale(1.05); }
+    30%  { transform: translate(-50%, 0) scale(1); }
+    85%  { opacity: 1; transform: translate(-50%, -10px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -30px) scale(0.95); }
+}
+
+/* --- Loader/Spinner --- */
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--text-primary);
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

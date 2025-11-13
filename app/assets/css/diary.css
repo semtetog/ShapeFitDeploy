@@ -1,0 +1,162 @@
+/* Arquivo: assets/css/diary.css - VERSÃO DE DESIGN FINAL */
+
+.diary-container {
+    padding: 10px 15px 100px 15px; /* Espaço para o menu inferior */
+}
+
+/* --- Cabeçalho do Diário (Título e Navegação de Data) --- */
+.diary-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.diary-header .page-title {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+.date-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 280px;
+}
+.date-nav-arrow {
+    font-size: 1.2rem;
+    color: var(--primary-text-color);
+    padding: 10px;
+    text-decoration: none;
+}
+.date-nav-arrow.disabled {
+    color: var(--border-color);
+    pointer-events: none;
+    opacity: 0.5;
+}
+#current-diary-date {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* --- Card de Resumo de Macros --- */
+.diary-summary-card {
+    background-color: var(--surface-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+.summary-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr; /* Mais espaço para o nome da métrica */
+    gap: 10px;
+    padding: 10px 0;
+    font-size: 0.95rem;
+    align-items: center;
+    text-align: right;
+}
+.summary-row:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+.summary-row .summary-header {
+    font-weight: 500;
+    color: var(--secondary-text-color);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    padding-bottom: 5px;
+}
+.summary-row .metric-name {
+    text-align: left;
+    font-weight: 500;
+}
+.summary-row .positive { color: var(--primary-text-color); }
+.summary-row .negative { color: var(--accent-red); }
+
+/* --- Botão Principal "Adicionar Refeição" --- */
+.btn-add-meal-diary {
+    width: 100%;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1.05rem;
+}
+
+/* --- Cards de Grupos de Refeição --- */
+.meal-group {
+    background-color: var(--surface-color);
+    border-radius: 16px;
+    margin-bottom: 20px;
+    padding: 20px;
+}
+.meal-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 10px;
+}
+.meal-group-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.meal-group-total-kcal {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--secondary-text-color);
+}
+.meal-items-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.meal-items-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+}
+.meal-items-list li:not(:last-child) {
+    border-bottom: 1px dashed var(--border-color-light, #282828);
+}
+.meal-item-name {
+    color: var(--primary-text-color);
+}
+.meal-item-kcal {
+    color: var(--secondary-text-color);
+    font-weight: 500;
+}
+.add-item-to-group-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    margin-top: 15px;
+    border: 1.5px dashed var(--border-color);
+    border-radius: 10px;
+    color: var(--secondary-text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.add-item-to-group-btn:hover {
+    background-color: var(--border-color);
+    color: var(--primary-text-color);
+    border-style: solid;
+}
+.no-items-message {
+    padding: 15px 0;
+    text-align: center;
+    color: var(--secondary-text-color);
+    font-style: italic;
+    font-size: 0.9rem;
+}
+.empty-diary-message {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--secondary-text-color);
+    background-color: var(--surface-color);
+    border-radius: 16px;
+}

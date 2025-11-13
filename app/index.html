@@ -2,15 +2,27 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ShapeFIT">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="ShapeFIT">
+    <meta name="theme-color" content="#101010">
+    
     <title>ShapeFit</title>
     
     <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/app.css">
     
-    <!-- Service Worker Registration -->
+    <!-- Configuração -->
+    <script src="/config.js"></script>
+    
+    <!-- Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -19,117 +31,72 @@
                     .catch(err => console.log('SW registration failed:', err));
             });
         }
+        
+        // Viewport height fix
+        function setRealViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        setRealViewportHeight();
+        window.addEventListener('resize', setRealViewportHeight);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(setRealViewportHeight, 100);
+        });
     </script>
 </head>
 <body>
     <!-- Banner Offline -->
-    <div id="offline-banner" style="display: none; background: #ff6600; color: white; padding: 10px; text-align: center;">
+    <div id="offline-banner" style="display: none; background: #ff6600; color: white; padding: 10px; text-align: center; position: fixed; top: 0; left: 0; right: 0; z-index: 10000;">
         Você está offline. Algumas funcionalidades podem estar limitadas.
     </div>
 
     <!-- App Container -->
-    <div id="app">
-        <div id="loading-screen">
-            <div class="spinner"></div>
-            <p>Carregando...</p>
-        </div>
+    <div id="app-wrapper">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-logo">ShapeFit</h1>
+                <div class="header-actions">
+                    <a href="#" class="points-badge" id="user-points-display">
+                        <i class="fas fa-star"></i>
+                        <span>0</span>
+                    </a>
+                    <a href="#" class="profile-icon" data-page="profile">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="app-content" class="app-content">
+            <div class="loading-screen">
+                <div class="spinner"></div>
+                <p>Carregando...</p>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-page="dashboard">
+                <i class="fas fa-home"></i>
+            </a>
+            <a href="#" class="nav-item" data-page="progress">
+                <i class="fas fa-chart-line"></i>
+            </a>
+            <a href="#" class="nav-item" data-page="diary">
+                <i class="fas fa-book"></i>
+            </a>
+            <a href="#" class="nav-item" data-page="recipes">
+                <i class="fas fa-utensils"></i>
+            </a>
+            <a href="#" class="nav-item" data-page="settings">
+                <i class="fas fa-cog"></i>
+            </a>
+        </nav>
     </div>
 
     <!-- Scripts -->
-    <script type="module">
-        import offlineDB from '/assets/js/db.js';
-        import syncManager from '/assets/js/sync.js';
-        import offlineManager from '/assets/js/offline.js';
-        
-        // Inicializar app
-        async function initApp() {
-            try {
-                // Inicializar IndexedDB
-                await offlineDB.init();
-                console.log('IndexedDB inicializado');
-                
-                // Verificar autenticação
-                const token = localStorage.getItem('auth_token');
-                if (!token) {
-                    window.location.href = '/pages/login.html';
-                    return;
-                }
-                
-                // Carregar dados do usuário
-                const user = await offlineDB.getUser();
-                if (!user) {
-                    // Tentar buscar do servidor
-                    const response = await fetch('/api/user/profile', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const userData = await response.json();
-                        await offlineDB.saveUser(userData);
-                        renderApp(userData);
-                    } else {
-                        window.location.href = '/pages/login.html';
-                    }
-                } else {
-                    renderApp(user);
-                }
-                
-                // Esconder loading
-                document.getElementById('loading-screen').style.display = 'none';
-            } catch (error) {
-                console.error('Erro ao inicializar app:', error);
-                document.getElementById('loading-screen').innerHTML = 
-                    '<p>Erro ao carregar aplicativo. Tente novamente.</p>';
-            }
-        }
-        
-        function renderApp(user) {
-            const app = document.getElementById('app');
-            app.innerHTML = `
-                <header>
-                    <h1>ShapeFit</h1>
-                    <div class="user-info">
-                        <span>Olá, ${user.name || 'Usuário'}</span>
-                    </div>
-                </header>
-                <main>
-                    <nav>
-                        <a href="/pages/dashboard.html">Dashboard</a>
-                        <a href="/pages/diary.html">Diário</a>
-                        <a href="/pages/recipes.html">Receitas</a>
-                        <a href="/pages/progress.html">Progresso</a>
-                    </nav>
-                </main>
-            `;
-        }
-        
-        // Inicializar quando DOM estiver pronto
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
-        }
-        
-        // Listener para eventos de sincronização
-        window.addEventListener('sync-complete', () => {
-            console.log('Sincronização concluída');
-            // Atualizar UI se necessário
-        });
-        
-        window.addEventListener('connection-restored', () => {
-            console.log('Conexão restaurada');
-            // Notificar usuário
-            const banner = document.getElementById('offline-banner');
-            if (banner) {
-                banner.textContent = 'Conexão restaurada! Sincronizando dados...';
-                setTimeout(() => {
-                    banner.style.display = 'none';
-                }, 3000);
-            }
-        });
-    </script>
+    <script type="module" src="/assets/js/app.js"></script>
 </body>
 </html>
-

@@ -1,0 +1,108 @@
+/* public_html/shapefit/assets/css/meal_types_overview_specific.css */
+
+.meal-types-overview-container .page-title {
+    font-size: 1.6em;
+    font-weight: 600;
+    color: var(--primary-text-color); /* Garante que use a cor primária do texto */
+}
+
+.meal-types-overview-container .page-subtitle {
+    font-size: 0.95em;
+    color: var(--secondary-text-color); /* Garante que use a cor secundária do texto */
+}
+
+.meal-type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Duas colunas */
+    gap: 18px; 
+    margin-top: 10px;
+}
+
+.meal-type-card-v2 {
+    display: flex;
+    flex-direction: column; /* Empilha imagem e título */
+    text-decoration: none;
+    border-radius: 12px; /* Arredondamento geral do card */
+    overflow: hidden; /* Crucial para os cantos arredondados da imagem e do card */
+    background-color: var(--surface-color); /* Cor de fundo para o card inteiro */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.meal-type-card-v2:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.meal-type-card-image-wrapper {
+    width: 100%;
+    position: relative; /* Necessário para o aspect-ratio com padding-bottom se não usar aspect-ratio direto */
+    background-color: var(--border-color); /* Cor de fundo caso a imagem não carregue ou não preencha */
+    
+    /* Escolha UMA das opções abaixo para controlar a altura/proporção da imagem: */
+
+    /* Opção 1: Usando a propriedade aspect-ratio (mais moderno) */
+    aspect-ratio: 4 / 3; /* Proporção 4:3. Experimente 16/9, 3/2, ou 1/1 (quadrado) */
+
+    /* Opção 2: Truque com padding-bottom para criar proporção (funciona em navegadores mais antigos) */
+    /* Se usar esta, comente a linha 'aspect-ratio' acima. */
+    /* padding-bottom: 75%; */ /* Para proporção 4:3 (3/4 * 100%) */
+    /* padding-bottom: 56.25%; */ /* Para proporção 16:9 (9/16 * 100%) */
+    /* height: 0; */ /* Necessário para o truque com padding-bottom */
+}
+
+.meal-type-card-v2 img {
+    display: block;
+    width: 100%;
+    height: 100%; /* Faz a imagem preencher a altura do wrapper */
+    object-fit: cover; /* Cobre a área, mantendo a proporção da imagem, cortando se necessário */
+    
+    /* Se usou o truque com padding-bottom no wrapper: */
+    /* position: absolute; */
+    /* top: 0; */
+    /* left: 0; */
+}
+
+.meal-type-card-title-wrapper {
+    /* background-color: var(--surface-color); // Já é a cor de fundo do card-v2 */
+    padding: 12px 15px;
+    text-align: left; 
+    /* Adicionado para garantir que esta área tenha uma altura mínima consistente se os títulos variarem muito */
+    min-height: 4.5em; /* Ajuste este valor baseado no tamanho da fonte e line-height do h3. (line-height * número de linhas + padding) */
+    display: flex; /* Para centralizar verticalmente o texto se ele for menor que min-height */
+    flex-direction: column;
+    justify-content: center; /* Centraliza o h3 verticalmente se ele for menor que min-height */
+}
+
+.meal-type-card-v2 h3 {
+    font-size: 1.0em; /* Ajustado para caber melhor */
+    font-weight: 500;
+    color: var(--primary-text-color);
+    margin: 0;
+    line-height: 1.3; /* Altura da linha do título */
+    /* Para limitar o título a 2 linhas (opcional, mas ajuda na consistência) */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ajustes para telas menores */
+@media (max-width: 360px) {
+    .meal-type-grid {
+        gap: 12px;
+    }
+    .meal-type-card-title-wrapper {
+        padding: 10px 12px;
+        min-height: 4em; /* Ajuste para mobile */
+    }
+    .meal-type-card-v2 h3 {
+        font-size: 0.9em;
+    }
+    /* Se quiser uma proporção diferente para as imagens no mobile:
+    .meal-type-card-image-wrapper {
+        aspect-ratio: 1 / 1; // Imagens quadradas no mobile, por exemplo
+    }
+    */
+}

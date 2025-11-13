@@ -1,0 +1,100 @@
+/* assets/css/base/_global.css (VERSÃO DEFINITIVA) */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* assets/css/base/_global.css */
+
+/* O HTML agora serve apenas como uma garantia final, um fundo preto sólido. */
+html {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: #121212;
+    background-image: 
+        radial-gradient(circle at 90% 90%, var(--bg-gradient-start) 0%, transparent 40%),
+        radial-gradient(circle at 10% 10%, var(--bg-gradient-start) 0%, transparent 40%);
+    background-attachment: fixed;
+    overscroll-behavior-y: contain;
+}
+
+/* Removido - o ruído agora vai para o body::after */
+
+/* O BODY se torna o nosso palco principal e recebe todo o estilo. */
+body {
+    position: relative; /* container principal */
+    width: 100%;
+    height: 100vh; /* robusto para PWA iOS */
+    overflow: hidden; /* scroll só no app-container */
+    background-color: #121212;
+    background-image: 
+        radial-gradient(circle at 90% 90%, var(--bg-gradient-start) 0%, transparent 40%),
+        radial-gradient(circle at 10% 10%, var(--bg-gradient-start) 0%, transparent 40%);
+    background-attachment: fixed;
+    overscroll-behavior-y: contain;
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif; 
+    -webkit-font-smoothing: antialiased;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    display: flex; /* centraliza o container */
+    justify-content: center;
+    align-items: center;
+}
+
+/* O RUÍDO agora é aplicado sobre o BODY, não mais sobre o HTML */
+body::after {
+    content: "";
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    width: 100vw; 
+    height: 100vh;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23f)"/></svg>');
+    opacity: 0.03;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.app-container, .container {
+    width: 100%;
+    max-width: 480px;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative; /* dentro do body flex */
+    -webkit-overflow-scrolling: touch; 
+    overscroll-behavior-y: contain;
+    overscroll-behavior-x: none;
+    padding: env(safe-area-inset-top) 24px calc(60px + 20px + env(safe-area-inset-bottom)) 24px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    background-color: transparent;
+}
+.app-container::-webkit-scrollbar, .container::-webkit-scrollbar { 
+    display: none; 
+}
+
+/* REGRAS ESPECÍFICAS PARA iOS - Previne scroll horizontal */
+* {
+    overscroll-behavior-x: none;
+}
+
+/* Previne que qualquer elemento cause scroll horizontal */
+body, html, .app-container, .container {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+
+

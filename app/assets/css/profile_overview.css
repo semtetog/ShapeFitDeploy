@@ -1,0 +1,152 @@
+/* assets/css/profile_overview.css */
+
+.profile-overview-container {
+    padding: 0 0 100px 0;
+}
+
+/* Header */
+.profile-overview-container .header-nav { display: flex; align-items: center; padding: 10px 0; margin-bottom: 25px; }
+.profile-overview-container .back-button { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: var(--surface-color); border-radius: 50%; color: var(--primary-text-color); text-decoration: none; font-size: 0.9em; transition: background-color .2s ease, transform .2s ease; }
+.profile-overview-container .back-button:hover { background-color: #2a2a2a; transform: scale(1.05); }
+.profile-overview-container .page-title { flex-grow: 1; text-align: center; margin: 0; padding-right: 40px; font-size: 1.2em; font-weight: 600; }
+
+/* Grid de Medidores */
+.profile-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 35px;
+}
+
+.summary-card {
+    background-color: var(--surface-color);
+    border-radius: 18px;
+    padding: 20px 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.summary-card .card-label {
+    font-weight: 500;
+    color: var(--secondary-text-color);
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+.summary-card .card-sub-label {
+    font-size: 0.85em;
+    color: var(--border-color);
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+/* Estilos do Medidor de IMC */
+.gauge-container {
+    width: 100%;
+    height: 90px;
+}
+
+/* Estilos do Card de Peso */
+.main-value-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 5px;
+    margin: auto 0;
+}
+
+.weight-card .main-value {
+    font-size: 3.5em;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--primary-text-color);
+}
+.weight-card .card-unit {
+    font-size: 1.2em;
+    font-weight: 500;
+    color: var(--secondary-text-color);
+    transform: translateY(-5px);
+}
+.view-history-link {
+    font-size: 0.8em;
+    color: var(--accent-orange);
+    text-decoration: none;
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+/* Lista de Informações */
+.user-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.info-group-title {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--secondary-text-color);
+    text-transform: uppercase;
+    padding-left: 5px;
+    margin-bottom: 5px;
+}
+.info-item, .info-item-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--surface-color);
+    padding: 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--primary-text-color);
+}
+.info-item .info-label, .info-item-link .info-label {
+    color: var(--primary-text-color);
+    font-weight: 500;
+}
+.info-item .info-value, .info-item-link i {
+    font-weight: 400;
+    color: var(--secondary-text-color);
+}
+.info-item-link:hover {
+    background-color: #2a2a2a;
+}
+
+/* --- NAVEGAÇÃO INFERIOR (RESTaurada) --- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: #1E1E1E;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 65px;
+    padding: 0 10px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.25);
+    border-top: 1px solid var(--border-color);
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--secondary-text-color);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    flex: 1;
+    text-align: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+    height: 100%;
+    position: relative;
+}
+
+.nav-item i.fas { font-size: 22px; margin-bottom: 4px; }
+.nav-item.active,
+.nav-item:hover { color: var(--accent-orange); }
+.nav-item:active { transform: scale(0.95); }
+

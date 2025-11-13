@@ -1,0 +1,67 @@
+/* assets/css/components/_navigation.css */
+
+/* assets/css/components/_navigation.css */
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    background: rgba(16, 16, 16, 0.6);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    
+    /* 
+      A MUDANÇA: O padding-bottom agora é APLICADO AOS ÍCONES,
+      NÃO À BARRA INTEIRA. A barra em si vai até o fundo.
+    */
+    padding: 12px 10px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-basis: 20%;
+    height: 100%;
+    text-decoration: none;
+}
+
+.nav-item img {
+    width: 28px;
+    height: 28px;
+    transition: transform 0.2s ease, filter 0.3s ease;
+    filter: grayscale(100%) brightness(0.8);
+}
+
+.nav-item:hover img {
+    transform: scale(1.1);
+}
+
+.nav-item.active img {
+    filter: grayscale(0%) brightness(1);
+    transform: scale(1.05);
+}
+
+/* Estilo especial para o botão de "Adicionar" central */
+#add-button-item img {
+    width: 40px;
+    height: 40px;
+    filter: none; /* Remove o filtro cinza */
+}
+
+#add-button-item:active img {
+    transform: scale(0.95);
+}

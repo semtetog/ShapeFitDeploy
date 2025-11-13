@@ -1,0 +1,208 @@
+/* App Principal CSS - Importa todos os estilos necessários */
+@import url('../css/base/_variables.css');
+@import url('../css/base/_reset.css');
+@import url('../css/base/_global.css');
+@import url('../css/base/_android.css');
+@import url('../css/layout/_header.css');
+@import url('../css/layout/_grid.css');
+@import url('../css/components/_buttons.css');
+@import url('../css/components/_cards.css');
+@import url('../css/components/_forms.css');
+@import url('../css/components/_modals.css');
+@import url('../css/components/_navigation.css');
+@import url('../css/pages/_dashboard.css');
+@import url('../css/diary.css');
+@import url('../css/main_app_glass_theme.css');
+@import url('../css/main_app_specific.css');
+
+/* Estilos específicos do app */
+.app-wrapper {
+    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    padding-bottom: 80px; /* Espaço para bottom nav */
+}
+
+.app-header {
+    background: rgba(24, 24, 24, 0.85);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 12px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.app-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.points-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.points-badge i {
+    color: var(--accent-orange);
+}
+
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-orange);
+    text-decoration: none;
+}
+
+.app-content {
+    flex: 1;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    gap: 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--accent-orange);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.error-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    gap: 20px;
+    text-align: center;
+    padding: 20px;
+}
+
+.error-screen i {
+    font-size: 3rem;
+    color: var(--danger-color);
+}
+
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface-color);
+    color: var(--text-primary);
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 90%;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-success {
+    border-left: 4px solid var(--success-color);
+}
+
+.toast-error {
+    border-left: 4px solid var(--danger-color);
+}
+
+.toast-info {
+    border-left: 4px solid var(--accent-orange);
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom)) 0;
+    background: rgba(24, 24, 24, 0.85);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+}
+
+.nav-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nav-item i {
+    font-size: 1.5rem;
+}
+
+.nav-item.active {
+    color: var(--accent-orange);
+}
+

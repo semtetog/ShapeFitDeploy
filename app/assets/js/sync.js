@@ -1,5 +1,5 @@
 // Sistema de Sincronização Offline-First
-import offlineDB from './db.js';
+import offlineDB from '/assets/js/db.js';
 
 class SyncManager {
   constructor() {

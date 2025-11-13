@@ -1,0 +1,123 @@
+/* assets/css/components/_forms.css */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* Estilo para inputs de texto, email, senha, etc. */
+.form-input, .form-control {
+    width: 100%;
+    padding: 14px 16px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 16px;
+    font-family: var(--font-family);
+}
+
+.form-input:focus, .form-control:focus {
+    outline: none;
+    border-color: #FFAE00;
+    box-shadow: 0 0 0 3px rgba(255, 174, 0, 0.3);
+}
+
+/* Estilo para opções selecionáveis (objetivos, etc.) */
+.selectable-option {
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-image 0.4s ease, border-color 0.2s ease;
+    position: relative;
+}
+
+.selectable-option.selected {
+    background-image: linear-gradient(90deg, var(--accent-orange), #D9534F);
+    border-color: var(--accent-orange);
+    color: white;
+}
+
+.selectable-option input[type="radio"],
+.selectable-option input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+/* Mensagens de erro */
+.error-message {
+    color: #ff4d4d;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Barras de progresso genéricas (ex: no ranking) */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-image: var(--primary-orange-gradient);
+    border-radius: 4px;
+    transition: width 0.5s ease-out; /* Adiciona transição suave */
+}
+
+/* Círculos de progresso (ex: consumo) */
+.progress-circle {
+    width: 100%;
+    max-width: 60px;
+    height: auto;
+    position: relative;
+    margin: 0 auto;
+}
+
+.progress-circle .circular-chart {
+    display: block;
+}
+
+.progress-circle .circle-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 3.2;
+}
+
+.progress-circle .circle {
+    fill: none;
+    stroke: url(#orange-gradient); /* Precisa que a def do gradiente esteja no SVG */
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    transform-origin: center;
+    transform: rotate(-90deg);
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.progress-circle .percentage-text {
+    fill: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 10px;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: middle;
+}

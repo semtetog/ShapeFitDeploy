@@ -1,0 +1,22 @@
+/* assets/css/layout/_footer.css */
+
+/* 
+  Este arquivo é um placeholder para futuros estilos de rodapé.
+  Se você adicionar um rodapé com informações de copyright, links, etc.,
+  os estilos virão aqui.
+*/
+
+.footer {
+    width: 100%;
+    max-width: 480px;
+    padding: 20px;
+    margin-top: auto; /* Empurra o rodapé para baixo em páginas com pouco conteúdo */
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.footer a {
+    color: var(--text-primary);
+    text-decoration: underline;
+}

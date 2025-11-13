@@ -1,0 +1,89 @@
+/* Estilos para a página measurements_progress.php */
+.main-app-container { padding-bottom: 90px; }
+
+.section-title-form { font-size: 1.2em; font-weight: 600; margin: 30px 0 20px 0; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); color: var(--primary-text-color); }
+.subsection-title { font-size: 1em; font-weight: 500; margin-bottom: 15px; color: var(--secondary-text-color); }
+
+/* Grid de Upload de Fotos */
+.photo-upload-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+.photo-upload-item { text-align: center; }
+.photo-upload-item > label:first-of-type { font-size: 0.9em; font-weight: 500; display: block; margin-bottom: 8px; }
+.photo-input { display: none; }
+.photo-label { cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 110px; border: 2px dashed var(--border-color); border-radius: 12px; transition: all 0.2s ease; background-size: cover; background-position: center; overflow: hidden; }
+.photo-label:hover { border-color: var(--accent-orange); background-color: rgba(255, 107, 0, 0.05); }
+.photo-label i { font-size: 28px; color: var(--secondary-text-color); margin-bottom: 8px; transition: all 0.2s ease; }
+.photo-label span { font-size: 0.85em; color: var(--secondary-text-color); }
+.photo-label.has-image i, .photo-label.has-image span { display: none; }
+
+/* Grid de Medidas */
+.measurements-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 15px; }
+.measurements-grid .form-group label { font-size: 0.9em; font-weight: 400; color: var(--secondary-text-color); }
+.measurements-grid .form-control { padding: 8px 10px; font-size: 1em; }
+.form-actions { text-align: center; margin-top: 30px; }
+
+/* Seção de Histórico */
+.history-section .empty-state { padding: 20px; text-align: center; font-style: italic; color: var(--secondary-text-color); }
+.history-item { margin-bottom: 15px; padding: 15px; }
+.history-item-header { display: flex; align-items: center; gap: 8px; color: var(--accent-orange); font-weight: 600; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+.history-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+.history-photos img { width: 100%; height: auto; border-radius: 8px; object-fit: cover; aspect-ratio: 1 / 1; }
+.history-measurements-list { list-style: none; padding: 0; margin: 0; font-size: 0.9em; color: var(--secondary-text-color); }
+.history-measurements-list li { display: flex; justify-content: space-between; padding: 5px 0; }
+.history-measurements-list li strong { color: var(--primary-text-color); font-weight: 500; }
+
+/* ======================================= */
+/*    ESTILOS PARA O MODAL DE FOTOS        */
+/* ======================================= */
+
+.photo-modal-overlay {
+    position: fixed;
+    z-index: 1001; /* Fica acima de tudo, exceto talvez outros modais mais importantes */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.photo-modal-content {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    animation-name: zoom;
+    animation-duration: 0.4s;
+}
+
+@keyframes zoom {
+    from {transform: scale(0.8)}
+    to {transform: scale(1)}
+}
+
+.photo-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.photo-modal-close:hover,
+.photo-modal-close:focus {
+    color: #bbb;
+    text-decoration: none;
+}
+
+/* Garante que o link da foto tenha um cursor de ponteiro */
+.history-photos a {
+    cursor: pointer;
+}
