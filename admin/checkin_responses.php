@@ -805,13 +805,14 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 /* COLUNA DATA - AJUSTE PERFEITO */
+/* COLUNA DATA - AJUSTE PERFEITO */
 .responses-table th:first-child,
 .responses-table td:first-child {
-    width: 165px !important;
-    min-width: 165px !important;
-    max-width: 165px !important;
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
     white-space: nowrap !important;
-    padding-right: 0.75rem !important;
+    padding-right: 1.25rem !important;
     position: relative;
 }
 
