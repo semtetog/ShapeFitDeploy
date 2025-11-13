@@ -1351,6 +1351,123 @@ require_once __DIR__ . '/includes/header.php';
     display: none;
 }
 
+/* Ícone de ajuda do calendário - estilo igual ao sleep-details-icon */
+.chart-calendar-help-icon {
+    position: absolute;
+    top: 1.5rem;
+    right: 4.5rem;
+    color: var(--accent-orange);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.chart-calendar-help-icon:hover {
+    opacity: 0.7;
+}
+
+/* Popup de ajuda do calendário - lateral direita (fora do modal) */
+.chart-calendar-help-popup {
+    position: fixed;
+    top: 15%;
+    right: calc(50% - 240px - 300px);
+    z-index: 10002;
+    pointer-events: all;
+    width: 280px;
+    max-width: calc(100vw - 2rem);
+}
+
+.chart-calendar-help-popup-content {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.chart-calendar-help-popup-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.chart-calendar-help-popup-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent-orange);
+}
+
+.chart-calendar-help-popup-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent-orange);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.chart-calendar-help-popup-header i {
+    font-size: 1rem;
+}
+
+.chart-calendar-help-popup-body {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.chart-calendar-help-popup-body p {
+    margin: 0 0 0.5rem 0;
+}
+
+.chart-calendar-help-popup-tip {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    font-weight: 500 !important;
+    color: var(--text-primary) !important;
+}
+
+.chart-calendar-help-popup-tip strong {
+    color: var(--accent-orange);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .chart-calendar-help-popup {
+        position: fixed !important;
+        top: 2rem !important;
+        right: 1rem !important;
+        left: auto !important;
+        transform: none !important;
+        max-width: calc(100vw - 2rem);
+        width: calc(100vw - 2rem) !important;
+    }
+    
+    .chart-calendar-help-icon {
+        top: 1rem;
+        right: 4rem;
+        font-size: 0.9rem;
+    }
+}
+
 /* Estilos do calendário (replicados do view_user_addon.css) */
 .diary-calendar-wrapper {
     position: relative;
@@ -1713,19 +1830,9 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Selecionar</span>
             </button>
         </div>
-        <div class="calendar-filters-wrapper">
-            <button class="calendar-filter-btn" onclick="applyQuickFilter('last7')" title="Últimos 7 dias">
-                <i class="fas fa-clock"></i>
-                <span>Últimos 7 dias</span>
-            </button>
-            <button class="calendar-filter-btn" onclick="applyQuickFilter('last30')" title="Últimos 30 dias">
-                <i class="fas fa-clock"></i>
-                <span>Últimos 30 dias</span>
-            </button>
-            <button class="calendar-filter-btn calendar-icon" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
-                <i class="fas fa-calendar-alt"></i>
-            </button>
-        </div>
+        <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
+            <i class="fas fa-calendar-alt"></i>
+        </button>
     </div>
 
     <?php if (empty($users)): ?>
@@ -1899,6 +2006,13 @@ require_once __DIR__ . '/includes/header.php';
             <div class="calendar-year" id="checkinCalendarYear"></div>
         </div>
         
+        <!-- Botão de Últimos 7 dias -->
+        <div style="margin-bottom: 1.5rem;">
+            <button class="calendar-quick-btn" onclick="selectCheckinPeriod('last7')">
+                <i class="fas fa-clock"></i>
+                <span>Últimos 7 dias</span>
+            </button>
+        </div>
         
         <div class="calendar-nav-buttons">
             <button class="calendar-btn-nav" onclick="changeCheckinCalendarMonth(-1)" type="button">
@@ -1932,6 +2046,9 @@ require_once __DIR__ . '/includes/header.php';
             <div class="separator-line"></div>
         </div>
         
+        <!-- Ícone de ajuda para abrir popup de instruções -->
+        <i class="fas fa-question-circle chart-calendar-help-icon" onclick="toggleCheckinCalendarHelp()" title="Ajuda - Como usar o calendário"></i>
+        
         <div class="calendar-footer-legend">
             <div class="legend-row">
                 <span class="legend-marker today-marker"></span>
@@ -1945,6 +2062,25 @@ require_once __DIR__ . '/includes/header.php';
                 <span class="legend-marker no-data-marker"></span>
                 <span class="legend-text">Sem check-in</span>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popup de ajuda do calendário - lateral direita (fora do modal) -->
+<div id="checkinCalendarHelpPopup" class="chart-calendar-help-popup" style="display: none;">
+    <div class="chart-calendar-help-popup-content">
+        <button class="chart-calendar-help-popup-close" onclick="toggleCheckinCalendarHelp()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="chart-calendar-help-popup-header">
+            <i class="fas fa-info-circle"></i>
+            <span>Selecione um período</span>
+        </div>
+        <div class="chart-calendar-help-popup-body">
+            <p>Clique em uma data para início, depois em outra para fim</p>
+            <p class="chart-calendar-help-popup-tip">
+                <strong>Dica:</strong> Dê duplo clique em um dia para ver apenas esse dia específico
+            </p>
         </div>
     </div>
 </div>
@@ -2558,6 +2694,18 @@ async function openCheckinCalendar() {
     if (modal) {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        
+        // Mostrar popup de ajuda (apenas na primeira vez)
+        const helpPopup = document.getElementById('checkinCalendarHelpPopup');
+        if (helpPopup) {
+            const hasSeenHelp = localStorage.getItem('checkinCalendarHelpSeen');
+            if (!hasSeenHelp) {
+                helpPopup.style.display = 'block';
+            } else {
+                // Se já viu, não mostrar automaticamente
+                helpPopup.style.display = 'none';
+            }
+        }
     }
 }
 
@@ -2783,11 +2931,28 @@ function applyCheckinPeriodSelection() {
 // Fechar modal de calendário
 function closeCheckinCalendar() {
     const modal = document.getElementById('checkinCalendarModal');
+    const popup = document.getElementById('checkinCalendarHelpPopup');
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = '';
         checkinDateStart = null;
         checkinDateEnd = null;
+    }
+    if (popup) {
+        popup.style.display = 'none';
+    }
+}
+
+// Função para abrir/fechar popup de ajuda do calendário
+function toggleCheckinCalendarHelp() {
+    const popup = document.getElementById('checkinCalendarHelpPopup');
+    if (popup) {
+        if (popup.style.display === 'none' || popup.style.display === '') {
+            popup.style.display = 'block';
+        } else {
+            popup.style.display = 'none';
+            localStorage.setItem('checkinCalendarHelpSeen', 'true');
+        }
     }
 }
 
