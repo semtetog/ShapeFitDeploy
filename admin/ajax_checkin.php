@@ -1218,13 +1218,14 @@ function formatSummaryHTML($summary_text, $user_name) {
     
     // Se o texto já contém HTML ou estrutura bem formatada da IA, usar diretamente
     if (stripos($text, '<h4') !== false || stripos($text, '<h3') !== false || stripos($text, '<p') !== false || stripos($text, '<ul') !== false) {
-        // A IA já formatou em HTML, apenas garantir que o nome do paciente está correto
-        $text = str_ireplace('[NOME]', htmlspecialchars($user_name), $text);
-        $text = str_ireplace('[NOME DO PACIENTE]', htmlspecialchars($user_name), $text);
-        $text = str_ireplace('Paciente:', 'Paciente: ' . htmlspecialchars($user_name), $text);
-        // Garantir que o nome está no lugar certo
-        $text = preg_replace('/👤\s*Paciente:\s*\[NOME\]/i', '👤 Paciente: ' . htmlspecialchars($user_name), $text);
-        $text = preg_replace('/👤\s*Paciente:\s*([^<]+)/i', '👤 Paciente: ' . htmlspecialchars($user_name), $text, 1);
+        // A IA já formatou em HTML, apenas substituir placeholders explícitos se existirem
+        // Apenas substituir se existir placeholder explícito
+        if (stripos($text, '[NOME]') !== false) {
+            $text = str_ireplace('[NOME]', htmlspecialchars($user_name), $text);
+        }
+        if (stripos($text, '[NOME DO PACIENTE]') !== false) {
+            $text = str_ireplace('[NOME DO PACIENTE]', htmlspecialchars($user_name), $text);
+        }
         return $text;
     }
     
