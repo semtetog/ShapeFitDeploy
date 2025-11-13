@@ -226,8 +226,48 @@ require_once __DIR__ . '/includes/header.php';
 .filters-section .right-side {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 0.75rem;
-    min-height: 40px; /* Força ficar exatamente da altura dos botões para alinhamento vertical */
+    height: 40px; /* Altura fixa para alinhamento perfeito */
+    box-sizing: border-box;
+}
+
+.filters-section .right-side {
+    justify-content: flex-end; /* Alinha o botão de calendário à direita */
+}
+
+/* Garantir alinhamento vertical perfeito de todos os elementos */
+.filters-section .submissions-count {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    height: 40px !important;
+    box-sizing: border-box !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.filters-section .btn-select-mode {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 40px !important;
+    box-sizing: border-box !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.filters-section .diary-calendar-icon-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 40px !important;
+    box-sizing: border-box !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
 }
 
 /* FIX: Evitar que o ícone de ajuda do calendário suba para o header */
