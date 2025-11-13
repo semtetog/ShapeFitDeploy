@@ -771,4 +771,57 @@ function updateStatus($data, $admin_id) {
         'stats' => $stats
     ]);
 }
+
+function deleteResponse($data, $admin_id) {
+    global $conn;
+    
+    $user_id = (int)($data['user_id'] ?? 0);
+    $config_id = (int)($data['config_id'] ?? 0);
+    $response_date = trim($data['response_date'] ?? '');
+    
+    if ($user_id <= 0 || $config_id <= 0 || empty($response_date)) {
+        throw new Exception('Dados inválidos para exclusão');
+    }
+    
+    // Verificar se o check-in pertence ao admin
+    $check_query = "SELECT id FROM sf_checkin_configs WHERE id = ? AND admin_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("ii", $config_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        throw new Exception('Check-in não encontrado ou sem permissão');
+    }
+    $stmt->close();
+    
+    // Deletar todas as respostas do usuário para este check-in na data especificada
+    $delete_query = "DELETE FROM sf_checkin_responses WHERE config_id = ? AND user_id = ? AND DATE(submitted_at) = ?";
+    $stmt = $conn->prepare($delete_query);
+    $stmt->bind_param("iis", $config_id, $user_id, $response_date);
+    
+    if (!$stmt->execute()) {
+        $stmt->close();
+        throw new Exception('Erro ao excluir respostas: ' . $stmt->error);
+    }
+    
+    $deleted_count = $stmt->affected_rows;
+    $stmt->close();
+    
+    // Resetar status de completado para esta semana se necessário
+    // Calcular o domingo da semana da data da resposta
+    $week_start = date('Y-m-d', strtotime('sunday this week', strtotime($response_date)));
+    
+    $update_query = "UPDATE sf_checkin_availability SET is_completed = 0, completed_at = NULL WHERE config_id = ? AND user_id = ? AND week_date = ?";
+    $stmt = $conn->prepare($update_query);
+    $stmt->bind_param("iis", $config_id, $user_id, $week_start);
+    $stmt->execute();
+    $stmt->close();
+    
+    echo json_encode([
+        'success' => true,
+        'message' => "Resposta excluída com sucesso! ($deleted_count registro(s) removido(s))"
+    ]);
+}
 ?>
