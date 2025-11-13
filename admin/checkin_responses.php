@@ -1283,72 +1283,33 @@ require_once __DIR__ . '/includes/header.php';
     padding-right: 0.5rem;
     padding-left: 0;
 }
-/* Botões de filtro do calendário - refatorado completamente */
-.calendar-filters-wrapper {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    flex-wrap: nowrap;
-}
-
-.calendar-filter-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.875rem;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 8px;
-    color: var(--accent-orange);
-    font-size: 0.875rem;
-    font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    box-sizing: border-box;
-    line-height: 1.5;
-    flex-shrink: 0;
-    margin: 0;
-}
-
-.calendar-filter-btn:hover {
-    background: rgba(255, 107, 0, 0.15);
-    border-color: var(--accent-orange);
-    transform: translateY(-2px);
-}
-
-.calendar-filter-btn i {
-    font-size: 0.875rem;
-    line-height: 1;
-}
-
-/* Botão do calendário (ícone redondo) */
-.calendar-filter-btn.calendar-icon {
+/* Botão do calendário (ícone redondo) - igual ao view_user_diary */
+.diary-calendar-icon-btn {
     width: 40px;
     min-width: 40px;
     max-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
     padding: 0;
     border-radius: 50%;
     background: rgba(255, 107, 0, 0.08);
     border: 1px solid rgba(255, 107, 0, 0.2);
-}
-
-.calendar-filter-btn.calendar-icon i {
+    color: var(--accent-orange);
     font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
-.calendar-filter-btn.calendar-icon:hover {
+.diary-calendar-icon-btn:hover {
     background: rgba(255, 107, 0, 0.15);
     border-color: var(--accent-orange);
-}
-
-.calendar-filter-btn.calendar-icon span {
-    display: none;
+    transform: translateY(-2px);
 }
 
 /* Ícone de ajuda do calendário - estilo igual ao sleep-details-icon */
