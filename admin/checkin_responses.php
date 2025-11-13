@@ -1780,20 +1780,20 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="filters-section">
-        <div class="left-side calendar-wrapper">
+        <div class="left-side">
             <div class="submissions-count">
                 <span>Respostas</span>
                 <span class="badge"><?php echo $total_count; ?></span>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
-                    <i class="fas fa-mouse-pointer"></i>
-                    <span>Selecionar</span>
-                </button>
-                <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
-                    <i class="fas fa-calendar-alt"></i>
-                </button>
-            </div>
+            <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
+                <i class="fas fa-mouse-pointer"></i>
+                <span>Selecionar</span>
+            </button>
+        </div>
+        <div class="right-side calendar-wrapper">
+            <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
+                <i class="fas fa-calendar-alt"></i>
+            </button>
         </div>
     </div>
 
