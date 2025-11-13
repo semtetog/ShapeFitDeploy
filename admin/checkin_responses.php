@@ -1332,7 +1332,7 @@ require_once __DIR__ . '/includes/header.php';
     position: fixed;
     top: 15%;
     right: calc(50% - 240px - 300px);
-    z-index: 2; /* Mesma camada do calendário (diary-calendar-wrapper) */
+    z-index: 1000000; /* Acima do modal (z-index: 999999) e na mesma camada visual do calendário */
     pointer-events: all;
     width: 280px;
     max-width: calc(100vw - 2rem);
