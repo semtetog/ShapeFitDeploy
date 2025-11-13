@@ -3214,7 +3214,7 @@ function markCheckinComplete() {
             console.log('Check-in completo!', data);
             
             // Fechar o modal imediatamente
-                closeCheckinModal();
+            closeCheckinModal();
             
             // Remover o botão flutuante permanentemente (não apenas esconder)
             const floatingBtn = document.querySelector('.checkin-floating-btn');
