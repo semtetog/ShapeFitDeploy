@@ -214,7 +214,7 @@ require_once __DIR__ . '/includes/header.php';
     border: 1px solid var(--glass-border) !important;
     border-radius: 16px !important;
     padding: 1.25rem !important;
-    padding-right: 3rem !important;
+    padding-right: 1.25rem !important;
     margin-bottom: 1.5rem !important;
     display: flex;
     justify-content: space-between;
@@ -232,6 +232,7 @@ require_once __DIR__ . '/includes/header.php';
 .filters-section .calendar-filters-wrapper {
     flex-wrap: nowrap !important;
     flex-shrink: 0 !important;
+    margin-left: auto;
 }
 
 .filter-group {
