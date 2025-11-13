@@ -44,7 +44,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['final_submit'])) {
     $weight_kg_str = str_replace(',', '.', trim($data['weight_kg'] ?? '0'));
     $weight_kg = filter_var($weight_kg_str, FILTER_VALIDATE_FLOAT);
     $height_cm = filter_var($data['height_cm'] ?? 0, FILTER_VALIDATE_INT);
-    $exercise_frequency = isset($data['exercise_type_none']) ? 'sedentary' : ($data['exercise_frequency'] ?? 'sedentary');
+    
+    // Validação de exercícios e frequência
+    $exercise_type_none = isset($data['exercise_type_none']);
+    $has_exercises = !empty($cleaned_exercises_string) && trim($cleaned_exercises_string) !== '';
+    $exercise_frequency_raw = $data['exercise_frequency'] ?? '';
+    
+    // Validações válidas de frequência (excluindo 'sedentary')
+    $valid_frequencies = ['1_2x_week', '3_4x_week', '5_6x_week', '6_7x_week', '7plus_week'];
+    
+    if ($exercise_type_none) {
+        // Se checkbox "Nenhuma / Não pratico" está marcado
+        $exercise_frequency = 'sedentary';
+        $cleaned_exercises_string = null; // Garantir que não há exercícios
+    } else {
+        // Se não está marcado, verificar validação
+        if ($has_exercises) {
+            // Se há exercícios, a frequência é obrigatória e deve ser uma das válidas
+            if (empty($exercise_frequency_raw) || trim($exercise_frequency_raw) === '' || !in_array($exercise_frequency_raw, $valid_frequencies)) {
+                // Se há exercícios mas não há frequência válida, redirecionar com erro
+                $_SESSION['onboarding_error'] = 'Por favor, selecione a frequência de treino. Se você pratica exercícios, é necessário informar com que frequência.';
+                header('Location: onboarding.php');
+                exit;
+            }
+            $exercise_frequency = $exercise_frequency_raw;
+        } else {
+            // Se não há exercícios, definir como 'sedentary'
+            $exercise_frequency = 'sedentary';
+        }
+    }
+    
     $water_intake = $data['water_intake_liters'] ?? '1_2l';
     $sleep_bed = $data['sleep_time_bed'] ?? null;
     $sleep_wake = $data['sleep_time_wake'] ?? null;
