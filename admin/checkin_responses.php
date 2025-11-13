@@ -401,11 +401,27 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:first-child {
-    padding-right: 0.5rem;
+    padding-right: 0.25rem;
+    position: relative;
+}
+
+.responses-table td:first-child::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 1px;
+    background: linear-gradient(to bottom, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.1) 20%, 
+        rgba(255, 255, 255, 0.15) 50%, 
+        rgba(255, 255, 255, 0.1) 80%, 
+        transparent 100%);
 }
 
 .responses-table td:nth-child(2) {
-    padding-left: 0.5rem;
+    padding-left: 0.25rem;
     padding-right: 0.5rem;
 }
 
@@ -469,7 +485,7 @@ require_once __DIR__ . '/includes/header.php';
     color: #EF4444;
     border: 1px solid rgba(239, 68, 68, 0.2);
     border-radius: 8px;
-    padding: 0.5rem 0.75rem;
+    padding: 0;
     font-size: 0.875rem;
     cursor: pointer;
     display: inline-flex;
@@ -478,6 +494,17 @@ require_once __DIR__ . '/includes/header.php';
     transition: all 0.2s ease;
     width: 36px;
     height: 36px;
+    line-height: 1;
+}
+
+.btn-delete-response i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .btn-delete-response:hover {
