@@ -883,9 +883,14 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 /* Linha selecionada */
-.response-row.selected {
+.responses-table tbody tr.response-row.selected {
     background: rgba(255, 107, 0, 0.1) !important;
     border-left: 3px solid var(--accent-orange);
+}
+
+/* Garantir que o thead não receba estilos de seleção */
+.responses-table thead tr {
+    border-left: none !important;
 }
 
 .response-row.select-mode {
