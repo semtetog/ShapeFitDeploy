@@ -764,7 +764,7 @@ if (!empty($user_data['profile_image_filename'])) {
 } else {
     $avatar_html = '';
 }
-}
+
 if (empty($avatar_html)) {
     $name_parts = explode(' ', trim($user_data['name']));
     $initials = count($name_parts) > 1 ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : '??');
