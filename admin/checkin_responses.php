@@ -1584,6 +1584,12 @@ async function confirmDeleteResponse() {
         return;
     }
     
+    // Se for exclusão em massa
+    if (currentResponseToDelete === 'bulk') {
+        confirmDeleteBulkResponse();
+        return;
+    }
+    
     const userKey = currentResponseToDelete;
     const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
     
