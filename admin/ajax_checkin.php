@@ -1080,8 +1080,7 @@ function tryGroqAPI($conversation, $user_name) {
     $system_prompt .= "4. Detecte automaticamente sinais críticos (muito baixos ou muito altos).\n";
     $system_prompt .= "5. Construa o resumo com estrutura clara e adaptativa:\n\n";
     $system_prompt .= "ESTRUTURA FINAL:\n\n";
-    $system_prompt .= "<h4>✅ Resumo do Check-in Semanal</h4>\n";
-    $system_prompt .= "<p><strong>Paciente:</strong> " . htmlspecialchars($user_name) . "</p>\n\n";
+    $system_prompt .= "<h4>✅ Resumo do Check-in Semanal</h4>\n\n";
     $system_prompt .= "Para cada categoria detectada, use o formato:\n\n";
     $system_prompt .= "<h4>🔥 [Nome da categoria]</h4>\n";
     $system_prompt .= "<ul>\n";
@@ -1216,6 +1215,11 @@ function tryGroqAPI($conversation, $user_name) {
 function formatSummaryHTML($summary_text, $user_name) {
     $text = trim($summary_text);
     
+    // Remover qualquer menção a "Paciente:" que a IA possa ter gerado incorretamente
+    $text = preg_replace('/<p><strong>Paciente:<\/strong>\s*\[[^\]]+\]<\/p>/i', '', $text);
+    $text = preg_replace('/Paciente:\s*\[[^\]]+\]/i', '', $text);
+    $text = preg_replace('/<p>Paciente:\s*\[[^\]]+\]<\/p>/i', '', $text);
+    
     // Se o texto já contém HTML ou estrutura bem formatada da IA, usar diretamente
     if (stripos($text, '<h4') !== false || stripos($text, '<h3') !== false || stripos($text, '<p') !== false || stripos($text, '<ul') !== false) {
         // A IA já formatou em HTML, apenas substituir placeholders explícitos se existirem
@@ -1226,11 +1230,27 @@ function formatSummaryHTML($summary_text, $user_name) {
         if (stripos($text, '[NOME DO PACIENTE]') !== false) {
             $text = str_ireplace('[NOME DO PACIENTE]', htmlspecialchars($user_name), $text);
         }
+        
+        // Adicionar o nome do paciente no início, logo após o título
+        $nome_paciente = '<p><strong>Paciente:</strong> ' . htmlspecialchars($user_name) . '</p>';
+        
+        // Inserir após o primeiro <h4> (título do resumo)
+        if (preg_match('/<h4[^>]*>.*?<\/h4>/i', $text, $matches, PREG_OFFSET_CAPTURE)) {
+            $pos = $matches[0][1] + strlen($matches[0][0]);
+            $text = substr($text, 0, $pos) . "\n" . $nome_paciente . "\n" . substr($text, $pos);
+        } else {
+            // Se não encontrou h4, adicionar no início
+            $text = $nome_paciente . "\n\n" . $text;
+        }
+        
         return $text;
     }
     
     // Se não tem HTML, processar o texto markdown/plain text da IA
     $html = '';
+    
+    // Adicionar nome do paciente no início
+    $html .= '<p><strong>Paciente:</strong> ' . htmlspecialchars($user_name) . '</p>';
     
     // Detectar se já tem título
     if (stripos($text, '✅') === false && stripos($text, 'Resumo') === false) {
