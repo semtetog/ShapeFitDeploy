@@ -1675,12 +1675,22 @@ async function loadSummary(userKey) {
         });
         
         let conversationText = '';
+        let flowInfo = [];
+        
         questionIds.forEach(questionId => {
             const question = questionsData[questionId];
             const response = user.responses[questionId];
             if (response && response.response_text) {
                 conversationText += `Pergunta: ${question.question_text}\n`;
                 conversationText += `Resposta: ${response.response_text}\n\n`;
+                
+                // Adicionar informações do fluxo
+                flowInfo.push({
+                    question_text: question.question_text,
+                    question_type: question.question_type,
+                    options: question.options ? JSON.parse(question.options) : null,
+                    response_text: response.response_text
+                });
             }
         });
         
@@ -1689,6 +1699,7 @@ async function loadSummary(userKey) {
         formData.append('action', 'generate_summary');
         formData.append('conversation', conversationText);
         formData.append('user_name', user.user_name);
+        formData.append('flow_info', JSON.stringify(flowInfo));
         
         const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
             method: 'POST',

@@ -831,6 +831,8 @@ function deleteResponse($data, $admin_id) {
 function generateSummary($data, $admin_id) {
     $conversation = trim($data['conversation'] ?? '');
     $user_name = trim($data['user_name'] ?? 'Usuário');
+    $flow_info_json = $data['flow_info'] ?? '[]';
+    $flow_info = json_decode($flow_info_json, true) ?? [];
 
     if (empty($conversation)) {
         echo json_encode(['success' => false, 'message' => 'Conversa vazia']);
@@ -838,7 +840,7 @@ function generateSummary($data, $admin_id) {
     }
 
     // USAR GROQ API COMO SOLUÇÃO DEFINITIVA
-    $groq_result = tryGroqAPI($conversation, $user_name);
+    $groq_result = tryGroqAPI($conversation, $user_name, $flow_info);
     if ($groq_result !== false) {
         echo json_encode([
             'success' => true,
@@ -1046,7 +1048,7 @@ function tryOllamaLocal($conversation, $user_name, $model = null) {
     }
 }
 
-function tryGroqAPI($conversation, $user_name) {
+function tryGroqAPI($conversation, $user_name, $flow_info = []) {
     // Groq API - Solução definitiva, gratuita e muito rápida
     $api_key = defined('GROQ_API_KEY') ? GROQ_API_KEY : '';
     $model = defined('GROQ_MODEL') ? GROQ_MODEL : 'llama-3.1-70b-versatile';
@@ -1122,8 +1124,32 @@ function tryGroqAPI($conversation, $user_name) {
     }
     
     $user_message = "A seguir está a conversa completa de um check-in semanal entre nutricionista e paciente. Leia cada linha com atenção e siga TODAS as regras do system prompt.\n\n";
-    $user_message .= "Conversa:\n" . $conversation_limited . "\n\n";
-    $user_message .= "Agora gere o resumo profissional completo em HTML.";
+    
+    // Adicionar informações do fluxo se disponível
+    if (!empty($flow_info)) {
+        $user_message .= "📋 CONTEXTO DO FLUXO DE CHECK-IN:\n";
+        $user_message .= "Abaixo estão as perguntas do check-in com seus tipos e opções disponíveis. Use essas informações para entender melhor o contexto das respostas:\n\n";
+        
+        foreach ($flow_info as $index => $item) {
+            $user_message .= "Pergunta " . ($index + 1) . ":\n";
+            $user_message .= "- Texto: " . $item['question_text'] . "\n";
+            $user_message .= "- Tipo: " . $item['question_type'] . "\n";
+            
+            if (!empty($item['options']) && is_array($item['options'])) {
+                $user_message .= "- Opções disponíveis:\n";
+                foreach ($item['options'] as $opt) {
+                    $user_message .= "  • " . $opt . "\n";
+                }
+            }
+            
+            $user_message .= "- Resposta do paciente: " . $item['response_text'] . "\n\n";
+        }
+        
+        $user_message .= "---\n\n";
+    }
+    
+    $user_message .= "CONVERSA COMPLETA:\n" . $conversation_limited . "\n\n";
+    $user_message .= "Agora gere o resumo profissional completo em HTML, considerando o contexto do fluxo acima para uma análise mais precisa.";
     
     // Preparar requisição para Groq API
     $ch = curl_init($api_url);
