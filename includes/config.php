@@ -150,5 +150,23 @@ if (!defined('OLLAMA_MODEL')) {
     define('OLLAMA_MODEL', 'llama3.1:8b'); // Pode ser alterado para 'llama3.1' se tiver pouca RAM
 }
 
+// --- Configuração da Groq API (Fallback quando Ollama não disponível) ---
+// Obter API key de: https://console.groq.com
+// Configure via variável de ambiente GROQ_API_KEY ou altere aqui
+if (!defined('GROQ_API_KEY')) {
+    $groq_key = getenv('GROQ_API_KEY');
+    if (empty($groq_key)) {
+        // Configure sua API key aqui ou via variável de ambiente
+        define('GROQ_API_KEY', ''); // Deixe vazio se não tiver ainda
+    } else {
+        define('GROQ_API_KEY', $groq_key);
+    }
+}
+
+// Modelo Groq a usar (recomendado: llama-3.1-70b-versatile ou llama-3.3-70b-versatile)
+if (!defined('GROQ_MODEL')) {
+    define('GROQ_MODEL', 'llama-3.1-70b-versatile'); // Modelo mais inteligente e rápido
+}
+
 // --- FIM DAS CONFIGURAÇÕES ---
 ?>

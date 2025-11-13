@@ -837,31 +837,20 @@ function generateSummary($data, $admin_id) {
         exit;
     }
 
-    // USAR APENAS OLLAMA - Sem fallbacks
-    $ollama_result = tryOllamaLocal($conversation, $user_name);
-    if ($ollama_result !== false) {
+    // USAR GROQ API COMO SOLUÇÃO DEFINITIVA
+    $groq_result = tryGroqAPI($conversation, $user_name);
+    if ($groq_result !== false) {
         echo json_encode([
             'success' => true,
-            'summary' => $ollama_result
+            'summary' => $groq_result
         ]);
         return;
     }
     
-    // Se Ollama não funcionou, tentar com modelo alternativo
-    // Pode ser que o modelo seja apenas 'llama3.1' e não 'llama3.1:8b'
-    $ollama_result = tryOllamaLocal($conversation, $user_name, 'llama3.1');
-    if ($ollama_result !== false) {
-        echo json_encode([
-            'success' => true,
-            'summary' => $ollama_result
-        ]);
-        return;
-    }
-    
-    // Se ainda não funcionou, retornar erro claro
+    // Se Groq falhou, retornar erro
     echo json_encode([
         'success' => false,
-        'message' => 'Erro ao gerar resumo com Ollama. Verifique se o Ollama está rodando (ollama serve) e se o modelo está instalado (ollama list). Verifique os logs do servidor para mais detalhes.'
+        'message' => 'Erro ao gerar resumo com Groq API. Verifique se a API key está configurada em includes/config.php. Obtenha a chave gratuita em: https://console.groq.com'
     ]);
 }
 
@@ -1053,6 +1042,192 @@ function tryOllamaLocal($conversation, $user_name, $model = null) {
         return $formatted_summary;
     } catch (Exception $e) {
         error_log("Ollama Error: Erro ao formatar resumo - " . $e->getMessage());
+        return false;
+    }
+}
+
+function tryGroqAPI($conversation, $user_name) {
+    // Groq API - Solução definitiva, gratuita e muito rápida
+    $api_key = defined('GROQ_API_KEY') ? GROQ_API_KEY : '';
+    $model = defined('GROQ_MODEL') ? GROQ_MODEL : 'llama-3.1-70b-versatile';
+    
+    if (empty($api_key)) {
+        error_log("Groq API Error: API key não configurada. Configure GROQ_API_KEY em includes/config.php");
+        return false;
+    }
+    
+    $api_url = 'https://api.groq.com/openai/v1/chat/completions';
+    
+    // Prompt ULTRA otimizado para ler QUALQUER chat e fazer análise PERFEITA
+    $system_prompt = "Você é um nutricionista experiente e analista de dados de saúde. Sua função é analisar conversas completas de check-in semanal e criar resumos profissionais, detalhados e analíticos em português brasileiro.\n\n";
+    $system_prompt .= "⚠️ REGRA FUNDAMENTAL CRÍTICA: Cada check-in pode ter perguntas COMPLETAMENTE DIFERENTES. Você DEVE adaptar-se ao fluxo real da conversa, não assumir perguntas específicas.\n\n";
+    $system_prompt .= "📋 METODOLOGIA DE ANÁLISE OBRIGATÓRIA:\n";
+    $system_prompt .= "1. ⚠️ LEIA TODA A CONVERSA LINHA POR LINHA - NÃO PULE NADA! Cada pergunta e resposta é importante.\n";
+    $system_prompt .= "2. ⚠️ EXTRAIA TODOS OS DADOS MENCIONADOS: valores numéricos, notas (0-10), sentimentos, eventos, dificuldades, comentários, TUDO!\n";
+    $system_prompt .= "3. ⚠️ NÃO ESQUEÇA NENHUMA INFORMAÇÃO: Se o paciente mencionou algo, DEVE aparecer no resumo.\n";
+    $system_prompt .= "4. Identifique padrões e correlações entre diferentes aspectos (ex: sono ruim + humor baixo + apetite alto)\n";
+    $system_prompt .= "5. Destaque pontos críticos (valores muito baixos/altos, problemas mencionados)\n";
+    $system_prompt .= "6. Seja ESPECÍFICO: mencione valores exatos, citações diretas quando relevante\n";
+    $system_prompt .= "7. ⚠️ SE UMA PERGUNTA FOI FEITA E RESPONDIDA, ELA DEVE APARECER NO RESUMO!\n\n";
+    $system_prompt .= "ESTRUTURA DO RESUMO (adaptável ao conteúdo real):\n\n";
+    $system_prompt .= "✅ Resumo Completo do Check-in Semanal\n";
+    $system_prompt .= "📅 Período analisado: Últimos 7 dias\n";
+    $system_prompt .= "👤 Paciente: [NOME]\n";
+    $system_prompt .= "📊 Nota geral da semana: [NOTA]/10 (se mencionada)\n";
+    $system_prompt .= "[Comentário sobre a nota, se houver]\n\n";
+    $system_prompt .= "ORGANIZE EM SEÇÕES LÓGICAS baseadas no que REALMENTE foi perguntado:\n\n";
+    $system_prompt .= "⚠️ IMPORTANTE: Para cada seção, você DEVE listar TODOS os dados mencionados na conversa. NÃO ESQUEÇA NADA!\n\n";
+    $system_prompt .= "🔥 1. Rotina & Treinos (se perguntas sobre rotina/treinos existirem)\n";
+    $system_prompt .= "- ⚠️ Liste TODOS os dados extraídos desta categoria (mudanças na rotina, faltas de treino, quantidade de treinos, etc.)\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional dos dados\n\n";
+    $system_prompt .= "🍽️ 2. Alimentação (se perguntas sobre alimentação existirem)\n";
+    $system_prompt .= "- ⚠️ Liste TODOS os dados (apetite com valor/10, fome com valor/10, refeições sociais, refeições fora do plano, TUDO!)\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional\n\n";
+    $system_prompt .= "😊 3. Motivação, Humor & Desejos (se perguntas sobre aspectos emocionais existirem)\n";
+    $system_prompt .= "- ⚠️ Liste TODOS os dados (motivação com valor/10, humor com valor/10, desejo de furar com valor/10, TUDO!)\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional, destaque pontos críticos\n\n";
+    $system_prompt .= "😴 4. Sono, Recuperação & Estresse (se perguntas sobre sono/recuperação existirem)\n";
+    $system_prompt .= "- ⚠️ Liste TODOS os dados (sono com valor/10, recuperação com valor/10, estresse com valor/10, TUDO!)\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional\n\n";
+    $system_prompt .= "🧻 5. Intestino (se perguntas sobre intestino existirem)\n";
+    $system_prompt .= "- ⚠️ Dados extraídos (valor/10 se mencionado)\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional\n\n";
+    $system_prompt .= "🧠 6. Performance (se perguntas sobre performance existirem)\n";
+    $system_prompt .= "- ⚠️ Dados extraídos (valor/10 se mencionado)\n";
+    $system_prompt .= "- 💬 Interpretação: análise profissional\n\n";
+    $system_prompt .= "⚖️ 7. Peso (se peso foi mencionado)\n";
+    $system_prompt .= "- ⚠️ Peso atual informado (valor exato em kg)\n\n";
+    $system_prompt .= "🗣️ 8. Comentário do paciente (se houver comentário final)\n";
+    $system_prompt .= "- ⚠️ Citação completa do comentário\n";
+    $system_prompt .= "- Análise do engajamento\n\n";
+    $system_prompt .= "🎯 Conclusão Geral\n";
+    $system_prompt .= "- Síntese do estado geral do paciente\n";
+    $system_prompt .= "- Lista de pontos críticos identificados\n\n";
+    $system_prompt .= "🔧 Ajustes prioritários\n";
+    $system_prompt .= "- Recomendações específicas baseadas nos dados reais\n\n";
+    $system_prompt .= "⚠️ REGRAS CRÍTICAS:\n";
+    $system_prompt .= "- Se uma categoria não foi perguntada, NÃO crie a seção\n";
+    $system_prompt .= "- ⚠️ Seja ESPECÍFICO: mencione valores exatos (ex: 'Humor: 0/10 (péssimo)', 'Apetite: 10/10 (muito elevado)')\n";
+    $system_prompt .= "- ⚠️ NÃO ESQUEÇA NENHUM VALOR: Se foi mencionado um número (nota, peso, etc.), DEVE aparecer no resumo\n";
+    $system_prompt .= "- Destaque pontos críticos com formatação apropriada\n";
+    $system_prompt .= "- Use emojis apenas nos títulos das seções\n";
+    $system_prompt .= "- Formate em HTML com tags <h4>, <p>, <ul>, <li>, <strong>\n";
+    $system_prompt .= "- Seja PROFISSIONAL mas ACESSÍVEL\n";
+    $system_prompt .= "- NÃO invente dados que não estão na conversa\n";
+    $system_prompt .= "- ADAPTE a estrutura ao conteúdo real, não force categorias inexistentes\n";
+    $system_prompt .= "- ⚠️ REVISE: Certifique-se de que TODAS as perguntas e respostas da conversa foram incluídas no resumo!";
+    
+    // Limitar tamanho da conversa se muito grande
+    $conversation_limited = $conversation;
+    if (strlen($conversation) > 12000) {
+        $conversation_limited = substr($conversation, 0, 12000) . "\n\n[... conversa truncada para otimização ...]";
+        error_log("Groq Warning: Conversa muito longa, truncada para " . strlen($conversation_limited) . " caracteres");
+    }
+    
+    $user_message = "⚠️⚠️⚠️ ATENÇÃO CRÍTICA: Analise a seguinte conversa COMPLETA de check-in linha por linha. \n\n";
+    $user_message .= "⚠️ REGRAS OBRIGATÓRIAS:\n";
+    $user_message .= "1. Leia CADA linha da conversa abaixo\n";
+    $user_message .= "2. Para CADA pergunta feita, você DEVE incluir a resposta no resumo\n";
+    $user_message .= "3. Se uma pergunta foi sobre apetite e a resposta foi '10/10', você DEVE colocar 'Apetite: 10/10' na seção Alimentação\n";
+    $user_message .= "4. Se uma pergunta foi sobre humor e a resposta foi '0/10', você DEVE colocar 'Humor: 0/10' na seção Motivação/Humor\n";
+    $user_message .= "5. Se uma pergunta foi sobre sono e a resposta foi '5/10', você DEVE colocar 'Sono: 5/10' na seção Sono/Recuperação\n";
+    $user_message .= "6. Se uma pergunta foi sobre fome e a resposta foi '5/10', você DEVE colocar 'Fome: 5/10' na seção Alimentação\n";
+    $user_message .= "7. Se uma pergunta foi sobre motivação e a resposta foi '7.5/10', você DEVE colocar 'Motivação: 7.5/10' na seção Motivação/Humor\n";
+    $user_message .= "8. Se uma pergunta foi sobre desejo de furar e a resposta foi '10/10', você DEVE colocar 'Desejo de furar: 10/10' na seção Motivação/Humor\n";
+    $user_message .= "9. Se uma pergunta foi sobre recuperação e a resposta foi '7.5/10', você DEVE colocar 'Recuperação: 7.5/10' na seção Sono/Recuperação\n";
+    $user_message .= "10. Se uma pergunta foi sobre estresse e a resposta foi '2.5/10', você DEVE colocar 'Estresse: 2.5/10' na seção Sono/Recuperação\n";
+    $user_message .= "11. Se uma pergunta foi sobre intestino e a resposta foi '2.5/10', você DEVE colocar 'Intestino: 2.5/10' na seção Intestino\n";
+    $user_message .= "12. Se uma pergunta foi sobre performance e a resposta foi '7.5/10', você DEVE colocar 'Performance: 7.5/10' na seção Performance\n";
+    $user_message .= "13. Se uma pergunta foi sobre nota da semana e a resposta foi '7.5', você DEVE colocar 'Nota geral: 7.5/10'\n";
+    $user_message .= "14. Se uma pergunta foi sobre refeições sociais e a resposta foi 'Sim', você DEVE colocar 'Refeições sociais: Sim' na seção Alimentação\n";
+    $user_message .= "15. Se uma pergunta foi sobre refeição fora do plano e a resposta foi mencionada, você DEVE colocar os detalhes na seção Alimentação\n\n";
+    $user_message .= "⚠️ NÃO ESQUEÇA NENHUMA PERGUNTA E NENHUMA RESPOSTA!\n\n";
+    $user_message .= "Conversa completa:\n" . $conversation_limited . "\n\n";
+    $user_message .= "Agora crie um resumo PROFISSIONAL, DETALHADO e COMPLETO em português brasileiro, formatado em HTML, incluindo TODOS os dados mencionados acima. Certifique-se de que CADA pergunta e resposta da conversa apareça no resumo organizado nas seções apropriadas:";
+    
+    // Preparar requisição para Groq API
+    $ch = curl_init($api_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $api_key
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+        'model' => $model,
+        'messages' => [
+            [
+                'role' => 'system',
+                'content' => $system_prompt
+            ],
+            [
+                'role' => 'user',
+                'content' => $user_message
+            ]
+        ],
+        'temperature' => 0.7,
+        'max_tokens' => 4000, // Tokens suficientes para resumos completos
+        'top_p' => 0.9
+    ]));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60); // 60 segundos (Groq é muito rápido)
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+    
+    // Log para debug
+    error_log("Groq API Debug - HTTP Code: " . $http_code . ", Error: " . $curl_error);
+    
+    // Verificar erros de conexão
+    if ($http_code === 0 || !empty($curl_error)) {
+        error_log("Groq API Error: Não foi possível conectar. HTTP: $http_code, Error: $curl_error");
+        return false;
+    }
+    
+    // Verificar erro HTTP
+    if ($http_code !== 200) {
+        error_log("Groq API Error: HTTP Code $http_code. Response: " . substr($response, 0, 500));
+        return false;
+    }
+    
+    if (empty($response)) {
+        error_log("Groq API Error: Resposta vazia");
+        return false;
+    }
+    
+    $result = json_decode($response, true);
+    
+    // Verificar erro no JSON
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log("Groq API Error: JSON decode failed - " . json_last_error_msg() . ". Response: " . substr($response, 0, 500));
+        return false;
+    }
+    
+    // Verificar se há erro na resposta
+    if (isset($result['error'])) {
+        error_log("Groq API Error: " . json_encode($result['error']));
+        return false;
+    }
+    
+    // Extrair texto gerado
+    $generated_text = '';
+    if (isset($result['choices'][0]['message']['content']) && !empty($result['choices'][0]['message']['content'])) {
+        $generated_text = trim($result['choices'][0]['message']['content']);
+    }
+    
+    if (empty($generated_text)) {
+        error_log("Groq API Error: Texto gerado vazio. Response: " . substr(json_encode($result), 0, 500));
+        return false;
+    }
+    
+    // Formatar o resumo em HTML
+    try {
+        $formatted_summary = formatSummaryHTML($generated_text, $user_name);
+        return $formatted_summary;
+    } catch (Exception $e) {
+        error_log("Groq API Error: Erro ao formatar resumo - " . $e->getMessage());
         return false;
     }
 }
