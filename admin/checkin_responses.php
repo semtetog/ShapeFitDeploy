@@ -525,11 +525,13 @@ require_once __DIR__ . '/includes/header.php';
 
 .chat-modal-header {
     padding: 1.5rem;
+    padding-top: 3.5rem;
     border-bottom: 1px solid var(--glass-border);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-shrink: 0;
+    position: relative;
 }
 
 .chat-modal-header h3 {
