@@ -175,7 +175,7 @@ $checkin_query = "
         SELECT 1 FROM sf_checkin_availability ca
         WHERE ca.config_id = cc.id 
         AND ca.user_id = ?
-        AND ca.week_date = DATE(DATE_SUB(NOW(), INTERVAL DAYOFWEEK(NOW())-1 DAY))
+        AND ca.week_date = DATE(DATE_SUB(CURDATE(), INTERVAL (WEEKDAY(CURDATE()) + 1) % 7 DAY))
         AND ca.is_completed = 1
     )
     LIMIT 1
@@ -3064,15 +3064,22 @@ function markCheckinComplete() {
             // Marcar como completo
             console.log('Check-in completo!');
             
+            // Fechar o modal imediatamente
+            closeCheckinModal();
+            
+            // Esconder o botão flutuante imediatamente
+            const floatingBtn = document.querySelector('.checkin-floating-btn');
+            if (floatingBtn) {
+                floatingBtn.style.display = 'none';
+            }
+            
             // Se ganhou pontos, mostrar popup de congratulação
             if (data.points_awarded && data.points_awarded > 0) {
                 showCheckinCongratsPopup(data.points_awarded);
             }
             
-            // Fechar modal após 4 segundos (tempo do popup)
+            // Recarregar a página após o popup desaparecer para atualizar o estado
             setTimeout(() => {
-                closeCheckinModal();
-                // Recarregar a página para atualizar o estado
                 window.location.reload();
             }, 4000);
         } else {
