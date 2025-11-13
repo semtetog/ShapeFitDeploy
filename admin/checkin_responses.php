@@ -759,11 +759,17 @@ require_once __DIR__ . '/includes/header.php';
 /* COLUNA DATA - LARGURA MINIMA REAL */
 .responses-table th:first-child,
 .responses-table td:first-child {
-    width: 140px !important;
-    min-width: 140px !important;
-    max-width: 140px !important;
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
     padding-right: 0.75rem !important;
     position: relative;
+    white-space: nowrap !important;
+}
+
+/* Impede quebra de linha na data */
+.responses-table td:first-child .table-date span {
+    white-space: nowrap !important;
 }
 
 .responses-table td:first-child::after {
