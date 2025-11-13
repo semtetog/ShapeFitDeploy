@@ -61,9 +61,11 @@ $stmt->bind_param("i", $current_limit);
 $stmt->execute();
 $result = $stmt->get_result();
 
+$loaded_user_ids = [];
 while ($row = $result->fetch_assoc()) {
     $row['level'] = getUserLevel($row['points'], $level_categories);
     $rankings[] = $row;
+    $loaded_user_ids[] = $row['id'];
 }
 $stmt->close();
 
@@ -76,17 +78,8 @@ $total_users_stmt->close();
 
 $has_more_users = $current_limit < $total_users;
 
-// Verificar se o usuário atual está na lista carregada
-$current_user_in_loaded_list = false;
-$current_user_data = null;
-$opponent_data = null;
-
-foreach ($rankings as $ranking) {
-    if ($ranking['id'] == $user_id) {
-        $current_user_in_loaded_list = true;
-        break;
-    }
-}
+// Verificar se o usuário atual e o oponente estão na lista carregada
+$current_user_in_loaded_list = in_array($user_id, $loaded_user_ids);
 
 // Buscar dados do usuário atual e do oponente (mesma lógica do main_app.php)
 $stmt_my_rank = $conn->prepare("SELECT rank, points FROM (SELECT id, points, RANK() OVER (ORDER BY points DESC, name ASC) as rank FROM sf_users) as r WHERE id = ?");
@@ -99,6 +92,7 @@ $stmt_my_rank->close();
 
 // Buscar oponente (pessoa que aparece na disputa no main_app)
 $opponent_rank = ($my_rank && $my_rank > 1) ? $my_rank - 1 : ($my_rank == 1 ? 2 : null);
+$opponent_data = null;
 if ($opponent_rank && $opponent_rank > 0) {
     $stmt_opponent = $conn->prepare("SELECT * FROM (SELECT u.id, u.name, u.points, up.profile_image_filename, up.gender, RANK() OVER (ORDER BY u.points DESC, u.name ASC) as rank FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id) as ranked_users WHERE rank = ? LIMIT 1");
     $stmt_opponent->bind_param("i", $opponent_rank);
@@ -106,16 +100,13 @@ if ($opponent_rank && $opponent_rank > 0) {
     $opponent_data = $stmt_opponent->get_result()->fetch_assoc();
     if ($opponent_data) {
         $opponent_data['level'] = getUserLevel($opponent_data['points'], $level_categories);
+        $opponent_data['user_rank'] = $opponent_data['rank'];
     }
     $stmt_opponent->close();
 }
 
-// Card especial só aparece se o usuário NÃO estiver na lista carregada
-$show_current_user_card = false;
+// Se o usuário não está na lista, adicionar ele
 if (!$current_user_in_loaded_list && $user_id && $my_rank) {
-    $show_current_user_card = true;
-    
-    // Buscar dados do usuário atual separadamente
     $stmt_user = $conn->prepare("SELECT u.id, u.name, u.points, up.profile_image_filename, up.gender, r.user_rank FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id JOIN (SELECT id, RANK() OVER (ORDER BY points DESC, name ASC) as user_rank FROM sf_users) r ON u.id = r.id WHERE u.id = ?");
     $stmt_user->bind_param("i", $user_id);
     $stmt_user->execute();
@@ -123,25 +114,20 @@ if (!$current_user_in_loaded_list && $user_id && $my_rank) {
     
     if ($current_user_data) {
         $current_user_data['level'] = getUserLevel($current_user_data['points'], $level_categories);
+        $rankings[] = $current_user_data;
     }
     $stmt_user->close();
 }
 
-// Verificar se o oponente está na lista carregada
-$opponent_in_loaded_list = false;
-if ($opponent_data) {
-    foreach ($rankings as $ranking) {
-        if ($ranking['id'] == $opponent_data['id']) {
-            $opponent_in_loaded_list = true;
-            break;
-        }
-    }
+// Se o oponente não está na lista, adicionar ele também
+if ($opponent_data && !in_array($opponent_data['id'], $loaded_user_ids)) {
+    $rankings[] = $opponent_data;
 }
 
-// Se o oponente não está na lista, adicionar ele também
-if ($opponent_data && !$opponent_in_loaded_list) {
-    // Não precisa fazer nada especial, o oponente será exibido junto com o usuário no card especial
-}
+// Reordenar rankings por rank
+usort($rankings, function($a, $b) {
+    return $a['user_rank'] <=> $b['user_rank'];
+});
 
 /**
  * Gera HTML da foto de perfil (com ícone laranja se não tiver foto)
@@ -808,37 +794,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     </li>
                 <?php endforeach; ?>
             </ul>
-            
-            <?php if ($show_current_user_card && $current_user_data): ?>
-            <div class="current-user-card">
-                <ul class="ranking-list">
-                    <li class="ranking-item current-user">
-                        <div class="rank-position"><?php echo $current_user_data['user_rank']; ?></div>
-                        <div class="player-content">
-                            <?php echo getUserProfileImageHtml($current_user_data); ?>
-                            <div class="player-info">
-                                <h3 class="player-name"><?php echo htmlspecialchars($current_user_data['name']); ?></h3>
-                                <p class="player-level"><?php echo $current_user_data['level']; ?></p>
-                            </div>
-                        </div>
-                        <span class="player-points"><?php echo number_format($current_user_data['points'], 0, ',', '.'); ?> pts</span>
-                    </li>
-                    <?php if ($opponent_data && !$opponent_in_loaded_list): ?>
-                    <li class="ranking-item">
-                        <div class="rank-position"><?php echo $opponent_data['rank']; ?></div>
-                        <div class="player-content">
-                            <?php echo getUserProfileImageHtml($opponent_data); ?>
-                            <div class="player-info">
-                                <h3 class="player-name"><?php echo htmlspecialchars($opponent_data['name']); ?></h3>
-                                <p class="player-level"><?php echo $opponent_data['level']; ?></p>
-                            </div>
-                        </div>
-                        <span class="player-points"><?php echo number_format($opponent_data['points'], 0, ',', '.'); ?> pts</span>
-                    </li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-            <?php endif; ?>
             
             <?php if ($has_more_users): ?>
             <div class="load-more-container">
