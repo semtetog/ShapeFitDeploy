@@ -279,8 +279,9 @@ function loadProgress($data, $user_id) {
     
     $is_completed = (int)($availability['is_completed'] ?? 0);
     
-    // Se o check-in já está completo, não retornar respostas antigas
+    // Se o check-in já está completo, não retornar respostas antigas para esta semana
     // Isso força o usuário a fazer o check-in novamente se foi resetado
+    // Mas mantém o histórico de respostas antigas no banco para consulta do admin
     if ($is_completed == 1) {
         echo json_encode([
             'success' => true,
@@ -291,6 +292,8 @@ function loadProgress($data, $user_id) {
     }
     
     // Buscar apenas respostas da semana atual (a partir do domingo da semana)
+    // Isso permite que o usuário continue de onde parou nesta semana
+    // Mas respostas de semanas anteriores permanecem no banco para histórico
     $stmt = $conn->prepare("
         SELECT question_id, response_text, response_value 
         FROM sf_checkin_responses 
