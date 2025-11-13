@@ -1173,28 +1173,6 @@ function formatSummaryHTML($summary_text, $user_name) {
     
     return $html;
 }
-    
-    // Se o texto já tem estrutura (com números, títulos, etc), formatar melhor
-    $text = preg_replace('/\n\s*\n/', "\n\n", $text); // Remover linhas vazias extras
-    $paragraphs = explode("\n\n", $text);
-    
-    foreach ($paragraphs as $para) {
-        $para = trim($para);
-        if (empty($para)) continue;
-        
-        // Detectar se é um título/seção
-        if (preg_match('/^(\d+\.?\s*[-:]?\s*)?(Análise|Pontos|Recomendações|Observações|Estado|Atenção|Positivos|Negativos)/i', $para)) {
-            $html .= '<h4>' . htmlspecialchars($para) . '</h4>';
-        } elseif (preg_match('/^[-•*]\s+/', $para) || preg_match('/^\d+\.\s+/', $para)) {
-            // Lista
-            $html .= '<ul><li>' . htmlspecialchars(preg_replace('/^[-•*]\s+/', '', $para)) . '</li></ul>';
-        } else {
-            $html .= '<p>' . nl2br(htmlspecialchars($para)) . '</p>';
-        }
-    }
-    
-    return $html;
-}
 
 function enhanceSummaryWithAnalysis($summary_text, $conversation, $user_name) {
     // Adicionar análise adicional baseada nas palavras-chave da conversa
