@@ -767,9 +767,14 @@ require_once __DIR__ . '/includes/header.php';
     white-space: nowrap !important;
 }
 
-/* Impede quebra de linha na data */
+/* IMPEDIR QUE O FLEX APERTE A DATA */
+.responses-table td:first-child .table-date {
+    flex-shrink: 0 !important;
+}
+
 .responses-table td:first-child .table-date span {
     white-space: nowrap !important;
+    flex-shrink: 0 !important;
 }
 
 .responses-table td:first-child::after {
