@@ -759,9 +759,9 @@ require_once __DIR__ . '/includes/header.php';
 /* COLUNA DATA - AJUSTE PERFEITO */
 .responses-table th:first-child,
 .responses-table td:first-child {
-    width: 180px !important;
-    min-width: 180px !important;
-    max-width: 180px !important;
+    width: 170px !important;
+    min-width: 170px !important;
+    max-width: 170px !important;
     white-space: nowrap !important;
     padding-right: 0.75rem !important;
     position: relative;
