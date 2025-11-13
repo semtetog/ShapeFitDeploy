@@ -839,9 +839,9 @@ require_once __DIR__ . '/includes/header.php';
 .btn-select-mode {
     background: rgba(59, 130, 246, 0.1);
     color: #3B82F6;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(59, 130, 246, 0.2);
     border-radius: 8px;
-    padding: 0.625rem 1rem;
+    padding: 0.5rem 1rem;
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
@@ -849,7 +849,6 @@ require_once __DIR__ . '/includes/header.php';
     align-items: center;
     gap: 0.5rem;
     transition: all 0.3s ease;
-    height: 100%;
 }
 
 .btn-select-mode:hover {
