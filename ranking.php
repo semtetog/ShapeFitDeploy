@@ -809,6 +809,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 <?php endforeach; ?>
             </ul>
             
+            <?php if ($show_current_user_card && $current_user_data): ?>
+            <div class="current-user-card">
+                <ul class="ranking-list">
+                    <li class="ranking-item current-user">
+                        <div class="rank-position"><?php echo $current_user_data['user_rank']; ?></div>
+                        <div class="player-content">
+                            <?php echo getUserProfileImageHtml($current_user_data); ?>
+                            <div class="player-info">
+                                <h3 class="player-name"><?php echo htmlspecialchars($current_user_data['name']); ?></h3>
+                                <p class="player-level"><?php echo $current_user_data['level']; ?></p>
+                            </div>
+                        </div>
+                        <span class="player-points"><?php echo number_format($current_user_data['points'], 0, ',', '.'); ?> pts</span>
+                    </li>
+                    <?php if ($opponent_data && !$opponent_in_loaded_list): ?>
+                    <li class="ranking-item">
+                        <div class="rank-position"><?php echo $opponent_data['rank']; ?></div>
+                        <div class="player-content">
+                            <?php echo getUserProfileImageHtml($opponent_data); ?>
+                            <div class="player-info">
+                                <h3 class="player-name"><?php echo htmlspecialchars($opponent_data['name']); ?></h3>
+                                <p class="player-level"><?php echo $opponent_data['level']; ?></p>
+                            </div>
+                        </div>
+                        <span class="player-points"><?php echo number_format($opponent_data['points'], 0, ',', '.'); ?> pts</span>
+                    </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+            <?php endif; ?>
+            
             <?php if ($has_more_users): ?>
             <div class="load-more-container">
                 <button id="load-more-btn" class="load-more-btn" data-current-limit="<?php echo $current_limit; ?>" data-total-users="<?php echo $total_users; ?>">
