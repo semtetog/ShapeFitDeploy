@@ -1574,25 +1574,33 @@ z-index: 1000000;
 position: absolute !important;
 top: 1rem !important;
 right: 1rem !important;
-background: none !important;
-border: none !important;
-color: var(--text-secondary) !important;
-font-size: 1.2rem !important;
+color: white !important;
+font-size: 24px !important;
+font-weight: bold !important;
 cursor: pointer !important;
-padding: 0.5rem !important;
-border-radius: 50% !important;
-width: 2.5rem !important;
-height: 2.5rem !important;
+transition: all 0.3s ease !important;
+width: 40px !important;
+height: 40px !important;
 display: flex !important;
 align-items: center !important;
 justify-content: center !important;
-transition: all 0.3s ease !important;
+border-radius: 50% !important;
+background: rgba(255, 255, 255, 0.15) !important;
+flex-shrink: 0 !important;
+outline: none !important;
+border: none !important;
+box-shadow: none !important;
 z-index: 10 !important;
 }
 
 .calendar-btn-close:hover {
-background: rgba(255, 255, 255, 0.1) !important;
-color: var(--accent-orange) !important;
+background: rgba(255, 255, 255, 0.25) !important;
+transform: scale(1.05) !important;
+}
+
+.calendar-btn-close:active {
+transform: scale(0.95) !important;
+background: rgba(255, 255, 255, 0.35) !important;
 }
 
 .calendar-header-title {
