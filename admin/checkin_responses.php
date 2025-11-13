@@ -1699,6 +1699,7 @@ async function loadSummary(userKey) {
         formData.append('action', 'generate_summary');
         formData.append('conversation', conversationText);
         formData.append('user_name', user.user_name);
+        formData.append('user_id', user.user_id);
         formData.append('flow_info', JSON.stringify(flowInfo));
         
         const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {

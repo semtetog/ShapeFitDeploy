@@ -829,8 +829,11 @@ function deleteResponse($data, $admin_id) {
 }
 
 function generateSummary($data, $admin_id) {
+    global $conn;
+    
     $conversation = trim($data['conversation'] ?? '');
     $user_name = trim($data['user_name'] ?? 'Usuário');
+    $user_id = (int)($data['user_id'] ?? 0);
     $flow_info_json = $data['flow_info'] ?? '[]';
     $flow_info = json_decode($flow_info_json, true) ?? [];
 
@@ -839,8 +842,14 @@ function generateSummary($data, $admin_id) {
         exit;
     }
 
+    // Buscar dados completos do paciente se user_id disponível
+    $patient_data = null;
+    if ($user_id > 0) {
+        $patient_data = getPatientDataForSummary($conn, $user_id);
+    }
+
     // USAR GROQ API COMO SOLUÇÃO DEFINITIVA
-    $groq_result = tryGroqAPI($conversation, $user_name, $flow_info);
+    $groq_result = tryGroqAPI($conversation, $user_name, $flow_info, $patient_data);
     if ($groq_result !== false) {
         echo json_encode([
             'success' => true,
@@ -1048,7 +1057,64 @@ function tryOllamaLocal($conversation, $user_name, $model = null) {
     }
 }
 
-function tryGroqAPI($conversation, $user_name, $flow_info = []) {
+function getPatientDataForSummary($conn, $user_id) {
+    // Buscar dados completos do paciente para análise contextual
+    $data = [];
+    
+    // Dados básicos do usuário e perfil
+    $stmt = $conn->prepare(
+        "SELECT u.*, p.* FROM sf_users u LEFT JOIN sf_user_profiles p ON u.id = p.user_id WHERE u.id = ?"
+    );
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $user_data = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    
+    if ($user_data) {
+        $data['basic'] = [
+            'name' => $user_data['name'] ?? '',
+            'age' => !empty($user_data['dob']) ? calculateAge($user_data['dob']) : null,
+            'gender' => $user_data['gender'] ?? null,
+            'height_cm' => $user_data['height_cm'] ?? null,
+            'objective' => $user_data['objective'] ?? null,
+            'exercise_frequency' => $user_data['exercise_frequency'] ?? null
+        ];
+        
+        // Peso atual
+        $data['current_weight'] = (float)($user_data['weight_kg'] ?? 0);
+        
+        // Histórico de peso (últimos 3 registros)
+        $stmt_weight = $conn->prepare(
+            "SELECT date_recorded, weight_kg FROM sf_user_weight_history 
+             WHERE user_id = ? ORDER BY date_recorded DESC LIMIT 3"
+        );
+        $stmt_weight->bind_param("i", $user_id);
+        $stmt_weight->execute();
+        $weight_history = $stmt_weight->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt_weight->close();
+        $data['weight_history'] = $weight_history;
+        
+        // Metas de nutrientes
+        $data['goals'] = [
+            'calories' => $user_data['custom_calories_goal'] ?? null,
+            'protein_g' => $user_data['custom_protein_goal_g'] ?? null,
+            'carbs_g' => $user_data['custom_carbs_goal_g'] ?? null,
+            'fat_g' => $user_data['custom_fat_goal_g'] ?? null
+        ];
+        
+        // Anamnese relevante
+        $data['medical'] = [
+            'lactose_intolerance' => $user_data['lactose_intolerance'] ?? false,
+            'gluten_intolerance' => $user_data['gluten_intolerance'] ?? false,
+            'vegetarian_type' => $user_data['vegetarian_type'] ?? null,
+            'meat_consumption' => $user_data['meat_consumption'] ?? null
+        ];
+    }
+    
+    return $data;
+}
+
+function tryGroqAPI($conversation, $user_name, $flow_info = [], $patient_data = null) {
     // Groq API - Solução definitiva, gratuita e muito rápida
     $api_key = defined('GROQ_API_KEY') ? GROQ_API_KEY : '';
     $model = defined('GROQ_MODEL') ? GROQ_MODEL : 'llama-3.1-70b-versatile';
@@ -1125,6 +1191,93 @@ function tryGroqAPI($conversation, $user_name, $flow_info = []) {
     
     $user_message = "A seguir está a conversa completa de um check-in semanal entre nutricionista e paciente. Leia cada linha com atenção e siga TODAS as regras do system prompt.\n\n";
     
+    // Adicionar informações do paciente se disponível
+    if (!empty($patient_data)) {
+        $user_message .= "👤 DADOS DO PACIENTE (para comparações e contexto):\n\n";
+        
+        if (!empty($patient_data['basic'])) {
+            $basic = $patient_data['basic'];
+            $user_message .= "Dados Básicos:\n";
+            if (!empty($basic['age'])) $user_message .= "- Idade: " . $basic['age'] . " anos\n";
+            if (!empty($basic['gender'])) $user_message .= "- Sexo: " . ($basic['gender'] === 'male' ? 'Masculino' : 'Feminino') . "\n";
+            if (!empty($basic['height_cm'])) $user_message .= "- Altura: " . $basic['height_cm'] . " cm\n";
+            if (!empty($basic['objective'])) {
+                $obj_map = ['lose_fat' => 'Perder gordura', 'gain_muscle' => 'Ganhar massa', 'maintain' => 'Manter peso'];
+                $user_message .= "- Objetivo: " . ($obj_map[$basic['objective']] ?? $basic['objective']) . "\n";
+            }
+            if (!empty($basic['exercise_frequency'])) {
+                $freq_map = ['sedentary' => 'Sedentário', '1_2x_week' => '1-2x/semana', '3_4x_week' => '3-4x/semana', '5_6x_week' => '5-6x/semana', 'daily' => 'Diário'];
+                $user_message .= "- Frequência de exercícios: " . ($freq_map[$basic['exercise_frequency']] ?? $basic['exercise_frequency']) . "\n";
+            }
+            $user_message .= "\n";
+        }
+        
+        // Peso atual e histórico
+        if (!empty($patient_data['current_weight']) && $patient_data['current_weight'] > 0) {
+            $user_message .= "Peso Atual: " . number_format($patient_data['current_weight'], 1, ',', '.') . " kg\n";
+        }
+        
+        if (!empty($patient_data['weight_history']) && count($patient_data['weight_history']) > 0) {
+            $user_message .= "Histórico de Peso (últimos registros):\n";
+            foreach ($patient_data['weight_history'] as $weight_entry) {
+                $date = date('d/m/Y', strtotime($weight_entry['date_recorded']));
+                $user_message .= "- " . $date . ": " . number_format($weight_entry['weight_kg'], 1, ',', '.') . " kg\n";
+            }
+            $user_message .= "\n";
+        }
+        
+        // Metas
+        if (!empty($patient_data['goals'])) {
+            $goals = $patient_data['goals'];
+            $has_goals = false;
+            $user_message .= "Metas Nutricionais:\n";
+            if (!empty($goals['calories'])) {
+                $user_message .= "- Calorias: " . $goals['calories'] . " kcal/dia\n";
+                $has_goals = true;
+            }
+            if (!empty($goals['protein_g'])) {
+                $user_message .= "- Proteína: " . $goals['protein_g'] . " g/dia\n";
+                $has_goals = true;
+            }
+            if (!empty($goals['carbs_g'])) {
+                $user_message .= "- Carboidratos: " . $goals['carbs_g'] . " g/dia\n";
+                $has_goals = true;
+            }
+            if (!empty($goals['fat_g'])) {
+                $user_message .= "- Gorduras: " . $goals['fat_g'] . " g/dia\n";
+                $has_goals = true;
+            }
+            if ($has_goals) $user_message .= "\n";
+        }
+        
+        // Anamnese
+        if (!empty($patient_data['medical'])) {
+            $medical = $patient_data['medical'];
+            $has_medical = false;
+            $user_message .= "Anamnese:\n";
+            if ($medical['lactose_intolerance']) {
+                $user_message .= "- Intolerante à lactose\n";
+                $has_medical = true;
+            }
+            if ($medical['gluten_intolerance']) {
+                $user_message .= "- Intolerante ao glúten\n";
+                $has_medical = true;
+            }
+            if (!empty($medical['vegetarian_type'])) {
+                $user_message .= "- Tipo vegetariano: " . $medical['vegetarian_type'] . "\n";
+                $has_medical = true;
+            }
+            if ($has_medical) $user_message .= "\n";
+        }
+        
+        $user_message .= "---\n\n";
+        $user_message .= "⚠️ IMPORTANTE: Use esses dados do paciente para fazer comparações inteligentes. Por exemplo:\n";
+        $user_message .= "- Se o paciente informou peso no check-in, compare com o peso atual e histórico\n";
+        $user_message .= "- Considere o objetivo do paciente ao analisar os dados\n";
+        $user_message .= "- Use as metas nutricionais como referência quando relevante\n";
+        $user_message .= "- Considere restrições alimentares ao analisar alimentação\n\n";
+    }
+    
     // Adicionar informações do fluxo se disponível
     if (!empty($flow_info)) {
         $user_message .= "📋 CONTEXTO DO FLUXO DE CHECK-IN:\n";
@@ -1149,7 +1302,7 @@ function tryGroqAPI($conversation, $user_name, $flow_info = []) {
     }
     
     $user_message .= "CONVERSA COMPLETA:\n" . $conversation_limited . "\n\n";
-    $user_message .= "Agora gere o resumo profissional completo em HTML, considerando o contexto do fluxo acima para uma análise mais precisa.";
+    $user_message .= "Agora gere o resumo profissional completo em HTML, considerando TODOS os contextos acima (dados do paciente, fluxo e conversa) para uma análise mais precisa e comparativa.";
     
     // Preparar requisição para Groq API
     $ch = curl_init($api_url);
