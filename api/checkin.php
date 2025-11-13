@@ -117,8 +117,9 @@ function submitCheckin($data, $user_id) {
     $stmt_ensure_avail->execute();
     $stmt_ensure_avail->close();
     
-    // Verificar se o popup de congratulação já foi mostrado
-    $stmt_check_congrats = $conn->prepare("SELECT congrats_shown, is_completed FROM sf_checkin_availability WHERE config_id = ? AND user_id = ? AND week_date = ?");
+    // Verificar se o popup de congratulação já foi mostrado e se já foi completado
+    // Usar COALESCE para tratar caso a coluna congrats_shown não exista ainda
+    $stmt_check_congrats = $conn->prepare("SELECT COALESCE(congrats_shown, 0) as congrats_shown, is_completed FROM sf_checkin_availability WHERE config_id = ? AND user_id = ? AND week_date = ?");
     $stmt_check_congrats->bind_param("iis", $config_id, $user_id, $week_start);
     $stmt_check_congrats->execute();
     $result_congrats = $stmt_check_congrats->get_result();
@@ -126,8 +127,8 @@ function submitCheckin($data, $user_id) {
     $stmt_check_congrats->close();
     
     $points_awarded = 0;
-    $congrats_shown = $availability_data['congrats_shown'] ?? 0;
-    $is_already_completed = $availability_data['is_completed'] ?? 0;
+    $congrats_shown = (int)($availability_data['congrats_shown'] ?? 0);
+    $is_already_completed = (int)($availability_data['is_completed'] ?? 0);
     
     error_log("Check-in submit: user_id={$user_id}, config_id={$config_id}, week_start={$week_start}, is_completed={$is_already_completed}, congrats_shown={$congrats_shown}");
     
