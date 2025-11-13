@@ -48,6 +48,9 @@ try {
         case 'publish_flow':
             publishFlow($data, $admin_id);
             break;
+        case 'get_checkin_dates':
+            getCheckinDates($data, $admin_id);
+            break;
         case 'save_block':
             saveBlock($data, $admin_id);
             break;
@@ -2126,5 +2129,53 @@ function createIntelligentSummary($conversation, $user_name) {
     $html .= '<p style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">Apesar dos pontos críticos, o paciente manteve disciplina e foco, o que demonstra excelente comprometimento.</p>';
     
     return $html;
+}
+
+// Buscar datas que têm check-ins para o calendário
+function getCheckinDates($data, $admin_id) {
+    global $conn;
+    
+    $checkin_id = (int)($data['checkin_id'] ?? $_GET['checkin_id'] ?? 0);
+    
+    if ($checkin_id <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID do check-in inválido']);
+        exit;
+    }
+    
+    // Verificar se o check-in pertence ao admin
+    $stmt = $conn->prepare("SELECT id FROM sf_checkin_configs WHERE id = ? AND admin_id = ?");
+    $stmt->bind_param("ii", $checkin_id, $admin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        echo json_encode(['success' => false, 'message' => 'Check-in não encontrado']);
+        exit;
+    }
+    $stmt->close();
+    
+    // Buscar todas as datas distintas que têm check-ins
+    $stmt = $conn->prepare("
+        SELECT DISTINCT DATE(submitted_at) as checkin_date
+        FROM sf_checkin_responses
+        WHERE config_id = ?
+        ORDER BY checkin_date ASC
+    ");
+    $stmt->bind_param("i", $checkin_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $dates = [];
+    while ($row = $result->fetch_assoc()) {
+        $dates[] = $row['checkin_date'];
+    }
+    $stmt->close();
+    
+    echo json_encode([
+        'success' => true,
+        'dates' => $dates
+    ]);
+    exit;
 }
 ?>
