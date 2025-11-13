@@ -1293,6 +1293,75 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     50% { transform: scale(1.1); }
 }
 
+/* Animação da estrela voando para o badge */
+.flying-star {
+    position: fixed;
+    z-index: 999998 !important;
+    pointer-events: none;
+    font-size: 1.5rem;
+    color: var(--accent-orange);
+    opacity: 1;
+    transition: none;
+}
+
+.flying-star.animate {
+    animation: starFly 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes starFly {
+    0% {
+        opacity: 1;
+        transform: scale(1) translate(0, 0);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2) translate(var(--fly-x), var(--fly-y));
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.3) translate(var(--fly-x), var(--fly-y));
+    }
+}
+
+/* Animação de pulso no badge quando recebe pontos */
+.points-counter-badge.points-updated {
+    animation: badgePulse 0.6s ease-out;
+}
+
+@keyframes badgePulse {
+    0% {
+        transform: scale(1);
+        border-color: var(--border-color);
+    }
+    50% {
+        transform: scale(1.1);
+        border-color: var(--accent-orange);
+        box-shadow: 0 0 20px rgba(255, 107, 0, 0.4);
+    }
+    100% {
+        transform: scale(1);
+        border-color: var(--border-color);
+    }
+}
+
+/* Animação de contagem dos pontos */
+.points-counter-badge span.points-counting {
+    animation: pointsCount 0.8s ease-out;
+    color: var(--accent-orange);
+}
+
+@keyframes pointsCount {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 /* Modal de Sono */
 
 /* Botão de sono - IDÊNTICO ao duration-btn */
@@ -3145,7 +3214,7 @@ function markCheckinComplete() {
             console.log('Check-in completo!', data);
             
             // Fechar o modal imediatamente
-            closeCheckinModal();
+                closeCheckinModal();
             
             // Remover o botão flutuante permanentemente (não apenas esconder)
             const floatingBtn = document.querySelector('.checkin-floating-btn');
@@ -3199,8 +3268,8 @@ function showCheckinCongratsPopup(points) {
             <i class="fas fa-trophy congrats-icon"></i>
             <div class="congrats-message">Parabéns!</div>
             <div class="congrats-subtitle">Você completou seu check-in semanal</div>
-            <div class="congrats-points">
-                <i class="fas fa-star star-icon"></i>
+            <div class="congrats-points" id="congratsPointsContainer">
+                <i class="fas fa-star star-icon" id="congratsStarIcon"></i>
                 <span>+${points} Pontos</span>
             </div>
         `;
@@ -3217,12 +3286,115 @@ function showCheckinCongratsPopup(points) {
     // Forçar reflow para garantir que a animação funcione
     popup.offsetHeight;
     
+    // Se ganhou pontos, animar estrela voando para o badge
+    if (points > 0) {
+        // Esperar 2.5 segundos (quando popup está quase fechando) para iniciar animação
+        setTimeout(() => {
+            animateStarToBadge(points);
+        }, 2500);
+    }
+    
     // Remover após a animação (3.5 segundos)
     setTimeout(() => {
         if (popup.parentNode) {
             popup.parentNode.removeChild(popup);
         }
     }, 3500);
+}
+
+function animateStarToBadge(points) {
+    const starIcon = document.getElementById('congratsStarIcon');
+    const pointsBadge = document.querySelector('.points-counter-badge');
+    const pointsDisplay = document.getElementById('user-points-display');
+    
+    if (!starIcon || !pointsBadge || !pointsDisplay) {
+        return;
+    }
+    
+    // Obter posições
+    const starRect = starIcon.getBoundingClientRect();
+    const badgeRect = pointsBadge.getBoundingClientRect();
+    
+    // Calcular distância
+    const startX = starRect.left + starRect.width / 2;
+    const startY = starRect.top + starRect.height / 2;
+    const endX = badgeRect.left + badgeRect.width / 2;
+    const endY = badgeRect.top + badgeRect.height / 2;
+    
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    
+    // Criar estrela voadora
+    const flyingStar = document.createElement('div');
+    flyingStar.className = 'flying-star';
+    flyingStar.innerHTML = '<i class="fas fa-star"></i>';
+    flyingStar.style.left = startX + 'px';
+    flyingStar.style.top = startY + 'px';
+    flyingStar.style.setProperty('--fly-x', deltaX + 'px');
+    flyingStar.style.setProperty('--fly-y', deltaY + 'px');
+    
+    document.body.appendChild(flyingStar);
+    
+    // Forçar reflow
+    flyingStar.offsetHeight;
+    
+    // Iniciar animação
+    flyingStar.classList.add('animate');
+    
+    // Atualizar pontos no badge quando estrela chegar (meio da animação)
+    setTimeout(() => {
+        // Obter valor atual dos pontos
+        const currentPointsText = pointsDisplay.textContent.replace(/\./g, '').replace(/,/g, '');
+        const currentPoints = parseInt(currentPointsText) || 0;
+        const newPoints = currentPoints + points;
+        
+        // Adicionar classe de animação no badge
+        pointsBadge.classList.add('points-updated');
+        
+        // Animar contagem dos pontos
+        pointsDisplay.classList.add('points-counting');
+        
+        // Atualizar valor com animação de contagem
+        animatePointsCount(pointsDisplay, currentPoints, newPoints, 600);
+        
+        // Remover classes de animação após animação
+        setTimeout(() => {
+            pointsBadge.classList.remove('points-updated');
+            pointsDisplay.classList.remove('points-counting');
+        }, 800);
+    }, 600);
+    
+    // Remover estrela voadora após animação
+    setTimeout(() => {
+        if (flyingStar.parentNode) {
+            flyingStar.parentNode.removeChild(flyingStar);
+        }
+    }, 1200);
+}
+
+function animatePointsCount(element, startValue, endValue, duration) {
+    const startTime = performance.now();
+    const formatNumber = (num) => new Intl.NumberFormat('pt-BR').format(num);
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function (ease-out)
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        const currentValue = Math.floor(startValue + (endValue - startValue) * easeOut);
+        element.textContent = formatNumber(currentValue);
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            // Garantir valor final exato
+            element.textContent = formatNumber(endValue);
+        }
+    }
+    
+    requestAnimationFrame(update);
 }
 
 </script>
