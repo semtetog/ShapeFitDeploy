@@ -352,6 +352,7 @@ require_once __DIR__ . '/includes/header.php';
 .responses-table {
     width: 100%;
     border-collapse: collapse;
+    border-spacing: 0;
     min-width: 800px;
 }
 
