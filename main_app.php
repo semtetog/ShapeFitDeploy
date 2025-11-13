@@ -1305,7 +1305,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 }
 
 .flying-star.animate {
-    animation: starFly 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: starFly 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 @keyframes starFly {
@@ -1313,19 +1313,23 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         opacity: 1;
         transform: scale(1) translate(0, 0);
     }
-    50% {
+    30% {
         opacity: 1;
-        transform: scale(1.2) translate(var(--fly-x), var(--fly-y));
+        transform: scale(1.3) translate(calc(var(--fly-x) * 0.3), calc(var(--fly-y) * 0.3));
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.1) translate(calc(var(--fly-x) * 0.9), calc(var(--fly-y) * 0.9));
     }
     100% {
         opacity: 0;
-        transform: scale(0.3) translate(var(--fly-x), var(--fly-y));
+        transform: scale(0.4) translate(var(--fly-x), var(--fly-y));
     }
 }
 
 /* Animação de pulso no badge quando recebe pontos */
 .points-counter-badge.points-updated {
-    animation: badgePulse 0.6s ease-out;
+    animation: badgePulse 1.2s ease-out;
 }
 
 @keyframes badgePulse {
@@ -1333,8 +1337,18 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         transform: scale(1);
         border-color: var(--border-color);
     }
-    50% {
+    20% {
+        transform: scale(1.15);
+        border-color: var(--accent-orange);
+        box-shadow: 0 0 25px rgba(255, 107, 0, 0.5);
+    }
+    40% {
         transform: scale(1.1);
+        border-color: var(--accent-orange);
+        box-shadow: 0 0 30px rgba(255, 107, 0, 0.6);
+    }
+    60% {
+        transform: scale(1.05);
         border-color: var(--accent-orange);
         box-shadow: 0 0 20px rgba(255, 107, 0, 0.4);
     }
@@ -1346,16 +1360,20 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 
 /* Animação de contagem dos pontos */
 .points-counter-badge span.points-counting {
-    animation: pointsCount 0.8s ease-out;
+    animation: pointsCount 1.5s ease-out;
     color: var(--accent-orange);
+    font-weight: 700;
 }
 
 @keyframes pointsCount {
     0% {
         transform: scale(1);
     }
-    50% {
-        transform: scale(1.3);
+    30% {
+        transform: scale(1.4);
+    }
+    60% {
+        transform: scale(1.2);
     }
     100% {
         transform: scale(1);
@@ -1913,7 +1931,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         // Iniciar animação
         flyingStar.classList.add('animate');
         
-        // Atualizar pontos no badge quando estrela chegar (meio da animação)
+        // Atualizar pontos no badge quando estrela chegar (70% da animação, quando está quase chegando)
         setTimeout(() => {
             const finalPoints = newTotalPoints !== undefined ? newTotalPoints : (currentPoints + points);
             
@@ -1923,22 +1941,22 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
             // Animar contagem dos pontos
             pointsDisplay.classList.add('points-counting');
             
-            // Atualizar valor com animação de contagem (usar função melhorada)
-            animatePointsCount(pointsDisplay, currentPoints, finalPoints, 600);
+            // Atualizar valor com animação de contagem mais lenta
+            animatePointsCount(pointsDisplay, currentPoints, finalPoints, 1500);
             
             // Remover classes de animação após animação
             setTimeout(() => {
                 pointsBadge.classList.remove('points-updated');
                 pointsDisplay.classList.remove('points-counting');
-            }, 800);
-        }, 600);
+            }, 2000);
+        }, 1750); // 70% de 2.5s = ~1.75s
         
-        // Remover estrela voadora após animação
+        // Remover estrela voadora após animação completa
         setTimeout(() => {
             if (flyingStar.parentNode) {
                 flyingStar.parentNode.removeChild(flyingStar);
             }
-        }, 1200);
+        }, 2500);
     }
     
     // Função para mostrar popup de pontos e animar estrela voando
