@@ -375,6 +375,7 @@ require_once __DIR__ . '/includes/header.php';
     border-collapse: collapse;
     border-spacing: 0;
     min-width: 800px;
+    table-layout: auto !important;
 }
 
 .responses-table th:first-child {
