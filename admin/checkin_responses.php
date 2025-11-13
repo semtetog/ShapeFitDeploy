@@ -321,10 +321,16 @@ require_once __DIR__ . '/includes/header.php';
 .submissions-count .badge {
     background: var(--accent-orange);
     color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 50%;
     font-size: 0.75rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 /* Tabela com scroll horizontal */
