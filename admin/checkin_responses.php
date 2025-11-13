@@ -445,6 +445,7 @@ require_once __DIR__ . '/includes/header.php';
 
 .responses-table tbody tr {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: none;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -889,7 +890,14 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 /* Garantir que o thead não receba estilos de seleção */
-.responses-table thead tr {
+.responses-table thead tr,
+.responses-table thead th {
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* Garantir que tbody tr não tenha border-left por padrão */
+.responses-table tbody tr {
     border-left: none !important;
 }
 
