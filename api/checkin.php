@@ -129,22 +129,34 @@ function submitCheckin($data, $user_id) {
     $congrats_shown = $availability_data['congrats_shown'] ?? 0;
     $is_already_completed = $availability_data['is_completed'] ?? 0;
     
-    // Se o check-in ainda não foi completado E o popup ainda não foi mostrado, adicionar pontos
-    if ($is_already_completed == 0 && $congrats_shown == 0) {
-        $points_to_add = 10.0;
-        $success = addPointsToUser($conn, $user_id, $points_to_add, "Check-in semanal completado - Config ID: {$config_id}");
-        
-        if ($success) {
-            $points_awarded = $points_to_add;
-            // Marcar check-in como completo e popup como mostrado
-            $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW(), congrats_shown = 1 WHERE config_id = ? AND user_id = ? AND week_date = ?");
+    error_log("Check-in submit: user_id={$user_id}, config_id={$config_id}, week_start={$week_start}, is_completed={$is_already_completed}, congrats_shown={$congrats_shown}");
+    
+    // Se o check-in ainda não foi completado, adicionar pontos (primeira vez completando)
+    if ($is_already_completed == 0) {
+        // Verificar se já foi dado pontos antes (congrats_shown = 1 mas is_completed = 0 é um estado inválido, mas vamos verificar)
+        if ($congrats_shown == 0) {
+            $points_to_add = 10.0;
+            error_log("Tentando adicionar {$points_to_add} pontos para user {$user_id}");
+            $success = addPointsToUser($conn, $user_id, $points_to_add, "Check-in semanal completado - Config ID: {$config_id}");
+            
+            if ($success) {
+                $points_awarded = $points_to_add;
+                error_log("Pontos adicionados com sucesso: {$points_awarded}");
+                // Marcar check-in como completo e popup como mostrado
+                $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW(), congrats_shown = 1 WHERE config_id = ? AND user_id = ? AND week_date = ?");
+            } else {
+                // Se falhar ao adicionar pontos, ainda marcar como completo, mas sem mostrar popup
+                error_log("ERRO: Falha ao adicionar pontos no check-in para user {$user_id}, config {$config_id}");
+                $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
+            }
         } else {
-            // Se falhar ao adicionar pontos, ainda marcar como completo, mas sem mostrar popup
-            error_log("Erro ao adicionar pontos no check-in para user {$user_id}, config {$config_id}");
+            // Já foi dado pontos antes, apenas marcar como completo
+            error_log("Pontos já foram dados anteriormente (congrats_shown=1), apenas marcando como completo");
             $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
         }
     } else {
-        // Já foi completado ou popup já foi mostrado, apenas garantir que está marcado como completo
+        // Já foi completado antes, apenas garantir que está marcado como completo (não adicionar pontos novamente)
+        error_log("Check-in já foi completado anteriormente, não adicionando pontos");
         $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
     }
     
