@@ -1077,6 +1077,10 @@ require_once __DIR__ . '/includes/header.php';
             <span>Respostas</span>
             <span class="badge"><?php echo $total_count; ?></span>
         </div>
+        <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
+            <i class="fas fa-check-square"></i>
+            <span>Selecionar</span>
+        </button>
     </div>
 
     <?php if (empty($users)): ?>
@@ -1114,14 +1118,14 @@ require_once __DIR__ . '/includes/header.php';
                                 ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) 
                                 : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : 'U');
                             ?>
-                            <tr data-user-key="<?php echo htmlspecialchars($key); ?>" data-user-id="<?php echo $user['user_id']; ?>" data-response-date="<?php echo $response_date; ?>">
-                                <td onclick="openChatModal('<?php echo htmlspecialchars($key); ?>')" style="cursor: pointer;">
+                            <tr data-user-key="<?php echo htmlspecialchars($key); ?>" data-user-id="<?php echo $user['user_id']; ?>" data-response-date="<?php echo $response_date; ?>" class="response-row">
+                                <td onclick="handleRowClick('<?php echo htmlspecialchars($key); ?>', event)" style="cursor: pointer;">
                                     <div class="table-date">
                                         <i class="fas fa-calendar"></i>
                                         <span><?php echo $formatted_date . ',&nbsp;' . $formatted_time; ?></span>
                                     </div>
                                 </td>
-                                <td onclick="openChatModal('<?php echo htmlspecialchars($key); ?>')" style="cursor: pointer;">
+                                <td onclick="handleRowClick('<?php echo htmlspecialchars($key); ?>', event)" style="cursor: pointer;">
                                     <div class="table-user">
                                         <div class="table-user-avatar">
                                             <?php if (!empty($user['profile_image_filename']) && file_exists(APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'])): ?>
@@ -1364,14 +1368,184 @@ function closeChatModal() {
     document.body.style.overflow = '';
 }
 
+// Modo de Seleção
+let selectModeActive = false;
+let selectedRows = new Set();
+
+function toggleSelectMode() {
+    selectModeActive = !selectModeActive;
+    const btn = document.getElementById('selectModeBtn');
+    const rows = document.querySelectorAll('.response-row');
+    const actionsBar = document.getElementById('selectionActionsBar');
+    
+    if (selectModeActive) {
+        btn.classList.add('active');
+        btn.innerHTML = '<i class="fas fa-times"></i><span>Cancelar</span>';
+        rows.forEach(row => {
+            row.classList.add('select-mode');
+        });
+    } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '<i class="fas fa-check-square"></i><span>Selecionar</span>';
+        rows.forEach(row => {
+            row.classList.remove('select-mode', 'selected');
+        });
+        selectedRows.clear();
+        if (actionsBar) {
+            actionsBar.classList.remove('active');
+        }
+        updateSelectionCount();
+    }
+}
+
+function handleRowClick(userKey, event) {
+    if (selectModeActive) {
+        event.stopPropagation();
+        const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
+        if (!row) return;
+        
+        if (selectedRows.has(userKey)) {
+            selectedRows.delete(userKey);
+            row.classList.remove('selected');
+        } else {
+            selectedRows.add(userKey);
+            row.classList.add('selected');
+        }
+        updateSelectionCount();
+    } else {
+        openChatModal(userKey);
+    }
+}
+
+function updateSelectionCount() {
+    const count = selectedRows.size;
+    const actionsBar = document.getElementById('selectionActionsBar');
+    const countSpan = document.getElementById('selectedCount');
+    
+    if (count > 0) {
+        if (actionsBar) actionsBar.classList.add('active');
+        if (countSpan) countSpan.textContent = `${count} selecionada${count > 1 ? 's' : ''}`;
+    } else {
+        if (actionsBar) actionsBar.classList.remove('active');
+    }
+}
+
+function deleteSelectedResponses() {
+    if (selectedRows.size === 0) {
+        showAlertModal('Aviso', 'Nenhuma resposta selecionada.', false);
+        return;
+    }
+    
+    const count = selectedRows.size;
+    const userName = 'as respostas selecionadas';
+    const responseDate = `${count} resposta${count > 1 ? 's' : ''}`;
+    
+    // Preparar modal de confirmação para múltiplas exclusões
+    document.getElementById('delete-response-user-name').textContent = userName;
+    document.getElementById('delete-response-date').textContent = responseDate;
+    
+    // Armazenar as chaves selecionadas
+    window.selectedRowsToDelete = Array.from(selectedRows);
+    
+    showDeleteResponseModal('bulk', userName, responseDate);
+}
+
+function confirmDeleteBulkResponse() {
+    if (!window.selectedRowsToDelete || window.selectedRowsToDelete.length === 0) {
+        showAlertModal('Erro', 'Nenhuma resposta selecionada para exclusão.', false);
+        return;
+    }
+    
+    const rowsToDelete = window.selectedRowsToDelete;
+    const checkinId = <?php echo $checkin_id; ?>;
+    let deletedCount = 0;
+    let errorCount = 0;
+    
+    closeDeleteResponseModal();
+    
+    // Processar exclusões uma por uma
+    Promise.all(rowsToDelete.map(async (userKey) => {
+        const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
+        if (!row) return false;
+        
+        const userId = row.getAttribute('data-user-id');
+        const responseDate = row.getAttribute('data-response-date');
+        
+        try {
+            const formData = new FormData();
+            formData.append('action', 'delete_response');
+            formData.append('user_id', userId);
+            formData.append('config_id', checkinId);
+            formData.append('response_date', responseDate);
+            
+            const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+            
+            const text = await response.text();
+            const data = JSON.parse(text);
+            
+            if (data.success) {
+                if (row && row.parentNode) {
+                    row.parentNode.removeChild(row);
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error('Erro ao excluir resposta:', error);
+            return false;
+        }
+    })).then(results => {
+        deletedCount = results.filter(r => r === true).length;
+        errorCount = results.filter(r => r === false).length;
+        
+        // Atualizar contador
+        const badge = document.querySelector('.submissions-count .badge');
+        if (badge) {
+            const currentCount = parseInt(badge.textContent) || 0;
+            badge.textContent = Math.max(0, currentCount - deletedCount);
+        }
+        
+        // Sair do modo de seleção
+        if (selectModeActive) {
+            toggleSelectMode();
+        }
+        
+        if (errorCount > 0) {
+            showAlertModal('Aviso', `${deletedCount} resposta(s) excluída(s) com sucesso. ${errorCount} erro(s) ocorreram.`, false);
+        } else {
+            showAlertModal('Sucesso', `${deletedCount} resposta(s) excluída(s) com sucesso!`, true);
+        }
+    });
+}
+
 // Variáveis globais para exclusão
 let currentResponseToDelete = null;
 
 function showDeleteResponseModal(userKey, userName, responseDate) {
     currentResponseToDelete = userKey;
     
-    document.getElementById('delete-response-user-name').textContent = userName;
-    document.getElementById('delete-response-date').textContent = responseDate;
+    const nameEl = document.getElementById('delete-response-user-name');
+    const dateEl = document.getElementById('delete-response-date');
+    
+    if (nameEl) nameEl.textContent = userName;
+    if (dateEl) dateEl.textContent = responseDate;
+    
+    // Ajustar texto do modal para exclusão em massa
+    if (userKey === 'bulk') {
+        const modalBody = document.querySelector('#deleteResponseModal .custom-modal-body');
+        if (modalBody) {
+            modalBody.innerHTML = `
+                <p><strong>ATENÇÃO: Esta ação não pode ser desfeita!</strong></p>
+                <p>Tem certeza que deseja excluir permanentemente <strong>${responseDate}</strong>?</p>
+                <p style="color: var(--danger-red); font-weight: 600;">Esta ação é IRREVERSÍVEL!</p>
+            `;
+        }
+    }
     
     const modal = document.getElementById('deleteResponseModal');
     if (modal) {
