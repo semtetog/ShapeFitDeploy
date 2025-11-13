@@ -321,7 +321,7 @@ require_once __DIR__ . '/includes/header.php';
 .submissions-count .badge {
     background: var(--accent-orange);
     color: white;
-    padding: 4px 8px;
+    padding: 6px;
     border-radius: 50%;
     font-size: 0.75rem;
     font-weight: 700;
