@@ -14,8 +14,8 @@ $admin_id = $_SESSION['admin_id'] ?? 1;
 $checkin_id = (int)($_GET['id'] ?? 0);
 
 if ($checkin_id <= 0) {
-    header("Location: checkin.php");
-    exit;
+header("Location: checkin.php");
+exit;
 }
 
 // Buscar check-in
@@ -25,9 +25,9 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    $stmt->close();
-    header("Location: checkin.php");
-    exit;
+$stmt->close();
+header("Location: checkin.php");
+exit;
 }
 
 $checkin = $result->fetch_assoc();
@@ -37,14 +37,14 @@ $stmt->close();
 $admin_creator_id = (int)($checkin['admin_id'] ?? 0);
 $admin_data = null;
 if ($admin_creator_id > 0) {
-    $stmt_admin = $conn->prepare("SELECT id, full_name, profile_image_filename FROM sf_admins WHERE id = ?");
-    $stmt_admin->bind_param("i", $admin_creator_id);
-    $stmt_admin->execute();
-    $admin_result = $stmt_admin->get_result();
-    if ($admin_result->num_rows > 0) {
-        $admin_data = $admin_result->fetch_assoc();
-    }
-    $stmt_admin->close();
+$stmt_admin = $conn->prepare("SELECT id, full_name, profile_image_filename FROM sf_admins WHERE id = ?");
+$stmt_admin->bind_param("i", $admin_creator_id);
+$stmt_admin->execute();
+$admin_result = $stmt_admin->get_result();
+if ($admin_result->num_rows > 0) {
+$admin_data = $admin_result->fetch_assoc();
+}
+$stmt_admin->close();
 }
 
 // Buscar perguntas
@@ -54,8 +54,8 @@ $stmt->execute();
 $questions_result = $stmt->get_result();
 $questions = [];
 while ($row = $questions_result->fetch_assoc()) {
-    $row['options'] = !empty($row['options']) ? json_decode($row['options'], true) : null;
-    $questions[$row['id']] = $row;
+$row['options'] = !empty($row['options']) ? json_decode($row['options'], true) : null;
+$questions[$row['id']] = $row;
 }
 $stmt->close();
 
@@ -65,69 +65,69 @@ $date_condition = "";
 $period_label = "Todos os períodos"; // Label padrão
 
 switch ($date_filter) {
-    case 'last_7_days':
-        $date_condition = "AND DATE(cr.submitted_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
-        $period_label = "Últimos 7 dias";
-        break;
-    case 'this_week':
-        $date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(CURDATE(), 1)";
-        $period_label = "Esta semana";
-        break;
-    case 'last_week':
-        $date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 7 DAY), 1)";
-        $period_label = "Semana passada";
-        break;
-    case 'this_month':
-        $date_condition = "AND YEAR(cr.submitted_at) = YEAR(CURDATE()) AND MONTH(cr.submitted_at) = MONTH(CURDATE())";
-        $period_label = "Este mês";
-        break;
-    case 'last_month':
-        $date_condition = "AND YEAR(cr.submitted_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(cr.submitted_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
-        $period_label = "Mês passado";
-        break;
-    case 'custom':
-        $date_start = $_GET['date_start'] ?? '';
-        $date_end = $_GET['date_end'] ?? '';
-        if (!empty($date_start) && !empty($date_end)) {
-            $date_start = $conn->real_escape_string($date_start);
-            $date_end = $conn->real_escape_string($date_end);
-            $date_condition = "AND DATE(cr.submitted_at) >= '$date_start' AND DATE(cr.submitted_at) <= '$date_end'";
-            
-            // Formatar datas para exibição
-            $start_date_obj = DateTime::createFromFormat('Y-m-d', $date_start);
-            $end_date_obj = DateTime::createFromFormat('Y-m-d', $date_end);
-            if ($start_date_obj && $end_date_obj) {
-                if ($date_start === $date_end) {
-                    $period_label = $start_date_obj->format('d/m/Y');
-                } else {
-                    $period_label = $start_date_obj->format('d/m') . ' - ' . $end_date_obj->format('d/m/Y');
-                }
-            }
-        }
-        break;
-    default:
-        $date_condition = "";
-        $period_label = "Todos os períodos";
+case 'last_7_days':
+$date_condition = "AND DATE(cr.submitted_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+$period_label = "Últimos 7 dias";
+break;
+case 'this_week':
+$date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(CURDATE(), 1)";
+$period_label = "Esta semana";
+break;
+case 'last_week':
+$date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 7 DAY), 1)";
+$period_label = "Semana passada";
+break;
+case 'this_month':
+$date_condition = "AND YEAR(cr.submitted_at) = YEAR(CURDATE()) AND MONTH(cr.submitted_at) = MONTH(CURDATE())";
+$period_label = "Este mês";
+break;
+case 'last_month':
+$date_condition = "AND YEAR(cr.submitted_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(cr.submitted_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
+$period_label = "Mês passado";
+break;
+case 'custom':
+$date_start = $_GET['date_start'] ?? '';
+$date_end = $_GET['date_end'] ?? '';
+if (!empty($date_start) && !empty($date_end)) {
+$date_start = $conn->real_escape_string($date_start);
+$date_end = $conn->real_escape_string($date_end);
+$date_condition = "AND DATE(cr.submitted_at) >= '$date_start' AND DATE(cr.submitted_at) <= '$date_end'";
+
+// Formatar datas para exibição
+$start_date_obj = DateTime::createFromFormat('Y-m-d', $date_start);
+$end_date_obj = DateTime::createFromFormat('Y-m-d', $date_end);
+if ($start_date_obj && $end_date_obj) {
+if ($date_start === $date_end) {
+$period_label = $start_date_obj->format('d/m/Y');
+} else {
+$period_label = $start_date_obj->format('d/m') . ' - ' . $end_date_obj->format('d/m/Y');
+}
+}
+}
+break;
+default:
+$date_condition = "";
+$period_label = "Todos os períodos";
 }
 
 // Buscar usuários que responderam
 // IMPORTANTE: Buscar respostas diretamente da tabela sf_checkin_responses
 // sem depender de is_completed, para manter histórico completo mesmo após reset
 $responses_query = "
-    SELECT DISTINCT 
-        u.id as user_id,
-        u.name as user_name,
-        u.email,
-        up.profile_image_filename,
-        DATE(cr.submitted_at) as response_date,
-        MAX(cr.submitted_at) as completed_at
-    FROM sf_checkin_responses cr
-    INNER JOIN sf_users u ON cr.user_id = u.id
-    LEFT JOIN sf_user_profiles up ON u.id = up.user_id
-    WHERE cr.config_id = ?
-    $date_condition
-    GROUP BY u.id, DATE(cr.submitted_at)
-    ORDER BY completed_at DESC
+   SELECT DISTINCT 
+       u.id as user_id,
+       u.name as user_name,
+       u.email,
+       up.profile_image_filename,
+       DATE(cr.submitted_at) as response_date,
+       MAX(cr.submitted_at) as completed_at
+   FROM sf_checkin_responses cr
+   INNER JOIN sf_users u ON cr.user_id = u.id
+   LEFT JOIN sf_user_profiles up ON u.id = up.user_id
+   WHERE cr.config_id = ?
+   $date_condition
+   GROUP BY u.id, DATE(cr.submitted_at)
+   ORDER BY completed_at DESC
 ";
 
 $stmt = $conn->prepare($responses_query);
@@ -136,31 +136,31 @@ $stmt->execute();
 $users_result = $stmt->get_result();
 $users = [];
 while ($row = $users_result->fetch_assoc()) {
-    $user_id = $row['user_id'];
-    $response_date = $row['response_date'];
-    $key = $user_id . '_' . $response_date;
-    
-    if (!isset($users[$key])) {
-        $users[$key] = $row;
-        $users[$key]['responses'] = [];
-        
-        // Não buscar primeira resposta para preview (removido conforme solicitado)
-    }
-    
-    // Buscar todas as respostas deste usuário para esta data
-    $resp_stmt = $conn->prepare("
-        SELECT question_id, response_text, response_value, submitted_at
-        FROM sf_checkin_responses
-        WHERE config_id = ? AND user_id = ? AND DATE(submitted_at) = ?
-        ORDER BY submitted_at ASC
-    ");
-    $resp_stmt->bind_param("iis", $checkin_id, $user_id, $response_date);
-    $resp_stmt->execute();
-    $resp_result = $resp_stmt->get_result();
-    while ($resp = $resp_result->fetch_assoc()) {
-        $users[$key]['responses'][$resp['question_id']] = $resp;
-    }
-    $resp_stmt->close();
+$user_id = $row['user_id'];
+$response_date = $row['response_date'];
+$key = $user_id . '_' . $response_date;
+
+if (!isset($users[$key])) {
+$users[$key] = $row;
+$users[$key]['responses'] = [];
+
+// Não buscar primeira resposta para preview (removido conforme solicitado)
+}
+
+// Buscar todas as respostas deste usuário para esta data
+$resp_stmt = $conn->prepare("
+       SELECT question_id, response_text, response_value, submitted_at
+       FROM sf_checkin_responses
+       WHERE config_id = ? AND user_id = ? AND DATE(submitted_at) = ?
+       ORDER BY submitted_at ASC
+   ");
+$resp_stmt->bind_param("iis", $checkin_id, $user_id, $response_date);
+$resp_stmt->execute();
+$resp_result = $resp_stmt->get_result();
+while ($resp = $resp_result->fetch_assoc()) {
+$users[$key]['responses'][$resp['question_id']] = $resp;
+}
+$resp_stmt->close();
 }
 $stmt->close();
 
@@ -172,608 +172,608 @@ require_once __DIR__ . '/includes/header.php';
 
 <style>
 .checkin-responses-page {
-    padding: 1.5rem 2rem;
-    min-height: 100vh;
+padding: 1.5rem 2rem;
+min-height: 100vh;
 }
 
 .checkin-responses-page * {
-    box-shadow: none !important;
+box-shadow: none !important;
 }
 
 .header-card {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 20px !important;
-    padding: 1.5rem !important;
-    margin-bottom: 2rem !important;
+background: rgba(255, 255, 255, 0.05) !important;
+border: 1px solid var(--glass-border) !important;
+border-radius: 20px !important;
+padding: 1.5rem !important;
+margin-bottom: 2rem !important;
 }
 
 .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--accent-orange);
-    text-decoration: none;
-    margin-bottom: 1rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+color: var(--accent-orange);
+text-decoration: none;
+margin-bottom: 1rem;
+font-weight: 600;
+transition: all 0.3s ease;
 }
 
 .back-link:hover {
-    color: #e55a00;
-    transform: translateX(-4px);
+color: #e55a00;
+transform: translateX(-4px);
 }
 
 .header-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 1rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 1rem;
+flex-wrap: wrap;
+gap: 1rem;
 }
 
 .header-title h2 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
+font-size: 1.75rem;
+font-weight: 700;
+color: var(--text-primary);
+margin: 0;
 }
 
 .header-title p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    margin: 0.5rem 0 0 0;
+color: var(--text-secondary);
+font-size: 0.95rem;
+margin: 0.5rem 0 0 0;
 }
 
 /* Filtros - Refatoração completa do zero */
 .filters-section {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 16px !important;
-    padding: 1.25rem !important;
-    margin-bottom: 1.5rem !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    gap: 1rem !important;
-    position: relative !important;
+background: rgba(255, 255, 255, 0.05) !important;
+border: 1px solid var(--glass-border) !important;
+border-radius: 16px !important;
+padding: 1.25rem !important;
+margin-bottom: 1.5rem !important;
+display: flex !important;
+justify-content: space-between !important;
+align-items: center !important;
+gap: 1rem !important;
+position: relative !important;
 }
 
 .filters-section .left-side {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 0.75rem !important;
-    height: 40px !important;
-    box-sizing: border-box !important;
-    flex-shrink: 0 !important;
+display: flex !important;
+align-items: center !important;
+justify-content: flex-start !important;
+gap: 0.75rem !important;
+height: 40px !important;
+box-sizing: border-box !important;
+flex-shrink: 0 !important;
 }
 
 .filters-section .right-side {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 0.75rem !important;
-    height: 40px !important;
-    box-sizing: border-box !important;
-    flex-shrink: 0 !important;
+display: flex !important;
+align-items: center !important;
+justify-content: flex-end !important;
+gap: 0.75rem !important;
+height: 40px !important;
+box-sizing: border-box !important;
+flex-shrink: 0 !important;
 }
 
 /* Elementos internos - altura e alinhamento fixos */
 .filters-section .submissions-count {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 0.5rem 1rem !important;
-    flex-shrink: 0 !important;
-    vertical-align: middle !important;
+display: flex !important;
+align-items: center !important;
+justify-content: flex-start !important;
+height: 40px !important;
+min-height: 40px !important;
+max-height: 40px !important;
+box-sizing: border-box !important;
+margin: 0 !important;
+padding: 0.5rem 1rem !important;
+flex-shrink: 0 !important;
+vertical-align: middle !important;
 }
 
 .filters-section .btn-select-mode {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 0.5rem 1rem !important;
-    flex-shrink: 0 !important;
-    vertical-align: middle !important;
+display: flex !important;
+align-items: center !important;
+justify-content: center !important;
+height: 40px !important;
+min-height: 40px !important;
+max-height: 40px !important;
+box-sizing: border-box !important;
+margin: 0 !important;
+padding: 0.5rem 1rem !important;
+flex-shrink: 0 !important;
+vertical-align: middle !important;
 }
 
 /* Botão de período (estilo igual ao view_user_hydration) */
 .filters-section .period-btn {
-    padding: 10px 20px !important;
-    border: 1px solid rgba(255, 107, 0, 0.2) !important;
-    background: rgba(255, 107, 0, 0.08) !important;
-    color: var(--accent-orange) !important;
-    border-radius: 20px !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    font-family: 'Montserrat', sans-serif !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    position: relative !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    white-space: nowrap !important;
-    width: auto !important;
-    min-width: auto !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-    line-height: 1 !important;
-    justify-content: flex-start !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-    vertical-align: middle !important;
+padding: 10px 20px !important;
+border: 1px solid rgba(255, 107, 0, 0.2) !important;
+background: rgba(255, 107, 0, 0.08) !important;
+color: var(--accent-orange) !important;
+border-radius: 20px !important;
+font-size: 0.9rem !important;
+font-weight: 600 !important;
+font-family: 'Montserrat', sans-serif !important;
+cursor: pointer !important;
+transition: all 0.3s ease !important;
+position: relative !important;
+display: flex !important;
+align-items: center !important;
+gap: 12px !important;
+white-space: nowrap !important;
+width: auto !important;
+min-width: auto !important;
+height: 40px !important;
+min-height: 40px !important;
+max-height: 40px !important;
+line-height: 1 !important;
+justify-content: flex-start !important;
+box-sizing: border-box !important;
+margin: 0 !important;
+flex-shrink: 0 !important;
+vertical-align: middle !important;
 }
 
 .filters-section .period-btn i {
-    font-size: 1rem !important;
-    flex-shrink: 0 !important;
-    color: var(--accent-orange) !important;
+font-size: 1rem !important;
+flex-shrink: 0 !important;
+color: var(--accent-orange) !important;
 }
 
 .filters-section .period-btn:hover {
-    background: rgba(255, 107, 0, 0.15) !important;
-    border-color: var(--accent-orange) !important;
-    transform: scale(1.05) !important;
-    color: var(--accent-orange) !important;
+background: rgba(255, 107, 0, 0.15) !important;
+border-color: var(--accent-orange) !important;
+transform: scale(1.05) !important;
+color: var(--accent-orange) !important;
 }
 
 .filters-section .period-btn.active {
-    background: rgba(255, 107, 0, 0.08) !important;
-    color: var(--accent-orange) !important;
-    border-color: rgba(255, 107, 0, 0.2) !important;
-    box-shadow: none !important;
+background: rgba(255, 107, 0, 0.08) !important;
+color: var(--accent-orange) !important;
+border-color: rgba(255, 107, 0, 0.2) !important;
+box-shadow: none !important;
 }
 
 .filters-section .period-btn.active:hover {
-    background: rgba(255, 107, 0, 0.15) !important;
-    border-color: var(--accent-orange) !important;
-    color: var(--accent-orange) !important;
+background: rgba(255, 107, 0, 0.15) !important;
+border-color: var(--accent-orange) !important;
+color: var(--accent-orange) !important;
 }
 
 /* FIX: Evitar que o ícone de ajuda do calendário suba para o header */
 .filters-section .calendar-wrapper {
-    position: relative !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    height: 40px !important;
-    width: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
+position: relative !important;
+display: flex !important;
+align-items: center !important;
+justify-content: flex-end !important;
+height: 40px !important;
+width: auto !important;
+margin: 0 !important;
+padding: 0 !important;
 }
 
 .filter-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+display: flex;
+align-items: center;
+gap: 0.5rem;
 }
 
 .filter-group label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    white-space: nowrap;
+font-size: 0.875rem;
+font-weight: 600;
+color: var(--text-secondary);
+white-space: nowrap;
 }
 
 .custom-select-wrapper {
-    position: relative;
-    min-width: 180px;
+position: relative;
+min-width: 180px;
 }
 
 .custom-select {
-    position: relative;
+position: relative;
 }
 
 .custom-select-trigger {
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: all 0.3s ease;
-    font-family: 'Montserrat', sans-serif;
+width: 100%;
+padding: 0.625rem 0.875rem;
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid var(--glass-border);
+border-radius: 8px;
+color: var(--text-primary);
+font-size: 0.875rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: space-between;
+transition: all 0.3s ease;
+font-family: 'Montserrat', sans-serif;
 }
 
 .custom-select-trigger:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--accent-orange);
+background: rgba(255, 255, 255, 0.08);
+border-color: var(--accent-orange);
 }
 
 .custom-select-trigger.active {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--accent-orange);
+background: rgba(255, 255, 255, 0.08);
+border-color: var(--accent-orange);
 }
 
 .custom-select-options {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
-    background: rgba(30, 30, 30, 0.98);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    overflow: hidden;
-    z-index: 1000;
-    display: none;
-    max-height: 300px;
-    overflow-y: auto;
+position: absolute;
+top: calc(100% + 4px);
+left: 0;
+right: 0;
+background: rgba(30, 30, 30, 0.98);
+border: 1px solid var(--glass-border);
+border-radius: 8px;
+overflow: hidden;
+z-index: 1000;
+display: none;
+max-height: 300px;
+overflow-y: auto;
 }
 
 .custom-select-options.active {
-    display: block;
+display: block;
 }
 
 .custom-select-option {
-    padding: 0.75rem 0.875rem;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+padding: 0.75rem 0.875rem;
+color: var(--text-primary);
+cursor: pointer;
+transition: all 0.2s ease;
+font-size: 0.875rem;
+border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .custom-select-option:last-child {
-    border-bottom: none;
+border-bottom: none;
 }
 
 .custom-select-option:hover {
-    background: rgba(255, 107, 0, 0.1);
-    color: var(--accent-orange);
+background: rgba(255, 107, 0, 0.1);
+color: var(--accent-orange);
 }
 
 .custom-select-option.selected {
-    background: rgba(255, 107, 0, 0.15);
-    color: var(--accent-orange);
-    font-weight: 600;
+background: rgba(255, 107, 0, 0.15);
+color: var(--accent-orange);
+font-weight: 600;
 }
 
 .submissions-count {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.2);
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--accent-orange);
-    line-height: 1.5;
-    box-sizing: border-box;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.5rem 1rem;
+background: rgba(255, 107, 0, 0.1);
+border: 1px solid rgba(255, 107, 0, 0.2);
+border-radius: 8px;
+font-size: 0.875rem;
+font-weight: 600;
+color: var(--accent-orange);
+line-height: 1.5;
+box-sizing: border-box;
+height: 40px;
+min-height: 40px;
+max-height: 40px;
 }
 
 .submissions-count .badge {
-    background: var(--accent-orange);
-    color: white;
-    padding: 6px;
-    border-radius: 50%;
-    font-size: 0.75rem;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    box-sizing: border-box;
-    flex-shrink: 0;
-    aspect-ratio: 1;
-    min-width: 24px;
-    min-height: 24px;
+background: var(--accent-orange);
+color: white;
+padding: 6px;
+border-radius: 50%;
+font-size: 0.75rem;
+font-weight: 700;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+line-height: 1;
+box-sizing: border-box;
+flex-shrink: 0;
+aspect-ratio: 1;
+min-width: 24px;
+min-height: 24px;
 }
 
 /* Tabela com scroll horizontal */
 .table-container {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 16px !important;
-    overflow: hidden;
-    margin-bottom: 2rem;
+background: rgba(255, 255, 255, 0.05) !important;
+border: 1px solid var(--glass-border) !important;
+border-radius: 16px !important;
+overflow: hidden;
+margin-bottom: 2rem;
 }
 
 .table-wrapper {
-    overflow-x: auto;
-    overflow-y: visible;
-    width: 100%;
+overflow-x: auto;
+overflow-y: visible;
+width: 100%;
 }
 
 .responses-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-    min-width: 800px;
+width: 100%;
+border-collapse: collapse;
+border-spacing: 0;
+min-width: 800px;
 }
 
 .responses-table th:first-child {
-    width: auto;
-    min-width: 180px;
+width: auto;
+min-width: 180px;
 }
 
 .responses-table th:nth-child(2) {
-    width: auto;
-    min-width: 0;
+width: auto;
+min-width: 0;
 }
 
 /* FIX — Diminuir espaçamento entre as colunas */
 .responses-table {
-    min-width: 0 !important;
+min-width: 0 !important;
 }
 
 .responses-table th:nth-child(3),
 .responses-table td:nth-child(3) {
-    width: 60px !important;
-    min-width: 60px !important;
-    text-align: center !important;
+width: 60px !important;
+min-width: 60px !important;
+text-align: center !important;
 }
 
 /* Coluna da data e nome mais próximas */
 .responses-table th:first-child,
 .responses-table td:first-child {
-    min-width: 120px !important;
+min-width: 120px !important;
 }
 
 .responses-table th:nth-child(2),
 .responses-table td:nth-child(2) {
-    min-width: 160px !important;
+min-width: 160px !important;
 }
 
 .responses-table thead {
-    background: rgba(255, 255, 255, 0.05);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+background: rgba(255, 255, 255, 0.05);
+position: sticky;
+top: 0;
+z-index: 10;
 }
 
 .responses-table th {
-    padding: 1rem;
-    text-align: left;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-secondary);
-    border-bottom: 1px solid var(--glass-border);
-    white-space: nowrap;
+padding: 1rem;
+text-align: left;
+font-size: 0.75rem;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+color: var(--text-secondary);
+border-bottom: 1px solid var(--glass-border);
+white-space: nowrap;
 }
 
 .responses-table th:first-child {
-    padding: 1rem 0.75rem 1rem 1rem;
-    position: relative;
-    border-left: none !important;
-    margin-left: 0 !important;
-    padding-left: 1rem !important;
+padding: 1rem 0.75rem 1rem 1rem;
+position: relative;
+border-left: none !important;
+margin-left: 0 !important;
+padding-left: 1rem !important;
 }
 
 .responses-table th:first-child::after {
-    content: '';
-    position: absolute;
-    right: 0.375rem;
-    top: 15%;
-    bottom: 15%;
-    width: 1px;
-    background: linear-gradient(to bottom, 
-        transparent 0%, 
-        rgba(255, 255, 255, 0.15) 20%, 
-        rgba(255, 255, 255, 0.3) 50%, 
-        rgba(255, 255, 255, 0.15) 80%, 
-        transparent 100%);
+content: '';
+position: absolute;
+right: 0.375rem;
+top: 15%;
+bottom: 15%;
+width: 1px;
+background: linear-gradient(to bottom, 
+transparent 0%, 
+rgba(255, 255, 255, 0.15) 20%, 
+rgba(255, 255, 255, 0.3) 50%, 
+rgba(255, 255, 255, 0.15) 80%, 
+transparent 100%);
 }
 
 .responses-table th:nth-child(2) {
-    padding: 1rem 0.5rem 1rem 0.75rem;
+padding: 1rem 0.5rem 1rem 0.75rem;
 }
 
 
 .responses-table th:nth-child(2) {
-    width: auto;
-    min-width: 0;
+width: auto;
+min-width: 0;
 }
 
 .responses-table tbody tr {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    border-left: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
+border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+border-left: none;
+cursor: pointer;
+transition: all 0.2s ease;
 }
 
 .responses-table tbody tr:hover {
-    background: rgba(255, 107, 0, 0.05);
+background: rgba(255, 107, 0, 0.05);
 }
 
 .responses-table td {
-    padding: 1rem 0;
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    vertical-align: middle;
+padding: 1rem 0;
+font-size: 0.875rem;
+color: var(--text-primary);
+vertical-align: middle;
 }
 
 .responses-table td:first-child {
-    padding: 1rem 0.2rem 1rem 1rem;
-    position: relative;
+padding: 1rem 0.2rem 1rem 1rem;
+position: relative;
 }
 
 .responses-table td:first-child::after {
-    content: '';
-    position: absolute;
-    right: 0.1rem;
-    top: 15%;
-    bottom: 15%;
-    width: 1px;
-    background: linear-gradient(to bottom, 
-        transparent 0%, 
-        rgba(255, 255, 255, 0.15) 20%, 
-        rgba(255, 255, 255, 0.3) 50%, 
-        rgba(255, 255, 255, 0.15) 80%, 
-        transparent 100%);
+content: '';
+position: absolute;
+right: 0.1rem;
+top: 15%;
+bottom: 15%;
+width: 1px;
+background: linear-gradient(to bottom, 
+transparent 0%, 
+rgba(255, 255, 255, 0.15) 20%, 
+rgba(255, 255, 255, 0.3) 50%, 
+rgba(255, 255, 255, 0.15) 80%, 
+transparent 100%);
 }
 
 .responses-table td:nth-child(2) {
-    padding: 1rem 0.5rem 1rem 0.2rem;
+padding: 1rem 0.5rem 1rem 0.2rem;
 }
 
 .responses-table td:first-child .table-date {
-    margin: 0;
-    padding: 0;
-    gap: 0.5rem;
-    width: 100%;
-    justify-content: flex-start;
+margin: 0;
+padding: 0;
+gap: 0.5rem;
+width: 100%;
+justify-content: flex-start;
 }
 
 .responses-table td:nth-child(2) .table-user {
-    margin: 0;
-    padding: 0;
-    gap: 0.75rem;
-    width: 100%;
-    justify-content: flex-start;
+margin: 0;
+padding: 0;
+gap: 0.75rem;
+width: 100%;
+justify-content: flex-start;
 }
 
 .table-checkbox {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: var(--accent-orange);
+width: 18px;
+height: 18px;
+cursor: pointer;
+accent-color: var(--accent-orange);
 }
 
 .table-date {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+color: var(--text-secondary);
+font-size: 0.875rem;
 }
 
 .table-date i {
-    font-size: 0.75rem;
-    opacity: 0.6;
+font-size: 0.75rem;
+opacity: 0.6;
 }
 
 .table-user {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+display: flex;
+align-items: center;
+gap: 0.75rem;
 }
 
 .table-user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent-orange);
-    font-weight: 700;
-    font-size: 0.75rem;
-    flex-shrink: 0;
+width: 32px;
+height: 32px;
+border-radius: 50%;
+background: rgba(255, 255, 255, 0.1);
+display: flex;
+align-items: center;
+justify-content: center;
+color: var(--accent-orange);
+font-weight: 700;
+font-size: 0.75rem;
+flex-shrink: 0;
 }
 
 .table-user-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
+width: 100%;
+height: 100%;
+border-radius: 50%;
+object-fit: cover;
 }
 
 .table-user-name {
-    font-weight: 600;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: visible;
-    text-overflow: clip;
+font-weight: 600;
+color: var(--text-primary);
+white-space: nowrap;
+overflow: visible;
+text-overflow: clip;
 }
 
 .btn-delete-response {
-    background: rgba(239, 68, 68, 0.1);
-    color: #EF4444;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 8px;
-    padding: 0;
-    font-size: 0.875rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    width: 36px;
-    height: 36px;
-    line-height: 1;
+background: rgba(239, 68, 68, 0.1);
+color: #EF4444;
+border: 1px solid rgba(239, 68, 68, 0.2);
+border-radius: 8px;
+padding: 0;
+font-size: 0.875rem;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+transition: all 0.2s ease;
+width: 36px;
+height: 36px;
+line-height: 1;
 }
 
 .btn-delete-response i {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+width: 100%;
+height: 100%;
+margin: 0;
+padding: 0;
 }
 
 .btn-delete-response:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: #EF4444;
-    color: #EF4444;
-    transform: translateY(-1px);
+background: rgba(239, 68, 68, 0.2);
+border-color: #EF4444;
+color: #EF4444;
+transform: translateY(-1px);
 }
 
 .btn-delete-response:active {
-    transform: translateY(0);
+transform: translateY(0);
 }
 
 .table-preview {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    line-height: 1.5;
-    max-width: 400px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+color: var(--text-secondary);
+font-size: 0.875rem;
+line-height: 1.5;
+max-width: 400px;
+overflow: hidden;
+text-overflow: ellipsis;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
 }
 
 .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: var(--text-secondary);
+text-align: center;
+padding: 4rem 2rem;
+color: var(--text-secondary);
 }
 
 .empty-state i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+font-size: 3rem;
+margin-bottom: 1rem;
+opacity: 0.5;
 }
 
 .empty-state h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 0.5rem 0;
+font-size: 1.25rem;
+font-weight: 700;
+color: var(--text-primary);
+margin: 0 0 0.5rem 0;
 }
 
-/* Modais Customizados (estilo admin) */
+/* Modais Customizados (estilo admin) - igual ao view_user_hydration */
 .custom-modal {
     display: none;
     position: fixed;
@@ -781,15 +781,18 @@ require_once __DIR__ . '/includes/header.php';
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
     z-index: 999999;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
 }
 
 .custom-modal.active {
     display: flex !important;
+    opacity: 1;
+    pointer-events: all;
 }
 
 .custom-modal-overlay {
@@ -798,1375 +801,1383 @@ require_once __DIR__ . '/includes/header.php';
     left: 0;
     width: 100%;
     height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: none !important;
     z-index: 1;
 }
 
 /* Garantir que o calendário fique acima do overlay */
 #checkinCalendarModal .diary-calendar-wrapper {
-    position: relative;
-    z-index: 2;
+position: relative;
+z-index: 2;
 }
 
 .custom-modal-content {
-    position: relative;
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 0;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
-    z-index: 2;
+position: relative;
+background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 16px;
+padding: 0;
+max-width: 500px;
+width: 90%;
+box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+transform: scale(0.9);
+transition: transform 0.3s ease;
+z-index: 2;
 }
 
 .custom-modal.active .custom-modal-content {
-    transform: scale(1);
+transform: scale(1);
 }
 
 .custom-modal-content.custom-modal-small {
-    max-width: 400px;
+max-width: 400px;
 }
 
 .custom-modal-header {
-    padding: 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: var(--accent-orange);
+padding: 2rem;
+border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+display: flex;
+align-items: center;
+gap: 1rem;
+color: var(--accent-orange);
 }
 
 .custom-modal-header i {
-    font-size: 1.75rem;
+font-size: 1.75rem;
 }
 
 .custom-modal-header h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
+margin: 0;
+font-size: 1.25rem;
+font-weight: 600;
+color: var(--text-primary);
 }
 
 .custom-modal-body {
-    padding: 2rem;
+padding: 2rem;
 }
 
 .custom-modal-body p {
-    margin: 0 0 1rem 0;
-    color: var(--text-secondary);
-    line-height: 1.6;
+margin: 0 0 1rem 0;
+color: var(--text-secondary);
+line-height: 1.6;
 }
 
 .custom-modal-body p:last-child {
-    margin-bottom: 0;
+margin-bottom: 0;
 }
 
 .custom-modal-body p strong {
-    color: var(--text-primary);
-    font-weight: 600;
+color: var(--text-primary);
+font-weight: 600;
 }
 
 .custom-modal-footer {
-    padding: 1.5rem 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
+padding: 1.5rem 2rem;
+border-top: 1px solid rgba(255, 255, 255, 0.08);
+display: flex;
+gap: 1rem;
+justify-content: flex-end;
 }
 
 .btn-modal-cancel,
 .btn-modal-primary,
 .btn-modal-danger {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border: none;
+padding: 0.75rem 1.5rem;
+border-radius: 8px;
+font-size: 0.95rem;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.3s ease;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+border: none;
 }
 
 .btn-modal-cancel {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+background: rgba(255, 255, 255, 0.05);
+color: var(--text-primary);
+border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-modal-cancel:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+background: rgba(255, 255, 255, 0.1);
+border-color: rgba(255, 255, 255, 0.2);
 }
 
 .btn-modal-primary {
-    background: var(--accent-orange);
-    color: white;
+background: var(--accent-orange);
+color: white;
 }
 
 .btn-modal-primary:hover {
-    background: var(--accent-orange-hover);
-    transform: translateY(-1px);
+background: var(--accent-orange-hover);
+transform: translateY(-1px);
 }
 
 .btn-modal-danger {
-    background: rgba(244, 67, 54, 0.15);
-    color: var(--danger-red);
-    border: 1px solid rgba(244, 67, 54, 0.4);
+background: rgba(244, 67, 54, 0.15);
+color: var(--danger-red);
+border: 1px solid rgba(244, 67, 54, 0.4);
 }
 
 .btn-modal-danger:hover {
-    background: rgba(244, 67, 54, 0.25);
-    border-color: var(--danger-red);
-    color: var(--danger-red);
-    transform: translateY(-1px);
+background: rgba(244, 67, 54, 0.25);
+border-color: var(--danger-red);
+color: var(--danger-red);
+transform: translateY(-1px);
 }
 
 /* FORÇA A TABELA A NÃO TER LARGURA MÍNIMA */
 .responses-table {
-    min-width: unset !important;
-    width: 100% !important;
-    table-layout: auto !important;
+min-width: unset !important;
+width: 100% !important;
+table-layout: auto !important;
 }
 
 /* COLUNA DATA - AJUSTE PERFEITO */
 .responses-table th:first-child,
 .responses-table td:first-child {
-    width: 165px !important;
-    min-width: 165px !important;
-    max-width: 165px !important;
-    white-space: nowrap !important;
-    padding-right: 0.75rem !important;
-    position: relative;
+width: 165px !important;
+min-width: 165px !important;
+max-width: 165px !important;
+white-space: nowrap !important;
+padding-right: 0.75rem !important;
+position: relative;
 }
 
 /* IMPEDIR QUE O FLEX APERTE A DATA - PACOTE GARANTIDO */
 .responses-table td:first-child .table-date {
-    flex-shrink: 0 !important;
+flex-shrink: 0 !important;
 }
 
 .responses-table td:first-child .table-date span {
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
+white-space: nowrap !important;
+flex-shrink: 0 !important;
 }
 
 /* ZERO RISCOS - Qualquer span na primeira coluna */
 .responses-table td:first-child span {
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
+white-space: nowrap !important;
+flex-shrink: 0 !important;
 }
 
 .responses-table td:first-child::after {
-    content: '';
-    position: absolute;
-    right: 0.375rem;
-    top: 15%;
-    bottom: 15%;
-    width: 1px;
-    background: linear-gradient(to bottom, 
-        transparent 0%, 
-        rgba(255, 255, 255, 0.15) 20%, 
-        rgba(255, 255, 255, 0.3) 50%, 
-        rgba(255, 255, 255, 0.15) 80%, 
-        transparent 100%);
+content: '';
+position: absolute;
+right: 0.375rem;
+top: 15%;
+bottom: 15%;
+width: 1px;
+background: linear-gradient(to bottom, 
+transparent 0%, 
+rgba(255, 255, 255, 0.15) 20%, 
+rgba(255, 255, 255, 0.3) 50%, 
+rgba(255, 255, 255, 0.15) 80%, 
+transparent 100%);
 }
 
 /* COLUNA NOME - FLEX */
 .responses-table th:nth-child(2),
 .responses-table td:nth-child(2) {
-    width: auto !important;
-    padding-left: 0.75rem !important;
+width: auto !important;
+padding-left: 0.75rem !important;
 }
 
 /* COLUNA AÇÕES - FIXA */
 .responses-table th:nth-child(3),
 .responses-table td:nth-child(3) {
-    width: 60px !important;
-    min-width: 60px !important;
-    max-width: 60px !important;
+width: 60px !important;
+min-width: 60px !important;
+max-width: 60px !important;
 }
 
 /* ZERA QUALQUER ESTICAMENTO */
 .table-wrapper {
-    width: 100% !important;
-    overflow-x: hidden !important;
+width: 100% !important;
+overflow-x: hidden !important;
 }
 
 /* Modo de Seleção - Copiado do .submissions-count */
 .btn-select-mode {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #3B82F6;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    line-height: 1.5;
-    box-sizing: border-box;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.5rem 1rem;
+background: rgba(59, 130, 246, 0.1);
+border: 1px solid rgba(59, 130, 246, 0.2);
+border-radius: 8px;
+font-size: 0.875rem;
+font-weight: 600;
+color: #3B82F6;
+cursor: pointer;
+transition: all 0.3s ease;
+line-height: 1.5;
+box-sizing: border-box;
+height: 40px;
+min-height: 40px;
+max-height: 40px;
 }
 
 .btn-select-mode:hover {
-    background: rgba(59, 130, 246, 0.15);
-    border-color: rgba(59, 130, 246, 0.3);
-    transform: translateY(-1px);
+background: rgba(59, 130, 246, 0.15);
+border-color: rgba(59, 130, 246, 0.3);
+transform: translateY(-1px);
 }
 
 .btn-select-mode.active {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3B82F6;
-    border-color: rgba(59, 130, 246, 0.4);
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.4), 0 0 80px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.2);
+background: rgba(59, 130, 246, 0.15);
+color: #3B82F6;
+border-color: rgba(59, 130, 246, 0.4);
+transform: scale(1.05);
+box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.4), 0 0 80px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .btn-select-mode.active:hover {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: rgba(59, 130, 246, 0.5);
-    transform: scale(1.08);
-    box-shadow: 0 0 25px rgba(59, 130, 246, 0.9), 0 0 50px rgba(59, 130, 246, 0.7), 0 0 70px rgba(59, 130, 246, 0.5), 0 0 100px rgba(59, 130, 246, 0.3), 0 6px 16px rgba(59, 130, 246, 0.3);
+background: rgba(59, 130, 246, 0.2);
+border-color: rgba(59, 130, 246, 0.5);
+transform: scale(1.08);
+box-shadow: 0 0 25px rgba(59, 130, 246, 0.9), 0 0 50px rgba(59, 130, 246, 0.7), 0 0 70px rgba(59, 130, 246, 0.5), 0 0 100px rgba(59, 130, 246, 0.3), 0 6px 16px rgba(59, 130, 246, 0.3);
 }
 
 /* Linha selecionada */
 .responses-table tbody tr.response-row.selected {
-    background: rgba(255, 107, 0, 0.1) !important;
-    border-left: 3px solid var(--accent-orange);
-    margin-left: 0;
+background: rgba(255, 107, 0, 0.1) !important;
+border-left: 3px solid var(--accent-orange);
+margin-left: 0;
 }
 
 .responses-table tbody tr.response-row.selected td:first-child {
-    padding-left: calc(1rem - 3px) !important;
+padding-left: calc(1rem - 3px) !important;
 }
 
 /* Garantir que o thead não receba estilos de seleção */
 .responses-table thead tr,
 .responses-table thead th {
-    border-left: none !important;
-    border-right: none !important;
+border-left: none !important;
+border-right: none !important;
 }
 
 /* Garantir que tbody tr não tenha border-left por padrão */
 .responses-table tbody tr {
-    border-left: none !important;
+border-left: none !important;
 }
 
 .response-row.select-mode {
-    cursor: pointer;
+cursor: pointer;
 }
 
 .response-row.select-mode:hover {
-    background: rgba(255, 107, 0, 0.05);
+background: rgba(255, 107, 0, 0.05);
 }
 
 /* Barra de ações flutuante */
 .selection-actions-bar {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 1rem 1.5rem;
-    display: none;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    backdrop-filter: blur(10px);
+position: fixed;
+bottom: 2rem;
+left: 50%;
+transform: translateX(-50%);
+background: linear-gradient(135deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 16px;
+padding: 1rem 1.5rem;
+display: none;
+align-items: center;
+gap: 1rem;
+box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+z-index: 1000;
+backdrop-filter: blur(10px);
 }
 
 .selection-actions-bar.active {
-    display: flex;
+display: flex;
 }
 
 .selection-actions-bar .selected-count {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-right: 0.5rem;
+font-weight: 600;
+color: var(--text-primary);
+margin-right: 0.5rem;
 }
 
 .selection-actions-bar .btn-action {
-    padding: 0.625rem 1.25rem;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-    border: none;
+padding: 0.625rem 1.25rem;
+border-radius: 8px;
+font-size: 0.875rem;
+font-weight: 600;
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+transition: all 0.3s ease;
+border: none;
 }
 
 .selection-actions-bar .btn-delete-selected {
-    background: rgba(239, 68, 68, 0.15);
-    color: #EF4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+background: rgba(239, 68, 68, 0.15);
+color: #EF4444;
+border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .selection-actions-bar .btn-delete-selected:hover {
-    background: rgba(239, 68, 68, 0.25);
-    border-color: #EF4444;
+background: rgba(239, 68, 68, 0.25);
+border-color: #EF4444;
 }
 
 .selection-actions-bar .btn-cancel-selection {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+background: rgba(255, 255, 255, 0.05);
+color: var(--text-primary);
+border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .selection-actions-bar .btn-cancel-selection:hover {
-    background: rgba(255, 255, 255, 0.1);
+background: rgba(255, 255, 255, 0.1);
 }
 
 /* Modal de Chat */
 .chat-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    z-index: 10000;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0, 0, 0, 0.8);
+backdrop-filter: blur(10px);
+z-index: 10000;
+align-items: center;
+justify-content: center;
+padding: 2rem;
 }
 
 .chat-modal.active {
-    display: flex;
+display: flex;
 }
 
 .chat-modal-content {
-    background: rgba(30, 30, 30, 0.98);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    width: 100%;
-    max-width: 600px;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+background: rgba(30, 30, 30, 0.98);
+border: 1px solid var(--glass-border);
+border-radius: 20px;
+width: 100%;
+max-width: 600px;
+max-height: 90vh;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .chat-modal-header {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--glass-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-    position: relative;
+padding: 1rem 1.5rem;
+border-bottom: 1px solid var(--glass-border);
+display: flex;
+align-items: center;
+justify-content: space-between;
+flex-shrink: 0;
+position: relative;
 }
 
 .chat-modal-tabs {
-    display: flex;
-    gap: 0.5rem;
-    border-bottom: 1px solid var(--glass-border);
-    padding: 0 1.5rem;
-    flex-shrink: 0;
+display: flex;
+gap: 0.5rem;
+border-bottom: 1px solid var(--glass-border);
+padding: 0 1.5rem;
+flex-shrink: 0;
 }
 
 .chat-modal-tab {
-    padding: 0.75rem 1rem;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+padding: 0.75rem 1rem;
+background: none;
+border: none;
+color: var(--text-secondary);
+font-size: 0.875rem;
+font-weight: 600;
+cursor: pointer;
+border-bottom: 2px solid transparent;
+transition: all 0.3s ease;
+display: flex;
+align-items: center;
+gap: 0.5rem;
 }
 
 .chat-modal-tab:hover {
-    color: var(--text-primary);
+color: var(--text-primary);
 }
 
 .chat-modal-tab.active {
-    color: var(--accent-orange);
-    border-bottom-color: var(--accent-orange);
+color: var(--accent-orange);
+border-bottom-color: var(--accent-orange);
 }
 
 .chat-modal-tab-content {
-    display: none;
+display: none;
 }
 
 .chat-modal-tab-content.active {
-    display: block;
+display: block;
 }
 
 .chat-summary-content {
-    padding: 1.5rem;
-    line-height: 1.8;
-    color: var(--text-primary);
+padding: 1.5rem;
+line-height: 1.8;
+color: var(--text-primary);
 }
 
 .chat-summary-content.loading {
-    text-align: center;
-    padding: 3rem 1.5rem;
+text-align: center;
+padding: 3rem 1.5rem;
 }
 
 .chat-summary-content.loading i {
-    font-size: 2rem;
-    color: var(--accent-orange);
-    animation: spin 1s linear infinite;
+font-size: 2rem;
+color: var(--accent-orange);
+animation: spin 1s linear infinite;
 }
 
 .chat-summary-content h4 {
-    color: var(--accent-orange);
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-    font-size: 1rem;
+color: var(--accent-orange);
+margin-top: 1.5rem;
+margin-bottom: 0.75rem;
+font-size: 1rem;
 }
 
 .chat-summary-content h4:first-child {
-    margin-top: 0;
+margin-top: 0;
 }
 
 .chat-summary-content p {
-    margin-bottom: 1rem;
-    color: var(--text-secondary);
+margin-bottom: 1rem;
+color: var(--text-secondary);
 }
 
 .chat-summary-content ul {
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-    color: var(--text-secondary);
+margin-left: 1.5rem;
+margin-bottom: 1rem;
+color: var(--text-secondary);
 }
 
 .chat-summary-content li {
-    margin-bottom: 0.5rem;
+margin-bottom: 0.5rem;
 }
 
 .chat-modal-header h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+font-size: 1.25rem;
+font-weight: 700;
+color: var(--text-primary);
+margin: 0;
+display: flex;
+align-items: center;
+gap: 0.75rem;
 }
 
 .chat-modal-close {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
+background: none;
+border: none;
+color: var(--text-secondary);
+font-size: 1.2rem;
+cursor: pointer;
+padding: 0.5rem;
+border-radius: 50%;
+transition: all 0.2s ease;
+display: flex;
+align-items: center;
+justify-content: center;
+width: 32px;
+height: 32px;
 }
 
 .chat-modal-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--accent-orange);
+background: rgba(255, 255, 255, 0.1);
+color: var(--accent-orange);
 }
 
 .chat-modal-body {
-    padding: 1.5rem;
-    overflow-y: auto;
-    flex: 1;
+padding: 1.5rem;
+overflow-y: auto;
+flex: 1;
 }
 
 .chat-message {
-    margin-bottom: 1.5rem;
-    animation: fadeIn 0.3s ease;
+margin-bottom: 1.5rem;
+animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+from {
+opacity: 0;
+transform: translateY(10px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
 }
 
 .chat-message.bot {
-    display: flex;
-    gap: 0.75rem;
+display: flex;
+gap: 0.75rem;
 }
 
 .chat-message.bot .message-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 107, 0, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent-orange);
-    font-size: 0.875rem;
-    font-weight: 700;
-    flex-shrink: 0;
-    overflow: hidden;
+width: 32px;
+height: 32px;
+border-radius: 50%;
+background: rgba(255, 107, 0, 0.2);
+display: flex;
+align-items: center;
+justify-content: center;
+color: var(--accent-orange);
+font-size: 0.875rem;
+font-weight: 700;
+flex-shrink: 0;
+overflow: hidden;
 }
 
 .chat-message.bot .message-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
+width: 100%;
+height: 100%;
+border-radius: 50%;
+object-fit: cover;
 }
 
 .chat-message.bot .message-content {
-    flex: 1;
+flex: 1;
 }
 
 .chat-message.bot .message-bubble {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 1rem;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    line-height: 1.6;
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid var(--glass-border);
+border-radius: 12px;
+padding: 1rem;
+color: var(--text-primary);
+font-size: 0.875rem;
+line-height: 1.6;
 }
 
 .chat-message.user {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
+display: flex;
+justify-content: flex-end;
+gap: 0.75rem;
 }
 
 .chat-message.user .message-content {
-    max-width: 80%;
+max-width: 80%;
 }
 
 .chat-message.user .message-bubble {
-    background: rgba(255, 107, 0, 0.15);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 12px;
-    padding: 1rem;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+background: rgba(255, 107, 0, 0.15);
+border: 1px solid rgba(255, 107, 0, 0.3);
+border-radius: 12px;
+padding: 1rem;
+color: var(--text-primary);
+font-size: 0.875rem;
+line-height: 1.6;
+white-space: pre-wrap;
+word-wrap: break-word;
 }
 
 .chat-message.user .message-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 107, 0, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent-orange);
-    font-size: 0.75rem;
-    font-weight: 700;
-    flex-shrink: 0;
+width: 32px;
+height: 32px;
+border-radius: 50%;
+background: rgba(255, 107, 0, 0.2);
+display: flex;
+align-items: center;
+justify-content: center;
+color: var(--accent-orange);
+font-size: 0.75rem;
+font-weight: 700;
+flex-shrink: 0;
 }
 
 .chat-message.user .message-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
+width: 100%;
+height: 100%;
+border-radius: 50%;
+object-fit: cover;
 }
 
 .chat-message-time {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-top: 0.5rem;
-    padding-left: 0.5rem;
+font-size: 0.75rem;
+color: var(--text-secondary);
+margin-top: 0.5rem;
+padding-left: 0.5rem;
 }
 
 .chat-message.user .chat-message-time {
-    text-align: right;
-    padding-right: 0.5rem;
-    padding-left: 0;
+text-align: right;
+padding-right: 0.5rem;
+padding-left: 0;
 }
 /* Botão do calendário (ícone redondo) - igual ao view_user_diary */
 .diary-calendar-icon-btn {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
-    padding: 0;
-    border-radius: 50%;
-    background: rgba(255, 107, 0, 0.08);
-    border: 1px solid rgba(255, 107, 0, 0.2);
-    color: var(--accent-orange);
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    flex-shrink: 0;
+width: 40px;
+min-width: 40px;
+max-width: 40px;
+height: 40px;
+min-height: 40px;
+max-height: 40px;
+padding: 0;
+border-radius: 50%;
+background: rgba(255, 107, 0, 0.08);
+border: 1px solid rgba(255, 107, 0, 0.2);
+color: var(--accent-orange);
+font-size: 1rem;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: all 0.3s ease;
+flex-shrink: 0;
 }
 
 .diary-calendar-icon-btn:hover {
-    background: rgba(255, 107, 0, 0.15);
-    border-color: var(--accent-orange);
-    transform: translateY(-2px);
+background: rgba(255, 107, 0, 0.15);
+border-color: var(--accent-orange);
+transform: translateY(-2px);
 }
 
 /* Ícone de ajuda do calendário - estilo igual ao sleep-details-icon */
 .chart-calendar-help-icon {
+    position: absolute !important;
+    top: 0.5rem !important;
+    right: 0.5rem !important;
     position: absolute;
     top: 1.5rem;
     right: 4.5rem;
-    color: var(--accent-orange);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
+color: var(--accent-orange);
+font-size: 0.8rem;
+cursor: pointer;
+transition: opacity 0.3s ease;
+    z-index: 2 !important; /* antes era 10 - estourava tudo */
     z-index: 10;
 }
 
 .chart-calendar-help-icon:hover {
-    opacity: 0.7;
+opacity: 0.7;
 }
 
 /* Popup de ajuda do calendário - lateral direita (fora do modal) */
 .chart-calendar-help-popup {
-    position: fixed;
-    top: 15%;
-    right: calc(50% - 240px - 300px);
-    z-index: 1000000; /* Acima do modal (z-index: 999999) e na mesma camada visual do calendário */
-    pointer-events: all;
-    width: 280px;
-    max-width: calc(100vw - 2rem);
+position: fixed;
+top: 15%;
+right: calc(50% - 240px - 300px);
+z-index: 1000000; /* Acima do modal (z-index: 999999) e na mesma camada visual do calendário */
+pointer-events: all;
+width: 280px;
+max-width: calc(100vw - 2rem);
 }
 
 .chart-calendar-help-popup-content {
-    background: var(--card-bg);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 12px;
-    padding: 1.25rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    position: relative;
+background: var(--card-bg);
+border: 1px solid rgba(255, 107, 0, 0.3);
+border-radius: 12px;
+padding: 1.25rem;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+position: relative;
 }
 
 .chart-calendar-help-popup-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 50%;
-    width: 1.75rem;
-    height: 1.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
+position: absolute;
+top: 0.75rem;
+right: 0.75rem;
+background: none;
+border: none;
+color: var(--text-secondary);
+font-size: 1rem;
+cursor: pointer;
+padding: 0.25rem;
+border-radius: 50%;
+width: 1.75rem;
+height: 1.75rem;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.3s ease;
 }
 
 .chart-calendar-help-popup-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--accent-orange);
+background: rgba(255, 255, 255, 0.1);
+color: var(--accent-orange);
 }
 
 .chart-calendar-help-popup-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--accent-orange);
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    font-family: 'Montserrat', sans-serif;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+color: var(--accent-orange);
+font-size: 0.875rem;
+font-weight: 600;
+margin-bottom: 0.75rem;
+font-family: 'Montserrat', sans-serif;
 }
 
 .chart-calendar-help-popup-header i {
-    font-size: 1rem;
+font-size: 1rem;
 }
 
 .chart-calendar-help-popup-body {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    line-height: 1.6;
-    font-family: 'Montserrat', sans-serif;
+color: var(--text-secondary);
+font-size: 0.875rem;
+line-height: 1.6;
+font-family: 'Montserrat', sans-serif;
 }
 
 .chart-calendar-help-popup-body p {
-    margin: 0 0 0.5rem 0;
+margin: 0 0 0.5rem 0;
 }
 
 .chart-calendar-help-popup-tip {
-    margin-top: 0.75rem !important;
-    padding-top: 0.75rem !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-    font-weight: 500 !important;
-    color: var(--text-primary) !important;
+margin-top: 0.75rem !important;
+padding-top: 0.75rem !important;
+border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+font-weight: 500 !important;
+color: var(--text-primary) !important;
 }
 
 .chart-calendar-help-popup-tip strong {
-    color: var(--accent-orange);
+color: var(--accent-orange);
 }
 
 /* Responsivo */
 @media (max-width: 768px) {
-    .chart-calendar-help-popup {
-        position: fixed !important;
-        top: 2rem !important;
-        right: 1rem !important;
-        left: auto !important;
-        transform: none !important;
-        max-width: calc(100vw - 2rem);
-        width: calc(100vw - 2rem) !important;
-    }
-    
-    .chart-calendar-help-icon {
-        top: 1rem;
-        right: 4rem;
-        font-size: 0.9rem;
-    }
+.chart-calendar-help-popup {
+position: fixed !important;
+top: 2rem !important;
+right: 1rem !important;
+left: auto !important;
+transform: none !important;
+max-width: calc(100vw - 2rem);
+width: calc(100vw - 2rem) !important;
+}
+
+.chart-calendar-help-icon {
+top: 1rem;
+right: 4rem;
+font-size: 0.9rem;
+}
 }
 
 /* Estilos do calendário (replicados do view_user_addon.css) */
 .diary-calendar-wrapper {
-    position: relative;
-    background: linear-gradient(145deg, rgba(30, 30, 30, 0.98), rgba(20, 20, 20, 0.98));
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 2.5rem;
-    max-width: 480px;
-    width: 90%;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8);
-    z-index: 1000000;
+position: relative;
+background: linear-gradient(145deg, rgba(30, 30, 30, 0.98), rgba(20, 20, 20, 0.98));
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 20px;
+padding: 2.5rem;
+max-width: 480px;
+width: 90%;
+box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8);
+z-index: 1000000;
 }
 
 .calendar-btn-close {
-    position: absolute !important;
-    top: 1rem !important;
-    right: 1rem !important;
-    background: none !important;
-    border: none !important;
-    color: var(--text-secondary) !important;
-    font-size: 1.2rem !important;
-    cursor: pointer !important;
-    padding: 0.5rem !important;
-    border-radius: 50% !important;
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.3s ease !important;
-    z-index: 10 !important;
+position: absolute !important;
+top: 1rem !important;
+right: 1rem !important;
+background: none !important;
+border: none !important;
+color: var(--text-secondary) !important;
+font-size: 1.2rem !important;
+cursor: pointer !important;
+padding: 0.5rem !important;
+border-radius: 50% !important;
+width: 2.5rem !important;
+height: 2.5rem !important;
+display: flex !important;
+align-items: center !important;
+justify-content: center !important;
+transition: all 0.3s ease !important;
+z-index: 10 !important;
 }
 
 .calendar-btn-close:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: var(--accent-orange) !important;
+background: rgba(255, 255, 255, 0.1) !important;
+color: var(--accent-orange) !important;
 }
 
 .calendar-header-title {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+margin-bottom: 1rem;
 }
 
 .calendar-year {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    font-weight: 400;
-    margin-bottom: 0.25rem;
-    font-family: 'Montserrat', sans-serif;
+font-size: 1rem;
+color: var(--text-secondary);
+font-weight: 400;
+margin-bottom: 0.25rem;
+font-family: 'Montserrat', sans-serif;
 }
 
 .calendar-nav-buttons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
-    margin-bottom: 2rem;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 2rem;
+margin-bottom: 2rem;
 }
 
 .calendar-month {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--accent-orange);
-    letter-spacing: 1px;
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-    min-width: 80px;
-    text-align: center;
+font-size: 2rem;
+font-weight: 700;
+color: var(--accent-orange);
+letter-spacing: 1px;
+margin: 0;
+font-family: 'Montserrat', sans-serif;
+min-width: 80px;
+text-align: center;
 }
 
 .calendar-btn-nav {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+width: 40px;
+height: 40px;
+border-radius: 10px;
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(255, 255, 255, 0.1);
+color: var(--text-secondary);
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: all 0.3s ease;
 }
 
 .calendar-btn-nav:hover {
-    background: rgba(255, 107, 0, 0.1);
-    border-color: rgba(255, 107, 0, 0.3);
-    color: var(--accent-orange);
+background: rgba(255, 107, 0, 0.1);
+border-color: rgba(255, 107, 0, 0.3);
+color: var(--accent-orange);
 }
 
 .calendar-btn-nav.disabled {
-    background: rgba(255, 255, 255, 0.02);
-    border-color: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
-    opacity: 0.3;
-    cursor: not-allowed;
+background: rgba(255, 255, 255, 0.02);
+border-color: rgba(255, 255, 255, 0.05);
+color: var(--text-secondary);
+opacity: 0.3;
+cursor: not-allowed;
 }
 
 .calendar-weekdays-row {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    text-align: center;
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 0.5rem;
+margin-bottom: 1rem;
+text-align: center;
 }
 
 .calendar-weekdays-row span {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--accent-orange);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-family: 'Montserrat', sans-serif;
+font-size: 0.75rem;
+font-weight: 600;
+color: var(--accent-orange);
+text-transform: uppercase;
+letter-spacing: 0.05em;
+font-family: 'Montserrat', sans-serif;
 }
 
 .calendar-days-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 2rem;
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 0.5rem;
+margin-bottom: 2rem;
 }
 
 .calendar-day {
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'Montserrat', sans-serif;
+aspect-ratio: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+border-radius: 8px;
+background: rgba(255, 255, 255, 0.03);
+border: 1px solid rgba(255, 255, 255, 0.08);
+color: var(--text-secondary);
+font-size: 0.875rem;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.2s ease;
+font-family: 'Montserrat', sans-serif;
 }
 
 .calendar-day.empty {
-    background: transparent;
-    border: none;
-    cursor: default;
+background: transparent;
+border: none;
+cursor: default;
 }
 
 .calendar-day.current-month {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.15);
+background: rgba(255, 255, 255, 0.08);
+color: var(--text-primary);
+border-color: rgba(255, 255, 255, 0.15);
 }
 
 .calendar-day.other-month {
-    background: rgba(255, 255, 255, 0.01);
-    color: var(--text-secondary);
-    opacity: 0.2;
-    cursor: default;
-    border-color: rgba(255, 255, 255, 0.03);
+background: rgba(255, 255, 255, 0.01);
+color: var(--text-secondary);
+opacity: 0.2;
+cursor: default;
+border-color: rgba(255, 255, 255, 0.03);
 }
 
 .calendar-day.future-day {
-    background: rgba(255, 255, 255, 0.01);
-    color: var(--text-secondary);
-    opacity: 0.2;
-    cursor: default;
-    border-color: rgba(255, 255, 255, 0.03);
+background: rgba(255, 255, 255, 0.01);
+color: var(--text-secondary);
+opacity: 0.2;
+cursor: default;
+border-color: rgba(255, 255, 255, 0.03);
 }
 
 .calendar-day:not(.empty):not(.other-month):not(.future-day):hover {
-    transform: scale(1.05);
+transform: scale(1.05);
 }
 
 .calendar-day.has-data {
-    background: rgba(255, 107, 0, 0.1);
-    border-color: rgba(255, 107, 0, 0.3);
-    color: var(--accent-orange);
-    font-weight: 600;
+background: rgba(255, 107, 0, 0.1);
+border-color: rgba(255, 107, 0, 0.3);
+color: var(--accent-orange);
+font-weight: 600;
 }
 
 .calendar-day.today {
-    background: var(--accent-orange);
-    color: white;
-    border-color: var(--accent-orange);
-    font-weight: 700;
+background: var(--accent-orange);
+color: white;
+border-color: var(--accent-orange);
+font-weight: 700;
 }
 
 .calendar-day.has-data.today {
-    background: var(--accent-orange);
-    color: white;
-    border-color: var(--accent-orange);
-    font-weight: 700;
+background: var(--accent-orange);
+color: white;
+border-color: var(--accent-orange);
+font-weight: 700;
 }
 
 .calendar-day.selected-start {
-    background: rgba(255, 107, 0, 0.3) !important;
-    color: var(--accent-orange) !important;
-    border-color: var(--accent-orange) !important;
-    border-width: 2px !important;
-    font-weight: 700 !important;
-    box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2) !important;
+background: rgba(255, 107, 0, 0.3) !important;
+color: var(--accent-orange) !important;
+border-color: var(--accent-orange) !important;
+border-width: 2px !important;
+font-weight: 700 !important;
+box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2) !important;
 }
 
 .calendar-day.selected-start.today {
-    background: var(--accent-orange) !important;
-    color: white !important;
-    border-color: var(--accent-orange) !important;
-    border-width: 2px !important;
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.4) !important;
+background: var(--accent-orange) !important;
+color: white !important;
+border-color: var(--accent-orange) !important;
+border-width: 2px !important;
+box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.4) !important;
 }
 
 .calendar-day.selected-range {
-    background: rgba(255, 107, 0, 0.2) !important;
-    border-color: rgba(255, 107, 0, 0.5) !important;
-    color: var(--accent-orange) !important;
-    font-weight: 600 !important;
+background: rgba(255, 107, 0, 0.2) !important;
+border-color: rgba(255, 107, 0, 0.5) !important;
+color: var(--accent-orange) !important;
+font-weight: 600 !important;
 }
 
 .calendar-separator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 1.5rem 0;
-    gap: 1rem;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 1.5rem 0;
+gap: 1rem;
 }
 
 .separator-line {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent-orange), transparent);
-    flex: 1;
-    position: relative;
+height: 1px;
+background: linear-gradient(90deg, transparent, var(--accent-orange), transparent);
+flex: 1;
+position: relative;
 }
 
 .separator-dots {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
+display: flex;
+gap: 0.5rem;
+align-items: center;
 }
 
 .dot {
-    width: 4px;
-    height: 4px;
-    background: var(--accent-orange);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent-orange);
-    animation: pulse 2s infinite;
+width: 4px;
+height: 4px;
+background: var(--accent-orange);
+border-radius: 50%;
+box-shadow: 0 0 8px var(--accent-orange);
+animation: pulse 2s infinite;
 }
 
 .dot:nth-child(2) {
-    animation-delay: 0.3s;
+animation-delay: 0.3s;
 }
 
 .dot:nth-child(3) {
-    animation-delay: 0.6s;
+animation-delay: 0.6s;
 }
 
 @keyframes pulse {
-    0%, 100% {
-        opacity: 0.4;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.2);
-    }
+0%, 100% {
+opacity: 0.4;
+transform: scale(1);
+}
+50% {
+opacity: 1;
+transform: scale(1.2);
+}
 }
 
 .calendar-footer-legend {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.875rem;
-    padding-top: 0;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 0.875rem;
+padding-top: 0;
 }
 
 .legend-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+display: flex;
+align-items: center;
+gap: 0.75rem;
 }
 
 .legend-marker {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-    flex-shrink: 0;
+width: 16px;
+height: 16px;
+border-radius: 4px;
+flex-shrink: 0;
 }
 
 .legend-marker.today-marker {
-    background: var(--accent-orange);
+background: var(--accent-orange);
 }
 
 .legend-marker.has-data-marker {
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
+background: rgba(255, 107, 0, 0.1);
+border: 1px solid rgba(255, 107, 0, 0.3);
 }
 
 .legend-marker.no-data-marker {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+background: rgba(255, 255, 255, 0.03);
+border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .legend-text {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-family: 'Montserrat', sans-serif;
+font-size: 0.75rem;
+color: var(--text-secondary);
+font-family: 'Montserrat', sans-serif;
 }
 
 .calendar-quick-btn {
-    width: 100%;
-    padding: 1rem 1.5rem;
-    background: rgba(255, 107, 0, 0.1);
-    border: 1px solid rgba(255, 107, 0, 0.3);
-    border-radius: 12px;
-    color: var(--accent-orange);
-    font-size: 0.95rem;
-    font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
+width: 100%;
+padding: 1rem 1.5rem;
+background: rgba(255, 107, 0, 0.1);
+border: 1px solid rgba(255, 107, 0, 0.3);
+border-radius: 12px;
+color: var(--accent-orange);
+font-size: 0.95rem;
+font-weight: 600;
+font-family: 'Montserrat', sans-serif;
+cursor: pointer;
+transition: all 0.3s ease;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.75rem;
 }
 
 .calendar-quick-btn:hover {
-    background: rgba(255, 107, 0, 0.15);
-    border-color: var(--accent-orange);
-    transform: translateY(-2px);
+background: rgba(255, 107, 0, 0.15);
+border-color: var(--accent-orange);
+transform: translateY(-2px);
 }
 
 .calendar-quick-btn i {
-    font-size: 1.1rem;
+font-size: 1.1rem;
 }
 
 </style>
 
 <div class="checkin-responses-page">
-    <a href="checkin.php" class="back-link">
-        <i class="fas fa-arrow-left"></i> Voltar para Check-ins
-    </a>
+<a href="checkin.php" class="back-link">
+<i class="fas fa-arrow-left"></i> Voltar para Check-ins
+</a>
 
-    <div class="header-card">
-        <div class="header-title">
-            <div>
-        <h2><?php echo htmlspecialchars($checkin['name']); ?></h2>
-                <p><?php echo htmlspecialchars($checkin['description'] ?? ''); ?></p>
-            </div>
-        </div>
-    </div>
+<div class="header-card">
+<div class="header-title">
+<div>
+<h2><?php echo htmlspecialchars($checkin['name']); ?></h2>
+<p><?php echo htmlspecialchars($checkin['description'] ?? ''); ?></p>
+</div>
+</div>
+</div>
 
-    <div class="filters-section">
-        <div class="left-side">
-            <div class="submissions-count">
-                <span>Respostas</span>
-                <span class="badge"><?php echo $total_count; ?></span>
-            </div>
-            <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
-                <i class="fas fa-mouse-pointer"></i>
-                <span>Selecionar</span>
-            </button>
-        </div>
-        <div class="right-side calendar-wrapper">
-            <button class="period-btn active" onclick="openCheckinCalendar()" type="button" id="checkin-period-btn" title="Selecionar período">
-                <i class="fas fa-calendar-alt"></i> <span id="checkin-period-text"><?php echo htmlspecialchars($period_label); ?></span>
-            </button>
-        </div>
-    </div>
+<div class="filters-section">
+<div class="left-side">
+<div class="submissions-count">
+<span>Respostas</span>
+<span class="badge"><?php echo $total_count; ?></span>
+</div>
+<button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
+<i class="fas fa-mouse-pointer"></i>
+<span>Selecionar</span>
+</button>
+</div>
+<div class="right-side calendar-wrapper">
+<button class="period-btn active" onclick="openCheckinCalendar()" type="button" id="checkin-period-btn" title="Selecionar período">
+<i class="fas fa-calendar-alt"></i> <span id="checkin-period-text"><?php echo htmlspecialchars($period_label); ?></span>
+</button>
+</div>
+</div>
 
-    <?php if (empty($users)): ?>
-        <div class="empty-state">
-            <i class="fas fa-inbox"></i>
-            <h3>Nenhuma resposta ainda</h3>
-            <p>Os pacientes ainda não responderam este check-in.</p>
-        </div>
-    <?php else: ?>
-        <div class="table-container">
-            <div class="table-wrapper">
-                <table class="responses-table">
-                    <thead>
-                        <tr>
-                            <th>
-                                <i class="fas fa-clock"></i> Enviado em
-                            </th>
-                            <th>
-                                <i class="fas fa-user"></i> Nome
-                            </th>
-                            <th style="width: 80px; text-align: center;">
-                                <i class="fas fa-cog"></i>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($users as $key => $user): ?>
-                            <?php
-                            $date = new DateTime($user['completed_at']);
-                            $formatted_date = $date->format('d/m/Y');
-                            $formatted_time = $date->format('H:i');
-                            
-                            $name_parts = explode(' ', trim($user['user_name']));
-                            $initials = count($name_parts) > 1 
-                                ? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) 
-                                : (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : 'U');
-                            ?>
-                            <tr data-user-key="<?php echo htmlspecialchars($key); ?>" data-user-id="<?php echo $user['user_id']; ?>" data-response-date="<?php echo $response_date; ?>" class="response-row">
-                                <td onclick="handleRowClick('<?php echo htmlspecialchars($key); ?>', event)" style="cursor: pointer;">
-                                    <div class="table-date">
-                                        <i class="fas fa-calendar"></i>
-                                        <span><?php echo $formatted_date . ',&nbsp;' . $formatted_time; ?></span>
-                                    </div>
-                                </td>
-                                <td onclick="handleRowClick('<?php echo htmlspecialchars($key); ?>', event)" style="cursor: pointer;">
-                                    <div class="table-user">
-                                        <div class="table-user-avatar">
-                                            <?php if (!empty($user['profile_image_filename']) && file_exists(APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'])): ?>
-                                                <img src="<?php echo BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']); ?>" alt="<?php echo htmlspecialchars($user['user_name']); ?>">
-                                            <?php else: ?>
-                                                <?php echo $initials; ?>
-                        <?php endif; ?>
-                    </div>
-                                        <span class="table-user-name"><?php echo htmlspecialchars($user['user_name']); ?></span>
-                    </div>
-                                </td>
-                                <td onclick="event.stopPropagation();" style="text-align: center;">
-                                    <button class="btn-delete-response" onclick="showDeleteResponseModal('<?php echo htmlspecialchars($key); ?>', '<?php echo htmlspecialchars($user['user_name']); ?>', '<?php echo $formatted_date; ?>')" title="Excluir resposta">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    <?php endif; ?>
-                </div>
+<?php if (empty($users)): ?>
+<div class="empty-state">
+<i class="fas fa-inbox"></i>
+<h3>Nenhuma resposta ainda</h3>
+<p>Os pacientes ainda não responderam este check-in.</p>
+</div>
+<?php else: ?>
+<div class="table-container">
+<div class="table-wrapper">
+<table class="responses-table">
+<thead>
+<tr>
+<th>
+<i class="fas fa-clock"></i> Enviado em
+</th>
+<th>
+<i class="fas fa-user"></i> Nome
+</th>
+<th style="width: 80px; text-align: center;">
+<i class="fas fa-cog"></i>
+</th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($users as $key => $user): ?>
+<?php
+$date = new DateTime($user['completed_at']);
+$formatted_date = $date->format('d/m/Y');
+$formatted_time = $date->format('H:i');
+
+$name_parts = explode(' ', trim($user['user_name']));
+$initials = count($name_parts) > 1 
+? strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1)) 
+: (!empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 2)) : 'U');
+?>
+<tr data-user-key="<?php echo htmlspecialchars($key); ?>" data-user-id="<?php echo $user['user_id']; ?>" data-response-date="<?php echo $response_date; ?>" class="response-row">
+<td onclick="handleRowClick('<?php echo htmlspecialchars($key); ?>', event)" style="cursor: pointer;">
+<div class="table-date">
+<i class="fas fa-calendar"></i>
+<span><?php echo $formatted_date . ',&nbsp;' . $formatted_time; ?></span>
+</div>
+</td>
+<td onclick="handleRowClick('<?php echo htmlspecialchars($key); ?>', event)" style="cursor: pointer;">
+<div class="table-user">
+<div class="table-user-avatar">
+<?php if (!empty($user['profile_image_filename']) && file_exists(APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'])): ?>
+<img src="<?php echo BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']); ?>" alt="<?php echo htmlspecialchars($user['user_name']); ?>">
+<?php else: ?>
+<?php echo $initials; ?>
+<?php endif; ?>
+</div>
+<span class="table-user-name"><?php echo htmlspecialchars($user['user_name']); ?></span>
+</div>
+</td>
+<td onclick="event.stopPropagation();" style="text-align: center;">
+<button class="btn-delete-response" onclick="showDeleteResponseModal('<?php echo htmlspecialchars($key); ?>', '<?php echo htmlspecialchars($user['user_name']); ?>', '<?php echo $formatted_date; ?>')" title="Excluir resposta">
+<i class="fas fa-trash-alt"></i>
+</button>
+</td>
+</tr>
+<?php endforeach; ?>
+</tbody>
+</table>
+</div>
+</div>
+<?php endif; ?>
+</div>
 
 <!-- Modal de Chat -->
 <div class="chat-modal" id="chatModal">
-    <div class="chat-modal-content">
-        <div class="chat-modal-header">
-            <h3 id="chatModalUserName"></h3>
-            <button class="chat-modal-close" onclick="closeChatModal()" type="button">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="chat-modal-tabs">
-            <button class="chat-modal-tab active" data-tab="chat" onclick="switchTab('chat')">
-                <i class="fas fa-comments"></i>
-                Chat
-            </button>
-            <button class="chat-modal-tab" data-tab="summary" onclick="switchTab('summary')">
-                <i class="fas fa-file-alt"></i>
-                Resumo
-            </button>
-        </div>
-        <div class="chat-modal-body">
-            <div class="chat-modal-tab-content active" id="chatTabContent">
-                <div id="chatModalBody">
-                    <!-- Conteúdo do chat será inserido aqui via JavaScript -->
-                </div>
-            </div>
-            <div class="chat-modal-tab-content" id="summaryTabContent">
-                <div class="chat-summary-content loading" id="summaryContent">
-                    <i class="fas fa-spinner"></i>
-                    <p style="margin-top: 1rem;">Gerando resumo...</p>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="chat-modal-content">
+<div class="chat-modal-header">
+<h3 id="chatModalUserName"></h3>
+<button class="chat-modal-close" onclick="closeChatModal()" type="button">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="chat-modal-tabs">
+<button class="chat-modal-tab active" data-tab="chat" onclick="switchTab('chat')">
+<i class="fas fa-comments"></i>
+Chat
+</button>
+<button class="chat-modal-tab" data-tab="summary" onclick="switchTab('summary')">
+<i class="fas fa-file-alt"></i>
+Resumo
+</button>
+</div>
+<div class="chat-modal-body">
+<div class="chat-modal-tab-content active" id="chatTabContent">
+<div id="chatModalBody">
+<!-- Conteúdo do chat será inserido aqui via JavaScript -->
+</div>
+</div>
+<div class="chat-modal-tab-content" id="summaryTabContent">
+<div class="chat-summary-content loading" id="summaryContent">
+<i class="fas fa-spinner"></i>
+<p style="margin-top: 1rem;">Gerando resumo...</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 
 <!-- Modal de Confirmação de Exclusão -->
 <div id="deleteResponseModal" class="custom-modal">
-    <div class="custom-modal-overlay" onclick="closeDeleteResponseModal()"></div>
-    <div class="custom-modal-content">
-        <div class="custom-modal-header" style="color: var(--danger-red);">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Excluir Resposta</h3>
-        </div>
-        <div class="custom-modal-body">
-            <p><strong>ATENÇÃO: Esta ação não pode ser desfeita!</strong></p>
-            <p>Tem certeza que deseja excluir permanentemente a resposta de <strong id="delete-response-user-name"></strong> do dia <strong id="delete-response-date"></strong>?</p>
-            <p style="color: var(--danger-red); font-weight: 600;">Esta ação é IRREVERSÍVEL!</p>
-        </div>
-        <div class="custom-modal-footer">
-            <button class="btn-modal-cancel" onclick="closeDeleteResponseModal()">
-                <i class="fas fa-times"></i> Cancelar
-            </button>
-            <button class="btn-modal-danger" onclick="confirmDeleteResponse()">
-                <i class="fas fa-trash-alt"></i> Excluir Permanentemente
-            </button>
-        </div>
-    </div>
+<div class="custom-modal-overlay" onclick="closeDeleteResponseModal()"></div>
+<div class="custom-modal-content">
+<div class="custom-modal-header" style="color: var(--danger-red);">
+<i class="fas fa-exclamation-triangle"></i>
+<h3>Excluir Resposta</h3>
+</div>
+<div class="custom-modal-body">
+<p><strong>ATENÇÃO: Esta ação não pode ser desfeita!</strong></p>
+<p>Tem certeza que deseja excluir permanentemente a resposta de <strong id="delete-response-user-name"></strong> do dia <strong id="delete-response-date"></strong>?</p>
+<p style="color: var(--danger-red); font-weight: 600;">Esta ação é IRREVERSÍVEL!</p>
+</div>
+<div class="custom-modal-footer">
+<button class="btn-modal-cancel" onclick="closeDeleteResponseModal()">
+<i class="fas fa-times"></i> Cancelar
+</button>
+<button class="btn-modal-danger" onclick="confirmDeleteResponse()">
+<i class="fas fa-trash-alt"></i> Excluir Permanentemente
+</button>
+</div>
+</div>
 </div>
 
 <!-- Barra de Ações de Seleção -->
 <div id="selectionActionsBar" class="selection-actions-bar">
-    <span class="selected-count" id="selectedCount">0 selecionadas</span>
-    <button class="btn-action btn-delete-selected" onclick="deleteSelectedResponses()">
-        <i class="fas fa-trash-alt"></i>
-        Excluir Selecionadas
-    </button>
-    <button class="btn-action btn-cancel-selection" onclick="toggleSelectMode()">
-        <i class="fas fa-times"></i>
-        Cancelar
-    </button>
+<span class="selected-count" id="selectedCount">0 selecionadas</span>
+<button class="btn-action btn-delete-selected" onclick="deleteSelectedResponses()">
+<i class="fas fa-trash-alt"></i>
+Excluir Selecionadas
+</button>
+<button class="btn-action btn-cancel-selection" onclick="toggleSelectMode()">
+<i class="fas fa-times"></i>
+Cancelar
+</button>
 </div>
 
 <!-- Modal de Alerta (Sucesso/Erro) -->
 <div id="alertModal" class="custom-modal">
-    <div class="custom-modal-overlay" onclick="closeAlertModal()"></div>
-    <div class="custom-modal-content custom-modal-small">
-        <div class="custom-modal-header" id="alertModalHeader">
-            <i id="alertModalIcon"></i>
-            <h3 id="alertModalTitle"></h3>
-        </div>
-        <div class="custom-modal-body">
-            <p id="alertModalMessage"></p>
-        </div>
-        <div class="custom-modal-footer">
-            <button class="btn-modal-primary" onclick="closeAlertModal()">
-                OK
-            </button>
-        </div>
-    </div>
+<div class="custom-modal-overlay" onclick="closeAlertModal()"></div>
+<div class="custom-modal-content custom-modal-small">
+<div class="custom-modal-header" id="alertModalHeader">
+<i id="alertModalIcon"></i>
+<h3 id="alertModalTitle"></h3>
+</div>
+<div class="custom-modal-body">
+<p id="alertModalMessage"></p>
+</div>
+<div class="custom-modal-footer">
+<button class="btn-modal-primary" onclick="closeAlertModal()">
+OK
+</button>
+</div>
+</div>
 </div>
 
 <!-- Modal de Calendário para Check-in -->
 <div id="checkinCalendarModal" class="custom-modal">
-    <div class="custom-modal-overlay" onclick="closeCheckinCalendar()"></div>
-    <div class="diary-calendar-wrapper">
-        <button class="calendar-btn-close" onclick="closeCheckinCalendar()" type="button">
-            <i class="fas fa-times"></i>
-        </button>
-        
-        <div class="calendar-header-title">
-            <div class="calendar-year" id="checkinCalendarYear"></div>
-        </div>
-        
-        <!-- Botão de Últimos 7 dias -->
-        <div style="margin-bottom: 1.5rem;">
-            <button class="calendar-quick-btn" onclick="selectCheckinPeriod('last7')">
-                <i class="fas fa-clock"></i>
-                <span>Últimos 7 dias</span>
-            </button>
-        </div>
-        
-        <div class="calendar-nav-buttons">
-            <button class="calendar-btn-nav" onclick="changeCheckinCalendarMonth(-1)" type="button">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="calendar-month" id="checkinCalendarMonth"></div>
-            <button class="calendar-btn-nav" id="checkinNextMonthBtn" onclick="changeCheckinCalendarMonth(1)" type="button">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-        
-        <div class="calendar-weekdays-row">
-            <span>DOM</span>
-            <span>SEG</span>
-            <span>TER</span>
-            <span>QUA</span>
-            <span>QUI</span>
-            <span>SEX</span>
-            <span>SÁB</span>
-        </div>
-        
-        <div class="calendar-days-grid" id="checkinCalendarDaysGrid"></div>
-        
-        <div class="calendar-separator">
-            <div class="separator-line"></div>
-            <div class="separator-dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-            <div class="separator-line"></div>
-        </div>
-        
-        <!-- Ícone de ajuda para abrir popup de instruções -->
-        <i class="fas fa-question-circle chart-calendar-help-icon" onclick="toggleCheckinCalendarHelp()" title="Ajuda - Como usar o calendário"></i>
-        
-        <div class="calendar-footer-legend">
-            <div class="legend-row">
-                <span class="legend-marker today-marker"></span>
-                <span class="legend-text">Hoje</span>
-            </div>
-            <div class="legend-row">
-                <span class="legend-marker has-data-marker"></span>
-                <span class="legend-text">Com check-in</span>
-            </div>
-            <div class="legend-row">
-                <span class="legend-marker no-data-marker"></span>
-                <span class="legend-text">Sem check-in</span>
-            </div>
-        </div>
-    </div>
+<div class="custom-modal-overlay" onclick="closeCheckinCalendar()"></div>
+<div class="diary-calendar-wrapper">
+<button class="calendar-btn-close" onclick="closeCheckinCalendar()" type="button">
+<i class="fas fa-times"></i>
+</button>
+
+<div class="calendar-header-title">
+<div class="calendar-year" id="checkinCalendarYear"></div>
+</div>
+
+<!-- Botão de Últimos 7 dias -->
+<div style="margin-bottom: 1.5rem;">
+<button class="calendar-quick-btn" onclick="selectCheckinPeriod('last7')">
+<i class="fas fa-clock"></i>
+<span>Últimos 7 dias</span>
+</button>
+</div>
+
+<div class="calendar-nav-buttons">
+<button class="calendar-btn-nav" onclick="changeCheckinCalendarMonth(-1)" type="button">
+<i class="fas fa-chevron-left"></i>
+</button>
+<div class="calendar-month" id="checkinCalendarMonth"></div>
+<button class="calendar-btn-nav" id="checkinNextMonthBtn" onclick="changeCheckinCalendarMonth(1)" type="button">
+<i class="fas fa-chevron-right"></i>
+</button>
+</div>
+
+<div class="calendar-weekdays-row">
+<span>DOM</span>
+<span>SEG</span>
+<span>TER</span>
+<span>QUA</span>
+<span>QUI</span>
+<span>SEX</span>
+<span>SÁB</span>
+</div>
+
+<div class="calendar-days-grid" id="checkinCalendarDaysGrid"></div>
+
+<div class="calendar-separator">
+<div class="separator-line"></div>
+<div class="separator-dots">
+<div class="dot"></div>
+<div class="dot"></div>
+<div class="dot"></div>
+</div>
+<div class="separator-line"></div>
+</div>
+
+<!-- Ícone de ajuda para abrir popup de instruções -->
+<i class="fas fa-question-circle chart-calendar-help-icon" onclick="toggleCheckinCalendarHelp()" title="Ajuda - Como usar o calendário"></i>
+
+<div class="calendar-footer-legend">
+<div class="legend-row">
+<span class="legend-marker today-marker"></span>
+<span class="legend-text">Hoje</span>
+</div>
+<div class="legend-row">
+<span class="legend-marker has-data-marker"></span>
+<span class="legend-text">Com check-in</span>
+</div>
+<div class="legend-row">
+<span class="legend-marker no-data-marker"></span>
+<span class="legend-text">Sem check-in</span>
+</div>
+</div>
+</div>
 </div>
 
 <!-- Popup de ajuda do calendário - lateral direita (fora do modal) -->
 <div id="checkinCalendarHelpPopup" class="chart-calendar-help-popup" style="display: none;">
-    <div class="chart-calendar-help-popup-content">
-        <button class="chart-calendar-help-popup-close" onclick="toggleCheckinCalendarHelp()">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="chart-calendar-help-popup-header">
-            <i class="fas fa-info-circle"></i>
-            <span>Selecione um período</span>
-        </div>
-        <div class="chart-calendar-help-popup-body">
-            <p>Clique em uma data para início, depois em outra para fim</p>
-            <p class="chart-calendar-help-popup-tip">
-                <strong>Dica:</strong> Dê duplo clique em um dia para ver apenas esse dia específico
-            </p>
-        </div>
-    </div>
+<div class="chart-calendar-help-popup-content">
+<button class="chart-calendar-help-popup-close" onclick="toggleCheckinCalendarHelp()">
+<i class="fas fa-times"></i>
+</button>
+<div class="chart-calendar-help-popup-header">
+<i class="fas fa-info-circle"></i>
+<span>Selecione um período</span>
+</div>
+<div class="chart-calendar-help-popup-body">
+<p>Clique em uma data para início, depois em outra para fim</p>
+<p class="chart-calendar-help-popup-tip">
+<strong>Dica:</strong> Dê duplo clique em um dia para ver apenas esse dia específico
+</p>
+</div>
+</div>
 </div>
 
 <script>
@@ -2178,239 +2189,239 @@ const questionsData = <?php echo json_encode($questions); ?>;
 let currentUserKey = null;
 
 function switchTab(tabName) {
-    // Atualizar abas
-    document.querySelectorAll('.chat-modal-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelector(`.chat-modal-tab[data-tab="${tabName}"]`).classList.add('active');
-    
-    // Atualizar conteúdo
-    document.querySelectorAll('.chat-modal-tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    document.getElementById(`${tabName}TabContent`).classList.add('active');
-    
-    // Se for a aba de resumo e ainda não foi carregado, carregar
-    if (tabName === 'summary' && currentUserKey) {
-        loadSummary(currentUserKey);
-    }
+// Atualizar abas
+document.querySelectorAll('.chat-modal-tab').forEach(tab => {
+tab.classList.remove('active');
+});
+document.querySelector(`.chat-modal-tab[data-tab="${tabName}"]`).classList.add('active');
+
+// Atualizar conteúdo
+document.querySelectorAll('.chat-modal-tab-content').forEach(content => {
+content.classList.remove('active');
+});
+document.getElementById(`${tabName}TabContent`).classList.add('active');
+
+// Se for a aba de resumo e ainda não foi carregado, carregar
+if (tabName === 'summary' && currentUserKey) {
+loadSummary(currentUserKey);
+}
 }
 
 function openChatModal(userKey) {
-    const user = usersData[userKey];
-    if (!user) return;
-    
-    currentUserKey = userKey;
-    
-    const modal = document.getElementById('chatModal');
-    const modalBody = document.getElementById('chatModalBody');
-    const modalUserName = document.getElementById('chatModalUserName');
-    
-    // Nome do usuário
-    modalUserName.textContent = user.user_name;
-    
-    // Limpar conteúdo anterior
-    modalBody.innerHTML = '';
-    
-    // Resetar para aba de chat
-    switchTab('chat');
-    
-    // Limpar resumo anterior
-    const summaryContent = document.getElementById('summaryContent');
-    summaryContent.className = 'chat-summary-content loading';
-    summaryContent.innerHTML = '<i class="fas fa-spinner"></i><p style="margin-top: 1rem;">Gerando resumo...</p>';
-    
-    // Criar mensagens do chat
-    const questionIds = Object.keys(questionsData).sort((a, b) => {
-        return (questionsData[a].order_index || 0) - (questionsData[b].order_index || 0);
-    });
-    
-    questionIds.forEach(questionId => {
-        const question = questionsData[questionId];
-        const response = user.responses[questionId];
-        
-        // Mensagem do bot (pergunta) - usar foto do admin
-        const botMessage = document.createElement('div');
-        botMessage.className = 'chat-message bot';
-        
-        // Avatar do admin (bot)
-                                    <?php 
-        $admin_avatar_html = '';
-        if ($admin_data) {
-            $admin_name = $admin_data['full_name'] ?? '';
-            
-            // Verificar se tem foto do admin
-            $has_admin_photo = false;
-            $admin_photo_url = '';
-            if (!empty($admin_data['profile_image_filename'])) {
-                $admin_photo_path = APP_ROOT_PATH . '/assets/images/users/' . $admin_data['profile_image_filename'];
-                if (file_exists($admin_photo_path)) {
-                    $admin_photo_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_data['profile_image_filename']);
-                    $has_admin_photo = true;
-                                    } else {
-                    // Tentar thumbnail
-                    $admin_thumb_filename = 'thumb_' . $admin_data['profile_image_filename'];
-                    $admin_thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $admin_thumb_filename;
-                    if (file_exists($admin_thumb_path)) {
-                        $admin_photo_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_thumb_filename);
-                        $has_admin_photo = true;
-                    }
-                }
-            }
-            
-            if ($has_admin_photo) {
-                $admin_avatar_html = '<img src="' . $admin_photo_url . '" alt="Admin" onerror="this.onerror=null; this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">';
-            } else {
-                // Gerar iniciais
-                $admin_name_parts = explode(' ', trim($admin_name));
-                $admin_initials = count($admin_name_parts) > 1 
-                    ? strtoupper(substr($admin_name_parts[0], 0, 1) . substr(end($admin_name_parts), 0, 1)) 
-                    : (!empty($admin_name_parts[0]) ? strtoupper(substr($admin_name_parts[0], 0, 2)) : 'A');
-                $admin_avatar_html = $admin_initials;
-            }
-        } else {
-            $admin_avatar_html = 'A';
-        }
-        ?>
-        const adminAvatar = <?php echo json_encode($admin_avatar_html); ?>;
-        
-        botMessage.innerHTML = `
-            <div class="message-avatar">${adminAvatar}</div>
-            <div class="message-content">
-                <div class="message-bubble">${escapeHtml(question.question_text)}</div>
-                                </div>
-        `;
-        modalBody.appendChild(botMessage);
-        
-        // Mensagem do usuário (resposta)
-        const userMessage = document.createElement('div');
-        userMessage.className = 'chat-message user';
-        
-        let responseText = 'Sem resposta';
-        if (response) {
-            if (response.response_text) {
-                responseText = response.response_text;
-            } else if (response.response_value) {
-                responseText = response.response_value;
-            }
-        }
-        
-        const userAvatar = user.profile_image_filename && 
-            '<?php echo BASE_APP_URL; ?>/assets/images/users/' + escapeHtml(user.profile_image_filename);
-        const nameParts = user.user_name.split(' ');
-        const initials = nameParts.length > 1 
-            ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
-            : (nameParts[0]?.substring(0, 2) || 'U').toUpperCase();
-        
-        userMessage.innerHTML = `
-            <div class="message-content">
-                <div class="message-bubble">${escapeHtml(responseText)}</div>
-                ${response ? `<div class="chat-message-time">${formatDateTime(response.submitted_at)}</div>` : ''}
-                            </div>
-            <div class="message-avatar">
-                ${userAvatar ? `<img src="${userAvatar}" alt="${escapeHtml(user.user_name)}">` : initials}
-                </div>
-        `;
-        modalBody.appendChild(userMessage);
-    });
-    
-    // Scroll para o final
-    setTimeout(() => {
-        modalBody.scrollTop = modalBody.scrollHeight;
-    }, 100);
-    
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
+const user = usersData[userKey];
+if (!user) return;
+
+currentUserKey = userKey;
+
+const modal = document.getElementById('chatModal');
+const modalBody = document.getElementById('chatModalBody');
+const modalUserName = document.getElementById('chatModalUserName');
+
+// Nome do usuário
+modalUserName.textContent = user.user_name;
+
+// Limpar conteúdo anterior
+modalBody.innerHTML = '';
+
+// Resetar para aba de chat
+switchTab('chat');
+
+// Limpar resumo anterior
+const summaryContent = document.getElementById('summaryContent');
+summaryContent.className = 'chat-summary-content loading';
+summaryContent.innerHTML = '<i class="fas fa-spinner"></i><p style="margin-top: 1rem;">Gerando resumo...</p>';
+
+// Criar mensagens do chat
+const questionIds = Object.keys(questionsData).sort((a, b) => {
+return (questionsData[a].order_index || 0) - (questionsData[b].order_index || 0);
+});
+
+questionIds.forEach(questionId => {
+const question = questionsData[questionId];
+const response = user.responses[questionId];
+
+// Mensagem do bot (pergunta) - usar foto do admin
+const botMessage = document.createElement('div');
+botMessage.className = 'chat-message bot';
+
+// Avatar do admin (bot)
+<?php 
+$admin_avatar_html = '';
+if ($admin_data) {
+$admin_name = $admin_data['full_name'] ?? '';
+
+// Verificar se tem foto do admin
+$has_admin_photo = false;
+$admin_photo_url = '';
+if (!empty($admin_data['profile_image_filename'])) {
+$admin_photo_path = APP_ROOT_PATH . '/assets/images/users/' . $admin_data['profile_image_filename'];
+if (file_exists($admin_photo_path)) {
+$admin_photo_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_data['profile_image_filename']);
+$has_admin_photo = true;
+} else {
+// Tentar thumbnail
+$admin_thumb_filename = 'thumb_' . $admin_data['profile_image_filename'];
+$admin_thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $admin_thumb_filename;
+if (file_exists($admin_thumb_path)) {
+$admin_photo_url = BASE_APP_URL . '/assets/images/users/' . htmlspecialchars($admin_thumb_filename);
+$has_admin_photo = true;
+}
+}
+}
+
+if ($has_admin_photo) {
+$admin_avatar_html = '<img src="' . $admin_photo_url . '" alt="Admin" onerror="this.onerror=null; this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">';
+} else {
+// Gerar iniciais
+$admin_name_parts = explode(' ', trim($admin_name));
+$admin_initials = count($admin_name_parts) > 1 
+? strtoupper(substr($admin_name_parts[0], 0, 1) . substr(end($admin_name_parts), 0, 1)) 
+: (!empty($admin_name_parts[0]) ? strtoupper(substr($admin_name_parts[0], 0, 2)) : 'A');
+$admin_avatar_html = $admin_initials;
+}
+} else {
+$admin_avatar_html = 'A';
+}
+?>
+const adminAvatar = <?php echo json_encode($admin_avatar_html); ?>;
+
+botMessage.innerHTML = `
+<div class="message-avatar">${adminAvatar}</div>
+<div class="message-content">
+<div class="message-bubble">${escapeHtml(question.question_text)}</div>
+</div>
+`;
+modalBody.appendChild(botMessage);
+
+// Mensagem do usuário (resposta)
+const userMessage = document.createElement('div');
+userMessage.className = 'chat-message user';
+
+let responseText = 'Sem resposta';
+if (response) {
+if (response.response_text) {
+responseText = response.response_text;
+} else if (response.response_value) {
+responseText = response.response_value;
+}
+}
+
+const userAvatar = user.profile_image_filename && 
+'<?php echo BASE_APP_URL; ?>/assets/images/users/' + escapeHtml(user.profile_image_filename);
+const nameParts = user.user_name.split(' ');
+const initials = nameParts.length > 1 
+? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+: (nameParts[0]?.substring(0, 2) || 'U').toUpperCase();
+
+userMessage.innerHTML = `
+<div class="message-content">
+<div class="message-bubble">${escapeHtml(responseText)}</div>
+${response ? `<div class="chat-message-time">${formatDateTime(response.submitted_at)}</div>` : ''}
+</div>
+<div class="message-avatar">
+${userAvatar ? `<img src="${userAvatar}" alt="${escapeHtml(user.user_name)}">` : initials}
+</div>
+`;
+modalBody.appendChild(userMessage);
+});
+
+// Scroll para o final
+setTimeout(() => {
+modalBody.scrollTop = modalBody.scrollHeight;
+}, 100);
+
+modal.classList.add('active');
+document.body.style.overflow = 'hidden';
 }
 
 function closeChatModal() {
-    const modal = document.getElementById('chatModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-    currentUserKey = null;
+const modal = document.getElementById('chatModal');
+modal.classList.remove('active');
+document.body.style.overflow = '';
+currentUserKey = null;
 }
 
 async function loadSummary(userKey) {
-    const user = usersData[userKey];
-    if (!user) return;
-    
-    const summaryContent = document.getElementById('summaryContent');
-    summaryContent.className = 'chat-summary-content loading';
-    summaryContent.innerHTML = '<i class="fas fa-spinner"></i><p style="margin-top: 1rem;">Gerando resumo...</p>';
-    
-    try {
-        // Construir texto da conversa
-        const questionIds = Object.keys(questionsData).sort((a, b) => {
-            return (questionsData[a].order_index || 0) - (questionsData[b].order_index || 0);
-        });
-        
-        let conversationText = '';
-        let flowInfo = [];
-        
-        questionIds.forEach(questionId => {
-            const question = questionsData[questionId];
-            const response = user.responses[questionId];
-            if (response && response.response_text) {
-                conversationText += `Pergunta: ${question.question_text}\n`;
-                conversationText += `Resposta: ${response.response_text}\n\n`;
-                
-                // Adicionar informações do fluxo
-                flowInfo.push({
-                    question_text: question.question_text,
-                    question_type: question.question_type,
-                    options: question.options ? JSON.parse(question.options) : null,
-                    response_text: response.response_text
-                });
-            }
-        });
-        
-        // Fazer requisição para gerar resumo
-        const formData = new FormData();
-        formData.append('action', 'generate_summary');
-        formData.append('conversation', conversationText);
-        formData.append('user_name', user.user_name);
-        formData.append('user_id', user.user_id);
-        formData.append('flow_info', JSON.stringify(flowInfo));
-        
-        const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: formData
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const text = await response.text();
-        
-        // Verificar se a resposta está vazia ou não é JSON válido
-        if (!text || text.trim() === '') {
-            throw new Error('Resposta vazia do servidor');
-        }
-        
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (parseError) {
-            console.error('Erro ao fazer parse do JSON:', parseError);
-            console.error('Resposta recebida:', text.substring(0, 500));
-            throw new Error('Resposta inválida do servidor: ' + parseError.message);
-        }
-        
-        if (data.success && data.summary) {
-            summaryContent.className = 'chat-summary-content';
-            summaryContent.innerHTML = data.summary;
-        } else {
-            summaryContent.className = 'chat-summary-content';
-            const errorMsg = data.message || 'Erro ao gerar resumo. Tente novamente.';
-            summaryContent.innerHTML = '<p style="color: var(--danger-red);">' + errorMsg + '</p>';
-        }
-    } catch (error) {
-        console.error('Erro ao carregar resumo:', error);
-        summaryContent.className = 'chat-summary-content';
-        summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo: ' + error.message + '</p>';
-    }
+const user = usersData[userKey];
+if (!user) return;
+
+const summaryContent = document.getElementById('summaryContent');
+summaryContent.className = 'chat-summary-content loading';
+summaryContent.innerHTML = '<i class="fas fa-spinner"></i><p style="margin-top: 1rem;">Gerando resumo...</p>';
+
+try {
+// Construir texto da conversa
+const questionIds = Object.keys(questionsData).sort((a, b) => {
+return (questionsData[a].order_index || 0) - (questionsData[b].order_index || 0);
+});
+
+let conversationText = '';
+let flowInfo = [];
+
+questionIds.forEach(questionId => {
+const question = questionsData[questionId];
+const response = user.responses[questionId];
+if (response && response.response_text) {
+conversationText += `Pergunta: ${question.question_text}\n`;
+conversationText += `Resposta: ${response.response_text}\n\n`;
+
+// Adicionar informações do fluxo
+flowInfo.push({
+question_text: question.question_text,
+question_type: question.question_type,
+options: question.options ? JSON.parse(question.options) : null,
+response_text: response.response_text
+});
+}
+});
+
+// Fazer requisição para gerar resumo
+const formData = new FormData();
+formData.append('action', 'generate_summary');
+formData.append('conversation', conversationText);
+formData.append('user_name', user.user_name);
+formData.append('user_id', user.user_id);
+formData.append('flow_info', JSON.stringify(flowInfo));
+
+const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
+method: 'POST',
+headers: { 'X-Requested-With': 'XMLHttpRequest' },
+body: formData
+});
+
+if (!response.ok) {
+throw new Error(`HTTP error! status: ${response.status}`);
+}
+
+const text = await response.text();
+
+// Verificar se a resposta está vazia ou não é JSON válido
+if (!text || text.trim() === '') {
+throw new Error('Resposta vazia do servidor');
+}
+
+let data;
+try {
+data = JSON.parse(text);
+} catch (parseError) {
+console.error('Erro ao fazer parse do JSON:', parseError);
+console.error('Resposta recebida:', text.substring(0, 500));
+throw new Error('Resposta inválida do servidor: ' + parseError.message);
+}
+
+if (data.success && data.summary) {
+summaryContent.className = 'chat-summary-content';
+summaryContent.innerHTML = data.summary;
+} else {
+summaryContent.className = 'chat-summary-content';
+const errorMsg = data.message || 'Erro ao gerar resumo. Tente novamente.';
+summaryContent.innerHTML = '<p style="color: var(--danger-red);">' + errorMsg + '</p>';
+}
+} catch (error) {
+console.error('Erro ao carregar resumo:', error);
+summaryContent.className = 'chat-summary-content';
+summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo: ' + error.message + '</p>';
+}
 }
 
 // Modo de Seleção
@@ -2418,337 +2429,337 @@ let selectModeActive = false;
 let selectedRows = new Set();
 
 function toggleSelectMode() {
-    selectModeActive = !selectModeActive;
-    const btn = document.getElementById('selectModeBtn');
-    const rows = document.querySelectorAll('.response-row');
-    const actionsBar = document.getElementById('selectionActionsBar');
-    
-    if (selectModeActive) {
-        btn.classList.add('active');
-        btn.innerHTML = '<i class="fas fa-times"></i><span>Cancelar</span>';
-        rows.forEach(row => {
-            row.classList.add('select-mode');
-        });
-    } else {
-        btn.classList.remove('active');
-        btn.innerHTML = '<i class="fas fa-mouse-pointer"></i><span>Selecionar</span>';
-        rows.forEach(row => {
-            row.classList.remove('select-mode', 'selected');
-        });
-        selectedRows.clear();
-        if (actionsBar) {
-            actionsBar.classList.remove('active');
-        }
-        updateSelectionCount();
-    }
+selectModeActive = !selectModeActive;
+const btn = document.getElementById('selectModeBtn');
+const rows = document.querySelectorAll('.response-row');
+const actionsBar = document.getElementById('selectionActionsBar');
+
+if (selectModeActive) {
+btn.classList.add('active');
+btn.innerHTML = '<i class="fas fa-times"></i><span>Cancelar</span>';
+rows.forEach(row => {
+row.classList.add('select-mode');
+});
+} else {
+btn.classList.remove('active');
+btn.innerHTML = '<i class="fas fa-mouse-pointer"></i><span>Selecionar</span>';
+rows.forEach(row => {
+row.classList.remove('select-mode', 'selected');
+});
+selectedRows.clear();
+if (actionsBar) {
+actionsBar.classList.remove('active');
+}
+updateSelectionCount();
+}
 }
 
 function handleRowClick(userKey, event) {
-    if (selectModeActive) {
-        event.stopPropagation();
-        const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
-        if (!row) return;
-        
-        if (selectedRows.has(userKey)) {
-            selectedRows.delete(userKey);
-            row.classList.remove('selected');
-        } else {
-            selectedRows.add(userKey);
-            row.classList.add('selected');
-        }
-        updateSelectionCount();
-    } else {
-        openChatModal(userKey);
-    }
+if (selectModeActive) {
+event.stopPropagation();
+const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
+if (!row) return;
+
+if (selectedRows.has(userKey)) {
+selectedRows.delete(userKey);
+row.classList.remove('selected');
+} else {
+selectedRows.add(userKey);
+row.classList.add('selected');
+}
+updateSelectionCount();
+} else {
+openChatModal(userKey);
+}
 }
 
 function updateSelectionCount() {
-    const count = selectedRows.size;
-    const actionsBar = document.getElementById('selectionActionsBar');
-    const countSpan = document.getElementById('selectedCount');
-    
-    if (count > 0) {
-        if (actionsBar) actionsBar.classList.add('active');
-        if (countSpan) countSpan.textContent = `${count} selecionada${count > 1 ? 's' : ''}`;
-    } else {
-        if (actionsBar) actionsBar.classList.remove('active');
-    }
+const count = selectedRows.size;
+const actionsBar = document.getElementById('selectionActionsBar');
+const countSpan = document.getElementById('selectedCount');
+
+if (count > 0) {
+if (actionsBar) actionsBar.classList.add('active');
+if (countSpan) countSpan.textContent = `${count} selecionada${count > 1 ? 's' : ''}`;
+} else {
+if (actionsBar) actionsBar.classList.remove('active');
+}
 }
 
 function deleteSelectedResponses() {
-    if (selectedRows.size === 0) {
-        showAlertModal('Aviso', 'Nenhuma resposta selecionada.', false);
-        return;
-    }
-    
-    const count = selectedRows.size;
-    const userName = 'as respostas selecionadas';
-    const responseDate = `${count} resposta${count > 1 ? 's' : ''}`;
-    
-    // Preparar modal de confirmação para múltiplas exclusões
-    document.getElementById('delete-response-user-name').textContent = userName;
-    document.getElementById('delete-response-date').textContent = responseDate;
-    
-    // Armazenar as chaves selecionadas
-    window.selectedRowsToDelete = Array.from(selectedRows);
-    
-    showDeleteResponseModal('bulk', userName, responseDate);
+if (selectedRows.size === 0) {
+showAlertModal('Aviso', 'Nenhuma resposta selecionada.', false);
+return;
+}
+
+const count = selectedRows.size;
+const userName = 'as respostas selecionadas';
+const responseDate = `${count} resposta${count > 1 ? 's' : ''}`;
+
+// Preparar modal de confirmação para múltiplas exclusões
+document.getElementById('delete-response-user-name').textContent = userName;
+document.getElementById('delete-response-date').textContent = responseDate;
+
+// Armazenar as chaves selecionadas
+window.selectedRowsToDelete = Array.from(selectedRows);
+
+showDeleteResponseModal('bulk', userName, responseDate);
 }
 
 function confirmDeleteBulkResponse() {
-    if (!window.selectedRowsToDelete || window.selectedRowsToDelete.length === 0) {
-        showAlertModal('Erro', 'Nenhuma resposta selecionada para exclusão.', false);
-        return;
-    }
-    
-    const rowsToDelete = window.selectedRowsToDelete;
-    const checkinId = <?php echo $checkin_id; ?>;
-    let deletedCount = 0;
-    let errorCount = 0;
-    
-    closeDeleteResponseModal();
-    
-    // Processar exclusões uma por uma
-    Promise.all(rowsToDelete.map(async (userKey) => {
-        const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
-        if (!row) return false;
-        
-        const userId = row.getAttribute('data-user-id');
-        const responseDate = row.getAttribute('data-response-date');
-        
-        try {
-            const formData = new FormData();
-            formData.append('action', 'delete_response');
-            formData.append('user_id', userId);
-            formData.append('config_id', checkinId);
-            formData.append('response_date', responseDate);
-            
-            const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
-                method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                body: formData
-            });
-            
-            const text = await response.text();
-            const data = JSON.parse(text);
-            
-            if (data.success) {
-                if (row && row.parentNode) {
-                    row.parentNode.removeChild(row);
-                }
-                return true;
-            } else {
-                return false;
-            }
-        } catch (error) {
-            console.error('Erro ao excluir resposta:', error);
-            return false;
-        }
-    })).then(results => {
-        deletedCount = results.filter(r => r === true).length;
-        errorCount = results.filter(r => r === false).length;
-        
-        // Atualizar contador
-        const badge = document.querySelector('.submissions-count .badge');
-        if (badge) {
-            const currentCount = parseInt(badge.textContent) || 0;
-            badge.textContent = Math.max(0, currentCount - deletedCount);
-        }
-        
-        // Sair do modo de seleção
-        if (selectModeActive) {
-            toggleSelectMode();
-        }
-        
-        if (errorCount > 0) {
-            showAlertModal('Aviso', `${deletedCount} resposta(s) excluída(s) com sucesso. ${errorCount} erro(s) ocorreram.`, false);
-        } else {
-            showAlertModal('Sucesso', `${deletedCount} resposta(s) excluída(s) com sucesso!`, true);
-        }
-    });
+if (!window.selectedRowsToDelete || window.selectedRowsToDelete.length === 0) {
+showAlertModal('Erro', 'Nenhuma resposta selecionada para exclusão.', false);
+return;
+}
+
+const rowsToDelete = window.selectedRowsToDelete;
+const checkinId = <?php echo $checkin_id; ?>;
+let deletedCount = 0;
+let errorCount = 0;
+
+closeDeleteResponseModal();
+
+// Processar exclusões uma por uma
+Promise.all(rowsToDelete.map(async (userKey) => {
+const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
+if (!row) return false;
+
+const userId = row.getAttribute('data-user-id');
+const responseDate = row.getAttribute('data-response-date');
+
+try {
+const formData = new FormData();
+formData.append('action', 'delete_response');
+formData.append('user_id', userId);
+formData.append('config_id', checkinId);
+formData.append('response_date', responseDate);
+
+const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
+method: 'POST',
+headers: { 'X-Requested-With': 'XMLHttpRequest' },
+body: formData
+});
+
+const text = await response.text();
+const data = JSON.parse(text);
+
+if (data.success) {
+if (row && row.parentNode) {
+row.parentNode.removeChild(row);
+}
+return true;
+} else {
+return false;
+}
+} catch (error) {
+console.error('Erro ao excluir resposta:', error);
+return false;
+}
+})).then(results => {
+deletedCount = results.filter(r => r === true).length;
+errorCount = results.filter(r => r === false).length;
+
+// Atualizar contador
+const badge = document.querySelector('.submissions-count .badge');
+if (badge) {
+const currentCount = parseInt(badge.textContent) || 0;
+badge.textContent = Math.max(0, currentCount - deletedCount);
+}
+
+// Sair do modo de seleção
+if (selectModeActive) {
+toggleSelectMode();
+}
+
+if (errorCount > 0) {
+showAlertModal('Aviso', `${deletedCount} resposta(s) excluída(s) com sucesso. ${errorCount} erro(s) ocorreram.`, false);
+} else {
+showAlertModal('Sucesso', `${deletedCount} resposta(s) excluída(s) com sucesso!`, true);
+}
+});
 }
 
 // Variáveis globais para exclusão
 let currentResponseToDelete = null;
 
 function showDeleteResponseModal(userKey, userName, responseDate) {
-    currentResponseToDelete = userKey;
-    
-    const nameEl = document.getElementById('delete-response-user-name');
-    const dateEl = document.getElementById('delete-response-date');
-    
-    if (nameEl) nameEl.textContent = userName;
-    if (dateEl) dateEl.textContent = responseDate;
-    
-    // Ajustar texto do modal para exclusão em massa
-    if (userKey === 'bulk') {
-        const modalBody = document.querySelector('#deleteResponseModal .custom-modal-body');
-        if (modalBody) {
-            modalBody.innerHTML = `
-                <p><strong>ATENÇÃO: Esta ação não pode ser desfeita!</strong></p>
-                <p>Tem certeza que deseja excluir permanentemente <strong>${responseDate}</strong>?</p>
-                <p style="color: var(--danger-red); font-weight: 600;">Esta ação é IRREVERSÍVEL!</p>
-            `;
-        }
-    }
-    
-    const modal = document.getElementById('deleteResponseModal');
-    if (modal) {
-        modal.classList.add('active');
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
+currentResponseToDelete = userKey;
+
+const nameEl = document.getElementById('delete-response-user-name');
+const dateEl = document.getElementById('delete-response-date');
+
+if (nameEl) nameEl.textContent = userName;
+if (dateEl) dateEl.textContent = responseDate;
+
+// Ajustar texto do modal para exclusão em massa
+if (userKey === 'bulk') {
+const modalBody = document.querySelector('#deleteResponseModal .custom-modal-body');
+if (modalBody) {
+modalBody.innerHTML = `
+<p><strong>ATENÇÃO: Esta ação não pode ser desfeita!</strong></p>
+<p>Tem certeza que deseja excluir permanentemente <strong>${responseDate}</strong>?</p>
+<p style="color: var(--danger-red); font-weight: 600;">Esta ação é IRREVERSÍVEL!</p>
+`;
+}
+}
+
+const modal = document.getElementById('deleteResponseModal');
+if (modal) {
+modal.classList.add('active');
+modal.style.display = 'flex';
+document.body.style.overflow = 'hidden';
+}
 }
 
 function closeDeleteResponseModal() {
-    const modal = document.getElementById('deleteResponseModal');
-    if (modal) {
-        modal.classList.remove('active');
-        modal.style.display = 'none';
-    }
-    document.body.style.overflow = '';
-    currentResponseToDelete = null;
+const modal = document.getElementById('deleteResponseModal');
+if (modal) {
+modal.classList.remove('active');
+modal.style.display = 'none';
+}
+document.body.style.overflow = '';
+currentResponseToDelete = null;
 }
 
 async function confirmDeleteResponse() {
-    if (!currentResponseToDelete) {
-        showAlertModal('Erro', 'Erro: Dados da resposta não encontrados. Recarregue a página e tente novamente.', false);
-        return;
-    }
-    
-    // Se for exclusão em massa
-    if (currentResponseToDelete === 'bulk') {
-        confirmDeleteBulkResponse();
-        return;
-    }
-    
-    const userKey = currentResponseToDelete;
-    const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
-    
-    if (!row) {
-        showAlertModal('Erro', 'Erro: Linha não encontrada. Recarregue a página e tente novamente.', false);
-        closeDeleteResponseModal();
-        return;
-    }
-    
-    const userId = row.getAttribute('data-user-id');
-    const responseDate = row.getAttribute('data-response-date');
-    const checkinId = <?php echo $checkin_id; ?>;
-    
-    closeDeleteResponseModal();
-    
-    try {
-        const formData = new FormData();
-        formData.append('action', 'delete_response');
-        formData.append('user_id', userId);
-        formData.append('config_id', checkinId);
-        formData.append('response_date', responseDate);
-        
-        const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: formData
-        });
-        
-        const text = await response.text();
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (e) {
-            console.error('Erro ao fazer parse do JSON:', e, text);
-            showAlertModal('Erro', 'Resposta inválida do servidor: ' + text.substring(0, 100), false);
-            return;
-        }
-        
-        if (data.success) {
-            showAlertModal('Sucesso', data.message || 'Resposta excluída com sucesso!', true);
-            // Remover a linha da tabela
-            if (row && row.parentNode) {
-                row.parentNode.removeChild(row);
-            }
-            // Atualizar contador
-            const badge = document.querySelector('.submissions-count .badge');
-            if (badge) {
-                const currentCount = parseInt(badge.textContent) || 0;
-                badge.textContent = Math.max(0, currentCount - 1);
-            }
-        } else {
-            showAlertModal('Erro', data.message || 'Erro ao excluir resposta.', false);
-        }
-    } catch (error) {
-        console.error('Erro ao excluir resposta:', error);
-        showAlertModal('Erro', 'Erro ao comunicar com o servidor. Tente novamente.', false);
-    }
+if (!currentResponseToDelete) {
+showAlertModal('Erro', 'Erro: Dados da resposta não encontrados. Recarregue a página e tente novamente.', false);
+return;
+}
+
+// Se for exclusão em massa
+if (currentResponseToDelete === 'bulk') {
+confirmDeleteBulkResponse();
+return;
+}
+
+const userKey = currentResponseToDelete;
+const row = document.querySelector(`tr[data-user-key="${userKey}"]`);
+
+if (!row) {
+showAlertModal('Erro', 'Erro: Linha não encontrada. Recarregue a página e tente novamente.', false);
+closeDeleteResponseModal();
+return;
+}
+
+const userId = row.getAttribute('data-user-id');
+const responseDate = row.getAttribute('data-response-date');
+const checkinId = <?php echo $checkin_id; ?>;
+
+closeDeleteResponseModal();
+
+try {
+const formData = new FormData();
+formData.append('action', 'delete_response');
+formData.append('user_id', userId);
+formData.append('config_id', checkinId);
+formData.append('response_date', responseDate);
+
+const response = await fetch('<?php echo BASE_ADMIN_URL; ?>/ajax_checkin.php', {
+method: 'POST',
+headers: { 'X-Requested-With': 'XMLHttpRequest' },
+body: formData
+});
+
+const text = await response.text();
+let data;
+try {
+data = JSON.parse(text);
+} catch (e) {
+console.error('Erro ao fazer parse do JSON:', e, text);
+showAlertModal('Erro', 'Resposta inválida do servidor: ' + text.substring(0, 100), false);
+return;
+}
+
+if (data.success) {
+showAlertModal('Sucesso', data.message || 'Resposta excluída com sucesso!', true);
+// Remover a linha da tabela
+if (row && row.parentNode) {
+row.parentNode.removeChild(row);
+}
+// Atualizar contador
+const badge = document.querySelector('.submissions-count .badge');
+if (badge) {
+const currentCount = parseInt(badge.textContent) || 0;
+badge.textContent = Math.max(0, currentCount - 1);
+}
+} else {
+showAlertModal('Erro', data.message || 'Erro ao excluir resposta.', false);
+}
+} catch (error) {
+console.error('Erro ao excluir resposta:', error);
+showAlertModal('Erro', 'Erro ao comunicar com o servidor. Tente novamente.', false);
+}
 }
 
 function showAlertModal(title, message, isSuccess) {
-    const modal = document.getElementById('alertModal');
-    const header = document.getElementById('alertModalHeader');
-    const icon = document.getElementById('alertModalIcon');
-    const titleEl = document.getElementById('alertModalTitle');
-    const messageEl = document.getElementById('alertModalMessage');
-    
-    if (isSuccess) {
-        header.style.color = '#22C55E';
-        icon.className = 'fas fa-check-circle';
-    } else {
-        header.style.color = 'var(--danger-red)';
-        icon.className = 'fas fa-exclamation-circle';
-    }
-    
-    titleEl.textContent = title;
-    messageEl.textContent = message;
-    
-    if (modal) {
-        modal.classList.add('active');
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
+const modal = document.getElementById('alertModal');
+const header = document.getElementById('alertModalHeader');
+const icon = document.getElementById('alertModalIcon');
+const titleEl = document.getElementById('alertModalTitle');
+const messageEl = document.getElementById('alertModalMessage');
+
+if (isSuccess) {
+header.style.color = '#22C55E';
+icon.className = 'fas fa-check-circle';
+} else {
+header.style.color = 'var(--danger-red)';
+icon.className = 'fas fa-exclamation-circle';
+}
+
+titleEl.textContent = title;
+messageEl.textContent = message;
+
+if (modal) {
+modal.classList.add('active');
+modal.style.display = 'flex';
+document.body.style.overflow = 'hidden';
+}
 }
 
 function closeAlertModal() {
-    const modal = document.getElementById('alertModal');
-    if (modal) {
-        modal.classList.remove('active');
-        modal.style.display = 'none';
-    }
-    document.body.style.overflow = '';
-    
-    // Se houver redirect configurado
-    if (modal && modal.dataset.redirectOnClose === 'true') {
-        window.location.href = modal.dataset.redirectUrl || window.location.href;
-    }
+const modal = document.getElementById('alertModal');
+if (modal) {
+modal.classList.remove('active');
+modal.style.display = 'none';
+}
+document.body.style.overflow = '';
+
+// Se houver redirect configurado
+if (modal && modal.dataset.redirectOnClose === 'true') {
+window.location.href = modal.dataset.redirectUrl || window.location.href;
+}
 }
 
 // Fechar modal ao clicar fora
 document.getElementById('chatModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeChatModal();
-    }
+if (e.target === this) {
+closeChatModal();
+}
 });
 
 // Fechar modal com ESC
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeChatModal();
-    }
+if (e.key === 'Escape') {
+closeChatModal();
+}
 });
 
 function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+const div = document.createElement('div');
+div.textContent = text;
+return div.innerHTML;
 }
 
 function formatDateTime(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+const date = new Date(dateString);
+return date.toLocaleString('pt-BR', {
+day: '2-digit',
+month: '2-digit',
+year: 'numeric',
+hour: '2-digit',
+minute: '2-digit'
+});
 }
 
 // ========== CALENDÁRIO DE CHECK-IN ==========
@@ -2764,347 +2775,347 @@ const checkinId = <?php echo $checkin_id; ?>;
 
 // Abrir modal de calendário
 async function openCheckinCalendar() {
-    currentCheckinCalendarDate = new Date();
-    checkinDateStart = null;
-    checkinDateEnd = null;
-    
-    // Buscar dias com check-ins
-    await loadCheckinCalendarData();
-    
-    // Renderizar calendário
-    renderCheckinCalendar();
-    
-    const modal = document.getElementById('checkinCalendarModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        
-        // Mostrar popup de ajuda (apenas na primeira vez)
-        const helpPopup = document.getElementById('checkinCalendarHelpPopup');
-        if (helpPopup) {
-            const hasSeenHelp = localStorage.getItem('checkinCalendarHelpSeen');
-            if (!hasSeenHelp) {
-                helpPopup.style.display = 'block';
-            } else {
-                // Se já viu, não mostrar automaticamente
-                helpPopup.style.display = 'none';
-            }
-        }
-    }
+currentCheckinCalendarDate = new Date();
+checkinDateStart = null;
+checkinDateEnd = null;
+
+// Buscar dias com check-ins
+await loadCheckinCalendarData();
+
+// Renderizar calendário
+renderCheckinCalendar();
+
+const modal = document.getElementById('checkinCalendarModal');
+if (modal) {
+modal.classList.add('active');
+document.body.style.overflow = 'hidden';
+
+// Mostrar popup de ajuda (apenas na primeira vez)
+const helpPopup = document.getElementById('checkinCalendarHelpPopup');
+if (helpPopup) {
+const hasSeenHelp = localStorage.getItem('checkinCalendarHelpSeen');
+if (!hasSeenHelp) {
+helpPopup.style.display = 'block';
+} else {
+// Se já viu, não mostrar automaticamente
+helpPopup.style.display = 'none';
+}
+}
+}
 }
 
 // Carregar datas com check-ins
 async function loadCheckinCalendarData() {
-    daysWithCheckinData.clear();
-    
-    try {
-        const response = await fetch(`ajax_checkin.php?action=get_checkin_dates&checkin_id=${checkinId}`);
-        const result = await response.json();
-        
-        if (result.success && result.dates) {
-            result.dates.forEach(date => daysWithCheckinData.add(date));
-        }
-    } catch (error) {
-        console.error('Erro ao carregar datas do calendário:', error);
-    }
+daysWithCheckinData.clear();
+
+try {
+const response = await fetch(`ajax_checkin.php?action=get_checkin_dates&checkin_id=${checkinId}`);
+const result = await response.json();
+
+if (result.success && result.dates) {
+result.dates.forEach(date => daysWithCheckinData.add(date));
+}
+} catch (error) {
+console.error('Erro ao carregar datas do calendário:', error);
+}
 }
 
 // Mudar mês do calendário
 function changeCheckinCalendarMonth(direction) {
-    const newDate = new Date(currentCheckinCalendarDate);
-    newDate.setMonth(newDate.getMonth() + direction);
-    
-    const now = new Date();
-    if (newDate.getFullYear() > now.getFullYear() || 
-        (newDate.getFullYear() === now.getFullYear() && newDate.getMonth() > now.getMonth())) {
-        return;
-    }
-    
-    currentCheckinCalendarDate = newDate;
-    renderCheckinCalendar();
+const newDate = new Date(currentCheckinCalendarDate);
+newDate.setMonth(newDate.getMonth() + direction);
+
+const now = new Date();
+if (newDate.getFullYear() > now.getFullYear() || 
+(newDate.getFullYear() === now.getFullYear() && newDate.getMonth() > now.getMonth())) {
+return;
+}
+
+currentCheckinCalendarDate = newDate;
+renderCheckinCalendar();
 }
 
 // Renderizar calendário
 function renderCheckinCalendar() {
-    const year = currentCheckinCalendarDate.getFullYear();
-    const month = currentCheckinCalendarDate.getMonth();
-    
-    document.getElementById('checkinCalendarYear').textContent = year;
-    document.getElementById('checkinCalendarMonth').textContent = monthNamesShort[month];
-    
-    const nextBtn = document.getElementById('checkinNextMonthBtn');
-    const now = new Date();
-    if (year === now.getFullYear() && month === now.getMonth()) {
-        nextBtn.classList.add('disabled');
-    } else {
-        nextBtn.classList.remove('disabled');
-    }
-    
-    const grid = document.getElementById('checkinCalendarDaysGrid');
-    grid.innerHTML = '';
-    
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const prevMonth = new Date(year, month, 0);
-    const daysInPrevMonth = prevMonth.getDate();
-    const startDay = firstDay.getDay();
-    
-    // Dias do mês anterior
-    for (let i = startDay - 1; i >= 0; i--) {
-        const dayEl = document.createElement('div');
-        dayEl.className = 'calendar-day other-month';
-        dayEl.textContent = daysInPrevMonth - i;
-        grid.appendChild(dayEl);
-    }
-    
-    // Dias do mês atual
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-        const dayEl = document.createElement('div');
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        dayEl.className = 'calendar-day';
-        dayEl.textContent = day;
-        dayEl.setAttribute('data-date', dateStr);
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const targetDate = new Date(dateStr + 'T00:00:00');
-        
-        // Bloquear dias futuros
-        if (targetDate > today) {
-            dayEl.classList.add('future-day');
-        } else {
-            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
-                dayEl.classList.add('today');
-            }
-            
-            if (daysWithCheckinData.has(dateStr)) {
-                dayEl.classList.add('has-data');
-            }
-            
-            // Marcar se está no período selecionado
-            if (checkinDateStart && checkinDateEnd) {
-                const selStart = new Date(checkinDateStart + 'T00:00:00');
-                const selEnd = new Date(checkinDateEnd + 'T00:00:00');
-                if (targetDate >= selStart && targetDate <= selEnd) {
-                    dayEl.classList.add('selected-range');
-                }
-            } else if (checkinDateStart && dateStr === checkinDateStart) {
-                dayEl.classList.add('selected-start');
-            }
-            
-            dayEl.addEventListener('click', () => selectCheckinDate(dateStr));
-            dayEl.addEventListener('dblclick', () => selectSingleCheckinDay(dateStr));
-        }
-        
-        grid.appendChild(dayEl);
-    }
-    
-    // Dias do próximo mês
-    const totalCells = grid.children.length;
-    const remainingCells = 42 - totalCells;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (remainingCells > 0) {
-        for (let day = 1; day <= remainingCells; day++) {
-            const dayEl = document.createElement('div');
-            dayEl.className = 'calendar-day other-month';
-            dayEl.textContent = day;
-            
-            if (year === today.getFullYear() && month === today.getMonth()) {
-                dayEl.style.opacity = '0.3';
-                dayEl.style.pointerEvents = 'none';
-                dayEl.style.cursor = 'not-allowed';
-            }
-            
-            grid.appendChild(dayEl);
-        }
-    }
+const year = currentCheckinCalendarDate.getFullYear();
+const month = currentCheckinCalendarDate.getMonth();
+
+document.getElementById('checkinCalendarYear').textContent = year;
+document.getElementById('checkinCalendarMonth').textContent = monthNamesShort[month];
+
+const nextBtn = document.getElementById('checkinNextMonthBtn');
+const now = new Date();
+if (year === now.getFullYear() && month === now.getMonth()) {
+nextBtn.classList.add('disabled');
+} else {
+nextBtn.classList.remove('disabled');
+}
+
+const grid = document.getElementById('checkinCalendarDaysGrid');
+grid.innerHTML = '';
+
+const firstDay = new Date(year, month, 1);
+const lastDay = new Date(year, month + 1, 0);
+const prevMonth = new Date(year, month, 0);
+const daysInPrevMonth = prevMonth.getDate();
+const startDay = firstDay.getDay();
+
+// Dias do mês anterior
+for (let i = startDay - 1; i >= 0; i--) {
+const dayEl = document.createElement('div');
+dayEl.className = 'calendar-day other-month';
+dayEl.textContent = daysInPrevMonth - i;
+grid.appendChild(dayEl);
+}
+
+// Dias do mês atual
+for (let day = 1; day <= lastDay.getDate(); day++) {
+const dayEl = document.createElement('div');
+const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+dayEl.className = 'calendar-day';
+dayEl.textContent = day;
+dayEl.setAttribute('data-date', dateStr);
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const targetDate = new Date(dateStr + 'T00:00:00');
+
+// Bloquear dias futuros
+if (targetDate > today) {
+dayEl.classList.add('future-day');
+} else {
+if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+dayEl.classList.add('today');
+}
+
+if (daysWithCheckinData.has(dateStr)) {
+dayEl.classList.add('has-data');
+}
+
+// Marcar se está no período selecionado
+if (checkinDateStart && checkinDateEnd) {
+const selStart = new Date(checkinDateStart + 'T00:00:00');
+const selEnd = new Date(checkinDateEnd + 'T00:00:00');
+if (targetDate >= selStart && targetDate <= selEnd) {
+dayEl.classList.add('selected-range');
+}
+} else if (checkinDateStart && dateStr === checkinDateStart) {
+dayEl.classList.add('selected-start');
+}
+
+dayEl.addEventListener('click', () => selectCheckinDate(dateStr));
+dayEl.addEventListener('dblclick', () => selectSingleCheckinDay(dateStr));
+}
+
+grid.appendChild(dayEl);
+}
+
+// Dias do próximo mês
+const totalCells = grid.children.length;
+const remainingCells = 42 - totalCells;
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+if (remainingCells > 0) {
+for (let day = 1; day <= remainingCells; day++) {
+const dayEl = document.createElement('div');
+dayEl.className = 'calendar-day other-month';
+dayEl.textContent = day;
+
+if (year === today.getFullYear() && month === today.getMonth()) {
+dayEl.style.opacity = '0.3';
+dayEl.style.pointerEvents = 'none';
+dayEl.style.cursor = 'not-allowed';
+}
+
+grid.appendChild(dayEl);
+}
+}
 }
 
 // Selecionar data no calendário (clique simples - seleção de período)
 function selectCheckinDate(dateStr) {
-    const targetDate = new Date(dateStr + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (targetDate > today) return;
-    
-    if (!checkinDateStart || (checkinDateStart && checkinDateEnd)) {
-        // Nova seleção - definir início
-        checkinDateStart = dateStr;
-        checkinDateEnd = null;
-    } else {
-        // Selecionar fim
-        const startDate = new Date(checkinDateStart + 'T00:00:00');
-        const endDate = new Date(dateStr + 'T00:00:00');
-        
-        if (endDate < startDate) {
-            // Se a data final for menor que a inicial, inverter
-            checkinDateEnd = checkinDateStart;
-            checkinDateStart = dateStr;
-        } else {
-            checkinDateEnd = dateStr;
-        }
-        
-        // Aplicar seleção
-        applyCheckinPeriodSelection();
-    }
-    
-    renderCheckinCalendar();
+const targetDate = new Date(dateStr + 'T00:00:00');
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+if (targetDate > today) return;
+
+if (!checkinDateStart || (checkinDateStart && checkinDateEnd)) {
+// Nova seleção - definir início
+checkinDateStart = dateStr;
+checkinDateEnd = null;
+} else {
+// Selecionar fim
+const startDate = new Date(checkinDateStart + 'T00:00:00');
+const endDate = new Date(dateStr + 'T00:00:00');
+
+if (endDate < startDate) {
+// Se a data final for menor que a inicial, inverter
+checkinDateEnd = checkinDateStart;
+checkinDateStart = dateStr;
+} else {
+checkinDateEnd = dateStr;
+}
+
+// Aplicar seleção
+applyCheckinPeriodSelection();
+}
+
+renderCheckinCalendar();
 }
 
 // Selecionar um único dia (duplo clique)
 function selectSingleCheckinDay(dateStr) {
-    const targetDate = new Date(dateStr + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (targetDate > today) return;
-    
-    // Selecionar o mesmo dia para início e fim
-    checkinDateStart = dateStr;
-    checkinDateEnd = dateStr;
-    
-    // Aplicar seleção imediatamente
-    applyCheckinPeriodSelection();
-    
-    renderCheckinCalendar();
+const targetDate = new Date(dateStr + 'T00:00:00');
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+if (targetDate > today) return;
+
+// Selecionar o mesmo dia para início e fim
+checkinDateStart = dateStr;
+checkinDateEnd = dateStr;
+
+// Aplicar seleção imediatamente
+applyCheckinPeriodSelection();
+
+renderCheckinCalendar();
 }
 
 // Selecionar período rápido (últimos 7 ou 30 dias)
 function selectCheckinPeriod(period) {
-    const endDate = new Date();
-    const startDate = new Date();
-    let periodLabel = '';
-    
-    if (period === 'last7') {
-        startDate.setDate(startDate.getDate() - 6);
-        periodLabel = 'Últimos 7 dias';
-    } else if (period === 'last30') {
-        startDate.setDate(startDate.getDate() - 29);
-        periodLabel = 'Últimos 30 dias';
-    }
-    
-    const startStr = startDate.toISOString().split('T')[0];
-    const endStr = endDate.toISOString().split('T')[0];
-    
-    checkinDateStart = startStr;
-    checkinDateEnd = endStr;
-    
-    // Atualizar texto do botão antes de redirecionar
-    updateCheckinPeriodButton(periodLabel);
-    
-    applyCheckinPeriodSelection();
+const endDate = new Date();
+const startDate = new Date();
+let periodLabel = '';
+
+if (period === 'last7') {
+startDate.setDate(startDate.getDate() - 6);
+periodLabel = 'Últimos 7 dias';
+} else if (period === 'last30') {
+startDate.setDate(startDate.getDate() - 29);
+periodLabel = 'Últimos 30 dias';
+}
+
+const startStr = startDate.toISOString().split('T')[0];
+const endStr = endDate.toISOString().split('T')[0];
+
+checkinDateStart = startStr;
+checkinDateEnd = endStr;
+
+// Atualizar texto do botão antes de redirecionar
+updateCheckinPeriodButton(periodLabel);
+
+applyCheckinPeriodSelection();
 }
 
 // Atualizar texto do botão de período
 function updateCheckinPeriodButton(label) {
-    const btn = document.getElementById('checkin-period-btn');
-    const textSpan = document.getElementById('checkin-period-text');
-    if (btn && textSpan) {
-        textSpan.textContent = label;
-    }
+const btn = document.getElementById('checkin-period-btn');
+const textSpan = document.getElementById('checkin-period-text');
+if (btn && textSpan) {
+textSpan.textContent = label;
+}
 }
 
 // Aplicar seleção de período
 function applyCheckinPeriodSelection() {
-    if (!checkinDateStart || !checkinDateEnd) return;
-    
-    // Garantir que não ultrapasse hoje
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const endDate = new Date(checkinDateEnd + 'T00:00:00');
-    if (endDate > today) {
-        checkinDateEnd = today.toISOString().split('T')[0];
-    }
-    
-    // Formatar label para exibição
-    const startDateObj = new Date(checkinDateStart + 'T00:00:00');
-    const endDateObj = new Date(checkinDateEnd + 'T00:00:00');
-    let periodLabel = '';
-    
-    if (checkinDateStart === checkinDateEnd) {
-        // Um único dia
-        periodLabel = startDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    } else {
-        // Período
-        periodLabel = startDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' - ' + 
-                     endDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    }
-    
-    // Atualizar texto do botão antes de redirecionar
-    updateCheckinPeriodButton(periodLabel);
-    
-    // Redirecionar com filtro de data customizado
-    const url = new URL(window.location.href);
-    url.searchParams.set('date_filter', 'custom');
-    url.searchParams.set('date_start', checkinDateStart);
-    url.searchParams.set('date_end', checkinDateEnd);
-    window.location.href = url.toString();
+if (!checkinDateStart || !checkinDateEnd) return;
+
+// Garantir que não ultrapasse hoje
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const endDate = new Date(checkinDateEnd + 'T00:00:00');
+if (endDate > today) {
+checkinDateEnd = today.toISOString().split('T')[0];
+}
+
+// Formatar label para exibição
+const startDateObj = new Date(checkinDateStart + 'T00:00:00');
+const endDateObj = new Date(checkinDateEnd + 'T00:00:00');
+let periodLabel = '';
+
+if (checkinDateStart === checkinDateEnd) {
+// Um único dia
+periodLabel = startDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+} else {
+// Período
+periodLabel = startDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' - ' + 
+endDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+// Atualizar texto do botão antes de redirecionar
+updateCheckinPeriodButton(periodLabel);
+
+// Redirecionar com filtro de data customizado
+const url = new URL(window.location.href);
+url.searchParams.set('date_filter', 'custom');
+url.searchParams.set('date_start', checkinDateStart);
+url.searchParams.set('date_end', checkinDateEnd);
+window.location.href = url.toString();
 }
 
 // Fechar modal de calendário
 function closeCheckinCalendar() {
-    const modal = document.getElementById('checkinCalendarModal');
-    const popup = document.getElementById('checkinCalendarHelpPopup');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        checkinDateStart = null;
-        checkinDateEnd = null;
-    }
-    if (popup) {
-        popup.style.display = 'none';
-    }
+const modal = document.getElementById('checkinCalendarModal');
+const popup = document.getElementById('checkinCalendarHelpPopup');
+if (modal) {
+modal.classList.remove('active');
+document.body.style.overflow = '';
+checkinDateStart = null;
+checkinDateEnd = null;
+}
+if (popup) {
+popup.style.display = 'none';
+}
 }
 
 // Função para abrir/fechar popup de ajuda do calendário
 function toggleCheckinCalendarHelp() {
-    const popup = document.getElementById('checkinCalendarHelpPopup');
-    if (popup) {
-        if (popup.style.display === 'none' || popup.style.display === '') {
-            popup.style.display = 'block';
-        } else {
-            popup.style.display = 'none';
-            localStorage.setItem('checkinCalendarHelpSeen', 'true');
-        }
-    }
+const popup = document.getElementById('checkinCalendarHelpPopup');
+if (popup) {
+if (popup.style.display === 'none' || popup.style.display === '') {
+popup.style.display = 'block';
+} else {
+popup.style.display = 'none';
+localStorage.setItem('checkinCalendarHelpSeen', 'true');
+}
+}
 }
 
 // Aplicar filtro rápido (sem abrir calendário)
 function applyQuickFilter(period) {
-    const endDate = new Date();
-    const startDate = new Date();
-    
-    if (period === 'last7') {
-        startDate.setDate(startDate.getDate() - 6);
-    } else if (period === 'last30') {
-        startDate.setDate(startDate.getDate() - 29);
-    }
-    
-    const startStr = startDate.toISOString().split('T')[0];
-    const endStr = endDate.toISOString().split('T')[0];
-    
-    // Redirecionar com filtro de data customizado
-    const url = new URL(window.location.href);
-    url.searchParams.set('date_filter', 'custom');
-    url.searchParams.set('date_start', startStr);
-    url.searchParams.set('date_end', endStr);
-    window.location.href = url.toString();
+const endDate = new Date();
+const startDate = new Date();
+
+if (period === 'last7') {
+startDate.setDate(startDate.getDate() - 6);
+} else if (period === 'last30') {
+startDate.setDate(startDate.getDate() - 29);
+}
+
+const startStr = startDate.toISOString().split('T')[0];
+const endStr = endDate.toISOString().split('T')[0];
+
+// Redirecionar com filtro de data customizado
+const url = new URL(window.location.href);
+url.searchParams.set('date_filter', 'custom');
+url.searchParams.set('date_start', startStr);
+url.searchParams.set('date_end', endStr);
+window.location.href = url.toString();
 }
 
 // Fechar modal ao clicar fora
 document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('checkinCalendarModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this || e.target.classList.contains('custom-modal-overlay')) {
-                closeCheckinCalendar();
-            }
-        });
-    }
+const modal = document.getElementById('checkinCalendarModal');
+if (modal) {
+modal.addEventListener('click', function(e) {
+if (e.target === this || e.target.classList.contains('custom-modal-overlay')) {
+closeCheckinCalendar();
+}
+});
+}
 });
 </script>
 
