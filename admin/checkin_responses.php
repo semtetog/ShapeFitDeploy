@@ -767,12 +767,18 @@ require_once __DIR__ . '/includes/header.php';
     white-space: nowrap !important;
 }
 
-/* IMPEDIR QUE O FLEX APERTE A DATA */
+/* IMPEDIR QUE O FLEX APERTE A DATA - PACOTE GARANTIDO */
 .responses-table td:first-child .table-date {
     flex-shrink: 0 !important;
 }
 
 .responses-table td:first-child .table-date span {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+/* ZERO RISCOS - Qualquer span na primeira coluna */
+.responses-table td:first-child span {
     white-space: nowrap !important;
     flex-shrink: 0 !important;
 }
@@ -1096,7 +1102,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <td onclick="openChatModal('<?php echo htmlspecialchars($key); ?>')" style="cursor: pointer;">
                                     <div class="table-date">
                                         <i class="fas fa-calendar"></i>
-                                        <span><?php echo $formatted_date; ?>, <?php echo $formatted_time; ?></span>
+                                        <span><?php echo $formatted_date . ',&nbsp;' . $formatted_time; ?></span>
                                     </div>
                                 </td>
                                 <td onclick="openChatModal('<?php echo htmlspecialchars($key); ?>')" style="cursor: pointer;">
