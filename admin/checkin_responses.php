@@ -835,25 +835,25 @@ require_once __DIR__ . '/includes/header.php';
     overflow-x: hidden !important;
 }
 
-/* Modo de Seleção */
+/* Modo de Seleção - Copiado do .submissions-count */
 .btn-select-mode {
-    background: rgba(59, 130, 246, 0.1);
-    color: #3B82F6;
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #3B82F6;
+    cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .btn-select-mode:hover {
     background: rgba(59, 130, 246, 0.2);
-    border-color: #3B82F6;
+    border-color: rgba(59, 130, 246, 0.4);
 }
 
 .btn-select-mode.active {
