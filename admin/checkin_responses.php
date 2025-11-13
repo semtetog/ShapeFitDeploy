@@ -773,39 +773,32 @@ color: var(--text-primary);
 margin: 0 0 0.5rem 0;
 }
 
-/* Modais Customizados (estilo admin) - igual ao view_user_hydration */
+/* Modais Customizados (estilo admin) */
 .custom-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 999999;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.1s ease;
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.7);
+backdrop-filter: blur(8px);
+z-index: 999999;
+align-items: center;
+justify-content: center;
 }
 
 .custom-modal.active {
-    display: flex !important;
-    opacity: 1;
-    pointer-events: all;
+display: flex !important;
 }
 
 .custom-modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: none !important;
-    z-index: 1;
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+z-index: 1;
 }
 
 /* Garantir que o calendário fique acima do overlay */
