@@ -781,15 +781,18 @@ top: 0;
 left: 0;
 width: 100%;
 height: 100%;
-background: rgba(0, 0, 0, 0.7);
-backdrop-filter: blur(8px);
 z-index: 999999;
 align-items: center;
 justify-content: center;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.1s ease;
 }
 
 .custom-modal.active {
 display: flex !important;
+opacity: 1;
+pointer-events: all;
 }
 
 .custom-modal-overlay {
@@ -798,6 +801,10 @@ top: 0;
 left: 0;
 width: 100%;
 height: 100%;
+background: rgba(0, 0, 0, 0.5);
+backdrop-filter: blur(8px);
+-webkit-backdrop-filter: blur(8px);
+transition: none !important;
 z-index: 1;
 }
 
