@@ -1122,26 +1122,9 @@ function tryGroqAPI($conversation, $user_name) {
         error_log("Groq Warning: Conversa muito longa, truncada para " . strlen($conversation_limited) . " caracteres");
     }
     
-    $user_message = "⚠️⚠️⚠️ ATENÇÃO CRÍTICA: Analise a seguinte conversa COMPLETA de check-in linha por linha. \n\n";
-    $user_message .= "⚠️ REGRAS OBRIGATÓRIAS:\n";
-    $user_message .= "1. Leia CADA linha da conversa abaixo\n";
-    $user_message .= "2. Para CADA pergunta feita, você DEVE incluir a resposta no resumo\n";
-    $user_message .= "3. Se uma pergunta foi sobre apetite e a resposta foi '10/10', você DEVE colocar 'Apetite: 10/10' na seção Alimentação\n";
-    $user_message .= "4. Se uma pergunta foi sobre humor e a resposta foi '0/10', você DEVE colocar 'Humor: 0/10' na seção Motivação/Humor\n";
-    $user_message .= "5. Se uma pergunta foi sobre sono e a resposta foi '5/10', você DEVE colocar 'Sono: 5/10' na seção Sono/Recuperação\n";
-    $user_message .= "6. Se uma pergunta foi sobre fome e a resposta foi '5/10', você DEVE colocar 'Fome: 5/10' na seção Alimentação\n";
-    $user_message .= "7. Se uma pergunta foi sobre motivação e a resposta foi '7.5/10', você DEVE colocar 'Motivação: 7.5/10' na seção Motivação/Humor\n";
-    $user_message .= "8. Se uma pergunta foi sobre desejo de furar e a resposta foi '10/10', você DEVE colocar 'Desejo de furar: 10/10' na seção Motivação/Humor\n";
-    $user_message .= "9. Se uma pergunta foi sobre recuperação e a resposta foi '7.5/10', você DEVE colocar 'Recuperação: 7.5/10' na seção Sono/Recuperação\n";
-    $user_message .= "10. Se uma pergunta foi sobre estresse e a resposta foi '2.5/10', você DEVE colocar 'Estresse: 2.5/10' na seção Sono/Recuperação\n";
-    $user_message .= "11. Se uma pergunta foi sobre intestino e a resposta foi '2.5/10', você DEVE colocar 'Intestino: 2.5/10' na seção Intestino\n";
-    $user_message .= "12. Se uma pergunta foi sobre performance e a resposta foi '7.5/10', você DEVE colocar 'Performance: 7.5/10' na seção Performance\n";
-    $user_message .= "13. Se uma pergunta foi sobre nota da semana e a resposta foi '7.5', você DEVE colocar 'Nota geral: 7.5/10'\n";
-    $user_message .= "14. Se uma pergunta foi sobre refeições sociais e a resposta foi 'Sim', você DEVE colocar 'Refeições sociais: Sim' na seção Alimentação\n";
-    $user_message .= "15. Se uma pergunta foi sobre refeição fora do plano e a resposta foi mencionada, você DEVE colocar os detalhes na seção Alimentação\n\n";
-    $user_message .= "⚠️ NÃO ESQUEÇA NENHUMA PERGUNTA E NENHUMA RESPOSTA!\n\n";
-    $user_message .= "Conversa completa:\n" . $conversation_limited . "\n\n";
-    $user_message .= "Agora crie um resumo PROFISSIONAL, DETALHADO e COMPLETO em português brasileiro, formatado em HTML, incluindo TODOS os dados mencionados acima. Certifique-se de que CADA pergunta e resposta da conversa apareça no resumo organizado nas seções apropriadas:";
+    $user_message = "A seguir está a conversa completa de um check-in semanal entre nutricionista e paciente. Leia cada linha com atenção e siga TODAS as regras do system prompt.\n\n";
+    $user_message .= "Conversa:\n" . $conversation_limited . "\n\n";
+    $user_message .= "Agora gere o resumo profissional completo em HTML.";
     
     // Preparar requisição para Groq API
     $ch = curl_init($api_url);
