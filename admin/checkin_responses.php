@@ -762,13 +762,30 @@ require_once __DIR__ . '/includes/header.php';
     width: 140px !important;
     min-width: 140px !important;
     max-width: 140px !important;
-    padding-right: 0 !important;
+    padding-right: 0.75rem !important;
+    position: relative;
+}
+
+.responses-table td:first-child::after {
+    content: '';
+    position: absolute;
+    right: 0.375rem;
+    top: 15%;
+    bottom: 15%;
+    width: 1px;
+    background: linear-gradient(to bottom, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.15) 20%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        rgba(255, 255, 255, 0.15) 80%, 
+        transparent 100%);
 }
 
 /* COLUNA NOME - FLEX */
 .responses-table th:nth-child(2),
 .responses-table td:nth-child(2) {
     width: auto !important;
+    padding-left: 0.75rem !important;
 }
 
 /* COLUNA AÇÕES - FIXA */
