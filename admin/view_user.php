@@ -1056,7 +1056,7 @@ if (typeof window.userId === 'undefined') {
                     <i class="fas fa-calendar-check icon"></i>
                     <label>Frequência</label>
                     </div>
-                <span><?php echo $exercise_freq_names[$user_data['exercise_frequency']] ?? 'N/I'; ?></span>
+                <span><?php echo $exercise_freq_names[$exercise_frequency] ?? 'N/I'; ?></span>
                 </div>
             <div class="data-item">
                 <div class="data-title">

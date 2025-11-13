@@ -24,8 +24,30 @@ $stmt->close();
 
 // Processar formulário se enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $exercise_type_none = isset($_POST['exercise_type_none']);
     $exercise_type = $_POST['exercise_type'] ?? '';
     $exercise_frequency = $_POST['exercise_frequency'] ?? '';
+    
+    // Se o checkbox "Nenhuma / Não pratico" está marcado, limpar exercícios
+    if ($exercise_type_none) {
+        $exercise_type = '';
+        $exercise_frequency = 'sedentary';
+    } else {
+        // Validação: Se há exercícios, a frequência é obrigatória
+        $has_exercises = !empty($exercise_type) && trim($exercise_type) !== '';
+        $has_frequency = !empty($exercise_frequency) && trim($exercise_frequency) !== '';
+        
+        if ($has_exercises && !$has_frequency) {
+            // Se há exercícios mas não há frequência, redirecionar com erro
+            header('Location: edit_profile.php?error=exercise_frequency_required');
+            exit;
+        }
+        
+        // Se não há exercícios, definir frequência como 'sedentary'
+        if (!$has_exercises) {
+            $exercise_frequency = 'sedentary';
+        }
+    }
     
     // Atualizar no banco
     $stmt = $conn->prepare("UPDATE sf_user_profiles SET exercise_type = ?, exercise_frequency = ? WHERE user_id = ?");
@@ -319,18 +341,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             hiddenInput.value = exerciseString;
             document.getElementById('exercises-form').appendChild(hiddenInput);
             
+            // Verificar se há exercícios
+            const hasExercises = exercises.length > 0;
+            
+            // Verificar se há frequência selecionada
+            const frequencyRadios = document.querySelectorAll('input[name="exercise_frequency"]');
+            let selectedFrequency = null;
+            frequencyRadios.forEach(radio => {
+                if (radio.checked) {
+                    selectedFrequency = radio.value;
+                }
+            });
+            
+            // Validação: Se há exercícios, a frequência é obrigatória
+            if (hasExercises && !selectedFrequency) {
+                alert('Por favor, selecione a frequência de treino. Se você pratica exercícios, é necessário informar com que frequência.');
+                return false;
+            }
+            
             // Se não tem exercícios, força frequency como sedentary
-            if (exercises.length === 0) {
+            if (!hasExercises) {
                 const frequencyInput = document.createElement('input');
                 frequencyInput.type = 'hidden';
                 frequencyInput.name = 'exercise_frequency';
                 frequencyInput.value = 'sedentary';
                 document.getElementById('exercises-form').appendChild(frequencyInput);
             }
+            
+            return true;
         }
         
         document.getElementById('exercises-form').addEventListener('submit', function(e) {
-            saveExercises();
+            if (!saveExercises()) {
+                e.preventDefault();
+                return false;
+            }
         });
         
         // Carregar dados atuais
