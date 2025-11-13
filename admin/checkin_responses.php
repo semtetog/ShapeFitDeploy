@@ -416,6 +416,9 @@ require_once __DIR__ . '/includes/header.php';
 .responses-table th:first-child {
     padding: 1rem 0.75rem 1rem 1rem;
     position: relative;
+    border-left: none !important;
+    margin-left: 0 !important;
+    padding-left: 1rem !important;
 }
 
 .responses-table th:first-child::after {
@@ -887,6 +890,8 @@ require_once __DIR__ . '/includes/header.php';
 .responses-table tbody tr.response-row.selected {
     background: rgba(255, 107, 0, 0.1) !important;
     border-left: 3px solid var(--accent-orange);
+    margin-left: 0;
+    padding-left: calc(1rem - 3px) !important;
 }
 
 /* Garantir que o thead não receba estilos de seleção */
