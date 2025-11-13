@@ -1302,6 +1302,8 @@ require_once __DIR__ . '/includes/header.php';
     position: relative;
     width: 40px;
     height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     border-radius: 50%;
     background: rgba(255, 107, 0, 0.08);
     border: 1px solid rgba(255, 107, 0, 0.2);
@@ -1312,6 +1314,8 @@ require_once __DIR__ . '/includes/header.php';
     cursor: pointer;
     transition: all 0.3s ease;
     flex-shrink: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .diary-calendar-icon-btn:hover {
@@ -1677,14 +1681,14 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="filters-section" style="position: relative; display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; gap: 1rem; align-items: center;">
-            <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
-                <i class="fas fa-mouse-pointer"></i>
-                <span>Selecionar</span>
-            </button>
             <div class="submissions-count">
                 <span>Respostas</span>
                 <span class="badge"><?php echo $total_count; ?></span>
             </div>
+            <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()" title="Modo de seleção">
+                <i class="fas fa-mouse-pointer"></i>
+                <span>Selecionar</span>
+            </button>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
             <button class="calendar-quick-filter-btn" onclick="applyQuickFilter('last7')" title="Últimos 7 dias">
