@@ -847,14 +847,25 @@ function generateSummary($data, $admin_id) {
         return;
     }
     
-    // Se Ollama não funcionou, retornar erro claro
+    // Se Ollama não funcionou, tentar com modelo alternativo
+    // Pode ser que o modelo seja apenas 'llama3.1' e não 'llama3.1:8b'
+    $ollama_result = tryOllamaLocal($conversation, $user_name, 'llama3.1');
+    if ($ollama_result !== false) {
+        echo json_encode([
+            'success' => true,
+            'summary' => $ollama_result
+        ]);
+        return;
+    }
+    
+    // Se ainda não funcionou, retornar erro claro
     echo json_encode([
         'success' => false,
-        'message' => 'Ollama não está disponível. Certifique-se de que o Ollama está instalado e rodando (ollama serve).'
+        'message' => 'Erro ao gerar resumo com Ollama. Verifique se o Ollama está rodando (ollama serve) e se o modelo está instalado (ollama list). Verifique os logs do servidor para mais detalhes.'
     ]);
 }
 
-function tryOllamaLocal($conversation, $user_name) {
+function tryOllamaLocal($conversation, $user_name, $model = null) {
     // Configuração do Ollama local
     // Por padrão, Ollama roda em http://localhost:11434
     $ollama_url = 'http://localhost:11434/api/chat';
@@ -863,7 +874,9 @@ function tryOllamaLocal($conversation, $user_name) {
     // O usuário deve ter baixado o modelo com: ollama pull llama3.1:8b
     // Versão 8B é mais inteligente e completa, mas requer mais memória
     // Se tiver pouca RAM, use: llama3.1 (sem :8b)
-    $model = 'llama3.1:8b'; // Versão mais inteligente - mude para 'llama3.1' se tiver pouca RAM
+    if ($model === null) {
+        $model = 'llama3.1:8b'; // Versão mais inteligente - mude para 'llama3.1' se tiver pouca RAM
+    }
     
     // Criar prompt ULTRA inteligente que funciona com QUALQUER tipo de check-in
     $system_prompt = "Você é um nutricionista experiente e analista de dados de saúde. Sua função é analisar conversas completas de check-in semanal e criar resumos profissionais, detalhados e analíticos em português brasileiro.\n\n";
@@ -924,6 +937,13 @@ function tryOllamaLocal($conversation, $user_name) {
     $system_prompt .= "- ADAPTE a estrutura ao conteúdo real, não force categorias inexistentes\n";
     $system_prompt .= "- ⚠️ REVISE: Certifique-se de que TODAS as perguntas e respostas da conversa foram incluídas no resumo!";
     
+    // Limitar tamanho da conversa se muito grande (para evitar timeout)
+    $conversation_limited = $conversation;
+    if (strlen($conversation) > 8000) {
+        $conversation_limited = substr($conversation, 0, 8000) . "\n\n[... conversa truncada para otimização ...]";
+        error_log("Ollama Warning: Conversa muito longa, truncada para " . strlen($conversation_limited) . " caracteres");
+    }
+    
     $user_message = "⚠️⚠️⚠️ ATENÇÃO CRÍTICA: Analise a seguinte conversa COMPLETA de check-in linha por linha. \n\n";
     $user_message .= "⚠️ REGRAS OBRIGATÓRIAS:\n";
     $user_message .= "1. Leia CADA linha da conversa abaixo\n";
@@ -942,7 +962,7 @@ function tryOllamaLocal($conversation, $user_name) {
     $user_message .= "14. Se uma pergunta foi sobre refeições sociais e a resposta foi 'Sim', você DEVE colocar 'Refeições sociais: Sim' na seção Alimentação\n";
     $user_message .= "15. Se uma pergunta foi sobre refeição fora do plano e a resposta foi mencionada, você DEVE colocar os detalhes na seção Alimentação\n\n";
     $user_message .= "⚠️ NÃO ESQUEÇA NENHUMA PERGUNTA E NENHUMA RESPOSTA!\n\n";
-    $user_message .= "Conversa completa:\n" . $conversation . "\n\n";
+    $user_message .= "Conversa completa:\n" . $conversation_limited . "\n\n";
     $user_message .= "Agora crie um resumo PROFISSIONAL, DETALHADO e COMPLETO em português brasileiro, formatado em HTML, incluindo TODOS os dados mencionados acima. Certifique-se de que CADA pergunta e resposta da conversa apareça no resumo organizado nas seções apropriadas:";
     
     // Preparar requisição para Ollama usando API de chat (mais adequada)
@@ -972,35 +992,70 @@ function tryOllamaLocal($conversation, $user_name) {
             'top_k' => 40
         ]
     ]));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 180); // 180 segundos de timeout para modelos maiores e resumos completos
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); // 5 segundos para conectar
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120); // 120 segundos de timeout (2 minutos)
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // 10 segundos para conectar
     
     $response = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curl_error = curl_error($ch);
     curl_close($ch);
     
-    // Se não conseguir conectar ao Ollama, retorna false para usar fallback
+    // Log para debug (remover em produção se necessário)
+    error_log("Ollama Debug - Model: $model, HTTP Code: " . $http_code . ", Error: " . $curl_error);
+    
+    // Se não conseguir conectar ao Ollama
     if ($http_code === 0 || !empty($curl_error)) {
-        // Ollama não está rodando ou não está acessível
+        error_log("Ollama Error: Não foi possível conectar. HTTP: $http_code, Error: $curl_error");
         return false;
     }
     
-    if ($http_code === 200 && !empty($response)) {
-        $result = json_decode($response, true);
-        
-        if (isset($result['message']['content']) && !empty($result['message']['content'])) {
-            $generated_text = trim($result['message']['content']);
-            
-            // Formatar o resumo em HTML (função inteligente que detecta estrutura)
-            $formatted_summary = formatSummaryHTML($generated_text, $user_name);
-            
-            return $formatted_summary;
-        }
+    // Se houve erro HTTP
+    if ($http_code !== 200) {
+        error_log("Ollama Error: HTTP Code $http_code. Response: " . substr($response, 0, 500));
+        return false;
     }
     
-    // Se chegou aqui, algo deu errado com Ollama
-    return false;
+    if (empty($response)) {
+        error_log("Ollama Error: Resposta vazia");
+        return false;
+    }
+    
+    $result = json_decode($response, true);
+    
+    // Verificar se houve erro no JSON
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log("Ollama Error: JSON decode failed - " . json_last_error_msg() . ". Response: " . substr($response, 0, 500));
+        return false;
+    }
+    
+    // Verificar se há erro na resposta do Ollama
+    if (isset($result['error'])) {
+        error_log("Ollama Error: " . $result['error']);
+        return false;
+    }
+    
+    // Extrair o texto gerado
+    $generated_text = '';
+    if (isset($result['message']['content']) && !empty($result['message']['content'])) {
+        $generated_text = trim($result['message']['content']);
+    } elseif (isset($result['response']) && !empty($result['response'])) {
+        // Formato alternativo
+        $generated_text = trim($result['response']);
+    }
+    
+    if (empty($generated_text)) {
+        error_log("Ollama Error: Texto gerado vazio. Response: " . substr(json_encode($result), 0, 500));
+        return false;
+    }
+    
+    // Formatar o resumo em HTML (função inteligente que detecta estrutura)
+    try {
+        $formatted_summary = formatSummaryHTML($generated_text, $user_name);
+        return $formatted_summary;
+    } catch (Exception $e) {
+        error_log("Ollama Error: Erro ao formatar resumo - " . $e->getMessage());
+        return false;
+    }
 }
 
 function formatSummaryHTML($summary_text, $user_name) {
