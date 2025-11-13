@@ -805,7 +805,6 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 /* COLUNA DATA - AJUSTE PERFEITO */
-/* COLUNA DATA - AJUSTE PERFEITO */
 .responses-table th:first-child,
 .responses-table td:first-child {
     width: 240px !important;
