@@ -322,8 +322,8 @@ require_once __DIR__ . '/includes/header.php';
     background: var(--accent-orange);
     color: white;
     min-width: 24px;
-    height: 24px;
-    padding: 0 6px;
+    min-height: 24px;
+    padding: 0;
     border-radius: 50%;
     font-size: 0.75rem;
     font-weight: 700;
@@ -334,6 +334,8 @@ require_once __DIR__ . '/includes/header.php';
     box-sizing: border-box;
     flex-shrink: 0;
     aspect-ratio: 1;
+    width: auto;
+    height: auto;
 }
 
 /* Tabela com scroll horizontal */
