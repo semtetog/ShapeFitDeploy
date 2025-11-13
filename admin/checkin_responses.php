@@ -749,6 +749,42 @@ require_once __DIR__ . '/includes/header.php';
     transform: translateY(-1px);
 }
 
+/* FORÇA A TABELA A NÃO TER LARGURA MÍNIMA */
+.responses-table {
+    min-width: unset !important;
+    width: 100% !important;
+    table-layout: auto !important;
+}
+
+/* COLUNA DATA - LARGURA MINIMA REAL */
+.responses-table th:first-child,
+.responses-table td:first-child {
+    width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+    padding-right: 0 !important;
+}
+
+/* COLUNA NOME - FLEX */
+.responses-table th:nth-child(2),
+.responses-table td:nth-child(2) {
+    width: auto !important;
+}
+
+/* COLUNA AÇÕES - FIXA */
+.responses-table th:nth-child(3),
+.responses-table td:nth-child(3) {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+}
+
+/* ZERA QUALQUER ESTICAMENTO */
+.table-wrapper {
+    width: 100% !important;
+    overflow-x: hidden !important;
+}
+
 /* Modal de Chat */
 .chat-modal {
     display: none;
