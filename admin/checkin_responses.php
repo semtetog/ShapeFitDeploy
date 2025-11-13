@@ -422,10 +422,6 @@ require_once __DIR__ . '/includes/header.php';
     min-width: 0;
 }
 
-.responses-table th:nth-child(3) {
-    min-width: 300px;
-}
-
 .responses-table tbody tr {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     cursor: pointer;
