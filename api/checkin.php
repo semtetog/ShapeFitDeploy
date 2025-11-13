@@ -266,6 +266,11 @@ function loadProgress($data, $user_id) {
         throw new Exception('ID do check-in inválido');
     }
     
+    // IMPORTANTE: Esta função é APENAS para o USUÁRIO carregar seu progresso
+    // O ADMIN busca respostas diretamente do banco em admin/checkin_responses.php
+    // e vê TODAS as respostas de TODAS as semanas (histórico completo)
+    // Esta função NÃO afeta o histórico do admin de forma alguma
+    
     // Calcular o domingo da semana atual (mesma lógica usada no sistema)
     $week_start = date('Y-m-d', strtotime('sunday this week'));
     
@@ -279,9 +284,9 @@ function loadProgress($data, $user_id) {
     
     $is_completed = (int)($availability['is_completed'] ?? 0);
     
-    // Se o check-in já está completo, não retornar respostas antigas para esta semana
-    // Isso força o usuário a fazer o check-in novamente se foi resetado
-    // Mas mantém o histórico de respostas antigas no banco para consulta do admin
+    // Se o check-in já está completo, não retornar respostas para esta semana
+    // Isso força o usuário a fazer o check-in novamente se foi resetado pelo admin
+    // IMPORTANTE: As respostas antigas PERMANECEM no banco para o admin ver no histórico
     if ($is_completed == 1) {
         echo json_encode([
             'success' => true,
@@ -293,7 +298,8 @@ function loadProgress($data, $user_id) {
     
     // Buscar apenas respostas da semana atual (a partir do domingo da semana)
     // Isso permite que o usuário continue de onde parou nesta semana
-    // Mas respostas de semanas anteriores permanecem no banco para histórico
+    // Respostas de semanas anteriores permanecem no banco e são visíveis APENAS pelo admin
+    // O admin busca diretamente do banco sem filtros de semana
     $stmt = $conn->prepare("
         SELECT question_id, response_text, response_value 
         FROM sf_checkin_responses 
