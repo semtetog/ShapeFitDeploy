@@ -1784,8 +1784,6 @@ require_once __DIR__ . '/includes/header.php';
                 <i class="fas fa-mouse-pointer"></i>
                 <span>Selecionar</span>
             </button>
-        </div>
-        <div class="right-side">
             <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
                 <i class="fas fa-calendar-alt"></i>
             </button>
