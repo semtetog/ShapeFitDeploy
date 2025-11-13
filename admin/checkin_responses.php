@@ -62,22 +62,28 @@ $stmt->close();
 // Processar filtro de datas
 $date_filter = $_GET['date_filter'] ?? 'all';
 $date_condition = "";
+$period_label = "Todos os períodos"; // Label padrão
 
 switch ($date_filter) {
     case 'last_7_days':
         $date_condition = "AND DATE(cr.submitted_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+        $period_label = "Últimos 7 dias";
         break;
     case 'this_week':
         $date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(CURDATE(), 1)";
+        $period_label = "Esta semana";
         break;
     case 'last_week':
         $date_condition = "AND YEARWEEK(cr.submitted_at, 1) = YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 7 DAY), 1)";
+        $period_label = "Semana passada";
         break;
     case 'this_month':
         $date_condition = "AND YEAR(cr.submitted_at) = YEAR(CURDATE()) AND MONTH(cr.submitted_at) = MONTH(CURDATE())";
+        $period_label = "Este mês";
         break;
     case 'last_month':
         $date_condition = "AND YEAR(cr.submitted_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(cr.submitted_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
+        $period_label = "Mês passado";
         break;
     case 'custom':
         $date_start = $_GET['date_start'] ?? '';
@@ -86,10 +92,22 @@ switch ($date_filter) {
             $date_start = $conn->real_escape_string($date_start);
             $date_end = $conn->real_escape_string($date_end);
             $date_condition = "AND DATE(cr.submitted_at) >= '$date_start' AND DATE(cr.submitted_at) <= '$date_end'";
+            
+            // Formatar datas para exibição
+            $start_date_obj = DateTime::createFromFormat('Y-m-d', $date_start);
+            $end_date_obj = DateTime::createFromFormat('Y-m-d', $date_end);
+            if ($start_date_obj && $end_date_obj) {
+                if ($date_start === $date_end) {
+                    $period_label = $start_date_obj->format('d/m/Y');
+                } else {
+                    $period_label = $start_date_obj->format('d/m') . ' - ' . $end_date_obj->format('d/m/Y');
+                }
+            }
         }
         break;
     default:
         $date_condition = "";
+        $period_label = "Todos os períodos";
 }
 
 // Buscar usuários que responderam
@@ -271,27 +289,60 @@ require_once __DIR__ . '/includes/header.php';
     vertical-align: middle !important;
 }
 
-.filters-section .diary-calendar-icon-btn {
+/* Botão de período (estilo igual ao view_user_hydration) */
+.filters-section .period-btn {
+    padding: 10px 20px !important;
+    border: 1px solid rgba(255, 107, 0, 0.2) !important;
+    background: rgba(255, 107, 0, 0.08) !important;
+    color: var(--accent-orange) !important;
+    border-radius: 20px !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    font-family: 'Montserrat', sans-serif !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: center !important;
-    width: 40px !important;
-    min-width: 40px !important;
-    max-width: 40px !important;
+    gap: 12px !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    min-width: auto !important;
     height: 40px !important;
     min-height: 40px !important;
     max-height: 40px !important;
+    line-height: 1 !important;
+    justify-content: flex-start !important;
     box-sizing: border-box !important;
     margin: 0 !important;
-    padding: 0 !important;
     flex-shrink: 0 !important;
     vertical-align: middle !important;
-    position: static !important;
-    top: auto !important;
-    right: auto !important;
-    left: auto !important;
-    bottom: auto !important;
-    float: none !important;
+}
+
+.filters-section .period-btn i {
+    font-size: 1rem !important;
+    flex-shrink: 0 !important;
+    color: var(--accent-orange) !important;
+}
+
+.filters-section .period-btn:hover {
+    background: rgba(255, 107, 0, 0.15) !important;
+    border-color: var(--accent-orange) !important;
+    transform: scale(1.05) !important;
+    color: var(--accent-orange) !important;
+}
+
+.filters-section .period-btn.active {
+    background: rgba(255, 107, 0, 0.08) !important;
+    color: var(--accent-orange) !important;
+    border-color: rgba(255, 107, 0, 0.2) !important;
+    box-shadow: none !important;
+}
+
+.filters-section .period-btn.active:hover {
+    background: rgba(255, 107, 0, 0.15) !important;
+    border-color: var(--accent-orange) !important;
+    color: var(--accent-orange) !important;
 }
 
 /* FIX: Evitar que o ícone de ajuda do calendário suba para o header */
@@ -1862,8 +1913,8 @@ require_once __DIR__ . '/includes/header.php';
             </button>
         </div>
         <div class="right-side calendar-wrapper">
-            <button class="diary-calendar-icon-btn" onclick="openCheckinCalendar()" type="button" title="Ver calendário">
-                <i class="fas fa-calendar-alt"></i>
+            <button class="period-btn active" onclick="openCheckinCalendar()" type="button" id="checkin-period-btn" title="Selecionar período">
+                <i class="fas fa-calendar-alt"></i> <span id="checkin-period-text"><?php echo htmlspecialchars($period_label); ?></span>
             </button>
         </div>
     </div>
@@ -2926,11 +2977,14 @@ function selectSingleCheckinDay(dateStr) {
 function selectCheckinPeriod(period) {
     const endDate = new Date();
     const startDate = new Date();
+    let periodLabel = '';
     
     if (period === 'last7') {
         startDate.setDate(startDate.getDate() - 6);
+        periodLabel = 'Últimos 7 dias';
     } else if (period === 'last30') {
         startDate.setDate(startDate.getDate() - 29);
+        periodLabel = 'Últimos 30 dias';
     }
     
     const startStr = startDate.toISOString().split('T')[0];
@@ -2938,7 +2992,20 @@ function selectCheckinPeriod(period) {
     
     checkinDateStart = startStr;
     checkinDateEnd = endStr;
+    
+    // Atualizar texto do botão antes de redirecionar
+    updateCheckinPeriodButton(periodLabel);
+    
     applyCheckinPeriodSelection();
+}
+
+// Atualizar texto do botão de período
+function updateCheckinPeriodButton(label) {
+    const btn = document.getElementById('checkin-period-btn');
+    const textSpan = document.getElementById('checkin-period-text');
+    if (btn && textSpan) {
+        textSpan.textContent = label;
+    }
 }
 
 // Aplicar seleção de período
@@ -2952,6 +3019,23 @@ function applyCheckinPeriodSelection() {
     if (endDate > today) {
         checkinDateEnd = today.toISOString().split('T')[0];
     }
+    
+    // Formatar label para exibição
+    const startDateObj = new Date(checkinDateStart + 'T00:00:00');
+    const endDateObj = new Date(checkinDateEnd + 'T00:00:00');
+    let periodLabel = '';
+    
+    if (checkinDateStart === checkinDateEnd) {
+        // Um único dia
+        periodLabel = startDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } else {
+        // Período
+        periodLabel = startDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' - ' + 
+                     endDateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+    
+    // Atualizar texto do botão antes de redirecionar
+    updateCheckinPeriodButton(periodLabel);
     
     // Redirecionar com filtro de data customizado
     const url = new URL(window.location.href);
