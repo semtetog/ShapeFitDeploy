@@ -741,9 +741,29 @@ if (!empty($user_data['sleep_time_bed']) && !empty($user_data['sleep_time_wake']
 
 // LÓGICA DE AVATAR
 $avatar_html = '';
+// Verificar se tem nome de arquivo E se o arquivo realmente existe
 if (!empty($user_data['profile_image_filename'])) {
-    $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user_data['profile_image_filename']);
-    $avatar_html = '<img src="' . $avatar_url . '" alt="Foto de ' . htmlspecialchars($user_data['name']) . '" class="profile-avatar-large">';
+    $image_path = APP_ROOT_PATH . '/assets/images/users/' . $user_data['profile_image_filename'];
+    
+    // Verificar se arquivo original existe
+    if (file_exists($image_path)) {
+        $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user_data['profile_image_filename']);
+        $avatar_html = '<img src="' . $avatar_url . '" alt="Foto de ' . htmlspecialchars($user_data['name']) . '" class="profile-avatar-large" onerror="this.onerror=null; this.src=\'\'; this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">';
+    } else {
+        // Tentar thumbnail
+        $thumb_filename = 'thumb_' . $user_data['profile_image_filename'];
+        $thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+        if (file_exists($thumb_path)) {
+            $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+            $avatar_html = '<img src="' . $avatar_url . '" alt="Foto de ' . htmlspecialchars($user_data['name']) . '" class="profile-avatar-large" onerror="this.onerror=null; this.src=\'\'; this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">';
+        } else {
+            // Arquivo não existe, não mostrar imagem
+            $avatar_html = '';
+        }
+    }
+} else {
+    $avatar_html = '';
+}
 }
 if (empty($avatar_html)) {
     $name_parts = explode(' ', trim($user_data['name']));

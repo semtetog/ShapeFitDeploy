@@ -106,16 +106,33 @@ if (!$current_user_in_loaded_list && $user_id) {
 
 /**
  * Gera HTML da foto de perfil (com ícone laranja se não tiver foto)
+ * Verifica se o arquivo existe antes de exibir
  */
 function getUserProfileImageHtml($player_data, $size = 'normal') {
+    $class = $size === 'large' ? 'player-avatar-large' : 'player-avatar';
+    
+    // Verificar se tem nome de arquivo E se o arquivo realmente existe
     if (!empty($player_data['profile_image_filename'])) {
-        $image_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($player_data['profile_image_filename']);
-        $class = $size === 'large' ? 'player-avatar-large' : 'player-avatar';
-        return '<div class="' . $class . '"><img src="' . $image_url . '" alt="Foto de Perfil"></div>';
-    } else {
-        $class = $size === 'large' ? 'player-avatar-large' : 'player-avatar';
-        return '<div class="' . $class . '"><i class="fas fa-user"></i></div>';
+        $image_path = APP_ROOT_PATH . '/assets/images/users/' . $player_data['profile_image_filename'];
+        
+        // Verificar se arquivo original existe
+        if (file_exists($image_path)) {
+            $image_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($player_data['profile_image_filename']);
+            // Adicionar onerror como fallback extra de segurança
+            return '<div class="' . $class . '"><img src="' . $image_url . '" alt="Foto de Perfil" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-user\\\'></i>\'"></div>';
+        } else {
+            // Tentar thumbnail
+            $thumb_filename = 'thumb_' . $player_data['profile_image_filename'];
+            $thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+            if (file_exists($thumb_path)) {
+                $thumb_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                return '<div class="' . $class . '"><img src="' . $thumb_url . '" alt="Foto de Perfil" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-user\\\'></i>\'"></div>';
+            }
+        }
     }
+    
+    // Se não tem foto ou arquivo não existe, mostrar ícone
+    return '<div class="' . $class . '"><i class="fas fa-user"></i></div>';
 }
 
 // --- PREPARAÇÃO PARA O LAYOUT ---

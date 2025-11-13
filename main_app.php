@@ -1405,7 +1405,32 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
     <header class="header">
         <div class="header-actions">
             <a href="<?php echo BASE_APP_URL; ?>/points_history.php" class="points-counter-badge"><i class="fas fa-star"></i><span id="user-points-display"><?php echo number_format($user_points, 0, ',', '.'); ?></span></a>
-            <a href="<?php echo BASE_APP_URL; ?>/edit_profile.php" class="profile-icon"><?php if (!empty($user_profile_data['profile_image_filename'])): ?><img src="<?php echo BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user_profile_data['profile_image_filename']); ?>" alt="Foto de Perfil"><?php else: ?><i class="fas fa-user"></i><?php endif; ?></a>
+            <a href="<?php echo BASE_APP_URL; ?>/edit_profile.php" class="profile-icon">
+                <?php 
+                $has_profile_image = false;
+                $profile_image_url = '';
+                if (!empty($user_profile_data['profile_image_filename'])) {
+                    $image_path = APP_ROOT_PATH . '/assets/images/users/' . $user_profile_data['profile_image_filename'];
+                    if (file_exists($image_path)) {
+                        $has_profile_image = true;
+                        $profile_image_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user_profile_data['profile_image_filename']);
+                    } else {
+                        // Tentar thumbnail
+                        $thumb_filename = 'thumb_' . $user_profile_data['profile_image_filename'];
+                        $thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+                        if (file_exists($thumb_path)) {
+                            $has_profile_image = true;
+                            $profile_image_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                        }
+                    }
+                }
+                if ($has_profile_image): 
+                ?>
+                    <img src="<?php echo $profile_image_url; ?>" alt="Foto de Perfil" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"><i class="fas fa-user" style="display:none;"></i>
+                <?php else: ?>
+                    <i class="fas fa-user"></i>
+                <?php endif; ?>
+            </a>
         </div>
     </header>
 
@@ -1432,9 +1457,65 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
 
     <section class="dashboard-grid">
         <div class="glass-card card-ranking"><a href="<?php echo BASE_APP_URL; ?>/ranking.php" class="ranking-link">
-            <div class="player-info left"><div class="player-avatar"><?php if (!empty($user_profile_data['profile_image_filename'])): ?><img src="<?php echo BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user_profile_data['profile_image_filename']); ?>" alt="Sua foto"><?php else: ?><i class="fas fa-user"></i><?php endif; ?></div><span>Você</span></div>
+            <div class="player-info left">
+                <div class="player-avatar">
+                    <?php 
+                    $has_user_image = false;
+                    $user_image_url = '';
+                    if (!empty($user_profile_data['profile_image_filename'])) {
+                        $image_path = APP_ROOT_PATH . '/assets/images/users/' . $user_profile_data['profile_image_filename'];
+                        if (file_exists($image_path)) {
+                            $has_user_image = true;
+                            $user_image_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user_profile_data['profile_image_filename']);
+                        } else {
+                            $thumb_filename = 'thumb_' . $user_profile_data['profile_image_filename'];
+                            $thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+                            if (file_exists($thumb_path)) {
+                                $has_user_image = true;
+                                $user_image_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                            }
+                        }
+                    }
+                    if ($has_user_image): 
+                    ?>
+                        <img src="<?php echo $user_image_url; ?>" alt="Sua foto" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"><i class="fas fa-user" style="display:none;"></i>
+                    <?php else: ?>
+                        <i class="fas fa-user"></i>
+                    <?php endif; ?>
+                </div>
+                <span>Você</span>
+            </div>
             <div class="clash-center"><span class="clash-title <?php if ($my_rank == 1) echo 'winner'; ?>"><?php echo ($my_rank == 1) ? 'Você está no Topo!' : 'Disputa de Pontos'; ?></span><div class="progress-bar"><div class="progress-bar-fill" style="width: <?php echo $user_progress_percentage; ?>%;"></div></div><span class="rank-position">Sua Posição: <strong><?php echo $my_rank; ?>º</strong></span></div>
-            <div class="player-info right"><?php if (isset($opponent_data)): ?><div class="player-avatar"><?php if (!empty($opponent_data['profile_image_filename'])): ?><img src="<?php echo BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($opponent_data['profile_image_filename']); ?>" alt="Foto do oponente"><?php else: ?><i class="fas fa-user"></i><?php endif; ?></div><span><?php echo htmlspecialchars(explode(' ', $opponent_data['name'])[0]); ?></span><?php endif; ?></div>
+            <div class="player-info right">
+                <?php if (isset($opponent_data)): ?>
+                    <div class="player-avatar">
+                        <?php 
+                        $has_opponent_image = false;
+                        $opponent_image_url = '';
+                        if (!empty($opponent_data['profile_image_filename'])) {
+                            $image_path = APP_ROOT_PATH . '/assets/images/users/' . $opponent_data['profile_image_filename'];
+                            if (file_exists($image_path)) {
+                                $has_opponent_image = true;
+                                $opponent_image_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($opponent_data['profile_image_filename']);
+                            } else {
+                                $thumb_filename = 'thumb_' . $opponent_data['profile_image_filename'];
+                                $thumb_path = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+                                if (file_exists($thumb_path)) {
+                                    $has_opponent_image = true;
+                                    $opponent_image_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                                }
+                            }
+                        }
+                        if ($has_opponent_image): 
+                        ?>
+                            <img src="<?php echo $opponent_image_url; ?>" alt="Foto do oponente" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"><i class="fas fa-user" style="display:none;"></i>
+                        <?php else: ?>
+                            <i class="fas fa-user"></i>
+                        <?php endif; ?>
+                    </div>
+                    <span><?php echo htmlspecialchars(explode(' ', $opponent_data['name'])[0]); ?></span>
+                <?php endif; ?>
+            </div>
         </a></div>
         
         <div class="glass-card card-weight">
