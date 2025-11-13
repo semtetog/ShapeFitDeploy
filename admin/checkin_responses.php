@@ -395,21 +395,22 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td {
-    padding: 1rem;
+    padding: 1rem 0;
     font-size: 0.875rem;
     color: var(--text-primary);
     vertical-align: middle;
 }
 
 .responses-table td:first-child {
-    padding: 1rem 0.15rem 1rem 1rem;
+    padding: 1rem 0 1rem 1rem;
     position: relative;
+    padding-right: 0.5rem;
 }
 
 .responses-table td:first-child::after {
     content: '';
     position: absolute;
-    right: 0;
+    right: 0.25rem;
     top: 10%;
     bottom: 10%;
     width: 1px;
@@ -422,7 +423,17 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:nth-child(2) {
-    padding: 1rem 0.5rem 1rem 0.15rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
+}
+
+.responses-table td:first-child .table-date {
+    padding-right: 0;
+    margin-right: 0;
+}
+
+.responses-table td:nth-child(2) .table-user {
+    padding-left: 0;
+    margin-left: 0;
 }
 
 .table-checkbox {
