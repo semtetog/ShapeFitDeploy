@@ -2026,6 +2026,7 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         }
         
         // Animação com requestAnimationFrame para controle preciso
+        // RECALCULA POSIÇÕES EM TEMPO REAL para acompanhar scroll
         const startTime = performance.now();
         let animationFrameId;
         
@@ -2033,15 +2034,39 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
+            // RECALCULAR posição final do badge EM TEMPO REAL (para acompanhar scroll)
+            let currentEndX, currentEndY;
+            const currentBadgeRect = pointsBadge.getBoundingClientRect();
+            const currentBadgeStarIcon = pointsBadge.querySelector('i.fa-star');
+            
+            if (currentBadgeStarIcon) {
+                const currentBadgeStarRect = currentBadgeStarIcon.getBoundingClientRect();
+                currentEndX = currentBadgeStarRect.left + currentBadgeStarRect.width / 2;
+                currentEndY = currentBadgeStarRect.top + currentBadgeStarRect.height / 2;
+            } else {
+                currentEndX = currentBadgeRect.left + currentBadgeRect.width / 2;
+                currentEndY = currentBadgeRect.top + currentBadgeRect.height / 2;
+            }
+            
+            // RECALCULAR posição inicial também (caso elemento fonte tenha se movido)
+            const currentSourceRect = sourceElement.getBoundingClientRect();
+            const currentStartX = currentSourceRect.left + currentSourceRect.width / 2;
+            const currentStartY = currentSourceRect.top + currentSourceRect.height / 2;
+            
+            // Calcular delta atualizado
+            const currentDeltaX = currentEndX - currentStartX;
+            const currentDeltaY = currentEndY - currentStartY;
+            const currentDistance = Math.sqrt(currentDeltaX * currentDeltaX + currentDeltaY * currentDeltaY);
+            
             // Usar easing suave (ease-out cubic) para movimento natural
             const easedProgress = easeOutCubic(progress);
             
-            // Calcular posição atual
-            const currentX = startX + (deltaX * easedProgress);
-            const currentY = startY + (deltaY * easedProgress);
+            // Calcular posição atual baseada nas posições RECALCULADAS
+            const currentX = currentStartX + (currentDeltaX * easedProgress);
+            const currentY = currentStartY + (currentDeltaY * easedProgress);
             
             // Adicionar curva suave (parábola leve) para trajetória mais natural
-            const curveHeight = Math.min(distance * 0.15, 100); // Altura da curva baseada na distância
+            const curveHeight = Math.min(currentDistance * 0.15, 100); // Altura da curva baseada na distância atual
             const curveProgress = Math.sin(progress * Math.PI); // Curva em formato de onda
             const curveOffset = -curveHeight * curveProgress; // Offset vertical para curva
             
@@ -3711,6 +3736,7 @@ function animateStarToBadge(points) {
     }
     
     // Animação com requestAnimationFrame
+    // RECALCULA POSIÇÕES EM TEMPO REAL para acompanhar scroll
     const startTime = performance.now();
     let animationFrameId;
     
@@ -3718,15 +3744,39 @@ function animateStarToBadge(points) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
+        // RECALCULAR posição final do badge EM TEMPO REAL (para acompanhar scroll)
+        let currentEndX, currentEndY;
+        const currentBadgeRect = pointsBadge.getBoundingClientRect();
+        const currentBadgeStarIcon = pointsBadge.querySelector('i.fa-star');
+        
+        if (currentBadgeStarIcon) {
+            const currentBadgeStarRect = currentBadgeStarIcon.getBoundingClientRect();
+            currentEndX = currentBadgeStarRect.left + currentBadgeStarRect.width / 2;
+            currentEndY = currentBadgeStarRect.top + currentBadgeStarRect.height / 2;
+        } else {
+            currentEndX = currentBadgeRect.left + currentBadgeRect.width / 2;
+            currentEndY = currentBadgeRect.top + currentBadgeRect.height / 2;
+        }
+        
+        // RECALCULAR posição inicial também (caso elemento fonte tenha se movido)
+        const currentStarRect = starIcon.getBoundingClientRect();
+        const currentStartX = currentStarRect.left + currentStarRect.width / 2;
+        const currentStartY = currentStarRect.top + currentStarRect.height / 2;
+        
+        // Calcular delta atualizado
+        const currentDeltaX = currentEndX - currentStartX;
+        const currentDeltaY = currentEndY - currentStartY;
+        const currentDistance = Math.sqrt(currentDeltaX * currentDeltaX + currentDeltaY * currentDeltaY);
+        
         // Easing suave
         const easedProgress = easeOutCubic(progress);
         
-        // Calcular posição atual
-        const currentX = startX + (deltaX * easedProgress);
-        const currentY = startY + (deltaY * easedProgress);
+        // Calcular posição atual baseada nas posições RECALCULADAS
+        const currentX = currentStartX + (currentDeltaX * easedProgress);
+        const currentY = currentStartY + (currentDeltaY * easedProgress);
         
         // Adicionar curva suave (parábola)
-        const curveHeight = Math.min(distance * 0.15, 100);
+        const curveHeight = Math.min(currentDistance * 0.15, 100);
         const curveProgress = Math.sin(progress * Math.PI);
         const curveOffset = -curveHeight * curveProgress;
         
