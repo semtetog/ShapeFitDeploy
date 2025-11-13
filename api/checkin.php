@@ -140,10 +140,20 @@ function submitCheckin($data, $user_id) {
     $stmt_update->execute();
     $stmt_update->close();
     
+    // Buscar pontos atualizados do usuário
+    $stmt_points = $conn->prepare("SELECT points FROM sf_users WHERE id = ?");
+    $stmt_points->bind_param("i", $user_id);
+    $stmt_points->execute();
+    $result_points = $stmt_points->get_result();
+    $user_data = $result_points->fetch_assoc();
+    $new_total_points = $user_data['points'] ?? 0;
+    $stmt_points->close();
+    
     echo json_encode([
         'success' => true,
         'message' => 'Check-in salvo com sucesso!',
-        'points_awarded' => $points_awarded
+        'points_awarded' => $points_awarded,
+        'new_total_points' => $new_total_points
     ]);
 }
 

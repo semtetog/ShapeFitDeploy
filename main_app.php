@@ -3156,6 +3156,14 @@ function markCheckinComplete() {
                 modal.remove();
             }
             
+            // Atualizar pontos na interface imediatamente
+            if (data.new_total_points !== undefined) {
+                const pointsDisplay = document.getElementById('user-points-display');
+                if (pointsDisplay) {
+                    pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                }
+            }
+            
             // Sempre mostrar popup de congratulação (com ou sem pontos)
             // Pequeno delay para garantir que o modal fechou antes do popup aparecer
             setTimeout(() => {
