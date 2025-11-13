@@ -831,13 +831,23 @@ function deleteResponse($data, $admin_id) {
 function generateSummary($data, $admin_id) {
     $conversation = trim($data['conversation'] ?? '');
     $user_name = trim($data['user_name'] ?? 'Usuário');
-    
+
     if (empty($conversation)) {
         echo json_encode(['success' => false, 'message' => 'Conversa vazia']);
         exit;
     }
-    
-    // Usar Hugging Face Chat API com modelo de chat para análise mais inteligente
+
+    // Tentar usar Ollama local primeiro (mais forte e privado)
+    $ollama_result = tryOllamaLocal($conversation, $user_name);
+    if ($ollama_result !== false) {
+        echo json_encode([
+            'success' => true,
+            'summary' => $ollama_result
+        ]);
+        return;
+    }
+
+    // Fallback: Usar Hugging Face Chat API com modelo de chat para análise mais inteligente
     // Modelo: meta-llama/Llama-3.2-3B-Instruct ou microsoft/Phi-3-mini-4k-instruct
     // Vou usar o modelo de chat que permite prompts mais complexos
     $api_url = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
@@ -965,6 +975,110 @@ function generateSummary($data, $admin_id) {
         'success' => true,
         'summary' => $formatted_summary
     ]);
+}
+
+function tryOllamaLocal($conversation, $user_name) {
+    // Configuração do Ollama local
+    // Por padrão, Ollama roda em http://localhost:11434
+    $ollama_url = 'http://localhost:11434/api/generate';
+    
+    // Modelo a usar (pode ser: llama3.1, mistral, qwen2.5, phi3)
+    // O usuário deve ter baixado o modelo com: ollama pull llama3.1
+    $model = 'llama3.1'; // Pode mudar para 'mistral' ou outro modelo instalado
+    
+    // Criar prompt detalhado para análise
+    $prompt = "Você é um nutricionista experiente analisando um check-in semanal detalhado de um paciente. Analise TODA a conversa abaixo e crie um resumo PROFISSIONAL, DETALHADO e ANALÍTICO em português brasileiro.\n\n";
+    $prompt .= "Estrutura do resumo:\n\n";
+    $prompt .= "✅ Resumo Completo do Check-in Semanal\n\n";
+    $prompt .= "📅 Período analisado: Últimos 7 dias\n";
+    $prompt .= "👤 Paciente: [NOME]\n\n";
+    $prompt .= "📊 Nota geral da semana: [NOTA]/10\n\n";
+    $prompt .= "🔥 1. Rotina & Treinos\n";
+    $prompt .= "- Mudança significativa na rotina: [SIM/NÃO]\n";
+    $prompt .= "- Faltou treinos: [SIM/NÃO]\n";
+    $prompt .= "- Treinos realizados: [DETALHES]\n";
+    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
+    $prompt .= "🍽️ 2. Alimentação\n";
+    $prompt .= "- Refeições sociais: [SIM/NÃO]\n";
+    $prompt .= "- Refeição fora do plano: [DETALHES]\n";
+    $prompt .= "- Apetite: [NOTA]/10\n";
+    $prompt .= "- Fome: [NOTA]/10\n";
+    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
+    $prompt .= "😊 3. Motivação, Humor & Desejos\n";
+    $prompt .= "- Motivação: [NOTA]/10\n";
+    $prompt .= "- Desejo de furar: [NOTA]/10\n";
+    $prompt .= "- Humor: [NOTA]/10\n";
+    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
+    $prompt .= "😴 4. Sono, Recuperação & Estresse\n";
+    $prompt .= "- Sono: [NOTA]/10\n";
+    $prompt .= "- Recuperação: [NOTA]/10\n";
+    $prompt .= "- Estresse: [NOTA]/10\n";
+    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
+    $prompt .= "🧻 5. Intestino\n";
+    $prompt .= "- Funcionamento: [NOTA]/10\n";
+    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
+    $prompt .= "🧠 6. Performance\n";
+    $prompt .= "- Performance: [NOTA]/10\n\n";
+    $prompt .= "⚖️ 7. Peso\n";
+    $prompt .= "- Peso atual: [PESO] kg\n\n";
+    $prompt .= "🗣️ 8. Comentário do paciente\n";
+    $prompt .= "\"[COMENTÁRIO]\"\n\n";
+    $prompt .= "🎯 Conclusão Geral\n";
+    $prompt .= "[CONCLUSÃO DETALHADA]\n\n";
+    $prompt .= "🔧 Ajustes prioritários\n";
+    $prompt .= "- [AJUSTE 1]\n";
+    $prompt .= "- [AJUSTE 2]\n\n";
+    $prompt .= "IMPORTANTE: Extraia TODOS os valores numéricos mencionados (notas de 0-10, peso, etc). Seja específico e detalhado. Use emojis e formatação HTML quando apropriado.\n\n";
+    $prompt .= "Conversa completa:\n" . $conversation . "\n\n";
+    $prompt .= "Agora crie o resumo completo seguindo exatamente a estrutura acima:";
+    
+    // Preparar requisição para Ollama
+    $ch = curl_init($ollama_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+        'model' => $model,
+        'prompt' => $prompt,
+        'stream' => false,
+        'options' => [
+            'temperature' => 0.7,
+            'num_predict' => 2000, // Máximo de tokens a gerar
+            'top_p' => 0.9,
+            'top_k' => 40
+        ]
+    ]));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60); // 60 segundos de timeout
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); // 5 segundos para conectar
+    
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+    
+    // Se não conseguir conectar ao Ollama, retorna false para usar fallback
+    if ($http_code === 0 || !empty($curl_error)) {
+        // Ollama não está rodando ou não está acessível
+        return false;
+    }
+    
+    if ($http_code === 200 && !empty($response)) {
+        $result = json_decode($response, true);
+        
+        if (isset($result['response']) && !empty($result['response'])) {
+            $generated_text = trim($result['response']);
+            
+            // Formatar o resumo em HTML
+            $formatted_summary = formatSummaryHTML($generated_text, $user_name);
+            
+            return $formatted_summary;
+        }
+    }
+    
+    // Se chegou aqui, algo deu errado com Ollama
+    return false;
 }
 
 function formatSummaryHTML($summary_text, $user_name) {
