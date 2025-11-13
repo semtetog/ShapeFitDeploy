@@ -33,6 +33,22 @@ if ($result->num_rows === 0) {
 $checkin = $result->fetch_assoc();
 $stmt->close();
 
+// Buscar dados do admin que criou o check-in (para foto do bot)
+$admin_creator_id = (int)($checkin['admin_id'] ?? 0);
+$admin_data = null;
+if ($admin_creator_id > 0) {
+    $stmt_admin = $conn->prepare("SELECT id, name, email FROM sf_admins WHERE id = ?");
+    $stmt_admin->bind_param("i", $admin_creator_id);
+    $stmt_admin->execute();
+    $admin_result = $stmt_admin->get_result();
+    if ($admin_result->num_rows > 0) {
+        $admin_data = $admin_result->fetch_assoc();
+        // Buscar foto do admin (se houver tabela de perfis de admin)
+        // Por enquanto, vamos usar apenas o nome para gerar iniciais
+    }
+    $stmt_admin->close();
+}
+
 // Buscar perguntas
 $stmt = $conn->prepare("SELECT * FROM sf_checkin_questions WHERE config_id = ? ORDER BY order_index ASC");
 $stmt->bind_param("i", $checkin_id);
@@ -103,23 +119,7 @@ while ($row = $users_result->fetch_assoc()) {
         $users[$key] = $row;
         $users[$key]['responses'] = [];
         
-        // Buscar primeira resposta para preview
-        $first_resp_stmt = $conn->prepare("
-            SELECT response_text, response_value
-            FROM sf_checkin_responses
-            WHERE config_id = ? AND user_id = ? AND DATE(submitted_at) = ?
-            ORDER BY submitted_at ASC
-            LIMIT 1
-        ");
-        $first_resp_stmt->bind_param("iis", $checkin_id, $user_id, $response_date);
-        $first_resp_stmt->execute();
-        $first_resp_result = $first_resp_stmt->get_result();
-        if ($first_resp = $first_resp_result->fetch_assoc()) {
-            $users[$key]['first_response'] = !empty($first_resp['response_text']) 
-                ? $first_resp['response_text'] 
-                : ($first_resp['response_value'] ?? '');
-        }
-        $first_resp_stmt->close();
+        // Não buscar primeira resposta para preview (removido conforme solicitado)
     }
     
     // Buscar todas as respostas deste usuário para esta data
@@ -376,10 +376,6 @@ require_once __DIR__ . '/includes/header.php';
     white-space: nowrap;
 }
 
-.responses-table th:first-child {
-    width: 40px;
-    padding-left: 1.5rem;
-}
 
 .responses-table th:nth-child(2) {
     width: 180px;
@@ -410,9 +406,6 @@ require_once __DIR__ . '/includes/header.php';
     vertical-align: middle;
 }
 
-.responses-table td:first-child {
-    padding-left: 1.5rem;
-}
 
 .table-checkbox {
     width: 18px;
@@ -550,24 +543,22 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .chat-modal-close {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
     color: var(--text-secondary);
+    font-size: 1.2rem;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 50%;
     transition: all 0.2s ease;
-    font-size: 1.25rem;
-    line-height: 1;
+    z-index: 10;
 }
 
 .chat-modal-close:hover {
-    background: rgba(255, 107, 0, 0.1);
-    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.1);
     color: var(--accent-orange);
 }
 
@@ -728,7 +719,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
         <div class="submissions-count">
-            <span>Submissions</span>
+            <span>Submissões</span>
             <span class="badge"><?php echo $total_count; ?></span>
         </div>
     </div>
@@ -746,10 +737,7 @@ require_once __DIR__ . '/includes/header.php';
                     <thead>
                         <tr>
                             <th>
-                                <input type="checkbox" class="table-checkbox" id="selectAll">
-                            </th>
-                            <th>
-                                <i class="fas fa-clock"></i> Submitted at
+                                <i class="fas fa-clock"></i> Enviado em
                             </th>
                             <th>
                                 <i class="fas fa-user"></i> Nome
@@ -780,9 +768,6 @@ require_once __DIR__ . '/includes/header.php';
                             }
                             ?>
                             <tr data-user-key="<?php echo htmlspecialchars($key); ?>" onclick="openChatModal('<?php echo htmlspecialchars($key); ?>')">
-                                <td onclick="event.stopPropagation();">
-                                    <input type="checkbox" class="table-checkbox" data-user-key="<?php echo htmlspecialchars($key); ?>">
-                                </td>
                                 <td>
                                     <div class="table-date">
                                         <i class="fas fa-calendar"></i>
@@ -802,7 +787,7 @@ require_once __DIR__ . '/includes/header.php';
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="table-preview"><?php echo htmlspecialchars($preview ?: 'Sem resposta'); ?></div>
+                                    <div class="table-preview">Clique para ver respostas</div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -816,9 +801,11 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Modal de Chat -->
 <div class="chat-modal" id="chatModal">
     <div class="chat-modal-content">
+        <button class="chat-modal-close" onclick="closeChatModal()" type="button">
+            <i class="fas fa-times"></i>
+        </button>
         <div class="chat-modal-header">
             <h3 id="chatModalUserName"></h3>
-            <button class="chat-modal-close" onclick="closeChatModal()">&times;</button>
         </div>
         <div class="chat-modal-body" id="chatModalBody">
             <!-- Conteúdo do chat será inserido aqui via JavaScript -->
@@ -859,15 +846,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Select All checkbox
-    const selectAll = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('.table-checkbox[data-user-key]');
-    
-    selectAll.addEventListener('change', function() {
-        checkboxes.forEach(cb => {
-            cb.checked = this.checked;
-        });
-    });
+    // Checkboxes removidos conforme solicitado
 });
 
 function openChatModal(userKey) {
@@ -893,11 +872,28 @@ function openChatModal(userKey) {
         const question = questionsData[questionId];
         const response = user.responses[questionId];
         
-        // Mensagem do bot (pergunta)
+        // Mensagem do bot (pergunta) - usar foto do admin
         const botMessage = document.createElement('div');
         botMessage.className = 'chat-message bot';
+        
+        // Avatar do admin (bot)
+        <?php
+        $admin_avatar_html = '';
+        if ($admin_data) {
+            $admin_name_parts = explode(' ', trim($admin_data['name']));
+            $admin_initials = count($admin_name_parts) > 1 
+                ? strtoupper(substr($admin_name_parts[0], 0, 1) . substr(end($admin_name_parts), 0, 1)) 
+                : (!empty($admin_name_parts[0]) ? strtoupper(substr($admin_name_parts[0], 0, 2)) : 'A');
+            // Por enquanto, usar apenas iniciais (se houver foto de admin no futuro, adicionar aqui)
+            $admin_avatar_html = $admin_initials;
+        } else {
+            $admin_avatar_html = 'A';
+        }
+        ?>
+        const adminAvatar = <?php echo json_encode($admin_avatar_html); ?>;
+        
         botMessage.innerHTML = `
-            <div class="message-avatar">B</div>
+            <div class="message-avatar">${adminAvatar}</div>
             <div class="message-content">
                 <div class="message-bubble">${escapeHtml(question.question_text)}</div>
             </div>
