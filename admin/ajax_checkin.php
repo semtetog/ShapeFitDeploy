@@ -980,59 +980,45 @@ function generateSummary($data, $admin_id) {
 function tryOllamaLocal($conversation, $user_name) {
     // Configuração do Ollama local
     // Por padrão, Ollama roda em http://localhost:11434
-    $ollama_url = 'http://localhost:11434/api/generate';
+    $ollama_url = 'http://localhost:11434/api/chat';
     
     // Modelo a usar (pode ser: llama3.1, mistral, qwen2.5, phi3)
     // O usuário deve ter baixado o modelo com: ollama pull llama3.1
     $model = 'llama3.1'; // Pode mudar para 'mistral' ou outro modelo instalado
     
-    // Criar prompt detalhado para análise
-    $prompt = "Você é um nutricionista experiente analisando um check-in semanal detalhado de um paciente. Analise TODA a conversa abaixo e crie um resumo PROFISSIONAL, DETALHADO e ANALÍTICO em português brasileiro.\n\n";
-    $prompt .= "Estrutura do resumo:\n\n";
-    $prompt .= "✅ Resumo Completo do Check-in Semanal\n\n";
-    $prompt .= "📅 Período analisado: Últimos 7 dias\n";
-    $prompt .= "👤 Paciente: [NOME]\n\n";
-    $prompt .= "📊 Nota geral da semana: [NOTA]/10\n\n";
-    $prompt .= "🔥 1. Rotina & Treinos\n";
-    $prompt .= "- Mudança significativa na rotina: [SIM/NÃO]\n";
-    $prompt .= "- Faltou treinos: [SIM/NÃO]\n";
-    $prompt .= "- Treinos realizados: [DETALHES]\n";
-    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
-    $prompt .= "🍽️ 2. Alimentação\n";
-    $prompt .= "- Refeições sociais: [SIM/NÃO]\n";
-    $prompt .= "- Refeição fora do plano: [DETALHES]\n";
-    $prompt .= "- Apetite: [NOTA]/10\n";
-    $prompt .= "- Fome: [NOTA]/10\n";
-    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
-    $prompt .= "😊 3. Motivação, Humor & Desejos\n";
-    $prompt .= "- Motivação: [NOTA]/10\n";
-    $prompt .= "- Desejo de furar: [NOTA]/10\n";
-    $prompt .= "- Humor: [NOTA]/10\n";
-    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
-    $prompt .= "😴 4. Sono, Recuperação & Estresse\n";
-    $prompt .= "- Sono: [NOTA]/10\n";
-    $prompt .= "- Recuperação: [NOTA]/10\n";
-    $prompt .= "- Estresse: [NOTA]/10\n";
-    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
-    $prompt .= "🧻 5. Intestino\n";
-    $prompt .= "- Funcionamento: [NOTA]/10\n";
-    $prompt .= "💬 Interpretação: [ANÁLISE]\n\n";
-    $prompt .= "🧠 6. Performance\n";
-    $prompt .= "- Performance: [NOTA]/10\n\n";
-    $prompt .= "⚖️ 7. Peso\n";
-    $prompt .= "- Peso atual: [PESO] kg\n\n";
-    $prompt .= "🗣️ 8. Comentário do paciente\n";
-    $prompt .= "\"[COMENTÁRIO]\"\n\n";
-    $prompt .= "🎯 Conclusão Geral\n";
-    $prompt .= "[CONCLUSÃO DETALHADA]\n\n";
-    $prompt .= "🔧 Ajustes prioritários\n";
-    $prompt .= "- [AJUSTE 1]\n";
-    $prompt .= "- [AJUSTE 2]\n\n";
-    $prompt .= "IMPORTANTE: Extraia TODOS os valores numéricos mencionados (notas de 0-10, peso, etc). Seja específico e detalhado. Use emojis e formatação HTML quando apropriado.\n\n";
-    $prompt .= "Conversa completa:\n" . $conversation . "\n\n";
-    $prompt .= "Agora crie o resumo completo seguindo exatamente a estrutura acima:";
+    // Criar prompt inteligente que funciona com QUALQUER tipo de check-in
+    $system_prompt = "Você é um nutricionista experiente que analisa check-ins semanais de pacientes. Sua função é ler a conversa completa entre o profissional e o paciente e criar um resumo profissional, detalhado e analítico em português brasileiro.\n\n";
+    $system_prompt .= "IMPORTANTE:\n";
+    $system_prompt .= "- Cada check-in pode ter perguntas diferentes (cada admin cria seu próprio fluxo)\n";
+    $system_prompt .= "- Leia TODA a conversa como um chat completo\n";
+    $system_prompt .= "- Extraia TODOS os dados mencionados (valores numéricos, respostas, sentimentos)\n";
+    $system_prompt .= "- Identifique padrões, correlações e pontos críticos\n";
+    $system_prompt .= "- Seja específico e mencione valores exatos quando disponíveis\n";
+    $system_prompt .= "- Crie seções relevantes baseadas no conteúdo real da conversa\n\n";
+    $system_prompt .= "Estrutura sugerida (adaptável ao conteúdo):\n";
+    $system_prompt .= "✅ Resumo Completo do Check-in Semanal\n";
+    $system_prompt .= "📅 Período: Últimos 7 dias\n";
+    $system_prompt .= "👤 Paciente: [NOME]\n";
+    $system_prompt .= "📊 Nota geral (se mencionada): [NOTA]/10\n\n";
+    $system_prompt .= "Organize o resumo em seções lógicas baseadas nas perguntas e respostas:\n";
+    $system_prompt .= "- Rotina & Treinos (se mencionado)\n";
+    $system_prompt .= "- Alimentação (se mencionado)\n";
+    $system_prompt .= "- Aspectos Emocionais/Motivação (se mencionado)\n";
+    $system_prompt .= "- Sono & Recuperação (se mencionado)\n";
+    $system_prompt .= "- Saúde & Performance (se mencionado)\n";
+    $system_prompt .= "- Outros aspectos relevantes\n\n";
+    $system_prompt .= "Para cada seção:\n";
+    $system_prompt .= "- Liste os dados extraídos\n";
+    $system_prompt .= "- Forneça interpretação profissional\n";
+    $system_prompt .= "- Identifique pontos positivos e de atenção\n\n";
+    $system_prompt .= "Ao final:\n";
+    $system_prompt .= "🎯 Conclusão Geral\n";
+    $system_prompt .= "🔧 Ajustes prioritários (baseados nos dados reais)\n\n";
+    $system_prompt .= "Use emojis apropriados e formatação HTML quando relevante. Seja profissional, detalhado e específico.";
     
-    // Preparar requisição para Ollama
+    $user_message = "Analise a seguinte conversa completa de check-in e crie o resumo profissional:\n\n" . $conversation;
+    
+    // Preparar requisição para Ollama usando API de chat (mais adequada)
     $ch = curl_init($ollama_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
@@ -1041,16 +1027,25 @@ function tryOllamaLocal($conversation, $user_name) {
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
         'model' => $model,
-        'prompt' => $prompt,
+        'messages' => [
+            [
+                'role' => 'system',
+                'content' => $system_prompt
+            ],
+            [
+                'role' => 'user',
+                'content' => $user_message
+            ]
+        ],
         'stream' => false,
         'options' => [
             'temperature' => 0.7,
-            'num_predict' => 2000, // Máximo de tokens a gerar
+            'num_predict' => 3000, // Mais tokens para resumos completos
             'top_p' => 0.9,
             'top_k' => 40
         ]
     ]));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 60); // 60 segundos de timeout
+    curl_setopt($ch, CURLOPT_TIMEOUT, 90); // 90 segundos de timeout
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); // 5 segundos para conectar
     
     $response = curl_exec($ch);
@@ -1067,10 +1062,10 @@ function tryOllamaLocal($conversation, $user_name) {
     if ($http_code === 200 && !empty($response)) {
         $result = json_decode($response, true);
         
-        if (isset($result['response']) && !empty($result['response'])) {
-            $generated_text = trim($result['response']);
+        if (isset($result['message']['content']) && !empty($result['message']['content'])) {
+            $generated_text = trim($result['message']['content']);
             
-            // Formatar o resumo em HTML
+            // Formatar o resumo em HTML (função inteligente que detecta estrutura)
             $formatted_summary = formatSummaryHTML($generated_text, $user_name);
             
             return $formatted_summary;
@@ -1082,11 +1077,102 @@ function tryOllamaLocal($conversation, $user_name) {
 }
 
 function formatSummaryHTML($summary_text, $user_name) {
-    $html = '<h4>Resumo do Check-in</h4>';
-    $html .= '<p><strong>Paciente:</strong> ' . htmlspecialchars($user_name) . '</p>';
-    
-    // Processar o texto para identificar seções
     $text = trim($summary_text);
+    
+    // Se o texto já contém HTML ou estrutura bem formatada da IA, usar diretamente
+    if (stripos($text, '<h4') !== false || stripos($text, '<h3') !== false || stripos($text, '<p') !== false) {
+        // A IA já formatou em HTML, apenas garantir que o nome do paciente está correto
+        $text = str_ireplace('[NOME]', htmlspecialchars($user_name), $text);
+        $text = str_ireplace('Paciente:', 'Paciente: ' . htmlspecialchars($user_name), $text);
+        return $text;
+    }
+    
+    // Se não tem HTML, processar o texto markdown/plain text da IA
+    $html = '';
+    
+    // Detectar se já tem título
+    if (stripos($text, '✅') === false && stripos($text, 'Resumo') === false) {
+        $html .= '<h4 style="color: var(--accent-orange); margin-bottom: 1rem;">✅ Resumo Completo do Check-in Semanal</h4>';
+    }
+    
+    // Processar o texto linha por linha
+    $lines = explode("\n", $text);
+    $in_list = false;
+    $current_section = '';
+    
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (empty($line)) {
+            if ($in_list) {
+                $html .= '</ul>';
+                $in_list = false;
+            }
+            $html .= '<br>';
+            continue;
+        }
+        
+        // Substituir [NOME] pelo nome real
+        $line = str_ireplace('[NOME]', htmlspecialchars($user_name), $line);
+        
+        // Detectar títulos/seções (emojis + texto ou texto em maiúsculas)
+        if (preg_match('/^([🔥🍽️😊😴🧻🧠⚖️🗣️🎯🔧📅👤📊]|✅)\s*(.+)/u', $line, $matches)) {
+            if ($in_list) {
+                $html .= '</ul>';
+                $in_list = false;
+            }
+            $title = trim($matches[2] ?? $matches[1] ?? $line);
+            if (!empty($title)) {
+                $html .= '<h4 style="color: var(--accent-orange); margin-top: 1.5rem; margin-bottom: 0.75rem;">' . htmlspecialchars($line) . '</h4>';
+            }
+        }
+        // Detectar subtítulos (começam com número ou -)
+        elseif (preg_match('/^(\d+\.|[-•])\s*(.+)/', $line, $matches)) {
+            if ($in_list) {
+                $html .= '</ul>';
+                $in_list = false;
+            }
+            $html .= '<p><strong>' . htmlspecialchars($matches[2]) . '</strong></p>';
+        }
+        // Detectar listas
+        elseif (preg_match('/^[-•*]\s*(.+)/', $line, $matches)) {
+            if (!$in_list) {
+                $html .= '<ul style="list-style: none; padding-left: 0;">';
+                $in_list = true;
+            }
+            $html .= '<li>' . htmlspecialchars($matches[1]) . '</li>';
+        }
+        // Detectar interpretação
+        elseif (stripos($line, '💬') !== false || stripos($line, 'Interpretação') !== false) {
+            if ($in_list) {
+                $html .= '</ul>';
+                $in_list = false;
+            }
+            $content = preg_replace('/^💬\s*Interpretação:\s*/i', '', $line);
+            $html .= '<p><strong>💬 Interpretação:</strong><br>' . nl2br(htmlspecialchars($content)) . '</p>';
+        }
+        // Parágrafos normais
+        else {
+            if ($in_list) {
+                $html .= '</ul>';
+                $in_list = false;
+            }
+            // Detectar valores críticos e destacar
+            if (preg_match('/(\d+\.?\d*)\/10/i', $line, $num_matches)) {
+                $value = floatval($num_matches[1]);
+                if ($value <= 2) {
+                    $line = preg_replace('/(\d+\.?\d*)\/10/i', '<span style="color: var(--danger-red);">$1/10</span>', $line);
+                }
+            }
+            $html .= '<p>' . nl2br(htmlspecialchars($line)) . '</p>';
+        }
+    }
+    
+    if ($in_list) {
+        $html .= '</ul>';
+    }
+    
+    return $html;
+}
     
     // Se o texto já tem estrutura (com números, títulos, etc), formatar melhor
     $text = preg_replace('/\n\s*\n/', "\n\n", $text); // Remover linhas vazias extras
