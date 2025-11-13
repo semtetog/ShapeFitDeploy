@@ -837,14 +837,30 @@ function generateSummary($data, $admin_id) {
         exit;
     }
     
-    // Usar Hugging Face Inference API (gratuita)
-    // Modelo: facebook/bart-large-cnn para sumarização
-    $api_url = 'https://api-inference.huggingface.co/models/facebook/bart-large-cnn';
+    // Usar Hugging Face Chat API com modelo de chat para análise mais inteligente
+    // Modelo: meta-llama/Llama-3.2-3B-Instruct ou microsoft/Phi-3-mini-4k-instruct
+    // Vou usar o modelo de chat que permite prompts mais complexos
+    $api_url = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
     
-    // Preparar texto para sumarização (limitar a 1024 tokens)
-    $text = $conversation;
-    if (strlen($text) > 2000) {
-        $text = substr($text, 0, 2000) . '...';
+    // Criar prompt detalhado para análise
+    $prompt = "Você é um assistente de saúde que analisa check-ins semanais de pacientes. Analise a seguinte conversa e crie um resumo detalhado com:\n\n";
+    $prompt .= "1. Análise geral do estado do paciente\n";
+    $prompt .= "2. Pontos positivos identificados\n";
+    $prompt .= "3. Pontos de atenção ou preocupação\n";
+    $prompt .= "4. Recomendações ou observações importantes\n\n";
+    $prompt .= "Conversa:\n" . $conversation . "\n\n";
+    $prompt .= "Crie um resumo profissional e detalhado em português brasileiro:";
+    
+    // Limitar tamanho do prompt
+    if (strlen($prompt) > 3000) {
+        $conversation_short = substr($conversation, 0, 2000) . '...';
+        $prompt = "Você é um assistente de saúde que analisa check-ins semanais de pacientes. Analise a seguinte conversa e crie um resumo detalhado com:\n\n";
+        $prompt .= "1. Análise geral do estado do paciente\n";
+        $prompt .= "2. Pontos positivos identificados\n";
+        $prompt .= "3. Pontos de atenção ou preocupação\n";
+        $prompt .= "4. Recomendações ou observações importantes\n\n";
+        $prompt .= "Conversa:\n" . $conversation_short . "\n\n";
+        $prompt .= "Crie um resumo profissional e detalhado em português brasileiro:";
     }
     
     // Fazer requisição para a API
@@ -855,10 +871,64 @@ function generateSummary($data, $admin_id) {
         'Content-Type: application/json'
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-        'inputs' => $text,
+        'inputs' => $prompt,
         'parameters' => [
-            'max_length' => 200,
-            'min_length' => 50,
+            'max_new_tokens' => 500,
+            'temperature' => 0.7,
+            'return_full_text' => false
+        ]
+    ]));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+    
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($http_code === 200 || $http_code === 503) {
+        $result = json_decode($response, true);
+        
+        // Extrair texto gerado
+        $generated_text = '';
+        if (isset($result[0]['generated_text'])) {
+            $generated_text = $result[0]['generated_text'];
+        } elseif (isset($result['generated_text'])) {
+            $generated_text = $result['generated_text'];
+        } elseif (is_string($result)) {
+            $generated_text = $result;
+        }
+        
+        if (!empty($generated_text)) {
+            // Formatar o resumo em HTML
+            $formatted_summary = formatSummaryHTML($generated_text, $user_name);
+            
+            echo json_encode([
+                'success' => true,
+                'summary' => $formatted_summary
+            ]);
+            return;
+        }
+    }
+    
+    // Fallback: tentar com modelo de sumarização tradicional mas com melhor prompt
+    $api_url_fallback = 'https://api-inference.huggingface.co/models/facebook/bart-large-cnn';
+    
+    // Criar texto formatado para sumarização
+    $text_for_summary = "Check-in semanal do paciente. " . $conversation;
+    if (strlen($text_for_summary) > 2000) {
+        $text_for_summary = substr($text_for_summary, 0, 2000) . '...';
+    }
+    
+    $ch = curl_init($api_url_fallback);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+        'inputs' => $text_for_summary,
+        'parameters' => [
+            'max_length' => 300,
+            'min_length' => 100,
             'do_sample' => false
         ]
     ]));
@@ -868,54 +938,103 @@ function generateSummary($data, $admin_id) {
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     
-    if ($http_code === 200 || $http_code === 503) {
-        // 503 pode significar que o modelo está carregando, mas ainda retorna resultado
+    if (($http_code === 200 || $http_code === 503) && !empty($response)) {
         $result = json_decode($response, true);
         
         if (isset($result[0]['summary_text'])) {
             $summary_text = $result[0]['summary_text'];
             
-            // Formatar o resumo em HTML
-            $formatted_summary = formatSummaryHTML($summary_text, $user_name);
+            // Adicionar análise adicional baseada nas respostas
+            $enhanced_summary = enhanceSummaryWithAnalysis($summary_text, $conversation, $user_name);
+            $formatted_summary = formatSummaryHTML($enhanced_summary, $user_name);
             
             echo json_encode([
                 'success' => true,
                 'summary' => $formatted_summary
             ]);
-        } else {
-            // Fallback: criar resumo simples baseado nas respostas
-            $formatted_summary = createSimpleSummary($conversation, $user_name);
-            echo json_encode([
-                'success' => true,
-                'summary' => $formatted_summary
-            ]);
+            return;
         }
-    } else {
-        // Fallback: criar resumo simples
-        $formatted_summary = createSimpleSummary($conversation, $user_name);
-        echo json_encode([
-            'success' => true,
-            'summary' => $formatted_summary
-        ]);
     }
+    
+    // Último fallback: criar resumo inteligente manual
+    $formatted_summary = createIntelligentSummary($conversation, $user_name);
+    echo json_encode([
+        'success' => true,
+        'summary' => $formatted_summary
+    ]);
 }
 
 function formatSummaryHTML($summary_text, $user_name) {
     $html = '<h4>Resumo do Check-in</h4>';
     $html .= '<p><strong>Paciente:</strong> ' . htmlspecialchars($user_name) . '</p>';
-    $html .= '<p>' . nl2br(htmlspecialchars($summary_text)) . '</p>';
+    
+    // Processar o texto para identificar seções
+    $text = trim($summary_text);
+    
+    // Se o texto já tem estrutura (com números, títulos, etc), formatar melhor
+    $text = preg_replace('/\n\s*\n/', "\n\n", $text); // Remover linhas vazias extras
+    $paragraphs = explode("\n\n", $text);
+    
+    foreach ($paragraphs as $para) {
+        $para = trim($para);
+        if (empty($para)) continue;
+        
+        // Detectar se é um título/seção
+        if (preg_match('/^(\d+\.?\s*[-:]?\s*)?(Análise|Pontos|Recomendações|Observações|Estado|Atenção|Positivos|Negativos)/i', $para)) {
+            $html .= '<h4>' . htmlspecialchars($para) . '</h4>';
+        } elseif (preg_match('/^[-•*]\s+/', $para) || preg_match('/^\d+\.\s+/', $para)) {
+            // Lista
+            $html .= '<ul><li>' . htmlspecialchars(preg_replace('/^[-•*]\s+/', '', $para)) . '</li></ul>';
+        } else {
+            $html .= '<p>' . nl2br(htmlspecialchars($para)) . '</p>';
+        }
+    }
+    
     return $html;
 }
 
-function createSimpleSummary($conversation, $user_name) {
-    // Extrair informações básicas da conversa
+function enhanceSummaryWithAnalysis($summary_text, $conversation, $user_name) {
+    // Adicionar análise adicional baseada nas palavras-chave da conversa
+    $analysis = $summary_text . "\n\n";
+    
+    // Detectar sentimentos e temas
+    $positive_keywords = ['bom', 'bem', 'ótimo', 'gostando', 'ajudando', 'focando', 'melhorando'];
+    $concern_keywords = ['dificil', 'difícil', 'problema', 'preocupado', 'falta', 'não consegui'];
+    
+    $positive_count = 0;
+    $concern_count = 0;
+    
+    foreach ($positive_keywords as $keyword) {
+        $positive_count += substr_count(strtolower($conversation), $keyword);
+    }
+    
+    foreach ($concern_keywords as $keyword) {
+        $concern_count += substr_count(strtolower($conversation), $keyword);
+    }
+    
+    if ($positive_count > $concern_count) {
+        $analysis .= "Análise Geral: O paciente demonstra engajamento positivo e progresso no acompanhamento.\n";
+    } elseif ($concern_count > 0) {
+        $analysis .= "Análise Geral: Identificados alguns pontos que requerem atenção e suporte adicional.\n";
+    }
+    
+    return $analysis;
+}
+
+function createIntelligentSummary($conversation, $user_name) {
+    // Extrair informações da conversa
     $lines = explode("\n", $conversation);
+    $questions = [];
     $responses = [];
     
+    $current_question = '';
     foreach ($lines as $line) {
-        if (strpos($line, 'Resposta:') !== false) {
+        if (strpos($line, 'Pergunta:') !== false) {
+            $current_question = trim(str_replace('Pergunta:', '', $line));
+        } elseif (strpos($line, 'Resposta:') !== false) {
             $response = trim(str_replace('Resposta:', '', $line));
-            if (!empty($response)) {
+            if (!empty($response) && !empty($current_question)) {
+                $questions[] = $current_question;
                 $responses[] = $response;
             }
         }
@@ -923,19 +1042,82 @@ function createSimpleSummary($conversation, $user_name) {
     
     $html = '<h4>Resumo do Check-in</h4>';
     $html .= '<p><strong>Paciente:</strong> ' . htmlspecialchars($user_name) . '</p>';
-    $html .= '<p><strong>Total de respostas:</strong> ' . count($responses) . '</p>';
     
-    if (count($responses) > 0) {
-        $html .= '<h4>Principais Pontos:</h4>';
+    // Análise geral
+    $html .= '<h4>Análise Geral</h4>';
+    $total_responses = count($responses);
+    $html .= '<p>O paciente respondeu a ' . $total_responses . ' perguntas do check-in semanal. ';
+    
+    // Analisar conteúdo das respostas
+    $all_text = strtolower(implode(' ', $responses));
+    $positive_indicators = ['bom', 'bem', 'ótimo', 'gostando', 'ajudando', 'focando', 'melhorando', 'ok', 'tudo certo'];
+    $challenge_indicators = ['dificil', 'difícil', 'problema', 'preocupado', 'falta', 'não consegui', 'complicado'];
+    
+    $positive_score = 0;
+    $challenge_score = 0;
+    
+    foreach ($positive_indicators as $indicator) {
+        $positive_score += substr_count($all_text, $indicator);
+    }
+    
+    foreach ($challenge_indicators as $indicator) {
+        $challenge_score += substr_count($all_text, $indicator);
+    }
+    
+    if ($positive_score > $challenge_score * 2) {
+        $html .= 'O paciente demonstra engajamento positivo e progresso consistente no acompanhamento. ';
+    } elseif ($challenge_score > 0) {
+        $html .= 'Identificados alguns desafios que requerem atenção e suporte adicional. ';
+    } else {
+        $html .= 'O paciente está mantendo o acompanhamento regular. ';
+    }
+    $html .= '</p>';
+    
+    // Pontos positivos
+    if ($positive_score > 0) {
+        $html .= '<h4>Pontos Positivos</h4>';
         $html .= '<ul>';
-        foreach (array_slice($responses, 0, 5) as $response) {
-            if (strlen($response) > 100) {
-                $response = substr($response, 0, 100) . '...';
-            }
-            $html .= '<li>' . htmlspecialchars($response) . '</li>';
+        if (stripos($all_text, 'gostando') !== false || stripos($all_text, 'ajudando') !== false) {
+            $html .= '<li>Demonstra satisfação com o processo e reconhece o valor do acompanhamento</li>';
+        }
+        if (stripos($all_text, 'focando') !== false || stripos($all_text, 'forçando') !== false) {
+            $html .= '<li>Mostra determinação e esforço para manter o foco nos objetivos</li>';
+        }
+        if (stripos($all_text, 'bom') !== false || stripos($all_text, 'bem') !== false) {
+            $html .= '<li>Relata estado geral positivo durante a semana</li>';
         }
         $html .= '</ul>';
     }
+    
+    // Pontos de atenção
+    if ($challenge_score > 0) {
+        $html .= '<h4>Pontos de Atenção</h4>';
+        $html .= '<ul>';
+        if (stripos($all_text, 'dificil') !== false || stripos($all_text, 'difícil') !== false) {
+            $html .= '<li>Menciona dificuldades em manter a rotina, pode precisar de suporte adicional</li>';
+        }
+        if (stripos($all_text, 'falta') !== false || stripos($all_text, 'não consegui') !== false) {
+            $html .= '<li>Algumas atividades ou compromissos não foram cumpridos conforme planejado</li>';
+        }
+        $html .= '</ul>';
+    }
+    
+    // Observações importantes
+    $html .= '<h4>Observações Importantes</h4>';
+    $html .= '<ul>';
+    
+    // Detectar temas específicos
+    if (stripos($all_text, 'dieta') !== false || stripos($all_text, 'comida') !== false || stripos($all_text, 'comi') !== false) {
+        $html .= '<li>Menciona questões relacionadas à alimentação e dieta</li>';
+    }
+    if (stripos($all_text, 'exercicio') !== false || stripos($all_text, 'exercício') !== false || stripos($all_text, 'treino') !== false) {
+        $html .= '<li>Relata atividades físicas e exercícios realizados</li>';
+    }
+    if (stripos($all_text, 'aniversário') !== false || stripos($all_text, 'festa') !== false || stripos($all_text, 'evento') !== false) {
+        $html .= '<li>Menciona eventos sociais que podem ter impactado a rotina</li>';
+    }
+    
+    $html .= '</ul>';
     
     return $html;
 }
