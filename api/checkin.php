@@ -144,7 +144,31 @@ function submitCheckin($data, $user_id) {
                 $points_awarded = $points_to_add;
                 error_log("Pontos adicionados com sucesso: {$points_awarded}");
                 // Marcar check-in como completo e popup como mostrado
-                $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW(), congrats_shown = 1 WHERE config_id = ? AND user_id = ? AND week_date = ?");
+                // Tentar atualizar congrats_shown, mas se a coluna não existir, apenas marcar como completo
+                try {
+                    $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW(), congrats_shown = 1 WHERE config_id = ? AND user_id = ? AND week_date = ?");
+                    if ($stmt_update) {
+                        $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
+                        $stmt_update->execute();
+                        $stmt_update->close();
+                    } else {
+                        // Se falhar (coluna não existe), apenas marcar como completo
+                        error_log("Coluna congrats_shown não existe, apenas marcando como completo");
+                        $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
+                        $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
+                        $stmt_update->execute();
+                        $stmt_update->close();
+                    }
+                } catch (Exception $e) {
+                    // Se der erro (coluna não existe), apenas marcar como completo
+                    error_log("Erro ao atualizar congrats_shown (coluna pode não existir): " . $e->getMessage());
+                    $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
+                    $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
+                    $stmt_update->execute();
+                    $stmt_update->close();
+                }
+                // Não continuar com o UPDATE abaixo, já foi feito
+                goto skip_update;
             } else {
                 // Se falhar ao adicionar pontos, ainda marcar como completo, mas sem mostrar popup
                 error_log("ERRO: Falha ao adicionar pontos no check-in para user {$user_id}, config {$config_id}");
@@ -161,10 +185,16 @@ function submitCheckin($data, $user_id) {
         $stmt_update = $conn->prepare("UPDATE sf_checkin_availability SET is_completed = 1, completed_at = NOW() WHERE config_id = ? AND user_id = ? AND week_date = ?");
     }
     
-    $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
-    $stmt_update->execute();
-    $affected_rows = $stmt_update->affected_rows;
-    $stmt_update->close();
+    if (isset($stmt_update)) {
+        $stmt_update->bind_param("iis", $config_id, $user_id, $week_start);
+        $stmt_update->execute();
+        $affected_rows = $stmt_update->affected_rows;
+        $stmt_update->close();
+    } else {
+        $affected_rows = 0;
+    }
+    
+    skip_update:
     
     // Log para debug
     error_log("Check-in completado: user_id={$user_id}, config_id={$config_id}, week_start={$week_start}, points_awarded={$points_awarded}, affected_rows={$affected_rows}");
