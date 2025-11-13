@@ -1833,6 +1833,39 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
         setTimeout(() => { popup.remove(); }, 2500);
     }
     
+    // Função para animar contagem de pontos de forma fluida
+    function animatePointsCount(element, startValue, endValue, duration) {
+        const startTime = performance.now();
+        const formatNumber = (num) => new Intl.NumberFormat('pt-BR').format(num);
+        
+        // Usar easing mais suave (ease-in-out cubic)
+        function easeInOutCubic(t) {
+            return t < 0.5 
+                ? 4 * t * t * t 
+                : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing mais fluido
+            const easedProgress = easeInOutCubic(progress);
+            
+            const currentValue = Math.floor(startValue + (endValue - startValue) * easedProgress);
+            element.textContent = formatNumber(currentValue);
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                // Garantir valor final exato
+                element.textContent = formatNumber(endValue);
+            }
+        }
+        
+        requestAnimationFrame(update);
+    }
+    
     // Função genérica para animar estrela voando de qualquer elemento para o badge
     function animateStarToBadgeFromElement(sourceElement, points, newTotalPoints) {
         const pointsBadge = document.querySelector('.points-counter-badge');
