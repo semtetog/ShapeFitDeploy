@@ -209,7 +209,7 @@ if ($stmt_checkin) {
         $stmt_questions->close();
         
         // Verificar se já existe disponibilidade para esta semana (domingo da semana)
-        $week_start = date('Y-m-d', strtotime('sunday this week')); // Domingo da semana
+        // Usar a mesma variável $week_start calculada acima
         $availability_query = "SELECT * FROM sf_checkin_availability WHERE config_id = ? AND user_id = ? AND week_date = ?";
         $stmt_avail = $conn->prepare($availability_query);
         $stmt_avail->bind_param("iis", $available_checkin['id'], $user_id, $week_start);
