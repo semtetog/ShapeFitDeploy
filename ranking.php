@@ -79,6 +79,7 @@ $has_more_users = $current_limit < $total_users;
 // Verificar se o usuário atual está na lista carregada
 $current_user_in_loaded_list = false;
 $current_user_data = null;
+$opponent_data = null;
 
 foreach ($rankings as $ranking) {
     if ($ranking['id'] == $user_id) {
@@ -87,9 +88,31 @@ foreach ($rankings as $ranking) {
     }
 }
 
+// Buscar dados do usuário atual e do oponente (mesma lógica do main_app.php)
+$stmt_my_rank = $conn->prepare("SELECT rank, points FROM (SELECT id, points, RANK() OVER (ORDER BY points DESC, name ASC) as rank FROM sf_users) as r WHERE id = ?");
+$stmt_my_rank->bind_param("i", $user_id);
+$stmt_my_rank->execute();
+$my_rank_result = $stmt_my_rank->get_result()->fetch_assoc();
+$my_rank = $my_rank_result['rank'] ?? null;
+$my_points = $my_rank_result['points'] ?? 0;
+$stmt_my_rank->close();
+
+// Buscar oponente (pessoa que aparece na disputa no main_app)
+$opponent_rank = ($my_rank && $my_rank > 1) ? $my_rank - 1 : ($my_rank == 1 ? 2 : null);
+if ($opponent_rank && $opponent_rank > 0) {
+    $stmt_opponent = $conn->prepare("SELECT * FROM (SELECT u.id, u.name, u.points, up.profile_image_filename, up.gender, RANK() OVER (ORDER BY u.points DESC, u.name ASC) as rank FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id) as ranked_users WHERE rank = ? LIMIT 1");
+    $stmt_opponent->bind_param("i", $opponent_rank);
+    $stmt_opponent->execute();
+    $opponent_data = $stmt_opponent->get_result()->fetch_assoc();
+    if ($opponent_data) {
+        $opponent_data['level'] = getUserLevel($opponent_data['points'], $level_categories);
+    }
+    $stmt_opponent->close();
+}
+
 // Card especial só aparece se o usuário NÃO estiver na lista carregada
 $show_current_user_card = false;
-if (!$current_user_in_loaded_list && $user_id) {
+if (!$current_user_in_loaded_list && $user_id && $my_rank) {
     $show_current_user_card = true;
     
     // Buscar dados do usuário atual separadamente
@@ -102,6 +125,22 @@ if (!$current_user_in_loaded_list && $user_id) {
         $current_user_data['level'] = getUserLevel($current_user_data['points'], $level_categories);
     }
     $stmt_user->close();
+}
+
+// Verificar se o oponente está na lista carregada
+$opponent_in_loaded_list = false;
+if ($opponent_data) {
+    foreach ($rankings as $ranking) {
+        if ($ranking['id'] == $opponent_data['id']) {
+            $opponent_in_loaded_list = true;
+            break;
+        }
+    }
+}
+
+// Se o oponente não está na lista, adicionar ele também
+if ($opponent_data && !$opponent_in_loaded_list) {
+    // Não precisa fazer nada especial, o oponente será exibido junto com o usuário no card especial
 }
 
 /**
