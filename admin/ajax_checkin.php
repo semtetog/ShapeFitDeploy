@@ -1081,7 +1081,7 @@ function tryGroqAPI($conversation, $user_name) {
     $system_prompt .= "5. Construa o resumo com estrutura clara e adaptativa:\n\n";
     $system_prompt .= "ESTRUTURA FINAL:\n\n";
     $system_prompt .= "<h4>✅ Resumo do Check-in Semanal</h4>\n";
-    $system_prompt .= "<p><strong>Paciente:</strong> [NOME]</p>\n\n";
+    $system_prompt .= "<p><strong>Paciente:</strong> " . htmlspecialchars($user_name) . "</p>\n\n";
     $system_prompt .= "Para cada categoria detectada, use o formato:\n\n";
     $system_prompt .= "<h4>🔥 [Nome da categoria]</h4>\n";
     $system_prompt .= "<ul>\n";
