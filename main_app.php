@@ -2066,38 +2066,46 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
             const currentY = currentStartY + (currentDeltaY * easedProgress);
             
             // Adicionar curva suave (parábola leve) para trajetória mais natural
-            const curveHeight = Math.min(currentDistance * 0.15, 100); // Altura da curva baseada na distância atual
+            const curveHeight = Math.min(currentDistance * 0.12, 80); // Reduzido para curva mais suave
             const curveProgress = Math.sin(progress * Math.PI); // Curva em formato de onda
             const curveOffset = -curveHeight * curveProgress; // Offset vertical para curva
             
-            // Calcular escala (começa grande, diminui no meio, aumenta ligeiramente no final)
+            // ESCALA SUAVIZADA - evitar mudanças bruscas
             let scale;
-            if (progress < 0.3) {
-                // Início: escala aumenta
-                scale = 1 + (0.4 * (progress / 0.3));
-            } else if (progress < 0.7) {
-                // Meio: escala diminui
-                scale = 1.4 - (0.6 * ((progress - 0.3) / 0.4));
+            // Usar easing para suavizar transições de escala
+            if (progress < 0.2) {
+                // Início: escala aumenta suavemente
+                const scaleProgress = progress / 0.2;
+                scale = 1 + (0.3 * easeOutCubic(scaleProgress)); // Reduzido de 0.4 para 0.3
+            } else if (progress < 0.75) {
+                // Meio: escala diminui suavemente
+                const scaleProgress = (progress - 0.2) / 0.55;
+                const easedScaleProgress = easeOutCubic(scaleProgress);
+                scale = 1.3 - (0.4 * easedScaleProgress); // Reduzido de 0.6 para 0.4
             } else {
                 // Final: escala aumenta ligeiramente antes de desaparecer
-                const finalProgress = (progress - 0.7) / 0.3;
-                scale = 0.8 + (0.3 * finalProgress);
+                const finalProgress = (progress - 0.75) / 0.25;
+                const easedFinalProgress = easeOutCubic(finalProgress);
+                scale = 0.9 + (0.2 * easedFinalProgress); // Reduzido de 0.3 para 0.2
             }
             
-            // Rotação dinâmica (gira durante o voo)
-            const rotation = progress * 360 * 2; // 2 rotações completas
+            // Rotação dinâmica (gira durante o voo) - suavizada
+            const rotation = progress * 360 * 1.5; // Reduzido de 2 para 1.5 rotações
             
-            // Opacidade (fade out no final)
+            // Opacidade (fade out suave no final)
             let opacity = 1;
-            if (progress > 0.85) {
-                opacity = 1 - ((progress - 0.85) / 0.15);
+            if (progress > 0.9) {
+                // Fade out apenas nos últimos 10%
+                opacity = 1 - ((progress - 0.9) / 0.1);
             }
             
-            // Aplicar transformações
-            flyingStar.style.left = currentX + 'px';
-            flyingStar.style.top = (currentY + curveOffset) + 'px';
-            flyingStar.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg)`;
+            // USAR APENAS TRANSFORM para melhor performance (evita reflows)
+            // Combinar translate e translate3d para aceleração GPU
+            flyingStar.style.transform = `translate3d(${currentX}px, ${currentY + curveOffset}px, 0) translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg)`;
             flyingStar.style.opacity = opacity;
+            // Remover left/top para evitar conflitos
+            flyingStar.style.left = '';
+            flyingStar.style.top = '';
             
             // Continuar animação ou finalizar
             if (progress < 1) {
@@ -3721,9 +3729,9 @@ function animateStarToBadge(points) {
     const flyingStar = document.createElement('div');
     flyingStar.className = 'flying-star';
     flyingStar.innerHTML = '<i class="fas fa-star"></i>';
-    flyingStar.style.left = startX + 'px';
-    flyingStar.style.top = startY + 'px';
-    flyingStar.style.transform = 'translate(-50%, -50%) scale(1) rotate(0deg)';
+    // Usar translate3d desde o início para aceleração GPU
+    flyingStar.style.transform = `translate3d(${startX}px, ${startY}px, 0) translate(-50%, -50%) scale(1) rotate(0deg)`;
+    flyingStar.style.willChange = 'transform, opacity';
     
     document.body.appendChild(flyingStar);
     
@@ -3775,36 +3783,45 @@ function animateStarToBadge(points) {
         const currentX = currentStartX + (currentDeltaX * easedProgress);
         const currentY = currentStartY + (currentDeltaY * easedProgress);
         
-        // Adicionar curva suave (parábola)
-        const curveHeight = Math.min(currentDistance * 0.15, 100);
+        // Adicionar curva suave (parábola) - reduzida para evitar tremores
+        const curveHeight = Math.min(currentDistance * 0.12, 80);
         const curveProgress = Math.sin(progress * Math.PI);
         const curveOffset = -curveHeight * curveProgress;
         
-        // Calcular escala dinâmica
+        // ESCALA SUAVIZADA - evitar mudanças bruscas
         let scale;
-        if (progress < 0.3) {
-            scale = 1 + (0.4 * (progress / 0.3));
-        } else if (progress < 0.7) {
-            scale = 1.4 - (0.6 * ((progress - 0.3) / 0.4));
+        if (progress < 0.2) {
+            // Início: escala aumenta suavemente
+            const scaleProgress = progress / 0.2;
+            scale = 1 + (0.3 * easeOutCubic(scaleProgress));
+        } else if (progress < 0.75) {
+            // Meio: escala diminui suavemente
+            const scaleProgress = (progress - 0.2) / 0.55;
+            const easedScaleProgress = easeOutCubic(scaleProgress);
+            scale = 1.3 - (0.4 * easedScaleProgress);
         } else {
-            const finalProgress = (progress - 0.7) / 0.3;
-            scale = 0.8 + (0.3 * finalProgress);
+            // Final: escala aumenta ligeiramente antes de desaparecer
+            const finalProgress = (progress - 0.75) / 0.25;
+            const easedFinalProgress = easeOutCubic(finalProgress);
+            scale = 0.9 + (0.2 * easedFinalProgress);
         }
         
-        // Rotação dinâmica
-        const rotation = progress * 360 * 2;
+        // Rotação dinâmica - suavizada
+        const rotation = progress * 360 * 1.5;
         
-        // Opacidade (fade out no final)
+        // Opacidade (fade out suave no final)
         let opacity = 1;
-        if (progress > 0.85) {
-            opacity = 1 - ((progress - 0.85) / 0.15);
+        if (progress > 0.9) {
+            opacity = 1 - ((progress - 0.9) / 0.1);
         }
         
-        // Aplicar transformações
-        flyingStar.style.left = currentX + 'px';
-        flyingStar.style.top = (currentY + curveOffset) + 'px';
-        flyingStar.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg)`;
+        // USAR APENAS TRANSFORM para melhor performance (evita reflows)
+        // Combinar translate3d para aceleração GPU
+        flyingStar.style.transform = `translate3d(${currentX}px, ${currentY + curveOffset}px, 0) translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg)`;
         flyingStar.style.opacity = opacity;
+        // Remover left/top para evitar conflitos
+        flyingStar.style.left = '';
+        flyingStar.style.top = '';
         
         // Continuar ou finalizar
         if (progress < 1) {
