@@ -59,8 +59,8 @@ try {
 
     $total_points_change = 0.0;
     
-    // 2. LÓGICA DE PONTOS POR COPO
-    $points_per_cup = 0.5;
+    // 2. LÓGICA DE PONTOS POR COPO (agora usando 1 ponto por copo em vez de 0.5)
+    $points_per_cup = 1; // Mudado de 0.5 para 1 para evitar pontos quebrados
     if ($new_cup_count > $old_cup_count) {
         for ($i = $old_cup_count + 1; $i <= $new_cup_count; $i++) {
             if ($i <= $water_goal) $total_points_change += $points_per_cup;
@@ -72,7 +72,7 @@ try {
     }
     
     // 3. LÓGICA DE BÔNUS
-    $points_bonus = 10.0;
+    $points_bonus = 10; // Mudado de 10.0 para 10 (inteiro)
     $old_status_met = ($old_cup_count >= $water_goal);
     $new_status_met = ($new_cup_count >= $water_goal);
 
@@ -80,11 +80,10 @@ try {
     elseif (!$new_status_met && $old_status_met) $total_points_change -= $points_bonus;
     
     // 4. ATUALIZA O TOTAL DE PONTOS
+    // Garantir que sempre seja inteiro antes de adicionar
+    $total_points_change = round($total_points_change);
     if ($total_points_change != 0) {
-        // ===================================================================
-        // A CORREÇÃO ESTÁ AQUI. ADICIONAMOS O TERCEIRO PARÂMETRO DE VOLTA.
-        // ===================================================================
-        addPointsToUser($conn, $user_id, $total_points_change, "Ajuste de hidratação"); 
+        addPointsToUser($conn, $user_id, (float)$total_points_change, "Ajuste de hidratação"); 
     }
 
     // 5. ATUALIZA A CONTAGEM DE ÁGUA

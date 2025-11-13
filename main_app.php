@@ -2189,10 +2189,10 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                             );
                         } else if (data.new_total_points !== undefined) {
                             // Se não ganhou pontos mas tem novo total, atualizar normalmente
-                            const pointsDisplay = document.getElementById('user-points-display');
+                        const pointsDisplay = document.getElementById('user-points-display');
                             if (pointsDisplay) {
-                                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
-                            }
+                            pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                        }
                         }
                         setTimeout(showCurrentMission, 300);
                     } else {
@@ -2260,10 +2260,10 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                             );
                         } else if (data.new_total_points !== undefined) {
                             // Se não ganhou pontos mas tem novo total, atualizar normalmente
-                            const pointsDisplay = document.getElementById('user-points-display');
+                        const pointsDisplay = document.getElementById('user-points-display');
                             if (pointsDisplay) {
-                                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
-                            }
+                            pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                        }
                         }
                     } else {
                         alert('Erro: ' + (data.message || 'Falha ao registrar sono'));
@@ -2320,10 +2320,10 @@ require_once APP_ROOT_PATH . '/includes/layout_header.php';
                                 );
                             } else if (data.new_total_points !== undefined) {
                                 // Se não ganhou pontos mas tem novo total, atualizar normalmente
-                                const pointsDisplay = document.getElementById('user-points-display');
+                            const pointsDisplay = document.getElementById('user-points-display');
                                 if (pointsDisplay) {
-                                    pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
-                                }
+                                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                            }
                             }
                             setTimeout(showCurrentMission, 300);
                         }
@@ -3397,7 +3397,7 @@ function markCheckinComplete() {
             console.log('Check-in completo!', data);
             
             // Fechar o modal imediatamente
-            closeCheckinModal();
+                closeCheckinModal();
             
             // Remover o botão flutuante permanentemente (não apenas esconder)
             const floatingBtn = document.querySelector('.checkin-floating-btn');

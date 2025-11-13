@@ -689,7 +689,7 @@ $is_redoing_onboarding = isset($_SESSION['onboarding_complete']) && $_SESSION['o
                 });
                 
                 if (frequencyWrapper) {
-                    const freqRadios = frequencyWrapper.querySelectorAll('input[type="radio"]');
+                const freqRadios = frequencyWrapper.querySelectorAll('input[type="radio"]');
                     freqRadios.forEach(radio => radio.disabled = false);
                 }
                 
@@ -701,7 +701,7 @@ $is_redoing_onboarding = isset($_SESSION['onboarding_complete']) && $_SESSION['o
                 
                 if (exerciseOptionsWrapper) {
                     exerciseOptionsWrapper.classList.remove('disabled');
-                }
+            }
                 if (frequencyWrapper) {
                     frequencyWrapper.classList.remove('disabled');
                 }
@@ -786,7 +786,7 @@ $is_redoing_onboarding = isset($_SESSION['onboarding_complete']) && $_SESSION['o
                     // Verificar se todos os campos de duração estão preenchidos (se o elemento existir)
                     let allDurationsFilled = true;
                     if (exerciseDurationFields) {
-                        const durationInputs = exerciseDurationFields.querySelectorAll('input[type="number"]');
+                    const durationInputs = exerciseDurationFields.querySelectorAll('input[type="number"]');
                         allDurationsFilled = durationInputs.length === 0 || Array.from(durationInputs).every(input => input.value && parseInt(input.value) >= 15);
                     }
                     
