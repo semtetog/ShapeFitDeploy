@@ -409,11 +409,27 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table th:first-child {
-    padding: 1rem 0.2rem 1rem 1rem;
+    padding: 1rem 0.75rem 1rem 1rem;
+    position: relative;
+}
+
+.responses-table th:first-child::after {
+    content: '';
+    position: absolute;
+    right: 0.375rem;
+    top: 15%;
+    bottom: 15%;
+    width: 1px;
+    background: linear-gradient(to bottom, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.15) 20%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        rgba(255, 255, 255, 0.15) 80%, 
+        transparent 100%);
 }
 
 .responses-table th:nth-child(2) {
-    padding: 1rem 0.5rem 1rem 0.2rem;
+    padding: 1rem 0.5rem 1rem 0.75rem;
 }
 
 
