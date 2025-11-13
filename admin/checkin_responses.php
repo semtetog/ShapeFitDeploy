@@ -1270,6 +1270,12 @@ require_once __DIR__ . '/includes/header.php';
     padding-left: 0;
 }
 /* Botões de filtro rápido do calendário */
+.calendar-filters-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 .calendar-quick-filter-btn {
     padding: 0.5rem 1rem;
     background: rgba(255, 107, 0, 0.1);
@@ -1285,6 +1291,11 @@ require_once __DIR__ . '/includes/header.php';
     align-items: center;
     gap: 0.5rem;
     white-space: nowrap;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    box-sizing: border-box;
+    line-height: 1.5;
 }
 
 .calendar-quick-filter-btn:hover {
@@ -1319,6 +1330,7 @@ require_once __DIR__ . '/includes/header.php';
     padding: 0;
     box-sizing: border-box;
     line-height: 1;
+    vertical-align: middle;
 }
 
 .diary-calendar-icon-btn:hover {
@@ -1693,7 +1705,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Selecionar</span>
             </button>
         </div>
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <div class="calendar-filters-group">
             <button class="calendar-quick-filter-btn" onclick="applyQuickFilter('last7')" title="Últimos 7 dias">
                 <i class="fas fa-clock"></i>
                 <span>Últimos 7 dias</span>
