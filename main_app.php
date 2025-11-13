@@ -3228,19 +3228,30 @@ function markCheckinComplete() {
                 modal.remove();
             }
             
-            // Atualizar pontos na interface imediatamente
-            if (data.new_total_points !== undefined) {
-                const pointsDisplay = document.getElementById('user-points-display');
-                if (pointsDisplay) {
-                    pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
-                }
-            }
+            // Salvar dados da resposta para usar na animação
+            window.lastCheckinResponse = data;
             
             // Sempre mostrar popup de congratulação (com ou sem pontos)
             // Pequeno delay para garantir que o modal fechou antes do popup aparecer
             setTimeout(() => {
                 const points = data.points_awarded || 0;
-                showCheckinCongratsPopup(points);
+                const newTotalPoints = data.new_total_points;
+                
+                // Se ganhou pontos, mostrar popup e depois atualizar com animação
+                if (points > 0 && newTotalPoints !== undefined) {
+                    showCheckinCongratsPopup(points);
+                    // A atualização dos pontos será feita pela animação da estrela
+                } else {
+                    // Se não ganhou pontos, apenas mostrar popup
+                    showCheckinCongratsPopup(0);
+                    // Atualizar pontos normalmente se houver
+                    if (newTotalPoints !== undefined) {
+                        const pointsDisplay = document.getElementById('user-points-display');
+                        if (pointsDisplay) {
+                            pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(newTotalPoints);
+                        }
+                    }
+                }
             }, 300);
         } else {
             console.error('Erro ao marcar check-in como completo:', data.message);
