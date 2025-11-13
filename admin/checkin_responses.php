@@ -1708,20 +1708,38 @@ async function loadSummary(userKey) {
             body: formData
         });
         
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const text = await response.text();
-        const data = JSON.parse(text);
+        
+        // Verificar se a resposta está vazia ou não é JSON válido
+        if (!text || text.trim() === '') {
+            throw new Error('Resposta vazia do servidor');
+        }
+        
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (parseError) {
+            console.error('Erro ao fazer parse do JSON:', parseError);
+            console.error('Resposta recebida:', text.substring(0, 500));
+            throw new Error('Resposta inválida do servidor: ' + parseError.message);
+        }
         
         if (data.success && data.summary) {
             summaryContent.className = 'chat-summary-content';
             summaryContent.innerHTML = data.summary;
         } else {
             summaryContent.className = 'chat-summary-content';
-            summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo. Tente novamente.</p>';
+            const errorMsg = data.message || 'Erro ao gerar resumo. Tente novamente.';
+            summaryContent.innerHTML = '<p style="color: var(--danger-red);">' + errorMsg + '</p>';
         }
     } catch (error) {
         console.error('Erro ao carregar resumo:', error);
         summaryContent.className = 'chat-summary-content';
-        summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo. Tente novamente.</p>';
+        summaryContent.innerHTML = '<p style="color: var(--danger-red);">Erro ao gerar resumo: ' + error.message + '</p>';
     }
 }
 

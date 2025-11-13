@@ -831,38 +831,48 @@ function deleteResponse($data, $admin_id) {
 function generateSummary($data, $admin_id) {
     global $conn;
     
-    $conversation = trim($data['conversation'] ?? '');
-    $user_name = trim($data['user_name'] ?? 'Usuário');
-    $user_id = (int)($data['user_id'] ?? 0);
-    $flow_info_json = $data['flow_info'] ?? '[]';
-    $flow_info = json_decode($flow_info_json, true) ?? [];
+    try {
+        $conversation = trim($data['conversation'] ?? '');
+        $user_name = trim($data['user_name'] ?? 'Usuário');
+        $user_id = (int)($data['user_id'] ?? 0);
+        $flow_info_json = $data['flow_info'] ?? '[]';
+        $flow_info = json_decode($flow_info_json, true) ?? [];
 
-    if (empty($conversation)) {
-        echo json_encode(['success' => false, 'message' => 'Conversa vazia']);
+        if (empty($conversation)) {
+            echo json_encode(['success' => false, 'message' => 'Conversa vazia']);
+            exit;
+        }
+
+        // Buscar dados completos do paciente se user_id disponível
+        $patient_data = null;
+        if ($user_id > 0) {
+            $patient_data = getPatientDataForSummary($conn, $user_id);
+        }
+
+        // USAR GROQ API COMO SOLUÇÃO DEFINITIVA
+        $groq_result = tryGroqAPI($conversation, $user_name, $flow_info, $patient_data);
+        if ($groq_result !== false) {
+            echo json_encode([
+                'success' => true,
+                'summary' => $groq_result
+            ]);
+            exit;
+        }
+        
+        // Se Groq falhou, retornar erro
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erro ao gerar resumo com Groq API. Verifique se a API key está configurada em includes/config.php. Obtenha a chave gratuita em: https://console.groq.com'
+        ]);
+        exit;
+    } catch (Exception $e) {
+        error_log("Erro em generateSummary: " . $e->getMessage());
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erro ao processar solicitação: ' . $e->getMessage()
+        ]);
         exit;
     }
-
-    // Buscar dados completos do paciente se user_id disponível
-    $patient_data = null;
-    if ($user_id > 0) {
-        $patient_data = getPatientDataForSummary($conn, $user_id);
-    }
-
-    // USAR GROQ API COMO SOLUÇÃO DEFINITIVA
-    $groq_result = tryGroqAPI($conversation, $user_name, $flow_info, $patient_data);
-    if ($groq_result !== false) {
-        echo json_encode([
-            'success' => true,
-            'summary' => $groq_result
-        ]);
-        return;
-    }
-    
-    // Se Groq falhou, retornar erro
-    echo json_encode([
-        'success' => false,
-        'message' => 'Erro ao gerar resumo com Groq API. Verifique se a API key está configurada em includes/config.php. Obtenha a chave gratuita em: https://console.groq.com'
-    ]);
 }
 
 function tryOllamaLocal($conversation, $user_name, $model = null) {
@@ -1061,54 +1071,83 @@ function getPatientDataForSummary($conn, $user_id) {
     // Buscar dados completos do paciente para análise contextual
     $data = [];
     
-    // Dados básicos do usuário e perfil
-    $stmt = $conn->prepare(
-        "SELECT u.*, p.* FROM sf_users u LEFT JOIN sf_user_profiles p ON u.id = p.user_id WHERE u.id = ?"
-    );
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $user_data = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    
-    if ($user_data) {
-        $data['basic'] = [
-            'name' => $user_data['name'] ?? '',
-            'age' => !empty($user_data['dob']) ? calculateAge($user_data['dob']) : null,
-            'gender' => $user_data['gender'] ?? null,
-            'height_cm' => $user_data['height_cm'] ?? null,
-            'objective' => $user_data['objective'] ?? null,
-            'exercise_frequency' => $user_data['exercise_frequency'] ?? null
-        ];
-        
-        // Peso atual
-        $data['current_weight'] = (float)($user_data['weight_kg'] ?? 0);
-        
-        // Histórico de peso (últimos 3 registros)
-        $stmt_weight = $conn->prepare(
-            "SELECT date_recorded, weight_kg FROM sf_user_weight_history 
-             WHERE user_id = ? ORDER BY date_recorded DESC LIMIT 3"
+    try {
+        // Dados básicos do usuário e perfil
+        $stmt = $conn->prepare(
+            "SELECT u.*, p.* FROM sf_users u LEFT JOIN sf_user_profiles p ON u.id = p.user_id WHERE u.id = ?"
         );
-        $stmt_weight->bind_param("i", $user_id);
-        $stmt_weight->execute();
-        $weight_history = $stmt_weight->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt_weight->close();
-        $data['weight_history'] = $weight_history;
+        if (!$stmt) {
+            error_log("Erro ao preparar query: " . $conn->error);
+            return $data;
+        }
         
-        // Metas de nutrientes
-        $data['goals'] = [
-            'calories' => $user_data['custom_calories_goal'] ?? null,
-            'protein_g' => $user_data['custom_protein_goal_g'] ?? null,
-            'carbs_g' => $user_data['custom_carbs_goal_g'] ?? null,
-            'fat_g' => $user_data['custom_fat_goal_g'] ?? null
-        ];
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $user_data = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
         
-        // Anamnese relevante
-        $data['medical'] = [
-            'lactose_intolerance' => $user_data['lactose_intolerance'] ?? false,
-            'gluten_intolerance' => $user_data['gluten_intolerance'] ?? false,
-            'vegetarian_type' => $user_data['vegetarian_type'] ?? null,
-            'meat_consumption' => $user_data['meat_consumption'] ?? null
-        ];
+        if ($user_data) {
+            // Verificar se calculateAge existe antes de usar
+            $age = null;
+            if (!empty($user_data['dob'])) {
+                if (function_exists('calculateAge')) {
+                    $age = calculateAge($user_data['dob']);
+                } else {
+                    // Calcular idade manualmente se função não existir
+                    try {
+                        $dob = new DateTime($user_data['dob']);
+                        $now = new DateTime();
+                        $age = ($dob > $now) ? 0 : (int)$now->diff($dob)->y;
+                    } catch (Exception $e) {
+                        $age = null;
+                    }
+                }
+            }
+            
+            $data['basic'] = [
+                'name' => $user_data['name'] ?? '',
+                'age' => $age,
+                'gender' => $user_data['gender'] ?? null,
+                'height_cm' => $user_data['height_cm'] ?? null,
+                'objective' => $user_data['objective'] ?? null,
+                'exercise_frequency' => $user_data['exercise_frequency'] ?? null
+            ];
+            
+            // Peso atual
+            $data['current_weight'] = (float)($user_data['weight_kg'] ?? 0);
+            
+            // Histórico de peso (últimos 3 registros)
+            $stmt_weight = $conn->prepare(
+                "SELECT date_recorded, weight_kg FROM sf_user_weight_history 
+                 WHERE user_id = ? ORDER BY date_recorded DESC LIMIT 3"
+            );
+            if ($stmt_weight) {
+                $stmt_weight->bind_param("i", $user_id);
+                $stmt_weight->execute();
+                $weight_history = $stmt_weight->get_result()->fetch_all(MYSQLI_ASSOC);
+                $stmt_weight->close();
+                $data['weight_history'] = $weight_history;
+            }
+            
+            // Metas de nutrientes
+            $data['goals'] = [
+                'calories' => $user_data['custom_calories_goal'] ?? null,
+                'protein_g' => $user_data['custom_protein_goal_g'] ?? null,
+                'carbs_g' => $user_data['custom_carbs_goal_g'] ?? null,
+                'fat_g' => $user_data['custom_fat_goal_g'] ?? null
+            ];
+            
+            // Anamnese relevante
+            $data['medical'] = [
+                'lactose_intolerance' => $user_data['lactose_intolerance'] ?? false,
+                'gluten_intolerance' => $user_data['gluten_intolerance'] ?? false,
+                'vegetarian_type' => $user_data['vegetarian_type'] ?? null,
+                'meat_consumption' => $user_data['meat_consumption'] ?? null
+            ];
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao buscar dados do paciente: " . $e->getMessage());
+        // Retornar array vazio em caso de erro
     }
     
     return $data;
