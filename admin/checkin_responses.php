@@ -1304,6 +1304,7 @@ require_once __DIR__ . '/includes/header.php';
     height: 40px;
     min-width: 40px;
     min-height: 40px;
+    max-height: 40px;
     border-radius: 50%;
     background: rgba(255, 107, 0, 0.08);
     border: 1px solid rgba(255, 107, 0, 0.2);
@@ -1316,6 +1317,8 @@ require_once __DIR__ . '/includes/header.php';
     flex-shrink: 0;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    line-height: 1;
 }
 
 .diary-calendar-icon-btn:hover {
