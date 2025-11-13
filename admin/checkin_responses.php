@@ -402,14 +402,17 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:first-child {
-    padding: 1rem 0.25rem 1rem 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 0.5rem;
     position: relative;
 }
 
 .responses-table td:first-child::after {
     content: '';
     position: absolute;
-    right: 0;
+    right: 0.25rem;
     top: 10%;
     bottom: 10%;
     width: 1px;
@@ -422,18 +425,21 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .responses-table td:nth-child(2) {
-    padding: 1rem 0.5rem 1rem 0.25rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
 }
 
 .responses-table td:first-child .table-date {
-    padding-right: 0;
-    margin-right: 0;
+    margin: 0;
+    padding: 0;
     gap: 0.5rem;
 }
 
 .responses-table td:nth-child(2) .table-user {
-    padding-left: 0;
-    margin-left: 0;
+    margin: 0;
+    padding: 0;
     gap: 0.75rem;
 }
 
