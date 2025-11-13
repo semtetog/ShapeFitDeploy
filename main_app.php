@@ -3539,7 +3539,7 @@ function animateStarToBadge(points) {
     // Iniciar animação
     flyingStar.classList.add('animate');
     
-    // Atualizar pontos no badge quando estrela chegar (meio da animação)
+    // Atualizar pontos no badge quando estrela chegar (70% da animação, quando está quase chegando)
     setTimeout(() => {
         // Usar o valor retornado pela API se disponível, senão calcular
         const checkinData = window.lastCheckinResponse || {};
@@ -3552,22 +3552,22 @@ function animateStarToBadge(points) {
         // Animar contagem dos pontos
         pointsDisplay.classList.add('points-counting');
         
-        // Atualizar valor com animação de contagem
-        animatePointsCount(pointsDisplay, currentPoints, newPoints, 600);
+        // Atualizar valor com animação de contagem mais lenta
+        animatePointsCount(pointsDisplay, currentPoints, newPoints, 1500);
         
         // Remover classes de animação após animação
         setTimeout(() => {
             pointsBadge.classList.remove('points-updated');
             pointsDisplay.classList.remove('points-counting');
-        }, 800);
-    }, 600);
+        }, 2000);
+    }, 1750); // 70% de 2.5s = ~1.75s
     
-    // Remover estrela voadora após animação
+    // Remover estrela voadora após animação completa
     setTimeout(() => {
         if (flyingStar.parentNode) {
             flyingStar.parentNode.removeChild(flyingStar);
         }
-    }, 1200);
+    }, 2500);
 }
 
 function animatePointsCount(element, startValue, endValue, duration) {
