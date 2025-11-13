@@ -266,9 +266,40 @@ function loadProgress($data, $user_id) {
         throw new Exception('ID do check-in inválido');
     }
     
-    // Buscar todas as respostas salvas para este check-in
-    $stmt = $conn->prepare("SELECT question_id, response_text, response_value FROM sf_checkin_responses WHERE config_id = ? AND user_id = ? ORDER BY question_id ASC");
-    $stmt->bind_param("ii", $config_id, $user_id);
+    // Calcular o domingo da semana atual (mesma lógica usada no sistema)
+    $week_start = date('Y-m-d', strtotime('sunday this week'));
+    
+    // Verificar se o check-in está completo para esta semana
+    $stmt_check = $conn->prepare("SELECT is_completed FROM sf_checkin_availability WHERE config_id = ? AND user_id = ? AND week_date = ?");
+    $stmt_check->bind_param("iis", $config_id, $user_id, $week_start);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    $availability = $result_check->fetch_assoc();
+    $stmt_check->close();
+    
+    $is_completed = (int)($availability['is_completed'] ?? 0);
+    
+    // Se o check-in já está completo, não retornar respostas antigas
+    // Isso força o usuário a fazer o check-in novamente se foi resetado
+    if ($is_completed == 1) {
+        echo json_encode([
+            'success' => true,
+            'responses' => [],
+            'answered_questions' => []
+        ]);
+        return;
+    }
+    
+    // Buscar apenas respostas da semana atual (a partir do domingo da semana)
+    $stmt = $conn->prepare("
+        SELECT question_id, response_text, response_value 
+        FROM sf_checkin_responses 
+        WHERE config_id = ? 
+        AND user_id = ? 
+        AND DATE(submitted_at) >= ?
+        ORDER BY question_id ASC
+    ");
+    $stmt->bind_param("iis", $config_id, $user_id, $week_start);
     $stmt->execute();
     $result = $stmt->get_result();
     

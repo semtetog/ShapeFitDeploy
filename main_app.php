@@ -3331,7 +3331,18 @@ function restoreChatFromProgress() {
     // Continuar da próxima pergunta
     currentQuestionIndex = lastAnsweredIndex + 1;
     
-    if (currentQuestionIndex >= checkinData.questions.length) {
+    // Verificar se todas as perguntas foram respondidas
+    // Mas só completar se realmente todas foram respondidas E não foram puladas por lógica condicional
+    let totalAnswered = 0;
+    for (let i = 0; i < checkinData.questions.length; i++) {
+        const question = checkinData.questions[i];
+        // Contar apenas perguntas que foram respondidas OU que foram puladas por lógica condicional
+        if (answeredQuestionIds.includes(question.id) || !shouldShowQuestion(question)) {
+            totalAnswered++;
+        }
+    }
+    
+    if (currentQuestionIndex >= checkinData.questions.length || totalAnswered >= checkinData.questions.length) {
         // Todas as perguntas foram respondidas
         addMessage('Obrigado pelo seu feedback! Seu check-in foi salvo com sucesso.', 'bot');
         const textInput = document.getElementById('checkinTextInput');
