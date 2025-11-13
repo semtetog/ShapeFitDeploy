@@ -227,6 +227,7 @@ require_once __DIR__ . '/includes/header.php';
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-height: 40px; /* Força ficar exatamente da altura dos botões para alinhamento vertical */
 }
 
 /* FIX: Evitar que o ícone de ajuda do calendário suba para o header */
