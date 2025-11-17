@@ -2,7 +2,7 @@
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 requireLogin();
-require_once 'includes/db.php';
+// $conn já está disponível via auth.php
 require_once 'includes/functions.php';
 
 $user_id = $_SESSION['user_id'];
