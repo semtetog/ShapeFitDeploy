@@ -132,14 +132,12 @@
         .offline-popup-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: scale(1);
         }
-        .offline-popup-button.rotating i,
-        .offline-popup-button.rotating {
-            animation: rotate 1s linear infinite;
-        }
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+
+        /* Remover a animação de rotação */
+        .offline-popup-button.rotating span:first-child {
+            display: none; /* Esconde o ícone de sync */
         }
         .offline-links {
             margin-top: 20px;
@@ -187,7 +185,8 @@
                 
                 if (retryBtn) {
                     retryBtn.disabled = true;
-                    retryBtn.classList.add('rotating');
+                    // Remover a classe que faz girar
+                    // retryBtn.classList.add('rotating'); 
                 }
                 if (checking) {
                     checking.classList.add('active');
@@ -203,16 +202,18 @@
                 }
                 
                 if (canReach) {
+                    // SÓ recarrega se tiver certeza que a conexão voltou
                     window.location.reload();
                 } else {
                     if (retryBtn) {
                         retryBtn.disabled = false;
-                        retryBtn.classList.remove('rotating');
+                        // Remover a classe que faz girar
+                        // retryBtn.classList.remove('rotating');
                     }
                 }
             }
             
-            // Verificação automática a cada 3 segundos
+            // Verificação automática a cada 5 segundos (aumentado para economizar bateria)
             function startAutoCheck() {
                 if (!checkInterval) {
                     checkInterval = setInterval(async () => {
@@ -220,7 +221,7 @@
                         if (canReach) {
                             window.location.reload();
                         }
-                    }, 3000);
+                    }, 5000);
                 }
             }
             
@@ -262,14 +263,9 @@
                 <span>Verificando conexão...</span>
             </div>
             <button class="offline-popup-button" id="offline-popup-retry">
-                <span>🔄</span>
                 <span>Tentar Novamente</span>
             </button>
-            <div class="offline-links">
-                <a href="./main_app.php" class="offline-link">Dashboard</a>
-                <a href="./diary.php" class="offline-link">Diário</a>
-                <a href="./progress.php" class="offline-link">Progresso</a>
-            </div>
+            <!-- Links removidos -->
         </div>
     </div>
 </body>
