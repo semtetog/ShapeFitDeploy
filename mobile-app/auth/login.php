@@ -25,13 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if (empty($errors)) {
-            // Verificar se a coluna status existe
-            $check_status = $conn->query("SHOW COLUMNS FROM sf_users LIKE 'status'");
-            $has_status_column = $check_status && $check_status->num_rows > 0;
-            if ($check_status) $check_status->free();
-            
-            $status_field = $has_status_column ? ", COALESCE(status, 'active') as status" : ", 'active' as status";
-            $stmt_login = $conn->prepare("SELECT id, password_hash, onboarding_complete, name$status_field FROM sf_users WHERE email = ?");
+            $stmt_login = $conn->prepare("SELECT id, password_hash, onboarding_complete, name FROM sf_users WHERE email = ?");
             if ($stmt_login) {
                 $stmt_login->bind_param("s", $email);
                 $stmt_login->execute();
@@ -40,24 +34,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt_login->close();
 
                 if ($user_login && password_verify($password, $user_login['password_hash'])) {
-                    // Verificar se a conta está ativa
-                    $user_status = $user_login['status'] ?? 'active';
-                    if ($user_status === 'inactive') {
-                        $errors['form'] = "Sua conta foi desativada. Entre em contato com o suporte.";
-                    } else {
-                        regenerateSession();
-                        $_SESSION['user_id'] = $user_login['id'];
-                        $_SESSION['email'] = $email;
-                        $_SESSION['user_name'] = $user_login['name'];
-                        
-                        // --- LINHA CRÍTICA ADICIONADA AQUI ---
-                        // Salva o status do onboarding na sessão para ser usado em outras páginas.
-                        $_SESSION['onboarding_complete'] = (bool)$user_login['onboarding_complete'];
+                    regenerateSession();
+                    $_SESSION['user_id'] = $user_login['id'];
+                    $_SESSION['email'] = $email;
+                    $_SESSION['user_name'] = $user_login['name'];
+                    
+                    // --- LINHA CRÍTICA ADICIONADA AQUI ---
+                    // Salva o status do onboarding na sessão para ser usado em outras páginas.
+                    $_SESSION['onboarding_complete'] = (bool)$user_login['onboarding_complete'];
 
-                        // O redirecionamento agora é sempre para o app. A lógica do auth.php fará o resto.
-                        header("Location: " . BASE_APP_URL . "/main_app.php");
-                        exit();
-                    }
+                    // O redirecionamento agora é sempre para o app. A lógica do auth.php fará o resto.
+                    header("Location: " . BASE_APP_URL . "/main_app.php");
+                    exit();
 
                 } else {
                     $errors['form'] = "Email ou senha incorretos.";
@@ -156,9 +144,29 @@ $page_title = "Login";
         .link-text { color: var(--text-secondary); margin-top: 40px; font-size: 1rem; }
         .link-text a { color: var(--accent-orange); text-decoration: none; font-weight: 600; transition: color 0.3s ease; }
         .link-text a:hover { color: #ff9e3d; }
+        .offline-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #FF6B00;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            z-index: 10000;
+            display: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .offline-banner.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
+    <div class="offline-banner" id="offlineBanner">
+        ⚠️ Você está offline. Algumas funcionalidades podem estar limitadas.
+    </div>
     <main class="app-container">
         <img src="<?php echo BASE_ASSET_URL; ?>/assets/images/SHAPE-FIT-LOGO.png" alt="Shape Fit Logo" class="login-logo">
         <h1 class="page-title">Acesse sua conta</h1>
@@ -199,6 +207,20 @@ $page_title = "Login";
                 input.addEventListener('blur', () => { window.scrollTo(0, 0); });
             });
         })();
+    </script>
+    <!-- Scripts do Capacitor e Offline Manager -->
+    <script src="<?php echo BASE_APP_URL; ?>/assets/js/config.js"></script>
+    <script src="<?php echo BASE_APP_URL; ?>/assets/js/capacitor-init.js"></script>
+    <script src="<?php echo BASE_APP_URL; ?>/assets/js/offline-manager.js"></script>
+    <!-- Registrar Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('<?php echo BASE_APP_URL; ?>/sw.js')
+                    .then(reg => console.log('Service Worker registrado'))
+                    .catch(err => console.log('Erro ao registrar Service Worker:', err));
+            });
+        }
     </script>
 </body>
 </html>
