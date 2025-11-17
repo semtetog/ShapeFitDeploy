@@ -122,6 +122,7 @@
             justify-content: center;
             gap: 8px;
             transition: transform 0.2s ease, background-position 0.4s ease;
+            -webkit-tap-highlight-color: transparent; /* Remove o highlight azul no Android */
         }
         .offline-popup-button:hover {
             background-position: right center;
@@ -164,17 +165,23 @@
             
             async function verifyConnection() {
                 try {
+                    // Adiciona um timestamp para evitar o cache
+                    const timestamp = new Date().getTime();
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 1500);
-                    await fetch('https://appshapefit.com/main_app.php', {
+                    const timeoutId = setTimeout(() => controller.abort(), 2500); // Timeout um pouco maior
+                    
+                    // Faz a requisição com 'no-store' para garantir que não está usando cache
+                    await fetch(`https://appshapefit.com/main_app.php?t=${timestamp}`, {
                         method: 'HEAD',
-                        mode: 'no-cors',
                         signal: controller.signal,
-                        cache: 'no-cache'
+                        cache: 'no-store' // ESSENCIAL: Ignora qualquer cache (HTTP ou do Service Worker)
                     });
+                    
                     clearTimeout(timeoutId);
+                    console.log('✅ Conexão com o servidor verificada.');
                     return true;
                 } catch (error) {
+                    console.warn('⚠️ Falha ao verificar conexão com o servidor:', error.name);
                     return false;
                 }
             }
@@ -185,35 +192,27 @@
                 
                 if (retryBtn) {
                     retryBtn.disabled = true;
-                    // Remover a classe que faz girar
-                    // retryBtn.classList.add('rotating'); 
                 }
                 if (checking) {
                     checking.classList.add('active');
                 }
                 
-                const canReach = await Promise.race([
-                    verifyConnection(),
-                    new Promise(resolve => setTimeout(() => resolve(false), 2000))
-                ]);
+                const canReach = await verifyConnection();
                 
                 if (checking) {
                     checking.classList.remove('active');
                 }
                 
                 if (canReach) {
-                    // SÓ recarrega se tiver certeza que a conexão voltou
                     window.location.reload();
                 } else {
                     if (retryBtn) {
                         retryBtn.disabled = false;
-                        // Remover a classe que faz girar
-                        // retryBtn.classList.remove('rotating');
                     }
                 }
             }
             
-            // Verificação automática a cada 5 segundos (aumentado para economizar bateria)
+            // Verificação automática a cada 5 segundos
             function startAutoCheck() {
                 if (!checkInterval) {
                     checkInterval = setInterval(async () => {
@@ -263,6 +262,7 @@
                 <span>Verificando conexão...</span>
             </div>
             <button class="offline-popup-button" id="offline-popup-retry">
+                <!-- Ícone de sync removido -->
                 <span>Tentar Novamente</span>
             </button>
             <!-- Links removidos -->
