@@ -3,14 +3,22 @@ const CACHE_NAME = 'shapefit-v3';
 const API_BASE = 'https://appshapefit.com';
 
 // Páginas críticas que devem estar sempre no cache (precache)
-// Essas páginas serão cacheadas na instalação do service worker
+// IMPORTANTE: Não coloque TODAS as páginas aqui! Apenas as essenciais.
+// As outras páginas serão cacheadas automaticamente quando o usuário visitá-las.
 const CRITICAL_PAGES = [
     './',
     './index.html',
+    './index.php',
     './auth/login.php',
     './auth/register.php', // Página de registro (se existir)
     './main_app.php', // Página principal do app
-    './onboarding/onboarding.php' // Página de onboarding
+    './onboarding/onboarding.php', // Página de onboarding
+    // Páginas principais do app (mais visitadas)
+    './diary.php',
+    './progress.php',
+    './ranking.php',
+    './more_options.php',
+    './routine.php'
 ];
 
 // Assets estáticos críticos
@@ -153,18 +161,21 @@ self.addEventListener('fetch', (event) => {
     }
     
     // Para páginas HTML/PHP: Network First com fallback para cache
+    // ESTRATÉGIA HÍBRIDA: Páginas são cacheadas automaticamente quando visitadas
     event.respondWith(
         fetch(event.request, {
             cache: 'no-store', // Sempre buscar da rede primeiro
             credentials: 'include' // Incluir cookies/sessão
         })
             .then(response => {
-                // Só cachear respostas válidas (200) e que não sejam redirecionamentos
+                // Cachear TODAS as páginas válidas automaticamente quando visitadas
+                // Isso cria um cache dinâmico: quanto mais o usuário navega, mais páginas ficam offline
                 if (response && response.status === 200 && response.type === 'basic') {
                     const responseToCache = response.clone();
                     // Cachear em background (não bloquear a resposta)
                     caches.open(CACHE_NAME).then(cache => {
                         cache.put(event.request, responseToCache);
+                        console.log('[SW] Página cacheada automaticamente:', event.request.url);
                     });
                 }
                 return response;
@@ -189,8 +200,9 @@ self.addEventListener('fetch', (event) => {
                             });
                         }
                         
-                        // Para outras páginas, retornar página offline genérica
-                        return createOfflinePage();
+                        // Para outras páginas não cacheadas, mostrar página offline com links úteis
+                        console.log('[SW] Página não encontrada no cache:', event.request.url);
+                        return createOfflinePage('Esta página não está disponível offline. Conecte-se à internet para acessá-la.');
                     });
             })
     );
@@ -267,6 +279,7 @@ function createOfflinePage(customMessage = null) {
         <p style="font-size: 0.875rem; margin-top: 1rem;">Páginas visitadas anteriormente podem estar disponíveis offline.</p>
         <div class="links">
             <a href="./auth/login.php" class="link-btn">Tentar Login</a>
+            <a href="./main_app.php" class="link-btn">Dashboard</a>
             <a href="./" class="link-btn">Voltar ao Início</a>
         </div>
     </div>
