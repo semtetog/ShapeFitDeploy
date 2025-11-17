@@ -31,6 +31,17 @@ if ($group_filter > 0) {
     $stmt_group->close();
 }
 
+// Verificar se a coluna status existe, se não, criar
+$check_status = $conn->query("SHOW COLUMNS FROM sf_users LIKE 'status'");
+$has_status_column = $check_status && $check_status->num_rows > 0;
+if ($check_status) $check_status->free();
+
+if (!$has_status_column) {
+    // Adicionar coluna status se não existir
+    $conn->query("ALTER TABLE sf_users ADD COLUMN status ENUM('active', 'inactive') DEFAULT 'active' AFTER points");
+    $has_status_column = true;
+}
+
 // --- Contagem total para paginação ---
 $count_sql = "SELECT COUNT(DISTINCT u.id) as total FROM sf_users u";
 $count_params = []; $count_types = "";
@@ -87,7 +98,8 @@ try {
 }
 
 // --- Busca dos usuários da página atual ---
-$sql = "SELECT DISTINCT u.id, u.name, u.email, up.profile_image_filename, u.created_at FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id";
+$status_field = $has_status_column ? "COALESCE(u.status, 'active') as status" : "'active' as status";
+$sql = "SELECT DISTINCT u.id, u.name, u.email, up.profile_image_filename, u.created_at, $status_field FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id";
 $params = []; $types = "";
 $conditions = [];
 
@@ -242,12 +254,29 @@ require_once __DIR__ . '/includes/header.php';
                         </span>
                     </div>
                 </a>
-                <button type="button" 
-                        class="btn-delete-user-card" 
-                        onclick="event.stopPropagation(); showDeleteUserModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['name'], ENT_QUOTES); ?>')" 
-                        title="Excluir usuário permanentemente">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+                <div class="user-card-actions" onclick="event.stopPropagation()">
+                    <div class="toggle-switch-wrapper">
+                        <?php
+                        $is_active = ($user['status'] ?? 'active') === 'active';
+                        ?>
+                        <label class="toggle-switch">
+                            <input type="checkbox" 
+                                   class="toggle-switch-input" 
+                                   <?php echo $is_active ? 'checked' : ''; ?>
+                                   onchange="toggleUserStatus(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['status'] ?? 'active', ENT_QUOTES); ?>', this)"
+                                   data-user-id="<?php echo $user['id']; ?>"
+                                   data-current-status="<?php echo htmlspecialchars($user['status'] ?? 'active', ENT_QUOTES); ?>">
+                            <span class="toggle-switch-slider"></span>
+                        </label>
+                        <span class="toggle-switch-label" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
+                    </div>
+                    <button type="button" 
+                            class="btn-delete-user-card" 
+                            onclick="showDeleteUserModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['name'], ENT_QUOTES); ?>')" 
+                            title="Excluir usuário permanentemente">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
             </div>
         <?php endforeach; ?>
     <?php endif; ?>
@@ -332,11 +361,107 @@ require_once __DIR__ . '/includes/header.php';
     word-wrap: break-word;
 }
 
-/* Botão de exclusão no card - estilo igual ao painel admin */
-.btn-delete-user-card {
+/* Ações do card (toggle + botão delete) */
+.user-card-actions {
     position: absolute;
     top: 8px;
     right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.user-card-wrapper:hover .user-card-actions {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Toggle switch styles - idêntico ao challenge_groups.php */
+.toggle-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.toggle-switch-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 50px;
+    text-align: left;
+    transition: color 0.3s ease;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #EF4444; /* Vermelho quando desativado */
+    transition: all 0.3s ease;
+    border-radius: 26px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background-color: #22C55E; /* Verde quando ativado */
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider:before {
+    transform: translateX(24px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-switch:hover .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.toggle-switch-input:checked:hover + .toggle-switch-slider {
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+.toggle-switch-input:not(:checked):hover + .toggle-switch-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Botão de exclusão no card - estilo igual ao painel admin */
+.btn-delete-user-card {
     background: rgba(244, 67, 54, 0.1);
     color: var(--danger-red);
     border: 1px solid rgba(244, 67, 54, 0.3);
@@ -350,14 +475,6 @@ require_once __DIR__ . '/includes/header.php';
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    z-index: 10;
-    opacity: 0;
-    transform: scale(0.8);
-}
-
-.user-card-wrapper:hover .btn-delete-user-card {
-    opacity: 1;
-    transform: scale(1);
 }
 
 .btn-delete-user-card:hover {
@@ -596,6 +713,88 @@ require_once __DIR__ . '/includes/header.php';
 </style>
 
 <script>
+// Toggle status do usuário - idêntico ao challenge_groups.php
+function toggleUserStatus(userId, currentStatus, toggleElement) {
+    if (!userId) {
+        alert('Erro: ID do usuário não fornecido');
+        // Reverter o toggle
+        if (toggleElement) {
+            toggleElement.checked = currentStatus === 'active';
+            updateToggleLabel(toggleElement);
+        }
+        return;
+    }
+    
+    // Usar o elemento passado ou encontrar
+    const toggle = toggleElement || document.querySelector(`.toggle-switch-input[data-user-id="${userId}"]`);
+    if (!toggle) return;
+    
+    // IMPORTANTE: O checkbox já foi alterado pelo evento onchange
+    // Então toggle.checked já reflete o NOVO estado (não o antigo)
+    const isChecked = toggle.checked;
+    const newStatus = isChecked ? 'active' : 'inactive';
+    const wrapper = toggle.closest('.toggle-switch-wrapper');
+    const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
+    
+    // Atualizar label IMEDIATAMENTE baseado no estado atual do checkbox
+    if (label) {
+        const newText = isChecked ? 'Ativo' : 'Inativo';
+        const newColor = isChecked ? '#22C55E' : '#EF4444';
+        const newWeight = isChecked ? '700' : '600';
+        
+        // Atualizar diretamente
+        label.textContent = newText;
+        label.style.color = newColor;
+        label.style.fontWeight = newWeight;
+        
+        // Forçar reflow para garantir que a atualização seja visível
+        label.offsetHeight;
+    }
+    
+    // Atualizar status via AJAX (sem recarregar a página)
+    fetch('ajax_users.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'toggle_status',
+            user_id: userId,
+            status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Atualizar o atributo data-current-status para próximas mudanças
+            toggle.setAttribute('data-current-status', newStatus);
+        } else {
+            // Reverter o toggle em caso de erro
+            toggle.checked = !isChecked;
+            updateToggleLabel(toggle);
+            alert('Erro ao atualizar status: ' + (result.message || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        // Reverter o toggle em caso de erro
+        toggle.checked = !isChecked;
+        updateToggleLabel(toggle);
+        alert('Erro ao atualizar status. Tente novamente.');
+    });
+}
+
+function updateToggleLabel(toggle) {
+    const wrapper = toggle.closest('.toggle-switch-wrapper');
+    const label = wrapper ? wrapper.querySelector('.toggle-switch-label') : null;
+    if (label) {
+        const isActive = toggle.checked;
+        label.textContent = isActive ? 'Ativo' : 'Inativo';
+        label.style.color = isActive ? '#22C55E' : '#EF4444';
+        label.style.fontWeight = isActive ? '700' : '600';
+    }
+}
+
 // Sistema de exclusão de usuário - idêntico ao view_user.php
 let currentUserIdToDelete = null;
 let currentUserNameToDelete = null;

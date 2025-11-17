@@ -25,7 +25,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if (empty($errors)) {
-            $stmt_login = $conn->prepare("SELECT id, password_hash, onboarding_complete, name FROM sf_users WHERE email = ?");
+            // Verificar se a coluna status existe
+            $check_status = $conn->query("SHOW COLUMNS FROM sf_users LIKE 'status'");
+            $has_status_column = $check_status && $check_status->num_rows > 0;
+            if ($check_status) $check_status->free();
+            
+            $status_field = $has_status_column ? ", COALESCE(status, 'active') as status" : ", 'active' as status";
+            $stmt_login = $conn->prepare("SELECT id, password_hash, onboarding_complete, name$status_field FROM sf_users WHERE email = ?");
             if ($stmt_login) {
                 $stmt_login->bind_param("s", $email);
                 $stmt_login->execute();
@@ -34,18 +40,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt_login->close();
 
                 if ($user_login && password_verify($password, $user_login['password_hash'])) {
-                    regenerateSession();
-                    $_SESSION['user_id'] = $user_login['id'];
-                    $_SESSION['email'] = $email;
-                    $_SESSION['user_name'] = $user_login['name'];
-                    
-                    // --- LINHA CRÍTICA ADICIONADA AQUI ---
-                    // Salva o status do onboarding na sessão para ser usado em outras páginas.
-                    $_SESSION['onboarding_complete'] = (bool)$user_login['onboarding_complete'];
+                    // Verificar se a conta está ativa
+                    $user_status = $user_login['status'] ?? 'active';
+                    if ($user_status === 'inactive') {
+                        $errors['form'] = "Sua conta foi desativada. Entre em contato com o suporte.";
+                    } else {
+                        regenerateSession();
+                        $_SESSION['user_id'] = $user_login['id'];
+                        $_SESSION['email'] = $email;
+                        $_SESSION['user_name'] = $user_login['name'];
+                        
+                        // --- LINHA CRÍTICA ADICIONADA AQUI ---
+                        // Salva o status do onboarding na sessão para ser usado em outras páginas.
+                        $_SESSION['onboarding_complete'] = (bool)$user_login['onboarding_complete'];
 
-                    // O redirecionamento agora é sempre para o app. A lógica do auth.php fará o resto.
-                    header("Location: " . BASE_APP_URL . "/main_app.php");
-                    exit();
+                        // O redirecionamento agora é sempre para o app. A lógica do auth.php fará o resto.
+                        header("Location: " . BASE_APP_URL . "/main_app.php");
+                        exit();
+                    }
 
                 } else {
                     $errors['form'] = "Email ou senha incorretos.";

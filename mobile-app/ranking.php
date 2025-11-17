@@ -91,8 +91,9 @@ $has_more_users = $current_limit < $total_users;
 // Verificar se o usuário atual e o oponente estão na lista carregada
 $current_user_in_loaded_list = in_array($user_id, $loaded_user_ids);
 
-// Buscar dados do usuário atual e do oponente (mesma lógica do main_app.php)
-$stmt_my_rank = $conn->prepare("SELECT rank, points FROM (SELECT id, points, RANK() OVER (ORDER BY points DESC, name ASC) as rank FROM sf_users) as r WHERE id = ?");
+// Buscar dados do usuário atual e do oponente (mesma lógica do main_app.php) - apenas ativos
+$status_condition_subquery = $has_status_column ? "WHERE COALESCE(status, 'active') = 'active'" : "";
+$stmt_my_rank = $conn->prepare("SELECT rank, points FROM (SELECT id, points, RANK() OVER (ORDER BY points DESC, name ASC) as rank FROM sf_users $status_condition_subquery) as r WHERE id = ?");
 $stmt_my_rank->bind_param("i", $user_id);
 $stmt_my_rank->execute();
 $my_rank_result = $stmt_my_rank->get_result()->fetch_assoc();
@@ -100,11 +101,12 @@ $my_rank = $my_rank_result['rank'] ?? null;
 $my_points = $my_rank_result['points'] ?? 0;
 $stmt_my_rank->close();
 
-// Buscar oponente (pessoa que aparece na disputa no main_app)
+// Buscar oponente (pessoa que aparece na disputa no main_app) - apenas ativos
 $opponent_rank = ($my_rank && $my_rank > 1) ? $my_rank - 1 : ($my_rank == 1 ? 2 : null);
 $opponent_data = null;
 if ($opponent_rank && $opponent_rank > 0) {
-    $stmt_opponent = $conn->prepare("SELECT * FROM (SELECT u.id, u.name, u.points, up.profile_image_filename, up.gender, RANK() OVER (ORDER BY u.points DESC, u.name ASC) as rank FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id) as ranked_users WHERE rank = ? LIMIT 1");
+    $status_condition_opponent = $has_status_column ? "AND COALESCE(u.status, 'active') = 'active'" : "";
+    $stmt_opponent = $conn->prepare("SELECT * FROM (SELECT u.id, u.name, u.points, up.profile_image_filename, up.gender, RANK() OVER (ORDER BY u.points DESC, u.name ASC) as rank FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id WHERE 1=1 $status_condition_opponent) as ranked_users WHERE rank = ? LIMIT 1");
     $stmt_opponent->bind_param("i", $opponent_rank);
     $stmt_opponent->execute();
     $opponent_data = $stmt_opponent->get_result()->fetch_assoc();
@@ -115,9 +117,8 @@ if ($opponent_rank && $opponent_rank > 0) {
     $stmt_opponent->close();
 }
 
-// Se o usuário não está na lista, adicionar ele
+// Se o usuário não está na lista, adicionar ele (apenas entre usuários ativos)
 if (!$current_user_in_loaded_list && $user_id && $my_rank) {
-    // Buscar rank do usuário atual (apenas entre usuários ativos)
     $status_condition_subquery = $has_status_column ? "WHERE COALESCE(status, 'active') = 'active'" : "";
     $stmt_user = $conn->prepare("SELECT u.id, u.name, u.points, up.profile_image_filename, up.gender, r.user_rank FROM sf_users u LEFT JOIN sf_user_profiles up ON u.id = up.user_id JOIN (SELECT id, RANK() OVER (ORDER BY points DESC, name ASC) as user_rank FROM sf_users $status_condition_subquery) r ON u.id = r.id WHERE u.id = ?");
     $stmt_user->bind_param("i", $user_id);
