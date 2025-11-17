@@ -19,7 +19,7 @@
     "allowMixedContent": false,
     "captureInput": true,
     "webContentsDebuggingEnabled": true,
-    "errorPath": "index.html"
+    "errorPath": "offline.html"
   },
   "plugins": {
     "SplashScreen": {
