@@ -136,6 +136,22 @@
             transform: scale(1);
         }
 
+        /* Animação de rotação para o spinner do botão */
+        .offline-popup-button.checking .button-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-top-color: #F5F5F5;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .offline-popup-button.checking .button-text {
+            display: none;
+        }
+        .button-spinner {
+            display: none;
+        }
         /* Remover a animação de rotação */
         .offline-popup-button.rotating span:first-child {
             display: none; /* Esconde o ícone de sync */
@@ -188,26 +204,28 @@
             
             async function retryConnection() {
                 const retryBtn = document.getElementById('offline-popup-retry');
-                const checking = document.getElementById('offline-popup-checking');
+                const checkingText = document.getElementById('offline-popup-checking');
                 
                 if (retryBtn) {
                     retryBtn.disabled = true;
+                    retryBtn.classList.add('checking');
                 }
-                if (checking) {
-                    checking.classList.add('active');
+                if (checkingText) {
+                    checkingText.style.display = 'flex';
                 }
                 
                 const canReach = await verifyConnection();
                 
-                if (checking) {
-                    checking.classList.remove('active');
+                if (checkingText) {
+                    checkingText.style.display = 'none';
                 }
                 
                 if (canReach) {
-                    window.location.reload();
+                    // A página vai recarregar, não precisa reativar o botão
                 } else {
                     if (retryBtn) {
                         retryBtn.disabled = false;
+                        retryBtn.classList.remove('checking');
                     }
                 }
             }
@@ -262,8 +280,8 @@
                 <span>Verificando conexão...</span>
             </div>
             <button class="offline-popup-button" id="offline-popup-retry">
-                <!-- Ícone de sync removido -->
-                <span>Tentar Novamente</span>
+                <span class="button-spinner"></span>
+                <span class="button-text">Tentar Novamente</span>
             </button>
             <!-- Links removidos -->
         </div>
