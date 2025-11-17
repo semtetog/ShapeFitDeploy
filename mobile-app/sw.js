@@ -14,6 +14,7 @@ const CRITICAL_PAGES = [
     './auth/register.php', // Página de registro (se existir)
     './main_app.php', // Página principal do app
     './onboarding/onboarding.php', // Página de onboarding
+    './offline.html', // Página offline (CRÍTICA - sempre disponível)
     // Páginas principais do app (mais visitadas)
     './diary.php',
     './progress.php',
@@ -95,269 +96,38 @@ self.addEventListener('activate', (event) => {
 });
 
 // Estratégia de cache: Network First com fallback para cache
+// IMPORTANTE: Interceptar TODAS as requisições para evitar erros do navegador
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
-    
-    // Ignorar requisições não-GET
-    if (event.request.method !== 'GET') {
-        return;
-    }
-    
-    // No app nativo (Capacitor), servir tudo localmente
-    // Apenas APIs devem ir para o servidor remoto
-    const isCapacitor = url.protocol === 'capacitor:' || url.href.includes('capacitor://');
-    const isLocalFile = url.protocol === 'file:' || url.protocol === 'capacitor:';
-    
-    // Se for requisição de API, sempre tentar servidor remoto
-    if (url.pathname.includes('/api/') || url.pathname.includes('/ajax') || url.pathname.includes('/auth/') && url.pathname.includes('.php')) {
-        // APIs e formulários PHP vão para servidor remoto
-        if (!url.href.includes('appshapefit.com') && !isLocalFile) {
-            // Se não for servidor remoto nem arquivo local, redirecionar para API remota
-            const apiUrl = new URL(url.pathname + url.search, 'https://appshapefit.com');
-            event.respondWith(fetch(apiUrl));
-            return;
-        }
-    }
-    
-    // Para arquivos locais no Capacitor, não filtrar por domínio
-    if (isLocalFile || isCapacitor) {
-        // Continuar processamento para arquivos locais
-    } else if (!url.href.includes('appshapefit.com') && !url.href.includes('localhost')) {
-        // Em navegador web, manter comportamento original
-        return;
-    }
-    
-    // Para requisições de API: Network Only (não cachear)
-    if (url.pathname.includes('/api/') || url.pathname.includes('/ajax')) {
-        event.respondWith(
-            fetch(event.request)
-                .catch(() => {
-                    // Se offline, retornar resposta JSON de erro
-                    return new Response(
-                        JSON.stringify({ 
-                            error: 'Offline', 
-                            offline: true,
-                            message: 'Você está offline. Conecte-se à internet para continuar.'
-                        }),
-                        { 
-                            status: 503,
-                            headers: { 
-                                'Content-Type': 'application/json',
-                                'Cache-Control': 'no-cache'
-                            }
-                        }
-                    );
-                })
-        );
-        return;
-    }
-    
-    // Para assets estáticos (CSS, JS, imagens, fonts): Cache First
+
+    // Só aplicar cache para assets estáticos (CSS, JS, Imagens, Fontes)
     if (url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|ico)$/i)) {
         event.respondWith(
-            caches.match(event.request)
-                .then(cachedResponse => {
-                    if (cachedResponse) {
-                        return cachedResponse;
-                    }
-                    // Se não tiver no cache, buscar da rede e cachear
-                    return fetch(event.request).then(response => {
-                        // Só cachear se a resposta for válida
-                        if (response && response.status === 200) {
-                            const responseToCache = response.clone();
-                            caches.open(CACHE_NAME).then(cache => {
-                                cache.put(event.request, responseToCache);
-                            });
-                        }
-                        return response;
-                    }).catch(() => {
-                        // Se falhar e não tiver no cache, retornar erro
-                        return new Response('Asset não disponível offline', { 
-                            status: 503,
-                            headers: { 'Content-Type': 'text/plain' }
+            caches.match(event.request).then(cachedResponse => {
+                // Se tiver no cache, retorna do cache
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+                // Se não, busca na rede, cacheia e retorna
+                return fetch(event.request).then(networkResponse => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        const responseToCache = networkResponse.clone();
+                        caches.open(CACHE_NAME).then(cache => {
+                            cache.put(event.request, responseToCache);
                         });
-                    });
-                })
+                    }
+                    return networkResponse;
+                });
+            })
         );
         return;
     }
-    
-    // Para páginas HTML/PHP: Cache First (para funcionar offline) com atualização em background
-    // IMPORTANTE: No Capacitor, páginas PHP são processadas no servidor, mas cacheamos o HTML renderizado
-    event.respondWith(
-        caches.match(event.request)
-            .then(cachedResponse => {
-                // Se tiver no cache, servir imediatamente (funciona offline)
-                if (cachedResponse) {
-                    console.log('[SW] Servindo do cache:', event.request.url);
-                    // Tentar atualizar em background (não bloquear resposta)
-                    fetch(event.request, {
-                        cache: 'no-store',
-                        credentials: 'include'
-                    })
-                        .then(response => {
-                            if (response && response.status === 200) {
-                                const responseToCache = response.clone();
-                                caches.open(CACHE_NAME).then(cache => {
-                                    cache.put(event.request, responseToCache);
-                                    console.log('[SW] Cache atualizado em background:', event.request.url);
-                                });
-                            }
-                        })
-                        .catch(() => {
-                            // Offline, manter cache atual
-                            console.log('[SW] Offline, mantendo cache');
-                        });
-                    return cachedResponse;
-                }
-                
-                // Se não tiver no cache, buscar da rede e cachear
-                return fetch(event.request, {
-                    cache: 'no-store',
-                    credentials: 'include'
-                })
-                    .then(response => {
-                        // Cachear TODAS as páginas válidas automaticamente quando visitadas
-                        if (response && response.status === 200 && response.type === 'basic') {
-                            const responseToCache = response.clone();
-                            caches.open(CACHE_NAME).then(cache => {
-                                cache.put(event.request, responseToCache);
-                                console.log('[SW] Página cacheada automaticamente:', event.request.url);
-                            });
-                        }
-                        return response;
-                    });
-            })
-            .catch(() => {
-                // Se tudo falhar, tentar buscar do cache como último recurso
-                return caches.match(event.request)
-                    .then(cachedResponse => {
-                        if (cachedResponse) {
-                            console.log('[SW] Servindo do cache:', event.request.url);
-                            return cachedResponse;
-                        }
-                        
-                        // Se for uma página de autenticação (login/register) e não estiver no cache,
-                        // tentar buscar da rede mesmo offline (pode ter cache do navegador)
-                        const url = new URL(event.request.url);
-                        if (url.pathname.includes('/auth/login.php') || url.pathname.includes('/auth/register.php')) {
-                            console.log('[SW] Tentando buscar página de auth da rede...');
-                            return fetch(event.request).catch(() => {
-                                // Se falhar, retornar página offline
-                                return createOfflinePage('Esta página requer conexão com a internet para funcionar corretamente.');
-                            });
-                        }
-                        
-                        // Para outras páginas não cacheadas, mostrar página offline com links úteis
-                        console.log('[SW] Página não encontrada no cache:', event.request.url);
-                        return createOfflinePage('Esta página não está disponível offline. Conecte-se à internet para acessá-la.');
-                    });
-            })
-    );
-});
 
-// Função auxiliar para criar página offline
-function createOfflinePage(customMessage = null) {
-    return new Response(
-                            `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline - ShapeFit</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #101010;
-            color: #F5F5F5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 400px;
-        }
-        .icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: #FF6B00;
-        }
-        p {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #8E8E93;
-            margin-bottom: 1.5rem;
-        }
-        .links {
-            margin-top: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .link-btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: rgba(255, 107, 0, 0.1);
-            border: 1px solid rgba(255, 107, 0, 0.3);
-            border-radius: 8px;
-            color: #FF6B00;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .link-btn:hover {
-            background: rgba(255, 107, 0, 0.2);
-            border-color: #FF6B00;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="icon">📴</div>
-        <h1>Você está offline</h1>
-        <p>${customMessage || 'Algumas funcionalidades podem estar limitadas. Verifique sua conexão com a internet.'}</p>
-        <p style="font-size: 0.875rem; margin-top: 1rem;">Páginas visitadas anteriormente podem estar disponíveis offline.</p>
-        <div class="links">
-            <a href="./auth/login.php" class="link-btn">Tentar Login</a>
-            <a href="./main_app.php" class="link-btn">Dashboard</a>
-            <a href="./" class="link-btn">Voltar ao Início</a>
-        </div>
-    </div>
-    <script>
-        // Tentar recarregar quando voltar online
-        window.addEventListener('online', function() {
-            console.log('Conexão restaurada, recarregando...');
-            window.location.reload();
-        });
-        
-        // Verificar conexão periodicamente
-        setInterval(function() {
-            if (navigator.onLine) {
-                window.location.reload();
-            }
-        }, 5000);
-    </script>
-</body>
-</html>`,
-                            { 
-                                status: 503,
-                                headers: { 
-                                    'Content-Type': 'text/html; charset=utf-8',
-                                    'Cache-Control': 'no-cache'
-                                }
-                            }
-                        );
-                    });
-            })
-    );
+    // Para todas as outras requisições (ex: páginas .php),
+    // apenas tenta buscar da rede. Se falhar (offline), o Capacitor
+    // vai mostrar a 'offline.html' definida no errorPath.
+    // O Service Worker não precisa mais retornar uma página offline.
+    return;
 });
 
 // Sincronização em background quando voltar online

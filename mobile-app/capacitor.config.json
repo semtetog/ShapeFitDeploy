@@ -7,7 +7,7 @@
     "hostname": "appshapefit.com",
     "cleartext": false,
     "url": "https://appshapefit.com",
-    "errorPath": "index.html"
+    "errorPath": "offline.html"
   },
   "ios": {
     "contentInset": "never",
