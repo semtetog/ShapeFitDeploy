@@ -113,6 +113,15 @@ if (!defined('APP_ROOT_PATH')) { define('APP_ROOT_PATH', dirname(__DIR__)); }
             }
         }
     }
+    
+    // 3. Se estiver no mobile-app, incluir scripts do mobile (incluindo service worker)
+    $current_script = $_SERVER['PHP_SELF'] ?? '';
+    if (strpos($current_script, '/mobile-app/') !== false) {
+        $mobile_scripts_path = APP_ROOT_PATH . '/mobile-app/includes/mobile_scripts.php';
+        if (file_exists($mobile_scripts_path)) {
+            require_once $mobile_scripts_path;
+        }
+    }
     ?>
 
 </body>
