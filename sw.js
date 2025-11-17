@@ -67,7 +67,7 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// Ativação: Limpa caches antigos
+// Ativação: Limpa caches antigos e assume controle imediato
 self.addEventListener('activate', (event) => {
     console.log(`[SW] Ativando Service Worker v${CACHE_VERSION}...`);
     
@@ -83,10 +83,16 @@ self.addEventListener('activate', (event) => {
                 })
             );
         }).then(() => {
-            console.log('[SW] Ativado e controlando clientes.');
+            console.log('[SW] Ativado! Assumindo controle de todos os clientes...');
+            // Assume controle IMEDIATAMENTE de todas as páginas abertas
             return self.clients.claim();
+        }).then(() => {
+            console.log('[SW] Controle assumido com sucesso!');
         })
     );
+    
+    // Força ativação imediata sem esperar outras páginas fecharem
+    self.skipWaiting();
 });
 
 // Intercepta requisições
