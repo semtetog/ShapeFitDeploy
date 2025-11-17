@@ -6,7 +6,11 @@ require_once __DIR__ . '/config.php';
 // GARANTE QUE A CONEXÃO COM O BANCO DE DADOS SEJA ESTABELECIDA
 // Como este arquivo é incluído em todas as páginas seguras,
 // $conn estará sempre disponível.
-$conn = require __DIR__ . '/db.php';
+if (!isset($conn) || $conn === null) {
+    $conn = require __DIR__ . '/db.php';
+    // Garantir que está no escopo global também
+    $GLOBALS['conn'] = $conn;
+}
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -33,11 +37,12 @@ function requireLogin() {
     }
 
     // Verificar se a conta do usuário ainda está ativa
+    // $conn já está disponível no escopo global (estabelecido no topo do arquivo)
     $user_id = $_SESSION['user_id'] ?? null;
-    if ($user_id) {
+    if ($user_id && isset($GLOBALS['conn']) && $GLOBALS['conn']) {
         try {
-            require_once __DIR__ . '/db.php';
-            $conn = require __DIR__ . '/db.php';
+            // Usar a conexão global já estabelecida
+            global $conn;
             
             // Verificar se a coluna status existe
             $check_status = $conn->query("SHOW COLUMNS FROM sf_users LIKE 'status'");
