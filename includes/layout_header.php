@@ -118,15 +118,24 @@ $main_css_version = file_exists($main_css_file_path) ? filemtime($main_css_file_
     <!-- Service Worker Registration -->
     <script>
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('./sw.js')
-                .then(function(registration) {
-                    console.log('ServiceWorker registrado com sucesso:', registration.scope);
-                })
-                .catch(function(error) {
-                    console.log('Falha no registro do ServiceWorker:', error);
-                });
-        });
+        // Registrar imediatamente (não esperar load) para proteção offline mais rápida
+        (function() {
+            const swPath = '/sw.js';
+            navigator.serviceWorker.register(swPath, {
+                scope: '/'
+            })
+            .then(function(registration) {
+                console.log('✅ ServiceWorker registrado com sucesso:', registration.scope);
+                
+                // Verificar atualizações periodicamente
+                setInterval(function() {
+                    registration.update();
+                }, 60000); // A cada 1 minuto
+            })
+            .catch(function(error) {
+                console.error('❌ Falha no registro do ServiceWorker:', error);
+            });
+        })();
     }
     </script>
     

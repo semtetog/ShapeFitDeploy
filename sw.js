@@ -49,12 +49,38 @@ self.addEventListener('fetch', (event) => {
                 try {
                     // Tenta buscar a página da internet.
                     const networkResponse = await fetch(request);
-                    return networkResponse;
+                    // Se a resposta for válida, retorna ela
+                    if (networkResponse && networkResponse.status === 200) {
+                        return networkResponse;
+                    }
+                    // Se a resposta não for válida, cai no catch
+                    throw new Error('Network response not ok');
                 } catch (error) {
                     // Se a busca falhar (está offline), serve a página offline do cache.
                     console.log('[SW] Falha na busca de navegação. Servindo página offline.', error);
                     const cache = await caches.open(CACHE_NAME);
-                    const cachedResponse = await cache.match(OFFLINE_URL);
+                    let cachedResponse = await cache.match(OFFLINE_URL);
+                    
+                    // Se não estiver no cache, tenta buscar novamente
+                    if (!cachedResponse) {
+                        try {
+                            cachedResponse = await fetch(OFFLINE_URL);
+                            if (cachedResponse) {
+                                cache.put(OFFLINE_URL, cachedResponse.clone());
+                            }
+                        } catch (e) {
+                            console.error('[SW] Erro ao buscar offline.html:', e);
+                        }
+                    }
+                    
+                    // Se ainda não tiver, cria uma resposta básica
+                    if (!cachedResponse) {
+                        return new Response(
+                            '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Offline</title></head><body style="background:#101010;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:sans-serif"><h1>Sem Conexão</h1></body></html>',
+                            { headers: { 'Content-Type': 'text/html' } }
+                        );
+                    }
+                    
                     return cachedResponse;
                 }
             })()
