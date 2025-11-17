@@ -49,8 +49,10 @@ self.addEventListener('install', (event) => {
                 return Promise.allSettled(
                     allAssets.map(url => 
                         cache.add(url).catch(err => {
-                            // Não logar erro para páginas que podem não existir (como register.php)
-                            if (!url.includes('register.php') && !url.includes('onboarding.php')) {
+                            // Não logar erro para páginas opcionais que podem não existir
+                            const optionalPages = ['register.php', 'onboarding.php', 'index.php'];
+                            const isOptional = optionalPages.some(page => url.includes(page));
+                            if (!isOptional) {
                                 console.warn('[SW] Não foi possível cachear:', url);
                             }
                             return null;
