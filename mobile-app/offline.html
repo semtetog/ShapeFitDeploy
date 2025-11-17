@@ -181,21 +181,29 @@
             
             async function verifyConnection() {
                 try {
-                    // Adiciona um timestamp para evitar o cache
                     const timestamp = new Date().getTime();
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 2500); // Timeout um pouco maior
-                    
-                    // Faz a requisição com 'no-store' para garantir que não está usando cache
-                    await fetch(`https://appshapefit.com/main_app.php?t=${timestamp}`, {
-                        method: 'HEAD',
+                    // Timeout aumentado para 5 segundos para mais robustez em redes lentas
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                    // Usar um arquivo de 'ping' estático é muito mais rápido e confiável
+                    // do que carregar uma página PHP inteira para verificar a conexão.
+                    const response = await fetch(`/ping.txt?t=${timestamp}`, {
+                        method: 'GET',
                         signal: controller.signal,
-                        cache: 'no-store' // ESSENCIAL: Ignora qualquer cache (HTTP ou do Service Worker)
+                        cache: 'no-store'
                     });
-                    
+
                     clearTimeout(timeoutId);
-                    console.log('✅ Conexão com o servidor verificada.');
-                    return true;
+
+                    if (response.ok) {
+                        console.log('✅ Conexão com o servidor verificada.');
+                        return true;
+                    }
+                    
+                    console.warn('⚠️ Verificação de conexão falhou, status:', response.status);
+                    return false;
+
                 } catch (error) {
                     console.warn('⚠️ Falha ao verificar conexão com o servidor:', error.name);
                     return false;
@@ -221,7 +229,9 @@
                 }
                 
                 if (canReach) {
-                    // A página vai recarregar, não precisa reativar o botão
+                    // Redireciona para a página principal ao invés de apenas recarregar.
+                    // Isso garante que o usuário saia da tela offline.
+                    window.location.href = '/main_app.php';
                 } else {
                     if (retryBtn) {
                         retryBtn.disabled = false;
