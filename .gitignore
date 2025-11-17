@@ -6,6 +6,7 @@ ios-build/
 mobile-builds/
 android/
 ios/
+mobile-app/www/
 *.apk
 *.aab
 *.ipa

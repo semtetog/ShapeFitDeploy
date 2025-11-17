@@ -1,12 +1,11 @@
 {
   "appId": "com.shapefit.app",
   "appName": "ShapeFit",
-  "webDir": ".",
+  "webDir": "www",
   "server": {
     "androidScheme": "https",
     "hostname": "appshapefit.com",
     "cleartext": false,
-    "url": "https://appshapefit.com",
     "errorPath": "index.html"
   },
   "ios": {
