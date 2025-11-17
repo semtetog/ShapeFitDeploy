@@ -185,97 +185,99 @@ require_once __DIR__ . '/includes/header.php';
     <?php else: ?>
         <?php foreach ($users as $user): ?>
             <div class="user-card-wrapper">
-                <a href="view_user.php?id=<?php echo $user['id']; ?>" class="user-card">
-                    <div class="user-card-header">
-                        <?php
-                        $has_photo = false;
-                        $avatar_url = '';
+                <div class="user-card">
+                    <a href="view_user.php?id=<?php echo $user['id']; ?>" class="user-card-link">
+                        <div class="user-card-header">
+                            <?php
+                            $has_photo = false;
+                            $avatar_url = '';
 
-                        if (!empty($user['profile_image_filename'])) {
-                            // Verificar primeiro a imagem original (prioridade)
-                            $original_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'];
-                            if (file_exists($original_path_on_server)) {
-                                $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']);
-                                $has_photo = true;
-                            } else {
-                                // Fallback: verificar thumbnail
-                                $thumb_filename = 'thumb_' . $user['profile_image_filename'];
-                                $thumb_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
-                                if (file_exists($thumb_path_on_server)) {
-                                    $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                            if (!empty($user['profile_image_filename'])) {
+                                // Verificar primeiro a imagem original (prioridade)
+                                $original_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $user['profile_image_filename'];
+                                if (file_exists($original_path_on_server)) {
+                                    $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($user['profile_image_filename']);
                                     $has_photo = true;
+                                } else {
+                                    // Fallback: verificar thumbnail
+                                    $thumb_filename = 'thumb_' . $user['profile_image_filename'];
+                                    $thumb_path_on_server = APP_ROOT_PATH . '/assets/images/users/' . $thumb_filename;
+                                    if (file_exists($thumb_path_on_server)) {
+                                        $avatar_url = BASE_ASSET_URL . '/assets/images/users/' . htmlspecialchars($thumb_filename);
+                                        $has_photo = true;
+                                    }
                                 }
                             }
-                        }
 
-                        if ($has_photo):
-                        ?>
-                            <img src="<?php echo $avatar_url; ?>" 
-                                 alt="Foto de <?php echo htmlspecialchars($user['name']); ?>" 
-                                 class="user-card-avatar">
-                        <?php else:
-                            // SE NÃO TEM FOTO, GERA AS INICIAIS
-                            $name_parts = explode(' ', trim($user['name']));
-                            $initials = '';
-                            if (count($name_parts) > 1) {
-                                $initials = strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1));
-                            } elseif (!empty($name_parts[0])) {
-                                $initials = strtoupper(substr($name_parts[0], 0, 2));
-                            } else {
-                                $initials = '??';
-                            }
-                            // Gerar cor escura para bom contraste com texto branco
-                            $hash = md5($user['name']);
-                            $r = hexdec(substr($hash, 0, 2)) % 156 + 50;  // 50-205
-                            $g = hexdec(substr($hash, 2, 2)) % 156 + 50;  // 50-205
-                            $b = hexdec(substr($hash, 4, 2)) % 156 + 50;  // 50-205
-                            // Garantir que pelo menos um canal seja escuro
-                            $max = max($r, $g, $b);
-                            if ($max > 180) {
-                                $r = (int)($r * 0.7);
-                                $g = (int)($g * 0.7);
-                                $b = (int)($b * 0.7);
-                            }
-                            $bgColor = sprintf('#%02x%02x%02x', $r, $g, $b);
-                        ?>
-                            <div class="initials-avatar" style="background-color: <?php echo $bgColor; ?>;">
-                                <?php echo $initials; ?>
-                            </div>
-                        <?php endif; ?>
+                            if ($has_photo):
+                            ?>
+                                <img src="<?php echo $avatar_url; ?>" 
+                                     alt="Foto de <?php echo htmlspecialchars($user['name']); ?>" 
+                                     class="user-card-avatar">
+                            <?php else:
+                                // SE NÃO TEM FOTO, GERA AS INICIAIS
+                                $name_parts = explode(' ', trim($user['name']));
+                                $initials = '';
+                                if (count($name_parts) > 1) {
+                                    $initials = strtoupper(substr($name_parts[0], 0, 1) . substr(end($name_parts), 0, 1));
+                                } elseif (!empty($name_parts[0])) {
+                                    $initials = strtoupper(substr($name_parts[0], 0, 2));
+                                } else {
+                                    $initials = '??';
+                                }
+                                // Gerar cor escura para bom contraste com texto branco
+                                $hash = md5($user['name']);
+                                $r = hexdec(substr($hash, 0, 2)) % 156 + 50;  // 50-205
+                                $g = hexdec(substr($hash, 2, 2)) % 156 + 50;  // 50-205
+                                $b = hexdec(substr($hash, 4, 2)) % 156 + 50;  // 50-205
+                                // Garantir que pelo menos um canal seja escuro
+                                $max = max($r, $g, $b);
+                                if ($max > 180) {
+                                    $r = (int)($r * 0.7);
+                                    $g = (int)($g * 0.7);
+                                    $b = (int)($b * 0.7);
+                                }
+                                $bgColor = sprintf('#%02x%02x%02x', $r, $g, $b);
+                            ?>
+                                <div class="initials-avatar" style="background-color: <?php echo $bgColor; ?>;">
+                                    <?php echo $initials; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="user-card-body">
+                            <h3 class="user-card-name"><?php echo htmlspecialchars($user['name']); ?></h3>
+                            <p class="user-card-email"><?php echo htmlspecialchars($user['email']); ?></p>
+                        </div>
+                        <div class="user-card-footer">
+                            <span class="user-card-date">
+                                <i class="fas fa-calendar-alt"></i>
+                                Cadastro: <?php echo date('d/m/Y', strtotime($user['created_at'])); ?>
+                            </span>
+                        </div>
+                    </a>
+                    <div class="user-card-actions" onclick="event.stopPropagation()">
+                        <div class="toggle-switch-wrapper">
+                            <?php
+                            $is_active = ($user['status'] ?? 'active') === 'active';
+                            ?>
+                            <label class="toggle-switch">
+                                <input type="checkbox" 
+                                       class="toggle-switch-input" 
+                                       <?php echo $is_active ? 'checked' : ''; ?>
+                                       onchange="toggleUserStatus(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['status'] ?? 'active', ENT_QUOTES); ?>', this)"
+                                       data-user-id="<?php echo $user['id']; ?>"
+                                       data-current-status="<?php echo htmlspecialchars($user['status'] ?? 'active', ENT_QUOTES); ?>">
+                                <span class="toggle-switch-slider"></span>
+                            </label>
+                            <span class="toggle-switch-label" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
+                        </div>
+                        <button type="button" 
+                                class="btn-delete-user-card" 
+                                onclick="showDeleteUserModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['name'], ENT_QUOTES); ?>')" 
+                                title="Excluir usuário permanentemente">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
-                    <div class="user-card-body">
-                        <h3 class="user-card-name"><?php echo htmlspecialchars($user['name']); ?></h3>
-                        <p class="user-card-email"><?php echo htmlspecialchars($user['email']); ?></p>
-                    </div>
-                    <div class="user-card-footer">
-                        <span class="user-card-date">
-                            <i class="fas fa-calendar-alt"></i>
-                            Cadastro: <?php echo date('d/m/Y', strtotime($user['created_at'])); ?>
-                        </span>
-                    </div>
-                </a>
-                <div class="user-card-actions" onclick="event.stopPropagation()">
-                    <div class="toggle-switch-wrapper">
-                        <?php
-                        $is_active = ($user['status'] ?? 'active') === 'active';
-                        ?>
-                        <label class="toggle-switch">
-                            <input type="checkbox" 
-                                   class="toggle-switch-input" 
-                                   <?php echo $is_active ? 'checked' : ''; ?>
-                                   onchange="toggleUserStatus(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['status'] ?? 'active', ENT_QUOTES); ?>', this)"
-                                   data-user-id="<?php echo $user['id']; ?>"
-                                   data-current-status="<?php echo htmlspecialchars($user['status'] ?? 'active', ENT_QUOTES); ?>">
-                            <span class="toggle-switch-slider"></span>
-                        </label>
-                        <span class="toggle-switch-label" style="color: <?php echo $is_active ? '#22C55E' : '#EF4444'; ?>; font-weight: <?php echo $is_active ? '700' : '600'; ?>;"><?php echo $is_active ? 'Ativo' : 'Inativo'; ?></span>
-                    </div>
-                    <button type="button" 
-                            class="btn-delete-user-card" 
-                            onclick="showDeleteUserModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['name'], ENT_QUOTES); ?>')" 
-                            title="Excluir usuário permanentemente">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -308,93 +310,162 @@ require_once __DIR__ . '/includes/header.php';
 /* Grid de cards - ajustado para evitar espaços vazios no zoom */
 .user-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* auto-fit remove colunas vazias, minmax menor para mais cards caberem */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
-/* Wrapper para card de usuário com botão de exclusão */
+/* Wrapper para card de usuário */
 .user-card-wrapper {
     position: relative;
 }
 
-.user-card-wrapper .user-card {
-    text-decoration: none;
-    color: inherit;
-    min-height: 280px; /* Altura mínima para todos os cards */
-    max-height: 280px; /* Altura máxima para todos os cards */
+/* Card principal */
+.user-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 320px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Garantir que o body tenha altura fixa */
-.user-card-wrapper .user-card .user-card-body {
+.user-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 107, 0, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Link clicável que cobre a maior parte do card */
+.user-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Header com avatar */
+.user-card-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+}
+
+.user-card-avatar,
+.initials-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 107, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.initials-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+}
+
+/* Body com nome e email */
+.user-card-body {
     flex: 1 1 auto;
-    min-height: 0; /* Permite que o conteúdo se ajuste */
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    margin-bottom: 1rem;
+    min-height: 0;
+    text-align: center;
 }
 
-/* Nome do usuário - truncar com ellipsis após 2 linhas */
-.user-card-wrapper .user-card .user-card-name {
+.user-card-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limitar a 2 linhas */
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.4;
-    max-height: 2.8em; /* Aproximadamente 2 linhas (1.4 * 2) */
     word-wrap: break-word;
-    hyphens: auto;
 }
 
-/* Email - truncar com ellipsis após 2 linhas */
-.user-card-wrapper .user-card .user-card-email {
+.user-card-email {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limitar a 2 linhas */
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.4;
-    max-height: 2.8em; /* Aproximadamente 2 linhas */
     word-wrap: break-word;
 }
 
-/* Ações do card (toggle + botão delete) */
-.user-card-actions {
-    position: absolute;
-    top: 8px;
-    right: 8px;
+/* Footer com data */
+.user-card-footer {
+    flex-shrink: 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.user-card-date {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
-    gap: 10px;
-    z-index: 10;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.3s ease;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-.user-card-wrapper:hover .user-card-actions {
-    opacity: 1;
-    transform: scale(1);
+.user-card-date i {
+    font-size: 0.75rem;
+}
+
+/* Ações do card (toggle + botão delete) - agora no final do card */
+.user-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
 }
 
 /* Toggle switch styles - idêntico ao challenge_groups.php */
 .toggle-switch-wrapper {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
+    gap: 0.5rem;
+    flex: 1;
 }
 
 .toggle-switch-label {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-secondary);
-    min-width: 50px;
-    text-align: left;
     transition: color 0.3s ease;
+    white-space: nowrap;
 }
 
 .toggle-switch {
@@ -475,6 +546,7 @@ require_once __DIR__ . '/includes/header.php';
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .btn-delete-user-card:hover {
@@ -490,6 +562,43 @@ require_once __DIR__ . '/includes/header.php';
 
 .btn-delete-user-card i {
     font-size: 0.9rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .user-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+    
+    .user-card {
+        min-height: 300px;
+        padding: 1rem;
+    }
+    
+    .user-card-avatar,
+    .initials-avatar {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .user-card-name {
+        font-size: 1rem;
+    }
+    
+    .user-card-email {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .user-card {
+        min-height: 280px;
+    }
 }
 </style>
 
