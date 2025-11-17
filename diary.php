@@ -2,10 +2,10 @@
 // public_html/diary.php - VERSÃO REFATORADA COM ESTILO COMPACTO
 
 require_once 'includes/config.php';
-require_once APP_ROOT_PATH . '/includes/auth.php';
+require_once 'includes/auth.php';
 requireLogin();
-$conn = require 'includes/db.php';
-require_once APP_ROOT_PATH . '/includes/functions.php';
+require_once 'includes/db.php';
+require_once 'includes/functions.php';
 
 $user_id = $_SESSION['user_id'];
 $selected_date_str = $_GET['date'] ?? date('Y-m-d');

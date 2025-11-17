@@ -3,6 +3,11 @@
 
 require_once __DIR__ . '/config.php';
 
+// GARANTE QUE A CONEXÃO COM O BANCO DE DADOS SEJA ESTABELECIDA
+// Como este arquivo é incluído em todas as páginas seguras,
+// $conn estará sempre disponível.
+$conn = require __DIR__ . '/db.php';
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }

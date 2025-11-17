@@ -1,9 +1,9 @@
 <?php
 require_once 'includes/config.php';
-require_once APP_ROOT_PATH . '/includes/auth.php';
+require_once 'includes/auth.php';
 requireLogin();
-$conn = require 'includes/db.php';
-require_once APP_ROOT_PATH . '/includes/functions.php';
+require_once 'includes/db.php';
+require_once 'includes/functions.php';
 
 // Configuração de timezone
 date_default_timezone_set('America/Sao_Paulo');
