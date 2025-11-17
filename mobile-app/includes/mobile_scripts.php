@@ -10,6 +10,7 @@
 <!-- Scripts do Capacitor e Offline Manager -->
 <script src="<?php echo BASE_APP_URL; ?>/assets/js/config.js"></script>
 <script src="<?php echo BASE_APP_URL; ?>/assets/js/capacitor-init.js"></script>
+<script src="<?php echo BASE_APP_URL; ?>/assets/js/network-error-handler.js"></script>
 <script src="<?php echo BASE_APP_URL; ?>/assets/js/offline-manager.js"></script>
 
 <!-- Registrar Service Worker -->
