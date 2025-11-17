@@ -16,12 +16,13 @@
 <script>
     (function() {
         if ('serviceWorker' in navigator) {
-            // Determinar o caminho correto do service worker
-            const swPath = '<?php echo BASE_APP_URL; ?>/mobile-app/sw.js';
+            // Registrar o Service Worker da RAIZ com scope completo para cobrir TODAS as páginas
+            // Isso é igual ao que o login faz e garante que funcione em todas as páginas
+            const swPath = '<?php echo BASE_APP_URL; ?>/sw.js';
             
             // Registrar imediatamente (não esperar load)
             navigator.serviceWorker.register(swPath, {
-                scope: '<?php echo BASE_APP_URL; ?>/mobile-app/'
+                scope: '<?php echo BASE_APP_URL; ?>/'
             })
             .then(function(registration) {
                 console.log('✅ Service Worker registrado com sucesso:', registration.scope);
