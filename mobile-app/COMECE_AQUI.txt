@@ -1,0 +1,55 @@
+═══════════════════════════════════════════════════════════════
+   SHAPEFIT MOBILE APP - COMECE AQUI
+═══════════════════════════════════════════════════════════════
+
+📱 Este é o app mobile do ShapeFit empacotado com Capacitor.
+
+🚀 PASSOS RÁPIDOS:
+
+1. Instalar dependências:
+   npm install
+
+2. Sincronizar com Capacitor:
+   npx cap sync
+
+3. Abrir no Android Studio:
+   npx cap open android
+
+4. No Android Studio:
+   - Conecte um dispositivo ou inicie um emulador
+   - Clique em "Run" (▶️)
+   - O app será instalado e executado
+
+═══════════════════════════════════════════════════════════════
+
+📦 GERAR APK:
+
+Para teste (debug):
+   cd android
+   ./gradlew assembleDebug
+
+Para produção (Play Store):
+   No Android Studio: Build > Generate Signed Bundle / APK
+
+═══════════════════════════════════════════════════════════════
+
+📚 DOCUMENTAÇÃO:
+
+- README.md - Guia completo
+- Veja MOBILE_APP_README.md na pasta raiz para mais detalhes
+
+═══════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANTE:
+
+- O app sempre aponta para https://appshapefit.com
+- Painel admin NÃO está incluído
+- Funciona offline com sincronização automática
+- Teste sempre em dispositivo real antes de publicar
+
+═══════════════════════════════════════════════════════════════
+
+
+
+
+

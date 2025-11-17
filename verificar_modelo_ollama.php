@@ -46,3 +46,7 @@ foreach ($result['models'] as $model) {
 echo "\n💡 Dica: O sistema vai tentar usar 'llama3.1:8b' primeiro, depois 'llama3.1'\n";
 ?>
 
+
+
+
+

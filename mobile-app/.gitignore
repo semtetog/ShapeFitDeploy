@@ -1,0 +1,37 @@
+# Dependências
+node_modules/
+package-lock.json
+
+# Capacitor
+android/
+ios/
+.capacitor/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build
+*.apk
+*.aab
+*.ipa
+
+# Cache
+.cache/
+dist/
+build/
+
+
+
+
+

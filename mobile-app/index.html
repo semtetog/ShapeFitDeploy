@@ -18,11 +18,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
         .loading-container {
             text-align: center;
-            z-index: 10;
         }
         .spinner {
             border: 3px solid rgba(255, 107, 0, 0.1);
@@ -37,294 +35,28 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .offline-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: #FF6B00;
-            color: white;
-            padding: 12px;
-            text-align: center;
-            z-index: 10000;
-            display: none;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .offline-banner.show {
-            display: block;
-        }
-        /* Fallback offline - sempre visível se necessário */
-        .offline-fallback {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #101010;
-            color: #F5F5F5;
-            z-index: 9999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            text-align: center;
-        }
-        .offline-fallback.show {
-            display: flex;
-        }
-        .offline-fallback .icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        .offline-fallback h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #FF6B00;
-        }
-        .offline-fallback p {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: #8E8E93;
-            margin-bottom: 1.5rem;
-            max-width: 300px;
-        }
-        .offline-fallback .link-btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: rgba(255, 107, 0, 0.1);
-            border: 1px solid rgba(255, 107, 0, 0.3);
-            border-radius: 8px;
-            color: #FF6B00;
-            text-decoration: none;
-            font-weight: 600;
-            margin: 0.5rem;
-        }
     </style>
 </head>
 <body>
-    <!-- Banner Offline -->
-    <div class="offline-banner" id="offlineBanner">
-        ⚠️ Você está offline. Algumas funcionalidades podem estar limitadas.
-    </div>
-    
-    <!-- Fallback Offline (sempre presente, só aparece se necessário) -->
-    <div class="offline-fallback" id="offlineFallback">
-        <div class="icon">📴</div>
-        <h1>Sem Conexão</h1>
-        <p>Verificando conexão e carregando conteúdo offline...</p>
-        <div>
-            <a href="./auth/login.php" class="link-btn">Tentar Login</a>
-            <a href="./" class="link-btn">Recarregar</a>
-        </div>
-    </div>
-    
-    <!-- Loading Principal -->
-    <div class="loading-container" id="loadingContainer">
+    <div class="loading-container">
         <div class="spinner"></div>
         <p>Carregando ShapeFit...</p>
     </div>
 
-    <!-- Scripts do Capacitor (com fallback se não carregarem) -->
     <script>
-        // Fallback inline se os scripts não carregarem
+        // Fallback inline
         window.Capacitor = window.Capacitor || { isNative: false };
-    </script>
-    <script src="./assets/js/config.js" onerror="console.warn('config.js não carregou, continuando...')"></script>
-    <script src="./assets/js/capacitor-init.js" onerror="console.warn('capacitor-init.js não carregou, continuando...')"></script>
-    <script src="./assets/js/offline-manager.js" onerror="console.warn('offline-manager.js não carregou, continuando...')"></script>
-    
-    <script>
-        // Variáveis globais
-        let redirectAttempted = false;
-        let serviceWorkerReady = false;
-        let maxWaitTime = 10000; // 10 segundos máximo de espera
-        let startTime = Date.now();
         
-        // Função para mostrar fallback offline
-        function showOfflineFallback() {
-            document.getElementById('loadingContainer').style.display = 'none';
-            document.getElementById('offlineFallback').classList.add('show');
-        }
-        
-        // Função para verificar se está logado (via cookie/sessão)
-        function checkIfLoggedIn() {
-            // Verificar se há cookie de sessão PHP
-            const cookies = document.cookie.split(';');
-            const hasSession = cookies.some(cookie => cookie.trim().startsWith('PHPSESSID='));
-            
-            // Se tiver sessão, verificar com o servidor
-            if (hasSession) {
-                return fetch('./index.php', {
-                    method: 'GET',
-                    credentials: 'include',
-                    cache: 'no-store'
-                })
-                .then(response => {
-                    // Se redirecionou para main_app ou onboarding, está logado
-                    return response.url.includes('main_app.php') || 
-                           response.url.includes('onboarding') ||
-                           response.redirected;
-                })
-                .catch(() => false);
-            }
-            return Promise.resolve(false);
-        }
-        
-        // Função para redirecionar
-        function redirectToLogin() {
-            if (redirectAttempted) return;
-            redirectAttempted = true;
-            
-            // Verificar se já está logado antes de redirecionar
-            checkIfLoggedIn().then(isLoggedIn => {
-                if (isLoggedIn) {
-                    console.log('✅ Usuário já está logado, redirecionando para app');
-                    // Deixar o index.php fazer o redirecionamento correto
-                    window.location.href = './index.php';
-                } else {
-                    console.log('ℹ️ Usuário não está logado, redirecionando para login');
-                    // Tentar redirecionar para login
-                    try {
-                        window.location.href = './auth/login.php';
-                    } catch (e) {
-                        console.error('Erro ao redirecionar:', e);
-                        showOfflineFallback();
-                    }
-                }
-            });
-        }
-        
-        // Verificar se está offline
-        function checkConnection() {
-            if (!navigator.onLine) {
-                console.log('Offline detectado');
-                showOfflineFallback();
-                return false;
-            }
-            return true;
-        }
-        
-        // Registrar Service Worker IMEDIATAMENTE (antes de tudo)
+        // Registrar Service Worker em background (não bloquear)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js', {
-                scope: './'
-            })
-            .then(function(registration) {
-                console.log('✅ Service Worker registrado:', registration.scope);
-                
-                // Aguardar service worker estar pronto
-                if (registration.installing) {
-                    registration.installing.addEventListener('statechange', function() {
-                        if (this.state === 'activated') {
-                            serviceWorkerReady = true;
-                            console.log('✅ Service Worker ativado');
-                            if (checkConnection()) {
-                                setTimeout(redirectToLogin, 500);
-                            }
-                        }
-                    });
-                } else if (registration.waiting) {
-                    serviceWorkerReady = true;
-                    console.log('✅ Service Worker já estava esperando');
-                    if (checkConnection()) {
-                        setTimeout(redirectToLogin, 500);
-                    }
-                } else if (registration.active) {
-                    serviceWorkerReady = true;
-                    console.log('✅ Service Worker já estava ativo');
-                    if (checkConnection()) {
-                        setTimeout(redirectToLogin, 500);
-                    }
-                }
-                
-                // Timeout de segurança
-                setTimeout(function() {
-                    if (!serviceWorkerReady) {
-                        console.warn('⚠️ Service Worker demorou para ativar, redirecionando mesmo assim');
-                        serviceWorkerReady = true;
-                        if (checkConnection()) {
-                            redirectToLogin();
-                        }
-                    }
-                }, 3000);
-            })
-            .catch(function(error) {
-                console.error('❌ Erro ao registrar Service Worker:', error);
-                // Mesmo com erro, tentar redirecionar
-                if (checkConnection()) {
-                    setTimeout(redirectToLogin, 1000);
-                } else {
-                    showOfflineFallback();
-                }
-            });
-        } else {
-            console.warn('⚠️ Service Worker não suportado');
-            // Sem service worker, redirecionar normalmente
-            if (checkConnection()) {
-                setTimeout(redirectToLogin, 1000);
-            } else {
-                showOfflineFallback();
-            }
+            navigator.serviceWorker.register('./sw.js', { scope: './' })
+                .then(() => console.log('✅ Service Worker registrado'))
+                .catch(() => console.warn('⚠️ Service Worker não registrado'));
         }
         
-        // Listener para quando voltar online
-        window.addEventListener('online', function() {
-            console.log('🌐 Conexão restaurada');
-            document.getElementById('offlineBanner').classList.remove('show');
-            document.getElementById('offlineFallback').classList.remove('show');
-            document.getElementById('loadingContainer').style.display = 'flex';
-            if (!redirectAttempted) {
-                redirectToLogin();
-            } else {
-                window.location.reload();
-            }
-        });
-        
-        // Listener para quando ficar offline
-        window.addEventListener('offline', function() {
-            console.log('📴 Modo offline ativado');
-            document.getElementById('offlineBanner').classList.add('show');
-        });
-        
-        // Timeout de segurança - nunca deixar página branca
-        setTimeout(function() {
-            if (!redirectAttempted) {
-                console.warn('⚠️ Timeout: redirecionando mesmo sem service worker pronto');
-                if (checkConnection()) {
-                    redirectToLogin();
-                } else {
-                    showOfflineFallback();
-                }
-            }
-        }, maxWaitTime);
-        
-        // Verificar conexão ao carregar
-        window.addEventListener('load', function() {
-            if (!checkConnection()) {
-                // Se offline, verificar se está logado antes de mostrar fallback
-                checkIfLoggedIn().then(isLoggedIn => {
-                    if (isLoggedIn) {
-                        // Se estiver logado, tentar carregar index.php mesmo offline
-                        window.location.href = './index.php';
-                    } else {
-                        showOfflineFallback();
-                    }
-                });
-            }
-        });
-        
-        // Verificar conexão imediatamente
-        if (!checkConnection()) {
-            // Se offline, verificar login antes de mostrar fallback
-            checkIfLoggedIn().then(isLoggedIn => {
-                if (!isLoggedIn) {
-                    showOfflineFallback();
-                }
-            });
-        }
+        // Redirecionar IMEDIATAMENTE - sem delays
+        // O index.php já tem toda a lógica de verificar login e redirecionar
+        window.location.replace('./index.php');
     </script>
 </body>
 </html>
-

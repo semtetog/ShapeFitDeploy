@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ShapeFIT">
+    <title>Dashboard - ShapeFit</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- CSS Principal (assumindo que existe) -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="./assets/css/pages/_dashboard.css">
+    
+    <style>
+        body {
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        
+        a, button, .btn, [role="button"] {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-color, #101010);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 107, 0, 0.2);
+            border-top-color: #FF6B00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <!-- Incluir todos os estilos CSS do main_app.php aqui -->
+    <style>
+        /* CSS do layout moderno */
+        .header{display:flex;justify-content:flex-end;align-items:center}.header-actions{display:flex;align-items:center;gap:.75rem}.points-counter-badge{display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:22px;background-color:var(--surface-color);border:1px solid var(--border-color);color:var(--text-primary);text-decoration:none;transition:all .2s ease}.points-counter-badge:hover{border-color:var(--accent-orange)}.points-counter-badge i{color:var(--accent-orange);font-size:1rem}.points-counter-badge span{font-weight:600;font-size:1rem}
+        .profile-icon{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1px solid var(--border-color);background-color:var(--surface-color);overflow:hidden;transition:border-color .2s ease}
+        .profile-icon:hover{border-color:var(--accent-orange)}
+        .profile-icon img{width:100%;height:100%;object-fit:cover}
+        .profile-icon i{color:var(--accent-orange);font-size:1.2rem;}
+
+        .card-weight { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; gap: 4px; padding: 24px; }
+        .card-weight span { font-size: 0.9rem; color: var(--text-secondary); }
+        .card-weight strong { font-size: 2.2rem; line-height: 1.2; color: var(--text-primary); }
+        .card-weight .countdown { font-size: 2rem; }
+        .card-weight .edit-button { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 5px; transition: color 0.2s ease; }
+        .card-weight .edit-button:hover { color: var(--accent-orange); }
+        .card-weight .edit-button svg { width: 20px; height: 20px; }
+
+        .card-hydration { padding: 20px 24px; overflow: hidden; }
+        .card-hydration .hydration-content { display: grid; grid-template-columns: minmax(0,1fr) 160px; align-items: center; gap: 12px; }
+        .card-hydration .hydration-info { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; }
+        .card-hydration h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--text-primary); }
+        .card-hydration .water-status { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin-bottom: 15px; }
+        .card-hydration .water-status span:last-child { font-size: 1rem; color: var(--text-secondary); }
+        .card-hydration .water-controls { display: flex; flex-direction: column; gap: 12px; }
+        .card-hydration .water-input-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .card-hydration .inline-input-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; margin-left: 24px; }
+        .card-hydration .water-number-input { width: 120px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 600; text-align: center; }
+        .card-hydration .water-number-input::placeholder { color: rgba(255,255,255,0.35); }
+        .card-hydration .circle-btn { width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.06); color: var(--text-primary); font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; }
+        .card-hydration .circle-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+        .card-hydration .circle-btn.accent { border: none; background-image: var(--primary-orange-gradient); color: var(--text-primary); }
+        .card-hydration .circle-btn:disabled { opacity: 0.5; cursor: default; filter: grayscale(0.2); }
+        .card-hydration .water-select { padding: 10px 12px; border-radius: 14px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-primary); font-weight: 700; text-transform: uppercase; min-width: 78px; }
+        .card-hydration .water-drop-container-svg { width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; justify-self: end; }
+
+        @media (max-width: 480px) {
+            .card-hydration { padding: 20px 24px; }
+            .card-hydration .hydration-content { grid-template-columns: 1fr; gap: 20px; }
+            .card-hydration .water-drop-container-svg { justify-self: center; width: 150px; height: 150px; order: -1; }
+            .card-hydration .hydration-info { align-items: center; text-align: center; }
+            .card-hydration .water-controls, .card-hydration .water-input-row, .card-hydration .inline-input-row { justify-content: center; margin-left: 0; }
+            .card-hydration .inline-input-row { width: 100%; }
+            .card-hydration .water-number-input { flex-grow: 1; }
+        }
+
+        #animated-water-drop #water-level-group { transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
+        @keyframes wave-animation { 0% { transform: translateX(0); } 50% { transform: translateX(-100px); } 100% { transform: translateX(0); } }
+        @keyframes wave-animation-2 { 0% { transform: translateX(0); } 50% { transform: translateX(100px); } 100% { transform: translateX(0); } }
+        #animated-water-drop #wave1 { animation: wave-animation 8s linear infinite; }
+        #animated-water-drop #wave2 { animation: wave-animation-2 10s linear infinite alternate; }
+        @media (hover: none) and (pointer: coarse) {
+            #animated-water-drop #water-level-group { filter: none !important; }
+            #animated-water-drop #wave1, #animated-water-drop #wave2 { animation: none !important; }
+        }
+
+        .card-weight, .card-hydration, .card-consumption, .card-missions, .card-meal-cta, .card-suggestions, .card-challenges, .card-action-item { grid-column: 1 / -1; }
+
+        .card-consumption { padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+        .card-consumption h3 { margin: 0; font-size: 1.1rem; color: var(--text-primary); }
+        .card-consumption .consumption-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center; }
+        .card-consumption .consumption-item p { margin: 8px 0 0 0; font-size: 0.8rem; color: var(--text-secondary); font-weight: 500; }
+        .progress-circle .circular-chart { display: block; max-width: 100%; }
+        .progress-circle .circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 3.8; }
+        .progress-circle .circle { fill: none; stroke: url(#orange-gradient); stroke-width: 2.8; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease-in-out; transform-origin: 50% 50%; transform: rotate(-90deg); }
+        .progress-circle .percentage-text { fill: var(--text-primary); font-size: 0.8rem; font-weight: 600; text-anchor: middle; }
+
+        .card-missions .card-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); }
+        .card-missions .view-all-link { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); text-decoration: none; transition: color 0.2s ease; }
+        .card-missions .view-all-link:hover { color: var(--accent-orange); }
+        .missions-progress {display: flex;flex-direction: column;gap: 8px;}
+        .missions-progress-info {display: flex;justify-content: space-between;align-items: center;font-size: 0.9rem;color: var(--text-secondary);}
+        .missions-progress-info span:first-child {font-weight: 600;color: var(--text-primary);}
+        .progress-bar-missions {width: 100%;height: 6px;background-color: rgba(255, 255, 255, 0.1);border-radius: 3px;overflow: hidden;}
+        .progress-bar-missions-fill {height: 100%;border-radius: 3px;background-image: var(--primary-orange-gradient);transition: width 0.5s ease-in-out;}
+        .missions-carousel-container { position: relative; min-height: 180px; display: flex; align-items: center; justify-content: center; }
+        .mission-slide { display: flex; flex-direction: column; align-items: center; text-align: center; position: absolute; width: 100%; height: 100%; opacity: 0; transform: scale(0.95); transition: opacity 0.4s ease, transform 0.4s ease; justify-content: space-between; padding: 10px 0; }
+        .mission-slide.active {opacity: 1; transform: scale(1); z-index: 10;}
+        .mission-slide.completion-message {justify-content: center;}
+        .mission-icon i { background: var(--primary-orange-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2.5rem; }
+        .mission-details { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
+        .mission-details h4 {font-size: 1.1rem; font-weight: 600;color: var(--text-primary);margin: 0 0 4px 0;}
+        .mission-duration-display { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.3s ease; }
+        .mission-actions {display: flex;gap: 20px;width: 100%;justify-content: center;}
+        .mission-action-btn { width: 55px; height: 55px; border-radius: 50%; border: none; font-size: 1.6rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .mission-action-btn.skip-btn {background-color: rgba(255, 255, 255, 0.1);color: var(--text-secondary);}
+        .mission-action-btn.skip-btn:hover {background-color: rgba(255, 255, 255, 0.15);}
+        .mission-action-btn.complete-btn {background-image: var(--primary-orange-gradient);color: var(--text-primary);}
+        .mission-action-btn.complete-btn:hover {filter: brightness(1.1);}
+        .mission-action-btn.duration-btn {background-color: rgba(255, 193, 7, 0.2);color: #ffc107;border: 1px solid rgba(255, 193, 7, 0.3);}
+        .mission-action-btn.duration-btn:hover {background-color: rgba(255, 193, 7, 0.3);}
+        .mission-action-btn.sleep-btn {background-color: rgba(255, 193, 7, 0.2);color: #ffc107;border: 1px solid rgba(255, 193, 7, 0.3);}
+        .mission-action-btn.sleep-btn:hover {background-color: rgba(255, 193, 7, 0.3);}
+        .mission-action-btn.complete-btn.disabled {opacity: 0.5;cursor: not-allowed;filter: none;}
+        .completion-message i { font-size: 2.8rem; margin-bottom: 10px; }
+        .completion-message h4 { font-size: 1.2rem; }
+
+        .modal-overlay { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0, 0, 0, 0.8) !important; display: flex !important; visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0s linear 0.3s; align-items: center !important; justify-content: center !important; z-index: 99999 !important; padding: 20px !important; }
+        .modal-overlay.modal-visible { visibility: visible; opacity: 1; transition-delay: 0s; }
+        .modal-content { background: var(--surface-color) !important; border-radius: 16px !important; padding: 24px !important; max-width: 400px !important; width: 100% !important; max-height: 90vh !important; overflow-y: auto !important; border: 1px solid var(--border-color) !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important; position: relative !important; z-index: 100000 !important; }
+        .modal-content h2 { margin: 0 0 20px 0; color: var(--text-primary); font-size: 1.3rem; text-align: center; }
+        .modal-body { margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-primary); font-weight: 600; }
+        .form-input { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-primary); font-size: 1rem; }
+        .form-input:focus { outline: none; border-color: var(--accent-orange); }
+        .time-input { width: 100%; padding: 16px 20px; border-radius: 12px; border: 2px solid var(--border-color); background: var(--bg-color); color: var(--text-primary); font-size: 1.2rem; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.3s ease; box-sizing: border-box; letter-spacing: 1px; -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+        .time-input:focus { outline: none; border-color: var(--accent-orange); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
+        .modal-actions { display: flex; gap: 12px; justify-content: center; }
+        .primary-button { padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s ease; font-size: 1rem; }
+        .primary-button.secondary-button { background: var(--surface-color); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .primary-button.secondary-button:hover { background: var(--border-color); }
+        .primary-button:not(.secondary-button) { background: var(--accent-orange); color: white; }
+        .primary-button:not(.secondary-button):hover { background: #e55a00; }
+        .duration-input-group { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+        .duration-input-group input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-primary); font-size: 1rem; font-weight: 600; }
+        .duration-input-group input:focus { outline: none; border-color: var(--accent-orange); }
+        .duration-unit { color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; min-width: 60px; }
+        .form-help { color: var(--text-secondary); font-size: 0.8rem; margin-top: 4px; display: block; }
+
+        .points-popup { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.1); color: var(--text-primary); padding: 16px 24px; border-radius: 16px; font-size: 1rem; font-weight: 600; z-index: 2000; opacity: 0; animation: pointsPopupAnimation 2.5s ease-in-out forwards; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; align-items: center; gap: 12px; }
+        .points-popup .star-icon { font-size: 1.2rem; color: var(--accent-orange); animation: starPulse 1s ease-in-out infinite; }
+        @keyframes pointsPopupAnimation { 0% { opacity: 0; transform: translate(-50%, 20px); } 20% { opacity: 1; transform: translate(-50%, 0); } 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -20px); } }
+        .flying-star { position: fixed; z-index: 999998 !important; pointer-events: none; font-size: 1.5rem; color: var(--accent-orange); opacity: 1; transition: none; will-change: transform, opacity; filter: drop-shadow(0 0 8px rgba(255, 107, 0, 0.8)); }
+        .points-counter-badge.points-updated { animation: badgePulse 1.2s ease-out; }
+        @keyframes badgePulse { 0% { transform: scale(1); border-color: var(--border-color); } 20% { transform: scale(1.15); border-color: var(--accent-orange); box-shadow: 0 0 25px rgba(255, 107, 0, 0.5); } 40% { transform: scale(1.1); border-color: var(--accent-orange); box-shadow: 0 0 30px rgba(255, 107, 0, 0.6); } 60% { transform: scale(1.05); border-color: var(--accent-orange); box-shadow: 0 0 20px rgba(255, 107, 0, 0.4); } 100% { transform: scale(1); border-color: var(--border-color); } }
+        .points-counter-badge span.points-counting { animation: pointsCount 1.5s ease-out; color: var(--accent-orange); font-weight: 700; }
+        @keyframes pointsCount { 0% { transform: scale(1); } 30% { transform: scale(1.4); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes starPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        .lottie-animation-container { width: 100%; height: 100%; }
+        .main-carousel .lottie-slide.active { opacity: 1 !important; }
+
+        /* Card de Ranking */
+        .card-ranking { grid-column: 1 / -1; padding: 15px; }
+        .ranking-link { display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text-primary); }
+        .player-info {display: flex;flex-direction: column;align-items: center;gap: 8px;color: var(--text-primary);}
+        .player-info .player-avatar {width: 48px;height: 48px;border-radius: 50%;background-color: var(--surface-color);display: flex;align-items: center;justify-content: center;overflow: hidden;}
+        .player-info .player-avatar img {width: 100%;height: 100%;object-fit: cover;}
+        .player-info .player-avatar i {color: var(--accent-orange);font-size: 1.5rem;}
+        .clash-center { flex-grow: 1; text-align: center; padding: 0 15px; }
+        .clash-title { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; display: block; }
+        .clash-title.winner { color: #FFAE00; font-weight: 600; }
+        .rank-position { font-size: 12px; color: var(--text-secondary); }
+        .progress-bar { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+        .progress-bar-fill { height: 100%; background-image: var(--primary-orange-gradient); transition: width 0.5s ease-in-out; }
+
+        /* Card de Refeição */
+        .card-meal-cta { padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .card-meal-cta i { font-size: 2.5rem; color: var(--accent-orange); }
+        .card-meal-cta h2 { margin: 0; font-size: 1.3rem; color: var(--text-primary); }
+        .card-meal-cta p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+
+        /* Card de Sugestões */
+        .card-suggestions { padding: 0; }
+        .card-suggestions .card-header { padding: 0 24px; }
+        .suggestions-carousel { padding: 0 24px; scroll-padding: 0 24px; display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+        .suggestions-carousel .suggestion-item { flex: 0 0 auto; scroll-snap-align: start; }
+        .suggestions-carousel .suggestion-item:last-child { margin-right: 24px; }
+        .suggestion-item { width: 200px; }
+        .suggestion-link { text-decoration: none; color: var(--text-primary); display: block; }
+        .suggestion-image-container { width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+        .suggestion-image-container img { width: 100%; height: 100%; object-fit: cover; }
+        .recipe-info h4 { margin: 0 0 8px 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .recipe-info span { font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .no-suggestions-card { padding: 40px 24px; text-align: center; }
+        .no-suggestions-card p { margin: 0; color: var(--text-secondary); }
+
+        /* Card de Desafios */
+        .card-challenges { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+        .card-challenges .card-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); }
+        .card-challenges .card-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .card-challenges .card-header h3 i { color: var(--accent-orange); }
+        .challenges-empty-state { text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+        .challenges-empty-state .empty-state-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 107, 0, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .challenges-empty-state .empty-state-icon i { font-size: 2.5rem; color: var(--accent-orange); }
+        .challenges-empty-state h4 { margin: 0; font-size: 1.2rem; color: var(--text-primary); font-weight: 600; }
+        .challenges-empty-state p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; max-width: 400px; }
+        .challenges-list { display: flex; flex-direction: column; gap: 16px; }
+        .challenge-item { padding: 16px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03); text-decoration: none; color: var(--text-primary); transition: all 0.3s ease; display: flex; flex-direction: column; gap: 12px; }
+        .challenge-item:hover { background: rgba(255, 255, 255, 0.06); border-color: var(--accent-orange); transform: translateY(-2px); }
+        .challenge-item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+        .challenge-item-header h4 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); flex: 1; }
+        .challenge-status { font-size: 0.85rem; font-weight: 600; padding: 4px 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); white-space: nowrap; }
+        .challenge-description { margin: 0; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+        .challenge-meta { display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.85rem; color: var(--text-secondary); }
+        .challenge-meta span { display: flex; align-items: center; gap: 6px; }
+        .challenge-meta i { color: var(--accent-orange); font-size: 0.9rem; }
+        .challenge-progress { display: flex; flex-direction: column; gap: 8px; }
+        .challenge-progress-info { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); }
+        .progress-bar-challenge { width: 100%; height: 6px; background-color: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden; }
+        .progress-bar-challenge-fill { height: 100%; border-radius: 3px; background-image: var(--primary-orange-gradient); transition: width 0.5s ease-in-out; }
+        .challenge-goals-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+        .challenge-goal-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 16px; background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.2); font-size: 0.8rem; color: var(--text-primary); font-weight: 500; }
+        .challenge-goal-badge i { color: var(--accent-orange); font-size: 0.85rem; }
+
+        /* Notificações de Desafios */
+        .card-notifications { padding: 24px; margin-bottom: 24px; }
+        .card-notifications .card-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 16px; }
+        .card-notifications .card-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .card-notifications .card-header h3 i { color: var(--accent-orange); }
+        .notification-badge { background: var(--accent-orange); color: white; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px; min-width: 24px; text-align: center; }
+        .notifications-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+        .notification-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; transition: all 0.2s ease; position: relative; }
+        .notification-item:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--accent-orange); }
+        .notification-item.read { opacity: 0.6; }
+        .notification-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .notification-icon i { font-size: 1rem; }
+        .notification-content { flex: 1; min-width: 0; }
+        .notification-message { font-size: 0.9rem; color: var(--text-primary); line-height: 1.5; margin-bottom: 6px; }
+        .notification-meta { display: flex; gap: 12px; font-size: 0.75rem; color: var(--text-secondary); }
+        .notification-challenge { font-weight: 600; }
+        .notification-time { color: var(--text-secondary); }
+        .notification-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s ease; flex-shrink: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+        .notification-close:hover { background: rgba(255, 255, 255, 0.1); color: var(--accent-orange); }
+        .view-all-notifications { display: block; text-align: center; padding: 12px; color: var(--accent-orange); text-decoration: none; font-weight: 600; font-size: 0.9rem; border-top: 1px solid var(--glass-border); margin-top: 8px; transition: color 0.2s ease; }
+        .view-all-notifications:hover { color: #FF8533; }
+    </style>
+</head>
+<body>
+    <div class="fixed-background"></div>
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <div class="app-container" id="appContainer" style="display: none;">
+        <input type="hidden" id="csrf_token_main_app" value="">
+        
+        <header class="header">
+            <div class="header-actions">
+                <a href="#" class="points-counter-badge" id="pointsBadgeLink">
+                    <i class="fas fa-star"></i>
+                    <span id="user-points-display">0</span>
+                </a>
+                <a href="#" class="profile-icon" id="profileIconLink">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+        </header>
+
+        <section class="main-carousel" id="mainCarousel">
+            <div class="carousel-track" id="carouselTrack">
+                <!-- Slides serão adicionados dinamicamente -->
+            </div>
+            <div class="pagination-container" id="paginationContainer"></div>
+        </section>
+
+        <section class="dashboard-grid" id="dashboardGrid">
+            <!-- Todo o conteúdo será renderizado dinamicamente via JavaScript -->
+        </section>
+    </div>
+
+    <!-- Modais -->
+    <div class="modal-overlay" id="edit-weight-modal">
+        <div class="modal-content glass-card">
+            <h2>Atualizar seu Peso</h2>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new-weight-input">Novo peso (kg)</label>
+                    <input type="number" id="new-weight-input" class="form-input" placeholder="Ex: 75.5" step="0.1" value="">
+                    <small id="weight-error-message" class="error-message" style="display: none;"></small>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="primary-button secondary-button" data-action="close-modal">Cancelar</button>
+                    <button id="save-weight-btn" class="primary-button">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="exercise-duration-modal">
+        <div class="modal-content glass-card">
+            <h2>⏱️ Duração do Exercício</h2>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="exercise-duration-input">Quanto tempo durou o exercício?</label>
+                    <div class="duration-input-group">
+                        <input type="number" id="exercise-duration-input" class="form-input" placeholder="Ex: 45" min="15" max="300" value="60">
+                        <span class="duration-unit">minutos</span>
+                    </div>
+                    <small class="form-help">Entre 15 e 300 minutos</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="primary-button secondary-button" data-action="close-modal">Cancelar</button>
+                    <button type="button" class="primary-button" id="confirm-exercise-duration">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="sleep-modal-main">
+        <div class="modal-content glass-card">
+            <h2>😴 Registrar Sono</h2>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="sleep-time-main">Hora que deitou:</label>
+                    <input type="time" id="sleep-time-main" class="time-input" value="22:00">
+                </div>
+                <div class="form-group">
+                    <label for="wake-time-main">Hora que acordou:</label>
+                    <input type="time" id="wake-time-main" class="time-input" value="07:00">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="primary-button secondary-button" data-action="close-modal">Cancelar</button>
+                <button type="button" class="primary-button" id="confirm-sleep-main">Registrar Sono</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="/main_app.php" class="nav-item active">
+            <i class="fas fa-home"></i>
+        </a>
+        <a href="/progress.php" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+        </a>
+        <a href="/diary.php" class="nav-item">
+            <i class="fas fa-book"></i>
+        </a>
+        <a href="/explore_recipes.php" class="nav-item">
+            <i class="fas fa-utensils"></i>
+        </a>
+        <a href="/more_options.php" class="nav-item">
+            <i class="fas fa-cog"></i>
+        </a>
+    </nav>
+
+    <!-- Scripts -->
+    <script>
+        // Variáveis globais
+        let dashboardData = null;
+        let BASE_APP_URL = '';
+        let BASE_ASSET_URL = '';
+        
+        // Função para carregar dados do dashboard
+        async function loadDashboardData() {
+            try {
+                // Buscar token de autenticação (pode estar no localStorage ou sessionStorage)
+                const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+                
+                if (!token) {
+                    // Se não tem token, redirecionar para login
+                    window.location.href = './auth/login.php';
+                    return;
+                }
+                
+                const response = await fetch('./api/get_dashboard_data2.php', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // Token inválido ou expirado
+                        localStorage.removeItem('authToken');
+                        sessionStorage.removeItem('authToken');
+                        window.location.href = './auth/login.php';
+                        return;
+                    }
+                    throw new Error('Erro ao carregar dados');
+                }
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    if (result.message && result.message.includes('Token')) {
+                        // Token inválido
+                        localStorage.removeItem('authToken');
+                        sessionStorage.removeItem('authToken');
+                        window.location.href = './auth/login.php';
+                        return;
+                    }
+                    throw new Error(result.message || 'Erro ao carregar dados');
+                }
+                
+                dashboardData = result.data;
+                // Detectar BASE_APP_URL e BASE_ASSET_URL automaticamente
+                if (!BASE_APP_URL) {
+                    const protocol = window.location.protocol;
+                    const host = window.location.host;
+                    BASE_APP_URL = `${protocol}//${host}`;
+                }
+                if (!BASE_ASSET_URL) {
+                    BASE_ASSET_URL = BASE_APP_URL;
+                }
+                
+                // CSRF token não é mais necessário com autenticação por token, mas mantemos para compatibilidade
+                document.getElementById('csrf_token_main_app').value = '';
+                
+                // Renderizar todo o conteúdo
+                renderDashboard();
+                
+                // Esconder loading e mostrar app
+                document.getElementById('loadingContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                alert('Erro ao carregar dados. Tente novamente.');
+            }
+        }
+        
+        // Função principal de renderização
+        function renderDashboard() {
+            if (!dashboardData) return;
+            
+            renderHeader();
+            renderCarousel();
+            renderDashboardGrid();
+            initializeJavaScript();
+        }
+        
+        // Renderizar header
+        function renderHeader() {
+            const pointsDisplay = document.getElementById('user-points-display');
+            const pointsBadgeLink = document.getElementById('pointsBadgeLink');
+            const profileIconLink = document.getElementById('profileIconLink');
+            
+            if (pointsDisplay) {
+                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(dashboardData.points || 0);
+            }
+            
+            if (pointsBadgeLink) {
+                pointsBadgeLink.href = BASE_APP_URL + '/points_history.php';
+            }
+            
+            if (profileIconLink) {
+                profileIconLink.href = BASE_APP_URL + '/edit_profile.php';
+                
+                const profileIcon = profileIconLink.querySelector('i');
+                if (dashboardData.user_profile_image_filename) {
+                    const img = document.createElement('img');
+                    img.src = BASE_ASSET_URL + '/assets/images/users/' + dashboardData.user_profile_image_filename;
+                    img.alt = 'Foto de Perfil';
+                    img.onerror = function() {
+                        this.style.display = 'none';
+                        if (profileIcon) profileIcon.style.display = 'flex';
+                    };
+                    if (profileIcon) profileIcon.style.display = 'none';
+                    profileIconLink.insertBefore(img, profileIcon);
+                } else if (profileIcon) {
+                    profileIcon.style.display = 'flex';
+                }
+            }
+        }
+        
+        // Renderizar carousel
+        function renderCarousel() {
+            const carouselTrack = document.getElementById('carouselTrack');
+            if (!carouselTrack) return;
+            
+            const slides = [
+                { link: BASE_APP_URL + '/explore_recipes.php' },
+                { link: '#' },
+                { link: BASE_APP_URL + '/routine.php' },
+                { link: BASE_APP_URL + '/progress.php' }
+            ];
+            
+            carouselTrack.innerHTML = slides.map(slide => `
+                <div class="lottie-slide" data-link="${slide.link}">
+                    <div class="lottie-animation-container"></div>
+                </div>
+            `).join('');
+        }
+        
+        // Renderizar grid do dashboard
+        function renderDashboardGrid() {
+            const grid = document.getElementById('dashboardGrid');
+            if (!grid) return;
+            
+            let html = '';
+            
+            // Card de Ranking
+            html += renderRankingCard();
+            
+            // Card de Peso
+            html += renderWeightCard();
+            
+            // Card de Hidratação
+            html += renderHydrationCard();
+            
+            // Card de Consumo
+            html += renderConsumptionCard();
+            
+            // Card de Missões
+            if (dashboardData.routine && dashboardData.routine.total_missions > 0) {
+                html += renderMissionsCard();
+            }
+            
+            // Card de Refeição
+            html += renderMealCard();
+            
+            // Card de Sugestões
+            html += renderSuggestionsCard();
+            
+            // Notificações de Desafios
+            if (dashboardData.challenge_notifications && dashboardData.challenge_notifications.length > 0) {
+                html += renderChallengeNotifications();
+            }
+            
+            // Card de Desafios
+            html += renderChallengesCard();
+            
+            grid.innerHTML = html;
+        }
+        
+        // Renderizar card de ranking
+        function renderRankingCard() {
+            const ranking = dashboardData.ranking || {};
+            const opponent = ranking.opponent_data || {};
+            
+            let opponentHtml = '';
+            if (opponent.name) {
+                const opponentImageUrl = opponent.profile_image_filename 
+                    ? BASE_ASSET_URL + '/assets/images/users/' + opponent.profile_image_filename
+                    : '';
+                const opponentImage = opponentImageUrl
+                    ? `<img src="${opponentImageUrl}" alt="Foto do oponente" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"><i class="fas fa-user" style="display:none;"></i>`
+                    : '<i class="fas fa-user"></i>';
+                opponentHtml = `
+                    <div class="player-info right">
+                        <div class="player-avatar">${opponentImage}</div>
+                        <span>${escapeHtml(opponent.name)}</span>
+                    </div>
+                `;
+            }
+            
+            const userImageUrl = dashboardData.user_profile_image_filename
+                ? BASE_ASSET_URL + '/assets/images/users/' + dashboardData.user_profile_image_filename
+                : '';
+            const userImage = userImageUrl
+                ? `<img src="${userImageUrl}" alt="Sua foto" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"><i class="fas fa-user" style="display:none;"></i>`
+                : '<i class="fas fa-user"></i>';
+            
+            const rankTitle = ranking.my_rank == 1 ? 'Você está no Topo!' : 'Disputa de Pontos';
+            const titleClass = ranking.my_rank == 1 ? 'winner' : '';
+            
+            return `
+                <div class="glass-card card-ranking">
+                    <a href="${BASE_APP_URL}/ranking.php" class="ranking-link">
+                        <div class="player-info left">
+                            <div class="player-avatar">${userImage}</div>
+                            <span>Você</span>
+                        </div>
+                        <div class="clash-center">
+                            <span class="clash-title ${titleClass}">${rankTitle}</span>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: ${ranking.user_progress_percentage || 0}%;"></div>
+                            </div>
+                            <span class="rank-position">Sua Posição: <strong>${ranking.my_rank || 'N/A'}º</strong></span>
+                        </div>
+                        ${opponentHtml}
+                    </a>
+                </div>
+            `;
+        }
+        
+        // Renderizar card de peso
+        function renderWeightCard() {
+            const weightBanner = dashboardData.weight_banner || {};
+            
+            if (weightBanner.show_edit_button) {
+                return `
+                    <div class="glass-card card-weight">
+                        <span>Peso Atual</span>
+                        <strong id="current-weight-value">${weightBanner.current_weight || '0kg'}</strong>
+                        <button data-action="open-weight-modal" class="edit-button" aria-label="Editar peso">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            } else {
+                const days = weightBanner.days_until_update || 0;
+                const daysText = days > 1 ? 'dias' : 'dia';
+                return `
+                    <div class="glass-card card-weight">
+                        <span>Próxima atualização em</span>
+                        <strong class="countdown">${days} ${daysText}</strong>
+                    </div>
+                `;
+            }
+        }
+        
+        // Renderizar card de hidratação
+        function renderHydrationCard() {
+            const water = dashboardData.water || {};
+            const consumed = water.consumed_ml || 0;
+            const goal = water.goal_ml || 0;
+            
+            return `
+                <div class="glass-card card-hydration" id="water-card">
+                    <div class="hydration-content">
+                        <div class="hydration-info">
+                            <h3>Hidratação</h3>
+                            <div class="water-status" id="water-status-display">
+                                <span id="water-amount-display">${consumed}</span> / <span>${goal} ml</span>
+                            </div>
+                            <div class="water-controls">
+                                <div class="water-input-row">
+                                    <button type="button" id="water-remove-btn" class="circle-btn" aria-label="Remover">−</button>
+                                    <button type="button" id="water-add-btn" class="circle-btn accent" aria-label="Adicionar">+</button>
+                                </div>
+                                <div class="inline-input-row">
+                                    <input type="number" id="water-amount-input" class="water-number-input" min="0" step="10" value="" placeholder="EX: 250" aria-label="Quantidade consumida">
+                                    <select id="water-unit-select" class="water-select" aria-label="Unidade">
+                                        <option value="ml" selected>ML</option>
+                                        <option value="l">L</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="water-drop-container-svg">
+                            <svg id="animated-water-drop" width="160" height="160" viewBox="0 0 275.785 275.785" xml:space="preserve">
+                                <defs>
+                                    <clipPath id="drop-mask">
+                                        <path d="M137.893,9.223 c14.177,18.895,91.267,123.692,91.267,169.701c0,50.31-40.952,91.255-91.267,91.255c-50.324,0-91.268-40.945-91.268-91.255 C46.625,132.915,123.712,28.118,137.893,9.223z"/>
+                                    </clipPath>
+                                    <linearGradient id="water-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#4fc3f7" />
+                                        <stop offset="80%" stop-color="#1976d2" />
+                                    </linearGradient>
+                                    <filter id="water-glow" x="-30%" y="-30%" width="160%" height="160%">
+                                        <feGaussianBlur stdDeviation="4" result="blur" />
+                                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                    </filter>
+                                </defs>
+                                <g clip-path="url(#drop-mask)">
+                                    <g id="water-level-group" transform="translate(0, 275.785)" filter="url(#water-glow)">
+                                        <path id="wave1" d="M -400 10 C -300 15, -300 5, -200 10 C -100 15, -100 5, 0 10 C 100 15, 100 5, 200 10 C 300 15, 300 5, 400 10 L 400 280 H -400 Z" fill="url(#water-gradient)" opacity="0.9"/>
+                                        <path id="wave2" d="M -400 5 C -300 10, -300 0, -200 5 C -100 10, -100 0, 0 5 C 100 10, 100 0, 200 5 C 300 10, 300 0, 400 5 L 400 280 H -400 Z" fill="url(#water-gradient)" opacity="0.7"/>
+                                    </g>
+                                </g>
+                                <path d="M137.893,9.223 c14.177,18.895,91.267,123.692,91.267,169.701c0,50.31-40.952,91.255-91.267,91.255c-50.324,0-91.268-40.945-91.268-91.255 C46.625,132.915,123.712,28.118,137.893,9.223z" stroke="rgba(255, 255, 255, 0.4)" stroke-width="8" fill="none"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Renderizar card de consumo
+        function renderConsumptionCard() {
+            const consumption = dashboardData.daily_consumption || {};
+            
+            return `
+                <div class="glass-card card-consumption">
+                    <h3>Seu Consumo Hoje</h3>
+                    <div class="consumption-grid">
+                        <div class="consumption-item">
+                            <div class="progress-circle" data-value="${consumption.kcal?.consumed || 0}" data-goal="${consumption.kcal?.goal || 1}">
+                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                    <defs>
+                                        <linearGradient id="orange-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="#FFAE00" />
+                                            <stop offset="100%" stop-color="#F83600" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="circle" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <text x="18" y="20.35" class="percentage-text">${consumption.kcal?.consumed || 0}</text>
+                                </svg>
+                            </div>
+                            <p>Kcal</p>
+                        </div>
+                        <div class="consumption-item">
+                            <div class="progress-circle" data-value="${consumption.carbs?.consumed || 0}" data-goal="${consumption.carbs?.goal || 1}">
+                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                    <path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="circle" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <text x="18" y="20.35" class="percentage-text">${consumption.carbs?.consumed || 0}g</text>
+                                </svg>
+                            </div>
+                            <p>Carbs</p>
+                        </div>
+                        <div class="consumption-item">
+                            <div class="progress-circle" data-value="${consumption.protein?.consumed || 0}" data-goal="${consumption.protein?.goal || 1}">
+                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                    <path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="circle" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <text x="18" y="20.35" class="percentage-text">${consumption.protein?.consumed || 0}g</text>
+                                </svg>
+                            </div>
+                            <p>Proteína</p>
+                        </div>
+                        <div class="consumption-item">
+                            <div class="progress-circle" data-value="${consumption.fat?.consumed || 0}" data-goal="${consumption.fat?.goal || 1}">
+                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                    <path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="circle" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <text x="18" y="20.35" class="percentage-text">${consumption.fat?.consumed || 0}g</text>
+                                </svg>
+                            </div>
+                            <p>Gordura</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Renderizar card de missões
+        function renderMissionsCard() {
+            const routine = dashboardData.routine || {};
+            const items = routine.items || [];
+            const completed = routine.completed_missions || 0;
+            const total = routine.total_missions || 0;
+            const progress = routine.progress_percentage || 0;
+            
+            let missionsHtml = items.map(mission => {
+                const isDuration = String(mission.id).startsWith('onboarding_') || 
+                                  (mission.is_exercise == 1 && mission.exercise_type === 'duration');
+                const isSleep = (mission.is_exercise == 1 && mission.exercise_type === 'sleep') ||
+                               mission.title.toLowerCase().includes('sono');
+                
+                let actionsHtml = '';
+                if (isDuration) {
+                    actionsHtml = `
+                        <button class="mission-action-btn duration-btn" aria-label="Definir Duração" data-mission-id="${mission.id}">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                        <button class="mission-action-btn complete-btn disabled" aria-label="Completar Missão">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    `;
+                } else if (isSleep) {
+                    actionsHtml = `
+                        <button class="mission-action-btn sleep-btn" aria-label="Registrar Sono" data-mission-id="${mission.id}">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                        <button class="mission-action-btn complete-btn disabled" aria-label="Completar Missão">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    `;
+                } else {
+                    actionsHtml = `
+                        <button class="mission-action-btn complete-btn" aria-label="Completar Missão">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    `;
+                }
+                
+                return `
+                    <div class="mission-slide" data-mission-id="${mission.id}" data-completed="${mission.completion_status || 0}">
+                        <div class="mission-icon"><i class="fas ${mission.icon_class || 'fa-check'}"></i></div>
+                        <div class="mission-details">
+                            <h4>${escapeHtml(mission.title || '')}</h4>
+                            <small class="mission-duration-display" style="display: none;"></small>
+                        </div>
+                        <div class="mission-actions">
+                            <button class="mission-action-btn skip-btn" aria-label="Pular Missão"><i class="fas fa-times"></i></button>
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            return `
+                <div class="glass-card card-missions">
+                    <div class="card-header">
+                        <h3>Jornada Diária</h3>
+                        <a href="${BASE_APP_URL}/routine.php" class="view-all-link">Ver mais</a>
+                    </div>
+                    <div class="missions-progress">
+                        <div class="missions-progress-info">
+                            <span>Progresso</span>
+                            <span id="missions-progress-text">${completed} de ${total}</span>
+                        </div>
+                        <div class="progress-bar-missions">
+                            <div class="progress-bar-missions-fill" id="missions-progress-bar" style="width: ${progress}%;"></div>
+                        </div>
+                    </div>
+                    <div class="missions-carousel-container" id="missions-carousel">
+                        ${missionsHtml}
+                        <div class="mission-slide completion-message" id="all-missions-completed-card">
+                            <div class="mission-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="mission-details"><h4>Parabéns!</h4><p>Você completou sua jornada de hoje.</p></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Renderizar card de refeição
+        function renderMealCard() {
+            const mealSuggestion = dashboardData.meal_suggestion || {};
+            const currentDate = dashboardData.current_date || new Date().toISOString().split('T')[0];
+            
+            return `
+                <div class="glass-card card-meal-cta">
+                    <i class="fas fa-utensils"></i>
+                    <h2>${escapeHtml(mealSuggestion.greeting || 'Hora de comer!')}</h2>
+                    <p>O que você vai comer agora?</p>
+                    <a href="${BASE_APP_URL}/add_food_to_diary.php?meal_type=${encodeURIComponent(mealSuggestion.db_param || 'lunch')}&date=${currentDate}" class="primary-button">Adicionar Refeição</a>
+                </div>
+            `;
+        }
+        
+        // Renderizar card de sugestões
+        function renderSuggestionsCard() {
+            const mealSuggestion = dashboardData.meal_suggestion || {};
+            const recipes = mealSuggestion.recipes || [];
+            
+            let recipesHtml = '';
+            if (recipes.length > 0) {
+                recipesHtml = recipes.map(recipe => `
+                    <div class="suggestion-item glass-card">
+                        <a href="${BASE_APP_URL}/view_recipe.php?id=${recipe.id}" class="suggestion-link">
+                            <div class="suggestion-image-container">
+                                <img src="${BASE_ASSET_URL}/assets/images/recipes/${recipe.image_filename || 'placeholder_food.jpg'}" alt="${escapeHtml(recipe.name || '')}">
+                            </div>
+                            <div class="recipe-info">
+                                <h4>${escapeHtml(recipe.name || '')}</h4>
+                                <span><i class="fas fa-fire-alt"></i> ${Math.round(recipe.kcal_per_serving || 0)} kcal</span>
+                            </div>
+                        </a>
+                    </div>
+                `).join('');
+            } else {
+                recipesHtml = '<div class="no-suggestions-card glass-card"><p>Nenhuma sugestão para esta refeição no momento.</p></div>';
+            }
+            
+            return `
+                <div class="card-suggestions">
+                    <div class="card-header">
+                        <h3>Sugestões para ${escapeHtml(mealSuggestion.display_name || 'Refeição')}</h3>
+                        <a href="${BASE_APP_URL}/explore_recipes.php?categories=${encodeURIComponent(mealSuggestion.category_id || '')}" class="view-all-link">Ver mais</a>
+                    </div>
+                    <div class="carousel-wrapper">
+                        <div class="suggestions-carousel">
+                            ${recipesHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Renderizar notificações de desafios
+        function renderChallengeNotifications() {
+            const notifications = dashboardData.challenge_notifications || [];
+            const count = dashboardData.unread_notifications_count || 0;
+            
+            if (notifications.length === 0) return '';
+            
+            const notificationsHtml = notifications.map(notification => {
+                let iconClass = 'fas fa-info-circle';
+                let iconColor = 'var(--accent-orange)';
+                
+                if (notification.notification_type === 'rank_change') {
+                    iconClass = 'fas fa-arrow-up';
+                    iconColor = '#22C55E';
+                } else if (notification.notification_type === 'overtake') {
+                    iconClass = 'fas fa-exclamation-triangle';
+                    iconColor = '#EF4444';
+                }
+                
+                const created = new Date(notification.created_at);
+                const now = new Date();
+                const diff = Math.floor((now - created) / 1000);
+                let timeText = 'Agora';
+                
+                if (diff > 86400) {
+                    const days = Math.floor(diff / 86400);
+                    timeText = `${days} dia${days > 1 ? 's' : ''} atrás`;
+                } else if (diff > 3600) {
+                    const hours = Math.floor(diff / 3600);
+                    timeText = `${hours} hora${hours > 1 ? 's' : ''} atrás`;
+                } else if (diff > 60) {
+                    const minutes = Math.floor(diff / 60);
+                    timeText = `${minutes} minuto${minutes > 1 ? 's' : ''} atrás`;
+                }
+                
+                return `
+                    <div class="notification-item" data-notification-id="${notification.id}">
+                        <div class="notification-icon">
+                            <i class="${iconClass}" style="color: ${iconColor};"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-message">${escapeHtml(notification.message || '')}</div>
+                            <div class="notification-meta">
+                                <span class="notification-challenge">${escapeHtml(notification.challenge_name || '')}</span>
+                                <span class="notification-time">${timeText}</span>
+                            </div>
+                        </div>
+                        <button class="notification-close" onclick="markNotificationAsRead(${notification.id}, this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            
+            return `
+                <div class="glass-card card-notifications">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bell"></i> Notificações de Desafios</h3>
+                        <span class="notification-badge">${count}</span>
+                    </div>
+                    <div class="notifications-list">
+                        ${notificationsHtml}
+                    </div>
+                    <a href="${BASE_APP_URL}/challenges.php" class="view-all-notifications">Ver todas as notificações</a>
+                </div>
+            `;
+        }
+        
+        // Renderizar card de desafios
+        function renderChallengesCard() {
+            const challenges = dashboardData.challenge_groups || [];
+            
+            let challengesHtml = '';
+            if (challenges.length === 0) {
+                challengesHtml = `
+                    <div class="challenges-empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h4>Nenhum grupo de desafio</h4>
+                        <p>Você não foi adicionado(a) em nenhum grupo de desafios. Consulte seu nutricionista para mais informações.</p>
+                    </div>
+                `;
+            } else {
+                challengesHtml = challenges.map(challenge => {
+                    const startDate = new Date(challenge.start_date);
+                    const endDate = new Date(challenge.end_date);
+                    const today = new Date();
+                    
+                    let currentStatus = 'scheduled';
+                    let statusText = 'Agendado';
+                    let statusColor = 'var(--text-secondary)';
+                    
+                    if (today >= startDate && today <= endDate) {
+                        currentStatus = 'active';
+                        statusText = 'Em andamento';
+                        statusColor = 'var(--accent-orange)';
+                    } else if (today > endDate) {
+                        currentStatus = 'completed';
+                        statusText = 'Concluído';
+                        statusColor = '#4CAF50';
+                    }
+                    
+                    const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                    const daysPassed = today > startDate ? Math.ceil((today - startDate) / (1000 * 60 * 60 * 24)) : 0;
+                    const daysRemaining = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+                    const progressPercentage = totalDays > 0 ? Math.min(100, Math.round((daysPassed / totalDays) * 100)) : 0;
+                    
+                    const goals = challenge.goals || [];
+                    const goalsHtml = goals.map(goal => {
+                        const goalIcons = {
+                            'calories': 'fas fa-fire',
+                            'water': 'fas fa-tint',
+                            'exercise': 'fas fa-dumbbell',
+                            'sleep': 'fas fa-bed'
+                        };
+                        const goalLabels = {
+                            'calories': 'Calorias',
+                            'water': 'Água',
+                            'exercise': 'Exercício',
+                            'sleep': 'Sono'
+                        };
+                        const icon = goalIcons[goal.type] || 'fas fa-bullseye';
+                        const label = goalLabels[goal.type] || goal.type;
+                        let unit = '';
+                        if (goal.value) {
+                            if (goal.type === 'calories') unit = 'kcal';
+                            else if (goal.type === 'water') unit = 'ml';
+                            else if (goal.type === 'exercise') unit = 'min';
+                            else if (goal.type === 'sleep') unit = 'h';
+                        }
+                        
+                        return `
+                            <span class="challenge-goal-badge">
+                                <i class="${icon}"></i>
+                                ${label}
+                                ${goal.value ? `<span>${goal.value}${unit}</span>` : ''}
+                            </span>
+                        `;
+                    }).join('');
+                    
+                    return `
+                        <a href="${BASE_APP_URL}/challenges.php?id=${challenge.id}" class="challenge-item">
+                            <div class="challenge-item-header">
+                                <h4>${escapeHtml(challenge.name || '')}</h4>
+                                <span class="challenge-status" style="color: ${statusColor};">
+                                    ${statusText}
+                                </span>
+                            </div>
+                            ${challenge.description ? `<p class="challenge-description">${escapeHtml(challenge.description.substring(0, 100))}${challenge.description.length > 100 ? '...' : ''}</p>` : ''}
+                            <div class="challenge-meta">
+                                <span class="challenge-date">
+                                    <i class="fas fa-calendar"></i>
+                                    ${startDate.toLocaleDateString('pt-BR')} - ${endDate.toLocaleDateString('pt-BR')}
+                                </span>
+                                <span class="challenge-participants">
+                                    <i class="fas fa-users"></i>
+                                    ${challenge.total_participants || 0} participante${(challenge.total_participants || 0) > 1 ? 's' : ''}
+                                </span>
+                            </div>
+                            ${currentStatus === 'active' ? `
+                                <div class="challenge-progress">
+                                    <div class="challenge-progress-info">
+                                        <span>${daysRemaining} dia${daysRemaining > 1 ? 's' : ''} restante${daysRemaining > 1 ? 's' : ''}</span>
+                                        <span>${progressPercentage}%</span>
+                                    </div>
+                                    <div class="progress-bar-challenge">
+                                        <div class="progress-bar-challenge-fill" style="width: ${progressPercentage}%;"></div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${goals.length > 0 ? `<div class="challenge-goals-preview">${goalsHtml}</div>` : ''}
+                        </a>
+                    `;
+                }).join('');
+            }
+            
+            return `
+                <div class="glass-card card-challenges">
+                    <div class="card-header">
+                        <h3><i class="fas fa-trophy"></i> Grupos de Desafio</h3>
+                        ${challenges.length > 0 ? `<a href="${BASE_APP_URL}/challenges.php" class="view-all-link">Ver todos</a>` : ''}
+                    </div>
+                    <div class="challenges-list">
+                        ${challengesHtml}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Função auxiliar para escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Inicializar JavaScript (copiar todo o JavaScript do main_app.php aqui)
+        function initializeJavaScript() {
+            // Inicializar carrossel de missões
+            initMissionsCarousel();
+            
+            // Inicializar hidratação
+            initHydration();
+            
+            // Inicializar círculos de progresso
+            initProgressCircles();
+            
+            // Inicializar modais
+            initModals();
+            
+            // Inicializar funções auxiliares
+            initHelperFunctions();
+        }
+        
+        // Funções auxiliares (showPointsPopup, animatePointsCount, etc.)
+        function initHelperFunctions() {
+            // Funções já estão definidas globalmente abaixo
+        }
+        
+        // Função para mostrar popup de pontos
+        function showPointsPopup(message) {
+            const popup = document.createElement('div');
+            popup.className = 'points-popup';
+            popup.innerHTML = `<i class="fas fa-star star-icon"></i>${message}`;
+            document.body.appendChild(popup);
+            setTimeout(() => { popup.remove(); }, 2500);
+        }
+        
+        // Função para animar contagem de pontos
+        function animatePointsCount(element, startValue, endValue, duration) {
+            const startTime = performance.now();
+            const formatNumber = (num) => new Intl.NumberFormat('pt-BR').format(num);
+            
+            function easeInOutCubic(t) {
+                return t < 0.5 
+                    ? 4 * t * t * t 
+                    : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easedProgress = easeInOutCubic(progress);
+                const currentValue = Math.floor(startValue + (endValue - startValue) * easedProgress);
+                element.textContent = formatNumber(currentValue);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = formatNumber(endValue);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+        
+        // Função para animar estrela voando
+        function animateStarToBadgeFromElement(sourceElement, points, newTotalPoints) {
+            const pointsBadge = document.querySelector('.points-counter-badge');
+            const pointsDisplay = document.getElementById('user-points-display');
+            
+            if (!sourceElement || !pointsBadge || !pointsDisplay || points <= 0) {
+                if (newTotalPoints !== undefined && pointsDisplay) {
+                    pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(newTotalPoints);
+                }
+                return;
+            }
+            
+            const sourceRect = sourceElement.getBoundingClientRect();
+            const badgeRect = pointsBadge.getBoundingClientRect();
+            const starIcon = pointsBadge.querySelector('i.fa-star');
+            let endX, endY;
+            
+            if (starIcon) {
+                const starRect = starIcon.getBoundingClientRect();
+                endX = starRect.left + starRect.width / 2;
+                endY = starRect.top + starRect.height / 2;
+            } else {
+                endX = badgeRect.left + badgeRect.width / 2;
+                endY = badgeRect.top + badgeRect.height / 2;
+            }
+            
+            const startX = sourceRect.left + sourceRect.width / 2;
+            const startY = sourceRect.top + sourceRect.height / 2;
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            const baseDuration = 1800;
+            const duration = Math.min(Math.max(baseDuration, distance * 0.8), 2500);
+            
+            const currentPointsText = pointsDisplay.textContent.replace(/\./g, '').replace(/,/g, '');
+            const currentPoints = parseInt(currentPointsText) || 0;
+            
+            const flyingStar = document.createElement('div');
+            flyingStar.className = 'flying-star';
+            flyingStar.innerHTML = '<i class="fas fa-star"></i>';
+            flyingStar.style.transform = `translate3d(${startX}px, ${startY}px, 0) translate(-50%, -50%) scale(1) rotate(0deg)`;
+            flyingStar.style.willChange = 'transform, opacity';
+            
+            document.body.appendChild(flyingStar);
+            flyingStar.offsetHeight;
+            
+            function easeOutCubic(t) {
+                return 1 - Math.pow(1 - t, 3);
+            }
+            
+            const startTime = performance.now();
+            let animationFrameId;
+            
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                let currentEndX, currentEndY;
+                const currentBadgeRect = pointsBadge.getBoundingClientRect();
+                const currentBadgeStarIcon = pointsBadge.querySelector('i.fa-star');
+                
+                if (currentBadgeStarIcon) {
+                    const currentBadgeStarRect = currentBadgeStarIcon.getBoundingClientRect();
+                    currentEndX = currentBadgeStarRect.left + currentBadgeStarRect.width / 2;
+                    currentEndY = currentBadgeStarRect.top + currentBadgeStarRect.height / 2;
+                } else {
+                    currentEndX = currentBadgeRect.left + currentBadgeRect.width / 2;
+                    currentEndY = currentBadgeRect.top + currentBadgeRect.height / 2;
+                }
+                
+                const currentSourceRect = sourceElement.getBoundingClientRect();
+                const currentStartX = currentSourceRect.left + currentSourceRect.width / 2;
+                const currentStartY = currentSourceRect.top + currentSourceRect.height / 2;
+                const currentDeltaX = currentEndX - currentStartX;
+                const currentDeltaY = currentEndY - currentStartY;
+                const easedProgress = easeOutCubic(progress);
+                const currentX = currentStartX + (currentDeltaX * easedProgress);
+                const currentY = currentStartY + (currentDeltaY * easedProgress);
+                const curveHeight = Math.min(Math.sqrt(currentDeltaX * currentDeltaX + currentDeltaY * currentDeltaY) * 0.12, 80);
+                const curveProgress = Math.sin(progress * Math.PI);
+                const curveOffset = -curveHeight * curveProgress;
+                
+                let scale;
+                if (progress < 0.2) {
+                    const scaleProgress = progress / 0.2;
+                    scale = 1 + (0.3 * easeOutCubic(scaleProgress));
+                } else if (progress < 0.75) {
+                    const scaleProgress = (progress - 0.2) / 0.55;
+                    const easedScaleProgress = easeOutCubic(scaleProgress);
+                    scale = 1.3 - (0.4 * easedScaleProgress);
+                } else {
+                    const finalProgress = (progress - 0.75) / 0.25;
+                    const easedFinalProgress = easeOutCubic(finalProgress);
+                    scale = 0.9 + (0.2 * easedFinalProgress);
+                }
+                
+                const rotation = progress * 360 * 1.5;
+                let opacity = 1;
+                if (progress > 0.9) {
+                    opacity = 1 - ((progress - 0.9) / 0.1);
+                }
+                
+                flyingStar.style.transform = `translate3d(${currentX}px, ${currentY + curveOffset}px, 0) translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg)`;
+                flyingStar.style.opacity = opacity;
+                flyingStar.style.left = '';
+                flyingStar.style.top = '';
+                
+                if (progress < 1) {
+                    animationFrameId = requestAnimationFrame(animate);
+                } else {
+                    if (flyingStar.parentNode) {
+                        flyingStar.parentNode.removeChild(flyingStar);
+                    }
+                    
+                    const finalPoints = newTotalPoints !== undefined ? newTotalPoints : (currentPoints + points);
+                    pointsBadge.classList.add('points-updated');
+                    pointsDisplay.classList.add('points-counting');
+                    animatePointsCount(pointsDisplay, currentPoints, finalPoints, 1500);
+                    
+                    setTimeout(() => {
+                        pointsBadge.classList.remove('points-updated');
+                        pointsDisplay.classList.remove('points-counting');
+                    }, 2000);
+                }
+            }
+            
+            animationFrameId = requestAnimationFrame(animate);
+            flyingStar._animationId = animationFrameId;
+        }
+        
+        // Função para mostrar popup e animar estrela
+        function showPointsWithStarAnimation(message, sourceElement, points, newTotalPoints) {
+            const popup = document.createElement('div');
+            popup.className = 'points-popup';
+            popup.innerHTML = `<i class="fas fa-star star-icon" id="points-popup-star"></i>${message}`;
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                const starIcon = document.getElementById('points-popup-star');
+                if (starIcon) {
+                    animateStarToBadgeFromElement(starIcon, points, newTotalPoints);
+                }
+                setTimeout(() => {
+                    if (popup.parentNode) {
+                        popup.parentNode.removeChild(popup);
+                    }
+                }, 1000);
+            }, 500);
+        }
+        
+        // Inicializar carrossel de missões (COMPLETO)
+        function initMissionsCarousel() {
+            const missionsCarousel = document.getElementById('missions-carousel');
+            if (!missionsCarousel) return;
+            
+            const routine = dashboardData.routine || {};
+            let missionSlides = Array.from(missionsCarousel.querySelectorAll('.mission-slide:not(.completion-message)'));
+            const completionCard = document.getElementById('all-missions-completed-card');
+            let completedMissionsCount = routine.completed_missions || 0;
+            const totalMissionsCount = routine.total_missions || 0;
+            let pendingSlides = missionSlides.filter(slide => slide.dataset.completed === '0');
+            
+            function showCurrentMission() {
+                missionSlides.forEach(s => s.classList.remove('active'));
+                if (completionCard) completionCard.classList.remove('active');
+                if (pendingSlides.length > 0) {
+                    pendingSlides[0].classList.add('active');
+                } else if (completionCard) {
+                    completionCard.classList.add('active');
+                }
+            }
+            
+            function updateMissionsProgress() {
+                const progressPercentage = totalMissionsCount > 0 ? (completedMissionsCount / totalMissionsCount) * 100 : 0;
+                const progressBarFill = document.getElementById('missions-progress-bar');
+                const progressText = document.getElementById('missions-progress-text');
+                if (progressBarFill) { progressBarFill.style.width = `${progressPercentage}%`; }
+                if (progressText) { progressText.textContent = `${completedMissionsCount} de ${totalMissionsCount}`; }
+            }
+
+            missionsCarousel.addEventListener('click', function(event) {
+                if (event.target.disabled || event.target.classList.contains('processing')) {
+                    return;
+                }
+
+                const completeButton = event.target.closest('.complete-btn');
+                const skipButton = event.target.closest('.skip-btn');
+                const durationButton = event.target.closest('.duration-btn');
+                const sleepButton = event.target.closest('.sleep-btn');
+                
+                if (!completeButton && !skipButton && !durationButton && !sleepButton) return;
+                
+                const currentSlide = pendingSlides[0];
+                if (!currentSlide) return;
+
+                if (skipButton) {
+                    pendingSlides.push(pendingSlides.shift());
+                    showCurrentMission();
+                } else if (durationButton) {
+                    const missionId = durationButton.dataset.missionId;
+                    showExerciseDurationModal(missionId, currentSlide, durationButton);
+                } else if (sleepButton) {
+                    const modal = document.getElementById('sleep-modal-main');
+                    if (modal) {
+                        modal.classList.add('modal-visible');
+                        document.body.style.overflow = 'hidden';
+                    }
+                } else if (completeButton) {
+                    if (completeButton.disabled || completeButton.classList.contains('processing')) {
+                        return;
+                    }
+
+                    if (completeButton.classList.contains('disabled')) {
+                        const missionId = currentSlide.dataset.missionId;
+                        if (String(missionId).startsWith('onboarding_')) {
+                            alert('⚠️ Para completar, primeiro defina a duração do exercício!');
+                        } 
+                        else if (currentSlide.querySelector('.sleep-btn')) {
+                            alert('⚠️ Para completar, primeiro registre seus horários de sono!');
+                        }
+                        return;
+                    }
+                    
+                    if (currentSlide.dataset.completed === '1') return;
+
+                    const missionId = currentSlide.dataset.missionId;
+                    
+                    if (String(missionId).startsWith('onboarding_')) {
+                        const durationBtn = currentSlide.querySelector('.duration-btn');
+                        if (durationBtn && durationBtn.dataset.durationSet === 'true') {
+                            completeExerciseWithDuration(missionId, durationBtn.dataset.duration, currentSlide, completeButton);
+                        } else {
+                            showPointsPopup('⚠️ Defina a duração do exercício primeiro!');
+                        }
+                    } else if (currentSlide.querySelector('.sleep-btn')) {
+                        completeSleepRoutine(missionId, completeButton);
+                    } else {
+                        completeRoutineDirectly(missionId, completeButton);
+                    }
+                }
+            });
+
+            function showExerciseDurationModal(missionId, currentSlide, durationButton) {
+                const exerciseName = missionId.replace('onboarding_', '');
+                const modal = document.getElementById('exercise-duration-modal');
+                const durationInput = document.getElementById('exercise-duration-input');
+                
+                if (!modal) return;
+                
+                modal.querySelector('h2').textContent = `⏱️ Duração - ${exerciseName}`;
+                
+                if (durationButton.dataset.durationSet === 'true') {
+                    durationInput.value = durationButton.dataset.duration;
+                } else {
+                    durationInput.value = 60;
+                }
+                
+                modal.classList.add('modal-visible');
+                
+                const cancelBtn = modal.querySelector('[data-action="close-modal"]');
+                if (cancelBtn) {
+                    cancelBtn.onclick = () => {
+                        modal.classList.remove('modal-visible');
+                    };
+                }
+                
+                document.getElementById('confirm-exercise-duration').onclick = () => {
+                    const duration = parseInt(durationInput.value);
+                    if (duration >= 15 && duration <= 300) {
+                        modal.classList.remove('modal-visible');
+
+                        durationButton.dataset.durationSet = 'true';
+                        durationButton.dataset.duration = duration;
+                        durationButton.style.display = 'flex';
+                        
+                        const completeBtn = currentSlide.querySelector('.complete-btn.disabled');
+                        if (completeBtn) {
+                            completeBtn.disabled = false;
+                            completeBtn.classList.remove('disabled');
+                        }
+
+                        const durationDisplay = currentSlide.querySelector('.mission-duration-display');
+                        if (durationDisplay) {
+                            durationDisplay.innerHTML = `<i class="fas fa-stopwatch" style="font-size: 0.8em;"></i> ${duration} min`;
+                            durationDisplay.style.display = 'flex';
+                        }
+                    } else {
+                        alert('Por favor, insira uma duração entre 15 e 300 minutos.');
+                    }
+                };
+            }
+
+            function completeExerciseWithDuration(missionId, duration, currentSlide, completeButton) {
+                const csrfToken = document.getElementById('csrf_token_main_app').value;
+                const routineIdToSend = missionId.replace('onboarding_', '');
+                
+                completeButton.disabled = true;
+                completeButton.classList.add('processing');
+
+                const formData = new URLSearchParams();
+                formData.append('routine_id', routineIdToSend);
+                formData.append('duration_minutes', duration);
+                formData.append('csrf_token', csrfToken);
+                
+                fetch(BASE_APP_URL + '/actions/complete_onboarding_routine.php', { method: 'POST', body: formData })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { 
+                            throw new Error(`Erro de Servidor (${response.status}): ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        currentSlide.dataset.completed = '1';
+                        completedMissionsCount++;
+                        updateMissionsProgress();
+                        pendingSlides.shift();
+                        
+                        if (data.points_awarded > 0) {
+                            const completeButton = currentSlide.querySelector('.complete-btn');
+                            showPointsWithStarAnimation(
+                                `+${data.points_awarded} Pontos`,
+                                completeButton || currentSlide,
+                                data.points_awarded,
+                                data.new_total_points
+                            );
+                        } else if (data.new_total_points !== undefined) {
+                            const pointsDisplay = document.getElementById('user-points-display');
+                            if (pointsDisplay) {
+                                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                            }
+                        }
+                        setTimeout(showCurrentMission, 300);
+                    } else {
+                        alert(data.message || 'Ocorreu um erro ao processar a solicitação.');
+                        completeButton.disabled = false;
+                        completeButton.style.opacity = '1';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro detalhado:', error);
+                    alert('Falha na comunicação com o servidor. Verifique o console para mais detalhes.');
+                    completeButton.disabled = false;
+                    completeButton.classList.remove('processing');
+                    completeButton.style.opacity = '1';
+                });
+            }
+
+            function completeSleepRoutine(missionId, completeButton) {
+                const csrfToken = document.getElementById('csrf_token_main_app').value;
+                const sleepData = JSON.parse(sessionStorage.getItem('sleep_data'));
+                
+                if (!sleepData) {
+                    alert('Por favor, registre os horários de sono primeiro.');
+                    return;
+                }
+                
+                completeButton.disabled = true;
+                completeButton.classList.add('processing');
+
+                const formData = new URLSearchParams();
+                formData.append('routine_id', missionId);
+                formData.append('sleep_time', sleepData.sleep_time);
+                formData.append('wake_time', sleepData.wake_time);
+                formData.append('csrf_token', csrfToken);
+                
+                fetch(BASE_APP_URL + '/actions/complete_sleep_routine.php', { 
+                    method: 'POST', 
+                    body: formData 
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        sessionStorage.removeItem('sleep_data');
+                        
+                        const currentSlide = pendingSlides[0];
+                        if (currentSlide) {
+                            currentSlide.dataset.completed = '1';
+                            completedMissionsCount++;
+                            updateMissionsProgress();
+                            pendingSlides.shift();
+                            setTimeout(showCurrentMission, 300);
+                        }
+                        
+                        if (data.points_awarded > 0) {
+                            const completeButton = currentSlide.querySelector('.complete-btn');
+                            showPointsWithStarAnimation(
+                                `+${data.points_awarded} Pontos`,
+                                completeButton || currentSlide,
+                                data.points_awarded,
+                                data.new_total_points
+                            );
+                        } else if (data.new_total_points !== undefined) {
+                            const pointsDisplay = document.getElementById('user-points-display');
+                            if (pointsDisplay) {
+                                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                            }
+                        }
+                    } else {
+                        alert('Erro: ' + (data.message || 'Falha ao registrar sono'));
+                        completeButton.disabled = false;
+                        completeButton.classList.remove('processing');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro na comunicação com o servidor.');
+                    completeButton.disabled = false;
+                    completeButton.classList.remove('processing');
+                });
+            }
+
+            function completeRoutineDirectly(missionId, completeButton) {
+                const csrfToken = document.getElementById('csrf_token_main_app').value;
+                const endpoint = BASE_APP_URL + '/actions/complete_routine_item.php';
+                
+                completeButton.disabled = true;
+                completeButton.classList.add('processing');
+
+                const formData = new URLSearchParams();
+                formData.append('routine_id', missionId);
+                formData.append('csrf_token', csrfToken);
+                
+                fetch(endpoint, { method: 'POST', body: formData })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { 
+                            throw new Error(`Erro de Servidor (${response.status}): ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const currentSlide = pendingSlides[0];
+                        if (currentSlide) {
+                            currentSlide.dataset.completed = '1';
+                            completedMissionsCount++;
+                            updateMissionsProgress();
+                            pendingSlides.shift();
+                            
+                            if (data.points_awarded > 0) {
+                                const completeButton = currentSlide.querySelector('.complete-btn');
+                                showPointsWithStarAnimation(
+                                    `+${data.points_awarded} Pontos`,
+                                    completeButton || currentSlide,
+                                    data.points_awarded,
+                                    data.new_total_points
+                                );
+                            } else if (data.new_total_points !== undefined) {
+                                const pointsDisplay = document.getElementById('user-points-display');
+                                if (pointsDisplay) {
+                                    pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                                }
+                            }
+                            setTimeout(showCurrentMission, 300);
+                        }
+                    } else {
+                        alert(data.message || 'Ocorreu um erro ao processar a solicitação.');
+                        completeButton.disabled = false;
+                        completeButton.classList.remove('processing');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro detalhado:', error);
+                    alert('Falha na comunicação com o servidor. Verifique o console para mais detalhes.');
+                    completeButton.disabled = false;
+                    completeButton.classList.remove('processing');
+                });
+            }
+
+            showCurrentMission();
+
+            // Event listener para o botão de confirmar sono
+            const confirmSleepBtn = document.getElementById('confirm-sleep-main');
+            if (confirmSleepBtn) {
+                confirmSleepBtn.addEventListener('click', function() {
+                    const modal = document.getElementById('sleep-modal-main');
+                    const sleepTime = modal.querySelector('#sleep-time-main').value;
+                    const wakeTime = modal.querySelector('#wake-time-main').value;
+
+                    if (!sleepTime || !wakeTime) {
+                        alert('Por favor, preencha ambos os horários.');
+                        return;
+                    }
+
+                    if (sleepTime === wakeTime) {
+                        alert('Os horários de dormir e acordar não podem ser iguais.');
+                        return;
+                    }
+
+                    const sleepData = {
+                        sleep_time: sleepTime,
+                        wake_time: wakeTime
+                    };
+                    sessionStorage.setItem('sleep_data', JSON.stringify(sleepData));
+
+                    modal.classList.remove('modal-visible');
+                    document.body.style.overflow = '';
+
+                    const currentSlide = pendingSlides[0];
+                    if (currentSlide) {
+                        const completeBtn = currentSlide.querySelector('.complete-btn.disabled');
+                        if (completeBtn) {
+                            completeBtn.classList.remove('disabled');
+                        }
+                        
+                        const durationDisplay = currentSlide.querySelector('.mission-duration-display');
+                        if (durationDisplay) {
+                            const sleepTimeObj = new Date(`2000-01-01T${sleepData.sleep_time}`);
+                            const wakeTimeObj = new Date(`2000-01-01T${sleepData.wake_time}`);
+                            
+                            let diffMs = wakeTimeObj - sleepTimeObj;
+                            if (diffMs < 0) {
+                                diffMs += 24 * 60 * 60 * 1000;
+                            }
+                            const diffHours = Math.round(diffMs / (60 * 60 * 1000) * 10) / 10;
+                            
+                            durationDisplay.innerHTML = `<i class="fas fa-moon" style="font-size: 0.8em;"></i> ${diffHours}h de sono`;
+                            durationDisplay.style.display = 'flex';
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Inicializar hidratação (COMPLETO)
+        function initHydration() {
+            const waterLevelGroup = document.getElementById('water-level-group');
+            const waterAmountDisplay = document.getElementById('water-amount-display');
+            const waterAmountInput = document.getElementById('water-amount-input');
+            const waterAddBtn = document.getElementById('water-add-btn');
+            const waterUnitSelect = document.getElementById('water-unit-select');
+            
+            if (!waterLevelGroup || !waterAmountDisplay) return;
+            
+            const water = dashboardData.water || {};
+            let currentWater = water.consumed_ml || 0;
+            const waterGoal = water.goal_ml || 0;
+            const CUP_SIZE_ML = water.cup_size_ml || 250;
+            const dropHeight = 275.785;
+
+            function updateWaterDrop(animated = true) {
+                const percentage = waterGoal > 0 ? Math.min(currentWater / waterGoal, 1) : 0;
+                const yTranslate = dropHeight * (1 - percentage);
+                
+                if (!animated) {
+                    waterLevelGroup.style.transition = 'none';
+                }
+                
+                waterLevelGroup.setAttribute('transform', `translate(0, ${yTranslate})`);
+
+                if (!animated) {
+                    setTimeout(() => {
+                        waterLevelGroup.style.transition = 'transform 0.7s cubic-bezier(0.65, 0, 0.35, 1)';
+                    }, 50);
+                }
+                waterAmountDisplay.textContent = Math.round(currentWater);
+            }
+
+            function updateWaterOnServer() {
+                const csrfToken = document.getElementById('csrf_token_main_app').value;
+                const formData = new URLSearchParams();
+                
+                const waterInCups = Math.round(currentWater / CUP_SIZE_ML);
+                formData.append('water_consumed', waterInCups);
+                formData.append('csrf_token', csrfToken);
+
+                fetch(BASE_APP_URL + '/api/update_water.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro do Servidor: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        if (data.points_awarded != 0 && data.points_awarded > 0) {
+                            const waterContainer = document.querySelector('.water-tracker-container') || 
+                                                  document.querySelector('.water-section') ||
+                                                  document.querySelector('.water-counter');
+                            showPointsWithStarAnimation(
+                                `+${data.points_awarded} Pontos`,
+                                waterContainer || document.body,
+                                data.points_awarded,
+                                data.new_total_points
+                            );
+                        } else if (data.new_total_points !== undefined) {
+                            const pointsDisplay = document.getElementById('user-points-display');
+                            if (pointsDisplay) {
+                                pointsDisplay.textContent = new Intl.NumberFormat('pt-BR').format(data.new_total_points);
+                            }
+                        }
+                    } else {
+                        console.error('Falha ao atualizar a água no servidor:', data.message);
+                    }
+                })
+                .catch(err => {
+                     console.error('Erro de conexão ou no servidor ao atualizar a água.', err);
+                });
+            }
+            
+            function clampToNonNegativeInteger(value) { 
+                value = Number(value) || 0; 
+                return value < 0 ? 0 : value; 
+            }
+            
+            function parseAmountToMl(amountValue) {
+                const raw = String(amountValue || '').trim().toLowerCase();
+                if (raw.endsWith('l') || (waterUnitSelect && waterUnitSelect.value === 'l')) {
+                    const n = parseFloat(raw.replace('l', '')) || 0;
+                    return Math.max(0, Math.round(n * 1000));
+                }
+                return Math.max(0, Math.round(parseFloat(raw) || 0));
+            }
+
+            let updateTimeout = null;
+            function scheduleServerUpdate() {
+                if (updateTimeout) clearTimeout(updateTimeout);
+                updateTimeout = setTimeout(() => { updateWaterOnServer(); }, 600);
+            }
+
+            function addMlAndUpdate(mlToAdd) {
+                if (mlToAdd <= 0) return;
+                currentWater = clampToNonNegativeInteger(currentWater + mlToAdd);
+                updateWaterDrop();
+                scheduleServerUpdate();
+            }
+
+            function subMlAndUpdate(mlToSub) {
+                if (mlToSub <= 0) return;
+                currentWater = clampToNonNegativeInteger(currentWater - mlToSub);
+                updateWaterDrop();
+                scheduleServerUpdate();
+            }
+
+            function updateControlsEnabled() {
+                const amountMl = parseAmountToMl(waterAmountInput && waterAmountInput.value);
+                const hasAmount = amountMl > 0;
+                if (waterAddBtn) waterAddBtn.disabled = !hasAmount;
+                if (waterRemoveBtn) waterRemoveBtn.disabled = !hasAmount;
+            }
+
+            if (waterAddBtn) {
+                waterAddBtn.addEventListener('click', () => {
+                    let amountMl = parseAmountToMl(waterAmountInput && waterAmountInput.value);
+                    if (amountMl <= 0) return;
+                    addMlAndUpdate(amountMl);
+                    if (waterAmountInput) { waterAmountInput.value = ''; updateControlsEnabled(); }
+                });
+            }
+
+            const waterRemoveBtn = document.getElementById('water-remove-btn');
+            if (waterRemoveBtn) {
+                waterRemoveBtn.addEventListener('click', () => {
+                    let amountMl = parseAmountToMl(waterAmountInput && waterAmountInput.value);
+                    if (amountMl <= 0) return;
+                    subMlAndUpdate(amountMl);
+                    if (waterAmountInput) { waterAmountInput.value = ''; updateControlsEnabled(); }
+                });
+            }
+
+            if (waterAmountInput) {
+                waterAmountInput.addEventListener('input', updateControlsEnabled);
+            }
+            if (waterUnitSelect) {
+                waterUnitSelect.addEventListener('change', updateControlsEnabled);
+            }
+
+            updateWaterDrop(false);
+            updateControlsEnabled();
+        }
+        
+        // Inicializar círculos de progresso
+        function initProgressCircles() {
+            document.querySelectorAll('.progress-circle').forEach(circleElement => {
+                const value = parseFloat(circleElement.dataset.value) || 0;
+                const goal = parseFloat(circleElement.dataset.goal) || 1;
+                const circle = circleElement.querySelector('.circle');
+                if (!circle) return;
+                
+                const radius = 15.9155;
+                const circumference = 2 * Math.PI * radius;
+                
+                let percent = (value / goal);
+                if (percent > 1) percent = 1;
+                if (percent < 0) percent = 0;
+                
+                const offset = circumference - (percent * circumference);
+                
+                circle.style.strokeDasharray = `${circumference} ${circumference}`;
+                setTimeout(() => {
+                    circle.style.strokeDashoffset = offset;
+                }, 100);
+            });
+        }
+        
+        // Inicializar modais
+        function initModals() {
+            // Event listeners para fechar modal
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('[data-action="close-modal"]')) {
+                    const modal = e.target.closest('.modal-overlay');
+                    if (modal) {
+                        modal.classList.remove('modal-visible');
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+        }
+        
+        // Função para marcar notificação como lida
+        function markNotificationAsRead(notificationId, element) {
+            fetch(BASE_APP_URL + '/api/challenge_notifications.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'mark_as_read',
+                    notification_id: notificationId
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const notificationItem = element.closest('.notification-item');
+                    if (notificationItem) {
+                        notificationItem.classList.add('read');
+                        notificationItem.style.opacity = '0.6';
+                        setTimeout(() => {
+                            notificationItem.style.display = 'none';
+                        }, 300);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao marcar notificação como lida:', error);
+            });
+        }
+        
+        // Carregar dados quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+        });
+    </script>
+    
+    <!-- Incluir script.js se existir -->
+    <script src="./assets/js/script.js"></script>
+</body>
+</html>
+

@@ -91,3 +91,7 @@ if (isset($result['choices'][0]['message']['content'])) {
 }
 ?>
 
+
+
+
+

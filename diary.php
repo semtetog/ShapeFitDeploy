@@ -4,7 +4,7 @@
 require_once 'includes/config.php';
 require_once APP_ROOT_PATH . '/includes/auth.php';
 requireLogin();
-require_once APP_ROOT_PATH . '/includes/db.php';
+$conn = require 'includes/db.php';
 require_once APP_ROOT_PATH . '/includes/functions.php';
 
 $user_id = $_SESSION['user_id'];
