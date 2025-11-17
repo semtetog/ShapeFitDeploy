@@ -1,163 +1,89 @@
 // Service Worker para ShapeFit Mobile App
 // Versão 3 - Otimizado para Android/iOS com Capacitor
-const CACHE_NAME = 'shapefit-v3';
-const API_BASE = 'https://appshapefit.com';
+const CACHE_NAME = 'shapefit-v4-online-first'; // Nova versão para forçar atualização
+const OFFLINE_URL = 'offline.html';
 
-// Páginas críticas que devem estar sempre no cache (precache)
-// IMPORTANTE: Não coloque TODAS as páginas aqui! Apenas as essenciais.
-// As outras páginas serão cacheadas automaticamente quando o usuário visitá-las.
-const CRITICAL_PAGES = [
-    './',
-    './index.html',
-    './index.php',
-    './auth/login.php',
-    './auth/register.php', // Página de registro (se existir)
-    './main_app.php', // Página principal do app
-    './onboarding/onboarding.php', // Página de onboarding
-    './offline.html', // Página offline (CRÍTICA - sempre disponível)
-    // Páginas principais do app (mais visitadas)
-    './diary.php',
-    './progress.php',
-    './ranking.php',
-    './more_options.php',
-    './routine.php'
-];
-
-// Assets estáticos críticos
-const CRITICAL_ASSETS = [
-    // CSS principal
-    './assets/css/main_app_glass_theme.css',
-    './assets/css/main_app_specific.css',
-    // JS principal
-    './assets/js/config.js',
-    './assets/js/capacitor-init.js',
-    './assets/js/offline-manager.js',
-    // Logo
-    './assets/images/SHAPE-FIT-LOGO.png'
-];
-
-// Instalar Service Worker
+// No momento da instalação, pré-cache apenas a página offline.
+// O resto será cacheado sob demanda.
 self.addEventListener('install', (event) => {
-    console.log('[SW] Instalando Service Worker...');
+    console.log('[SW] Instalando Service Worker v4...');
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[SW] Cache aberto:', CACHE_NAME);
-                
-                // Cachear páginas críticas e assets
-                const allAssets = [...CRITICAL_PAGES, ...CRITICAL_ASSETS];
-                
-                // Tentar adicionar todos os assets, mas não falhar se alguns não existirem
-                return Promise.allSettled(
-                    allAssets.map(url => 
-                        cache.add(url).catch(err => {
-                            // Não logar erro para páginas opcionais que podem não existir
-                            const optionalPages = ['register.php', 'onboarding.php', 'index.php'];
-                            const isOptional = optionalPages.some(page => url.includes(page));
-                            if (!isOptional) {
-                                console.warn('[SW] Não foi possível cachear:', url);
-                            }
-                            return null;
-                        })
-                    )
-                );
-            })
-            .then(results => {
-                const successful = results.filter(r => r.status === 'fulfilled').length;
-                const failed = results.filter(r => r.status === 'rejected').length;
-                console.log(`[SW] Instalação concluída: ${successful} sucessos, ${failed} falhas`);
-            })
-            .catch(err => console.error('[SW] Erro ao instalar:', err))
+        caches.open(CACHE_NAME).then((cache) => {
+            console.log('[SW] Pré-cache da página offline.');
+            return cache.add(OFFLINE_URL);
+        })
     );
-    // Forçar ativação imediata
+    // Força o novo Service Worker a se ativar imediatamente.
     self.skipWaiting();
 });
 
-// Ativar Service Worker
+// Na ativação, limpa caches antigos.
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Ativando Service Worker...');
+    console.log('[SW] Ativando Service Worker v4...');
     event.waitUntil(
-        caches.keys().then(cacheNames => {
+        caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map(cacheName => {
+                cacheNames.map((cacheName) => {
                     if (cacheName !== CACHE_NAME) {
                         console.log('[SW] Removendo cache antigo:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
             );
-        })
-        .then(() => {
-            console.log('[SW] Ativação concluída');
-            // Assumir controle de todas as páginas imediatamente
+        }).then(() => {
+            console.log('[SW] Ativado e controlando clientes.');
             return self.clients.claim();
         })
     );
 });
 
-// Estratégia de cache: Network First com fallback para cache
-// IMPORTANTE: Interceptar TODAS as requisições para evitar erros do navegador
+// Intercepta as requisições de rede.
 self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
+    const { request } = event;
 
-    // Só aplicar cache para assets estáticos (CSS, JS, Imagens, Fontes)
-    if (url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|ico)$/i)) {
+    // ESTRATÉGIA PARA NAVEGAÇÃO DE PÁGINAS
+    // Tenta a rede primeiro. Se falhar (offline), mostra a página offline.
+    if (request.mode === 'navigate') {
         event.respondWith(
-            caches.match(event.request).then(cachedResponse => {
-                // Se tiver no cache, retorna do cache
-                if (cachedResponse) {
+            (async () => {
+                try {
+                    // Tenta buscar a página da internet.
+                    const networkResponse = await fetch(request);
+                    return networkResponse;
+                } catch (error) {
+                    // Se a busca falhar (está offline), serve a página offline do cache.
+                    console.log('[SW] Falha na busca de navegação. Servindo página offline.', error);
+                    const cache = await caches.open(CACHE_NAME);
+                    const cachedResponse = await cache.match(OFFLINE_URL);
                     return cachedResponse;
                 }
-                // Se não, busca na rede, cacheia e retorna
-                return fetch(event.request).then(networkResponse => {
-                    if (networkResponse && networkResponse.status === 200) {
-                        const responseToCache = networkResponse.clone();
-                        caches.open(CACHE_NAME).then(cache => {
-                            cache.put(event.request, responseToCache);
-                        });
-                    }
-                    return networkResponse;
-                });
-            })
+            })()
         );
         return;
     }
 
-    // Para todas as outras requisições (ex: páginas .php),
-    // apenas tenta buscar da rede. Se falhar (offline), o Capacitor
-    // vai mostrar a 'offline.html' definida no errorPath.
-    // O Service Worker não precisa mais retornar uma página offline.
-    return;
-});
+    // ESTRATÉGIA PARA ASSETS (CSS, JS, Imagens)
+    // Cache first: serve do cache se disponível para velocidade, senão busca na rede.
+    event.respondWith(
+        caches.match(request).then((cachedResponse) => {
+            // Se o asset estiver no cache, retorna ele.
+            if (cachedResponse) {
+                return cachedResponse;
+            }
 
-// Sincronização em background quando voltar online
-self.addEventListener('sync', (event) => {
-    console.log('[SW] Background sync:', event.tag);
-    if (event.tag === 'sync-data') {
-        event.waitUntil(syncData());
-    }
-});
-
-async function syncData() {
-    // Implementar lógica de sincronização aqui
-    console.log('[SW] Sincronizando dados...');
-    // Por enquanto, apenas log
-    return Promise.resolve();
-}
-
-// Mensagens do cliente
-self.addEventListener('message', (event) => {
-    console.log('[SW] Mensagem recebida:', event.data);
-    
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
-    
-    if (event.data && event.data.type === 'CLEAR_CACHE') {
-        caches.delete(CACHE_NAME).then(() => {
-            console.log('[SW] Cache limpo');
-        });
-    }
+            // Se não, busca da rede.
+            return fetch(request).then((networkResponse) => {
+                // Se a resposta for válida, clona, cacheia e retorna.
+                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                    const responseToCache = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(request, responseToCache);
+                    });
+                }
+                return networkResponse;
+            });
+        })
+    );
 });
 
 
