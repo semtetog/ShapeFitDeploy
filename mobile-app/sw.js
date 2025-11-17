@@ -182,28 +182,54 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // Para páginas HTML/PHP: Network First com fallback para cache
-    // ESTRATÉGIA HÍBRIDA: Páginas são cacheadas automaticamente quando visitadas
+    // Para páginas HTML/PHP: Cache First (para funcionar offline) com atualização em background
+    // IMPORTANTE: No Capacitor, páginas PHP são processadas no servidor, mas cacheamos o HTML renderizado
     event.respondWith(
-        fetch(event.request, {
-            cache: 'no-store', // Sempre buscar da rede primeiro
-            credentials: 'include' // Incluir cookies/sessão
-        })
-            .then(response => {
-                // Cachear TODAS as páginas válidas automaticamente quando visitadas
-                // Isso cria um cache dinâmico: quanto mais o usuário navega, mais páginas ficam offline
-                if (response && response.status === 200 && response.type === 'basic') {
-                    const responseToCache = response.clone();
-                    // Cachear em background (não bloquear a resposta)
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, responseToCache);
-                        console.log('[SW] Página cacheada automaticamente:', event.request.url);
-                    });
+        caches.match(event.request)
+            .then(cachedResponse => {
+                // Se tiver no cache, servir imediatamente (funciona offline)
+                if (cachedResponse) {
+                    console.log('[SW] Servindo do cache:', event.request.url);
+                    // Tentar atualizar em background (não bloquear resposta)
+                    fetch(event.request, {
+                        cache: 'no-store',
+                        credentials: 'include'
+                    })
+                        .then(response => {
+                            if (response && response.status === 200) {
+                                const responseToCache = response.clone();
+                                caches.open(CACHE_NAME).then(cache => {
+                                    cache.put(event.request, responseToCache);
+                                    console.log('[SW] Cache atualizado em background:', event.request.url);
+                                });
+                            }
+                        })
+                        .catch(() => {
+                            // Offline, manter cache atual
+                            console.log('[SW] Offline, mantendo cache');
+                        });
+                    return cachedResponse;
                 }
-                return response;
+                
+                // Se não tiver no cache, buscar da rede e cachear
+                return fetch(event.request, {
+                    cache: 'no-store',
+                    credentials: 'include'
+                })
+                    .then(response => {
+                        // Cachear TODAS as páginas válidas automaticamente quando visitadas
+                        if (response && response.status === 200 && response.type === 'basic') {
+                            const responseToCache = response.clone();
+                            caches.open(CACHE_NAME).then(cache => {
+                                cache.put(event.request, responseToCache);
+                                console.log('[SW] Página cacheada automaticamente:', event.request.url);
+                            });
+                        }
+                        return response;
+                    });
             })
             .catch(() => {
-                // Se offline, tentar buscar do cache
+                // Se tudo falhar, tentar buscar do cache como último recurso
                 return caches.match(event.request)
                     .then(cachedResponse => {
                         if (cachedResponse) {
