@@ -186,9 +186,9 @@
                     // Timeout aumentado para 5 segundos para mais robustez em redes lentas
                     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-                    // Usar um arquivo de 'ping' estático é muito mais rápido e confiável
-                    // do que carregar uma página PHP inteira para verificar a conexão.
-                    const response = await fetch(`/ping.txt?t=${timestamp}`, {
+                    // A URL PRECISA SER ABSOLUTA para funcionar quando a página offline
+                    // é carregada pelo Capacitor como um arquivo local.
+                    const response = await fetch(`https://appshapefit.com/ping.txt?t=${timestamp}`, {
                         method: 'GET',
                         signal: controller.signal,
                         cache: 'no-store'
@@ -229,9 +229,8 @@
                 }
                 
                 if (canReach) {
-                    // Redireciona para a página principal ao invés de apenas recarregar.
-                    // Isso garante que o usuário saia da tela offline.
-                    window.location.href = '/main_app.php';
+                    // A URL PRECISA SER ABSOLUTA para garantir o redirecionamento correto.
+                    window.location.href = 'https://appshapefit.com/main_app.php';
                 } else {
                     if (retryBtn) {
                         retryBtn.disabled = false;
