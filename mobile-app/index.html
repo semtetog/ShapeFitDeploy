@@ -148,18 +148,52 @@
             document.getElementById('offlineFallback').classList.add('show');
         }
         
+        // Função para verificar se está logado (via cookie/sessão)
+        function checkIfLoggedIn() {
+            // Verificar se há cookie de sessão PHP
+            const cookies = document.cookie.split(';');
+            const hasSession = cookies.some(cookie => cookie.trim().startsWith('PHPSESSID='));
+            
+            // Se tiver sessão, verificar com o servidor
+            if (hasSession) {
+                return fetch('./index.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    cache: 'no-store'
+                })
+                .then(response => {
+                    // Se redirecionou para main_app ou onboarding, está logado
+                    return response.url.includes('main_app.php') || 
+                           response.url.includes('onboarding') ||
+                           response.redirected;
+                })
+                .catch(() => false);
+            }
+            return Promise.resolve(false);
+        }
+        
         // Função para redirecionar
         function redirectToLogin() {
             if (redirectAttempted) return;
             redirectAttempted = true;
             
-            // Tentar redirecionar
-            try {
-                window.location.href = './auth/login.php';
-            } catch (e) {
-                console.error('Erro ao redirecionar:', e);
-                showOfflineFallback();
-            }
+            // Verificar se já está logado antes de redirecionar
+            checkIfLoggedIn().then(isLoggedIn => {
+                if (isLoggedIn) {
+                    console.log('✅ Usuário já está logado, redirecionando para app');
+                    // Deixar o index.php fazer o redirecionamento correto
+                    window.location.href = './index.php';
+                } else {
+                    console.log('ℹ️ Usuário não está logado, redirecionando para login');
+                    // Tentar redirecionar para login
+                    try {
+                        window.location.href = './auth/login.php';
+                    } catch (e) {
+                        console.error('Erro ao redirecionar:', e);
+                        showOfflineFallback();
+                    }
+                }
+            });
         }
         
         // Verificar se está offline
@@ -269,13 +303,26 @@
         // Verificar conexão ao carregar
         window.addEventListener('load', function() {
             if (!checkConnection()) {
-                showOfflineFallback();
+                // Se offline, verificar se está logado antes de mostrar fallback
+                checkIfLoggedIn().then(isLoggedIn => {
+                    if (isLoggedIn) {
+                        // Se estiver logado, tentar carregar index.php mesmo offline
+                        window.location.href = './index.php';
+                    } else {
+                        showOfflineFallback();
+                    }
+                });
             }
         });
         
         // Verificar conexão imediatamente
         if (!checkConnection()) {
-            showOfflineFallback();
+            // Se offline, verificar login antes de mostrar fallback
+            checkIfLoggedIn().then(isLoggedIn => {
+                if (!isLoggedIn) {
+                    showOfflineFallback();
+                }
+            });
         }
     </script>
 </body>
