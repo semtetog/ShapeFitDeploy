@@ -6,11 +6,11 @@ require_once __DIR__ . '/config.php';
 // GARANTE QUE A CONEXÃO COM O BANCO DE DADOS SEJA ESTABELECIDA
 // Como este arquivo é incluído em todas as páginas seguras,
 // $conn estará sempre disponível.
-if (!isset($conn) || $conn === null) {
-    $conn = require __DIR__ . '/db.php';
-    // Garantir que está no escopo global também
-    $GLOBALS['conn'] = $conn;
+if (!isset($GLOBALS['conn']) || $GLOBALS['conn'] === null) {
+    $GLOBALS['conn'] = require __DIR__ . '/db.php';
 }
+// Garantir que $conn está disponível no escopo local também
+$conn = $GLOBALS['conn'];
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
