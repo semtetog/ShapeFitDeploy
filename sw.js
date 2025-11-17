@@ -128,12 +128,21 @@ self.addEventListener('fetch', (event) => {
 
     // ESTRATÉGIA PARA NAVEGAÇÃO DE PÁGINAS
     // Tenta a rede primeiro. Se falhar (offline), mostra a página offline.
-    if (request.mode === 'navigate') {
+    if (request.mode === 'navigate' || (request.method === 'GET' && request.headers.get('accept') && request.headers.get('accept').includes('text/html'))) {
         event.respondWith(
             (async () => {
                 try {
-                    // Tenta buscar a página da internet.
-                    const networkResponse = await fetch(request);
+                    // Tenta buscar a página da internet com timeout curto
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 segundos de timeout
+                    
+                    const networkResponse = await fetch(request, {
+                        signal: controller.signal,
+                        cache: 'no-store'
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
                     // Se a resposta for válida, retorna ela
                     if (networkResponse && networkResponse.status === 200) {
                         return networkResponse;
@@ -141,29 +150,103 @@ self.addEventListener('fetch', (event) => {
                     // Se a resposta não for válida, cai no catch
                     throw new Error('Network response not ok');
                 } catch (error) {
-                    // Se a busca falhar (está offline), serve a página offline do cache.
-                    console.log('[SW] Falha na busca de navegação. Servindo página offline.', error);
+                    // Se a busca falhar (está offline ou timeout), serve a página offline do cache.
+                    console.log('[SW] Falha na busca de navegação. Servindo página offline.', error.name || error);
                     const cache = await caches.open(CACHE_NAME);
                     let cachedResponse = await cache.match(OFFLINE_URL);
                     
-                    // Se não estiver no cache, tenta buscar novamente
+                    // Se não estiver no cache, tenta buscar novamente (pode estar online mas a página específica falhou)
                     if (!cachedResponse) {
                         try {
-                            cachedResponse = await fetch(OFFLINE_URL);
-                            if (cachedResponse) {
-                                cache.put(OFFLINE_URL, cachedResponse.clone());
+                            const offlineFetch = await fetch(OFFLINE_URL, { cache: 'no-store' });
+                            if (offlineFetch && offlineFetch.ok) {
+                                cachedResponse = offlineFetch;
+                                cache.put(OFFLINE_URL, offlineFetch.clone());
                             }
                         } catch (e) {
-                            console.error('[SW] Erro ao buscar offline.html:', e);
+                            console.warn('[SW] Erro ao buscar offline.html da rede:', e.name);
                         }
                     }
                     
-                    // Se ainda não tiver, cria uma resposta básica
+                    // Se ainda não tiver, cria uma resposta básica inline
                     if (!cachedResponse) {
-                        return new Response(
-                            '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Offline</title></head><body style="background:#101010;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:sans-serif"><h1>Sem Conexão</h1></body></html>',
-                            { headers: { 'Content-Type': 'text/html' } }
-                        );
+                        console.warn('[SW] Criando resposta offline inline como último recurso');
+                        const offlineHTML = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShapeFit - Offline</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #101010;
+            color: #F5F5F5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+        .offline-popup-overlay {
+            width: 100%;
+            max-width: 380px;
+        }
+        .offline-popup-content {
+            background: linear-gradient(165deg, rgba(60, 60, 60, 0.3) 0%, rgba(45, 45, 45, 0.2) 100%);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px 24px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .offline-popup-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #F5F5F5;
+            margin-bottom: 12px;
+        }
+        .offline-popup-message {
+            font-size: 15px;
+            color: #A3A3A3;
+            margin-bottom: 10px;
+            line-height: 1.55;
+        }
+        .offline-popup-button {
+            background: linear-gradient(45deg, #FFAE00, #F83600);
+            color: #F5F5F5 !important;
+            border: none;
+            border-radius: 16px;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 18px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .offline-popup-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-popup-overlay">
+        <div class="offline-popup-content">
+            <h2 class="offline-popup-title">Sem Conexão</h2>
+            <p class="offline-popup-message">Parece que você está sem internet no momento.</p>
+            <p class="offline-popup-message">Verifique sua conexão e tente novamente.</p>
+            <button class="offline-popup-button" onclick="window.location.reload()">Tentar Novamente</button>
+        </div>
+    </div>
+</body>
+</html>`;
+                        return new Response(offlineHTML, {
+                            headers: { 'Content-Type': 'text/html' }
+                        });
                     }
                     
                     return cachedResponse;
