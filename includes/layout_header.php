@@ -120,9 +120,10 @@ $main_css_version = file_exists($main_css_file_path) ? filemtime($main_css_file_
     if ('serviceWorker' in navigator) {
         // Registrar imediatamente (não esperar load) para proteção offline mais rápida
         (function() {
-            const swPath = '/sw.js';
+            // Usar BASE_APP_URL igual ao login/register para garantir compatibilidade com Capacitor
+            const swPath = '<?php echo (defined('BASE_APP_URL') && BASE_APP_URL) ? BASE_APP_URL . '/sw.js' : '/sw.js'; ?>';
             navigator.serviceWorker.register(swPath, {
-                scope: '/'
+                scope: '<?php echo (defined('BASE_APP_URL') && BASE_APP_URL) ? BASE_APP_URL . '/' : '/'; ?>'
             })
             .then(function(registration) {
                 console.log('✅ ServiceWorker registrado com sucesso:', registration.scope);
