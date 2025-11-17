@@ -103,8 +103,27 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // Ignorar requisições que não são do nosso domínio
-    if (!url.href.includes('appshapefit.com') && !url.href.includes('localhost')) {
+    // No app nativo (Capacitor), servir tudo localmente
+    // Apenas APIs devem ir para o servidor remoto
+    const isCapacitor = url.protocol === 'capacitor:' || url.href.includes('capacitor://');
+    const isLocalFile = url.protocol === 'file:' || url.protocol === 'capacitor:';
+    
+    // Se for requisição de API, sempre tentar servidor remoto
+    if (url.pathname.includes('/api/') || url.pathname.includes('/ajax') || url.pathname.includes('/auth/') && url.pathname.includes('.php')) {
+        // APIs e formulários PHP vão para servidor remoto
+        if (!url.href.includes('appshapefit.com') && !isLocalFile) {
+            // Se não for servidor remoto nem arquivo local, redirecionar para API remota
+            const apiUrl = new URL(url.pathname + url.search, 'https://appshapefit.com');
+            event.respondWith(fetch(apiUrl));
+            return;
+        }
+    }
+    
+    // Para arquivos locais no Capacitor, não filtrar por domínio
+    if (isLocalFile || isCapacitor) {
+        // Continuar processamento para arquivos locais
+    } else if (!url.href.includes('appshapefit.com') && !url.href.includes('localhost')) {
+        // Em navegador web, manter comportamento original
         return;
     }
     

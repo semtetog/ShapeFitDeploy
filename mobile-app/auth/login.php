@@ -191,7 +191,7 @@ $page_title = "Login";
             </div>
             <button type="submit" class="btn-primary">Entrar</button>
             <p class="link-text">
-                Não tem uma conta? <a href="<?php echo BASE_APP_URL; ?>/auth/register.php">Cadastre-se</a>
+                Não tem uma conta? <a href="<?php echo (defined('BASE_APP_URL') && BASE_APP_URL) ? BASE_APP_URL . '/auth/register.php' : './auth/register.php'; ?>">Cadastre-se</a>
             </p>
         </form>
     </main>
