@@ -4,6 +4,8 @@ includes/config.local.php
 android-build/
 ios-build/
 mobile-builds/
+android/
+ios/
 *.apk
 *.aab
 *.ipa
