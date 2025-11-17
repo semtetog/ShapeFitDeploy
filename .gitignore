@@ -1,1 +1,9 @@
 includes/config.local.php
+
+# Build folders - NUNCA commitar
+android-build/
+ios-build/
+mobile-builds/
+*.apk
+*.aab
+*.ipa

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://appshapefit.com https://*.appshapefit.com data: blob: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data: blob:; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com data:;">
+    
+    <title>ShapeFit</title>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #101010;
+            color: #F5F5F5;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .loading-container {
+            text-align: center;
+            z-index: 10;
+        }
+        .spinner {
+            border: 3px solid rgba(255, 107, 0, 0.1);
+            border-top: 3px solid #FF6B00;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .offline-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #FF6B00;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            z-index: 10000;
+            display: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .offline-banner.show {
+            display: block;
+        }
+        /* Fallback offline - sempre visível se necessário */
+        .offline-fallback {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #101010;
+            color: #F5F5F5;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        .offline-fallback.show {
+            display: flex;
+        }
+        .offline-fallback .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .offline-fallback h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #FF6B00;
+        }
+        .offline-fallback p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #8E8E93;
+            margin-bottom: 1.5rem;
+            max-width: 300px;
+        }
+        .offline-fallback .link-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: rgba(255, 107, 0, 0.1);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            border-radius: 8px;
+            color: #FF6B00;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Banner Offline -->
+    <div class="offline-banner" id="offlineBanner">
+        ⚠️ Você está offline. Algumas funcionalidades podem estar limitadas.
+    </div>
+    
+    <!-- Fallback Offline (sempre presente, só aparece se necessário) -->
+    <div class="offline-fallback" id="offlineFallback">
+        <div class="icon">📴</div>
+        <h1>Sem Conexão</h1>
+        <p>Verificando conexão e carregando conteúdo offline...</p>
+        <div>
+            <a href="./auth/login.php" class="link-btn">Tentar Login</a>
+            <a href="./" class="link-btn">Recarregar</a>
+        </div>
+    </div>
+    
+    <!-- Loading Principal -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="spinner"></div>
+        <p>Carregando ShapeFit...</p>
+    </div>
+
+    <!-- Scripts do Capacitor -->
+    <script src="./assets/js/config.js"></script>
+    <script src="./assets/js/capacitor-init.js"></script>
+    <script src="./assets/js/offline-manager.js"></script>
+    
+    <script>
+        // Variáveis globais
+        let redirectAttempted = false;
+        let serviceWorkerReady = false;
+        let maxWaitTime = 10000; // 10 segundos máximo de espera
+        let startTime = Date.now();
+        
+        // Função para mostrar fallback offline
+        function showOfflineFallback() {
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('offlineFallback').classList.add('show');
+        }
+        
+        // Função para redirecionar
+        function redirectToLogin() {
+            if (redirectAttempted) return;
+            redirectAttempted = true;
+            
+            // Tentar redirecionar
+            try {
+                window.location.href = './auth/login.php';
+            } catch (e) {
+                console.error('Erro ao redirecionar:', e);
+                showOfflineFallback();
+            }
+        }
+        
+        // Verificar se está offline
+        function checkConnection() {
+            if (!navigator.onLine) {
+                console.log('Offline detectado');
+                showOfflineFallback();
+                return false;
+            }
+            return true;
+        }
+        
+        // Registrar Service Worker IMEDIATAMENTE (antes de tudo)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js', {
+                scope: './'
+            })
+            .then(function(registration) {
+                console.log('✅ Service Worker registrado:', registration.scope);
+                
+                // Aguardar service worker estar pronto
+                if (registration.installing) {
+                    registration.installing.addEventListener('statechange', function() {
+                        if (this.state === 'activated') {
+                            serviceWorkerReady = true;
+                            console.log('✅ Service Worker ativado');
+                            if (checkConnection()) {
+                                setTimeout(redirectToLogin, 500);
+                            }
+                        }
+                    });
+                } else if (registration.waiting) {
+                    serviceWorkerReady = true;
+                    console.log('✅ Service Worker já estava esperando');
+                    if (checkConnection()) {
+                        setTimeout(redirectToLogin, 500);
+                    }
+                } else if (registration.active) {
+                    serviceWorkerReady = true;
+                    console.log('✅ Service Worker já estava ativo');
+                    if (checkConnection()) {
+                        setTimeout(redirectToLogin, 500);
+                    }
+                }
+                
+                // Timeout de segurança
+                setTimeout(function() {
+                    if (!serviceWorkerReady) {
+                        console.warn('⚠️ Service Worker demorou para ativar, redirecionando mesmo assim');
+                        serviceWorkerReady = true;
+                        if (checkConnection()) {
+                            redirectToLogin();
+                        }
+                    }
+                }, 3000);
+            })
+            .catch(function(error) {
+                console.error('❌ Erro ao registrar Service Worker:', error);
+                // Mesmo com erro, tentar redirecionar
+                if (checkConnection()) {
+                    setTimeout(redirectToLogin, 1000);
+                } else {
+                    showOfflineFallback();
+                }
+            });
+        } else {
+            console.warn('⚠️ Service Worker não suportado');
+            // Sem service worker, redirecionar normalmente
+            if (checkConnection()) {
+                setTimeout(redirectToLogin, 1000);
+            } else {
+                showOfflineFallback();
+            }
+        }
+        
+        // Listener para quando voltar online
+        window.addEventListener('online', function() {
+            console.log('🌐 Conexão restaurada');
+            document.getElementById('offlineBanner').classList.remove('show');
+            document.getElementById('offlineFallback').classList.remove('show');
+            document.getElementById('loadingContainer').style.display = 'flex';
+            if (!redirectAttempted) {
+                redirectToLogin();
+            } else {
+                window.location.reload();
+            }
+        });
+        
+        // Listener para quando ficar offline
+        window.addEventListener('offline', function() {
+            console.log('📴 Modo offline ativado');
+            document.getElementById('offlineBanner').classList.add('show');
+        });
+        
+        // Timeout de segurança - nunca deixar página branca
+        setTimeout(function() {
+            if (!redirectAttempted) {
+                console.warn('⚠️ Timeout: redirecionando mesmo sem service worker pronto');
+                if (checkConnection()) {
+                    redirectToLogin();
+                } else {
+                    showOfflineFallback();
+                }
+            }
+        }, maxWaitTime);
+        
+        // Verificar conexão ao carregar
+        window.addEventListener('load', function() {
+            if (!checkConnection()) {
+                showOfflineFallback();
+            }
+        });
+        
+        // Verificar conexão imediatamente
+        if (!checkConnection()) {
+            showOfflineFallback();
+        }
+    </script>
+</body>
+</html>
+
