@@ -1,12 +1,29 @@
 // Service Worker para ShapeFit Mobile App
-const CACHE_NAME = 'shapefit-v2';
+const CACHE_NAME = 'shapefit-v3';
 const API_BASE = 'https://appshapefit.com';
 
-// Arquivos estáticos para cache inicial
-const STATIC_ASSETS = [
+// Páginas críticas que devem estar sempre no cache (precache)
+// Essas páginas serão cacheadas na instalação do service worker
+const CRITICAL_PAGES = [
     './',
     './index.html',
-    './auth/login.php'
+    './auth/login.php',
+    './auth/register.php', // Página de registro (se existir)
+    './main_app.php', // Página principal do app
+    './onboarding/onboarding.php' // Página de onboarding
+];
+
+// Assets estáticos críticos
+const CRITICAL_ASSETS = [
+    // CSS principal
+    './assets/css/main_app_glass_theme.css',
+    './assets/css/main_app_specific.css',
+    // JS principal
+    './assets/js/config.js',
+    './assets/js/capacitor-init.js',
+    './assets/js/offline-manager.js',
+    // Logo
+    './assets/images/SHAPE-FIT-LOGO.png'
 ];
 
 // Instalar Service Worker
@@ -16,18 +33,27 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('[SW] Cache aberto:', CACHE_NAME);
-                // Tentar adicionar assets, mas não falhar se alguns não existirem
+                
+                // Cachear páginas críticas e assets
+                const allAssets = [...CRITICAL_PAGES, ...CRITICAL_ASSETS];
+                
+                // Tentar adicionar todos os assets, mas não falhar se alguns não existirem
                 return Promise.allSettled(
-                    STATIC_ASSETS.map(url => 
+                    allAssets.map(url => 
                         cache.add(url).catch(err => {
-                            console.warn('[SW] Não foi possível cachear:', url, err);
+                            // Não logar erro para páginas que podem não existir (como register.php)
+                            if (!url.includes('register.php') && !url.includes('onboarding.php')) {
+                                console.warn('[SW] Não foi possível cachear:', url);
+                            }
                             return null;
                         })
                     )
                 );
             })
-            .then(() => {
-                console.log('[SW] Instalação concluída');
+            .then(results => {
+                const successful = results.filter(r => r.status === 'fulfilled').length;
+                const failed = results.filter(r => r.status === 'rejected').length;
+                console.log(`[SW] Instalação concluída: ${successful} sucessos, ${failed} falhas`);
             })
             .catch(err => console.error('[SW] Erro ao instalar:', err))
     );
@@ -151,8 +177,28 @@ self.addEventListener('fetch', (event) => {
                             console.log('[SW] Servindo do cache:', event.request.url);
                             return cachedResponse;
                         }
-                        // Se não tiver no cache, retornar página offline genérica
-                        return new Response(
+                        
+                        // Se for uma página de autenticação (login/register) e não estiver no cache,
+                        // tentar buscar da rede mesmo offline (pode ter cache do navegador)
+                        const url = new URL(event.request.url);
+                        if (url.pathname.includes('/auth/login.php') || url.pathname.includes('/auth/register.php')) {
+                            console.log('[SW] Tentando buscar página de auth da rede...');
+                            return fetch(event.request).catch(() => {
+                                // Se falhar, retornar página offline
+                                return createOfflinePage('Esta página requer conexão com a internet para funcionar corretamente.');
+                            });
+                        }
+                        
+                        // Para outras páginas, retornar página offline genérica
+                        return createOfflinePage();
+                    });
+            })
+    );
+});
+
+// Função auxiliar para criar página offline
+function createOfflinePage(customMessage = null) {
+    return new Response(
                             `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -168,12 +214,16 @@ self.addEventListener('fetch', (event) => {
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             text-align: center;
             padding: 20px;
         }
         .container {
             max-width: 400px;
+        }
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
         }
         h1 {
             font-size: 2rem;
@@ -184,11 +234,28 @@ self.addEventListener('fetch', (event) => {
             font-size: 1rem;
             line-height: 1.6;
             color: #8E8E93;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
-        .icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+        .links {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .link-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: rgba(255, 107, 0, 0.1);
+            border: 1px solid rgba(255, 107, 0, 0.3);
+            border-radius: 8px;
+            color: #FF6B00;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .link-btn:hover {
+            background: rgba(255, 107, 0, 0.2);
+            border-color: #FF6B00;
         }
     </style>
 </head>
@@ -196,14 +263,26 @@ self.addEventListener('fetch', (event) => {
     <div class="container">
         <div class="icon">📴</div>
         <h1>Você está offline</h1>
-        <p>Algumas funcionalidades podem estar limitadas. Verifique sua conexão com a internet.</p>
+        <p>${customMessage || 'Algumas funcionalidades podem estar limitadas. Verifique sua conexão com a internet.'}</p>
         <p style="font-size: 0.875rem; margin-top: 1rem;">Páginas visitadas anteriormente podem estar disponíveis offline.</p>
+        <div class="links">
+            <a href="./auth/login.php" class="link-btn">Tentar Login</a>
+            <a href="./" class="link-btn">Voltar ao Início</a>
+        </div>
     </div>
     <script>
         // Tentar recarregar quando voltar online
         window.addEventListener('online', function() {
+            console.log('Conexão restaurada, recarregando...');
             window.location.reload();
         });
+        
+        // Verificar conexão periodicamente
+        setInterval(function() {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }, 5000);
     </script>
 </body>
 </html>`,
