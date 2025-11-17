@@ -10,7 +10,92 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('[SW] Pré-cache da página offline.');
-            return cache.add(OFFLINE_URL);
+            // Tenta buscar offline.html da rede primeiro
+            return fetch(OFFLINE_URL).then((response) => {
+                if (response && response.ok) {
+                    return cache.put(OFFLINE_URL, response);
+                }
+                throw new Error('Failed to fetch offline.html');
+            }).catch((error) => {
+                // Se falhar (usuário offline na primeira instalação), cria uma versão inline
+                console.warn('[SW] Não conseguiu buscar offline.html, criando versão inline:', error);
+                const offlineHTML = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShapeFit - Offline</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #101010;
+            color: #F5F5F5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+        .offline-popup-overlay {
+            width: 100%;
+            max-width: 380px;
+        }
+        .offline-popup-content {
+            background: linear-gradient(165deg, rgba(60, 60, 60, 0.3) 0%, rgba(45, 45, 45, 0.2) 100%);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px 24px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .offline-popup-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #F5F5F5;
+            margin-bottom: 12px;
+        }
+        .offline-popup-message {
+            font-size: 15px;
+            color: #A3A3A3;
+            margin-bottom: 10px;
+            line-height: 1.55;
+        }
+        .offline-popup-button {
+            background: linear-gradient(45deg, #FFAE00, #F83600);
+            color: #F5F5F5 !important;
+            border: none;
+            border-radius: 16px;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 18px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .offline-popup-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-popup-overlay">
+        <div class="offline-popup-content">
+            <h2 class="offline-popup-title">Sem Conexão</h2>
+            <p class="offline-popup-message">Parece que você está sem internet no momento.</p>
+            <p class="offline-popup-message">Verifique sua conexão e tente novamente.</p>
+            <button class="offline-popup-button" onclick="window.location.reload()">Tentar Novamente</button>
+        </div>
+    </div>
+</body>
+</html>`;
+                return cache.put(OFFLINE_URL, new Response(offlineHTML, {
+                    headers: { 'Content-Type': 'text/html' }
+                }));
+            });
         })
     );
     // Força o novo Service Worker a se ativar imediatamente.
