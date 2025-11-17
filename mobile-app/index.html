@@ -126,10 +126,14 @@
         <p>Carregando ShapeFit...</p>
     </div>
 
-    <!-- Scripts do Capacitor -->
-    <script src="./assets/js/config.js"></script>
-    <script src="./assets/js/capacitor-init.js"></script>
-    <script src="./assets/js/offline-manager.js"></script>
+    <!-- Scripts do Capacitor (com fallback se não carregarem) -->
+    <script>
+        // Fallback inline se os scripts não carregarem
+        window.Capacitor = window.Capacitor || { isNative: false };
+    </script>
+    <script src="./assets/js/config.js" onerror="console.warn('config.js não carregou, continuando...')"></script>
+    <script src="./assets/js/capacitor-init.js" onerror="console.warn('capacitor-init.js não carregou, continuando...')"></script>
+    <script src="./assets/js/offline-manager.js" onerror="console.warn('offline-manager.js não carregou, continuando...')"></script>
     
     <script>
         // Variáveis globais

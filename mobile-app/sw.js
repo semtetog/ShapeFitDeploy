@@ -1,4 +1,5 @@
 // Service Worker para ShapeFit Mobile App
+// Versão 3 - Otimizado para Android/iOS com Capacitor
 const CACHE_NAME = 'shapefit-v3';
 const API_BASE = 'https://appshapefit.com';
 
